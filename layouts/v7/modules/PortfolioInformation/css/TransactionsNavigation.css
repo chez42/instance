@@ -1,0 +1,13 @@
+#TransactionsNavigation{padding:10px; float:left; width:95%;}
+
+select{width:200px;}
+
+.open_closer{width:220px; float:left;}
+.title_bar{background-color:#ffffff; width:220px; font-weight:bold; padding:2px;}
+.closer_item{width:220px; padding:2px;}
+.filter_transactions{clear:both; float:left;}
+
+
+#transactions_table tr:nth-child(odd){background-color:#CCC;}
+#transactions_table tr:nth-child(even){background-color:#FFF;}
+#transactions_table th {background-color:#adadad; border-bottom:1px #838383 solid;}

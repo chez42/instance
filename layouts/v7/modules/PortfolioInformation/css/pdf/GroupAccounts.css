@@ -1,0 +1,4 @@
+#account_info_wrapper{width:100%; display:block; float:left; clear:both; margin-top:25px;}
+.holdings_report_account_info {width:100%; box-decoration-break: slice; clear:both;}
+.holdings_report_account_info thead tr td{font-weight:bold; padding:2px;}
+.holdings_report_account_info tbody tr td{font-weight:bold; padding:2px;}

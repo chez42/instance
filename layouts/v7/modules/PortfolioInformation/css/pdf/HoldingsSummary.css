@@ -1,0 +1,13 @@
+#holdings_summary_table_holder{display:block; width:38%; float:left;}
+#holdings_summary_wrapper{display:block; width:100%; float:left; padding-bottom:20px;}
+#holdings_summary_table{width:100%; padding-bottom:20px; border-spacing:0px; display:block; float:left;}
+#holdings_summary_table tr{margin:0; padding:0;}
+#holdings_summary_table .align_left{text-align:left;}
+#holdings_summary_table .align_center{text-align:center;}
+#holdings_summary_table .align_right{text-align:right;}
+
+#holdings_description{display:block; width:205px; float:right; border-left:1px dotted black; padding-left:5px;}
+
+#holdings_summary_pie{display:block; float:right; width:60%;}
+.make_dotted td{border-bottom:1px dotted black;}
+.tright {text-align:right;}

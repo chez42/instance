@@ -1,0 +1,218 @@
+.splitMode { /*width: 45% !important;*/ }
+
+#wdMapWindow {
+    position: relative;
+    border: 5px solid #999;
+    height: 550px;
+    float: left;
+    margin-top: 20px;
+    padding: 0;
+    background: #fff;
+}
+
+#wdMapWindow table {
+    width: 100%;
+    margin-top: 3px;
+}
+
+#wdMapWindow table td {
+    position: relative;
+    padding: 2px;
+}
+
+#wdMapWindow .input-prepend {
+    margin-bottom: 0;
+    margin-top: 5px;
+}
+
+#wdMapWindow .dropdown-menu-left {
+    right: 15px;
+    left: auto;
+}
+
+#wdMapWindow table.hide-code-input .code-input {
+    display: none;
+}
+
+#wdMapWindow table input[type="text"] {
+    margin-bottom: 0;
+}
+
+#wdMapWindow .select2 {
+    width: 170px;
+}
+
+#wdMapWindow .select2.small {
+    width: 80px;
+    margin-left: 5px;
+}
+
+#wdMapWindow .select2.small:nth-child(1) {
+    margin-left: 0;
+}
+
+
+/* 72424 tuannm 12152016 start */ 
+#unit-type {
+    float: left;
+    display: inline;
+    width: 61px;
+    border-right: 0px;
+        
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -ms-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -o-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);        
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        
+    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+    transition: border linear 0.2s, box-shadow linear 0.2s;
+    
+    -webkit-border-radius: 3px 0 0 3px;
+    -moz-border-radius: 3px 0 0 3px;
+    -ms-border-radius: 3px 0 0 3px;
+    -o-border-radius: 3px 0 0 3px;                        
+    border-radius: 3px 0 0 3px;
+}
+
+#txtRadiusNumber {
+    width: 98px;
+    /* width: 118px; */
+    /* margin-top: 5px;*/
+}
+
+.clear {
+    clear: both !important;
+}
+/* 72424 tuannm 12152016 end */
+
+#txtCode {
+    margin-top: 0;
+    position: absolute;
+    right: -45px;
+    z-index: 1000;
+    width: 80px;
+}
+
+.listViewPageDiv {
+    float: left;
+}
+
+#map-content {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 465px;
+    margin: 0;
+    padding: 0;
+}
+
+#map-content img {
+    max-width: none;
+}
+
+.map-address-name {
+    color: #000;
+    text-shadow: 0 0 2px white;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    width: 300px;
+}
+
+#btnShowMap {
+    display: inline-block;
+    width: 30px; height: 30px;
+    opacity: .9;
+}
+
+#btnShowMap.inactive {
+    display: none;
+}
+
+#btnShowMap:hover {
+    opacity: 1;
+}
+
+/* Style for routing model */
+.travel-mode.hide {
+    display: none;
+}
+
+.travel-mode h4 {
+    padding-bottom: 5px;
+}
+
+.travel-mode input[type="radio"]{
+    display: inline-block;
+}
+
+.manual-mode.hide {
+    display: none;
+}
+
+.manual-mode .list-records,
+.manual-mode .selected-records {
+    float: left;
+    list-style: none;
+    padding-left: 0;
+    width: 40%;
+    margin-right: 5%;
+    margin-top: 10px;
+    border: 1px dashed #ddd;
+    height: 250px;
+    overflow: auto;
+}
+
+.manual-mode .list-records li,
+.manual-mode .selected-records li {
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    padding: 3px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+/* routing text result */
+.text-routing-result.hide {
+    display: none;
+}
+
+.text-routing-result .steps {
+    max-height: 400px;
+    overflow: auto;
+}
+
+.text-routing-result .steps > p {
+    font-weight: bold;
+}
+
+.text-routing-result .steps > p > span {
+    text-decoration: underline;
+}
+
+#btnPrintRoute {
+    margin-left: 25px;
+}
+
+.loading-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: rgba(255,255,255, .7);
+    height: 85%;
+    width: 100%;
+    z-index: 11;
+    display: none;
+}
+
+.loading-layer > span {
+    display: block; width: 100px; height: 20px;
+    position: absolute; top: 0; left: 0; bottom: 0;
+    right: 0; margin: auto;
+    font-size: 1.5em;
+    text-transform: capitalize;
+}

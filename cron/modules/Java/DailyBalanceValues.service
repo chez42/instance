@@ -1,0 +1,7 @@
+<?php
+require_once('modules/PortfolioInformation/models/DailyBalances.php');
+/**
+ * One simple call to write the daily balances for all active users using the past 7 days (allows for mistakes and missing data to catch up)
+ */
+PortfolioInformation_TotalBalances_Model::ConsolidateBalances();
+PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();

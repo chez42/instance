@@ -1,0 +1,349 @@
+<?php
+include_once("config.inc.php");
+require_once 'include/utils/utils.php';
+require_once 'include/utils/CommonUtils.php';
+require_once('modules/com_vtiger_workflow/VTEntityCache.inc');
+require_once('modules/com_vtiger_workflow/VTWorkflowUtils.php');
+require_once 'includes/Loader.php';
+vimport('includes.runtime.EntryPoint');
+set_time_limit(0);
+global $adb, $current_user;
+
+$util = new VTWorkflowUtils();
+$admin = $util->adminUser();
+// check Multiple SMTP Installed
+
+$multipleSMTP = false;
+if(class_exists('MultipleSMTP_VTELicense_Model')){
+    $vteMultipleSMTP = new MultipleSMTP_VTELicense_Model('MultipleSMTP');
+    $checkValidMultipleSMTP = $vteMultipleSMTP->validate();
+    if($checkValidMultipleSMTP){
+        $rsCheckEnableMultipleSMTP = $adb->pquery('SELECT * FROM multiple_smtp_settings');
+        $checkEnableMultipleSMTP = $adb->query_result($rsCheckEnableMultipleSMTP,0,'enable');
+        if($checkEnableMultipleSMTP == 1 ){
+            $multipleSMTP = true;
+        }
+    }
+}
+
+// Send Mail scheduler
+$getScheduled = $adb->pquery('SELECT vtiger_vteemailmarketing_schedule.*
+                                    FROM vtiger_vteemailmarketing_schedule
+                                    JOIN vtiger_crmentity ON vtiger_vteemailmarketing_schedule.vteemailmarketingid = vtiger_crmentity.crmid
+                                    WHERE vtiger_vteemailmarketing_schedule.count_sent <= vtiger_vteemailmarketing_schedule.total_email
+                                    AND vtiger_vteemailmarketing_schedule.status = "Sending"
+                                    AND vtiger_crmentity.deleted = 0');
+$numrows = $adb->num_rows($getScheduled);
+for($i=0;$i < $numrows; $i++){
+    $currentDate = date('Y-m-d H:i:s');
+    $date_time = $adb->query_result($getScheduled,$i,'datetime');
+    $last_scan =  $adb->query_result($getScheduled,$i,'last_time_scan');
+
+    if($last_scan == null){
+        $dateTimeWorkFlow = $date_time;
+    }else{
+        $seconds_to_add = $adb->query_result($getScheduled,$i,'frequency');
+        $dateTimeWorkFlow = new DateTime($last_scan);
+        $dateTimeWorkFlow = $dateTimeWorkFlow->modify('+' . $seconds_to_add . ' seconds');
+        $dateTimeWorkFlow = $dateTimeWorkFlow->format('Y-m-d H:i:s');
+    }
+
+    if($currentDate >= $dateTimeWorkFlow){
+        $recordId = $adb->query_result($getScheduled,$i,'vteemailmarketingid');
+        $templateEmailId = $adb->query_result($getScheduled,$i,'template_email_id');
+        $from_name = $adb->query_result($getScheduled,$i,'from_name');
+        $from_email = $adb->query_result($getScheduled,$i,'from_email');
+        $number_sent_email = $adb->query_result($getScheduled,$i,'number_email');
+        $count_send_email = $adb->query_result($getScheduled,$i,'count_sent');
+        $total_email = $adb->query_result($getScheduled,$i,'total_email');
+        $from_serveremailid = $adb->query_result($getScheduled,$i,'from_serveremailid');
+        if($count_send_email <= $total_email){
+            saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP);
+        }
+    }
+}
+
+function saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP){
+    global $adb, $current_user;
+    $moduleName = 'Emails';
+    $userId = $current_user->id;
+    $templateEmail = getTemplateEmail($templateEmailId);
+    $content = $templateEmail['content'];
+    $subject = $templateEmail['subject'];
+    $recordIdEM = $recordId;
+    $getRecordRelated = $adb->pquery("SELECT * FROM vtiger_vteemailmarketingrel
+                                            WHERE vteemailmarketingid = ?
+                                            AND (`status` = '' OR `status` IS NULL)
+                                            ORDER BY crmid ASC
+                                            LIMIT 0,$number_sent_email
+                                           ", array($recordId));
+    $numrow = $adb->num_rows($getRecordRelated);
+    for ($i = 0; $i < $numrow ; $i++) {
+        $recordIds = $adb->query_result($getRecordRelated, $i, 'crmid');
+        $relatedModule = $adb->query_result($getRecordRelated, $i, 'module');
+        $checkUnsubcribe = $adb->pquery('SELECT * FROM vtiger_vteemailmarketing_unsubcribes WHERE crmid = ? AND status = 1',array($recordIds));
+        $numRowsCheckUnsubcribe = $adb->num_rows($checkUnsubcribe);
+        $email = '';
+        if($numRowsCheckUnsubcribe == 0) {
+            if ($relatedModule == 'Contacts') {
+                $getRecordContacts = $adb->pquery('SELECT email FROM vtiger_contactdetails INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid WHERE deleted = 0 AND contactid = ? ', array($recordIds));
+                $module = $relatedModule;
+                $email = $adb->query_result($getRecordContacts, 0, 'email');
+
+            } else if ($relatedModule == 'Leads') {
+                $getRecordLeads = $adb->pquery('SELECT email FROM vtiger_leaddetails INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_leaddetails.leadid WHERE deleted = 0 AND leadid = ? ', array($recordIds));
+                $module = $relatedModule;
+                $email = $adb->query_result($getRecordLeads, 0, 'email');
+            } else {
+                $getRecordAccounts = $adb->pquery('SELECT email1 FROM vtiger_account INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_account.accountid WHERE deleted = 0 AND accountid = ?', array($recordIds));
+                $module = $relatedModule;
+                $email = $adb->query_result($getRecordAccounts, 0, 'email1');
+            }
+            if ($email != null && $email != '') {
+                if($from_serveremailid != 0 && $multipleSMTP){
+                    $_REQUEST['from_serveremailid'] = $from_serveremailid;
+
+                    $mailerInstance = MultipleSMTP_Mailer_Model::getInstance();
+
+                }else{
+                    $mailerInstance = Emails_Mailer_Model::getInstance();
+                }
+                $mailerInstance->isHTML(true);
+                $to = $email;
+                $parent_id = $recordIds . '@' . $userId;
+                $parent_id_VEM = $recordIdEM . '@' . $userId;
+                $processedContent = Emails_Mailer_Model::getProcessedContent($content); // To remove script tags
+                $recordModel = Vtiger_Record_Model::getCleanInstance($moduleName);
+                $recordModel->set('mode', '');
+                $processedContentWithURLS = decode_html($mailerInstance->convertToValidURL($processedContent));
+                $recordModel->set('from_email', $from_email);
+                $recordModel->set('description', $processedContentWithURLS);
+                $recordModel->set('subject', $subject);
+                $recordModel->set('saved_toid', $to);
+                $recordModel->set('assigned_usecd r_id', $userId);
+                $recordModel->set('email_flag', 'SENT');
+                $recordModel->set('parent_id', $parent_id . '|' . $parent_id_VEM . '|');
+                $recordModel->set('activitytype', $moduleName);
+                $recordModel->set('date_start', date('Y-m-d'));
+                $recordModel->set('time_start', date('H:i:s'));
+                $recordModel->save();
+                $emailId = $recordModel->getId();
+
+                // Mail
+                $mailerInstance->Sender = $from_email;
+
+                // Add activity
+                $moduleVEM = 'VTEEmailMarketing';
+                $entityVEM = CRMEntity::getInstance($moduleVEM);
+                $entityVEM->retrieve_entity_info($recordIdEM, $moduleVEM);
+                relateEntities($entityVEM, $moduleVEM, $recordIdEM, 'Emails', $emailId);
+                $params = array($recordIdEM, $emailId);
+                $sql = "insert into vtiger_seactivityrel(crmid,activityid) values (?,?)";
+                $adb->pquery($sql, $params);
+
+                // To add entry in ModTracker
+                $entityFocus = CRMEntity::getInstance($module);
+                $entityFocus->retrieve_entity_info($recordIds, $module);
+                relateEntities($entityFocus, $module, $recordIds, 'Emails', $emailId);
+
+                $mergedDescription = getMergedDescription($recordModel->get('description'), $current_user->id, 'Users');
+                $mergedSubject = getMergedDescription($recordModel->get('subject'), $current_user->id, 'Users');
+                $parentModule = $recordModel->getEntityType($recordIds);
+                $old_mod_strings = vglobal('mod_strings');
+                if($parentModule) {
+                    $currentLanguage = Vtiger_Language_Handler::getLanguage();
+                    $moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage, $parentModule);
+                    vglobal('mod_strings', $moduleLanguageStrings['languageStrings']);
+                    $mergedDescriptionWithHyperLinkConversion = $recordModel->replaceBrowserMergeTagWithValue($mergedDescription, $parentModule, $recordIds);
+                    if ($parentModule != 'Users') {
+                        $mergedDescription = getMergedDescription($mergedDescriptionWithHyperLinkConversion, $recordIds, $parentModule);
+                        $mergedSubject = getMergedDescription($mergedSubject, $recordIds, $parentModule);
+                    } else {
+                        // Re-merge the description for user tags based on actual user.
+                        $mergedDescription = getMergedDescription($mergedDescriptionWithHyperLinkConversion, $recordIds, 'Users');
+                        $mergedSubject = getMergedDescription($mergedSubject, $recordIds, 'Users');
+                        vglobal('mod_strings', $old_mod_strings);
+                    }
+                }
+
+                //Including email tracking details And Unsubcribes
+                $imageDetails = getTrackImageContent($emailId, $recordIds);
+                $imageDetailsVEM = getTrackImageContent($emailId, $recordIdEM);
+                $footerUnsubcribe = getFooterUnsubcribe($recordIdEM,$recordIds);
+                $contentImage[$i] = $imageDetails . $imageDetailsVEM . $mergedDescription . $footerUnsubcribe;
+
+                if (stripos($contentImage[$i], '<img src="cid:logo" />')) {
+                    $mailerInstance->AddEmbeddedImage('layouts/v7/skins/images/logo_mail.jpg', 'logo', 'logo.jpg', "base64", "image/jpg");
+                }
+
+                $mailerInstance->AddAddress($to);
+                $mailerInstance->From = $from_email;
+                $mailerInstance->FromName = decode_html($from_name);
+                $mailerInstance->Subject = strip_tags(decode_html($mergedSubject));
+
+                $emailRecord = Emails_Record_Model::getInstanceById($emailId);
+                $mailerInstance->Body = $emailRecord->convertUrlsToTrackUrls($mailerInstance->Body, $recordIds);
+                $plainBody = decode_html($contentImage[$i]);
+                $plainBody = preg_replace(array("/<p>/i", "/<br>/i", "/<br \/>/i"), array("\n", "\n", "\n"), $plainBody);
+                $plainBody = strip_tags($plainBody);
+                $plainBody = Emails_Mailer_Model::convertToAscii($plainBody);
+                $plainBody = $emailRecord->convertUrlsToTrackUrls($plainBody, $recordIds, 'plain');
+                $mailerInstance->AltBody = $plainBody;
+
+                $mailerInstance->Body = decode_emptyspace_html($contentImage[$i]);
+                $mailerInstance->Body = Emails_Mailer_Model::convertCssToInline($mailerInstance->Body);
+                $mailerInstance->Body = Emails_Mailer_Model::makeImageURLValid($mailerInstance->Body);
+
+                $status = $mailerInstance->send(true);
+                if ($status === true) {
+                    // This is needed to sext vtiger_email_track table as it is used in email reporting
+                    $recordModel->setAccessCountValue();
+                    removeModTracker($emailId);
+                    saveSentMail($recordIdEM,$recordIds,$currentDate,$count_send_email,1);
+                    $count_send_email++;
+                }else{
+                    removeEmailFailed($emailId,$recordIds);
+                    $error_info = $mailerInstance->ErrorInfo;
+                    saveSentMail($recordIdEM,$recordIds,$currentDate,$count_send_email,0,$error_info);
+                    $count_send_email++;
+                }
+            }
+            else{
+                $error_info = 'Record does not have an email address';
+                saveSentMail($recordIdEM,$recordIds,$currentDate,$count_send_email,2,$error_info);
+                $count_send_email++;
+            }
+        }
+        else{
+            $error_info = 'Unsubscribed in previous campaign';
+            $adb->pquery('UPDATE vtiger_vteemailmarketingrel SET `status` = ?, `error_info` = ? WHERE vteemailmarketingid = ? AND crmid = ?',array(2,$error_info,$recordIdEM,$recordIds));
+            $count_send_email++;
+        }
+
+        $getFailed = $adb->pquery("SELECT COUNT(1) as 'count_failed' FROM vtiger_vteemailmarketingrel WHERE vteemailmarketingid = ? AND `status` IN (0,2)",array($recordIdEM));
+        $failed = $adb->query_result($getFailed,0,'count_failed');
+        $getSent = $adb->pquery("SELECT COUNT(1) as 'count_sent' FROM vtiger_vteemailmarketingrel WHERE vteemailmarketingid = ? AND `status` = 1",array($recordIdEM));
+        $sent = $adb->query_result($getSent,0,'count_sent');
+        $getQueue = $adb->pquery("SELECT COUNT(1) as 'count_queue' FROM vtiger_vteemailmarketingrel WHERE vteemailmarketingid = ? AND (`status` = '' OR `status` IS NULL)",array($recordIdEM));
+        $queue = $adb->query_result($getQueue,0,'count_queue');
+        $getUniqueOpen= $adb->pquery('SELECT unique_open FROM vtiger_vteemailmarketingcf WHERE vteemailmarketingid = ?',array($recordIdEM));
+        $uniqueOpen = $adb->query_result($getUniqueOpen,0,'unique_open');
+        if(!$uniqueOpen){
+            $uniqueOpen = 0;
+        }
+        $unopened = intval($sent) - intval($uniqueOpen);
+        $query = "UPDATE vtiger_vteemailmarketing_schedule AS sche
+                            JOIN vtiger_vteemailmarketingcf AS vem ON vem.vteemailmarketingid = sche.vteemailmarketingid
+                            SET vem.sent = ?,
+                            vem.queued = ?,
+                            vem.unopened = ?,
+                            vem.failed_to_send = ?
+                            WHERE vem.vteemailmarketingid = ?";
+        $adb->pquery($query,array($sent,$queue,$unopened,$failed,$recordIdEM));
+        if($count_send_email == $total_email && $failed != $total_email){
+            $adb->pquery('UPDATE vtiger_vteemailmarketing SET `vteemailmarketing_status` = ? WHERE vteemailmarketingid = ?',array('Sent',$recordIdEM));
+            $adb->pquery('UPDATE vtiger_vteemailmarketing_schedule SET `status` = ? WHERE vteemailmarketingid = ?',array('Sent',$recordIdEM));
+
+        }
+        elseif($failed == $total_email){
+            $adb->pquery('UPDATE vtiger_vteemailmarketing SET `vteemailmarketing_status` = ? WHERE vteemailmarketingid = ?',array('Failed',$recordIdEM));
+            $adb->pquery('UPDATE vtiger_vteemailmarketing_schedule SET `status` = ? WHERE vteemailmarketingid = ?',array('Failed',$recordIdEM));
+
+        }
+    }
+}
+
+function getTemplateEmail($templateId)
+{
+    global $adb;
+    $result = $adb->pquery('SELECT * FROM vtiger_emailtemplates WHERE templateid = ?', array($templateId));
+    $data['subject'] = $adb->query_result($result, 0, 'subject');
+    $data['content'] = preg_replace('/\r|\n|/', '', $adb->query_result($result, 0, 'body'));
+
+    return $data;
+}
+
+function getFooterUnsubcribe($recordIdEM,$recordIds){
+    global $site_URL,$adb;
+    $keyUnsubcribe = generateKeyUnsubcribe();
+    $result = $adb->pquery('SELECT * FROM vtiger_vteemailmarketing_unsubcribes WHERE crmid = ?',array($recordIds));
+    if($adb->num_rows($result) == 0){
+        $adb->pquery('INSERT INTO vtiger_vteemailmarketing_unsubcribes(`crmid`,`key`,`status`) VALUES(?,?,?)',array($recordIds,$keyUnsubcribe,0));
+    }else{
+        $keyUnsubcribe = $adb->query_result($result,0,'key');
+    }
+    $url = $site_URL . "modules/VTEEmailMarketing/actions/Unsubcribes.php?record=$recordIdEM&parent=$recordIds&key=$keyUnsubcribe";
+    $html = <<<EOF
+    <div style="text-align: center; background-color: #edfeec; height: 70px;line-height: 70px">
+        <i>If you no longer wish to receive our newsletter, <a href="$url">click here</a> to unsubscribe and we'll remove you from our list</i>    
+    </div>
+EOF;
+    return $html;
+}
+
+function generateKeyUnsubcribe($length = 30){
+    $str = "";
+    $characters = array_merge(range('A','Z'), range('a','z'), range('0','9'));
+    $max = count($characters) - 1;
+    for ($i = 0; $i < $length; $i++) {
+        $rand = mt_rand(0, $max);
+        $str .= $characters[$rand];
+    }
+    return $str;
+}
+
+function getTrackImageContent($recordId, $parentId) {
+    $siteURL = vglobal('site_URL');
+    $applicationKey = vglobal('application_unique_key');
+    $trackURL = "$siteURL/modules/VTEEmailMarketing/actions/TrackAccess.php?record=$recordId&parentId=$parentId&applicationKey=$applicationKey";
+    $imageDetails = "<img src='$trackURL' alt='' width='1' height='1'>";
+    return $imageDetails;
+}
+
+function saveSentMail($recordIdEM,$recordIds,$currentDate,$count_send_email,$status,$error_info = ''){
+    global $adb;
+    $newCountSendEmail = intval($count_send_email) + 1;
+    $adb->pquery('UPDATE vtiger_vteemailmarketing_schedule SET `count_sent` = ? ,`last_time_scan` = ? WHERE vteemailmarketingid = ?',array($newCountSendEmail,$currentDate,$recordIdEM));
+    $adb->pquery('UPDATE vtiger_vteemailmarketingrel SET `status` = ?, `error_info` = ? WHERE vteemailmarketingid = ? AND crmid = ?',array($status,$error_info,$recordIdEM,$recordIds));
+}
+
+function removeModTracker($idEmail){
+    global $adb;
+    // remove on modtracker
+
+    $rsModTracker = $adb->pquery('SELECT id FROM vtiger_modtracker_basic WHERE crmid = ?',array($idEmail));
+    $idModTracker = $adb->query_result($rsModTracker,0,'id');
+
+    $adb->pquery('DELETE FROM vtiger_modtracker_detail WHERE id = ?',array($idModTracker));
+    $adb->pquery('DELETE FROM vtiger_modtracker_relations WHERE targetid =?',array($idEmail));
+
+    $idModTracker1 = intval($idModTracker) + 1;
+    $idModTracker2 = intval($idModTracker) + 2;
+
+    $adb->pquery('DELETE FROM vtiger_modtracker_basic WHERE id = ?',array($idModTracker1));
+    $adb->pquery('DELETE FROM vtiger_modtracker_basic WHERE id = ?',array($idModTracker2));
+    $adb->pquery('DELETE FROM vtiger_modtracker_basic WHERE id = ?',array($idModTracker));
+    $adb->pquery('UPDATE vtiger_modtracker_basic_seq SET id = id -1 ');
+
+}
+
+function removeEmailFailed($idEmail,$recordId){
+    global $adb;
+    // remove on tables crmentity
+    $adb->pquery('DELETE FROM vtiger_crmentityrel WHERE relcrmid = ?',array($idEmail));
+    $adb->pquery('DELETE FROM vtiger_crmentity WHERE crmid = ?',array($idEmail));
+    $adb->pquery('UPDATE vtiger_crmentity_seq SET id = id - 1');
+
+    // Remove Modtracker
+    removeModTracker($idEmail);
+
+    // Remove tables activity
+    $adb->pquery('DELETE FROM vtiger_activity WHERE activityid = ?',array($idEmail));
+    $adb->pquery('DELETE FROM vtiger_seactivityrel WHERE activityid = ?',array($idEmail));
+
+    // Remove tables Email
+    $adb->pquery('DELETE FROM vtiger_emaildetails WHERE emailid = ?',array($idEmail));
+    $adb->pquery('DELETE FROM vtiger_emails_user_field WHERE recordid = ?',array($idEmail));
+    $adb->pquery('DELETE FROM vtiger_emailslookup WHERE crmid = ?',array($idEmail));
+
+}

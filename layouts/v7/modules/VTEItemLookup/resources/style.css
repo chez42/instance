@@ -1,0 +1,25 @@
+.row-padding{
+    padding-left: 40px;
+    padding-right: 0px;
+    margin-bottom: 10px;
+}
+.field-configure-label{
+    font-size: 14px;
+    font-weight: unset;
+}
+.border-right{
+    border-right: 1px solid #eee;
+}
+.medium-picklist{
+    width: 150px;
+}
+.picture-size{
+    width: 50px;
+    padding: 0px 2px 0px 5px;
+}
+.item-lookup-fillter{
+
+}
+.item-lookup-fillter-table-content{
+    width: 100%;
+}

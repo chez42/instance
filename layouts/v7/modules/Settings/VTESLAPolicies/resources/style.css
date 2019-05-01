@@ -1,0 +1,175 @@
+h4.label-block{
+    font-weight: 700;
+}
+.control-label{
+    text-align: left !important;
+}
+
+.sla-policies-info{
+    border: 1px solid rgb(217, 217, 217);
+    border-left: #52a9cd solid 4px;
+    max-height: 180px;
+    height: 180px;
+}
+
+.sla-policies-info > .label-info{
+    color: #52a9cd;
+    background-color: white !important;
+}
+
+.sla-policies-info > .content-info{
+    resize: none;
+    border: none;
+    width: 100%;
+    color: #9b9997;
+    max-height: 140px;
+    height: 140px;
+}
+#resolved_time{
+    display: inline-block;
+    width: 70%;
+}
+table#sla_actions,table#sla_actions th,table#sla_actions td{
+    border: none !important;
+    vertical-align: middle;
+}
+
+table#sla_actions tr > td:first-child,
+table#sla_actions tr > td:last-child,
+table#sla_actions tr > th:last-child,
+table#sla_actions tr > th:last-child {
+    width: 1% !important;
+    max-width: 1% !important;
+}
+table#sla_actions tr > td:nth-child(2),
+table#sla_actions tr > td:nth-child(3),
+table#sla_actions tr > td:nth-child(5),
+table#sla_actions tr > th:nth-child(5),
+table#sla_actions tr > th:nth-child(5),
+table#sla_actions tr > th:nth-child(5)
+{
+    width: 15% !important;
+    max-width: 15% !important;;
+}
+table#sla_actions tr > td:nth-child(4),
+table#sla_actions tr > th:nth-child(4) {
+    width: 30% !important;
+    max-width: 30% !important;;
+}
+
+table#sla_actions .sla_action_email_template,table#sla_actions .sla_action_workflow {
+    width: 135px !important;
+}
+
+table#sla_actions .selectWorkflow{
+    font-size:2em;
+}
+table#sla_actions input.inputElement{
+    padding-left: 5px;
+}
+
+table.sla-policy-listview-table thead tr th:nth-child(1),table.sla-policy-listview-table tbody tr td:nth-child(1){
+    width: 13% !important;
+}
+
+table.sla-policy-listview-table thead tr th:nth-child(2),table.sla-policy-listview-table tbody tr td:nth-child(2){
+    width: 5% !important;
+}
+
+table.sla-policy-listview-table thead tr th:nth-child(3),table.sla-policy-listview-table tbody tr td:nth-child(3){
+    width: 27% !important;
+}
+
+table.sla-policy-listview-table thead tr th:nth-child(4),table.sla-policy-listview-table tbody tr td:nth-child(4){
+    width: 20% !important;
+}
+
+table.sla-policy-listview-table thead tr th:nth-child(5),table.sla-policy-listview-table tbody tr td:nth-child(5){
+    width: 25% !important;
+}
+table.sla-policy-listview-table thead tr th:nth-child(6),table.sla-policy-listview-table tbody tr td:nth-child(6){
+    width: 10% !important;
+}
+
+.buttonSave{
+    font-size: 14px;
+    color: white;
+    padding: 7px 25px
+}
+
+.error-validate{
+    border: 1px solid #ba4a47 !important;
+    background: #fdeeee !important;
+}
+/*modal Business Hours*/
+.force-disabled-region {
+    pointer-events: none !important;
+    opacity: 0.6 !important;;
+}
+.lbl-check {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    font-weight: normal;
+    /*style="font-family: 'OpenSans-Regular', sans-serif; margin-left: 15px;color: #6f6f6f; font-size: 15px;font-weight: normal"*/
+}
+
+/* Hide the browser's default checkbox */
+.lbl-check input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+    background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.lbl-check:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+/* When the checkbox is checked, add a blue background */
+.lbl-check input:checked ~ .checkmark {
+    background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.lbl-check input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.lbl-check .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}

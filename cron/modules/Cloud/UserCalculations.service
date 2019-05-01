@@ -1,0 +1,5 @@
+<?php
+$date = date("Y-m-d");
+
+PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily($date);
