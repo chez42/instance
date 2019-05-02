@@ -38,6 +38,18 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
         return 0;
     }
 
+    public static function GetSecurityPriceForDate($symbol, $date){
+	    global $adb;
+	    $query = "SELECT close, date FROM vtiger_prices WHERE symbol = ? AND date <= ? ORDER BY date DESC LIMIT 1";
+	    $result = $adb->pquery($query, array($symbol, $date));
+	    if($adb->num_rows($result)> 0){
+	        $price = $adb->query_result($result, 0, 'close');
+	        $date = $adb->query_result($result, 0, 'date');
+	        return array("price" => $price, "date" => $date, "symbol" => $symbol, "date" => $date);
+        }
+        return 0;
+    }
+
 	public static function GetSecurityInformationFromSymbols(array $symbols){
 		global $adb;
 		$questions = generateQuestionMarks($symbols);

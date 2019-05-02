@@ -14,7 +14,8 @@ $admin = $util->adminUser();
 // check Multiple SMTP Installed
 
 $multipleSMTP = false;
-if(class_exists('MultipleSMTP_VTELicense_Model')){
+
+/*if(class_exists('MultipleSMTP_VTELicense_Model')){
     $vteMultipleSMTP = new MultipleSMTP_VTELicense_Model('MultipleSMTP');
     $checkValidMultipleSMTP = $vteMultipleSMTP->validate();
     if($checkValidMultipleSMTP){
@@ -24,7 +25,7 @@ if(class_exists('MultipleSMTP_VTELicense_Model')){
             $multipleSMTP = true;
         }
     }
-}
+}*/
 
 // Send Mail scheduler
 $getScheduled = $adb->pquery('SELECT vtiger_vteemailmarketing_schedule.*

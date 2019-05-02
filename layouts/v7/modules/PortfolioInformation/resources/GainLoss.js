@@ -16,6 +16,21 @@ jQuery.Class("GainLoss_Js",{
         });
     },
 
+    registerClickEvents : function(){
+        $('.createtransaction').click(function(e){
+            var tr = $(this).closest('tr');
+            var transaction_id = tr.data('transaction_id');
+            var quantity = tr.find("td:nth-child(6)").html();
+            $.magnificPopup.open({
+                items:{
+                    type:'ajax',
+                    closeOnBgClick: false,
+                    src:"index.php?module=Transactions&action=FixTransaction&todo=fixtransaction&transactionid="+transaction_id+"&quantity="+quantity
+                }
+            });
+        });
+    },
+
     CollapTable: function(){
         $('.GainLossTable').aCollapTable({
 // the table is collapased at start
@@ -29,10 +44,19 @@ jQuery.Class("GainLoss_Js",{
         });
     },
 
-    HighlightSystemGenerated: function(){
+    MakeRowInteractive: function(){
         $("td").each(function() {
-            if($(this).data('systemgenerated') == 1)
-                $(this).closest('tr').css('background-color', 'yellow');
+            var tr = $(this).closest('tr');
+            if($(this).data('systemgenerated') == 1) {
+                tr.addClass("system_generated_transaction");
+                tr.css('background-color', 'yellow');
+                tr.find("td:nth-child(2)").html("<span class='createtransaction'>[FIX]</span>");
+                tr.find("td:nth-child(4)").html("<strong>System Generated Transaction</strong>");
+            }
+            if($(this).data('transactionsid')) {
+                //alert($(this).data('transactionsid'));
+                tr.attr('data-transaction_id', $(this).data('transactionsid'));
+            }
         });
     },
 
@@ -43,8 +67,9 @@ jQuery.Class("GainLoss_Js",{
     registerEvents : function() {
 //        this.ClickEvents();
         this.CollapTable();
-        this.HighlightSystemGenerated();
+        this.MakeRowInteractive();
         this.submitPrint();
+        this.registerClickEvents();
         var vtigerInstance = Vtiger_Index_Js.getInstance();
     	vtigerInstance.registerEvents();
     }

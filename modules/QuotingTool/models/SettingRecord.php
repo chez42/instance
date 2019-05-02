@@ -92,7 +92,7 @@ class QuotingTool_SettingRecord_Model extends Vtiger_Record_Model
             $p = array($template_id);
             $rs = $db->pquery($sql, $p);
             if ($db->num_rows($rs)) {
-                if ($row = $db->fetch_array($rs)) {
+                while ($row = $db->fetch_array($rs)) {
                     $id = $row["id"];
                     break;
                 }

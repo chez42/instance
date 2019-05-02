@@ -144,7 +144,7 @@
                                 {foreach from=$DYNAROWS item=r}
                                     {foreach from=$r key=index item=row}
                                         {if $index eq 'fields' AND $r['category_id'] eq $CatArray['category_id'] }
-                                            <tr data-id='{$COUNTER}' data-parent='{$PARENT_ID}' class="positions asset_cat_{$CatCount}">
+                                            <tr data-id='{$COUNTER}' data-parent='{$PARENT_ID}' class="positions asset_cat_{$CatCount} {foreach from=$row key=k item=v}{if $k eq 'system_generated' AND $v eq 1}system_generated_transaction{/if}{/foreach}">
                                                 {foreach from=$row key=k item=v}
                                                     {if $DYNARULES[$k]['smarty_modifier'] != ''}
                                                         {capture assign=test}

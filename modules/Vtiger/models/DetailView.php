@@ -191,7 +191,7 @@ class Vtiger_DetailView_Model extends Vtiger_Base_Model {
         }
         
         
-        if($moduleName != 'Documents'){
+        if($moduleName != 'Documents' && $moduleName != 'VTEEmailMarketing'){
             
             global $adb;
             

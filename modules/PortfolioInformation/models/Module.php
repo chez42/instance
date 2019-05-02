@@ -1597,7 +1597,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
     static public function UpdateYTDManagementFees()
     {
         global $adb;
-        $query = "CALL UPDATE_PORTFOLIO_MANAGEMENT_FEES_FIELD('2018-01-01', NOW(), 'ytd_management_fees')";
+        $query = "CALL UPDATE_PORTFOLIO_MANAGEMENT_FEES_FIELD(DATE_FORMAT(NOW(),'%Y-01-01'), NOW(), 'ytd_management_fees')";
         $adb->pquery($query, array());
     }
 

@@ -115,9 +115,13 @@ class VTEEmailMarketing_Record_Model extends Vtiger_Record_Model
     public function getCountRecordFilter($cvId, $moduleName)
     {
         global $adb;
-        $listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId, "");
-        $listQuery = $listViewModel->getQuery();
-        $listQuery = split("FROM", $listQuery);
+		
+		try {
+			$listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId, "");
+			$listQuery = $listViewModel->getQuery();
+        } catch (Exception $e) { return 0; }
+		
+		$listQuery = split("FROM", $listQuery);
         $query = "SELECT COUNT(*) as 'count' FROM " . $listQuery[1];
         $listResult = $adb->pquery($query, array());
         $count = $adb->query_result($listResult, 0, "count");
