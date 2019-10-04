@@ -1,0 +1,9 @@
+tabdata.php
+config.inc.php
+test/templates_c/v7/*
+user_privileges/*
+storage/*
+logs/*
+.idea/*
+portal/configuration/config.php
+vendor/*

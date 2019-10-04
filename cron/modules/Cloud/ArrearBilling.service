@@ -1,0 +1,32 @@
+<?php
+
+global $adb;
+$current_date = date("Y-m-d");
+$query = "SELECT portfolioinformationid, account_number, periodicity, annual_fee_percentage
+          FROM vtiger_portfolioinformation p
+          JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+          JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+          WHERE e.deleted = 0 AND account_number != 0 AND account_number IS NOT NULL AND account_number != ''";
+$result = $adb->pquery($query, array());
+
+$query = "CALL ARREAR_BILLING(?, ?, ?, ?, ?, @billAmount)";
+if($adb->num_rows($result) > 0){
+    while($v = $adb->fetchByAssoc($result)) {
+        switch(strtolower($v['periodicity'])){
+            case "monthly":
+                $periodicity = 1;
+                break;
+            case "quarterly":
+                $periodicity = 3;
+                break;
+            default:
+                $periodicity = 1;
+                break;
+        }
+
+        $start_date = date("Y-m-d", strtotime("-" . $periodicity . " Months"));
+        $adb->pquery($query, array($v['account_number'], $start_date, $current_date, $v['annual_fee_percentage'], $periodicity));
+        $q = "UPDATE vtiger_portfolioinformationcf SET bill_amount = (SELECT @billAmount) WHERE portfolioinformationid = ?";
+        $adb->pquery($q, array($v['portfolioinformationid']));
+    }
+}

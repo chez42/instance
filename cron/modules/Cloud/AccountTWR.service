@@ -1,0 +1,9 @@
+<?php
+require_once("libraries/Reporting/ReportCommonFunctions.php");
+
+$account_numbers = PortfolioInformation_Module_Model::GetAccountsToCalculateTWR();
+foreach($account_numbers AS $k => $v) {
+    PortfolioInformation_Module_Model::WriteTrailingTWRToPortfolio($v, TRAILING_0, "previous_month_percentage");
+    PortfolioInformation_Module_Model::WriteTrailingTWRToPortfolio($v, TRAILING_2, "trailing_3_month_percentage");
+    PortfolioInformation_Module_Model::WriteTrailingTWRToPortfolio($v, TRAILING_5, "trailing_6_month_percentage");
+}

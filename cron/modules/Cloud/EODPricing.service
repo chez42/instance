@@ -1,0 +1,15 @@
+<?php
+
+global $adb;
+
+$query = "CALL EOD_PRICING_PULL();";
+$adb->pquery($query, array());
+
+$query = "SELECT security_symbol FROM EOD_SYMBOLS LIMIT 5000";
+$result = $adb->pquery($query, array());
+$date = date("Y-m-d");
+if($adb->num_rows($result) > 0){
+    while($v = $adb->fetchByAssoc($result)) {
+        ModSecurities_ConvertCustodian_Model::UpdateSecurityPriceFromEOD($v['security_symbol'], '2013-01-01', $date);
+    }
+}
