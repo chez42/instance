@@ -1,0 +1,37 @@
+<div class="modal-dialog createFieldModal modelContainer ">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="clearfix">
+                <div class="pull-right ">
+                    <button type="button" class="close " data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <h4 class="pull-left">Automatic or Manual Route?</h4>
+            </div>
+        </div>
+    <form method="GET" action="javascript:;" class="RssFeedAddForm">
+        <div class="modal-body">
+            <button class="btn btn-primary" id="btnRouteAuto">Automatic</button>
+            <button class="btn btn-primary" id="btnRouteManual">Manual</button>
+            <div class="travel-mode hide">
+                <label><input type="radio" name="travel-mode" value="DRIVING" /> Driving</label>
+                <label><input type="radio" name="travel-mode" value="BICYCLING" /> Bicycling</label>
+                <label><input type="radio" name="travel-mode" value="TRANSIT" /> Transit</label>
+                <label><input type="radio" name="travel-mode" value="WALKING" /> Walking</label>
+            </div>
+            <div class="manual-mode hide clearfix">
+                <ul class="list-records connectedSortable"></ul>
+                <ul class="selected-records connectedSortable"></ul>
+                <br/>
+                <button class="btn btn-primary" id="btnPrintRoute">Print Route</button>
+            </div>
+            <div class="text-routing-result hide clearfix">
+                <div class="steps"></div>
+                <div id="direction-panel"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a class="cancelLink cancelLinkContainer pull-right" data-dismiss="modal">Cancel</a>
+        </div>
+    </form>
+    </div>
+</div>

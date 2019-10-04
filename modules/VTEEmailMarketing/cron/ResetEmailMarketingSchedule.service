@@ -1,0 +1,37 @@
+<?php
+/**
+ * Date: 12/18/17
+ * Time: 9:59 AM
+ */
+include_once("config.inc.php");
+require_once 'include/utils/utils.php';
+require_once 'include/utils/CommonUtils.php';
+require_once('modules/com_vtiger_workflow/VTEntityCache.inc');
+require_once('modules/com_vtiger_workflow/VTWorkflowUtils.php');
+require_once 'includes/Loader.php';
+vimport('includes.runtime.EntryPoint');
+set_time_limit(0);
+ini_set('memory_limit', '512M');
+global $adb, $current_user;
+$util = new VTWorkflowUtils();
+$admin = $util->adminUser();
+
+$currentTime = time();
+$rsCronTask = $adb->pquery('SELECT * FROM vtiger_cron_task WHERE name = ?',array('Email Marketing (Email Sending Engine)'));
+$numrowCronTask = $adb->num_rows($rsCronTask);
+if($numrowCronTask > 0){
+    $statusCronTask = $adb->query_result($rsCronTask,0,'status');
+    if($statusCronTask == 2){
+        $query = "SELECT vtiger_crmentity.createdtime FROM vtiger_crmentityrel
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_crmentityrel.relcrmid
+                    WHERE `module` = 'VTEEmailMarketing' AND `relmodule` = 'Emails'
+                    ORDER BY relcrmid DESC
+                    LIMIT 0,1";
+        $rsGetLastSentMail = $adb->pquery($query);
+        $dateTime = $adb->query_result($rsGetLastSentMail,0,'createdtime');
+        $checkTimeSentMail = strtotime($dateTime) + 900;
+        if($currentTime > $checkTimeSentMail){
+            $adb->pquery('UPDATE vtiger_cron_task SET status = 1 WHERE `name` = ?',array('Email Marketing (Email Sending Engine)'));
+        }
+    }
+}

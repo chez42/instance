@@ -1,0 +1,55 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>summary_reports</name>
+			<sql><![CDATA[CREATE TABLE `summary_reports` (
+					`reportid`  int(11) NOT NULL AUTO_INCREMENT ,
+					`reportname`  varchar(250) NULL DEFAULT NULL ,
+					`modulename`  varchar(250) NULL DEFAULT NULL ,
+					`reporttype` varchar(250),
+					`description` text DEFAULT NULL,			
+					PRIMARY KEY (`reportid`)
+					)]]></sql>
+		</table>
+		<table>
+			<name>summary_reports_selectcolumn</name>
+			<sql><![CDATA[CREATE TABLE `summary_reports_selectcolumn` (
+					`reportid` int(19) NOT NULL,
+					`columnindex` int(11) NOT NULL DEFAULT '0',
+					`columnname` varchar(250) DEFAULT '',
+					PRIMARY KEY (`reportid`, `columnindex`), INDEX `selectcolumn_queryid_idx` USING BTREE (reportid)
+				) ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ROW_FORMAT=COMPACT CHECKSUM=0 DELAY_KEY_WRITE=0;]]></sql>
+		</table>
+		<table>
+			<name>summary_reports_relcriteria</name>
+			<sql><![CDATA[CREATE TABLE `summary_reports_relcriteria` (
+					`reportid` int(19) NOT NULL,
+					`columnindex` int(11) NOT NULL,
+					`columnname` varchar(250) DEFAULT '',
+					`comparator` varchar(20) DEFAULT NULL,
+					`value` varchar(512) DEFAULT NULL,
+					`groupid` int(11) DEFAULT '1',
+					`column_condition` varchar(256) DEFAULT 'and',
+					PRIMARY KEY (`reportid`, `columnindex`), INDEX `relcriteria_queryid_idx` USING BTREE (reportid)
+				) ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ROW_FORMAT=COMPACT CHECKSUM=0 DELAY_KEY_WRITE=0;]]></sql>
+		</table>
+		<table>
+			<name>summary_reports_relcriteria_grouping</name>
+			<sql><![CDATA[CREATE TABLE `summary_reports_relcriteria_grouping` (
+					`groupid` int(11) NOT NULL,
+					`reportid` int(19) NOT NULL,
+					`group_condition` varchar(256) DEFAULT NULL,
+					`condition_expression` text DEFAULT NULL,
+					PRIMARY KEY (`groupid`, `reportid`)
+				) ENGINE=`InnoDB` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ROW_FORMAT=COMPACT CHECKSUM=0 DELAY_KEY_WRITE=0;]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

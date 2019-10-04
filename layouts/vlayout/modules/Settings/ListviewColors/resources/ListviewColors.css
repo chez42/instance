@@ -1,0 +1,20 @@
+.colorpicker{
+    z-index: 10010 !important;
+}
+.vtiger-crm-rock{
+    height: 16px;
+    padding: 4px;
+    width: 210px;
+    text-align: center;
+    display: block;
+    line-height: 16px;
+}
+.vte-listview-color tbody tr:hover td, .vte-listview-color tbody tr:hover th {
+    background-color: transparent;
+}
+.vte-listview-color td.listViewEntryValue, .listViewEntries td{
+    cursor: default;
+}
+.vte-listview-color tbody .icon-move{
+    cursor: move !important;
+}

@@ -1,0 +1,124 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vte_modules` (
+                `module` varchar(50) NOT NULL ,
+                `valid` int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+		<table>
+			<name>vteemailmarketing_settings</name>
+			<sql><![CDATA[CREATE TABLE `vteemailmarketing_settings` (
+				`enable`  int(3) NULL DEFAULT NULL
+				)]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketing</name>
+			<sql><![CDATA[
+				CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketing` (
+				  `vteemailmarketingid` int(11) NOT NULL,
+				  `vteemailmarketingno` varchar(100) DEFAULT NULL,
+                  `vtecampaigns` varchar(255) DEFAULT NULL,
+                  `vteemailmarketing_status` text DEFAULT NULL,
+                  `scheduled` datetime DEFAULT NULL,
+                  `batch_delivery` varchar(255) DEFAULT NULL,
+                  `subject` varchar(255) DEFAULT NULL,
+                  `sender` varchar(255) DEFAULT NULL,
+                  `smtp_server` varchar(255) DEFAULT NULL,
+				  PRIMARY KEY (`vteemailmarketingid`),
+				  INDEX (vteemailmarketingid)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8
+			]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketingcf</name>
+			<sql><![CDATA[
+				CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketingcf` (
+				  `vteemailmarketingid` int(11) NOT NULL,
+                  `total` int(11) DEFAULT NULL,
+                  `queued` int(11) DEFAULT NULL,
+                  `sent` int(11) DEFAULT NULL,
+                  `failed_to_send` int(11) DEFAULT NULL,
+                  `unique_open` int(11) DEFAULT NULL,
+                  `unopened` int(11) DEFAULT NULL,
+                  `unsubcribes` int(11) DEFAULT NULL,
+				  PRIMARY KEY (`vteemailmarketingid`),
+				  INDEX (vteemailmarketingid)
+				) ENGINE=InnoDB DEFAULT CHARSET=utf8
+			]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketing_user_field</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketing_user_field` (
+				  `recordid` int(25) NOT NULL,
+				  `userid` int(25) NOT NULL,
+				  `starred` varchar(100)
+                  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            ]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketing_schedule</name>
+			<sql><![CDATA[
+				CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketing_schedule` (
+				  `vteemailmarketingid` int(11) NOT NULL,
+				  `datetime` datetime NULL,
+				  `batch_delivery` int(11) NOT NULL,
+				  `number_email` int(11) NOT NULL,
+				  `frequency` int(11) NOT NULL,
+                  `count_sent` int(11) DEFAULT 0,
+                  `total_email` int(11),
+                  `last_time_scan` datetime,
+                  `template_email_id` int,
+                  `from_name` varchar(255),
+                  `from_email` varchar(255),
+                  `from_serveremailid` int(11),
+                  `status` varchar(25) DEFAULT 'Sending',
+                  PRIMARY KEY (`vteemailmarketingid`),
+                  INDEX (vteemailmarketingid,from_serveremailid)
+  				) ENGINE=InnoDB DEFAULT CHARSET=utf8
+			]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketing_emailtemplate</name>
+			<sql><![CDATA[
+				CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketing_emailtemplate`  (
+				`id` int(11) NOT NULL AUTO_INCREMENT ,
+				`idtemplate` int(11) NULL DEFAULT NULL ,
+				`metadata` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+				`template` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL ,
+				`keytemplate`  varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL ,
+				`thumbnail` text NULL,
+				PRIMARY KEY (`id`)
+				)
+				ENGINE=InnoDB
+				DEFAULT CHARACTER SET=utf8 COLLATE=utf8_general_ci;
+			]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketing_unsubcribes</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketing_unsubcribes` (
+                  `crmid` int(25) NOT NULL,
+                  `key` text NOT NULL,
+                  `status` int(11) NOT NULL,
+                  `vteemailmarketingid` varchar(25) DEFAULT NULL,
+                  PRIMARY KEY(crmid),
+                  INDEX (crmid,vteemailmarketingid)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            ]]></sql>
+		</table>
+		<table>
+			<name>vtiger_vteemailmarketingrel</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_vteemailmarketingrel` (
+                  `vteemailmarketingid` int(25) NOT NULL,
+                  `crmid` int(25) NOT NULL,
+                  `module` varchar(255) NOT NULL,
+                  `status` varchar(25),
+                  `error_info` text,
+                  INDEX (vteemailmarketingid,crmid)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            ]]></sql>
+		</table>
+	</tables>
+</schema>

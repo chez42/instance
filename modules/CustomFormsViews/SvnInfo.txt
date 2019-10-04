@@ -1,0 +1,4 @@
+Path: TRUNK_STABLE
+Last Changed Rev: 8365
+Last Changed Date: 2018-06-25 07:55:55 +0000 (Mon, 25 Jun 2018)
+extVersion: Stable

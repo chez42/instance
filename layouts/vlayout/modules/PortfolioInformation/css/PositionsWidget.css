@@ -1,0 +1,5 @@
+#ReportWidgetTable{table-layout:fixed; width:100%;}
+#ReportWidgetTable td{width:100%}
+#ReportWidgetTable thead tr{background-color:lightgrey}
+.aright{text-align:right}
+.acenter{text-align:center}

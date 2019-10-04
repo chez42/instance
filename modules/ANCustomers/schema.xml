@@ -1,0 +1,46 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_ancustomers</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_ancustomers` (
+  `ancustomer_no` varchar(255) NOT NULL,
+  `ancustomersid` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `account_id` int(19) DEFAULT NULL,
+  `customershippingaddressid` varchar(255) DEFAULT NULL,
+  `customerprofileid` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `zip` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `phonenumber` varchar(255) DEFAULT NULL,
+  `faxnumber` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`ancustomersid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_ancustomerscf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_ancustomerscf` (
+  `ancustomersid` int(11) NOT NULL,
+  PRIMARY KEY (`ancustomersid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+  `module` varchar(50) NOT NULL,
+  `valid` int(1) DEFAULT NULL,
+  PRIMARY KEY (`module`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1]]></sql>
+		</table>
+		<table>
+			<name>vtiger_ancustomers</name>
+			<sql><![CDATA[ALTER TABLE `vtiger_ancustomers` ADD INDEX `account_id_index` (`account_id`) USING BTREE ;]]></sql>
+		</table>
+	</tables>
+</schema>

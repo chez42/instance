@@ -1,0 +1,21 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+		<table>
+			<name>vte_duplicate_check_merge_setting</name>
+			<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vte_duplicate_check_merge_setting` (
+			  `id` int(11) NOT NULL auto_increment,
+			  `module` varchar(255) NOT NULL,
+			  `fields` text NOT NULL,
+			  PRIMARY KEY  (`id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=0 ;]]></sql>
+		</table>
+	</tables>
+</schema>

@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>time_tracker_settings</name>
+			<sql><![CDATA[CREATE TABLE `time_tracker_settings` (
+                  `selected_modules` text CHARACTER SET utf8 COLLATE utf8_estonian_ci NOT NULL,
+                  `field_settings` text CHARACTER SET utf8 COLLATE utf8_estonian_ci NOT NULL,
+                  `start_datetime_editable` int(3) DEFAULT NULL,
+                  `due_datetime_editable` int(3) DEFAULT NULL,
+                  `allow_create_comments` int(3) DEFAULT NULL,
+                  `auto_create_comments` int(3) DEFAULT NULL,
+                  `allow_bill_event_invoice` int(3) DEFAULT NULL
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>timetracker_data_log</name>
+			<sql><![CDATA[CREATE TABLE `timetracker_data_log` (
+                  `userid` int(19) NOT NULL DEFAULT '0',
+                  `record` int(19) NOT NULL DEFAULT '0',
+                  `form_data` text,
+                  `status` varchar(50) DEFAULT NULL,
+                  PRIMARY KEY (`userid`,`record`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

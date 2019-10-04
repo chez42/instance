@@ -1,0 +1,1 @@
+<p>This is where stratifi stuff will be for the dashboard</p>

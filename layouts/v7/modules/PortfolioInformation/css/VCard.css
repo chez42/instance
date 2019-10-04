@@ -1,0 +1,26 @@
+a.vcard:link, a.button:visited {
+    display:block;
+    padding: 2px 10px 2px 10px;
+    border-left: 2px solid #FEBF01;
+    border-top: 2px solid #FEBF01;
+    border-right: 2px solid #987201;
+    border-bottom: 2px solid #987201;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #CC9901;
+    text-decoration: none;
+    max-width:80px;
+	border-radius: 5px;
+}
+a.vcard:hover {
+    color: #FFFFFF;
+    background-color: #E4AC01;
+    text-decoration: none;
+}
+a.vcard:active {
+    border-left: 2px solid #987201;
+    border-top: 2px solid #987201;
+    border-right: 2px solid #FEBF01;
+    border-bottom: 2px solid #FEBF01;
+    background-color: #E4AC01;
+}

@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>realtimefieldformulas_settings</name>
+			<sql><![CDATA[CREATE TABLE `realtimefieldformulas_settings` (
+				`enable`  int(3) NULL DEFAULT NULL 
+				)]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

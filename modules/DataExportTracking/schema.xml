@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vte_data_export_tracking</name>
+			<sql><![CDATA[
+				CREATE TABLE `vte_data_export_tracking` (
+					`id`  int(11) NOT NULL AUTO_INCREMENT ,
+					`track_listview_exports`  int(1) NULL ,
+					`track_report_exports`  int(1) NULL ,
+					`track_scheduled_reports`  int(1) NULL ,
+					`track_copy_records`  int(1) NULL ,
+					`notification_email`  varchar(255) NULL ,
+					PRIMARY KEY (`id`)
+					);
+			]]></sql>
+		</table>
+		<table>
+			<name>vte_data_export_tracking_log</name>
+			<sql><![CDATA[
+				CREATE TABLE `vte_data_export_tracking_log` (
+							  `id` int(11) NOT NULL AUTO_INCREMENT,
+							  `type` int(11) DEFAULT NULL,
+							  `time` datetime DEFAULT NULL,
+							  `user` int(11) DEFAULT NULL,
+							  `link` varchar(255) DEFAULT NULL,
+							  `size` double DEFAULT NULL,
+							  `download` varchar(255) DEFAULT NULL,
+							  PRIMARY KEY (`id`)
+							);
+			]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

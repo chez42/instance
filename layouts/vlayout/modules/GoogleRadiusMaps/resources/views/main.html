@@ -1,0 +1,63 @@
+<div id="wdMapWindow" class="splitMode">
+    <table class="hide-code-input" id="toolbar">
+        <tr>
+            <td align="right">Map center:</td>
+            <td>
+                <select class="select2" id="slbMapCenter">
+                    <option value="Company Address">Company Address</option>
+                    <option value="User Address">User Address</option>
+                    <option value="Current Location">Current Location</option>
+                    <option value="Zip Code">Zip Code</option>
+                </select>
+                <input type="text" id="txtCode" class="code-input"/>
+            </td>
+            <td align="right">Radius:</td>
+            
+            <!-- 72424 tuannm 12152016 start -->
+            <td>
+                <div class="input-prepend">
+                    <!--
+                    <span class="add-on">miles</span>
+                    -->
+                    <select id="unit-type">
+                		<option>miles</option>
+                		<option>km</option>
+                	</select>
+                    <input class="span2" type="number" id="txtRadiusNumber" value="80"/>
+                    <div class="clear"></div>
+                </div>
+            </td>
+            <td>
+                <a id="targetToGoogleMap" class="btn btn-primary" href="https://www.google.com/maps/dir/" target="_blank">                  <span>GoogleMaps</span></a>
+            </td>
+            <!-- 72424 tuannm 12152016 end -->
+        </tr>
+        <tr>
+            <td align="right">Address:</td>
+            <td>
+                <select class="select2" id="slbAddresses"></select>
+            </td>
+            <td align="right">Color Pins By:</td>
+            <td>
+                <select class="select2" id="slbColorPinsBy"></select>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+                        Route
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-left">
+                        <li><a href="" class="btnRoute" data-type="line">Line</a></li>
+                        <li><a href="" class="btnRoute" data-type="text">Text</a></li>
+                        <li><a href="" class="btnRoute" data-type="print">Print</a></li>
+                    </ul>
+                </div>
+                <!--<button class="btn btn-primary" id="btnRoute">Route</button>-->
+            </td>
+        </tr>
+        </table>
+
+    <div id="map-content"></div>
+    <div class="loading-layer"><span>routing...</span></div>
+</div>
