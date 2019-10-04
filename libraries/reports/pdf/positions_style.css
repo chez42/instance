@@ -1,0 +1,39 @@
+/* 
+    Document   : monthly_style
+    Created on : 15-May-2013, 11:16:59 AM
+    Author     : theshado
+    Description:
+        Purpose of the stylesheet follows.
+*/
+.breakbefore{
+    page-break-before: always;
+}
+
+.breakafter {
+        page-break-after: always;
+}
+/*
+background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/ReportBKGIncome.jpg'); background-repeat:no-repeat
+*/
+
+body{background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/ReportBKGPurpleGradient.jpg'); background-repeat:no-repeat; width:100%;}
+
+#lefttable{display:block; width:45%; float:left;}
+#righttable{display:block; width:45%; float:right;}
+
+.left{float:left}
+.right{float:right}
+
+table{font-size:12px; display:block; width:100%;}
+table .symbol{font-size:12px; padding-top:10px; font-weight:bold;}
+table td{font-size:10px;}
+table tr:nth-child(odd){background-color:#CCC;}
+table tr:nth-child(even){background-color:#FFF;}
+table th{display: table-header-group;}
+
+.holdings_pie{padding-bottom:25px; background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/reportPieHoldings.png'); background-repeat:no-repeat;}
+
+#wrapper{display:block; width:100%; padding-top:5px;}
+#charts{width:500px; height:175px; display:block; float:left; background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/reportHoldingsBG.png'); 
+        background-position:left; background-repeat:no-repeat; margin-left:20px;}
+#pie_chart{margin-top:5px; margin-left:25px;}

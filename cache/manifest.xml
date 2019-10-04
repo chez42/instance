@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+<module>
+    <name>QuotingTool</name>
+    <label>Quoting Tool</label>
+    <parent>Tools</parent>
+    <version>1.0</version>
+    <license>
+        <file>License.txt</file>
+    </license>
+    <dependencies>
+        <vtiger_version>6.0.0</vtiger_version>
+        <vtiger_max_version>7.*</vtiger_max_version>
+    </dependencies>
+    <modulebundle>true</modulebundle>
+    <modulelist>
+        <dependent_module>
+            <name>QuotingTool</name>
+            <install_sequence>1</install_sequence>
+            <filepath>QuotingTool.zip</filepath>
+        </dependent_module>
+        <dependent_module>
+            <name>SignedRecord</name>
+            <install_sequence>2</install_sequence>
+            <filepath>SignedRecord.zip</filepath>
+        </dependent_module>
+    </modulelist>
+</module>
