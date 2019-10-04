@@ -1,0 +1,4 @@
+Path: STABLE_AUTHNET
+Last Changed Rev: 8452
+Last Changed Date: 2018-06-29 04:16:09 +0000 (Fri, 29 Jun 2018)
+extVersion: Stable

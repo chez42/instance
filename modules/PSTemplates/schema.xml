@@ -1,0 +1,38 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vtiger_pstemplates</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pstemplates` (
+                  `pstemplatesid` int(11) NOT NULL,
+                  `pstemplateno` varchar(100) default NULL,
+                  `pstemplatename` varchar(100) default NULL,
+                  `adjustment` decimal(25,2) default NULL,
+                  `subtotal` decimal(29,2) default NULL,
+                  `total` decimal(29,2) default NULL,
+                  `taxtype` varchar(100) default NULL,
+                  `discount_percent` decimal(29,2) default NULL,
+                  `discount_amount` decimal(29,2) default NULL,
+                  `s_h_amount` decimal(29,2) default NULL,
+                  `currency_id` int(19) default NULL,
+                  `conversion_rate` decimal(10,3) default NULL,
+                  `locksettings` int(1) default NULL,
+                  PRIMARY KEY  (`pstemplatesid`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vtiger_pstemplatescf</name>
+			<sql><![CDATA[CREATE TABLE `vtiger_pstemplatescf` (
+                  `pstemplatesid` int(11) NOT NULL,
+                  PRIMARY KEY  (`pstemplatesid`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

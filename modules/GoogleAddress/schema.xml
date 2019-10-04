@@ -1,0 +1,62 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>vte_google_address</name>
+			<sql><![CDATA[CREATE TABLE `vte_google_address` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `module` varchar(250) DEFAULT NULL,
+        `address_name` varchar(250) DEFAULT NULL,
+        `street` varchar(250) DEFAULT NULL,
+        `city` varchar(250) DEFAULT NULL,
+        `state` varchar(250) DEFAULT NULL,
+        `postal_code` varchar(250) DEFAULT NULL,
+        `country` varchar(250) DEFAULT NULL,
+        `status` varchar(250) DEFAULT NULL,
+        `sublocality` varchar(250) DEFAULT NULL,
+        PRIMARY KEY (`id`)
+      ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>googleaddress_selected_countries</name>
+			<sql><![CDATA[CREATE TABLE `googleaddress_selected_countries` (
+        `selected_countries` text
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_googleaddress</name>
+			<sql><![CDATA[CREATE TABLE `vte_googleaddress` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `address_name` varchar(250) NOT NULL,
+        `module_name` varchar(250) NOT NULL,
+        `status` varchar(250) NOT NULL,		
+        PRIMARY KEY (`id`)
+      ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_googleaddress_config</name>
+			<sql><![CDATA[CREATE TABLE `vte_googleaddress_config` (
+        `address_id` int(11) NOT NULL,
+        `google_fields` varchar(250) DEFAULT NULL,
+        `vtiger_fields` varchar(250) DEFAULT NULL
+      ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_google_apikey</name>
+			<sql><![CDATA[CREATE TABLE `vte_google_apikey` (
+		`google_apikey` VARCHAR(39) NULL DEFAULT NULL
+	  ) ENGINE=InnoDB DEFAULT CHARSET=utf8]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+		<table>
+			<name>vte_googleaddress_config</name>
+			<sql><![CDATA[ALTER TABLE `vte_googleaddress_config` ADD INDEX `address_id_index` (`address_id`) USING BTREE ;]]></sql>
+		</table>
+	</tables>
+</schema>

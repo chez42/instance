@@ -1,0 +1,33 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>masked_input_fields</name>
+			<sql><![CDATA[CREATE TABLE `masked_input_fields` (
+				`id`  int(11) AUTO_INCREMENT,
+				`module`  varchar(250) NULL ,
+				`fieldname`  varchar(250) NULL ,
+				`masked_input`  varchar(11) NULL ,
+				`active`  int(3) NULL ,
+				PRIMARY KEY (`id`)
+				);]]></sql>
+		</table>
+		<table>
+			<name>masked_inputs</name>
+			<sql><![CDATA[CREATE TABLE `masked_inputs` (
+				`id`  int(11) AUTO_INCREMENT ,
+				`masked_input`  varchar(250) NULL ,
+				`alert`  int(3) NULL ,
+				`alert_text`  text NULL ,
+				PRIMARY KEY (`id`)
+				);]]></sql>
+		</table>
+		<table>
+			<name>vte_modules</name>
+			<sql><![CDATA[CREATE TABLE `vte_modules` (
+                `module`  varchar(50) NOT NULL ,
+                `valid`  int(1) NULL ,
+                PRIMARY KEY (`module`));]]></sql>
+		</table>
+	</tables>
+</schema>

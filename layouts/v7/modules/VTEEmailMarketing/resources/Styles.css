@@ -1,0 +1,427 @@
+.vicon-vteemailmarketing:before {
+    content: "\e605";
+}
+
+table#table-vtecampaign input, table#table-vtecampaign .select2{
+    width: 60%;
+}
+table#table-vtecampaign tr td:first-child{
+    width: 33%;
+}
+
+table#table-vtecampaign tr td:nth-child(2){
+    width: 67%;
+}
+
+
+/*-- Step 2 --*/
+
+.div-autocomplete{
+    margin-left: 20px;
+}
+
+.filter-loaded-record{
+    color: red;
+    margin-top: 22px;
+}
+.btn-load-filter{
+    width: 100px;
+    margin-top: 15px;
+    margin-left: 30px;
+}
+
+#show-leads-list,#show-contacts-list,#show-account-list,#show-potentials-list {
+    margin:0px;
+}
+.marketinglist-toolbar > .border > .content-column > .btn-group > .createFilter{
+    width: 200px;
+    text-align: left;
+}
+.marketinglist-toolbar > .border > .content-column> .btn-group > .selectRelation{
+    text-align: left;
+    width: 150px;
+
+}
+.marketinglist-toolbar > .border > .content-column{
+    margin-top: -20px;
+}
+
+.marketinglist-toolbar > .border{
+    border-right: solid 1px #d0d0d0;
+    height: 100%;
+
+}
+.marketinglist-toolbar > .col-lg-1{
+    width: 23% !important;
+}
+.marketinglist-toolbar > .col-lg-2{
+    width: 20% !important;
+}
+.marketinglist-toolbar > .col-lg-3{
+    width: 16% !important;
+}
+.marketinglist-toolbar > .col-lg-4{
+    width: 25% !important;
+}
+.marketinglist-toolbar > .col-lg-5{
+    width: 16% !important;
+}
+
+.marketinglist-toolbar > .border > .content-column > .btn-group{
+    margin-top: 10px !important;
+}
+
+.marketinglist-toolbar > .border > .content-column > h5{
+    padding-bottom : 10px;
+    padding-top : 6px;
+}
+
+.marketing-list-user{
+    font-family:'Microsoft Sans Serif', Tahoma, Arial, Verdana, Sans-Serif;
+}
+
+#table-list-filter > tbody > tr, #table-preview-record > tbody > tr{
+    border-right: 1px solid #dddddd !important;
+    border-left: 1px solid #dddddd !important;
+}
+#table-list-filter > tbody > tr:last-child, #table-preview-record > tbody > tr:last-child{
+    border-bottom: 1px solid #dddddd !important;
+
+}
+
+/*#table-list-filter > tbody > tr:nth-child(4n+1), #table-preview-record > tbody > tr:nth-child(4n+1){*/
+    /*background: #e8f2db;*/
+/*}*/
+
+/*#table-list-filter > tbody > tr:nth-child(4n+3), #table-preview-record > tbody > tr:nth-child(4n+3){*/
+    /*background: #fbfadb;*/
+/*}*/
+
+#table-list-filter > tbody > tr > td:nth-child(1){
+    width: 20%;
+}
+#table-list-filter > tbody > tr > td:nth-child(1) > h5 {
+    margin-left: 50px;
+}
+#table-list-filter > tbody > tr > td:nth-child(1) > h5 > i {
+    margin-right : 20px;
+}
+#table-list-filter > tbody > tr > td:nth-child(2){
+    width: 30%;
+}
+#table-list-filter > tbody > tr > td:nth-child(3){
+    width: 25%;
+}
+#table-list-filter > tbody > tr > td:nth-child(4){
+    width: 15%;
+}
+#table-list-filter > tbody > tr > td:nth-child(5){
+    width: 10%;
+}
+
+
+.tab-content-step2 > .btn-toolbar{
+    margin-top: 25px;
+    padding-bottom: 15px;
+}
+.nav.tab-step2{
+    margin-left: -2px;
+}
+.tab-content{
+    border: 1px solid #F3F3F3;
+}
+
+/*#table-preview-record{*/
+    /*overflow: auto;*/
+    /*max-height: 500px;*/
+    /*display: inline-block;*/
+/*}*/
+
+
+/*-- End Step 2 --*/
+
+/*-- Step 3-- */
+.app-footer{
+    display: none;
+}
+
+#EmailMarketingStep3 #listViewContent{
+    display: inline-block;
+    margin-bottom: 60px;
+}
+
+.btn-reload-iframe{
+    float:left;
+}
+
+.btn-copy-paste-template{
+    background: #35aa47;
+    color: #fff;
+}
+
+.btn-copy-paste-template:hover{
+    background: #2e863e;
+    color: #fff;
+}
+/*-- End Step 3 --*/
+
+/* -- Step 4 --*/
+table#table-reviewsend>tbody>tr>td:first-child{
+    width: 10%;
+}
+table#table-reviewsend>tbody>tr>td:last-child{
+    width: 10%;
+}
+table#table-reviewsend>tbody>tr{
+    height: 75px;
+}
+table#table-reviewsend{
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd ;
+}
+
+table#table-reviewsend>tbody>tr>td>h4{
+    margin-top: 20px;
+}
+table#table-reviewsend>tbody>tr>td:first-child>h4{
+    margin-left: 15%;
+}
+table#table-reviewsend>tbody>tr>td:nth-child(2){
+    color: #227b9c;
+}
+table#table-reviewsend>tbody>tr>td>button{
+    width: 70%;
+    margin-top: 6%;
+}
+table#table-reviewsend>tbody>tr>td>.table-List{
+    width: 20%;
+    font-weight: 500;
+    font-size: 14px;
+
+}
+
+.schedule-body > .input-group{
+    float: none !important;
+}
+.schedule-body > .schedule-date,.schedule-body > .schedule-time {
+    margin-top: 15px;
+    width: 70%;
+}
+.schedule-body >.schedule-batch-delivery{
+    margin-top: 10px;
+
+}
+.schedule-body >.text-label{
+    font-weight: 500;
+
+}
+
+.schedule-body >.schedule-config-send{
+    margin-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+.btn-toggle {
+    margin: 6px 4rem;
+    padding: 0;
+    position: relative;
+    border: none;
+    height: 24px;
+    width: 4.8rem;
+    border-radius: 1.5rem;
+    color: #6b7381;
+    background: #bdc1c8;
+}
+.btn-toggle:focus,
+.btn-toggle.focus,
+.btn-toggle:focus.active,
+.btn-toggle.focus.active {
+    outline: none;
+}
+.btn-toggle:before,
+.btn-toggle:after {
+    line-height: 1.5rem;
+    width: 4rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: absolute;
+    bottom: 3px;
+    transition: opacity .25s;
+}
+.btn-toggle:before {
+    content: 'Off';
+    left: -4rem;
+}
+.btn-toggle:after {
+    content: 'On';
+    right: -4rem;
+    opacity: .5;
+}
+.btn-toggle > .handle {
+    position: absolute;
+    top: 0.1875rem;
+    left: 0.1875rem;
+    width: 2.125rem;
+    height: 20px;
+    border-radius: 1.125rem;
+    background: #fff;
+    transition: left .25s;
+}
+.btn-toggle.active {
+    transition: background-color 0.25s;
+}
+.btn-toggle.active > .handle {
+    left: 25px;
+    transition: left .25s;
+}
+.btn-toggle.active:before {
+    opacity: .5;
+}
+.btn-toggle.active:after {
+    opacity: 1;
+}
+.btn-toggle.btn-sm:before{
+    line-height: -0.5rem;
+    color: #fff;
+    letter-spacing: .75px;
+    left: 21px;
+    width: 2.325rem;
+}
+.btn-toggle.btn-sm:after {
+    line-height: -0.5rem;
+    color: #fff;
+    letter-spacing: .75px;
+    left: 6px;
+    width: 2.325rem;
+}
+.btn-toggle.btn-sm:before {
+    text-align: right;
+}
+.btn-toggle.btn-sm:after {
+    text-align: left;
+    opacity: 0;
+}
+.btn-toggle.btn-sm.active:before {
+    opacity: 0;
+}
+.btn-toggle.btn-sm.active:after {
+    opacity: 1;
+}
+.btn-toggle.btn-xs:before,
+.btn-toggle.btn-xs:after {
+    display: none;
+}
+.btn-toggle:before,
+.btn-toggle:after {
+    color: #6b7381;
+}
+.btn-toggle.active {
+    background-color: #29b5a8;
+}
+
+table#table-preview-record h5{
+    margin: 0;
+}
+/* -- End Step 4 -- */
+
+/** Edit EmailTemplate **/
+
+.btn-emailtemplate-builder{
+    display:inline-block;
+    font-size: 20px;
+    padding:10px;
+    background: #35aa47;
+    color: #fff;
+}
+
+
+.btn-emailtemplate-builder:hover,
+.btn-emailtemplate-builder:focus{
+    background: #2e863e;
+    color: #fff;
+}
+.chzn-disabled {
+    cursor: not-allowed !important;
+    opacity:0.5 !important;
+}
+.crumbs li:hover{
+    border-top: 20px solid #ececec;
+    border-bottom: 20px solid #ececec;
+}
+#listview-actions .col-md-3 .tooltip.top{
+    max-width: 1000px !important;
+    background: #fff !important;
+    color:#000 !important;
+}
+.custom-tooltip{
+    padding: 5px;
+}
+.custom-content-tooltip{
+    background: #444;
+    color: #fff;
+    padding: 10px;
+    position: absolute;
+    width: 880px;
+    left: -440px;
+    top: -75px;
+    z-index: 100;
+}
+.arrow-down-custom {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #444;
+    position: absolute;
+    left: -3px;
+    top: -13px
+}
+.warning-phpimagick{
+    text-align: center;
+    margin-top: 5px;
+}
+.warning-sign-custom{
+    padding-right: 10px;
+}
+.warning-phpimagick a span{
+    color: red;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.action_send_mail{
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.action_send_mail > .action_scheduler, .action_scheduler {
+    margin-left: 7px;
+    width: 70px;
+    font-weight: bold;
+}
+.DisplayType:hover{
+    cursor: pointer;
+    background: #e8e8e8;
+}
+.DisplayType.selectedDT{
+    cursor: pointer;
+    background: #ababab;
+}
+
+a.resubcribe {
+    padding: 5px 15px;
+    margin-left: 15px;
+    background: #7FD13B;
+    font-weight: bold;
+    color: #222;
+}
+
+a.resubcribe:hover {
+    background: #64bd1a;
+}
+

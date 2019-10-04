@@ -1,0 +1,152 @@
+/* * *******************************************************************************
+* The content of this file is subject to the VTE History Log ("License");
+* You may not use this file except in compliance with the License
+* The Initial Developer of the Original Code is VTExperts.com
+* Portions created by VTExperts.com. are Copyright(C)VTExperts.com.
+* All Rights Reserved.
+* ****************************************************************************** */
+
+.vteRecentActivitiesContainer .updates_timeline li{
+    margin-bottom: 30px;
+}
+.vteRecentActivitiesContainer .vte-bg-info-small{
+    left: 0 !important;
+    margin: 0 5px 0 0 !important;
+    display: inline-block !important;
+    height: 20px !important;
+    width: 20px !important;
+    line-height: 20px !important;
+    font-size: 12px !important;
+    vertical-align: top;
+}
+.vteRecentActivitiesContainer .vte-bg-info-small i{
+    font-size: 12px !important;
+    vertical-align: middle;
+}
+.vteRecentActivitiesContainer .update_info_block {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+    background-color: #edeff0;
+    width: 50%;
+}
+
+.vteRecentActivitiesContainer .update_info_block .fa-caret-left {
+    position: absolute;
+    top: 0;
+    right: calc(100% - 2px);
+    font-size: 30px;
+    color: #edeff0;
+    z-index: 101;
+}
+.vteRecentActivitiesContainer .update_info_block .fa-caret-left-border {
+    right: 100%;
+    color: #dce4e6;
+    z-index: 100;
+}
+
+.vteRecentActivitiesContainer .update_info_block .update_info_block_header {
+    padding: 5px 15px;
+    background-color: #edeff0;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.vteRecentActivitiesContainer .update_info_block .update_info_block_header .vte-history-log-title{
+    display: inline-block;
+    max-width: 60%;
+    font-weight: bold;
+}
+
+.vteRecentActivitiesContainer .update_info_block .update_info_block_header .vte-history-log-type{
+    vertical-align: top;
+}
+
+.vteRecentActivitiesContainer .update_info_block .update_info_block_content {
+    padding: 5px 15px;
+}
+.vteRecentActivitiesContainer .update_info_block_content .update-name{
+    width: 30%;
+    display: inline-block;
+    font-style: italic;
+    vertical-align: top;
+}
+.vteRecentActivitiesContainer .update_info_block_content .update-to{
+    width: 70%;
+    display: inline-block;
+    font-weight: bold;
+    vertical-align: middle;
+}
+.vteRecentActivitiesContainer .update_info_block_content .update-to a{
+    color: #15c;
+}
+.vteRecentActivitiesContainer .update_info_block_header a.vte-history-log-title{
+    color: #15c;
+}
+.vteRecentActivitiesContainer .update_info_block_content .update-to .update-from{
+    font-weight: normal;
+}
+.vteRecentActivitiesContainer .update_info_block_content .update-to .update-from .lbl_from_value{
+    /*color: #2b879e;*/
+}
+
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer-show-more,
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer-show-less{
+    margin-top: 10px;
+    text-align: center;
+}
+
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer-show-more a,
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer-show-less a{
+    color: #2b879e;
+    text-align: center;
+}
+
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer-full-content{
+    white-space: pre-line;
+    font-weight: bold;
+}
+.vteRecentActivitiesContainer .update_info_block_content .show-more-fields{
+    display: block !important;
+}
+.vteRecentActivitiesContainer .update_info_block_content .updateInfoContainer{
+    padding: 5px 0;
+}
+.active_modules{
+    padding-left: 50px;
+}
+.active_modules li{
+    float: left;
+    min-height: 27px;
+    margin: 0px 5px!important;
+    overflow: hidden;
+    line-height: 35px;
+}
+.active_modules li div.update_icon{    
+    position: inherit;
+    margin-left: 0px;
+    left: 0px;
+    opacity: 0.6;
+    cursor: pointer;    
+    width: 27px;
+    height: 27px;
+}
+.active_modules li div.update_icon i.update_image{
+    font-size: 16px;
+}
+.active_modules li:hover, .active_modules li.active{
+    border-radius: 50%;
+    border: 2px solid red;
+}
+.active_modules li:hover div.update_icon, .active_modules li.active div.update_icon{
+    opacity: 1.0;
+    width: 23px;
+    height: 23px;
+}
+.btnResetFilter{
+    margin-left: 20px;
+    line-height: 35px;
+    font-style: italic;
+    text-decoration: underline!important;
+}

@@ -1,0 +1,40 @@
+<?xml version='1.0'?>
+<schema>
+	<tables>
+		<table>
+			<name>googleradiusmaps_settings</name>
+			<sql><![CDATA[
+				CREATE TABLE `googleradiusmaps_settings` (
+						`enable` TINYINT(4) NOT NULL DEFAULT '0',
+                        `map_center` varchar(50) DEFAULT NULL,
+                        `radius_unit` varchar(10) DEFAULT NULL,
+                        `radius_number` float(20,0) DEFAULT NULL
+					)
+					ENGINE=InnoDB;
+			]]></sql>
+		</table>
+		<table>
+			<name>googleradiusmaps_settings</name>
+			<sql><![CDATA[
+				ALTER TABLE `googleradiusmaps_settings`
+				 ADD COLUMN `is_default_view` TINYINT(4) DEFAULT '0';
+			]]></sql>
+		</table>
+		<table>
+			<name>vtiger_colorpinstores</name>
+			<sql><![CDATA[
+				CREATE TABLE `vtiger_colorpinstores` (
+				  `id` int(11) NOT NULL AUTO_INCREMENT,
+				  `slb_map_center` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `the_name` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `unit_type` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `txt_radius_number` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `slb_addresses` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `slb_color_pins_by` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  `color_picker_field` varchar(399) COLLATE utf8_unicode_ci NOT NULL,
+				  PRIMARY KEY (`id`)
+				) ENGINE=InnoDB;
+			]]></sql>
+		</table>
+	</tables>
+</schema>

@@ -1,0 +1,59 @@
+#holdings_table_wrapper{display:block; float:left; clear:both; padding-top:25px;}
+#holdings_report_table{display:block; width:100%; border-spacing:0px;}
+.holdings_wrapper{overflow:auto; clear:both; float:left;}
+.holdings_wrapper .strong{font-weight:bold;}
+.holdings_wrapper .right{text-align:right;}
+
+#holdings_report_table thead tr td{text-align:center; padding:2px; margin:0px;}
+#holdings_report_table tbody tr td{padding:2px; margin:0px;}
+
+#holdings_report_table_2{display:table; width:100%; border-spacing:0px; border-top:1px dotted black;}
+#holdings_report_table_2 thead tr td{text-align:center; padding:2px; margin:0px;}
+#holdings_report_table_2 tbody tr td{padding:2px; margin:0px;}
+
+.make_dotted td{border-bottom:1px dotted black;}
+.report_heading{font-weight:bold;}
+
+
+.level1 { box-decoration-break: slice; }
+.left {text-align:left;}
+.right {text-align:right;}
+.center {text-align:center;}
+
+.account_notes{display:block; float:left;}
+.account_notes p{font-size:10px;}
+
+
+
+
+.foldable{display:block; float:left; clear:both; width:100%;}
+.togglehit{display:block; float:left; width:98%; padding:5px; margin-bottom:5px; border-radius:25px;
+/*  
+	body{background: -moz-linear-gradient(top, #e1ffff 0%, #fdffff 50%, #e6f8fd 100%);}  
+	background: rgba(226,226,226,1);
+    background: -moz-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(235,235,235,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(226,226,226,1)), color-stop(100%, rgba(235,235,235,1)));
+    background: -webkit-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(235,235,235,1) 100%);
+    background: -o-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(235,235,235,1) 100%);
+    background: -ms-linear-gradient(left, rgba(226,226,226,1) 0%, rgba(235,235,235,1) 100%);
+    background: linear-gradient(to right, rgba(226,226,226,1) 0%, rgba(235,235,235,1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#ebebeb', GradientType=1 );*/}
+.toggler{display:none;}
+.chevron_toggle{text-align:right; float:right; display:block; padding-right:20px;}
+
+.block_wrapper{display:block; float:left; clear:both;}
+
+.table-collapse tr.collapse.in {
+    display: table-row;
+}
+.table-collapse .collapse {
+    display: none;
+}
+
+.table-collapse tr.holdings td:first-child{
+	padding-left: 30px;
+}
+
+.holdings_report table, .DynaTable{
+	margin-bottom: 30px;
+}

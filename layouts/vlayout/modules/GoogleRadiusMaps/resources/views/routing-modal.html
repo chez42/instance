@@ -1,0 +1,31 @@
+<div class="modelContainer">
+    <form method="GET" action="javascript:;" class="RssFeedAddForm">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">x</a>
+            <h3 class="routing-modal-title">Automatic or Manual Route?</h3>
+        </div>
+        <div class="modal-body">
+            <button class="btn btn-primary" id="btnRouteAuto">Automatic</button>
+            <button class="btn btn-primary" id="btnRouteManual">Manual</button>
+            <div class="travel-mode hide">
+                <label><input type="radio" name="travel-mode" value="DRIVING" /> Driving</label>
+                <label><input type="radio" name="travel-mode" value="BICYCLING" /> Bicycling</label>
+                <label><input type="radio" name="travel-mode" value="TRANSIT" /> Transit</label>
+                <label><input type="radio" name="travel-mode" value="WALKING" /> Walking</label>
+            </div>
+            <div class="manual-mode hide clearfix">
+                <ul class="list-records connectedSortable"></ul>
+                <ul class="selected-records connectedSortable"></ul>
+                <br/>
+                <button class="btn btn-primary" id="btnPrintRoute">Print Route</button>
+            </div>
+            <div class="text-routing-result hide clearfix">
+                <div class="steps"></div>
+                <div id="direction-panel"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a class="cancelLink cancelLinkContainer pull-right" data-dismiss="modal">Cancel</a>
+        </div>
+    </form>
+</div>

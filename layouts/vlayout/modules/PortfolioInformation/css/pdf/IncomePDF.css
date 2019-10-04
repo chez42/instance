@@ -1,0 +1,4 @@
+#income_combined{width:100%;}
+#income_combined th{font-weight:bold; text-align:center; background-color: #f5f5f5;}
+#income_combined tr:nth-child(odd){background-color: #eeeeee; }
+#income_combined tr:nth-child(even){background-color: #bdbdbd;}
