@@ -1,0 +1,12 @@
+<?php
+require_once("libraries/Reporting/ReportCommonFunctions.php");
+date_default_timezone_set('America/Los_Angeles');
+$current_time = Date("H:i:s");
+$start_time = Date("00:00:00");
+$end_time = Date("08:00:00");
+if(!IsTimeBetween($start_time, $end_time, $current_time)) {
+    $date = date("Y-m-d");
+
+    PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+    PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily($date);
+}

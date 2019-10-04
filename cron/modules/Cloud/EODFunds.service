@@ -1,0 +1,32 @@
+<?php
+require_once("libraries/EODHistoricalData/EODGuzzle.php");
+
+global $adb;
+
+$guz = new cEodGuzzle();
+$query = "CALL EOD_FUNDS_PULL();";
+$adb->pquery($query, array());
+
+$query = "SELECT security_symbol FROM EOD_FUNDS";
+$security_result = $adb->pquery($query, array());
+if($adb->num_rows($security_result) > 0){
+    while($v = $adb->fetchByAssoc($security_result)) {
+        $symbol = $v['security_symbol'];
+        $start = date('Y')  - 1 . "-01-01";
+        $end = date('Y') - 1 . "-12-31";
+        try {
+            $rawData = $guz->getFundamentals($symbol);
+            $result = json_decode($rawData);
+            $dividendData = json_decode($guz->getDividends($symbol, "US", $start, $end));
+            ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
+            ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
+        }catch(Exception $e){
+            $query = "UPDATE vtiger_modsecurities m 
+                              JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
+                              SET last_eod = NOW()
+                              WHERE security_symbol = ?";
+            $adb->pquery($query, array($symbol));
+        }
+//        ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
+    }
+}
