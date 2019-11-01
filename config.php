@@ -19,7 +19,9 @@
  */
 
 include('config.inc.php');
-$AUTHCFG['authType'] = 'AD';
+
+//Disabled Active Directory Authentication for new Instances
+//$AUTHCFG['authType'] = 'AD';
 
 $THIS_DIR = dirname(__FILE__);
 
