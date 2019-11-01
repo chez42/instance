@@ -51,6 +51,14 @@ class Contacts_ListView_Model extends Vtiger_ListView_Model {
 				'linkicon' => ''
 			);
 			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+			
+			$massActionLink = array(
+			    'linktype' => 'LISTVIEWMASSACTION',
+			    'linklabel' => 'Update Portal Permissions',
+			    'linkurl' => 'javascript:Contacts_List_Js.updatePortalPermissions("index.php?module='.$moduleModel->getName().'&view=UpdatePortalPermission")',
+			    'linkicon' => ''
+			);
+			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
 		}
 
 		return $massActionLinks;

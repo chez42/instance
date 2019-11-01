@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
-
+header("Access-Control-Allow-Origin: *");
 class Vtiger_ExternalDownloadLink_Action extends Vtiger_Action_Controller {
     
     function loginRequired() {

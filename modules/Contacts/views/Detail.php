@@ -28,18 +28,16 @@ class Contacts_Detail_View extends Accounts_Detail_View {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('IMAGE_DETAILS', $recordModel->getImageDetails());
 
-		$moduleModel = Settings_Vtiger_Module_Model::getInstance("Settings:CustomerPortal");
-		
 		$contactModuleModel = $recordModel->getModule();
 		
-		$selectedPortalModulesInfo = getSingleFieldValue("vtiger_contact_portal_permissions", "permissions", "crmid", $recordId);
-		
-		$selectedPortalModulesInfo = stripslashes(html_entity_decode($selectedPortalModulesInfo));
-		
-		$selectedPortalModulesInfo = json_decode($selectedPortalModulesInfo, true);
-		
-		$viewer->assign('MODULES_MODELS', $moduleModel->getModulesList());
-		
+		$selectedPortalModulesInfo = array();
+		if($recordId){
+		    global $adb;
+		    $selectedPortalInfo = $adb->pquery("SELECT * FROM vtiger_contact_portal_permissions WHERE crmid = ?",array($recordId));
+		    if($adb->num_rows($selectedPortalInfo)){
+		        $selectedPortalModulesInfo = $adb->query_result_rowdata($selectedPortalInfo);
+		    }
+		} 
 		$viewer->assign('SELECTED_PORTAL_MODULES', $selectedPortalModulesInfo);
 		
 		

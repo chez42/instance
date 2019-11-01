@@ -2139,6 +2139,11 @@ function get_contactsforol($user_name)
             }
             
             $password = $entityData->get('portal_password');
+            if(!$password){
+                $password = makeRandomPassword();
+                $this->column_fields['portal_password'] = $password;
+                $adb->pquery("UPDATE vtiger_contactdetails SET portal_password = ? WHERE contactid = ?",array($password, $entityId));
+            }
             
             if ($insert) {
                 $sql = "INSERT INTO vtiger_portalinfo(id,user_name,user_password,type,isactive) VALUES(?,?,?,?,?)";

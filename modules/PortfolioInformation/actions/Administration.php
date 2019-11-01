@@ -43,4 +43,11 @@ class PortfolioInformation_Administration_Action extends Vtiger_BasicAjax_Action
                 break;
         }
     }
+
+    static public function WriteDownloaderData($custodian, $repcode, $filename){
+        global $adb;
+        $query = "INSERT INTO custodian_omniscient.downloader_data (custodian, rep_code, filename, copy_date)
+                  VALUES (?, ?, ?, NOW())";
+        $adb->pquery($query, array($custodian, $repcode, $filename));
+    }
 }

@@ -130,8 +130,11 @@ Vtiger.Class('Vtiger_MergeRecords_Js',{},{
         var defaultPrams = {
             'module' : app.module(),
             'view' : 'Billing',
-            'records' : records
+            //'records' : records
         }
+		
+		defaultPrams = jQuery.extend(defaultPrams, params.params);
+        
         app.helper.showProgress();
         app.request.get({'data':defaultPrams}).then(function(error,data){
             app.helper.hideProgress();

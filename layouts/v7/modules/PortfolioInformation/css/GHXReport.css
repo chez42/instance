@@ -1,0 +1,3 @@
+.GHReport_UI_Wrapper{display:block; border:2px solid black; max-width:1024px; border-radius:25px; margin-left:auto;
+                     margin-right:auto; padding:5px; #background-color: #FFFFCC}
+.boxsizingborder{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; width:100%;}

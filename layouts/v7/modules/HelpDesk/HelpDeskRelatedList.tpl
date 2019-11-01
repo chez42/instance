@@ -38,6 +38,7 @@
 					<thead>
 						<tr class="listViewHeaders">
 							<th style="min-width:100px">
+								<input class="relatedlistViewEntriesMainCheckBox" type="checkbox"style="margin-left:12px;">
 							</th>
 							{foreach item=HEADER_FIELD from=$RELATED_HEADERS}
 								{* hide time_start,time_end columns in the list as they are merged with with Start Date and End Date fields *}
@@ -94,6 +95,9 @@
 								data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
 							{/if}>
 							<td class="related-list-actions">
+								<span class="input" style="margin:5px;" >
+							        <input type="checkbox" value="{$RELATED_RECORD->getId()}" class="relatedlistViewEntriesCheckBox"/>
+							    </span>
 								<span class="actionImages">&nbsp;&nbsp;&nbsp;
 									{assign var=checkPermission value={HelpDesk_Record_Model::checkPermission('Edit',$RELATED_RECORD->getId())}}
 									{if $checkPermission}

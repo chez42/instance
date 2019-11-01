@@ -32,6 +32,10 @@ function GetDateMinusMonths($num_months){
     return date("Y-m-d", strtotime("TODAY -{$num_months} months"));
 }
 
+function GetDateMinusDays($num_days){
+    return date("Y-m-d", strtotime("TODAY -{$num_days} day"));
+}
+
 function GetDateMinusOneDay($date){
     return date('Y-m-d',(strtotime ( '-1 day' , strtotime ( $date) ) ));
 }

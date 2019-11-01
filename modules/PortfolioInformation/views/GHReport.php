@@ -33,6 +33,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #        ob_flush();
 #        flush();
 
+        $selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
         $orientation = $request->get('orientation');
         $calling_module = $request->get('calling_module');
         $calling_record = $request->get('calling_record');
@@ -67,6 +68,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
 
             $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
+#            echo $ytd_performance->GetIndex("S&P 500");
 
             if (sizeof($accounts) > 0) {
                 PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
@@ -125,6 +127,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("SHOW_END_DATE", 1);
             $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
             $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
+            $viewer->assign("SELECTED_INDEXES", $selected_indexes);
 
 
             if($calling_record) {

@@ -17,7 +17,7 @@ class RingCentral_ValidateTokenAndGetSIP_Action extends Vtiger_Action_Controller
                 $platform = $rcsdk->platform();
                 
                 $ringCentral_settings_result = $adb->pquery("SELECT * FROM vtiger_ringcentral_oauth WHERE
-		vtiger_ringcentral_oauth.userid = ?",array($current_user->id));
+		vtiger_ringcentral_oauth.userid = ? and ( access_token is not NULL and access_token != '' )",array($current_user->id));
                 
                 if($adb->num_rows($ringCentral_settings_result)){
                     

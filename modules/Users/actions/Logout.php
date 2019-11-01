@@ -16,6 +16,36 @@ class Users_Logout_Action extends Vtiger_Action_Controller {
 
 	function process(Vtiger_Request $request) {
 		//Redirect into the referer page
+		global $adb,$current_user;
+		
+		//Fetch and Close all the Timers of Existing Users
+		$timecontrol_result = $adb->pquery("SELECT vtiger_timecontrol.timecontrolid FROM vtiger_timecontrol
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_timecontrol.timecontrolid
+        WHERE vtiger_crmentity.deleted = 0 AND vtiger_timecontrol.timecontrolstatus = 'run'
+        AND vtiger_crmentity.smcreatorid = ?",array($current_user->id));
+		
+		if($adb->num_rows($timecontrol_result)){
+		    for($i=0;$i<$adb->num_rows($timecontrol_result);$i++){
+		        
+		        $recordId = $adb->query_result($timecontrol_result, $i, 'timecontrolid');
+		        
+		        $recordModel = Vtiger_Record_Model::getInstanceById($recordId, 'Timecontrol');
+		        
+		        $datetimefield = new DateTimeField('');
+				
+		        $nowDate = $datetimefield->convertToUserTimeZone(date('Y-m-d H:i:s'));
+		        
+				$finishDateTS = strtotime($nowDate->format('Y-m-d H:i:s'));
+		        
+		        $recordModel->set('date_end', date('Y-m-d', $finishDateTS));
+		        $recordModel->set('time_end', date('H:i:s', $finishDateTS));
+		        $recordModel->set('mode', 'edit');
+		        $recordModel->set('timecontrolstatus', 'finish');
+		        $recordModel->save();
+		    }
+		}
+		
+		
 		$logoutURL = $this->getLogoutURL();
         session_regenerate_id(true);
 		Vtiger_Session::destroy();

@@ -144,8 +144,8 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 	checkForPortalUser: function (form) {
 		var element = jQuery('[name="portal"]', form);
 		var response = element.is(':checked');
-		var primaryEmailField = jQuery('[name="email"]');
-		var primaryEmailValue = primaryEmailField.val();
+		var primaryEmailField = jQuery('.fieldValue [data-name="email"]');
+		var primaryEmailValue = primaryEmailField.data('value');
 		if (response) {
 			if (primaryEmailField.length == 0) {
 				app.helper.showErrorNotification({message: app.vtranslate('JS_PRIMARY_EMAIL_FIELD_DOES_NOT_EXISTS')});
@@ -293,6 +293,190 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 			if(ignoreList.indexOf(fieldType) !== -1) return;
 			if(!textArea.length){
 				(e.keyCode || e.which) === 13  && editElement.closest('td').find('.inlinePortalAjaxSave').trigger('click');
+			}
+		});
+	},
+	
+	/**
+	 * Ajax Edit Save Event
+	 * @param {type} currentTdElement
+	 * @returns {undefined}
+	 */
+	registerAjaxEditSaveEvent : function(contentHolder){
+		var thisInstance = this;
+		if(typeof contentHolder === 'undefined') {
+			contentHolder = this.getContentHolder();
+		}
+
+		contentHolder.on('click','.inlineAjaxSave',function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			var currentTarget = jQuery(e.currentTarget);
+			var currentTdElement = thisInstance.getInlineWrapper(currentTarget); 
+			var detailViewValue = jQuery('.value',currentTdElement);
+			var editElement = jQuery('.edit',currentTdElement);
+			var actionElement = jQuery('.editAction', currentTdElement);
+			var fieldBasicData = jQuery('.fieldBasicData', editElement);
+			var fieldName = fieldBasicData.data('name');
+			var fieldType = fieldBasicData.data("type");
+			var previousValue = jQuery.trim(fieldBasicData.data('displayvalue'));
+
+			var fieldElement = jQuery('[name="'+ fieldName +'"]', editElement);
+			var ajaxEditNewValue = fieldElement.val();
+
+			 // ajaxEditNewValue should be taken based on field Type
+			if(fieldElement.is('input:checkbox')) {
+				if(fieldElement.is(':checked')) {
+					ajaxEditNewValue = '1';
+				} else {
+					ajaxEditNewValue = '0';
+				}
+				fieldElement = fieldElement.filter('[type="checkbox"]');
+			} else if(fieldType == 'reference'){
+				currentTdElement.prev('td').find('.referenceSelect').addClass('hide');
+				if(currentTdElement.prev('td').find('.referenceSelect').length)
+					currentTdElement.prev('td').find('.muted').removeClass('hide');
+				ajaxEditNewValue = fieldElement.data('value');
+			}
+
+			// prev Value should be taken based on field Type
+			var customHandlingFields = ['owner','ownergroup','picklist','multipicklist','reference','boolean']; 
+			if(jQuery.inArray(fieldType, customHandlingFields) !== -1){
+				previousValue = fieldBasicData.data('value');
+			}
+
+			// Field Specific custom Handling
+			if(fieldType === 'multipicklist'){
+				var multiPicklistFieldName = fieldName.split('[]');
+				fieldName = multiPicklistFieldName[0];
+			} 
+
+			var fieldValue = ajaxEditNewValue;
+
+			//Before saving ajax edit values we need to check if the value is changed then only we have to save
+			if(previousValue == ajaxEditNewValue) {
+				detailViewValue.css('display', 'inline-block');
+				editElement.addClass('hide');
+				editElement.removeClass('ajaxEdited');
+				jQuery('.editAction').removeClass('hide');
+				actionElement.show();
+			}else{
+				var fieldNameValueMap = {};
+				fieldNameValueMap['value'] = fieldValue;
+				fieldNameValueMap['field'] = fieldName;
+				var form = currentTarget.closest('form');
+				var params = {
+					'ignore' : 'span.hide .inputElement,input[type="hidden"]',
+					submitHandler : function(form){
+						var preAjaxSaveEvent = jQuery.Event(Vtiger_Detail_Js.PreAjaxSaveEvent);
+						app.event.trigger(preAjaxSaveEvent,{form:jQuery(form),triggeredFieldInfo:fieldNameValueMap});
+						if(preAjaxSaveEvent.isDefaultPrevented()) {
+							return false;
+						}
+
+						jQuery(currentTdElement).find('.input-group-addon').addClass('disabled');
+						app.helper.showProgress();
+						thisInstance.saveFieldValues(fieldNameValueMap).then(function(err, response) {
+							app.helper.hideProgress();
+							if (err !== null) {
+								app.event.trigger('post.save.failed', err);
+								jQuery(currentTdElement).find('.input-group-addon').removeClass('disabled');
+								return true;
+							}
+							jQuery('.vt-notification').remove();
+							var postSaveRecordDetails = response;
+							if(fieldBasicData.data('type') == 'picklist' && app.getModuleName() != 'Users') {
+								if(typeof postSaveRecordDetails[fieldName].colormap !== 'undefined') {
+									var color = postSaveRecordDetails[fieldName].colormap[postSaveRecordDetails[fieldName].value];
+									if(color) {
+										var contrast = app.helper.getColorContrast(color);
+										var textColor = (contrast === 'dark') ? 'white' : 'black';
+										var picklistHtml = '<span class="picklist-color" style="background-color: ' + color + '; color: '+ textColor + ';">' +
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
+									} else {
+										var picklistHtml = '<span class="picklist-color">' +
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
+									}
+									
+								} else {
+									var picklistHtml = '<span class="picklist-color">' +
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
+								}
+								detailViewValue.html(picklistHtml);
+							} else if(fieldBasicData.data('type') == 'multipicklist' && app.getModuleName() != 'Users') {
+								var picklistHtml = '';
+								var rawPicklistValues = postSaveRecordDetails[fieldName].value;
+								rawPicklistValues = rawPicklistValues.split('|##|');
+								var picklistValues = postSaveRecordDetails[fieldName].display_value;
+									picklistValues = picklistValues.split(',');
+								for(var i=0; i< rawPicklistValues.length; i++) {
+									var color = postSaveRecordDetails[fieldName].colormap[rawPicklistValues[i].trim()];
+									if(color) {
+										var contrast = app.helper.getColorContrast(color);
+										var textColor = (contrast === 'dark') ? 'white' : 'black';
+										picklistHtml = picklistHtml +
+														'<span class="picklist-color" style="background-color: ' + color + '; color: '+ textColor + ';">' +
+															 picklistValues[i] + 
+														'</span>';
+									} else {
+										picklistHtml = picklistHtml +
+														'<span class="picklist-color">' + 
+															 picklistValues[i] + 
+														'</span>';
+									}
+									if(picklistValues[i+1]!==undefined)
+										picklistHtml+=' , ';
+								}
+								detailViewValue.html(picklistHtml);
+							} else if(fieldBasicData.data('type') == 'currency' && app.getModuleName() != 'Users') {
+								detailViewValue.find('.currencyValue').html(postSaveRecordDetails[fieldName].display_value);
+								contentHolder.closest('.detailViewContainer').find('.detailview-header-block').find('.'+fieldName).html(postSaveRecordDetails[fieldName].display_value);
+							}else {
+								detailViewValue.html(postSaveRecordDetails[fieldName].display_value);
+								//update namefields displayvalue in header
+								if(contentHolder.hasClass('overlayDetail')) {
+									contentHolder.find('.overlayDetailHeader').find('.'+fieldName)
+									.html(postSaveRecordDetails[fieldName].display_value);
+								} else {
+									contentHolder.closest('.detailViewContainer').find('.detailview-header-block')
+									.find('.'+fieldName).html(postSaveRecordDetails[fieldName].display_value);
+							}
+							}
+							fieldBasicData.data('displayvalue',postSaveRecordDetails[fieldName].display_value);
+							fieldBasicData.data('value',postSaveRecordDetails[fieldName].value);
+							
+							if(fieldName == 'portal'){
+								var passEle = jQuery('[data-name="portal_password"]');
+								passEle.closest('td').find('.value').html(postSaveRecordDetails['portal_password'].display_value);
+								passEle.data('displayvalue', postSaveRecordDetails['portal_password'].display_value)
+								passEle.data('value', postSaveRecordDetails['portal_password'].value)
+							}
+							
+							jQuery(currentTdElement).find('.input-group-addon').removeClass("disabled");
+
+							detailViewValue.css('display', 'inline-block');
+							editElement.addClass('hide');
+							editElement.removeClass('ajaxEdited');
+							jQuery('.editAction').removeClass('hide');
+							actionElement.show();
+							var postAjaxSaveEvent = jQuery.Event(Vtiger_Detail_Js.PostAjaxSaveEvent);
+							app.event.trigger(postAjaxSaveEvent, fieldBasicData, postSaveRecordDetails, contentHolder);
+							//After saving source field value, If Target field value need to change by user, show the edit view of target field.
+							if(thisInstance.targetPicklistChange) {
+								var sourcePicklistname = thisInstance.sourcePicklistname;
+								thisInstance.targetPicklist.find('.editAction').trigger('click');
+								thisInstance.targetPicklistChange = false;
+								thisInstance.targetPicklist = false;
+								thisInstance.handlePickListDependencyMap(sourcePicklistname);
+								thisInstance.sourcePicklistname = false;
+							}
+						});
+					}
+				};
+				validateAndSubmitForm(form,params);
 			}
 		});
 	},

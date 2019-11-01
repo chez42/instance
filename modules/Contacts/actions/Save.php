@@ -13,7 +13,7 @@ class Contacts_Save_Action extends Vtiger_Save_Action {
 
 	public function process(Vtiger_Request $request) {
 		$adb = PearDatabase::getInstance();
-	
+		
 		//To stop saveing the value of salutation as '--None--'
 		$salutationType = $request->get('salutationtype');
 		if ($salutationType === '--None--') {
@@ -36,13 +36,39 @@ class Contacts_Save_Action extends Vtiger_Save_Action {
 		
 		if(!empty($portal_module_permission) && $recordModel->getId()){
 			
-			$portal_permission_result = $adb->pquery("select * from vtiger_contact_portal_permissions where crmid = ?",array($recordModel->getId()));
+		    $portal_permission_result = $adb->pquery("select * from vtiger_contact_portal_permissions where crmid = ?",array($recordModel->getId()));
 			
+		    $queryFields = '';
+		    
+		    $totalCount = count($portal_module_permission);
+		    $fieldCount = 1;
+		    
 			if($adb->num_rows($portal_permission_result)){
-				$adb->pquery("update vtiger_contact_portal_permissions set permissions = ? where crmid = ?", 
-				array(json_encode($portal_module_permission), $recordModel->getId()));
+			    
+			    foreach($portal_module_permission as $field_name => $field_value){
+			        $queryFields .= $field_name .' = '. $field_value;
+			        if($fieldCount < $totalCount)
+		                $queryFields .= ', ';
+			        $fieldCount++;
+			    }
+			    
+				$adb->pquery("update vtiger_contact_portal_permissions set ".$queryFields." where crmid = ?", 
+				array($recordModel->getId()));
+				
 			} else {
-				$adb->pquery("insert into vtiger_contact_portal_permissions (crmid, permissions) values (?, ?)",array($recordModel->getId(), json_encode($portal_module_permission)));
+			    
+			    $queryValues = '';
+			    foreach($portal_module_permission as $field_name => $field_value){
+			        $queryFields .= $field_name ;
+			        $queryValues .= $field_value;
+			        if($fieldCount < $totalCount){
+			            $queryFields .= ', ';
+			            $queryValues .= ', ';
+			        }
+		            $fieldCount++;
+			    }
+			    $adb->pquery("insert into vtiger_contact_portal_permissions (crmid, ".$queryFields.") values (?, ".$queryValues.")",array($recordModel->getId()));
+			
 			}
 		}
 		

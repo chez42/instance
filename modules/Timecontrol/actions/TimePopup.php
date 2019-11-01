@@ -39,7 +39,7 @@ class Timecontrol_TimePopup_Action extends Vtiger_Save_Action {
                     LEFT JOIN vtiger_crmentity as relfield ON (relfield.crmid = vtiger_timecontrol.relatedto)
                     WHERE
                         vtiger_crmentity.setype = "Timecontrol" AND
-                        vtiger_crmentity.smownerid = ? AND
+                        vtiger_crmentity.smcreatorid = ? AND
                         timecontrolstatus != "finish" AND
                         vtiger_crmentity.deleted = 0
                     ORDER BY vtiger_crmentity.createdtime ASC

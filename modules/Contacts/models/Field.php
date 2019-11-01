@@ -14,13 +14,13 @@ class Contacts_Field_Model extends Vtiger_Field_Model {
 	 * Function to check whether field is ajax editable'
 	 * @return <Boolean>
 	 */
-	public function isAjaxEditable() {
+	/*public function isAjaxEditable() {
 	    
 	    $ajaxRestrictedFields = array('portal','portal_password');
 	    if(!$this->isEditable() || in_array($this->get('name'), $ajaxRestrictedFields)) {
 	        return false;
 	    }
 	    return true;
-	}
+	}*/
 
 }

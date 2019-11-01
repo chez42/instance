@@ -2198,4 +2198,20 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
+    static public function TDBalanceCalculations($sdate, $edate){
+        global $adb;
+
+        $begin = new DateTime($sdate);
+        $end = new DateTime($edate);
+
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
+
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS(?, 'live_omniscient')";
+        foreach ($period as $dt) {
+            $d = $dt->format("Y-m-d");
+            $adb->pquery($query, array($d));
+        }
+    }
+
 }

@@ -65,8 +65,12 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	public function getCalendarSettingsDetailViewUrl(){
 		return 'index.php?module=' .$this->getModuleName() . '&parent=Settings&view=Calendar&record='.$this->getId();
 	}
-	
-	public function getCalendarSettingsEditViewUrl(){
+
+    public function getIndexSettingsUrl(){
+        return 'index.php?module=' .$this->getModuleName() . '&parent=Settings&view=Indexes&record='.$this->getId();
+    }
+
+    public function getCalendarSettingsEditViewUrl(){
 		return 'index.php?module='.$this->getModuleName() . '&parent=Settings&view=Calendar&mode=Edit&record='.$this->getId();
 	}
     
