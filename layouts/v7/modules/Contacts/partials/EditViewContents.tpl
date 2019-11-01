@@ -104,10 +104,10 @@
 								<td></td>
 							{/if}
 						</tr>
-						{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && count($MODULES_MODELS) > 0}
+						{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && $VIEW_SOURCE neq 'MASSEDIT'}
 							<tr>
 							<td colspan="4">
-								{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE) MODULES_MODELS=$MODULES_MODELS}
+								{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE)}
 							</td>
 						{/if}
 					</table>

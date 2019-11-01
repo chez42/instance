@@ -18,7 +18,7 @@ if(RingCentral_Config_Connector::$server == 'Production')
 
 $platform = $rcsdk->platform();
 
-$ringCentral_settings_result = $adb->pquery("SELECT * FROM vtiger_ringcentral_oauth",array());
+$ringCentral_settings_result = $adb->pquery("SELECT * FROM vtiger_ringcentral_oauth where ( access_token is not NULL and access_token != '' )",array());
 
 if($adb->num_rows($ringCentral_settings_result)){
     
@@ -46,16 +46,18 @@ if($adb->num_rows($ringCentral_settings_result)){
 		
 		$syncStartDate = date('c', strtotime($token['lastmsgsynctime']));
 		
-		$syncLastTime = date('c', strtotime("+15 minutes", strtotime($token['lastmsgsynctime'])));
+		$syncLastTime = date('c', strtotime("+30 minutes", strtotime($token['lastmsgsynctime'])));
 		
 		$platform->auth()->setData($token);
 	
 		if($token['access_token_expiry_time'] < $current_time && $token['refresh_token_expiry_time'] > $current_time){
         	try {
 				$api_response = $platform->refresh();
-				$token_data =  $api_response->text();
-				saveToken($token_data);
+				$token_response =  $api_response->text();
+				saveToken($token_response, $user_id);
             } catch(Exception $e){
+	            $adb->pquery("update vtiger_ringcentral_oauth set access_token = '' 
+	            where userid = ?",array($user_id));
 				continue;
 			}
         }
@@ -115,7 +117,7 @@ if($adb->num_rows($ringCentral_settings_result)){
 		
 		$syncStartDate = date('c', strtotime($token['lastcallsynctime']));
 		
-		$syncLastTime = date('c', strtotime("+15 minutes", strtotime($token['lastcallsynctime'])));
+		$syncLastTime = date('c', strtotime("+30 minutes", strtotime($token['lastcallsynctime'])));
 		
 		
 		
@@ -170,7 +172,7 @@ if($adb->num_rows($ringCentral_settings_result)){
         $token['lastfaxsynctime'] = $token_data['lastfaxsynctime'] ? $token_data['lastfaxsynctime'] : date("Y-m-d H:i:s", strtotime("-10 hours"));
         
 		$syncStartDate = date('c', strtotime($token['lastfaxsynctime']));
-		$syncLastTime = date('c', strtotime("+15 minutes", strtotime($token['lastfaxsynctime'])));
+		$syncLastTime = date('c', strtotime("+30 minutes", strtotime($token['lastfaxsynctime'])));
 		
 		$fax_logs = $platform->get('/account/~/extension/~/message-store',array(
             'dateFrom' => $syncStartDate,
@@ -262,7 +264,9 @@ function syncCalls($user_id, $calls){
 		if($obj->id){
 			
 			$toNums = $record['to'] ;
-			   
+
+			$toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
+			
 			$crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
 			
 			$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel 
@@ -326,6 +330,7 @@ function syncMessages($user_id, $messages, $platform = ''){
 				syncFiles($record,$obj->id,$platform);
             
 			foreach($record['to'] as $toNums){
+				$toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
 				$crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
 				$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
 				WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
@@ -375,9 +380,9 @@ function syncFiles($record, $recordId, $platform){
     
 }
 
-function saveToken($token_data){
+function saveToken($token_data, $user_id){
     
-    global $adb, $current_user;
+    global $adb;
     
     $token = json_decode($token_data, true);
     
@@ -395,7 +400,7 @@ function saveToken($token_data){
     
     $refresh_token_expiry_time = date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s")) + ($token['refresh_token_expires_in'] - 60));
     
-    $current_user_id = $current_user->id;
+    $current_user_id = $user_id;
     
     $result = $adb->pquery('SELECT * FROM vtiger_ringcentral_oauth WHERE userid = ?',array($current_user_id));
     

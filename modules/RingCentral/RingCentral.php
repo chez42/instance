@@ -101,128 +101,87 @@ class RingCentral extends Vtiger_CRMEntity {
     
     function removeLinks($adb) {
         
-        $moduleInstance = Vtiger_Module::getInstance( 'Contacts' );
-        $myCustomModule = Vtiger_Module::getInstance( 'RingCentral' );
-        $relList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
-            array($moduleInstance->getId(),$myCustomModule->getId()));
-        if($adb->num_rows($relList)){
-            $relationLabel = 'RingCentral';
-            $moduleInstance->unsetRelatedList( $myCustomModule , $relationLabel);
-        }
-        
-        $moduleName = 'Contacts';
-        
-		$tab_id = Vtiger_Functions::getModuleId($moduleName);
-        
-        //$linkurl = 'index.php?module=Contacts&view=Extension&extensionModule=RingCentral&extensionView=Index';
-        //Vtiger_Link::deleteLink($tab_id, 'EXTENSIONLINK', 'RingCentral', $linkurl);
+        $contact_module_model = Vtiger_Module::getInstance( 'Contacts' );
 		
-        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        $ringcentral_module_model = Vtiger_Module::getInstance( 'RingCentral' );
         
-		$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
+		$relList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+        array($contact_module_model->getId(),$ringcentral_module_model->getId()));
         
-		if($adb->num_rows($result)){
-            Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Ring Central', $linkurl);
+		if($adb->num_rows($relList)){
+            $relationLabel = 'RingCentral';
+            $contact_module_model->unsetRelatedList( $ringcentral_module_model , $relationLabel);
         }
+       
+
+	   
+		$contact_tab_id = Vtiger_Functions::getModuleId('Contacts');
+       
+	    $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($contact_tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $linkurl);
+        
+		$linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
+		Vtiger_Link::deleteLink($contact_tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $linkurl);
         
         $linkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($contact_tab_id, 'DETAILVIEWBASIC', 'Ring Central', $linkurl);
         
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-        if($adb->num_rows($result)){
-            Vtiger_Link::deleteLink($tab_id, 'DETAILVIEWBASIC', 'Ring Central', $linkurl);
-        }
-        
-        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
-        
-		$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-		if($adb->num_rows($result)){
-            Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax With RingCentral', $linkurl);
-        }
-        
-        $moduleName = 'RingCentral';
-        
-        $tab_id = Vtiger_Functions::getModuleId($moduleName);
-        
+		$ringcentral_tab_id = Vtiger_Functions::getModuleId('RingCentral');
         $linkurl = 'layouts/v7/modules/RingCentral/resources/RingCentral.js';
-        
-		$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-		if($adb->num_rows($result)){
-            Vtiger_Link::deleteLink($tab_id, 'HEADERSCRIPT', 'RingCentralJS', $linkurl);
-        }
+        Vtiger_Link::deleteLink($ringcentral_tab_id, 'HEADERSCRIPT', 'RingCentralJS', $linkurl);
         
     }
     
     function addLinks($adb,$displayLabel) {
         
         
-        $moduleInstance = Vtiger_Module::getInstance( 'Contacts' );
-        $myCustomModule = Vtiger_Module::getInstance( 'RingCentral' );
-        $relList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
-            array($moduleInstance->getId(),$myCustomModule->getId()));
-        if(!$adb->num_rows($relList)){
+        $contact_module_model = Vtiger_Module::getInstance( 'Contacts' );
+        $ringcentral_module_model = Vtiger_Module::getInstance( 'RingCentral' );
+        
+		$relList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+        array($contact_module_model->getId(),$ringcentral_module_model->getId()));
+        
+		if(!$adb->num_rows($relList)){
             $relationLabel = 'RingCentral';
-            $moduleInstance->setRelatedList( $myCustomModule , $relationLabel, Array( ));
+            $contact_module_model->setRelatedList( $ringcentral_module_model , $relationLabel, Array( ));
         }
         
-        $moduleName = 'Contacts';
         
-        $tab_id = Vtiger_Functions::getModuleId($moduleName);
-		
-        //$linkurl = 'index.php?module=Contacts&view=Extension&extensionModule=RingCentral&extensionView=Index';
-        
-        //$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        //if($adb->num_rows($result) < 1){
-           //Vtiger_Link::addLink($tab_id, 'EXTENSIONLINK', 'RingCentral', $linkurl, '', '0', '', '', '');
-        //}
-		
-        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
-        
-		$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-		if($adb->num_rows($result) < 1){
-            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Ring Central', $linkurl, '', '0', '', '', '');
-        }
-        
-        $linkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
-        
+        $tab_id = Vtiger_Functions::getModuleId('Contacts');
+		$linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
         $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
+        if(!$adb->num_rows($result)){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $linkurl, '', '0', '', '', '');
+        }
         
+		// Disable SMS Through Detail View for now
+        /*$linkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
         if($adb->num_rows($result) < 1){
             Vtiger_Link::addLink($tab_id, 'DETAILVIEWBASIC', 'Ring Central', $linkurl, '', '0', '', '', '');
-        }
+        }*/
+		
         
         $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
-        
         $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-		if($adb->num_rows($result) < 1){
-            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax With RingCentral', $linkurl, '', '0', '', '', '');
+        if($adb->num_rows($result) < 1){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $linkurl, '', '0', '', '', '');
         }
         
-        $moduleName = 'RingCentral';
-        
-        $tab_id = Vtiger_Functions::getModuleId($moduleName);
-        
+        $tab_id = Vtiger_Functions::getModuleId('RingCentral');
         $linkurl = 'layouts/v7/modules/RingCentral/resources/RingCentral.js';
-        
-		$result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
-        
-		if($adb->num_rows($result) < 1){
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
+        if(!$adb->num_rows($result)){
             Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'RingCentralJS', $linkurl, '', '0', '', '', '');
         }
         
-        $blockid = $adb->query_result(
-            $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_OTHER_SETTINGS'",array()),0, 'blockid');
         
+		$blockid = $adb->query_result(
+		$adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_OTHER_SETTINGS'",array()),0, 'blockid');
         $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
 			as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
             0, 'sequence') + 1;
-            
         $fieldid = $adb->getUniqueId('vtiger_settings_field');
-        
         $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
 		VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,$displayLabel,'','', 'index.php?parent=Settings&module=RingCentral&view=Settings'));
 		
@@ -230,29 +189,12 @@ class RingCentral extends Vtiger_CRMEntity {
 	}
 	
 	function ringCentralTables($adb){
-	    
-	    $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_ringcentral_settings ( 
-            userid INT(19) NOT NULL, 
-            token TEXT NOT NULL, 
-            from_no VARCHAR(250) NULL) ;");
-	    
-	    $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_ringcentral_logs (
-            id INT(19) NOT NULL AUTO_INCREMENT,
-            crmid INT(19) NULL,
-            user_id INT(19) NULL,
-            type VARCHAR(150) NULL,
-            ringcentral_id VARCHAR(150) NULL,
-            status VARCHAR(250) NULL,
-            content TEXT NULL,
-            created_date VARCHAR(250) NULL,
-            tono VARCHAR(19) NULL,
-            PRIMARY KEY (id)) ;");
-	    
-	    $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_ringcentral_oauth_settings ( 
+
+	    /*$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_ringcentral_oauth_settings ( 
         user_id INT(19) NOT NULL , 
         clientid VARCHAR(250) NOT NULL ,
         clientsecret VARCHAR(500) NOT NULL ) ;");
-	    
+	    */
 	}
     
 }

@@ -95,6 +95,8 @@ class MSExchange_License_Model{
 	}
 
 	public function validate(){
+	    
+		return true;
 		
 	    $this->readLicenseFromDB();
 		

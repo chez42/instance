@@ -17,6 +17,21 @@ class Vtiger_Journal_View extends Vtiger_Detail_View {
         $this->exposeMethod('Export');
     }
     
+    function checkPermission(Vtiger_Request $request) {
+        
+        $moduleName = $request->getModule();
+        $record = $request->get('record');
+        
+        if($moduleName == 'HelpDesk'){
+            $check = HelpDesk_Record_Model::checkPermission('Detail',$record);
+            
+            if(!$check)
+                throw new AppException('LBL_PERMISSION_DENIED');
+        }else{
+            parent::checkPermission($request);
+        }
+    }
+    
     function recentJournals(Vtiger_Request $request) {
        
         $moduleName = $request->getModule();

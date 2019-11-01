@@ -39,12 +39,26 @@ class VTSimpleTemplate{
 				if(isset($data[$fieldname]) || $fieldname === '_DATE_FORMAT_') {
 					if($this->useValue($data, $fieldname)){
 						$result = $this->transformToUserFormat($this->parent->getModuleName(), $fieldname, $data[$fieldname]);
+						
+						if($this->parent->getModuleName() == 'Documents' && $fieldname == 'related_to'){
+						    global $adb;
+						    $contact = $adb->pquery("SELECT CONCAT(vtiger_contactdetails.firstname,' ',vtiger_contactdetails.lastname) AS fullname FROM vtiger_contactdetails
+                            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+                            WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.contactid = ?",array($result));
+						    
+						    if($adb->num_rows($contact)){
+						        $result = $adb->query_result($contact, 0, 'fullname');
+						    }
+						    
+						}
+						
 					} else {
 						$result ='';
 					}
 				} else {
 					$result ='$'.$fieldname;
 				}
+				
 			}else{
 				list($full, $referenceField, $referenceModule, $fieldname) = $matches;
 				if($referenceModule === '__VtigerMeta__' || $fieldname === 'dbLabel') {

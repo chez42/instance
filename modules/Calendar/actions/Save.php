@@ -196,10 +196,12 @@ class Calendar_Save_Action extends Vtiger_Save_Action {
 		}
 		
 		$activityType = $request->get('activitytype');
-		if(empty($activityType)) {
+		
+		/*if(empty($activityType)) {
 			$recordModel->set('activitytype', 'Task');
 			$recordModel->set('visibility', 'Private');
-		}
+		}*/
+		
 
 		//Due to dependencies on the older code
 		$setReminder = $request->get('set_reminder');

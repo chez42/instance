@@ -18,7 +18,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 	protected $listviewHeaders;
 	protected $listviewRecords;
 	protected $targetModuleModel;
-
+    static $errorContent;
 	public function setWidgetModel($widgetModel) {
 		$this->widgetModel = $widgetModel;
 		$this->extraData = $this->widgetModel->get('data');
@@ -28,7 +28,7 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 			$this->extraData = Zend_Json::decode(decode_html($this->extraData));
 		}
 		if ($this->extraData == NULL) {
-			throw new Exception("Invalid data");
+            $this->errorContent = true;
 		}
 	}
 
@@ -57,8 +57,13 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 			$filterid = $this->widgetModel->get('filterid');
 			$this->queryGenerator = new EnhancedQueryGenerator($this->getTargetModule(), $currentUserModel);
 			$this->queryGenerator->initForCustomViewById($filterid);
-			$this->queryGenerator->setFields( $this->getTargetFields() );
-
+            
+            $fields = $this->getTargetFields() ;
+            
+            if($this->getTargetModule() == 'HelpDesk' && !in_array($fields, 'financial_advisor'))
+                $fields[] = 'financial_advisor';
+            
+            $this->queryGenerator->setFields( $fields );
 			if (!$this->listviewController) {
 				$this->listviewController = new ListViewController($db, $currentUserModel, $this->queryGenerator);
 			}
@@ -83,25 +88,31 @@ class Vtiger_MiniList_Model extends Vtiger_Widget_Model {
 
 	public function getHeaders() {
 		$this->initListViewController();
-
-		if (!$this->listviewHeaders) {
-			$headerFieldModels = array();
-			foreach ($this->listviewController->getListViewHeaderFields() as $fieldName => $webserviceField) {
-				$fieldObj = Vtiger_Field::getInstance($webserviceField->getFieldId());
-				$headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstanceFromFieldObject($fieldObj);
-			}
-			$this->listviewHeaders = $headerFieldModels;
-		}
-		return $this->listviewHeaders;
-	}
-
-	public function getHeaderCount() {
-		if($this->listviewHeaders) return count($this->listviewHeaders);
-		return count($this->getHeaders());
-	}
-
-	public function getRecordLimit() {
-		$pageLimit = vglobal('list_max_entries_per_page');
+        $fileds = $this->getTargetFields();
+        
+        if (!$this->listviewHeaders) {
+            $headerFieldModels = array();
+            foreach ($this->listviewController->getListViewHeaderFields() as $fieldName => $webserviceField) {
+                
+                if($fieldName == 'financial_advisor' && !in_array($fileds, 'financial_advisor'))
+                    continue;
+                    
+                $fieldObj = Vtiger_Field::getInstance($webserviceField->getFieldId());
+                $headerFieldModels[$fieldName] = Vtiger_Field_Model::getInstanceFromFieldObject($fieldObj);
+                
+            }
+            $this->listviewHeaders = $headerFieldModels;
+        }
+        return $this->listviewHeaders;
+    }
+    
+    public function getHeaderCount() {
+        if($this->listviewHeaders) return count($this->listviewHeaders);
+        return count($this->getHeaders());
+    }
+    
+    public function getRecordLimit() {
+        $pageLimit = vglobal('list_max_entries_per_page');
         if(empty($pageLimit)) {
             $pageLimit = 10;
         }

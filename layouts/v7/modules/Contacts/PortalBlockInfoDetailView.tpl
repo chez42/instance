@@ -28,20 +28,15 @@
 			</td>
 		</tr>
 		
-		{assign var=PortalModules value=['Documents', 'Contacts', 'Reports', 'Portfolios', 'Income', 'Performance']}
-		{*assign var=PortalReports value=['Omnivue', 'Holdings', 'Overview', 'Income']*}		
+		{assign var=PortalModules value=[{getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}	
 		{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 		{*'Holdings',*} 
-		{foreach key=TAB_ID item=MODEL from=$MODULES_MODELS}
-		
-			{assign var=MODULE_NAME value=$MODEL->get('name')}
-				
-			{if $MODEL->get('visible') != '1' || !in_array($MODULE_NAME, $PortalModules)}{continue}{/if}
-				
+		{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
+			{assign var=NAME_MODULE value=strtolower(str_replace(' ', '_', $MODULE_NAME))}
 			{if $SELECTED_PORTAL_MODULES|@count gt 0}
-				{assign var=VISIBLE value=$SELECTED_PORTAL_MODULES[$TAB_ID]['visible']}
-				{assign var=RECORD_VISIBLE value=$SELECTED_PORTAL_MODULES[$TAB_ID]['record_across_org']}
-				{assign var=EDIT_RECORDS value=$SELECTED_PORTAL_MODULES[$TAB_ID]['edit_records']}
+				{assign var=VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_MODULE|cat:_visible]}
+				{assign var=RECORD_VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_MODULE|cat:_record_across_org]}
+				{assign var=EDIT_RECORDS value=$SELECTED_PORTAL_MODULES[$NAME_MODULE|cat:_edit_records]}
 			{/if}
 			{if $MODULE_NAME neq 'Reports'}
 				<tr>
@@ -61,8 +56,8 @@
 							<span class="pointerCursorOnHover input-group-addon input-group-addon-cancel inlinePortalAjaxCancel"><i class="fa fa-close"></i></span>
 						</div>
 						<span class="hide editPortal">
-							<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$TAB_ID}][visible]" data-displayvalue="{if $VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
-							<input type="checkbox" class="inputElement" name="portalModulesInfo[{$TAB_ID}][visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
+							<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_visible]" data-displayvalue="{if $VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
+							<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
 						</span>
 					</td>
 					<td class="fieldValue text-center">
@@ -84,8 +79,8 @@
 						</div>
 						<span class="hide editPortal">
 							{if $MODULE_NAME neq 'Accounts'}
-								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$TAB_ID}][edit_records]" data-displayvalue="{if $EDIT_RECORDS == '1'}Yes{else}No{/if}" data-type="boolean" />
-								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$TAB_ID}][edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
+								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_edit_records]" data-displayvalue="{if $EDIT_RECORDS == '1'}Yes{else}No{/if}" data-type="boolean" />
+								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
 							{/if}
 						</span>
 					</td>
@@ -110,8 +105,8 @@
 							{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME eq 'Reports'}
 								&nbsp;
 							{else}
-								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$TAB_ID}][record_across_org]" data-displayvalue="{if $RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean"/>
-								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$TAB_ID}][record_across_org]" value="1" {if $RECORD_VISIBLE == '1'} checked {/if}/>
+								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" data-displayvalue="{if $RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean"/>
+								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="1" {if $RECORD_VISIBLE == '1'} checked {/if}/>
 							{/if}
 						</span>
 					</td>
@@ -125,36 +120,23 @@
 					
 					{foreach key=ReprtName item=PortalReport from=$PortalReports}
 						
-						{if $SELECTED_PORTAL_MODULES|@count gt 0}
-							{assign var=REPORT_VISIBLE value=$SELECTED_PORTAL_MODULES[$ReportTab]['allowed_reports'][$ReprtName]['visible']}
-						{/if}
-		
 						<tr>
 							<td class="fieldValue textOverflowEllipsis text-left">
 								{vtranslate($ReprtName, $MODULE)}
 							</td>
 							<td class="fieldValue text-center">
-								{*if $REPORT_VISIBLE == '1'} 
-									{vtranslate('LBL_YES', $MODULE_NAME)}
-								{else} 
-									{vtranslate('LBL_NO', $MODULE_NAME)}
-								{/if*}
+								
 							</td>
 							<td>&nbsp;</td>
 							<td>&nbsp;</td>
 							<td>&nbsp;</td>
-							{*<td style="text-align: center;">
-								{if $REPORT_RECORD_VISIBLE == '1'} 
-									{vtranslate('LBL_YES', $MODULE_NAME)}
-								{else} 
-									{vtranslate('LBL_NO', $MODULE_NAME)}
-								{/if}
-							</td>*}
+							
 						</tr>
 						{foreach item=ReportModules from=$PortalReport}
+							{assign var=NAME_REPORT value=strtolower(str_replace(' ', '_', $ReportModules))}
 							{if $SELECTED_PORTAL_MODULES|@count gt 0}
-								{assign var=REPORT_VISIBLE value=$SELECTED_PORTAL_MODULES[$ReportTab]['allowed_reports'][$ReprtName][$ReportModules]['visible']}
-								{assign var=REPORT_RECORD_VISIBLE value=$SELECTED_PORTAL_MODULES[$ReportTab]['allowed_reports'][$ReprtName][$ReportModules]['record_across_org']}
+								{assign var=REPORT_VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_REPORT|cat:_visible]}
+								{assign var=REPORT_RECORD_VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_REPORT|cat:_record_across_org]}
 							{/if}
 							<tr>
 								<td>&nbsp;</td>
@@ -177,8 +159,8 @@
 										<span class="pointerCursorOnHover input-group-addon input-group-addon-cancel inlinePortalAjaxCancel"><i class="fa fa-close"></i></span>
 									</div>
 									<span class="hide editPortal">
-										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$ReportTab}][allowed_reports][{$ReprtName}][{$ReportModules}][visible]" data-displayvalue="{if $REPORT_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
-										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$ReportTab}][allowed_reports][{$ReprtName}][{$ReportModules}][visible]" value="1" {if $REPORT_VISIBLE == '1'} checked {/if}/>
+										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_REPORT}_visible]" data-displayvalue="{if $REPORT_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
+										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_visible]" value="1" {if $REPORT_VISIBLE == '1'} checked {/if}/>
 									</span>
 								</td>
 								<td>&nbsp;</td>
@@ -198,8 +180,8 @@
 										<span class="pointerCursorOnHover input-group-addon input-group-addon-cancel inlinePortalAjaxCancel"><i class="fa fa-close"></i></span>
 									</div>
 									<span class="hide editPortal">
-										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$ReportTab}][allowed_reports][{$ReprtName}][{$ReportModules}][record_across_org]" data-displayvalue="{if $REPORT_RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
-										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$ReportTab}][allowed_reports][{$ReprtName}][{$ReportModules}][record_across_org]" value="1" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if}/>
+										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" data-displayvalue="{if $REPORT_RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
+										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="1" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if}/>
 									<span>
 								</td>
 								

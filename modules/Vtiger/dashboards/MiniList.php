@@ -35,26 +35,30 @@ class Vtiger_MiniList_Dashboard extends Vtiger_IndexAjax_View {
 		$minilistWidgetModel->setWidgetModel($widget);
         $minilistWidgetModel->set('nextPage', $nextPage);
         $minilistWidgetModel->set('currentPage', $currentPage);
-
-		$viewer->assign('WIDGET', $widget);
-		$viewer->assign('MODULE_NAME', $moduleName);
-		$viewer->assign('MINILIST_WIDGET_MODEL', $minilistWidgetModel);
-		$viewer->assign('BASE_MODULE', $minilistWidgetModel->getTargetModule());
-        $viewer->assign('CURRENT_PAGE', $currentPage);
-        $viewer->assign('MORE_EXISTS', $minilistWidgetModel->moreRecordExists());
+        
+        $viewer->assign('WIDGET', $widget);
+        $viewer->assign('MODULE_NAME', $moduleName);
+        if( !$minilistWidgetModel->errorContent ){
+            $viewer->assign('MINILIST_WIDGET_MODEL', $minilistWidgetModel);
+            $viewer->assign('BASE_MODULE', $minilistWidgetModel->getTargetModule());
+            $viewer->assign('CURRENT_PAGE', $currentPage);
+            $viewer->assign('MORE_EXISTS', $minilistWidgetModel->moreRecordExists());
+        }
         $viewer->assign('SCRIPTS', $this->getHeaderScripts());
-		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
-
-		$content = $request->get('content');
-		if(!empty($content)) {
-			$viewer->view('dashboards/MiniListContents.tpl', $moduleName);
-		} else {
-			$widget->set('title', $minilistWidgetModel->getTitle());
-
-			$viewer->view('dashboards/MiniList.tpl', $moduleName);
-		}
-
-	}
+        $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        $viewer->assign('ERROR', $minilistWidgetModel->errorContent);
+        
+        $content = $request->get('content');
+        if(!empty($content)) {
+            $viewer->view('dashboards/MiniListContents.tpl', $moduleName);
+        } else {
+            if( !$minilistWidgetModel->errorContent )
+                $widget->set('title', $minilistWidgetModel->getTitle());
+                
+                $viewer->view('dashboards/MiniList.tpl', $moduleName);
+        }
+        
+    }
     
     function getHeaderScripts() {
         return $this->checkAndConvertJsScripts(array('modules.Emails.resources.MassEdit'));

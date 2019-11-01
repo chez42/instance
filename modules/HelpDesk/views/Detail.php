@@ -127,12 +127,13 @@ class HelpDesk_Detail_View extends Vtiger_Detail_View {
 	    
 	    $viewer = $this->getViewer($request);
 	   
-	    global $adb;
+	    global $adb, $current_user;
 	    
 	    $timeControl = $adb->pquery("SELECT * FROM vtiger_timecontrol
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_timecontrol.timecontrolid
         WHERE vtiger_crmentity.deleted = 0 AND vtiger_timecontrol.timecontrolstatus='run' 
-        AND vtiger_timecontrol.relatedto = ?",array($request->get('record')));
+        AND vtiger_crmentity.smcreatorid = ?
+        AND vtiger_timecontrol.relatedto = ?",array($current_user->id, $request->get('record')));
 	    
 	    if($adb->num_rows($timeControl)){
 	        

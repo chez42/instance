@@ -40,7 +40,7 @@ class Documents_DocumentsReminder_Action extends Vtiger_Action_Controller{
 			$contactLabel = $contactRecordModel->get("firstname")." ".$contactRecordModel->get("lastname");
 			$contactRecords[$contactid] = "<a href='".$contactRecordModel->getDetailViewUrl()."' target='_blank'>".trim($contactLabel)."</a>";
 			foreach($docRecordModels as $record) {
-				$docRecords[$contactid][$record->getId()] = "<a href='".$record->getDetailViewUrl()."' target='_blank'>".$record->getDisplayName()."</a>";
+				$docRecords[$contactid][$record->getId()] = "<a href='".$record->getDetailViewUrl()."' target='_blank'>".$record->getName()."</a>";
 			}
 		}
 

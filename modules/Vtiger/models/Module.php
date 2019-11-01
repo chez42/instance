@@ -1666,7 +1666,9 @@ class Vtiger_Module_Model extends Vtiger_Module {
 				$params = array();
 				$module = $mappingDetails['relatedModuleName'];
 				$relationFieldId = $mappingDetails['relationfieldid'];
-				$sql = "SELECT vtiger_crmentity.crmid, vtiger_crmentity.deleted FROM vtiger_crmentity";
+				
+				// Quick Patch to Fix Issue with Speed (15-10-2019)
+				$sql = "SELECT vtiger_crmentity.crmid, vtiger_crmentity.deleted FROM vtiger_crmentity FORCE INDEX(PRIMARY) ";
 
 				if($nonAdminCheck) {
 					if(empty($relatedModuleFocus)) $relatedModuleFocus = CRMEntity::getInstance($module);
@@ -2049,6 +2051,26 @@ class Vtiger_Module_Model extends Vtiger_Module {
 		if (file_exists($imageFilePath)) {
 			$moduleIcon = "<img src='$imageFilePath' title='$title'/>";
 		}
+		
+		if($moduleName == "Transactions"){
+			$moduleIcon = "<i class='fa fa-random'></i>";
+		}
+		
+		if($moduleName == "PositionInformation"){
+			$moduleIcon = "<i class='fa fa-th-list'></i>";
+		}
+		
+		if($moduleName == "PortfolioInformation"){
+			$moduleIcon = "<i class='fa fa-desktop'></i>";
+		}
+		
+		if($moduleName == "ModSecurities"){
+			$moduleIcon = "<i class='fa fa-server'></i>";
+		}
+
+
+
+
 
 		return $moduleIcon;
 	}

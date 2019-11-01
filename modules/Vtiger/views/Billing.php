@@ -2,8 +2,11 @@
 
 class Vtiger_Billing_View extends Vtiger_Popup_View {
     function process(Vtiger_Request $request) {
-        $records = $request->get('records');
-        $records = explode(',', $records);
+        //$records = $request->get('records');
+        //$records = explode(',', $records);
+        
+        $records = $this->getRecordsListFromRequest($request);
+        
         $module = $request->getModule();
         $moduleModel = Vtiger_Module_Model::getInstance($module);
         $fieldModels = $moduleModel->getFields();
@@ -73,4 +76,46 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
 #        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
         return $jsScriptInstances;
     }
+    
+    public function getRecordsListFromRequest(Vtiger_Request $request) {
+        $cvId = $request->get('viewname');
+        $module = $request->get('module');
+        if(!empty($cvId) && $cvId=="undefined"){
+            $sourceModule = $request->get('sourceModule');
+            $cvId = CustomView_Record_Model::getAllFilterByModule($sourceModule)->getId();
+        }
+        $selectedIds = $request->get('selected_ids');
+        $excludedIds = $request->get('excluded_ids');
+        
+        if(!empty($selectedIds) && $selectedIds != 'all') {
+            if(!empty($selectedIds) && count($selectedIds) > 0) {
+                return $selectedIds;
+            }
+        }
+        
+        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+        if($customViewModel) {
+            $searchKey = $request->get('search_key');
+            $searchValue = $request->get('search_value');
+            $operator = $request->get('operator');
+            if(!empty($operator)) {
+                $customViewModel->set('operator', $operator);
+                $customViewModel->set('search_key', $searchKey);
+                $customViewModel->set('search_value', $searchValue);
+            }
+            
+            /**
+             *  Mass action on Documents if we select particular folder is applying on all records irrespective of
+             *  seleted folder
+             */
+            if ($module == 'Documents') {
+                $customViewModel->set('folder_id', $request->get('folder_id'));
+                $customViewModel->set('folder_value', $request->get('folder_value'));
+            }
+            
+            $customViewModel->set('search_params',$request->get('search_params'));
+            return $customViewModel->getRecordIds($excludedIds,$module);
+        }
+    }
+    
 }

@@ -10,6 +10,7 @@ function getReferenceReturn($symbol,$startDate,$endDate) {
     global $adb;
 
     $end = $start = array();
+    $symbol = html_entity_decode($symbol);
 
     $result = $adb->pquery("SELECT to_days(date) as to_days, date AS price_date, close AS price from 
                                vtiger_prices_index where date <= ?

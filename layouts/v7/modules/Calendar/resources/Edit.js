@@ -310,6 +310,20 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 		if(typeof form === "undefined") {
 			form = this.getForm();
 		}
+		var InitialFormData = form.serialize();
+		app.event.one(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
+			thisInstance.registerRecurringEditOptions(e,form,InitialFormData);
+			thisInstance.addInviteesIds(form);
+			thisInstance.resetRecurringDetailsIfDisabled(form);
+			thisInstance.initializeContactIdList(form);
+		});
+	},
+	
+	/*registerRecordPreSaveEvent : function(form) {
+		var thisInstance = this;
+		if(typeof form === "undefined") {
+			form = this.getForm();
+		}
 		
 		var InitialFormData = form.serialize();
 		form.on(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
@@ -332,7 +346,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			}
 			e.preventDefault();
 		});
-	},
+	},*/
 
 	registerTimeStartChangeEvent : function(container) {
 		container.on('changeTime', 'input[name="time_start"]', function() {

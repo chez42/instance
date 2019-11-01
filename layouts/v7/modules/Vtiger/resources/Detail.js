@@ -1461,17 +1461,24 @@ Vtiger.Class("Vtiger_Detail_Js",{
 							jQuery('.vt-notification').remove();
 							var postSaveRecordDetails = response;
 							if(fieldBasicData.data('type') == 'picklist' && app.getModuleName() != 'Users') {
-								var color = postSaveRecordDetails[fieldName].colormap[postSaveRecordDetails[fieldName].value];
-								if(color) {
-									var contrast = app.helper.getColorContrast(color);
-									var textColor = (contrast === 'dark') ? 'white' : 'black';
-									var picklistHtml = '<span class="picklist-color" style="background-color: ' + color + '; color: '+ textColor + ';">' +
-															postSaveRecordDetails[fieldName].display_value + 
-														'</span>';
+								if(typeof postSaveRecordDetails[fieldName].colormap !== 'undefined') {
+									var color = postSaveRecordDetails[fieldName].colormap[postSaveRecordDetails[fieldName].value];
+									if(color) {
+										var contrast = app.helper.getColorContrast(color);
+										var textColor = (contrast === 'dark') ? 'white' : 'black';
+										var picklistHtml = '<span class="picklist-color" style="background-color: ' + color + '; color: '+ textColor + ';">' +
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
+									} else {
+										var picklistHtml = '<span class="picklist-color">' +
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
+									}
+									
 								} else {
 									var picklistHtml = '<span class="picklist-color">' +
-															postSaveRecordDetails[fieldName].display_value + 
-														'</span>';
+																postSaveRecordDetails[fieldName].display_value + 
+															'</span>';
 								}
 								detailViewValue.html(picklistHtml);
 							} else if(fieldBasicData.data('type') == 'multipicklist' && app.getModuleName() != 'Users') {

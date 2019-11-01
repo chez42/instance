@@ -1,0 +1,7 @@
+#indexes_wrapper p{}
+
+/*Details Table*/
+#index_list{}
+#index_list thead tr td{}
+#index_list tbody tr td{}
+.preferred{background-color:green;}

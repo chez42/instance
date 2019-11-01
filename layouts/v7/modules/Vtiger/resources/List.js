@@ -1434,10 +1434,10 @@ Vtiger.Class("Vtiger_List_Js", {
 	},
 	performCalculateBilling: function(){
 		var self = this;
-		var selectedIds = self.readSelectedIds();
-
+		//var selectedIds = self.readSelectedIds();
+		var params = self.getListSelectAllParams(true);
 		//popup window with results here
-		app.event.trigger('Request.Billing.show', {records: selectedIds});
+		app.event.trigger('Request.Billing.show', {records: params});
 /*		app.event.one('post.MergeRecords', function (e) {
 			self.clearList();
 			self.loadListViewRecords();

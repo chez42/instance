@@ -252,7 +252,7 @@ Vtiger.Class("RingCentral_Js",{
 							homeCountryId: 1
 						});
 						
-						var html ='<div class="ringcentral_details"  style="width:100%;padding:2%">'+
+						var html ='<div class="ringcentral_details"  style="padding:2%">'+
 							'<span class="close" style="font-size:12px !important;padding-top: 0px!important;">' +
 								'<i class="fa fa-times closeOutgoing"></i>'+
 							'</span>' +
@@ -265,21 +265,18 @@ Vtiger.Class("RingCentral_Js",{
 						}
 						
 						html+='</div><div class="col-md-9 text-left" style="font-size:15px !important;">'+data.lastname+'&nbsp;'+data.firstname+'<br>'+
-								'<span class="close" style="float:left !important;">'+
-									'<button class = "btn btn-danger pull-left"  onclick="RingCentral_Js.hangUp();"><i class="fa fa-phone"></i>&nbsp; Hang up</button>' +
-								'</span>'+
 							'</div>' +
 								
 							'<div style="clear:both;"></div> <hr/>'+
 							'<div class=" col-md-12 text-left" >';
 						
 						$.each(data.fields,function(inx,val){
-							html+='<div class="fieldLabel" style="font-size:12px !important;">'+inx+' &nbsp;:&nbsp;'+val+'</div>';
+							html += '<div class="fieldLabel" style="font-size:12px !important;"><span style = "font-weight:600;">'+inx+'</span> &nbsp;:&nbsp;'+val+'</div>';
 						});
 						
 						html+= '</div>'+
-							'<div class="col-md-12" style="margin-top:3%!important;margin-bottom:3%!important;">'+
-								'<textarea class="pull-left" style="font-size:12px !important;border:1px solid #DDDDDD;" placeholder="Leave notes" name="callnotes" rows="2" cols="25"></textarea>'+
+							'<div class="col-md-12" style="position:absolute;bottom:10px;">'+
+								'<textarea class="pull-left" style="width:80%;height:50px;font-size:12px !important;border:1px solid #DDDDDD;" placeholder="Leave notes" name="callnotes"></textarea>'+
 								'<button data-id="'+record+'" class="btn-success sendnotes pull-right" style="font-size:12px !important;"><i class="fa fa-arrow-right"></i></button>'
 							'</div>'+
 						'</div>' ;
@@ -297,11 +294,11 @@ Vtiger.Class("RingCentral_Js",{
 	
 	registerEventForMouse :function(){
 		
-		$("[data-field-type=phone]").mouseenter(function(){
+		$(".popover").popover('destroy');
 		
-		//$("[data-field-type=phone]").each(function(){
- 
-            if (!$(this).hasClass("listSearchContributor")) {
+		$("[data-field-type=phone]").each(function(){
+            
+			if (!$(this).hasClass("listSearchContributor")) {
                 
             	var element = $(this);
             	
@@ -311,56 +308,43 @@ Vtiger.Class("RingCentral_Js",{
     			
     			var parentElem = jQuery(element).closest('td');
     			
-            	$(".popover").popover('destroy');
-            	
-				//For List View Case
-				
-            	if($(this).attr("data-rawvalue") != '' && $(this).attr("data-rawvalue") != undefined){
-                	
-					var number = $(this).attr("data-rawvalue");
-                	var container = jQuery('#listview-table');
-                	var parentElem = jQuery(element).closest('tr');
-        			var recordId = parentElem.data('id');
-				
-				//For Detail View Case
-				
-            	} else if($.trim($(this).text()) != ''){
+				if($(this).attr("data-rawvalue") != '' && $(this).attr("data-rawvalue") != undefined){
 					
-            		var number = $.trim($(this).text());
-            		var container = parentElem;
-            		var recordId = app.getRecordId();
-            	
+					var number = $(this).attr("data-rawvalue");
+					var container = jQuery('#listview-table');
+					var parentElem = jQuery(element).closest('tr');
+					var recordId = parentElem.data('id');
+				
+				} else if($.trim($(this).text()) != ''){
+					
+					var number = $.trim($(this).text());
+					var container = parentElem;
+					var recordId = app.getRecordId();
+				
 				}
-            	
-            	if (number !== '') {
-                	
-        			var template = jQuery(RingCentral_Js.lineItemPopOverTemplate);
-        			
-        			phoneCallContainer.find('#call').attr('data-number', number);
+				
+				if (number !== '' && /^\+?[0-9-\(\)\ \#pw]{1,50}$/.test(number)) {
+					
+					var template = jQuery(RingCentral_Js.lineItemPopOverTemplate);
+					
+					phoneCallContainer.find('#call').attr('data-number', number);
 					phoneCallContainer.find('#call').attr('data-id', recordId);
 					
-        			phoneCallContainer.find('#message').attr('data-id', recordId);
-        			phoneCallContainer.find('#message').attr('data-number', number);
-        			
-        			element.popover({
-                        'content' : phoneCallContainer,
-                        'width'	:'72',
-                        'html' : true,
-                        'placement' : 'left',
-                        'animation' : true,
-                        'title' : 'RingCentral Call',
-                        'trigger' : 'manual',
-                        'template' : template,
-                        'container' : container,
-                        
-                    });
-        			
-        			if (/^\+?[0-9-\(\)\ \#pw]{1,50}$/.test(number)) {
-        				element.popover('show');
-        			}
-        				
-                }           
-                
+					phoneCallContainer.find('#message').attr('data-id', recordId);
+					phoneCallContainer.find('#message').attr('data-number', number);
+					
+					element.popover({
+						'content' : phoneCallContainer,
+						'width'	:'72',
+						'html' : true,
+						'placement' : 'left',
+						'trigger' : 'hover',
+						'template' : template,
+						'container' : element,
+					});
+				
+				}   
+				
             }      
 
         });
@@ -378,6 +362,9 @@ Vtiger.Class("RingCentral_Js",{
 				$.getScript('modules/RingCentral/resources/ringcentral.js', function(){
 					$.getScript('modules/RingCentral/resources/sip.js', function(){
 						$.getScript('modules/RingCentral/resources/ringcentral-web-phone.js', function(){
+							
+							thisInstance.registerEventForMouse();
+							
 							thisInstance.ValidateTokenAndGetSIP();
 						});
 					});
@@ -387,16 +374,17 @@ Vtiger.Class("RingCentral_Js",{
 		
 		
 		$(document).on('click','.closeOutgoing',function(){
-			if( $( "body" ).hasClass( "show_sidebar3" )){
-				$("body").toggleClass("show_sidebar3");
-			}
+			thisInstance.hideOutgoingCallWindow();
 		});
 		
 		$(document).on('click','.sendnotes',function(){
 			
 			var recordId = $(this).data('id');
+			
 			var comment = $(document).find('[name="callnotes"]').val();
+			
 			if(comment){
+				
 				var params = {
 					'module' : 'RingCentral',
 					'record' : recordId,
@@ -404,27 +392,50 @@ Vtiger.Class("RingCentral_Js",{
 					'mode' : 'addComment',
 					'comment' : comment
 				};
+				
 				app.request.post({'data':params}).then(function (err, data) {
+					
 					if (err == null) {
+						
 						$(document).find('[name="callnotes"]').val('');
+						
 						app.helper.showSuccessNotification({message:'Notes Saved Successfully'});
+						
+						RingCentral_Js.hangUp();
+						
+						thisInstance.hideOutgoingCallWindow();
+						
                     }
+					
 				});
+				
+			} else {
+				
+				RingCentral_Js.hangUp()	
+				
+				thisInstance.hideOutgoingCallWindow();
+						
 			}
+			
 		});
 	
+	},
+	
+	hideOutgoingCallWindow: function(){
+		
+		if( $( "body" ).hasClass( "show_sidebar3" )){
+			$("body").toggleClass("show_sidebar3");
+		}
+		
 	},
 	
 	ValidateTokenAndGetSIP: function(){
 		
 		var thisInstance = this;
 		
-		thisInstance.registerEventForMouse();
-		
 		var params = {};
 		
 		params.module = 'RingCentral';
-		
 		params.action = 'ValidateTokenAndGetSIP';
 		
 		app.request.post({data:params}).then(
@@ -478,148 +489,80 @@ Vtiger.Class("RingCentral_Js",{
 	
 	appendHTML: function(){
 		
-		var html = '<div class="" id="phone_panels_container">'+
-						'<div id="phone_panel_call" class="phoneCallContainer">'+
-							'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone" aria-hidden="true"></i></button>&nbsp;'+
-							/*'<button type="button" class="btn btn-success" id="message" onclick="RingCentral_Js.clickToMessage(this)"><i class="fa fa-envelope" aria-hidden="true"></i></button>'+*/
-						'</div>'+
+		var html = '<div id="phone_panel_call" class="phoneCallContainer js-reference-display-value">'+
+						'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success js-reference-display-value" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone js-reference-display-value" aria-hidden="true"></i></button>&nbsp;'+
 					'</div>'; 
 		
 		jQuery('.app-footer').append(html);
 		
 		var caller_html = '<link rel="stylesheet" href="modules/RingCentral/custom-style.css">';
 		
-		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;">'+
-		'<div class="ringcentral_details"></div>'+
+		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:310px;min-height:210px;">'+
+			'<div class="ringcentral_details"></div>'+
 		'</div>';
 		
 		$('.app-footer').after(caller_html);
+		
 	},
 	
-	showIncomingCallsPopup : function() {
+	registerEventsForUserPrefrence : function(){
+		var self = this;
 		
-		var mobno = '+917696980423';
-		
-		var params = {
-			'module' : 'RingCentral',
-			'mobno' : mobno,
-			'action' : 'GetRecordDetails',
-			'mode' : 'getDetailsFromNo',
-		};
-		
-		app.request.post({'data':params}).then(function (err, data) {
-			if (err == null) {
-				var html = '';
-				$.each(data.fields,function(inx,val){
-					html+='<div class="fieldLabel" style="font-size:13px !important;">'+inx+' &nbsp;:&nbsp;'+val+'</div>';
-				});
-				var image='';
-				if(data.imagepath){
-					image += '<img src="'+data.imagepath+'" style="border-radius:50%!important;width:100px!important;height:100px!important;" >';
-				}else{
-					image+= '<i class="vicon-contacts" style="font-size: -webkit-xxx-large;"></i>';
-				}
-				var notifyParams = {
-					'title' : '<strong>Incoming Call</strong>',
-					'message' : '<div class="col-sm-12 text-center">'+
-									'<div class="row" style="padding: 15px;">'+
-										'<div class="col-md-12">'+image+
-										'</div><div class="col-md-12" style="margin-top:10%!important;">'+
-										'<a target="_blank" style="font-size:15px !important;" href="index.php?module=Contacts&view=Detail&record='+data.record+'">'+data.lastname+'&nbsp;'+data.firstname+'</a>'+
-										'</div><div class=" col-md-12 text-left " style="padding: 10px;">'+
-											''+html+''+
-										'</div>'+
-										'<div class="col-sm-6 font13px text-center popupincomingcall" style="margin-top:3%!important;">'+
-											'<button class="btn btn-success acceptcall" style="border-radius: 10px !important;" data-id="'+ data.record+'">Accept</button>&nbsp;'+
-										'</div>'+
-										'<div class="col-sm-6 font13px text-center popupincomingcall" style="margin-top:3%!important;">'+
-											'<button class="btn btn-danger rejectcall" style="border-radius: 10px !important;" data-id="'+ data.record+'">Reject</button>'+
-										'</div>'+
-										'<div class="col-sm-12 font13px text-center popuphangup hide" style="margin-top:3%!important;">'+
-											'<textarea class="pull-left" style="font-size:12px !important;color:black;" placeholder="Leave notes" name="callnotes" rows="2" cols="25"></textarea>'+
-											'<button data-id="'+data.record+'" class="btn-success sendnotes pull-right" style="font-size:12px !important;border-radius: 10px !important;"><i class="fa fa-arrow-right"></i></button>'+
-										'</div>'+
-										'<div class="col-sm-12 font13px text-center popuphangup hide" style="margin-top:3%!important;">'+
-											'<button class="btn btn-danger hangupcall" style="border-radius: 10px !important;" data-id="'+ data.record+'">Hang up</button>&nbsp;'+
-										'</div>'+
-									'</div>'+
-								'</div>'
-				};
-				var settings = {
-					'element' : 'body', 
-					'type' : 'warning', 
-					'delay' : 0,
-					'template': '<div data-notify="container" style="border-color:black;background-color:#fff!important;width:23%!important;"class="col-xs-11 col-sm-3 text-center alert alert-{0}" role="alert">' +
-						'<div style="background-color:#d0caca!important;">'+
-						'<button type="button" aria-hidden="true" class="close pull-right" data-notify="dismiss">×</button>'+	
-						'<span data-notify="title">{1}</span></div>' +
-						'<span data-notify="message">{2}</span>' +
-					'</div>'
-				};
-				//setInterval(function() {
-					jQuery.notify(notifyParams, settings);
-				//}, 5000);
-					
-				jQuery(document).on('click','.acceptcall', function(){
-					jQuery(document).find('.popupincomingcall').addClass('hide');
-					jQuery(document).find('.popuphangup').removeClass('hide');
-				});
-				
-				jQuery(document).on('click','.rejectcall', function(){
-					var ele = $(this).closest('div.vt-notification').find('.close');
-					this.session.terminate();
-					ele.trigger('click');
-				});
-				
-				jQuery(document).on('click','.hangupcall', function(){
-					var ele = $(this).closest('div.vt-notification').find('.close');
-					this.session.terminate();
-				});
-				
-				jQuery(document).on('click','.sendnotes',function(){
-					
-					var recordId = $(this).data('id');
-					var comment = $(document).find('[name="callnotes"]').val();
-					if(comment){
-						var params = {
-							'module' : 'RingCentral',
-							'record' : recordId,
-							'action' : 'GetRecordDetails',
-							'mode' : 'addComment',
-							'comment' : comment
-						};
-						app.request.post({'data':params}).then(function (err, data) {
-							
-							if (err == null) {
-								 
-								 $(document).find('[name="callnotes"]').val('');
-								 
-								 app.helper.showSuccessNotification({message:'Notes Saved Successfully'});
-                        
-							}
-							
-						});
+		if(app.getModuleName() == 'Users' && app.getViewName() == 'PreferenceDetail'){
+			
+			var params = {};
+			
+			params.module = 'RingCentral';
+			params.action = 'GetUserActions';
+			params.mode = 'getdetail';
+			params.record = app.getRecordId();
+			
+			app.request.post({data:params}).then(function(err,data){
+				if(err === null) {
+					if(data.success){
+						var buttonContainer = jQuery('.detailViewContainer');
+                        var btnToolBar = buttonContainer.find('.btn-group');
+                        var outGoingServerBtn = jQuery('<button type="button" class="btn btn-default btndisconnect">Disconnect</button>');
+                        btnToolBar.find('.btn-default:first').before(outGoingServerBtn);
+                        self.registerEventForDisconnectButton();
 					}
-				});
-				
-			}
+				}
+			});
+		}
+	},
+	
+	registerEventForDisconnectButton : function(){
+		var self = this;
+		$(document).on('click', '.btndisconnect', function(){
+			var btn = this;
+			var params = {};
+			
+			params.module = 'RingCentral';
+			params.action = 'GetUserActions';
+			params.mode = 'getDisconnect';
+			params.record = app.getRecordId();
+			
+			app.request.post({data:params}).then(function(err,data){
+				if(err === null) {
+					if(data.success)
+						$(btn).remove();
+				}
+			});
 			
 		});
-			
-		
-	}
-	
+	},
+
 });
 
 jQuery(document).ready(function(){
 	
 	obj = new RingCentral_Js();
 	
-	//obj.showIncomingCallsPopup();
-	
 	app.event.on('post.listViewFilter.click', function (event, searchRow) {
+		obj.registerEventForMouse();
 		obj.ValidateTokenAndGetSIP();
-	});
-
-		
+	});	
+	
+	obj.registerEventsForUserPrefrence();
+	
 });
