@@ -1,7 +1,6 @@
 tabdata.php
 config.inc.php
 test/templates_c/v7/*
-storage/*
 logs/*
 .idea/*
 portal/configuration/config.php
