@@ -33,7 +33,7 @@ require_once 'include/utils/CommonUtils.php';
 require_once 'include/Webservices/Utils.php';
 require_once('modules/Users/UserTimeZonesArray.php');
 require_once 'includes/runtime/Cache.php';
-require_once 'modules/Users/authTypes/config.ldap.php';
+//require_once 'modules/Users/authTypes/config.ldap.php';
 
 // User is used to store customer information.
 /** Main class for the user module
