@@ -92,6 +92,8 @@ Vtiger.Class("RingCentral_Js",{
 	
 	sendSmsSave: function (form) {
 		
+		var thisInstance = this;
+		
 		var listInstance = window.app.controller();
 		
 		var listSelectParams = listInstance.getListSelectAllParams(false);
@@ -118,8 +120,11 @@ Vtiger.Class("RingCentral_Js",{
 			
 			app.helper.showProgress();
 			app.request.post(postData).then(function (err, data) {
+				
 				app.helper.hideProgress();
+				
 				if (err == null) {
+					
 					if(data.success){
 						app.helper.hideModal();
 						listInstance.loadListViewRecords().then(function (e) {
@@ -129,9 +134,27 @@ Vtiger.Class("RingCentral_Js",{
 					} else {
 						app.helper.showErrorNotification({message: app.vtranslate(data.message)})
 					}
+					
 				} else {
-					app.event.trigger('post.save.failed', err);
-					jQuery(form).find("button[name='saveButton']").removeAttr('disabled');
+					
+					thisInstance.connected =  false;
+	
+					app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+						function(data) {
+							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/RingCentral/connect.php');
+							var win = window.open(url,'','height=600,width=600,channelmode=1');
+	
+							window.RefreshPage = function() {
+								new RingCentral_Js().ValidateTokenAndGetSIP();
+							}
+						},
+				
+						function(error, err) {}
+					);
+					
+					//app.event.trigger('post.save.failed', err);
+					//jQuery(form).find("button[name='saveButton']").removeAttr('disabled');
+				
 				}
 			});
 		}
@@ -514,7 +537,7 @@ Vtiger.Class("RingCentral_Js",{
 			
 			params.module = 'RingCentral';
 			params.action = 'GetUserActions';
-			params.mode = 'getdetail';
+			params.mode = 'checkConnection';
 			params.record = app.getRecordId();
 			
 			app.request.post({data:params}).then(function(err,data){
@@ -539,7 +562,7 @@ Vtiger.Class("RingCentral_Js",{
 			
 			params.module = 'RingCentral';
 			params.action = 'GetUserActions';
-			params.mode = 'getDisconnect';
+			params.mode = 'revokeToken';
 			params.record = app.getRecordId();
 			
 			app.request.post({data:params}).then(function(err,data){

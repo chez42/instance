@@ -326,7 +326,7 @@ function syncMessages($user_id, $messages, $platform = ''){
     
 		if($obj->id){
 			
-			if($record['type'] == 'Fax')
+			if($record['type'] == 'Fax' && $record['messageStatus'] == 'Sent')
 				syncFiles($record,$obj->id,$platform);
             
 			foreach($record['to'] as $toNums){

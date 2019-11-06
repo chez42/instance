@@ -24,7 +24,11 @@
             
             if($adb->num_rows($commentQuery)){
                 
-                for($c=0;$c<$adb->num_rows($commentQuery);$c++){
+                if($adb->num_rows($commentQuery) >= 10){
+                    $html .= '<a href="#" style="min-width:100%!important;margin:15px!important;" class="pull-left more_comments" data-index="'.($startIndex + 10).'">More...</a>';
+                }
+                
+                for($c=$adb->num_rows($commentQuery)-1;$c>=0;$c--){
                     
                     $attachmentId = $adb->query_result($commentQuery, $c, 'filename');
                     $commentId = $adb->query_result($commentQuery, $c, 'modcommentsid');
@@ -54,7 +58,7 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];;
                         }
                         
-                        $html.='<div class="kt-chat__message kt-chat__message--success" style="margin:1.5rem!important;min-width:50%!important;">
+                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin:1.5rem!important;min-width:50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-media kt-media--circle kt-media--sm">';
                         if($profileImage && file_exists($profileImage)){
@@ -82,7 +86,7 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];
                         }
                        
-                        $html.='<div class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">
+                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-chat__datetime">'.$createdTime.'</span>
                                 <a href="#" class="kt-chat__username">You</a>
@@ -103,10 +107,6 @@
                         </div>';
                     }
                      
-                }
-                
-                if($adb->num_rows($commentQuery) >= 10){
-                    $html .= '<br><a href="#" style="min-width:100%!important;" class="pull-left more_comments" data-index="'.($startIndex + 10).'">More...</a>';
                 }
                 
             }
