@@ -311,7 +311,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			form = this.getForm();
 		}
 		var InitialFormData = form.serialize();
-		app.event.one(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
+		form.on(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
 			thisInstance.registerRecurringEditOptions(e,form,InitialFormData);
 			thisInstance.addInviteesIds(form);
 			thisInstance.resetRecurringDetailsIfDisabled(form);

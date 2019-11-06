@@ -53,25 +53,6 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 			    )
 			);
 
-			/*$is_ews_calendar_subscribed = $currentUserModel->getCurrentUserSubscription("Calendar");
-			
-			if(!$is_ews_calendar_subscribed){
-			    $calendarSyncLabel = "<i class='fa fa-calendar'></i>&nbsp;Subscribe";
-			    $calendarLinkUrl = "javascript:Users_Detail_Js.triggerExchangeSubscription('index.php?module=Users&view=ExchangeSubscription&mode=Subscribe&type=Calendar',this)";
-			} else {
-			    $calendarSyncLabel = "<i class='fa fa-calendar' ></i>&nbsp;UnSubscribe";
-			    $calendarLinkUrl = "javascript:Users_Detail_Js.triggerExchangeSubscription('index.php?module=Users&view=ExchangeSubscription&mode=UnSubscribe&type=Calendar',this)";
-			}
-			
-			if($recordModel->get("exchange_enabled")){
-			    $detailViewPreferenceLinks[] = array(
-			        'linktype' => 'DETAILVIEWPREFERENCE',
-			        'linklabel' => $calendarSyncLabel,
-			        'linkurl' => $calendarLinkUrl,
-			        'linkicon' => ''
-			    );
-			}*/
-			
 			foreach ($detailViewPreferenceLinks as $detailViewLink) {
 				$linkModelList['DETAILVIEWPREFERENCE'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLink);
 			}

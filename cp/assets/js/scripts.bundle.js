@@ -8968,7 +8968,7 @@ var KTChat = function () {
 					element.remove();
 					var scrollEl = KTUtil.find(parentEl, '.kt-scroll');
 					var messagesEl = KTUtil.find(parentEl, '.kt-chat__messages');
-					jQuery(messagesEl).append(data);
+					jQuery(messagesEl).prepend(data);
 					jQuery(scrollEl).scrollTop = parseInt(KTUtil.css(messagesEl, 'height'));
 					jQuery(parentEl).waitMe('hide');
 				}
@@ -9035,9 +9035,9 @@ var KTChat = function () {
 						html +=	'</div>';
 	
 						KTUtil.setHTML(node, html);
-						messagesEl.prepend(node);
+						messagesEl.appendChild(node);
 						textarea.value = '';
-						scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'))-parseInt(KTUtil.css(messagesEl, 'height'));
+						scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'))+parseInt(KTUtil.css(messagesEl, 'height'));
 	
 						var ps;
 						if (ps = KTUtil.data(scrollEl).get('ps')) {
