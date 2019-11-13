@@ -7,7 +7,7 @@ $query = "INSERT INTO vtiger_cloud_updates (note, time) VALUES (?, NOW())";
 $note = "Updating Weight";
 $adb->pquery($query, array($note));
 
-$tmp = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.224", "custodian_omniscient");
+$tmp = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.229", "custodian_omniscient");
 $result = $tmp->CalculateWeight("live_omniscient");
 
 $note = "Finished Updating Weight";

@@ -113,7 +113,7 @@ class PortfolioInformation_Chart_Model extends Vtiger_Module {
     }
 
     static public function getAssetAllocationData(){
-	    $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForLoggedInUser(true);//Get all account numbers that ever belonged to the user, not just currently open ones
+#	    $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForLoggedInUser(true);//Get all account numbers that ever belonged to the user, not just currently open ones
         $global_summary = new PortfolioInformation_GlobalSummary_Model();
         $revenue_values = $global_summary->GetAssetAllocationDataForAccountsFromCalculatedUserTable();
         PortfolioInformation_Chart_Model::assignRandomColorToColorFieldInArray($revenue_values);
