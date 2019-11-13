@@ -1583,13 +1583,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     }
 
     static public function CreateTransactionsFromPCCloudUsingJava($custodian, $account_number){
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.224&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 
     static public function CreateTransactionsFromPCCloud($custodian, $account_number)
     {
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.224&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 

@@ -46,16 +46,14 @@
 <div id="GHReport_wrapper">
     <table id="GHReport_header">
         <tr>
-            <td style="width:25%">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" />{/if}</td>
-        </tr>
-        <tr>
-            <td style="width:100%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>
-{*            <td style="width:25%; font-size: 14px;">
+            <td style="width:25%">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" height="60"/>{/if}</td>
+            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>
+            <td style="width:25%; font-size: 14px;">
                 {$PREPARED_BY}<br />
                 {if $USER_DATA['title'] neq ''}{$USER_DATA['title']}<br />{/if}
                 {if $USER_DATA['email1'] neq ''}{$USER_DATA['email1']}<br />{/if}
                 {if $USER_DATA['phone_work'] neq ''}{$USER_DATA['phone_work']}{/if}
-            </td>*}
+            </td>
         </tr>
     </table>
     <div class="GHReport_section">
@@ -81,8 +79,8 @@
                         {foreach from=$HOLDINGSPIEARRAY item=v}
                             <tr>
                                 <td style="font-weight:bold; width:50%; padding-bottom:10px;">{$v.title}</td>
-                                <td style="text-align:right; width:25%;">${$v.value|number_format:0:".":","}</td>
-                                <td style="text-align:right; width:25%;">{$v.percentage|number_format:0:".":","}%</td>
+                                <td style="text-align:right; width:25%;">${$v.value|number_format:2:".":","}</td>
+                                <td style="text-align:right; width:25%;">{$v.percentage|number_format:2:".":","}%</td>
                             </tr>
                         {/foreach}
                         <tr>
@@ -192,30 +190,23 @@
                 <td style="font-size:12px;">Combined Benchmark</td>
                 <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetBenchmark()|number_format:0:".":","}%</td>
             </tr>
-            {foreach key=k item=v from=$SELECTED_INDEXES}
+
             <tr>
-                <td style="font-size:12px;">{$v.security_symbol}{if $v.description neq $v.security_symbol} - {$v.description}{/if}</td>
-                <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetIndex({$v.security_symbol})|number_format:0:".":","}%</td>
-            </tr>
-            {/foreach}
-{*
-            <tr>
-                <td>S&amp;P 500</td>
-                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
+                <td style="font-size:12px;">S&amp;P 500</td>
+                <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
             </tr>
             <tr>
-                <td>AGG</td>
-                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("AGG")|number_format:2:".":","}%</td>
+                <td style="font-size:12px;">AGG</td>
+                <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetIndex("AGG")|number_format:2:".":","}%</td>
             </tr>
             <tr>
-                <td>MSCI Emerging Market index</td>
-                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("EEM")|number_format:2:".":","}%</td>
+                <td style="font-size:12px;">MSCI Emerging Market index</td>
+                <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetIndex("EEM")|number_format:2:".":","}%</td>
             </tr>
             <tr>
-                <td>MSCI EAFE index</td>
-                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("MSCI_EAFE")|number_format:2:".":","}%</td>
+                <td style="font-size:12px;">MSCI EAFE index</td>
+                <td style="text-align:right; font-weight:bold; font-size:12px;">{$YTDPERFORMANCE->GetIndex("MSCI_EAFE")|number_format:2:".":","}%</td>
             </tr>
-*}
             </tbody>
         </table>
     </div>

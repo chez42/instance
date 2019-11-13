@@ -10,30 +10,29 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
     function preProcessTplName(Vtiger_Request $request) {
         return 'PortfolioReportsPerProcess.tpl';
     }
-    
+
     public function postProcess(Vtiger_Request $request) {
         $moduleName = $request->getModule();
         $viewer = $this->getViewer($request);
         $viewer->view('PortfolioReportsPostProcess.tpl', $moduleName);
-        
+
         parent::postProcess($request);
     }
-    
+
     function process(Vtiger_Request $request) {
-/*      ob_start();
-        for ($i = 0; $i < 10; $i++)
-        {
-            echo "$i\n";
-            ob_flush();
-            flush();
-            sleep(1);
-        };
-        exit;*/
+        /*      ob_start();
+                for ($i = 0; $i < 10; $i++)
+                {
+                    echo "$i\n";
+                    ob_flush();
+                    flush();
+                    sleep(1);
+                };
+                exit;*/
 #        echo "GH1 REPORT CURRENTLY LOADING...<br />";
 #        ob_flush();
 #        flush();
 
-        $selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
         $orientation = $request->get('orientation');
         $calling_module = $request->get('calling_module');
         $calling_record = $request->get('calling_record');
@@ -68,7 +67,6 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
 
             $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
-#            echo $ytd_performance->GetIndex("S&P 500");
 
             if (sizeof($accounts) > 0) {
                 PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
@@ -127,7 +125,6 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("SHOW_END_DATE", 1);
             $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
             $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
-            $viewer->assign("SELECTED_INDEXES", $selected_indexes);
 
 
             if($calling_record) {
@@ -194,14 +191,14 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                     $logo = "test/logo/Omniscient Logo small.png";
                 $viewer->assign("LOGO", $logo);
 
-/*                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
+                /*                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
+                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
+                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GHReportNewPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
 
-				$this->GeneratePDF($pdf_content, $logo, $orientation, $calling_record);
+                $this->GeneratePDF($pdf_content, $logo, $orientation, $calling_record);
             }else {
                 $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
                 $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GHReportNew.tpl', "PortfolioInformation");
@@ -212,7 +209,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
     }
 
     public function GeneratePDF($content, $logo = false, $orientation = 'LETTER', $calling_record){
- #       $pdf = new cNewPDFGenerator('c',$orientation,'8','Arial');
+        #       $pdf = new cNewPDFGenerator('c',$orientation,'8','Arial');
         $pdf = new cMpdf7(['orientation' => 'P']);
         if($logo)
             $pdf->logo = $logo;
@@ -260,7 +257,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $cssFileNames = array(
             '~/layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css',
             '~/layouts/v7/modules/PortfolioInformation/css/GHReport.css',
-            '~/libraries/shield/css/shield_all_no_footer.min.css'
+            '~/libraries/shield/css/shield_all.min.css'
         );
         $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
         $headerCssInstances = array_merge($headerCssInstances, $cssInstances);

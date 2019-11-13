@@ -95,7 +95,7 @@ class PortfolioInformation_NewAllCustodians_Model extends Vtiger_Module{
     public function RunCron()
     {
         $section = 'About to run custodians';
-        $this->cloud = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.224", "custodian_omniscient");
+        $this->cloud = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.229", "custodian_omniscient");
 #        $this->cloud->SetStepStatus("next_step_ready", "1");
 /*        $this->JavaCustodianRun("fidelity");
         $this->JavaCustodianRun("schwab");
