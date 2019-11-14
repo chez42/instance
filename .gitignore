@@ -1,7 +1,7 @@
-tabdata.php
 config.inc.php
 test/templates_c/v7/*
 logs/*
 .idea/*
-portal/configuration/config.php
 vendor/*
+user_privileges/*
+storage/*
