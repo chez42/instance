@@ -95,4 +95,114 @@ class Accounts_DetailView_Model extends Vtiger_DetailView_Model {
 
 		return $linkModelList;
 	}
+	
+	 public function getWidgets() {
+        $moduleModel = $this->getModule();
+        $widgets = array();
+
+        $tabid = getTabid($this->getModuleName());
+
+        include_once("include/utils/Widget.php");
+        $widget_loader = new cWidget();
+        $widgets = $widget_loader->GetDetailViewWidget($tabid, "&calling_record=".$this->getRecord()->getId());
+
+        if($moduleModel->isTrackingEnabled()) {
+            $widgets[] = array(
+                'linktype' => 'DETAILVIEWWIDGET',
+                'linklabel' => 'LBL_UPDATES',
+                'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
+                    '&mode=showRecentActivities&page=1&limit=5',
+            );
+        }
+
+        $modCommentsModel = Vtiger_Module_Model::getInstance('ModComments');
+        if($moduleModel->isCommentEnabled() && $modCommentsModel->isPermitted('DetailView')) {
+            $widgets[] = array(
+                'linktype' => 'DETAILVIEWWIDGET',
+                'linklabel' => 'ModComments',
+                'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
+                    '&mode=showRecentComments&page=1&limit=5'
+            );
+        }
+
+        $userPrivilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+        $documentsInstance = Vtiger_Module_Model::getInstance('Documents');
+        if($userPrivilegesModel->hasModuleActionPermission($documentsInstance->getId(), 'DetailView') && $moduleModel->isModuleRelated('Documents')) {
+            $createPermission = $userPrivilegesModel->hasModuleActionPermission($documentsInstance->getId(), 'CreateView');
+            $widgets[] = array(
+                'linktype' => 'DETAILVIEWWIDGET',
+                'linklabel' => 'Documents',
+                'linkName'	=> $documentsInstance->getName(),
+                'linkurl' => 'module='.$this->getModuleName().'&view=Detail&record='.$this->getRecord()->getId().
+                    '&relatedModule=Documents&mode=showRelatedRecords&page=1&limit=5',
+                'action'	=>	($createPermission == true) ? array('Add') : array(),
+                'actionURL' =>	$documentsInstance->getQuickCreateUrl()
+            );
+        }
+		
+		
+		$PortfolioInformationModuleModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+		
+		if($this->getModuleName() == 'Contacts'){
+			
+			if(
+				!empty($PortfolioInformationModuleModel) && 
+				$PortfolioInformationModuleModel->isActive() && 
+				$userPrivilegesModel->hasModulePermission($PortfolioInformationModuleModel->getId())
+			) {
+				$basicActionLink = array(
+					'linktype' => 'DETAILVIEWWIDGET',
+					'linklabel' => 'Reports',
+					'linkurl' => 'module=PortfolioInformation&view=ReportWidget&calling_module=Contacts',
+					'linkicon' => ''
+				);
+				
+				$basicActionLink = array(
+					'linktype' => 'DETAILVIEWWIDGET',
+					'linklabel' => 'Balance History',
+					'linkurl' => 'module=PortfolioInformation&view=ConsolidatedBalances&calling_module=Contacts',
+					'linkicon' => ''
+				);
+				
+				$basicActionLink = array(
+					'linktype' => 'DETAILVIEWWIDGET',
+					'linklabel' => 'Reporting',
+					'linkurl' => 'module=PortfolioInformation&view=HistoricalInformation&calling_module=Contacts',
+					'linkicon' => ''
+				);
+				
+			}
+			
+		
+		} else if($this->getModuleName() == 'Accounts'){
+
+			if(
+				!empty($PortfolioInformationModuleModel) && 
+				$PortfolioInformationModuleModel->isActive() && 
+				$userPrivilegesModel->hasModulePermission($PortfolioInformationModuleModel->getId())
+			) {
+				$basicActionLink = array(
+					'linktype' => 'DETAILVIEWWIDGET',
+					'linklabel' => 'Reports',
+					'linkurl' => 'module=PortfolioInformation&view=ReportWidget&calling_module=Accounts',
+					'linkicon' => ''
+				);
+				
+				$basicActionLink = array(
+					'linktype' => 'DETAILVIEWWIDGET',
+					'linklabel' => 'Reporting',
+					'linkurl' => 'module=PortfolioInformation&view=HistoricalInformation&calling_module=Accounts',
+					'linkicon' => ''
+				);
+				
+			}
+		
+		}
+		
+		$widgetLinks = array();
+        foreach ($widgets as $widgetDetails) {
+		    $widgetLinks[] = Vtiger_Link_Model::getInstanceFromValues($widgetDetails);
+        }
+        return $widgetLinks;
+    }
 }
