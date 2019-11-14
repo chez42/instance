@@ -1,69 +1,88 @@
-<?php //0050e
-// RevisionNumber:
-if(!extension_loaded('ionCube Loader')){$__oc=strtolower(substr(php_uname(),0,3));$__ln='ioncube_loader_'.$__oc.'_'.substr(phpversion(),0,3).(($__oc=='win')?'.dll':'.so');if(function_exists('dl')){@dl($__ln);}if(function_exists('_il_exec')){return _il_exec();}$__ln='/ioncube/'.$__ln;$__oid=$__id=realpath(ini_get('extension_dir'));$__here=dirname(__FILE__);if(strlen($__id)>1&&$__id[1]==':'){$__id=str_replace('\\','/',substr($__id,2));$__here=str_replace('\\','/',substr($__here,2));}$__rd=str_repeat('/..',substr_count($__id,'/')).$__here.'/';$__i=strlen($__rd);while($__i--){if($__rd[$__i]=='/'){$__lp=substr($__rd,0,$__i).$__ln;if(file_exists($__oid.$__lp)){$__ln=$__lp;break;}}}if(function_exists('dl')){@dl($__ln);}}else{die('The file '.__FILE__." is corrupted.\n");}if(function_exists('_il_exec')){return _il_exec();}echo("Site error: the ".(php_sapi_name()=='cli'?'ionCube':'<a href="http://www.ioncube.com">ionCube</a>')." PHP Loader needs to be installed. This is a widely used PHP extension for running ionCube protected PHP code, website security and malware blocking.\n\nPlease visit ".(php_sapi_name()=='cli'?'get-loader.ioncube.com':'<a href="http://get-loader.ioncube.com">get-loader.ioncube.com</a>')." for install assistance.\n\n");exit(199);
+<?php
+/*
+ * @ PHP 5.6
+ * @ Decoder version : 1.0.0.1
+ * @ Release on : 24.03.2018
+ * @ Website    : http://EasyToYou.eu
+ */
+
+require_once "data/CRMEntity.php";
+require_once "data/Tracker.php";
+require_once "vtlib/Vtiger/Module.php";
+class DragDropDocuments extends CRMEntity
+{
+    /**
+     * Invoked when special actions are performed on the module.
+     * @param String Module name
+     * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
+     */
+    public function vtlib_handler($modulename, $event_type)
+    {
+        global $adb;
+        if ($event_type == "module.postinstall") {
+            self::addHeadScript();
+            
+        } else {
+            if ($event_type == "module.disabled") {
+                self::removeHeadScript();
+            } else {
+                if ($event_type == "module.enabled") {
+                    self::addHeadScript();
+                } else {
+                    if ($event_type == "module.preuninstall") {
+                        self::removeHeadScript();
+                       
+                    } else {
+                        if ($event_type == "module.preupdate") {
+                            self::addHeadScript();
+                        } else {
+                            if ($event_type == "module.postupdate") {
+                                self::addHeadScript();
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public static function addHeadScript()
+    {
+        global $adb;
+        global $vtiger_current_version;
+        $widgetType = "HEADERSCRIPT";
+        $widgetName = "DragDropDocuments";
+        if (version_compare($vtiger_current_version, "7.0.0", "<")) {
+            $template_folder = "layouts/vlayout";
+        } else {
+            $template_folder = "layouts/v7";
+        }
+        $link = $template_folder . "/modules/DragDropDocuments/resources/DragDropDocuments.js";
+        $module = Vtiger_Module::getInstance("DragDropDocuments");
+        $checkres = $adb->pquery("SELECT linkid FROM vtiger_links WHERE linkurl=?", array($link));
+        if ($adb->num_rows($checkres) == 0) {
+            $module->addLink($widgetType, $widgetName, $link);
+        }
+    }
+    public static function removeHeadScript()
+    {
+        global $adb;
+        global $vtiger_current_version;
+        $widgetType = "HEADERSCRIPT";
+        $widgetName = "DragDropDocuments";
+        if (version_compare($vtiger_current_version, "7.0.0", "<")) {
+            $template_folder = "layouts/vlayout";
+        } else {
+            $template_folder = "layouts/v7";
+        }
+        $link = $template_folder . "/modules/DragDropDocuments/resources/DragDropDocuments.js";
+        $module = Vtiger_Module::getInstance("DragDropDocuments");
+        $checkres = $adb->pquery("SELECT linkid FROM vtiger_links WHERE linkurl=?", array($link));
+        if (0 < $adb->num_rows($checkres)) {
+            $module->deleteLink($widgetType, $widgetName, $link);
+        }
+    }
+    
+}
+
 ?>
-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
-RSAaKXQ+2MK2hWsj/rcC
