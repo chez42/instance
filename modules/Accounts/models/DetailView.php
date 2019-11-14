@@ -150,21 +150,21 @@ class Accounts_DetailView_Model extends Vtiger_DetailView_Model {
 				$PortfolioInformationModuleModel->isActive() && 
 				$userPrivilegesModel->hasModulePermission($PortfolioInformationModuleModel->getId())
 			) {
-				$basicActionLink = array(
+				$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Reports',
 					'linkurl' => 'module=PortfolioInformation&view=ReportWidget&calling_module=Contacts',
 					'linkicon' => ''
 				);
 				
-				$basicActionLink = array(
+				$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Balance History',
 					'linkurl' => 'module=PortfolioInformation&view=ConsolidatedBalances&calling_module=Contacts',
 					'linkicon' => ''
 				);
 				
-				$basicActionLink = array(
+				$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Reporting',
 					'linkurl' => 'module=PortfolioInformation&view=HistoricalInformation&calling_module=Contacts',
@@ -181,14 +181,14 @@ class Accounts_DetailView_Model extends Vtiger_DetailView_Model {
 				$PortfolioInformationModuleModel->isActive() && 
 				$userPrivilegesModel->hasModulePermission($PortfolioInformationModuleModel->getId())
 			) {
-				$basicActionLink = array(
+				$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Reports',
 					'linkurl' => 'module=PortfolioInformation&view=ReportWidget&calling_module=Accounts',
 					'linkicon' => ''
 				);
 				
-				$basicActionLink = array(
+				$widgets[] = array(
 					'linktype' => 'DETAILVIEWWIDGET',
 					'linklabel' => 'Reporting',
 					'linkurl' => 'module=PortfolioInformation&view=HistoricalInformation&calling_module=Accounts',
