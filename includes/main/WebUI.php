@@ -219,7 +219,7 @@ class Vtiger_WebUI extends Vtiger_EntryPoint {
 				throw new AppException(vtranslate('LBL_HANDLER_NOT_FOUND'));
 			}
 		} catch(Exception $e) {
-			if ($view) {
+			if ($view && !(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest')) {
 				// log for development
 				global $log;
 				$log->debug($e->getMessage().":".$e->getTraceAsString());
