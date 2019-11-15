@@ -55,7 +55,14 @@ if(isset($_GET['code'])){
 	$account_info = json_decode($account_information->text(), true);
 	
 	if(count($account_info['records']) > 1){
-		$from_no  = $account_info['records'][0]['phoneNumber'];
+		
+		foreach($account_info['records'] as $record){
+			if(in_array('SmsSender', $record['features'])){
+				$from_no = $record['phoneNumber'];
+			}
+		}
+		
+		
 	} else {
 		$from_no = '';
 	}
