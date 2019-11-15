@@ -676,16 +676,18 @@ function findHeaderName(name, headers) {
         return res;
     }, null);
 }
+var events;
+(function (events) {
+    events["beforeRequest"] = "beforeRequest";
+    events["requestSuccess"] = "requestSuccess";
+    events["requestError"] = "requestError";
+})(events = exports.events || (exports.events = {}));
 var Client = /** @class */ (function (_super) {
     __extends(Client, _super);
     function Client(_a) {
         var externals = _a.externals, _b = _a.defaultRequestInit, defaultRequestInit = _b === void 0 ? {} : _b;
         var _this = _super.call(this) || this;
-        _this.events = {
-            beforeRequest: 'beforeRequest',
-            requestSuccess: 'requestSuccess',
-            requestError: 'requestError',
-        };
+        _this.events = events;
         _this._defaultRequestInit = {};
         _this._defaultRequestInit = defaultRequestInit;
         _this._externals = externals;
@@ -705,7 +707,7 @@ var Client = /** @class */ (function (_super) {
                         response = _b.sent();
                         if (!response.ok)
                             throw new Error('Response has unsuccessful status');
-                        this.emit(this.events.requestSuccess, response);
+                        this.emit(this.events.requestSuccess, response, request);
                         return [2 /*return*/, response];
                     case 2:
                         e_1 = _b.sent();
@@ -781,7 +783,7 @@ var Client = /** @class */ (function (_super) {
         init.mode = init.mode || 'cors';
         // Append Query String
         if (init.query) {
-            init.url = init.url + (init.url.indexOf('?') > -1 ? '&' : '?') + qs.stringify(init.query);
+            init.url = init.url + (init.url.includes('?') ? '&' : '?') + qs.stringify(init.query);
         }
         if (!findHeaderName('Accept', init.headers)) {
             init.headers.Accept = Client._jsonContentType;
@@ -795,7 +797,7 @@ var Client = /** @class */ (function (_super) {
             }
             var contentType = init.headers[contentTypeHeaderName];
             // Assign a new encoded body
-            if (contentType.indexOf(Client._jsonContentType) > -1) {
+            if (contentType.includes(Client._jsonContentType)) {
                 if ((init.method === 'GET' || init.method === 'HEAD') && !!init.body) {
                     // oddly setting body to null still result in TypeError in phantomjs
                     init.body = undefined;
@@ -804,7 +806,7 @@ var Client = /** @class */ (function (_super) {
                     init.body = JSON.stringify(init.body);
                 }
             }
-            else if (contentType.indexOf(Client._urlencodedContentType) > -1) {
+            else if (contentType.includes(Client._urlencodedContentType)) {
                 init.body = qs.stringify(init.body);
             }
         }
@@ -815,7 +817,7 @@ var Client = /** @class */ (function (_super) {
         return req;
     };
     Client.prototype._isContentType = function (contentType, response) {
-        return !!~this.getContentType(response).indexOf(contentType);
+        return this.getContentType(response).includes(contentType);
     };
     Client.prototype.getContentType = function (response) {
         return response.headers.get(Client._contentType) || '';
@@ -927,6 +929,9 @@ var Client = /** @class */ (function (_super) {
                 }
             });
         });
+    };
+    Client.prototype.on = function (event, listener) {
+        return _super.prototype.on.call(this, event, listener);
     };
     Client._contentType = 'Content-Type';
     Client._jsonContentType = 'application/json';
@@ -1053,6 +1058,10 @@ var SDK = /** @class */ (function () {
             return [2 /*return*/, this.platform().send(__assign({ method: 'PUT', url: url, query: query, body: body }, options))];
         }); }); };
         /* istanbul ignore next */
+        this.patch = function (url, body, query, options) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+            return [2 /*return*/, this.platform().send(__assign({ method: 'PATCH', url: url, query: query, body: body }, options))];
+        }); }); };
+        /* istanbul ignore next */
         this.delete = function (url, query, options) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
             return [2 /*return*/, this.platform().send(__assign({ method: 'DELETE', url: url, query: query }, options))];
         }); }); };
@@ -1098,7 +1107,7 @@ var SDK = /** @class */ (function () {
         this.isJson = function (response) { return _this.client().isJson(response); };
         /* istanbul ignore next */
         this.error = function (response) { return _this.client().error(response); };
-        var cachePrefix = options.cachePrefix, defaultRequestInit = options.defaultRequestInit;
+        var cachePrefix = options.cachePrefix, defaultRequestInit = options.defaultRequestInit, handleRateLimit = options.handleRateLimit;
         this._externals = new Externals_1.default(__assign({}, defaultExternals, options));
         this._cache = new Cache_1.default({
             externals: this._externals,
@@ -1108,7 +1117,7 @@ var SDK = /** @class */ (function () {
             externals: this._externals,
             defaultRequestInit: defaultRequestInit,
         });
-        this._platform = new Platform_1.default(__assign({}, options, { externals: this._externals, client: this._client, cache: this._cache }));
+        this._platform = new Platform_1.default(__assign({}, options, { externals: this._externals, client: this._client, cache: this._cache, handleRateLimit: handleRateLimit }));
     }
     SDK.handleLoginRedirect = function (origin, win) {
         win = win || window;
@@ -1250,7 +1259,7 @@ var Cache = /** @class */ (function () {
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
                                         case 0:
-                                            if (!(key.indexOf(this._prefix) === 0)) return [3 /*break*/, 2];
+                                            if (!key.startsWith(this._prefix)) return [3 /*break*/, 2];
                                             return [4 /*yield*/, this._externals.localStorage.removeItem(key)];
                                         case 1:
                                             _a.sent();
@@ -1324,7 +1333,7 @@ exports.default = Externals;
 /* 8 */
 /***/ (function(module) {
 
-module.exports = {"name":"@ringcentral/sdk","version":"4.0.0-alpha.5","scripts":{"clean":"rimraf dist/* lib/* es6/* coverage/* .nyc_output .rpt2_cache","test":"npm run nyc && npm run karma","test:quick":"npm run mocha","test:watch":"npm run test:quick -- --watch","mocha":"mocha --opts mocha.opts","karma":"karma start karma.conf.js","nyc":"nyc mocha --opts mocha.opts","build":"npm run clean && npm run build:tsc:es5 && npm run build:tsc:es6 && npm run build:webpack","build:tsc:es5":"tsc","build:tsc:es6":"tsc --project tsconfig.es6.json","build:webpack":"webpack --progress","start":"npm-run-all -p start:tsc:es5 start:tsc:es6 start:webpack","start:tsc:es5":"npm run build:tsc:es5 -- --watch --preserveWatchOutput","start:tsc:es6":"npm run build:tsc:es6 -- --watch --preserveWatchOutput","start:webpack":"npm run build:webpack -- --watch"},"dependencies":{"dom-storage":"2.1.0","is-plain-object":"2.0.4","node-fetch":"2.2.1"},"devDependencies":{"@ringcentral/sdk-utils":"^4.0.0-alpha.5","@types/mocha":"5.2.5","@types/node":"10.12.0","karma":"3.1.1","mocha":"5.2.0","npm-run-all":"4.1.3","nyc":"13.1.0","rimraf":"2.6.2","source-map-support":"0.5.9","ts-loader":"5.2.2","ts-node":"7.0.1","tslib":"1.9.3","typescript":"3.2.4","webpack":"4.23.0","webpack-cli":"3.1.2"},"main":"./lib/index.js","module":"./es6/index.js","types":"./lib/SDK.d.ts","browser":"./dist/ringcentral.js","author":{"name":"RingCentral, Inc.","email":"devsupport@ringcentral.com"},"contributors":[{"name":"Kirill Konshin"}],"repository":{"type":"git","url":"git://github.com/ringcentral/ringcentral-js.git"},"bugs":{"url":"https://github.com/ringcentral/ringcentral-js/issues"},"homepage":"https://github.com/ringcentral/ringcentral-js","engines":{"node":">=4"},"license":"MIT","publishConfig":{"access":"public"}};
+module.exports = {"name":"@ringcentral/sdk","version":"0.0.0","scripts":{"clean":"rimraf dist/* lib/* es6/* coverage/* .nyc_output .rpt2_cache","test":"npm run nyc && npm run karma","test:quick":"npm run mocha","test:watch":"npm run test:quick -- --watch","mocha":"mocha --opts mocha.opts","karma":"karma start karma.conf.js","nyc":"nyc mocha --opts mocha.opts","build":"npm run clean && npm run build:tsc:es5 && npm run build:tsc:es6 && npm run build:webpack","build:tsc:es5":"tsc","build:tsc:es6":"tsc --project tsconfig.es6.json","build:webpack":"webpack --progress","start":"npm-run-all -p start:tsc:es5 start:tsc:es6 start:webpack","start:tsc:es5":"npm run build:tsc:es5 -- --watch --preserveWatchOutput","start:tsc:es6":"npm run build:tsc:es6 -- --watch --preserveWatchOutput","start:webpack":"npm run build:webpack -- --watch"},"dependencies":{"dom-storage":"2.1.0","is-plain-object":"2.0.4","node-fetch":"2.2.1"},"devDependencies":{"@ringcentral/sdk-utils":"*","@types/mocha":"5.2.5","@types/node":"10.12.0","karma":"3.1.1","mocha":"5.2.0","npm-run-all":"4.1.3","nyc":"13.1.0","rimraf":"2.6.2","source-map-support":"0.5.9","ts-loader":"5.2.2","ts-node":"7.0.1","tslib":"1.9.3","typescript":"3.2.4","webpack":"4.23.0","webpack-cli":"3.1.2"},"main":"./lib/index.js","module":"./es6/index.js","types":"./lib/SDK.d.ts","browser":"./dist/ringcentral.js","author":{"name":"RingCentral, Inc.","email":"devsupport@ringcentral.com"},"contributors":[{"name":"Kirill Konshin"}],"repository":{"type":"git","url":"git://github.com/ringcentral/ringcentral-js.git"},"bugs":{"url":"https://github.com/ringcentral/ringcentral-js/issues"},"homepage":"https://github.com/ringcentral/ringcentral-js","engines":{"node":">=4"},"license":"MIT","publishConfig":{"access":"public"}};
 
 /***/ }),
 /* 9 */
@@ -1670,29 +1679,33 @@ var delay = function (timeout) {
     });
 };
 var getParts = function (url, separator) { return url.split(separator).reverse()[0]; };
+var events;
+(function (events) {
+    events["beforeLogin"] = "beforeLogin";
+    events["loginSuccess"] = "loginSuccess";
+    events["loginError"] = "loginError";
+    events["beforeRefresh"] = "beforeRefresh";
+    events["refreshSuccess"] = "refreshSuccess";
+    events["refreshError"] = "refreshError";
+    events["beforeLogout"] = "beforeLogout";
+    events["logoutSuccess"] = "logoutSuccess";
+    events["logoutError"] = "logoutError";
+    events["rateLimitError"] = "rateLimitError";
+})(events = exports.events || (exports.events = {}));
 var Platform = /** @class */ (function (_super) {
     __extends(Platform, _super);
     function Platform(_a) {
-        var server = _a.server, clientId = _a.clientId, clientSecret = _a.clientSecret, _b = _a.redirectUri, redirectUri = _b === void 0 ? '' : _b, _c = _a.refreshDelayMs, refreshDelayMs = _c === void 0 ? 100 : _c, _d = _a.clearCacheOnRefreshError, clearCacheOnRefreshError = _d === void 0 ? true : _d, _e = _a.appName, appName = _e === void 0 ? '' : _e, _f = _a.appVersion, appVersion = _f === void 0 ? '' : _f, externals = _a.externals, cache = _a.cache, client = _a.client, refreshHandicapMs = _a.refreshHandicapMs, _g = _a.tokenEndpoint, tokenEndpoint = _g === void 0 ? '/restapi/oauth/token' : _g, _h = _a.revokeEndpoint, revokeEndpoint = _h === void 0 ? '/restapi/oauth/revoke' : _h, _j = _a.authorizeEndpoint, authorizeEndpoint = _j === void 0 ? '/restapi/oauth/authorize' : _j;
+        var server = _a.server, clientId = _a.clientId, clientSecret = _a.clientSecret, _b = _a.redirectUri, redirectUri = _b === void 0 ? '' : _b, _c = _a.refreshDelayMs, refreshDelayMs = _c === void 0 ? 100 : _c, _d = _a.clearCacheOnRefreshError, clearCacheOnRefreshError = _d === void 0 ? true : _d, _e = _a.appName, appName = _e === void 0 ? '' : _e, _f = _a.appVersion, appVersion = _f === void 0 ? '' : _f, externals = _a.externals, cache = _a.cache, client = _a.client, refreshHandicapMs = _a.refreshHandicapMs, _g = _a.tokenEndpoint, tokenEndpoint = _g === void 0 ? '/restapi/oauth/token' : _g, _h = _a.revokeEndpoint, revokeEndpoint = _h === void 0 ? '/restapi/oauth/revoke' : _h, _j = _a.authorizeEndpoint, authorizeEndpoint = _j === void 0 ? '/restapi/oauth/authorize' : _j, _k = _a.authProxy, authProxy = _k === void 0 ? false : _k, _l = _a.urlPrefix, urlPrefix = _l === void 0 ? '' : _l, handleRateLimit = _a.handleRateLimit;
         var _this = _super.call(this) || this;
-        _this.events = {
-            beforeLogin: 'beforeLogin',
-            loginSuccess: 'loginSuccess',
-            loginError: 'loginError',
-            beforeRefresh: 'beforeRefresh',
-            refreshSuccess: 'refreshSuccess',
-            refreshError: 'refreshError',
-            beforeLogout: 'beforeLogout',
-            logoutSuccess: 'logoutSuccess',
-            logoutError: 'logoutError',
-            rateLimitError: 'rateLimitError',
-        };
+        _this.events = events;
         _this._server = server;
         _this._clientId = clientId;
         _this._clientSecret = clientSecret;
         _this._redirectUri = redirectUri;
         _this._refreshDelayMs = refreshDelayMs;
         _this._clearCacheOnRefreshError = clearCacheOnRefreshError;
+        _this._authProxy = authProxy;
+        _this._urlPrefix = urlPrefix;
         _this._userAgent = (appName ? appName + (appVersion ? "/" + appVersion : '') + " " : '') + "RCJSSDK/" + Constants.version;
         _this._externals = externals;
         _this._cache = cache;
@@ -1706,8 +1719,12 @@ var Platform = /** @class */ (function (_super) {
         _this._tokenEndpoint = tokenEndpoint;
         _this._revokeEndpoint = revokeEndpoint;
         _this._authorizeEndpoint = authorizeEndpoint;
+        _this._handleRateLimit = handleRateLimit;
         return _this;
     }
+    Platform.prototype.on = function (event, listener) {
+        return _super.prototype.on.call(this, event, listener);
+    };
     Platform.prototype.auth = function () {
         return this._auth;
     };
@@ -1715,12 +1732,14 @@ var Platform = /** @class */ (function (_super) {
         if (path === void 0) { path = ''; }
         if (options === void 0) { options = {}; }
         var builtUrl = '';
-        var hasHttp = path.indexOf('http://') !== -1 || path.indexOf('https://') !== -1;
+        var hasHttp = path.startsWith('http://') || path.startsWith('https://');
         if (options.addServer && !hasHttp)
             builtUrl += this._server;
+        if (this._urlPrefix)
+            builtUrl += this._urlPrefix;
         builtUrl += path;
         if (options.addMethod)
-            builtUrl += (path.indexOf('?') > -1 ? '&' : '?') + "_method=" + options.addMethod;
+            builtUrl += (path.includes('?') ? '&' : '?') + "_method=" + options.addMethod;
         return builtUrl;
     };
     Platform.prototype.signUrl = function (path) {
@@ -1729,7 +1748,7 @@ var Platform = /** @class */ (function (_super) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _a = path + (path.indexOf('?') > -1 ? '&' : '?') + "access_token=";
+                        _a = path + (path.includes('?') ? '&' : '?') + "access_token=";
                         return [4 /*yield*/, this._auth.data()];
                     case 1: return [2 /*return*/, _a + (_b.sent()).access_token];
                 }
@@ -1756,7 +1775,7 @@ var Platform = /** @class */ (function (_super) {
      * @return {Object}
      */
     Platform.prototype.parseLoginRedirect = function (url) {
-        var response = (url.indexOf('#') === 0 && getParts(url, '#')) || (url.indexOf('?') === 0 && getParts(url, '?')) || null;
+        var response = (url.startsWith('#') && getParts(url, '#')) || (url.startsWith('?') && getParts(url, '?')) || null;
         if (!response)
             throw new Error('Unable to parse response');
         var queryString = qs.parse(response);
@@ -1826,15 +1845,21 @@ var Platform = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.ensureLoggedIn()];
+                        _a.trys.push([0, 5, , 6]);
+                        if (!this._authProxy) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.get('/restapi/v1.0/client-info')];
                     case 1:
+                        _a.sent(); // we only can determine the status if we actually make request
+                        return [3 /*break*/, 4];
+                    case 2: return [4 /*yield*/, this.ensureLoggedIn()];
+                    case 3:
                         _a.sent();
-                        return [2 /*return*/, true];
-                    case 2:
+                        _a.label = 4;
+                    case 4: return [2 /*return*/, true];
+                    case 5:
                         e_1 = _a.sent();
                         return [2 /*return*/, false];
-                    case 3: return [2 /*return*/];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -1959,6 +1984,9 @@ var Platform = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
+                if (this._authProxy) {
+                    throw new Error('Refresh is not supported in Auth Proxy mode');
+                }
                 if (!this._refreshPromise) {
                     this._refreshPromise = (function () { return __awaiter(_this, void 0, void 0, function () {
                         var res, e_4;
@@ -1990,29 +2018,34 @@ var Platform = /** @class */ (function (_super) {
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
-                        _d.trys.push([0, 5, , 6]);
+                        if (this._authProxy) {
+                            throw new Error('Logout is not supported in Auth Proxy mode');
+                        }
+                        _d.label = 1;
+                    case 1:
+                        _d.trys.push([1, 6, , 7]);
                         this.emit(this.events.beforeLogout);
                         res = null;
-                        if (!(this._revokeEndpoint && this._clientSecret)) return [3 /*break*/, 3];
+                        if (!(this._revokeEndpoint && this._clientSecret)) return [3 /*break*/, 4];
                         _a = this._tokenRequest;
                         _b = [this._revokeEndpoint];
                         _c = {};
                         return [4 /*yield*/, this._auth.data()];
-                    case 1: return [4 /*yield*/, _a.apply(this, _b.concat([(_c.token = (_d.sent()).access_token,
+                    case 2: return [4 /*yield*/, _a.apply(this, _b.concat([(_c.token = (_d.sent()).access_token,
                                 _c)]))];
-                    case 2:
+                    case 3:
                         res = _d.sent();
-                        _d.label = 3;
-                    case 3: return [4 /*yield*/, this._cache.clean()];
-                    case 4:
+                        _d.label = 4;
+                    case 4: return [4 /*yield*/, this._cache.clean()];
+                    case 5:
                         _d.sent();
                         this.emit(this.events.logoutSuccess, res);
                         return [2 /*return*/, res];
-                    case 5:
+                    case 6:
                         e_5 = _d.sent();
                         this.emit(this.events.logoutError, e_5);
                         throw e_5;
-                    case 6: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         });
@@ -2025,20 +2058,21 @@ var Platform = /** @class */ (function (_super) {
                 switch (_d.label) {
                     case 0:
                         options = options || {};
+                        request.headers.set('X-User-Agent', this._userAgent);
                         if (options.skipAuthCheck)
                             return [2 /*return*/, request];
                         return [4 /*yield*/, this.ensureLoggedIn()];
                     case 1:
                         _d.sent();
-                        request.headers.set('X-User-Agent', this._userAgent);
                         request.headers.set('Client-Id', this._clientId);
+                        if (!!this._authProxy) return [3 /*break*/, 3];
                         _b = (_a = request.headers).set;
                         _c = ['Authorization'];
                         return [4 /*yield*/, this.authHeader()];
                     case 2:
                         _b.apply(_a, _c.concat([_d.sent()]));
-                        //request.url = this.createUrl(request.url, {addServer: true}); //FIXME Spec prevents this...
-                        return [2 /*return*/, request];
+                        _d.label = 3;
+                    case 3: return [2 /*return*/, request];
                 }
             });
         });
@@ -2064,7 +2098,7 @@ var Platform = /** @class */ (function (_super) {
                             throw e_6;
                         response = e_6.response;
                         status_1 = response.status;
-                        if (status_1 !== Client_1.default._unauthorizedStatus && status_1 !== Client_1.default._rateLimitStatus)
+                        if ((status_1 !== Client_1.default._unauthorizedStatus && status_1 !== Client_1.default._rateLimitStatus) || this._authProxy)
                             throw e_6;
                         options.retry = true;
                         retryAfter = 0;
@@ -2075,12 +2109,13 @@ var Platform = /** @class */ (function (_super) {
                         _a.label = 5;
                     case 5:
                         if (status_1 === Client_1.default._rateLimitStatus) {
+                            handleRateLimit = handleRateLimit || this._handleRateLimit;
                             defaultRetryAfter = !handleRateLimit || typeof handleRateLimit === 'boolean' ? 60 : handleRateLimit;
                             // FIXME retry-after is custom header, by default, it can't be retrieved. Server should add header: 'Access-Control-Expose-Headers: retry-after'.
                             retryAfter = parseFloat(response.headers.get('retry-after') || defaultRetryAfter) * 1000;
                             e_6.retryAfter = retryAfter;
                             this.emit(this.events.rateLimitError, e_6);
-                            if (!options.handleRateLimit)
+                            if (!handleRateLimit)
                                 throw e_6;
                         }
                         return [4 /*yield*/, delay(retryAfter)];
@@ -2119,6 +2154,13 @@ var Platform = /** @class */ (function (_super) {
             });
         });
     };
+    Platform.prototype.patch = function (url, body, query, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.send(__assign({ method: 'PATCH', url: url, query: query, body: body }, options))];
+            });
+        });
+    };
     Platform.prototype.delete = function (url, query, options) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -2130,7 +2172,10 @@ var Platform = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this._auth.accessTokenValid()];
+                    case 0:
+                        if (this._authProxy)
+                            return [2 /*return*/, null];
+                        return [4 /*yield*/, this._auth.accessTokenValid()];
                     case 1:
                         if (_a.sent())
                             return [2 /*return*/, null];
@@ -4065,7 +4110,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |

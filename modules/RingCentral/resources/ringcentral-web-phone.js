@@ -307,7 +307,7 @@ var WebPhone = /** @class */ (function () {
         options.switchBackInterval = this.sipInfo.switchBackInterval;
         this.userAgent = userAgent_1.patchUserAgent(new sip_js_1.UA(configuration), this.sipInfo, options, id);
     }
-    WebPhone.version = '0.7.2';
+    WebPhone.version = '0.7.4';
     WebPhone.uuid = utils_1.uuid;
     WebPhone.delay = utils_1.delay;
     WebPhone.extend = utils_1.extend;
@@ -333,6 +333,7 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var audioHelper_1 = __webpack_require__(5);
 var session_1 = __webpack_require__(6);
@@ -367,6 +368,7 @@ exports.patchUserAgent = function (userAgent, sipInfo, options, id) {
         userAgent.audioHelper.playIncoming(true);
         session_1.patchSession(session);
         session_1.patchIncomingSession(session);
+        session.logger.log('UA recieved incoming call invite');
         session._sendReceiveConfirmPromise = session
             .sendReceiveConfirm()
             .then(function () {
@@ -386,6 +388,7 @@ exports.patchUserAgent = function (userAgent, sipInfo, options, id) {
         if (message && typeof message === 'string' && userAgent.transport.isSipErrorCode(message)) {
             userAgent.transport.onSipErrorCode();
         }
+        _this.logger.warn('UA Registration Failed');
     });
     userAgent.on('notify', function (_a) {
         var request = _a.request;
@@ -393,6 +396,7 @@ exports.patchUserAgent = function (userAgent, sipInfo, options, id) {
         if (event && event.raw === 'check-sync') {
             userAgent.emit('provisionUpdate');
         }
+        _this.logger.log('UA recieved notify');
     });
     userAgent.start();
     return userAgent;
@@ -460,8 +464,8 @@ function invite(number, options) {
     options.RTCConstraints = options.RTCConstraints || {
         optional: [{ DtlsSrtpKeyAgreement: 'true' }]
     };
-    console.log(options);
     this.audioHelper.playOutgoing(true);
+    this.logger.log('Invite to ' + number + ' created with playOutgoing set to true');
     return session_1.patchSession(this.__invite(number, options));
 }
 
@@ -489,7 +493,6 @@ var AudioHelper = /** @class */ (function () {
                 this._audio[url].loop = true;
                 this._audio[url].volume = volume;
                 this._audio[url].playPromise = this._audio[url].play();
-				console.log(url);
             }
         }
         else {
@@ -623,6 +626,7 @@ exports.patchSession = function (session) {
             session.createDialog(incomingResponse, 'UAC');
             session.hasAnswer = true;
             session.status = sip_js_1.Session.C.STATUS_EARLY_MEDIA;
+            session.logger.log('Created UAC Dialog');
             session.sessionDescriptionHandler.setDescription(incomingResponse.body).catch(function (exception) {
                 session.logger.warn(exception);
                 session.failed(incomingResponse, sip_js_1.C.causes.BAD_MEDIA_DESCRIPTION);
@@ -630,6 +634,7 @@ exports.patchSession = function (session) {
                     status_code: 488,
                     reason_phrase: 'Bad Media Description'
                 });
+                session.logger.log('Call failed with Bad Media Description');
             });
         }
     });
@@ -657,6 +662,11 @@ exports.patchSession = function (session) {
         session.on('SessionDescriptionHandler-created', function () {
             session.logger.log('SessionDescriptionHandler Created');
             qos_1.startQosStatsCollection(session);
+            navigator.mediaDevices.enumerateDevices().then(function (devices) {
+                devices.forEach(function (device) {
+                    session.logger.log(device.kind + ' = ' + device.label + JSON.stringify(device));
+                });
+            });
         });
     }
     if (session.ua.onSession)
@@ -1156,15 +1166,17 @@ function addTrack(remoteAudioEle, localAudioEle) {
             var rtrack = receiver.track;
             if (rtrack) {
                 remoteStream.addTrack(rtrack);
+                _this.logger.log('Remote track added');
             }
         });
     }
     else {
         remoteStream = pc.getRemoteStreams()[0];
+        this.logger.log('Remote track added');
     }
     remoteAudio.srcObject = remoteStream;
     remoteAudio.play().catch(function () {
-        _this.logger.log('local play was rejected');
+        _this.logger.log('Remote play was rejected');
     });
     var localStream = new MediaStream();
     if (pc.getSenders) {
@@ -1172,15 +1184,17 @@ function addTrack(remoteAudioEle, localAudioEle) {
             var strack = sender.track;
             if (strack && strack.kind === 'audio') {
                 localStream.addTrack(strack);
+                _this.logger.log('Local track added');
             }
         });
     }
     else {
         localStream = pc.getLocalStreams()[0];
+        this.logger.log('Local track added');
     }
     localAudio.srcObject = localStream;
     localAudio.play().catch(function () {
-        _this.logger.log('local play was rejected');
+        _this.logger.log('Local play was rejected');
     });
 }
 
@@ -1226,6 +1240,18 @@ exports.startQosStatsCollection = function (session) {
         qosStatsObj.localAddr = previousGetStatsResult.connectionType.local.ipAddress[0];
         qosStatsObj.remoteAddr = previousGetStatsResult.connectionType.remote.ipAddress[0];
         previousGetStatsResult.results.forEach(function (item) {
+            if (item.type === 'localcandidate') {
+                qosStatsObj.localcandidate = item;
+            }
+            if (item.type === 'remotecandidate') {
+                qosStatsObj.remotecandidate = item;
+            }
+            if (item.type === 'ssrc' && item.transportId === 'Channel-audio-1' && item.id.includes('send')) {
+                if (parseInt(item.audioInputLevel, 10) === 0) {
+                    session.logger.log('AudioInputLevel is 0. This might cause one-way audio. Check Microphone Volume settings.');
+                    session.emit('no-input-volume');
+                }
+            }
             if (item.type === 'ssrc' && item.transportId === 'Channel-audio-1' && item.id.includes('recv')) {
                 qosStatsObj.jitterBufferDiscardRate = item.googSecondaryDiscardedRate || 0;
                 qosStatsObj.packetLost = item.packetsLost;
@@ -1234,6 +1260,10 @@ exports.startQosStatsCollection = function (session) {
                 qosStatsObj.totalIntervalCount += 1;
                 qosStatsObj.JBM = Math.max(qosStatsObj.JBM, parseFloat(item.googJitterBufferMs));
                 qosStatsObj.netType = addToMap(qosStatsObj.netType, network);
+                if (parseInt(item.audioOutputLevel, 10) <= 1) {
+                    session.logger.log('Remote audioOutput level is 1. The remote track might be muted or could have potential one-way audio issue');
+                    session.emit('no-output-volume');
+                }
             }
         });
     }, session.ua.qosCollectInterval);
@@ -1256,6 +1286,8 @@ var publishQosStats = function (session, qosStatsObj, options) {
     var calculatedStatsObj = calculateStats(qosStatsObj);
     var body = createPublishBody(calculatedStatsObj);
     var pub = session.ua.publish(targetUrl, event, body, options);
+    session.logger.log('Local Candidate: ' + JSON.stringify(qosStatsObj.localcandidate));
+    session.logger.log('Remote Candidate: ' + JSON.stringify(qosStatsObj.remotecandidate));
     qosStatsObj.status = false;
     pub.close();
     session.emit('qos-published', body);
@@ -1330,7 +1362,9 @@ var getQoSStatsTemplate = function () { return ({
     JBN: '',
     JDR: '',
     MOSLQ: 0,
-    status: false
+    status: false,
+    localcandidate: {},
+    remotecandidate: {}
 }); };
 var addToMap = function (map, key) {
     var _a;
@@ -1343,6 +1377,7 @@ var networkTypeMap;
     networkTypeMap["cellular"] = "Cellulars";
     networkTypeMap["ethernet"] = "Ethernet";
     networkTypeMap["wifi"] = "WiFi";
+    networkTypeMap["vpn"] = "VPN";
     networkTypeMap["wimax"] = "WiMax";
     networkTypeMap["2g"] = "2G";
     networkTypeMap["3g"] = "3G";
@@ -1456,7 +1491,7 @@ function __connect(options) {
                             switch (_a.label) {
                                 case 0:
                                     this.emit('wsConnectionError', err);
-                                    this.logger.log('Connection Error occured. Trying to reconnect to websocket...');
+                                    this.logger.warn('Connection Error occured. Trying to reconnect to websocket...');
                                     this.onError(err);
                                     this.disposeWs();
                                     return [4 /*yield*/, this.reconnect()];
@@ -1479,10 +1514,10 @@ function reconnect(forceReconnectToMain) {
             switch (_a.label) {
                 case 0:
                     if (this.reconnectionAttempts > 0) {
-                        this.logger.log('Reconnection attempt ' + this.reconnectionAttempts + ' failed');
+                        this.logger.warn('Reconnection attempt ' + this.reconnectionAttempts + ' failed');
                     }
                     if (!forceReconnectToMain) return [3 /*break*/, 3];
-                    this.logger.log('forcing connect to main WS server');
+                    this.logger.warn('forcing connect to main WS server');
                     return [4 /*yield*/, this.disconnect({ force: true })];
                 case 1:
                     _a.sent();
@@ -1517,7 +1552,7 @@ function reconnect(forceReconnectToMain) {
                     this.nextReconnectInterval = this.computeRandomTimeout(this.reconnectionAttempts, randomMinInterval, randomMaxInterval);
                     if (!(this.reconnectionAttempts > this.configuration.maxReconnectionAttempts)) return [3 /*break*/, 8];
                     this.logger.warn('maximum reconnection attempts for WebSocket ' + this.server.wsUri);
-                    this.logger.log('transport ' + this.server.wsUri + " failed | connection state set to 'error'");
+                    this.logger.warn('transport ' + this.server.wsUri + " failed | connection state set to 'error'");
                     this.server.isError = true;
                     this.emit('transportError');
                     this.server = this.getNextWsServer();
@@ -1527,7 +1562,7 @@ function reconnect(forceReconnectToMain) {
                     _a.sent();
                     return [3 /*break*/, 9];
                 case 8:
-                    this.logger.log('trying to reconnect to WebSocket ' +
+                    this.logger.warn('trying to reconnect to WebSocket ' +
                         this.server.wsUri +
                         ' (reconnection attempt ' +
                         this.reconnectionAttempts +
@@ -1559,6 +1594,7 @@ function scheduleSwitchBackMainProxy() {
         this.mainProxy.switchBackTimer = setTimeout(function () {
             _this.mainProxy.isError = false;
             _this.mainProxy.switchBackTimer = null;
+            _this.logger.warn('switchBack initiated');
             _this.emit('switchBackProxy');
         }, switchBackInterval);
     }
@@ -1610,7 +1646,7 @@ function __afterWSConnected() {
 /* 10 */
 /***/ (function(module) {
 
-module.exports = {"name":"ringcentral-web-phone","version":"0.7.2","scripts":{"test":"npm run test:karma && npm run test:e2e","test:watch":"karma start","test:karma":"npm run test:watch -- --single-run","test:coverage":"cat .coverage/lcov.info | coveralls -v","test:e2e":"jest --runInBand","build":"npm run build:tsc && npm run build:webpack","build:tsc":"tsc","build:webpack":"cross-env NODE_ENV=production webpack --config webpack.config.js --progress --color","start":"webpack-dev-server --config webpack.config.js --progress --color","server":"http-server --port ${PORT:-8080}","watch":"npm-run-all --print-label --parallel \"build:** -- --watch\"","lint":"eslint --cache --cache-location node_modules/.cache/eslint --fix","lint:all":"npm run lint \"src/**/*.ts\" \"demo/**/*.js\"","lint:staged":"lint-staged"},"dependencies":{"getstats":"1.2.0","sip.js":"0.13.5"},"devDependencies":{"@types/expect-puppeteer":"3.3.1","@types/jest":"24.0.15","@types/jest-environment-puppeteer":"4.0.0","@types/karma":"3.0.3","@types/node":"12.0.8","bootstrap":"3.4.1","cache-loader":"4.0.0","copy-webpack-plugin":"5.0.3","coveralls":"3.0.4","cross-env":"5.2.0","dotenv":"8.0.0","eslint":"5.16.0","eslint-config-ringcentral-typescript":"1.0.0","html-webpack-plugin":"3.2.0","http-server":"0.11.1","husky":"2.4.1","istanbul-instrumenter-loader":"3.0.1","jasmine-core":"3.4.0","jest":"24.8.0","jest-puppeteer":"4.2.0","jquery":"3.4.1","karma":"4.1.0","karma-chrome-launcher":"2.2.0","karma-coverage-istanbul-reporter":"2.0.5","karma-env":"0.1.0","karma-jasmine":"2.0.1","karma-mocha-reporter":"2.2.5","karma-sourcemap-loader":"0.3.7","karma-webpack":"4.0.2","lint-staged":"8.2.1","npm-run-all":"4.1.5","puppeteer":"1.18.0","ringcentral":"3.2.2","ts-jest":"24.0.2","ts-loader":"6.0.3","typescript":"3.5.2","uglifyjs-webpack-plugin":"2.1.3","webpack":"4.35.0","webpack-cli":"3.3.4","webpack-dev-server":"3.7.2"},"preferGlobal":false,"private":false,"main":"./lib/index.js","types":"./lib/index.d.ts","author":{"name":"RingCentral, Inc.","email":"devsupport@ringcentral.com"},"contributors":[{"name":"Kirill Konshin"}],"repository":{"type":"git","url":"git://github.com/ringcentral/ringcentral-web-phone.git"},"bugs":{"url":"https://github.com/ringcentral/ringcentral-web-phone/issues"},"homepage":"https://github.com/ringcentral/ringcentral-web-phone","engines":{"node":">=0.10.36"},"license":"MIT"};
+module.exports = {"name":"ringcentral-web-phone","version":"0.7.4","scripts":{"test":"npm run test:karma && npm run test:e2e","test:watch":"karma start","test:karma":"npm run test:watch -- --single-run","test:coverage":"cat .coverage/lcov.info | coveralls -v","test:e2e":"jest --runInBand","build":"npm run build:tsc && npm run build:webpack","build:tsc":"tsc","build:webpack":"cross-env NODE_ENV=production webpack --config webpack.config.js --progress --color","start":"webpack-dev-server --config webpack.config.js --progress --color","server":"http-server --port ${PORT:-8080}","watch":"npm-run-all --print-label --parallel \"build:** -- --watch\"","lint":"eslint --cache --cache-location node_modules/.cache/eslint --fix","lint:all":"npm run lint \"src/**/*.ts\" \"demo/**/*.js\"","lint:staged":"lint-staged"},"dependencies":{"getstats":"1.2.0","sip.js":"0.13.5"},"devDependencies":{"@types/expect-puppeteer":"3.3.1","@types/jest":"24.0.15","@types/jest-environment-puppeteer":"4.0.0","@types/karma":"3.0.3","@types/node":"12.0.8","bootstrap":"3.4.1","cache-loader":"4.0.0","copy-webpack-plugin":"5.0.3","coveralls":"3.0.4","cross-env":"5.2.0","dotenv":"8.0.0","eslint":"5.16.0","eslint-config-ringcentral-typescript":"1.0.0","html-webpack-plugin":"3.2.0","http-server":"0.11.1","husky":"2.4.1","istanbul-instrumenter-loader":"3.0.1","jasmine-core":"3.4.0","jest":"24.8.0","jest-puppeteer":"4.2.0","jquery":"3.4.1","karma":"4.1.0","karma-chrome-launcher":"2.2.0","karma-coverage-istanbul-reporter":"2.0.5","karma-env":"0.1.0","karma-jasmine":"2.0.1","karma-mocha-reporter":"2.2.5","karma-sourcemap-loader":"0.3.7","karma-webpack":"4.0.2","lint-staged":"8.2.1","npm-run-all":"4.1.5","puppeteer":"1.18.0","ringcentral":"3.2.2","ts-jest":"24.0.2","ts-loader":"6.0.3","typescript":"3.5.2","uglifyjs-webpack-plugin":"2.1.3","webpack":"4.35.0","webpack-cli":"3.3.4","webpack-dev-server":"3.7.2"},"preferGlobal":false,"private":false,"main":"./lib/index.js","types":"./lib/index.d.ts","author":{"name":"RingCentral, Inc.","email":"devsupport@ringcentral.com"},"contributors":[{"name":"Kirill Konshin"}],"repository":{"type":"git","url":"git://github.com/ringcentral/ringcentral-web-phone.git"},"bugs":{"url":"https://github.com/ringcentral/ringcentral-web-phone/issues"},"homepage":"https://github.com/ringcentral/ringcentral-web-phone","engines":{"node":">=0.10.36"},"license":"MIT"};
 
 /***/ })
 /******/ ])["default"];
