@@ -12,8 +12,12 @@ require_once('includes/main/WebUI.php');
 
 $adb = PearDatabase::getInstance();
 
-$rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
+if(RingCentral_Config_Connector::$server == 'Sandbox')
+    $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
 
+if(RingCentral_Config_Connector::$server == 'Production')
+    $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_PRODUCTION);
+   
 $platform = $rcsdk->platform();
 
 if(isset($_GET['code'])){
