@@ -357,8 +357,10 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 		$ticket->column_fields['ticket_title'] = $usetitle;
 		$ticket->column_fields['description'] = $description;
 		$ticket->column_fields['assigned_user_id'] = $mailscannerrule->assigned_to;
+		
 		if ($contactLinktoid)
-			$ticket->column_fields['contact_id'] = $contactLinktoid;
+			$ticket->column_fields['parent_id'] = $contactLinktoid;
+		
 		if ($linktoid)
 			$ticket->column_fields['parent_id'] = $linktoid;
 
