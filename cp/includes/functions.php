@@ -198,6 +198,19 @@
 	    return $response;
 	}
 	
+	function module_info($ws_url, $sessionName, $module){
+	    
+	    $getParams = Array(
+	        'operation' => 'describe',
+	        'sessionName'  => $sessionName,
+	        'elementType'  => $module
+	        );
+	    
+	    $response = getHttpRequest($ws_url, $getParams);
+	    $response = json_decode($response, true);
+	    return $response;
+	}
+	
 	function fetch_docs($ws_url, $sessionName, $id, $pageLimit, $startIndex){
 	    
 	    $getParams = Array(

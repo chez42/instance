@@ -75,6 +75,46 @@
         </div>
     </div>
     
+    <div class="modal fade" id="change_password_form" tabindex="-1" role="dialog"  aria-hidden="true">
+		<div class="modal-dialog" role="document">
+        	<div class="modal-content">
+           		<form class="form-horizontal recordEditView" id="change-password" method="post" action="">
+					
+					<div class="modal-header">
+                		<h5 class="modal-title" id="exampleModalLabel">Change Password</h5>
+               			<button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+            		</div>
+            
+        			<div class="modal-body">
+        				<div class="row">
+            				<div class="col-md-8">
+        						<div class="form-group">
+        							<label class="control-label">New Password</label>
+        							<input type="password" class="form-control" name="password" id = "password" placeholder="Enter New Password">
+        							<div class="help-block with-errors"></div>
+        						</div>
+        					</div>
+        				</div>
+        				<div class="row">
+        					<div class="col-md-8">
+        						<div class="form-group">
+        							<label class="control-label">Confirm Password</label>
+        							<input type="password" class="form-control" name="confirmpassword" id = "confirmpassword"  placeholder="Confirm Password">
+        							<div class="help-block with-errors"></div>
+        						</div>
+        					</div>
+        				</div>
+        			</div>
+            	
+        			<div class="modal-footer quickCreateActions">
+            			<button class="btn" type="reset" data-dismiss="modal">Cancel</button>
+            			<button class="btn btn-success" type="submit"><strong>Save</strong></button>
+                	</div>
+        		</form>
+			</div>	
+		</div>
+	</div>
+
 	<script>
 		var KTAppOptions = {
 			"colors": {
@@ -109,5 +149,52 @@
 	<?php 
 	   include_once "includes/common-js.php";
 	?>
+	
 	<link href="assets/js/waitMe.min.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/waitMe.min.js" type="text/javascript"></script>
+    
+	<script>
+
+    	jQuery(document).ready(function() {
+
+    		var validator = $('#change-password').validate({
+        	    rules : {
+        	         password : "required",
+        	    	 confirmpassword : {
+        	    		 equalTo: "#password"
+                    }
+        	    },
+        	});
+		
+        	jQuery('#change-password').on('submit', function (e) {
+
+    	        e.preventDefault();
+    	        
+    	        if (validator.form()) {
+    	        	KTApp.block('#change-password', {
+		                overlayColor: '#000000',
+		                type: 'v2',
+		                state: 'primary',
+		                message: 'Processing...'
+		            });
+        	        $.ajax({
+        	            type: "POST",
+        	            url: 'update-customer.php',
+        	            data: jQuery('#change-password').serialize(), // serializes the form's elements.
+        	            success: function(result)
+        	            {
+        	            	var data = JSON.parse(result);
+        	            	if(data.success){
+        	            		toastr.info('Password Changed Successfully');
+        	            		KTApp.unblock('#change-password');
+        	            		$("#change_password_form").modal('hide');
+        	            	}
+        	            	
+        	            }
+        	        });
+    	        }
+    	        
+    	    });
+    	    
+    	});
+    </script>
