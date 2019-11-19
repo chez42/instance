@@ -9,7 +9,7 @@ include_once('includes/functions.php');
 
 include_once('includes/function.php');
 
-$api_url = 'https://dev.omnisrv.com/ver4manish/';
+$api_url = 'https://hq.omnisrv.com/';
 
 $api_username = 'felipeluna';
 
