@@ -270,6 +270,8 @@ Vtiger.Class("RingCentral_Js",{
 				app.request.post({'data':params}).then(function (err, data) {
 					if (err == null) {
 						
+						number = '+' + number;
+						
 						thisInstance.session = thisInstance.webPhone.userAgent.invite(number, {
 							fromNumber: thisInstance.from_no,
 							homeCountryId: 1
@@ -380,21 +382,15 @@ Vtiger.Class("RingCentral_Js",{
 		
 		thisInstance.appendHTML();
 		
-		$.getScript('modules/RingCentral/resources/es6-promise.auto.js', function(){
-			$.getScript('modules/RingCentral/resources/fetch.umd.js', function(){
-				$.getScript('modules/RingCentral/resources/ringcentral.js', function(){
-					$.getScript('modules/RingCentral/resources/sip.js', function(){
-						$.getScript('modules/RingCentral/resources/ringcentral-web-phone.js', function(){
-							
-							thisInstance.registerEventForMouse();
-							
-							thisInstance.ValidateTokenAndGetSIP();
-						});
-					});
-				});
+		$.getScript('modules/RingCentral/resources/sip.js', function(){
+			$.getScript('modules/RingCentral/resources/ringcentral-web-phone.js', function(){
+				
+				thisInstance.registerEventForMouse();
+				
+				thisInstance.ValidateTokenAndGetSIP();
 			});
 		});
-		
+
 		
 		$(document).on('click','.closeOutgoing',function(){
 			thisInstance.hideOutgoingCallWindow();
@@ -489,25 +485,31 @@ Vtiger.Class("RingCentral_Js",{
 		
 		var thisInstance = this;
 		
-		webPhone = new RingCentral.WebPhone(sipInfo, {
+		var remoteVideoElement = document.getElementById('remoteVideo');
+		var localVideoElement = document.getElementById('localVideo');
+			
+		
+		thisInstance.Class.webPhone = new RingCentral.WebPhone(sipInfo, {
 			appKey: thisInstance.Class.app_key,
-			logLevel: 1,
+			logLevel: parseInt(3, 10),
 			audioHelper: {
 				enabled: true,
 				incoming: 'modules/RingCentral/resources/incoming.ogg',
 				outgoing: 'modules/RingCentral/resources/outgoing.ogg'
 			},
-			media: {},
+			
+			media: {
+                remote: remoteVideoElement,
+                local: localVideoElement
+            },
 		});
 					
-		webPhone.userAgent.audioHelper.setVolume(0.5);
+		thisInstance.Class.webPhone.userAgent.audioHelper.setVolume(0.5);
 	
-		webPhone.userAgent.on('registered', function() {
+		thisInstance.Class.webPhone.userAgent.on('registered', function() {
 			console.log("Registered");
 		});
 		
-		thisInstance.Class.webPhone = webPhone;
-	
 	},
 	
 	appendHTML: function(){
@@ -518,7 +520,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		jQuery('.app-footer').append(html);
 		
-		var caller_html = '<link rel="stylesheet" href="modules/RingCentral/custom-style.css">';
+		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><link rel="stylesheet" href="modules/RingCentral/custom-style.css">';
 		
 		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:310px;min-height:210px;">'+
 			'<div class="ringcentral_details"></div>'+
