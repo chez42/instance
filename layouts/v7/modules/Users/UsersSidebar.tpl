@@ -33,7 +33,7 @@
 								{if $MENU eq 'My Preferences'}
 									{assign var=MENU_URL value=$USER_MODEL->getPreferenceDetailViewUrl()}
 								{elseif $MENU eq 'Calendar Settings'}
-									{assign var=MENU_URL value=$USER_MODEL->getIndexSettingsUrl()}
+									{assign var=MENU_URL value=$USER_MODEL->getCalendarSettingsEditViewUrl()}
 								{elseif $MENU eq 'Index Settings'}
 									{assign var=MENU_URL value=$USER_MODEL->getIndexSettingsUrl()}
 								{elseif $MENU === $URL}
