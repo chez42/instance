@@ -74,7 +74,7 @@
                             <td class="periodicity">{$RECORD->getDisplayValue('periodicity')}</td>
                             <td class="cf_3476">{$RECORD->getDisplayValue('cf_3476')}</td>
                             <td class="in_arrears">${$RECORD->getDisplayValue('in_arrears')}</td>
-                            <td class="in_advance"></td>
+                            <td class="in_advance">${$RECORD->getDisplayValue('in_advance')}</td>
                             <td class="total_value" data-total_value="{$RECORD->getDisplayValue('total_value')}">${$RECORD->getDisplayValue('total_value')}</td>
                             <td class="cash" data-cash_value="{$RECORD->getDisplayValue('cash')}">${$RECORD->getDisplayValue('cash')}</td>
                             <td class="as_of" data-as_of="{$AS_OF}">{$AS_OF}</td>

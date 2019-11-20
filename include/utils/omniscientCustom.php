@@ -334,6 +334,105 @@ function GetHouseholdIDFromAccountNumber($account_number){
     return 0;
 }
 
+
+function GetContactIDFromAccountNumber($account_number){
+    global $adb;
+    $query = "SELECT contact_link FROM vtiger_portfolioinformation p
+              WHERE account_number = ? AND accountclosed = 0";
+    $result = $adb->pquery($query, array($account_number));
+    if($adb->num_rows($result) > 0)
+        return $adb->query_result($result, 0, 'contact_link');
+    return 0;
+}
+
+/**
+ * @param $account_number
+ * Return record entities by account number (contact, household, portfolio)
+ */
+function GetAccountDataRecords($account_number){
+    global $adb;
+    $questions = generateQuestionMarks($account_number);
+    $query = "SELECT portfolioinformationid, contact_link, household_account
+              FROM vtiger_portfolioinformation WHERE account_number IN ({$questions})";
+    $result = $adb->pquery($query, array($account_number));
+    $data = array();
+    if($adb->num_rows($result) > 0) {
+        while($x = $adb->fetchByAssoc($result)) {
+            $tmp = array();
+            if(!empty($x['portfolioinformationid']))
+                $tmp['portfolio'] = PortfolioInformation_Record_Model::getInstanceById($x['portfolioinformationid']);
+            if(!empty($x['contact_link']))
+                $tmp['contact'] = Contacts_Record_Model::getInstanceById($x['contact_link']);
+            if(!empty($x['household_account']))
+                $tmp['household'] = Accounts_Record_Model::getInstanceById($x['household_account']);
+            $data[] = $tmp;
+        }
+    }
+    return $data;
+}
+
+/**
+ * @param $account_number
+ * @field_value is key value pairing for where conditioning.  IE:  array(in_arrears => ">= 1", security_type => " = flow")
+ * Return transaction record ID's by account number
+ */
+function GetTransactionRecordIDs($account_number, $field_value = null){
+    global $adb;
+    $and = "";
+    if($field_value != null){
+        foreach($field_value AS $k => $v){
+            $and .= " AND {$k} {$v}";
+        }
+    }
+    $questions = generateQuestionMarks($account_number);
+    $query = "SELECT t.transactionsid, t.account_number
+              FROM vtiger_transactions t 
+              JOIN vtiger_transactionscf cf USING (transactionsid)
+              JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+              WHERE account_number IN ({$questions})
+              AND e.deleted = 0
+              {$and}";
+    $result = $adb->pquery($query, array($account_number));
+    $data = array();
+    if($adb->num_rows($result) > 0) {
+        while($v = $adb->fetchByAssoc($result)) {
+            $data[] = $v['transactionsid'];//Vtiger_Record_Model::getInstanceById($v['transactionsid'], 'transactions');
+        }
+    }
+    return $data;
+}
+
+/**
+ * @param $account_number
+ * @field_value is key value pairing for where conditioning.  IE:  array(in_arrears => ">= 1", security_type => " = flow")
+ * Return transaction record entities by account number
+ */
+function GetTransactionRecords($account_number, $field_value = null){
+    global $adb;
+    $and = "";
+    if($field_value != null){
+        foreach($field_value AS $k => $v){
+            $and .= " AND {$k} {$v}";
+        }
+    }
+    $questions = generateQuestionMarks($account_number);
+    $query = "SELECT t.transactionsid, t.account_number
+              FROM vtiger_transactions t 
+              JOIN vtiger_transactionscf cf USING (transactionsid)
+              JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+              WHERE account_number IN ({$questions})
+              AND e.deleted = 0
+              {$and}";
+    $result = $adb->pquery($query, array($account_number));
+    $data = array();
+    if($adb->num_rows($result) > 0) {
+        while($v = $adb->fetchByAssoc($result)) {
+            $data[] = Vtiger_Record_Model::getInstanceById($v['transactionsid']);
+        }
+    }
+    return $data;
+}
+
 /**
  * Returns the portfolio account numbers from the portfolio ID's passed in
  * @param type $pids

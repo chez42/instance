@@ -1,5 +1,5 @@
 <?php
-class PortfolioInformation_Indexes_Model extends Vtiger_Module {
+class PortfolioInformation_Statements_Model extends Vtiger_Module {
 
     static public function SavePreferences($preferences){
         global $adb;

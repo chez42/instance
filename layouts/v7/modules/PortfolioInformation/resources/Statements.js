@@ -1,9 +1,9 @@
 var filters = [];
-jQuery.Class("Indexes_Module_Js",{
+jQuery.Class("Statements_Module_Js",{
     currentInstance : false,
     preferred_ids : [],
     getInstanceByView : function(){
-        var instance = new Indexes_Module_Js();
+        var instance = new Statements_Module_Js();
         return instance;
     }
 },{
@@ -11,10 +11,10 @@ jQuery.Class("Indexes_Module_Js",{
         var self = $(this);
         $(".index_list tbody tr").click(function(){
             $(this).toggleClass('preferred');
-/*            if($(this).hasClass('preferred'))
-                $(this).removeClass('preferred');
-            else
-                $(this).addClass('preferred');*/
+            /*            if($(this).hasClass('preferred'))
+                            $(this).removeClass('preferred');
+                        else
+                            $(this).addClass('preferred');*/
             self.preferred_ids = [];
             $('.preferred').each(function(i, obj){
                 self.preferred_ids.push($(this).data('id'));
@@ -119,7 +119,8 @@ function HideShowFilter(){
 }
 
 jQuery(document).ready(function($) {
-    var instance = Indexes_Module_Js.getInstanceByView();
-    instance.registerEvents();
-    instance.fillPreferences();
+    CKEDITOR.replace( 'editor1' );
+//    var instance = Statements_Module_Js.getInstanceByView();
+//    instance.registerEvents();
+//    instance.fillPreferences();
 });

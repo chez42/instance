@@ -2,7 +2,7 @@
 /*+***********************************************************************************
  * The Index settings page for users to select which indexes they want to show up in their reports
  *************************************************************************************/
-class PortfolioInformation_Indexes_View extends Vtiger_Index_View {
+class PortfolioInformation_Statements_View extends Vtiger_Index_View {
     function preProcessTplName(Vtiger_Request $request) {
         return 'PortfolioReportsPerProcess.tpl';
     }
@@ -36,7 +36,7 @@ class PortfolioInformation_Indexes_View extends Vtiger_Index_View {
         $viewer->assign("ACLASS", json_encode($aclass));
         $viewer->assign("PREFERENCES", json_encode($preferences));
 //        $viewer->fetch('layouts/v7/modules/Users/views/Indexes.tpl', $request->getModule());
-        $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Indexes.tpl', $request->getModule());
+        $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Statements.tpl', $request->getModule());
         echo $screen_content;
     }
 
@@ -48,7 +48,7 @@ class PortfolioInformation_Indexes_View extends Vtiger_Index_View {
 
         $jsFileNames = array(
             '~libraries/jquery/Drop-Down-Combo-Tree/comboTreePlugin.js',
-            '~layouts/v7/modules/PortfolioInformation/resources/Indexes.js',
+            '~layouts/v7/modules/PortfolioInformation/resources/Statements.js',
 //            '~layouts/v7/modules/PortfolioInformation/resources/icontains.js',
             "~/libraries/jquery/DataTables/datatables.js",
         );
@@ -61,7 +61,7 @@ class PortfolioInformation_Indexes_View extends Vtiger_Index_View {
     public function getHeaderCss(Vtiger_Request $request) {
         $headerCssInstances = parent::getHeaderCss($request);
         $cssFileNames = array(
-            '~/layouts/v7/modules/PortfolioInformation/css/Indexes.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/Statements.css',
             '~libraries/jquery/Drop-Down-Combo-Tree/style.css',
             "~/libraries/jquery/DataTables/datatables.css",
         );
