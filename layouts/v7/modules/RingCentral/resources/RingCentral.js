@@ -251,7 +251,11 @@ Vtiger.Class("RingCentral_Js",{
 		} else {
 			
 			// Fire Ajax Call to Retrieve HTML here
-		
+			if( $( "body" ).hasClass( "show_sidebar3" )){
+				app.helper.showErrorNotification({message: 'Call in Progress!'});
+				return true;
+			}
+			
 			var element = jQuery(e);
 			
 			var record = element.data('id');
@@ -268,42 +272,42 @@ Vtiger.Class("RingCentral_Js",{
 					'mode' : 'fetchDetails'
 				};
 				app.request.post({'data':params}).then(function (err, data) {
+					
 					if (err == null) {
 						
-						number = '+' + number;
+						//If Number Length is Greator than 10 then append + for country code to work
+						if(number.length > 10){
+							number = '+' + number;
+						}
 						
 						thisInstance.session = thisInstance.webPhone.userAgent.invite(number, {
 							fromNumber: thisInstance.from_no,
 							homeCountryId: 1
 						});
 						
-						var html ='<div class="ringcentral_details"  style="padding:2%">'+
-							'<span class="close" style="font-size:12px !important;padding-top: 0px!important;">' +
+						var html ='<div class="ringcentral_details"  style="padding:10px;">'+
+							'<span class="close" style="opacity: 0.6;font-size:15px !important;padding-top: 0px!important;">' +
 								'<i class="fa fa-times closeOutgoing"></i>'+
 							'</span>' +
-							'<div class="col-md-3 text-left" style="padding-top:10px !important;">' ;
+							'<div class = "row"><div class="col-md-12" style="text-align:center;">' ;
 						
 						if(data.imagepath){
 							html += '<img src="'+data.imagepath+'" style="border-radius:50%!important;width:50px!important;height:50px!important;" >';
 						}else{
-							html+= '<i class="vicon-contacts" style="font-size: -webkit-xxx-large;"></i>';
+							html+= '<i class="vicon-contacts" style="font-size: 70px;"></i>';
 						}
 						
-						html+='</div><div class="col-md-9 text-left" style="font-size:15px !important;">'+data.lastname+'&nbsp;'+data.firstname+'<br>'+
-							'</div>' +
-								
-							'<div style="clear:both;"></div> <hr/>'+
-							'<div class=" col-md-12 text-left" >';
+						html+='</div></div><div class = "row"><div class="col-md-12" style="font-size:15px !important;text-align:center;color:black;font-weight:600;padding-top:15px;">'+data.lastname+'&nbsp;'+data.firstname+'<br>'+
+							'</div></div><hr/>';
 						
 						$.each(data.fields,function(inx,val){
-							html += '<div class="fieldLabel" style="font-size:12px !important;"><span style = "font-weight:600;">'+inx+'</span> &nbsp;:&nbsp;'+val+'</div>';
+							html += '<div class = "row" style = "font-size:13px;padding:5px;"><div class = "col-md-12" style = "text-align:left;"><label style = "font-weight:100;color:#6f6f6f;padding-right:10px;">'+inx+': </label><span style = "color:black;">'+val+'</span></div></div>';
 						});
 						
-						html+= '</div>'+
-							'<div class="col-md-12" style="position:absolute;bottom:10px;">'+
+						html+= '<div class = "row"><div class="col-md-12">'+
 								'<textarea class="pull-left" style="width:80%;height:50px;font-size:12px !important;border:1px solid #DDDDDD;" placeholder="Leave notes" name="callnotes"></textarea>'+
 								'<button data-id="'+record+'" class="btn-success sendnotes pull-right" style="font-size:12px !important;"><i class="fa fa-arrow-right"></i></button>'
-							'</div>'+
+							'</div></div>'+
 						'</div>' ;
 						
 						$(document).find('.ringcentral_details').replaceWith(html);
@@ -319,7 +323,7 @@ Vtiger.Class("RingCentral_Js",{
 	
 	registerEventForMouse :function(){
 		
-		$(".popover").popover('destroy');
+		$("[data-toggle='popover']").popover('destroy');
 		
 		$("[data-field-type=phone]").each(function(){
             
@@ -336,27 +340,24 @@ Vtiger.Class("RingCentral_Js",{
 				if($(this).attr("data-rawvalue") != '' && $(this).attr("data-rawvalue") != undefined){
 					
 					var number = $(this).attr("data-rawvalue");
-					var container = jQuery('#listview-table');
 					var parentElem = jQuery(element).closest('tr');
 					var recordId = parentElem.data('id');
 				
-				} else if($.trim($(this).text()) != ''){
+				} /*else if($.trim($(this).text()) != ''){
 					
 					var number = $.trim($(this).text());
 					var container = parentElem;
 					var recordId = app.getRecordId();
 				
-				}
+				}*/
 				
-				if (number !== '' && /^\+?[0-9-\(\)\ \#pw]{1,50}$/.test(number)) {
+				if (number !== '') {
 					
 					var template = jQuery(RingCentral_Js.lineItemPopOverTemplate);
 					
 					phoneCallContainer.find('#call').attr('data-number', number);
-					phoneCallContainer.find('#call').attr('data-id', recordId);
 					
-					phoneCallContainer.find('#message').attr('data-id', recordId);
-					phoneCallContainer.find('#message').attr('data-number', number);
+					phoneCallContainer.find('#call').attr('data-id', recordId);
 					
 					element.popover({
 						'content' : phoneCallContainer,
@@ -383,12 +384,15 @@ Vtiger.Class("RingCentral_Js",{
 		thisInstance.appendHTML();
 		
 		$.getScript('modules/RingCentral/resources/sip.js', function(){
+			
 			$.getScript('modules/RingCentral/resources/ringcentral-web-phone.js', function(){
 				
 				thisInstance.registerEventForMouse();
 				
 				thisInstance.ValidateTokenAndGetSIP();
+			
 			});
+			
 		});
 
 		
@@ -455,6 +459,7 @@ Vtiger.Class("RingCentral_Js",{
 		var params = {};
 		
 		params.module = 'RingCentral';
+		
 		params.action = 'ValidateTokenAndGetSIP';
 		
 		app.request.post({data:params}).then(
@@ -520,9 +525,9 @@ Vtiger.Class("RingCentral_Js",{
 		
 		jQuery('.app-footer').append(html);
 		
-		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><link rel="stylesheet" href="modules/RingCentral/custom-style.css">';
+		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><style>body.show_sidebar #push_sidebar{left:80%}#push_sidebarphone{-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;background-color:#fff;border:1px solid;border-radius:5px;position:fixed;z-index:99999999;width:20%;right:0;bottom:-200%;text-align:center;-webkit-transition:all .5s ease;-moz-transition:all .5s ease;-ms-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease;font-size:16px!important}body.show_sidebar3 #push_sidebarphone{bottom:0}</style>';
 		
-		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:310px;min-height:210px;">'+
+		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:auto;">'+
 			'<div class="ringcentral_details"></div>'+
 		'</div>';
 		
@@ -584,8 +589,12 @@ jQuery(document).ready(function(){
 	obj = new RingCentral_Js();
 	
 	app.event.on('post.listViewFilter.click', function (event, searchRow) {
+		
 		obj.registerEventForMouse();
-		obj.ValidateTokenAndGetSIP();
+		
+		//No Need to Validate Token Everytime with Ajax Call
+		//obj.ValidateTokenAndGetSIP();
+	
 	});	
 	
 	obj.registerEventsForUserPrefrence();
