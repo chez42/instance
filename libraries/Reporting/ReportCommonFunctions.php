@@ -28,6 +28,10 @@ function GetDateMinusMonthsSpecified($date, $num_months){
     return date("Y-m-d",(strtotime("{$date} -{$num_months} months")));
 }
 
+function GetDatePlusMonthsSpecified($date, $num_months){
+    return date("Y-m-d",(strtotime("{$date} +{$num_months} months")));
+}
+
 function GetDateMinusMonths($num_months){
     return date("Y-m-d", strtotime("TODAY -{$num_months} months"));
 }
@@ -88,6 +92,15 @@ function GetFirstWeekdayDateFromMonthYear($date){
     return date('Y-m-d',(strtotime ( 'first weekday ' . $date )));
 }
 
+function GetNumberOfDaysBetween($date1, $date2)
+{
+    // Calulating the difference in timestamps
+    $diff = strtotime($date2) - strtotime($date1);
+
+    // 1 day = 24 hours
+    // 24 * 60 * 60 = 86400 seconds
+    return abs(round($diff / 86400));
+}
 
 /**
  * Returns the beginning of the month, minus one year

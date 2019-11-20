@@ -2,11 +2,16 @@
 
 class Vtiger_Billing_View extends Vtiger_Popup_View {
     function process(Vtiger_Request $request) {
+        $records = $request->get('selected_ids');
+        if(!$records) {
+            $records = $request->get('records');
+            $records = explode(',', $records);
+        }
         //$records = $request->get('records');
         //$records = explode(',', $records);
-        
-        $records = $this->getRecordsListFromRequest($request);
-        
+
+#        $records = $this->getRecordsListFromRequest($request);
+
         $module = $request->getModule();
         $moduleModel = Vtiger_Module_Model::getInstance($module);
         $fieldModels = $moduleModel->getFields();
@@ -17,6 +22,7 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
         $tmp_omni = array();
 
         $current_date = date("Y-m-d");
+
         foreach($records as $record) {
             $model = Vtiger_Record_Model::getInstanceById($record);
             $tmp_custodians[] = $model->getDisplayValue("origination");
@@ -30,6 +36,11 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
                 $current_date,
                 $data['annual_fee_percentage'],
                 $data['periodicity'],$extra);
+
+            $data['in_advance'] = Vtiger_Billing_Model::CalculateAdvanceBilling($data['account_number'],
+                $data['annual_fee_percentage'],
+                $data['periodicity']);
+
             $model->setData($data);
             $recordModels[] = $model;
         }
@@ -76,7 +87,7 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
 #        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
         return $jsScriptInstances;
     }
-    
+
     public function getRecordsListFromRequest(Vtiger_Request $request) {
         $cvId = $request->get('viewname');
         $module = $request->get('module');
@@ -86,13 +97,13 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
         }
         $selectedIds = $request->get('selected_ids');
         $excludedIds = $request->get('excluded_ids');
-        
+
         if(!empty($selectedIds) && $selectedIds != 'all') {
             if(!empty($selectedIds) && count($selectedIds) > 0) {
                 return $selectedIds;
             }
         }
-        
+
         $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
         if($customViewModel) {
             $searchKey = $request->get('search_key');
@@ -103,7 +114,7 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
                 $customViewModel->set('search_key', $searchKey);
                 $customViewModel->set('search_value', $searchValue);
             }
-            
+
             /**
              *  Mass action on Documents if we select particular folder is applying on all records irrespective of
              *  seleted folder
@@ -112,10 +123,10 @@ class Vtiger_Billing_View extends Vtiger_Popup_View {
                 $customViewModel->set('folder_id', $request->get('folder_id'));
                 $customViewModel->set('folder_value', $request->get('folder_value'));
             }
-            
+
             $customViewModel->set('search_params',$request->get('search_params'));
             return $customViewModel->getRecordIds($excludedIds,$module);
         }
     }
-    
+
 }
