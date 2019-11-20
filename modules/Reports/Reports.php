@@ -499,18 +499,38 @@ class Reports extends CRMEntity{
 		}
 
 		if (strtolower($current_user->is_admin) != "on") {
+			
 			require('user_privileges/user_privileges_'.$current_user->id.'.php');
+			
 			require_once('include/utils/GetUserGroups.php');
+			
 			$userGroups = new GetUserGroups();
+			
 			$userGroups->getAllUserGroups($current_user->id);
+			
 			$user_groups = $userGroups->user_groups;
+			
 			//if(!empty($user_groups) && ($rpt_fldr_id == 'shared' || $rpt_fldr_id == 'All')){
-				$user_group_query = " (shareid IN (".generateQuestionMarks($user_groups).") AND setype='groups') OR";
-				$non_admin_query = " vtiger_report.reportid IN (SELECT reportid FROM vtiger_reportsharing WHERE $user_group_query (shareid=? AND setype='users'))";
-				foreach ($user_groups as $userGroup) {
-					array_push($params, $userGroup);
+				
+				if(!empty($user_groups)) {
+					
+					$user_group_query = " ( shareid IN (".generateQuestionMarks($user_groups).") AND setype='groups') OR ";
+					
+					$non_admin_query = " vtiger_report.reportid IN (SELECT reportid FROM vtiger_reportsharing WHERE $user_group_query (shareid=? AND setype='users'))";
+					
+					foreach ($user_groups as $userGroup) {
+						array_push($params, $userGroup);
+					}
+					
+				} else {
+					//$user_group_query = " ( shareid IN (".generateQuestionMarks($user_groups).") AND setype='groups') OR ";
+					$non_admin_query = " vtiger_report.reportid IN (SELECT reportid FROM vtiger_reportsharing WHERE (shareid=? AND setype='users'))";
 				}
+				
+				
+				
 				array_push($params, $current_user->id);
+			
 			//}
 
 			//if ($rpt_fldr_id == 'shared' || $rpt_fldr_id == 'All') {
