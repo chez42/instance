@@ -527,7 +527,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><style>body.show_sidebar #push_sidebar{left:80%}#push_sidebarphone{-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;background-color:#fff;border:1px solid;border-radius:5px;position:fixed;z-index:99999999;width:20%;right:0;bottom:-200%;text-align:center;-webkit-transition:all .5s ease;-moz-transition:all .5s ease;-ms-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease;font-size:16px!important}body.show_sidebar3 #push_sidebarphone{bottom:0}</style>';
 		
-		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:auto;">'+
+		caller_html += '<div id="push_sidebarphone" style = "border:1px solid #DDDDDD;width:auto;min-width:310px !important;">'+
 			'<div class="ringcentral_details"></div>'+
 		'</div>';
 		
