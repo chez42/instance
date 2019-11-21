@@ -323,14 +323,14 @@ Vtiger.Class("RingCentral_Js",{
 	
 	registerEventForMouse :function(){
 		
-		$("[data-toggle='popover']").popover('destroy');
-		
 		$("[data-field-type=phone]").each(function(){
             
 			if (!$(this).hasClass("listSearchContributor")) {
                 
             	var element = $(this);
             	
+				element.popover('destroy');
+				
 				var phoneCallContainer = jQuery('.phoneCallContainer').clone(true);
 				
     			phoneCallContainer.removeClass('phoneCallContainer');
