@@ -57,7 +57,7 @@ if(isset($_GET['code'])){
 	if(count($account_info['records']) > 1){
 		
 		foreach($account_info['records'] as $record){
-			if(in_array('SmsSender', $record['features'])){
+			if(in_array('SmsSender', $record['features']) && $record['usageType'] == 'DirectNumber'){
 				$from_no = $record['phoneNumber'];
 			}
 		}
