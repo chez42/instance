@@ -323,57 +323,72 @@ Vtiger.Class("RingCentral_Js",{
 	
 	registerEventForMouse :function(){
 		
+		var view = app.getViewName();
+		
 		$("[data-field-type=phone]").each(function(){
-            
+		
 			if (!$(this).hasClass("listSearchContributor")) {
-                
-            	var element = $(this);
-            	
+			
+				var element = $(this);
+				
 				element.popover('destroy');
 				
-				var phoneCallContainer = jQuery('.phoneCallContainer').clone(true);
+				var phoneCallContainer = jQuery('.phoneCallContainer').clone(true).removeClass('phoneCallContainer');
 				
-    			phoneCallContainer.removeClass('phoneCallContainer');
-    			
-    			var parentElem = jQuery(element).closest('td');
-    			
-				if($(this).attr("data-rawvalue") != '' && $(this).attr("data-rawvalue") != undefined){
+				if(view == 'List'){
 					
-					var number = $(this).attr("data-rawvalue");
-					var parentElem = jQuery(element).closest('tr');
-					var recordId = parentElem.data('id');
-				
-				} /*else if($.trim($(this).text()) != ''){
+					var parentElem = jQuery(element).closest('td');
+						
+					if($(this).attr("data-rawvalue") != ''){
+						var number = $(this).attr("data-rawvalue");
+						var recordId = jQuery(element).closest('tr').data('id');
+					} 
 					
-					var number = $.trim($(this).text());
-					var container = parentElem;
-					var recordId = app.getRecordId();
-				
-				}*/
-				
+				} else if(view == 'Detail'){
+					
+					if(jQuery(element).parents('.info-row').length > 0){
+						var parentElem = jQuery(element).parents('.info-row');
+					} else {
+						var parentElem = jQuery(element).closest('td');
+					}
+					
+					if($.trim($(this).text()) != ''){
+						var number = $.trim($(this).text());
+						var recordId = app.getRecordId();
+					}
+					
+				}
+					
 				if (number !== '') {
-					
 					var template = jQuery(RingCentral_Js.lineItemPopOverTemplate);
-					
 					phoneCallContainer.find('#call').attr('data-number', number);
-					
 					phoneCallContainer.find('#call').attr('data-id', recordId);
 					
-					element.popover({
-						'content' : phoneCallContainer,
-						'width'	:'72',
-						'html' : true,
-						'placement' : 'left',
-						'trigger' : 'hover',
-						'template' : template,
-						'container' : element,
-					});
-				
+					if(view == 'Detail'){
+						parentElem.popover({
+							'content' : phoneCallContainer,
+							'width'	:'72',
+							'html' : true,
+							'placement' : 'left',
+							'trigger' : 'hover',
+							'template' : template,
+							'container' : parentElem,
+						});
+					} else {
+						element.popover({
+							'content' : phoneCallContainer,
+							'width'	:'72',
+							'html' : true,
+							'placement' : 'left',
+							'trigger' : 'hover',
+							'template' : template,
+							'container' : element,
+						});
+					}
 				}   
-				
-            }      
-
-        });
+			}      
+		
+		});
 		
 	},
 	
@@ -519,9 +534,17 @@ Vtiger.Class("RingCentral_Js",{
 	
 	appendHTML: function(){
 		
-		var html = '<div id="phone_panel_call" class="phoneCallContainer js-reference-display-value">'+
+		var view = app.getViewName();
+		
+		if(view == 'List'){
+			var html = '<div id="phone_panel_call" class="phoneCallContainer js-reference-display-value">'+
 						'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success js-reference-display-value" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone js-reference-display-value" aria-hidden="true"></i></button>&nbsp;'+
 					'</div>'; 
+		} else {
+			var html = '<div id="phone_panel_call" class="phoneCallContainer">'+
+			'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone" aria-hidden="true"></i></button>&nbsp;'+
+			'</div>'; 
+		}
 		
 		jQuery('.app-footer').append(html);
 		
@@ -596,6 +619,10 @@ jQuery(document).ready(function(){
 		//obj.ValidateTokenAndGetSIP();
 	
 	});	
+	
+	app.event.on('post.relatedListLoad.click', function (event, searchRow) {
+		obj.registerEventForMouse();
+	});
 	
 	obj.registerEventsForUserPrefrence();
 	
