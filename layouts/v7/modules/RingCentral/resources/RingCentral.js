@@ -304,9 +304,9 @@ Vtiger.Class("RingCentral_Js",{
 							html += '<div class = "row" style = "font-size:13px;padding:5px;"><div class = "col-md-12" style = "text-align:left;"><label style = "font-weight:100;color:#6f6f6f;padding-right:10px;">'+inx+': </label><span style = "color:black;">'+val+'</span></div></div>';
 						});
 						
-						html+= '<div class = "row"><div class="col-md-12">'+
+						html+= '<div class = "row"><div class="col-md-12" style = "text-align:left;">'+
 								'<textarea class="pull-left" style="width:80%;height:50px;font-size:12px !important;border:1px solid #DDDDDD;" placeholder="Leave notes" name="callnotes"></textarea>'+
-								'<button data-id="'+record+'" class="btn-success sendnotes pull-right" style="font-size:12px !important;"><i class="fa fa-arrow-right"></i></button>'
+								'<img data-id="'+record+'" class = "sendnotes" style = "width:40px;margin-left:10px;" src = "modules/RingCentral/resources/end-call.png"/>'
 							'</div></div>'+
 						'</div>' ;
 						
@@ -337,12 +337,21 @@ Vtiger.Class("RingCentral_Js",{
 				
 				if(view == 'List'){
 					
-					var parentElem = jQuery(element).closest('td');
+					if(jQuery(element).parents('#helpPageOverlay').length > 0){
 						
-					if($(this).attr("data-rawvalue") != ''){
-						var number = $(this).attr("data-rawvalue");
-						var recordId = jQuery(element).closest('tr').data('id');
-					} 
+						var recordId = $(this).attr("data-recordid");
+						var number = $.trim($(this).text());
+						
+					} else {
+						
+						var parentElem = jQuery(element).closest('td');
+						
+						if($(this).attr("data-rawvalue") != ''){
+							var number = $(this).attr("data-rawvalue");
+							var recordId = jQuery(element).closest('tr').data('id');
+						}
+						
+					}
 					
 				} else if(view == 'Detail'){
 					
@@ -611,19 +620,29 @@ jQuery(document).ready(function(){
 	
 	obj = new RingCentral_Js();
 	
-	app.event.on('post.listViewFilter.click', function (event, searchRow) {
-		
+	app.event.on('post.listViewFilter.click', function () {
 		obj.registerEventForMouse();
-		
-		//No Need to Validate Token Everytime with Ajax Call
-		//obj.ValidateTokenAndGetSIP();
-	
 	});	
 	
-	app.event.on('post.relatedListLoad.click', function (event, searchRow) {
+	app.event.on('post.relatedListLoad.click', function () {
 		obj.registerEventForMouse();
 	});
 	
 	obj.registerEventsForUserPrefrence();
+	
+	var view = app.getViewName();
+	
+	if(view == 'List'){
+		
+		jQuery('#overlayPage').one('shown.bs.modal',function(){
+			obj.registerEventForMouse();
+		});
+		
+		jQuery('#helpPageOverlay').one('shown.bs.modal', function () {
+			obj.registerEventForMouse();
+		});
+		
+	}
+	
 	
 });
