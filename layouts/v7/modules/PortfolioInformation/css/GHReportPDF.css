@@ -25,6 +25,7 @@
 	background-color:#33256C; 
 	text-align:center;
 	color: white;
+	font-size:14px;
 }
 
 .borderTop{
@@ -34,3 +35,5 @@
 .borderBottom{
 	border-bottom:1px solid black;
 }
+
+.grey_back{background-color:RGB(245, 245, 245);}

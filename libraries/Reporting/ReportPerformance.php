@@ -217,6 +217,7 @@ class Performance_Model extends Vtiger_Module {
 #            if($date_override)
 #                $adb->pquery($query, array($account_numbers, $override, $this->end_date));
 #            else
+
             $adb->pquery($query, array($account_numbers, $this->start_date, $this->end_date));
             $query = "UPDATE performance SET transaction_type = 'income_div_interest'
                       WHERE transaction_type = 'Income' 
@@ -488,6 +489,14 @@ class Performance_Model extends Vtiger_Module {
         return date("F Y", strtotime($this->end_date));
     }
 
+    public function GetStartDateMDY(){
+        return date("m/d/Y", strtotime($this->start_date));
+    }
+
+    public function GetEndDateMDY(){
+        return date("m/d/Y", strtotime($this->end_date));
+    }
+
     public function GetTransactionTypes(){
         return $this->transaction_types;
     }
@@ -560,9 +569,14 @@ class Performance_Model extends Vtiger_Module {
         return $tmp;
     }
     public function SetBenchmark($stocks, $cash, $bonds){
-        $s = $this->GetIndex("S&P 500") * $stocks / 100;
-        $b = $this->GetIndex("AGG") * $bonds / 100;
-        $this->benchmark = $s + $b;
+        $s1 = $this->GetIndex("GSPC");// * $stocks / 100;
+        $s2 = $this->GetIndex("DVG");// * $stocks / 100;
+        $b1 = $this->GetIndex("SP500BDT");// * $bonds / 100;
+        $b2 = $this->GetIndex("IDCOTCTR");// * $bonds / 100;
+
+        $this->benchmark = ($s1 * 0.3) + ($s2 * 0.3) + ($b1 * 0.3) + ($b2 * 0.1);
+#        $b = $this->GetIndex("AGG") * $bonds / 100;
+#        $this->benchmark = $s + $b;
     }
 
     public function GetBenchmark(){
