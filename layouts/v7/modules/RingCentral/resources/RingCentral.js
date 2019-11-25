@@ -18,7 +18,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		if(!thisInstance.connected){
 			
-			app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+			app.helper.showConfirmationBox({'message': "Let's connect with Ring Central"}).then(
 				
 				function(data) {
 					
@@ -139,7 +139,7 @@ Vtiger.Class("RingCentral_Js",{
 					
 					thisInstance.connected =  false;
 	
-					app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+					app.helper.showConfirmationBox({'message': "Let's connect with Ring Central"}).then(
 						function(data) {
 							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/RingCentral/connect.php');
 							var win = window.open(url,'','height=600,width=600,channelmode=1');
