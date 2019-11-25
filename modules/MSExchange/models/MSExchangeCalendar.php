@@ -37,6 +37,9 @@ class MSExchange_MSExchangeCalendar_Model {
 	   $this->data['Sensitivity'] = 'Normal';
 	}
 	
+	function setSendNotification($val){
+	    $this->data['SendNotification'] = $val;
+	}
 	function setAttendees($attendees){
 	    
 	    if(!empty($attendees)){
