@@ -13,7 +13,7 @@
 				<form id="ConfigEditorForm" class="form-horizontal" data-detail-url="{$MODEL->getDetailViewUrl()}" method="POST">
 					{assign var=WIDTHTYPE value=$CURRENT_USER_MODEL->get('rowheight')}
 					{assign var=FIELD_VALIDATION  value=['HELPDESK_SUPPORT_EMAIL_ID'	=> 'data-rule-email="true"',
-																	'upload_maxsize'	=> 'data-rule-range=[1,5] data-rule-positive="true" data-rule-wholeNumber="true"',
+																	'upload_maxsize'	=> 'data-rule-range=[1,50] data-rule-positive="true" data-rule-wholeNumber="true"',
 																'history_max_viewed'	=> 'data-rule-range=[1,5] data-rule-positive="true" data-rule-wholeNumber="true"',
 															'listview_max_textlength'	=> 'data-rule-range=[1,100] data-rule-positive="true" data-rule-wholeNumber="true"',
 															'list_max_entries_per_page'	=> 'data-rule-range=[1,100] data-rule-positive="true" data-rule-wholeNumber="true"']}
