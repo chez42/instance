@@ -1,4 +1,8 @@
 #indexes_wrapper p{}
+#statement_editing{display:block; width:100%;}
+#left_side{display:block; width:30%; float:left;}
+#right_side{display:block; width:70%; float:left; padding-left:50px;}
+#statement_preview{}
 
 /*Details Table*/
 .index_list{float:left; display:block; width:45%; height:400px; overflow-y: auto; overflow-x: hidden; border:1px solid black; margin:5px; padding:5px;}

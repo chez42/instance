@@ -20,6 +20,19 @@ jQuery.Class("GHReport_Js",{
 //            console.log($("#pie_image").val());
 //            $("#export").submit();
         });
+/*
+        $("#statement_settings").click(function(e){
+            $.ajax({
+                'url': "index.php?module=PortfolioInformation&view=Statements",
+                'success': function success(data, textStatus, xhr) {
+                    $("<div>" + data + "</div>").dialog({
+                        "width": "auto",
+                        "height": "auto",
+                        "close": function (e, ui) { $(this).remove(); }
+                    });
+                }
+            });
+        });*/
 
         am4core.options.commercialLicense = true;
         var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
