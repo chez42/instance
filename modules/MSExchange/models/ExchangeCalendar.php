@@ -120,14 +120,39 @@ class MSExchange_ExchangeCalendar_Model extends MSExchange_MSExchange_Model{
     }
     
     public function createCalendarItems($folderId, $items, $options = array()){
+        
+        // If Send Notification is Disabled then No Notification
+        
+        if(!$items['SendNotification']){
+            
+            $defaultOptions = array(
+                'SendMeetingInvitations' => Enumeration\CalendarItemCreateOrDeleteOperationType::SEND_TO_NONE,
+                'SavedItemFolderId' => array(
+                    'FolderId' => $folderId->toXmlObject()
+                )
+            );
+            
+        } else {
+            
+            $defaultOptions = array(
+                'SendMeetingInvitations' => Enumeration\CalendarItemCreateOrDeleteOperationType::SEND_ONLY_TO_ALL,
+                'SavedItemFolderId' => array(
+                    'FolderId' => $folderId->toXmlObject()
+                )
+            );
+            
+        }
+        
         $items = $this->ensureIsArray($items, true);
+        
         $item = array('CalendarItem' => $items);
-        $defaultOptions = array(
+        
+        /*$defaultOptions = array(
             'SendMeetingInvitations' => Enumeration\CalendarItemCreateOrDeleteOperationType::SEND_ONLY_TO_ALL,
             'SavedItemFolderId' => array(
                 'FolderId' => $folderId->toXmlObject()
             )
-        );
+        );*/
         
         $options = array_replace_recursive($defaultOptions, $options);
         
@@ -145,18 +170,28 @@ class MSExchange_ExchangeCalendar_Model extends MSExchange_MSExchange_Model{
         
         foreach($updateEvents as $itemId => $changes){
             
+            if(!$changes['SendNotification']){
+                $defaultOptions = [
+                    'SendMeetingInvitationsOrCancellations' => 'SendToNone'
+                ];
+            } else {
+                $defaultOptions = [
+                    'SendMeetingInvitationsOrCancellations' => 'SendOnlyToAll'
+                ];
+            }
+            
+            unset($changes['SendNotification']);
+            
             $itemId = new Type\ItemIdType($itemId);
             
             $request['ItemChange'][] = [
                 'ItemId' => $itemId->toArray(),
                 'Updates' => API\ItemUpdateBuilder::buildUpdateItemChanges('CalendarItem', 'calendar', $changes)
             ];
+            
         }
         
-        $defaultOptions = [
-            'SendMeetingInvitationsOrCancellations' => 'SendOnlyToAll'
-        ];
-        
+      
         $options = array_replace_recursive($defaultOptions, $options);
         
 		try{
