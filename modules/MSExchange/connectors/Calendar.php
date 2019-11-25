@@ -344,7 +344,12 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
     		
             if($mode == MSExchange_SyncRecord_Model::UPDATE_MODE){
         
+                
+                
                 $exchangeRecords = array();
+                
+                
+                $exchangeRecords2 = array();
                 
                 foreach($records as $record){
                     
@@ -355,10 +360,38 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     $entity['Start'] = $start->format('c');
                     $entity['End'] = $end->format("c");
                     
-                    $exchangeRecords[$record->get("id")] = $entity;
+                    
+                    if(!$entity['SendNotification']){
+                        $exchangeRecords2[$record->get("id")] = $entity;
+                    } else {
+                        $exchangeRecords[$record->get("id")] = $entity;
+                    }
                 }
                 
                 $exchangeRecordss = array_chunk($exchangeRecords, 200, true);
+             
+                foreach($exchangeRecordss as $exchangeRecords){
+                    
+                    $updateResponse = $this->updateMSExchangeEvents($exchangeRecords);
+                    
+                    if(!empty($updateResponse)){
+                        
+                        foreach($updateResponse as $updateItemResponse){
+                            
+                            $calendarItem = $updateItemResponse->getItems()->getCalendarItem();
+                            
+                            $itemId = $calendarItem->getItemId();
+                            
+                            $records[$itemId->getId()]->set("entity", $itemId)->set("exchangeResponse", true);
+                        }
+                        
+                        $VTERecords = $VTERecords + $records;
+                    }
+                    
+                }
+                
+                
+                $exchangeRecordss = array_chunk($exchangeRecords2, 200, true);
                 
                 foreach($exchangeRecordss as $exchangeRecords){
                     
@@ -379,6 +412,15 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     }
                     
                 }
+                
+                
+                
+                
+                
+                
+                
+                
+                
             } else if ($mode == MSExchange_SyncRecord_Model::CREATE_MODE) {
                 
                 foreach($records as $record){
@@ -453,10 +495,13 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
             }
             
             $newEvent->setSubject($vtEvent->get('subject'));
+            
             $newEvent->setLocation($vtEvent->get('location'));
             $newEvent->setDescription($vtEvent->get('description'));
             
             $newEvent->setSensitivity($vtEvent->get('visibility'));
+            
+            $newEvent->setSendNotification($vtEvent->get('sendnotification'));
             
             $startDate = $vtEvent->get('date_start');
             $startTime = $vtEvent->get('time_start');
@@ -535,6 +580,7 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     $newEvent->setDescription($vtEvent->get('description'));
                     
                     $newEvent->setSensitivity($vtEvent->get('visibility'));
+                    $newEvent->setSendNotification($vtEvent->get('sendnotification'));
                     
                     $startDate = $vtEvent->get('date_start');
                     $startTime = $vtEvent->get('time_start');
