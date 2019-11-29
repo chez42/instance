@@ -1,10 +1,7 @@
 <?php
-
 function vtws_save_ticket_comment($element,$user){
     
     global $adb,$site_URL;
-
-    $element = json_decode($element,true);
     
     $result = array();
     
@@ -15,7 +12,9 @@ function vtws_save_ticket_comment($element,$user){
     if($filename != '') {
         
         $filetype = $element['filetype'];
+        
         $filesize = $element['filesize'];
+        
         $filecontents = $element['filecontents'];
         
         if($filesize > 0 && $filecontents != ''){
@@ -55,12 +54,11 @@ function vtws_save_ticket_comment($element,$user){
     $modComments->column_fields['userid'] = $element['userid'];
     $modComments->column_fields['from_portal'] = true;
     $modComments->column_fields['parent_comments'] = $element['parent_comments'];
-    
     $modComments->save('ModComments');
     
     if($modComments->id)
         $result = array('success'=>true,'modcommentid'=>$modComments);
-    else
+        else
         $result = array('success'=>false);
             
     return $result;

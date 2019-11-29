@@ -42,9 +42,12 @@ if(isset($_SESSION['ID'])){
 				    $ticket['ticket_no'],
 				    $ticket['ticketpriorities'],
 				    $ticket['status'],
-				    '<a href="edit-ticket.php?record='.$ticket['crmid'].'">
-						Edit
-					</a>'
+				    
+				    //'<a href="edit-ticket.php?record='.$ticket['crmid'].'">
+						//Edit
+					//</a>'
+				
+				    
 				);
 				array_push($data, $row_data);
 			}

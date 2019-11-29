@@ -23,73 +23,51 @@ include_once("includes/head.php");
 include_once "includes/aside.php";
 
 include_once 'includes/top-header.php';
-    
+
 if(isset($_GET['record'])){
-        
-	global $api_url,$api_username,$api_accesskey;
-
-	$recordId = $_GET['record'];
-	
-	$customer_id = $_SESSION['customer_id'];
-	
-	$ws_url =  $api_url . '/webservice.php';
-	 
-	$loginObj = login($ws_url, $api_username, $api_accesskey);
+    
+    global $api_url,$api_username,$api_accesskey;
+    
+    $recordId = $_GET['record'];
+    
+    $customer_id = $_SESSION['customer_id'];
+    
+    $ws_url =  $api_url . '/webservice.php';
+    
+    $loginObj = login($ws_url, $api_username, $api_accesskey);
+    
     $session_id = $loginObj->sessionName;
-	
-	//$module_detail = module_info($api_url.'/webservice.php',$session_id,"HelpDesk");
-	//$field_info = $module_detail['result']['fields'];
-	
-	$ticket_detail = retrieve_info($api_url.'/webservice.php',$session_id,"9x$recordId");
-	$ticket_detail = $ticket_detail['result'];
-
-	$params = array();
-	$params['owner_id'] = $_SESSION['ownerId'];
-	
-	$params['ID'] = $recordId;
-	
-	$params['contact_id'] = $_SESSION['ID'];
-	
-	if(isset($_REQUEST['index']) && $_REQUEST['index'] != '' ){
-	    $params['index'] = $_REQUEST['index'];
-	}
-	
-	$postParams = array(
-	    'operation'=>'get_ticket_comments',
-	    'sessionName'=>$session_id,
-	    'element'=>json_encode($params)
-	);
-	
-	$response = postHttpRequest($ws_url, $postParams);
-// 	echo"<pre>";print_r($response);echo"</pre>";
-// 	exit;
-	$response = json_decode($response,true);
-	
-	$comment_detail = $response['result'];
-	echo"<pre>";print_r($comment_detail);echo"</pre>";exit;
-	$ticketstatus = array(
-	    '----------',
-	    'Acknw',
-	    'Open',
-	    'In Progress',
-	    'Hold',
-	    'Wait For Response',
-	    'Closed',
-	    'NIGO'
-	);
-	
+    
+    //$module_detail = module_info($api_url.'/webservice.php',$session_id,"HelpDesk");
+    //$field_info = $module_detail['result']['fields'];
+    
+    $ticket_detail = retrieve_info($api_url.'/webservice.php',$session_id,"9x$recordId");
+    $ticket_detail = $ticket_detail['result'];
+    
+    $ticketstatus = array(
+        '----------',
+        'Acknw',
+        'Open',
+        'In Progress',
+        'Hold',
+        'Wait For Response',
+        'Closed',
+        'NIGO'
+    );
+    
     $ticketpriorities = array('Low',
-	    'Normal',
-	    'High',
-	    'Urgent',
-	);
-	
-	if($ticket_detail){
-?>
+        'Normal',
+        'High',
+        'Urgent',
+    );
+    
+    if($ticket_detail){
+        ?>
 					
 		<div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
 
 			<!-- begin:: Subheader -->
+			
 			<div class="kt-subheader   kt-grid__item" id="kt_subheader">
 				<div class="kt-container  kt-container--fluid ">
 					<div class="kt-subheader__main">
@@ -173,18 +151,13 @@ if(isset($_GET['record'])){
 													</select>
 												</div>
 											</div>
-											<br/>
-											
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-
-								<!--End:: App Aside-->
-
-								<!--Begin:: App Content-->
+					
 					<div class="kt-grid__item kt-grid__item--fluid kt-app__content">
 						<div class="row">
 							<div class="col-xl-12">
@@ -208,22 +181,13 @@ if(isset($_GET['record'])){
 							</div>
 						</div>
 					</div>
-
-								<!--End:: App Content-->
-							</div>
-
-							<!--End::App-->
-						</div>
-
-						<!-- end:: Content -->
-					</div>
 					
-					<!-- end:: Header -->
 					
-
 				</div>
 			</div>
 		</div>
+	</div>
+
 
 		<!-- end:: Page -->
 
@@ -275,63 +239,62 @@ if(isset($_GET['record'])){
 
     	$(document).ready(function(){
 
-    		var commentsArray = <?php echo json_encode($comment_detail);?>;
-    		console.log(commentsArray);
     		$(function() {
-    			var saveComment = function(data) {
+				$('#comments-container').comments({
 
-    				if(data.content){
-    				   	$.ajax({
-    						url: "save-comments.php?commentcontent="+data.content+"&customer="+<?php  echo $_REQUEST['record'];?>+"&parent="+data.parent,
-    						success: function(commentsdata){
-    				    	}
-    				    });
-    					return data;
-    				}
-    			}
-    			$('#comments-container').comments({
     				profilePictureURL: "<?php echo $portal_profile_image;?>",
+    				
     				currentUserId: 1,
+
     				roundProfilePictures: false,
+
+    				enableReplying : true,
+    				
     				textareaRows: 2,
+
     				textareaPlaceholderText: 'Leave a comment',
+
     				enableUpvoting: false,
     				enableEditing: false,
-    				//enableReplying: false,
     				enableDeleting: false,
+
     				enableAttachments: true,
     				enableNavigation: false,
     				enablePinging: false,
+    				
     				youText: "<?php if($lastname != '' && $firstname != ''){
-    				    echo $lastname.' '.$firstname;
-    						}?>",
+    				            echo $lastname.' '.$firstname;
+    						  }
+    						  ?>",
     				
     				getComments: function(success, error) {
-    					setTimeout(function() {
-    						success(commentsArray);
-    					}, 500);
+    					 $.ajax({
+				            type: 'POST',
+				            data: 'record='+<?php echo $recordId; ?>,
+				            dataType: 'json',
+				            url: 'GetTicketComments.php',
+				            success: function(commentsArray) {
+					            success(commentsArray)
+				            },
+				            error: error
+				     	});
     				},
-    				postComment: function(data, success, error) {
-    					setTimeout(function() {
-    						success(saveComment(data));
-    					}, 500);
+    				
+    				postComment: function(commentJSON, success, error) {
+						commentJSON.ticketid = '<?php  echo $_REQUEST['record'];?>';
+						$.ajax({
+    			            type: 'post',
+    			            url: 'save-comments.php',
+    			            data: commentJSON,
+    			            success: function(comment) {
+    			            	success(commentJSON);
+    			            },
+    			            error: error
+    			        });
+    			        
     				},
-    				putComment: function(data, success, error) {
-    					setTimeout(function() {
-    						success(saveComment(data));
-    					}, 500);
-    				},
-    				deleteComment: function(data, success, error) {
-    					setTimeout(function() {
-    						success();
-    					}, 500);
-    				},
-    				upvoteComment: function(data, success, error) {
-    					setTimeout(function() {
-    						success(data);
-    					}, 500);
-    				},
-				    uploadAttachments: function(commentArray, success, error) {
+
+    				uploadAttachments: function(commentArray, success, error) {
 				        var responses = 0;
 				        var successfulUploads = [];
 				
@@ -383,7 +346,7 @@ if(isset($_GET['record'])){
     			});
     		});
 
-    		$('select[name="ticketpriorities"]').on('change', function(e){
+    		$('[name="ticketpriorities"]').on('change', function(e){
     			var SelectElement = jQuery(e.currentTarget);
     			var priority = SelectElement.val();
 				var recordId = $('[name="recordId"]').val();
@@ -400,7 +363,7 @@ if(isset($_GET['record'])){
         		
     		});
 
-    		$('select[name="ticketstatus"]').on('change', function(e){
+    		$('[name="ticketstatus"]').on('change', function(e){
     			var SelectElement = jQuery(e.currentTarget);
     			var status = SelectElement.val();
 				var recordId = $('[name="recordId"]').val();
