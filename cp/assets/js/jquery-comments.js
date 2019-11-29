@@ -568,7 +568,7 @@
                     commentJSON.id += '-' + index;
                     commentJSON.content = '';
                     commentJSON.file = file;
-                    commentJSON.fileURL = 'cache/' + file.name;
+                    commentJSON.fileURL = 'C:/fakepath/' + file.name;
                     commentJSON.fileMimeType = file.type;
 
                     // Reverse mapping
@@ -737,7 +737,7 @@
             // Save comment on cmd/ctrl + enter
             if(ev.keyCode == 13) {
                 var metaKey = ev.metaKey || ev.ctrlKey;
-                if(this.options.postCommentOnEnter || metaKey) {
+                if(this.options.postCommentOnEnter || metaKey) {
                     var el = $(ev.currentTarget);
                     el.siblings('.control-row').find('.save').trigger('click');
                     ev.stopPropagation();
@@ -2023,7 +2023,6 @@
         },
 
         getAttachments: function() {
-        	console.log(this.getComments().filter(function(comment){return comment.fileURL != undefined}));
             return this.getComments().filter(function(comment){return comment.fileURL != undefined});
         },
 
