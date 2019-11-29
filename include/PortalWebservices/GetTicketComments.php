@@ -1,23 +1,17 @@
 <?php
 
-function vtws_getTicketComment($element,$user){
+function vtws_get_ticket_comments($element,$user){
     
     global $adb,$site_URL;
     
-//     $element = json_decode($element,true);
-    
-    if(isset($element['index'])){
-        $startIndex = $element['index'];
-    } else {
-        $startIndex = 0;
-    }
+    $element = json_decode($element,true);
     
     $comments = $adb->pquery("SELECT * FROM vtiger_modcomments
 		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
 		WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to = ?
-        AND vtiger_modcomments.modcommentsid > 0 ORDER BY vtiger_crmentity.createdtime DESC
-        LIMIT ".$startIndex.",10",array($element['ID']));
-    
+	    AND (vtiger_modcomments.is_private IS NULL OR vtiger_modcomments.is_private != 1)
+        AND vtiger_modcomments.modcommentsid > 0 ORDER BY vtiger_crmentity.createdtime DESC",
+        array($element['ID']));
     
     if($adb->num_rows($comments)){
         for($j=0;$j<$adb->num_rows($comments);$j++){
@@ -25,8 +19,8 @@ function vtws_getTicketComment($element,$user){
 				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
 				WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to = ?
 		      	AND (vtiger_modcomments.is_private IS NULL OR vtiger_modcomments.is_private != 1)
-		        AND vtiger_crmentity.createdtime > '2017-12-06' ORDER BY vtiger_crmentity.createdtime DESC
-		        LIMIT ".$startIndex.",10",array($element['ID']));
+		        AND vtiger_crmentity.createdtime > '2017-12-06' ORDER BY vtiger_crmentity.createdtime DESC",
+                array($element['ID']));
             
             $comment_ids =array();
             if($adb->num_rows($child_comments)){
@@ -60,10 +54,10 @@ function vtws_getTicketComment($element,$user){
                     }
                 }
                 
-                if($adb->query_result($comments,$j,'userid') == $_SESSION['ID']){
+                if($adb->query_result($comments,$j,'customer') == $element['contact_id']){
                     $createduser = true;
                 }else{
-                    $fullname = getAccountName($adb->query_result($comments,$j,'customer'));
+                    $fullname = getContactName($adb->query_result($comments,$j,'customer'));
                 }
             }else{
                 
@@ -79,10 +73,35 @@ function vtws_getTicketComment($element,$user){
                 }
                 $fullname = getUserFullName($adb->query_result($comments,$j,'userid'));
             }
-            
+           
+            $attachment = $adb->query_result($comments,$j,'filename');
+            $att_Path = '';
+            $att_type = '';
+            $fileData = '';
+            if($attachment){
+                $result = $adb->pquery("SELECT * FROM vtiger_attachments
+                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_attachments.attachmentsid
+                WHERE vtiger_crmentity.deleted = 0 AND vtiger_attachments.attachmentsid = ? 
+                and vtiger_crmentity.setype = ?", array($attachment, "ModComments Attachment"));
+                
+                if($adb->num_rows($result) == 1){
+                    
+                    $attPath = $site_URL;
+                    $attPath .= "/".$adb->query_result($result, "0", "path");
+                    $attPath .= $adb->query_result($result, "0", "attachmentsid");
+                    $attPath .= "_".decode_html($adb->query_result($result, "0", "name"));
+                    $att_Path = ($attPath);
+                    $att_type = $adb->query_result($result, "0", "type");
+                }
+            }
+            if($att_Path){
+                $fileData['fileURL'] = $att_Path;
+                $fileData['file_mime_type'] = $att_type;
+            }
             $comment_data[] = array('id'=>$adb->query_result($comments,$j,'modcommentsid'),
                 'parent'=> $parent,
                 'content'=>html_entity_decode($adb->query_result($comments,$j,'commentcontent')),
+                $fileData,
                 'modified'=>date_format($modified,"Y-m-d"),
                 'created'=>date_format($created,"Y-m-d H:i:s"),
                 'created_by_current_user'=>$createduser,
