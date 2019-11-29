@@ -1,6 +1,6 @@
-/*jquery-comments.js 1.2.0
+/*jquery-comments.js 1.4.0
 
-(c) 2017 Joona TykkylÃ¤inen, Viima Solutions Oy
+(c) 2017 Joona Tykkyläinen, Viima Solutions Oy
 jquery-comments may be freely distributed under the MIT license.
 For all details and documentation:
 http://viima.github.io/jquery-comments/*/
@@ -92,6 +92,9 @@ http://viima.github.io/jquery-comments/*/
 	height: 3.6rem;
 	max-width: 50px;
 	max-height: 50px;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
 }
 
 .jquery-comments i.profile-picture {
@@ -164,7 +167,7 @@ http://viima.github.io/jquery-comments/*/
 	opacity: 1;
 }
 
-.jquery-comments:not(.mobile) .scrollable .textarea-wrapper .inline-button {
+.jquery-comments:not(.mobile) .commenting-field-scrollable .textarea-wrapper .inline-button {
 	margin-right: 15px;	/* Because of scrollbar */
 }
 
@@ -210,6 +213,7 @@ http://viima.github.io/jquery-comments/*/
 	margin: 0;
 	outline: 0;
 	overflow-y: auto;
+	overflow-x: hidden;
 	cursor: text;
 
 	border: 1px solid #CCC;;
@@ -220,7 +224,7 @@ http://viima.github.io/jquery-comments/*/
 	padding-right: 2em;
 }
 
-.jquery-comments:not(.mobile) .scrollable .textarea-wrapper .textarea {
+.jquery-comments:not(.mobile) .commenting-field-scrollable .textarea-wrapper .textarea {
 	padding-right: calc(2em + 15px);	/* Because of scrollbar */
 }
 
@@ -373,7 +377,7 @@ http://viima.github.io/jquery-comments/*/
 	display: block;
 	white-space: nowrap;
 	clear: both;
-	padding: 0.5em 1em;
+	padding: 0.6em;
 	font-weight: normal;
 	cursor: pointer;
 }
@@ -408,7 +412,7 @@ http://viima.github.io/jquery-comments/*/
 }
 
 .jquery-comments ul.dropdown li .email {
-	color: #AAA;
+	color: #999;
 	font-size: 0.95em;
 	margin-top: 0.1em;
 }
@@ -470,7 +474,7 @@ http://viima.github.io/jquery-comments/*/
 }
 
 .jquery-comments ul.main li.comment .comment-wrapper > .profile-picture {
-	margin-right: .5rem;
+	margin-right: 1rem;
 }
 
 .jquery-comments ul.main li.comment time {
@@ -678,12 +682,16 @@ http://viima.github.io/jquery-comments/*/
 	margin-top: -.2em;
 }
 
-.jquery-comments ul.main li.comment .child-comments .hidden-reply {
+.jquery-comments ul.main li.comment .child-comments .togglable-reply {
 	display: none;
 }
 
 .jquery-comments ul.main li.comment .child-comments .visible {
 	display: inherit;
+}
+
+.jquery-comments ul.main li.comment.hidden {
+	display: none;
 }
 
 /* Editing comment */
