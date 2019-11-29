@@ -28,7 +28,7 @@
 			</td>
 		</tr>
 		
-		{assign var=PortalModules value=[{getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}	
+		{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}	
 		{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 		{*'Holdings',*} 
 		{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}

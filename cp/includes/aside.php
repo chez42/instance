@@ -22,7 +22,7 @@
         
         foreach($avmod as $mod){
             
-            if($mod == "Home" || $mod == "Documents"){
+            if($mod == "Home" || $mod == "Documents" || $mod == 'HelpDesk'){
                 $portalMenus[$mod]['submenu'] = array();
                 $portalMenus[$mod]['link'] =  strtolower($mod).".php";
             }else if($mod == "Accounts"){

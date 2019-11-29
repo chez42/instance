@@ -227,6 +227,19 @@
 	    return $response;
 	}
 	
+	function saveComment($ws_url, $sessionName, $element){
+	    
+	    $postParams = array(
+	        'operation'=>'save_comment',
+	        'sessionName'=>$sessionName,
+	        'element'=>json_encode($element)
+	    );
+	    
+	    $response = postHttpRequest($ws_url, $postParams);
+	    $response = json_decode($response, true);
+	    return $response;
+	}
+	
 	function createDocs($type, $element, $filepath = '', $sessionName, $api_url) {
 	   
 	   $defaults = array(

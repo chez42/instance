@@ -29,7 +29,7 @@
 		
 	</tr>
 			
-	{assign var=PortalModules value=[{getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}
+	{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}
 	{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 	
 	{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
@@ -58,7 +58,7 @@
 				{/if}
 			</td>
 			<td class="fieldValue text-center">
-				{if $MODULE_NAME neq 'Accounts'}
+				{if $MODULE_NAME neq 'Accounts' && $MODULE_NAME neq 'Tickets'}
 					{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="0" />*}
 					<input type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
 				{/if}
