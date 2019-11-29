@@ -12,6 +12,8 @@ function vtws_get_tickets($element, $user){
 
     global $log, $adb;
     
+    $element = json_decode($element,true);
+    
     $id = $element['id'];
 	
     $module = $element['module'];
