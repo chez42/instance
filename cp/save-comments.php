@@ -51,8 +51,11 @@ if($_REQUEST['content'] || !empty($_FILES['file'])){
     );
     
     $response = postHttpRequest($ws_url, $postParams);
+    
     $response = json_decode($response, true);
     while(ob_get_level()) {
         ob_end_clean();
     }
+    
+    echo json_encode($response);
 }

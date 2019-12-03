@@ -11,6 +11,8 @@ if(isset($_SESSION['ID'])){
     
     $params['ID'] = $_REQUEST['record'];
     
+    $params['contact_id'] = $_SESSION['ID'];
+    
     global $api_username, $api_accesskey, $api_url;
     
     $ws_url =  $api_url . '/webservice.php';
@@ -26,10 +28,11 @@ if(isset($_SESSION['ID'])){
     );
 
     $response = postHttpRequest($ws_url, $postParams);
-
+   
     $response = json_decode($response,true);
 
     $comment_detail = $response['result'];
+    
     while(ob_get_level()) {
         ob_end_clean();
     }

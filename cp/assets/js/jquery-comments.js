@@ -38,7 +38,7 @@
 
         // Instance variables
         // ==================
-
+		file : {},
         $el: null,
         commentsById: {},
         dataFetched: false,
@@ -75,7 +75,7 @@
             'click .commenting-field .send.enabled' : 'postComment',
             'click .commenting-field .update.enabled' : 'putComment',
             'click .commenting-field .delete.enabled' : 'deleteComment',
-            'change .commenting-field .upload.enabled input[type="file"]' : 'fileInputChanged',
+            //'change .commenting-field .upload.enabled input[type="file"]' : 'fileInputChanged',
 
             // Other actions
             'click li.comment button.upvote' : 'upvoteComment',
@@ -171,7 +171,7 @@
                 textareaRows: 2,
                 textareaRowsOnFocus: 2,
                 textareaMaxRows: 5,
-                maxRepliesVisible: 2,
+                maxRepliesVisible: 0,
 
                 fieldMappings: {
                     id: 'id',
@@ -236,6 +236,10 @@
 
             // Fetching data and rendering
             this.fetchDataAndRender();
+            
+            $(document).on('change', 'input[type="file"]', function(e){
+	        	file = e.target.files[0];
+	        });
         },
 
         delegateEvents: function() {
@@ -436,7 +440,7 @@
             });
 
             // Appned list to DOM
-            this.$el.find('[data-container="attachments"]').prepend(attachmentList);
+            //this.$el.find('[data-container="attachments"]').prepend(attachmentList);
         },
 
         addComment: function(commentModel, commentList) {
@@ -568,7 +572,7 @@
                     commentJSON.id += '-' + index;
                     commentJSON.content = '';
                     commentJSON.file = file;
-                    commentJSON.fileURL = 'C:/fakepath/' + file.name;
+                    commentJSON.fileURL = 'cache/' + file.name;
                     commentJSON.fileMimeType = file.type;
 
                     // Reverse mapping
@@ -791,7 +795,7 @@
             var mainTextarea = $(ev.currentTarget);
             mainTextarea.siblings('.control-row').show();
             mainTextarea.parent().find('.close').show();
-            mainTextarea.parent().find('.upload.inline-button').hide();
+           // mainTextarea.parent().find('.upload.inline-button').hide();
             mainTextarea.focus();
         },
 
@@ -805,7 +809,7 @@
 
             mainControlRow.hide();
             closeButton.hide();
-            mainTextarea.parent().find('.upload.inline-button').show();
+           // mainTextarea.parent().find('.upload.inline-button').show();
             mainTextarea.blur();
         },
 
@@ -881,6 +885,7 @@
         },
 
         postComment: function(ev) {
+        	
             var self = this;
             var sendButton = $(ev.currentTarget);
             var commentingField = sendButton.parents('.commenting-field').first();
@@ -903,7 +908,7 @@
             var error = function() {
                 sendButton.addClass('enabled');
             };
-
+            
             this.options.postComment(commentJSON, success, error);
         },
 
@@ -998,6 +1003,7 @@
 
         fileInputChanged: function(ev, files) {
             var files = ev.currentTarget.files;
+            console.log(files);
             var commentingField = $(ev.currentTarget).parents('.commenting-field').first();
             this.uploadAttachments(files, commentingField);
         },
@@ -1367,20 +1373,20 @@
                     });
                     // Multi file upload might not work with backend as the the file names
                     // may be the same causing duplicates
-                    if(!$.browser.mobile) fileInput.attr('multiple', 'multiple');
+                    //if(!$.browser.mobile) fileInput.attr('multiple', 'multiple');
 
                     if(this.options.uploadIconURL.length) {
                         uploadIcon.css('background-image', 'url("'+this.options.uploadIconURL+'")');
                         uploadIcon.addClass('image');
                     }
                     uploadButton.append(uploadIcon).append(fileInput);
-
+                    	
                     // Main upload button
                     controlRow.append(uploadButton.clone());
 
                     // Inline upload button for main commenting field
                     if(isMain) {
-                        textareaWrapper.append(uploadButton.clone().addClass('inline-button'));
+                        //textareaWrapper.append(uploadButton.clone().addClass('inline-button'));
                     }
                 }
             }
@@ -1644,7 +1650,7 @@
         },
 
         createCommentElement: function(commentModel) {
-
+        	
             // Comment container element
             var commentEl = $('<li/>', {
                 'data-id': commentModel.id,
@@ -1768,7 +1774,7 @@
                 });
 
                 // Case: image preview
-                if(type == 'image') {
+               /* if(type == 'image') {
                     var image = $('<img/>', {
                         src: commentModel.fileURL
                     });
@@ -1784,7 +1790,7 @@
                     link.html(video);
 
                 // Case: icon and text
-                } else {
+                } else {*/
 
                     // Icon
                     var availableIcons = ['archive', 'audio', 'code', 'excel', 'image', 'movie', 'pdf', 'photo',
@@ -1807,15 +1813,16 @@
 
                     // File name
                     var parts = commentModel.fileURL.split('/');
-                    var fileName = parts[parts.length - 1];
+                    var fileName = commentModel.file;
                     fileName = fileName.split('?')[0];
                     fileName = decodeURIComponent(fileName);
-
+                   
                     link.text(fileName);
                     link.prepend(fileIcon);
-                }
-                content.html(link);
-
+               // }
+               
+                content.html(this.getFormattedCommentContent(commentModel)+'</br>');
+                content.append(link);
             // Case: regular comment
             } else {
                 content.html(this.getFormattedCommentContent(commentModel));
