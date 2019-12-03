@@ -239,6 +239,12 @@
             
             $(document).on('change', 'input[type="file"]', function(e){
 	        	file = e.target.files[0];
+	        	var row = $(this).closest('.control-row');
+	        	if(row.closest('.textarea-wrapper').find('.filename').length){
+	        		row.closest('.textarea-wrapper').find('.filename').text(file.name);
+	        	}else{
+	        		row.after('</br></br><div class="filename text-center" style="margin-left: 80% !important;word-break: break-word;color:black !important;font-size: 1rem !important;">'+file.name+'</div>');
+	        	}
 	        });
         },
 
@@ -1069,7 +1075,7 @@
             if(previousParentId != parentId) {
                 replyField = this.createCommentingFieldElement(parentId);
                 outermostParent.find('.child-comments').append(replyField);
-
+                	
                 // Move cursor to end
                 var textarea = replyField.find('.textarea');
                 this.moveCursorToEnd(textarea)
@@ -1419,7 +1425,7 @@
                     var replyToTag = this.createTagElement(replyToName, 'reply-to', parentModel.creator, {
                         'data-user-id': parentModel.creator
                     });
-                    textarea.prepend(replyToTag);
+                    //textarea.prepend(replyToTag);
                 }
             }
 

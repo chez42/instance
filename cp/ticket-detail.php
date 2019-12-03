@@ -103,7 +103,7 @@ if(isset($_GET['record'])){
 					<!--End:: App Aside Mobile Toggle-->
 
 					<!--Begin:: App Aside-->
-					<div class="kt-grid__item kt-app__toggle kt-app__aside" id="kt_user_profile_aside" style = "width:290px;">
+					<div class="kt-grid__item kt-app__toggle kt-app__aside ticketDetails" id="kt_user_profile_aside" style = "width:290px;">
 
 						<!--begin:: Widgets/Applications/User/Profile1-->
 						<div class="kt-portlet" style="height: 97%;">
@@ -158,7 +158,7 @@ if(isset($_GET['record'])){
 						</div>
 					</div>
 					
-					<div class="kt-grid__item kt-grid__item--fluid kt-app__content">
+					<div class="kt-grid__item kt-grid__item--fluid kt-app__content commentArea">
 						<div class="row">
 							<div class="col-xl-12">
 								<div class="kt-portlet">
@@ -281,6 +281,9 @@ if(isset($_GET['record'])){
     				},
     				
     				postComment: function(commentJSON, success, error) {
+
+    					$('.commentArea').waitMe({effect : 'orbit',text : '' });
+    					
 						commentJSON.ticketid = '<?php  echo $_REQUEST['record'];?>';
 
 						var formData = new FormData();
@@ -309,7 +312,9 @@ if(isset($_GET['record'])){
 				                	}
 				                	success(commentJSON);
 				                	file = {};
+				                	$('.filename').remove();
 				                }
+				                $('.commentArea').waitMe('hide');
     			            },
     			            error: error
     			        });
@@ -322,6 +327,7 @@ if(isset($_GET['record'])){
     		});
 
     		$('[name="ticketpriorities"]').on('change', function(e){
+    			$('.ticketDetails').waitMe({effect : 'orbit',text : '' });
     			var SelectElement = jQuery(e.currentTarget);
     			var priority = SelectElement.val();
 				var recordId = $('[name="recordId"]').val();
@@ -332,13 +338,18 @@ if(isset($_GET['record'])){
 					url: 'save-ticket.php',
         			type: 'POST',
         			data: 'ticketpriorities='+priority+'&recordId='+recordId+'&ticket_title='+ticket_title,
-	    			error: function(errorThrown) {},
-	    			success: function(data) {}
+	    			error: function(errorThrown) {
+	    				 $('.ticketDetails').waitMe('hide');
+	    			},
+	    			success: function(data) {
+	    				 $('.ticketDetails').waitMe('hide');
+	    			}
 	    		});
         		
     		});
 
     		$('[name="ticketstatus"]').on('change', function(e){
+    			$('.ticketDetails').waitMe({effect : 'orbit',text : '' });
     			var SelectElement = jQuery(e.currentTarget);
     			var status = SelectElement.val();
 				var recordId = $('[name="recordId"]').val();
@@ -349,9 +360,13 @@ if(isset($_GET['record'])){
 				$.ajax({
 					url: 'save-ticket.php',
         			type: 'POST',
-        			data: 'ticketpriorities='+priority+'ticketstatus='+status+'&recordId='+recordId+'&ticket_title='+ticket_title,
-	    			error: function(errorThrown) {},
-	    			success: function(data) {}
+        			data: 'ticketpriorities='+priority+'&ticketstatus='+status+'&recordId='+recordId+'&ticket_title='+ticket_title,
+	    			error: function(errorThrown) {
+	    				 $('.ticketDetails').waitMe('hide');
+	    			},
+	    			success: function(data) {
+	    				 $('.ticketDetails').waitMe('hide');
+	    			}
 	    		});
     		});
     		
