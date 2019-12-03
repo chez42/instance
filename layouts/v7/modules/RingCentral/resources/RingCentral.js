@@ -56,6 +56,7 @@ Vtiger.Class("RingCentral_Js",{
 				
 				postData = jQuery.extend(postData, data);
 				postData = jQuery.extend(postData, listSelectParams);
+				postData['srcmodule'] = app.getModuleName();
 				
 				app.helper.showProgress();
 				
@@ -90,7 +91,7 @@ Vtiger.Class("RingCentral_Js",{
 		}
 	},
 	
-	sendSmsSave: function (form) {
+	sendSmsSave: function (form, single=false) {
 		
 		var thisInstance = this;
 		
@@ -98,7 +99,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		var listSelectParams = listInstance.getListSelectAllParams(false);
 		
-		if (listSelectParams) {
+		if (listSelectParams || single == true) {
 			
 			var formData = form.serializeFormData();
 			
@@ -317,7 +318,150 @@ Vtiger.Class("RingCentral_Js",{
 				
 			}
 		}
-	}
+	},
+	
+	clickToSms : function(e) {
+		
+		var thisInstance = this;
+		
+		if(!thisInstance.connected){
+			
+			app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+				
+				function(data) {
+					
+					var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/RingCentral/connect.php');
+					
+					var win = window.open(url,'','height=600,width=600,channelmode=1');
+		
+					window.RefreshPage = function() {
+						new RingCentral_Js().ValidateTokenAndGetSIP();
+					}
+					
+				},
+				
+				function(error, err) {}
+				
+			);
+		
+		} else {
+			
+			// Fire Ajax Call to Retrieve HTML here
+			
+			var element = jQuery(e);
+			
+			var record = element.data('id');
+			
+			var number = element.data('number') + '';
+			
+			number = number.replace(/\D/g,'');
+			
+			var params = {
+				mode : "showSendSMSForm",
+				module : "RingCentral",
+				view : "MassActionAjax",
+				record : record,
+				number : number
+			};
+			app.helper.showProgress();
+			
+			app.request.get({'data': params}).then(
+				
+				function (err, data) {
+					
+					app.helper.hideProgress();
+					
+					if (data) {
+						
+						app.helper.showModal(data, {'cb': function (modal) {
+							var ringcentralForm = jQuery('#massSaveRingCentral');
+							if(ringcentralForm.length)
+								thisInstance.registerFaxFileElementChangeEvent(ringcentralForm);
+								ringcentralForm.vtValidate({
+									submitHandler: function (form) {
+										thisInstance.sendSmsSave(jQuery(form),true);
+										return false;
+									}
+								});
+							}
+						});
+					}
+				}
+			);
+				
+		}
+	},
+	
+	clickToFax : function(e) {
+		
+		var thisInstance = this;
+		
+		if(!thisInstance.connected){
+			
+			app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+				
+				function(data) {
+					
+					var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/RingCentral/connect.php');
+					
+					var win = window.open(url,'','height=600,width=600,channelmode=1');
+		
+					window.RefreshPage = function() {
+						new RingCentral_Js().ValidateTokenAndGetSIP();
+					}
+					
+				},
+				
+				function(error, err) {}
+				
+			);
+		
+		} else {
+			
+			// Fire Ajax Call to Retrieve HTML here
+			
+			var element = jQuery(e);
+			
+			var record = element.data('id');
+			
+			var number = element.data('number') + '';
+			
+			number = number.replace(/\D/g,'');
+			
+			var params = {
+				mode : "showSendFaxForm",
+				module : "RingCentral",
+				view : "MassActionAjax",
+				record : record,
+				number : number
+			};
+			app.helper.showProgress();
+			
+			app.request.get({'data': params}).then(
+				
+				function (err, data) {
+					
+					app.helper.hideProgress();
+					
+					if (data) {
+						
+						app.helper.showModal(data, {'cb': function (modal) {
+							var ringcentralForm = jQuery('#massSaveRingCentral');
+							if(ringcentralForm.length)
+								thisInstance.registerFaxFileElementChangeEvent(ringcentralForm);
+								ringcentralForm.vtValidate({
+									submitHandler: function (form) {
+										thisInstance.sendSmsSave(jQuery(form),true);
+										return false;
+									}
+								});
+							}
+						});
+					}
+				}
+			);
+		}
+	},
 
 },{
 	
@@ -368,10 +512,10 @@ Vtiger.Class("RingCentral_Js",{
 					
 				}
 					
-				if (number !== '') {
+				if (number !== '' && typeof number !== "undefined") {
 					var template = jQuery(RingCentral_Js.lineItemPopOverTemplate);
-					phoneCallContainer.find('#call').attr('data-number', number);
-					phoneCallContainer.find('#call').attr('data-id', recordId);
+					phoneCallContainer.find('#call,#sms,#fax').attr('data-number', number);
+					phoneCallContainer.find('#call,#sms,#fax').attr('data-id', recordId);
 					
 					if(view == 'Detail'){
 						parentElem.popover({
@@ -548,10 +692,14 @@ Vtiger.Class("RingCentral_Js",{
 		if(view == 'List'){
 			var html = '<div id="phone_panel_call" class="phoneCallContainer js-reference-display-value">'+
 						'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success js-reference-display-value" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone js-reference-display-value" aria-hidden="true"></i></button>&nbsp;'+
-					'</div>'; 
+						'<button title="SMS" type="button" style="border-radius: 5px !important;"class="btn btn-success js-reference-display-value" id="sms" onclick="RingCentral_Js.clickToSms(this)"><i class="fa fa-envelope js-reference-display-value" aria-hidden="true"></i></button>&nbsp;'+
+						'<button title="Fax" type="button" style="border-radius: 5px !important;"class="btn btn-success js-reference-display-value" id="fax" onclick="RingCentral_Js.clickToFax(this)"><i class="fa fa-fax js-reference-display-value" aria-hidden="true"></i></button>&nbsp;'+
+						'</div>'; 
 		} else {
 			var html = '<div id="phone_panel_call" class="phoneCallContainer">'+
 			'<button title="Call" type="button" style="border-radius: 5px !important;"class="btn btn-success" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone" aria-hidden="true"></i></button>&nbsp;'+
+			'<button title="SMS" type="button" style="border-radius: 5px !important;"class="btn btn-success" id="sms" onclick="RingCentral_Js.clickToSms(this)"><i class="fa fa-envelope" aria-hidden="true"></i></button>&nbsp;'+
+			'<button title="Fax" type="button" style="border-radius: 5px !important;"class="btn btn-success" id="fax" onclick="RingCentral_Js.clickToFax(this)"><i class="fa fa-fax" aria-hidden="true"></i></button>&nbsp;'+
 			'</div>'; 
 		}
 		
