@@ -26,7 +26,7 @@ class RingCentral_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	function showSendSMSForm(Vtiger_Request $request) {
 	    
 	    $moduleName = $request->getModule();
-	    $sourceModule = 'Contacts';
+	    $sourceModule = $request->get('srcmodule');
 	    
 	    $viewer = $this->getViewer($request);
 	    $selectedIds = $this->getRecordsListFromRequest($request);
@@ -69,13 +69,18 @@ class RingCentral_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	        $viewer->assign('SEARCH_PARAMS',$searchParams);
 	    }
 		
+	    if(!empty($request->get('number'))) {
+	        $viewer->assign('NUMBER', $request->get('number'));
+	        $viewer->assign('RECORD', $request->get('record'));
+	    }
+	    
 	    echo $viewer->view('RingCentralForm.tpl', $moduleName, true);
 	}
 	
 	function showSendFaxForm(Vtiger_Request $request){
 	    
 	    $moduleName = $request->getModule();
-	    $sourceModule = 'Contacts';
+	    $sourceModule = $request->get('srcmodule');
 	    
 	    $viewer = $this->getViewer($request);
 	    $selectedIds = $this->getRecordsListFromRequest($request);
@@ -116,6 +121,11 @@ class RingCentral_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	    
 	    if(!empty($searchParams)) {
 	        $viewer->assign('SEARCH_PARAMS',$searchParams);
+	    }
+	    
+	    if(!empty($request->get('number'))) {
+	        $viewer->assign('NUMBER', $request->get('number'));
+	        $viewer->assign('RECORD', $request->get('record'));
 	    }
 	    
 	    $viewer->assign('MAX_UPLOAD_LIMIT_MB', Vtiger_Util_Helper::getMaxUploadSize());
