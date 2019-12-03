@@ -64,9 +64,10 @@ http://viima.github.io/jquery-comments/*/
 }
 
 .jquery-comments i.fa {
-	width: 1em;
+	/*width: 1em;
 	height: 1em;
-	background-size: cover;
+	background-size: cover;*/
+	color:black;
 }
 
 .jquery-comments i.fa.image:before {
@@ -98,7 +99,7 @@ http://viima.github.io/jquery-comments/*/
 }
 
 .jquery-comments i.profile-picture {
-	font-size: 3.4em;
+	font-size: 2.0em;
 	text-align: center;
 }
 
@@ -230,14 +231,14 @@ http://viima.github.io/jquery-comments/*/
 
 .jquery-comments .textarea-wrapper .control-row > span {
 	float: right;
-
 	color: #FFF;
-	padding: 0 1em;
-	font-size: 1em;
-	line-height: 1.6em;
+	padding: 2px;
+	font-size: 12px;
+
 	margin-top: .4em;
 	border: 1px solid rgba(0, 0, 0, 0);
-	opacity: .5;
+	width: 50px;
+	text-align:center;
 }
 
 .jquery-comments .textarea-wrapper .control-row > span:not(:first-child) {
@@ -260,7 +261,7 @@ http://viima.github.io/jquery-comments/*/
 .jquery-comments .textarea-wrapper .control-row > span.upload {
 	position: relative;
 	overflow: hidden;
-	background-color: #999;
+	/*background-color: #999;*/
 }
 
 .jquery-comments ul.navigation {
@@ -461,7 +462,7 @@ http://viima.github.io/jquery-comments/*/
 .jquery-comments ul.main li.comment .comment-wrapper,
 .jquery-comments ul.main li.toggle-all,
 .jquery-comments ul.main li.comment .commenting-field {
-	padding: .5em;
+	padding: .9em;
 }
 
 .jquery-comments ul.main li.comment .comment-wrapper {
@@ -534,6 +535,7 @@ http://viima.github.io/jquery-comments/*/
 .jquery-comments ul.main li.comment .wrapper .content {
 	white-space: pre-line;
 	word-break: break-word;
+	margin-bottom:5px;
 }
 
 .jquery-comments ul.main li.comment .wrapper .content a.attachment i {
