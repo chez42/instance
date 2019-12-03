@@ -55,11 +55,18 @@ function vtws_save_ticket_comment($element,$user){
     $modComments->column_fields['from_portal'] = true;
     $modComments->column_fields['parent_comments'] = $element['parent_comments'];
     $modComments->save('ModComments');
+    $fileUrl = '';
+    if($save_doc && $attachmentid > 0 && $modComments->id){
+        
+        $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+        $res = $adb->pquery($related_doc,array($modComments->id,$attachmentid));
+        $fileUrl = $site_URL.'/index.php?module=Vtiger&action=ExternalDownloadLink&record='.$modComments->id;
+    }
     
     if($modComments->id)
-        $result = array('success'=>true,'modcommentid'=>$modComments);
-        else
-        $result = array('success'=>false);
+        $result = array('success'=>true,'modcommentid'=>$modComments->id, 'fileUrl'=>$fileUrl, 'filetype'=>$filetype, 'filename'=>$filename);
+    else
+      $result = array('success'=>false);
             
     return $result;
             

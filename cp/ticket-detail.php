@@ -282,25 +282,47 @@ if(isset($_GET['record'])){
     				
     				postComment: function(commentJSON, success, error) {
 						commentJSON.ticketid = '<?php  echo $_REQUEST['record'];?>';
+
+						var formData = new FormData();
+
+						$.each(commentJSON,function(ind, value){
+							 formData.append(ind, value);
+						});
+
+						formData.append('file', file);
+						
 						$.ajax({
     			            type: 'post',
     			            url: 'save-comments.php',
-    			            data: commentJSON,
+    			            data: formData,
+    			            cache: false,
+			                contentType: false,
+			                processData: false,
     			            success: function(comment) {
-    			            	success(commentJSON);
+    			            	var data = JSON.parse(comment);
+				                if(data.result.success){
+				                	commentJSON['id'] = data.result.modcommentid;
+				                	if(data.result.fileUrl){
+    				                	commentJSON['file_url'] = data.result.fileUrl;
+    			                		commentJSON['file_mime_type'] = data.result.filetype;
+    			                		commentJSON['file'] = data.result.filename;
+				                	}
+				                	success(commentJSON);
+				                	file = {};
+				                }
     			            },
     			            error: error
     			        });
     			        
     				},
 
-    				uploadAttachments: function(commentArray, success, error) {
+    				/*uploadAttachments: function(commentArray, success, error) {
 				        var responses = 0;
 				        var successfulUploads = [];
 				
 				        var serverResponded = function() {
 				            responses++;
-				            console.log(commentArray);
+				            
 				            // Check if all requests have finished
 				            if(responses == commentArray.length) {
 				                
@@ -323,8 +345,8 @@ if(isset($_GET['record'])){
 				                var value = commentJSON[key];
 				                if(value) formData.append(key, value);
 				            });
-				            formData.append('customer',<?php  echo $_REQUEST['record'];?>);
-
+				            formData.append('ticketid',<?php  echo $_REQUEST['record'];?>);
+				            
 				            $.ajax({
 				                url: 'save-comments.php',
 				                type: 'POST',
@@ -332,8 +354,12 @@ if(isset($_GET['record'])){
 				                cache: false,
 				                contentType: false,
 				                processData: false,
-				                success: function(commentJSON) {
-				                    successfulUploads.push(commentJSON);
+				                success: function(data) {
+					                var data = JSON.parse(data);
+					                if(data.result.success){
+					                	commentJSON['id'] = data.result.modcommentid;
+				                    	successfulUploads.push(commentJSON);
+					                }
 				                    serverResponded();
 				                },
 				                error: function(data) {
@@ -341,7 +367,7 @@ if(isset($_GET['record'])){
 				                },
 				            });
 				        });
-				    }
+				    }*/
     				
     			});
     		});

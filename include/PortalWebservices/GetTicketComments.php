@@ -100,7 +100,7 @@ function vtws_get_ticket_comments($element,$user){
             $attachment = $adb->query_result($comments,$j,'filename');
             $att_Path = '';
             $att_type = '';
-            $fileData = '';
+            $data = array();
             if($attachment){
                 $result = $adb->pquery("SELECT * FROM vtiger_attachments
                 INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_attachments.attachmentsid
@@ -115,23 +115,27 @@ function vtws_get_ticket_comments($element,$user){
                     $attPath .= "_".decode_html($adb->query_result($result, "0", "name"));
                     $att_Path = ($attPath);
                     $att_type = $adb->query_result($result, "0", "type");
+                    $att_name = decode_html($adb->query_result($result, "0", "name"));
                 }
             }
             
+            $data['id'] = $adb->query_result($comments,$j,'modcommentsid');
+            $data['parent'] = $parent;
+            $data['content'] = html_entity_decode($adb->query_result($comments,$j,'commentcontent'));
+            $data['created']=date_format($created,"Y-m-d H:i:s");
+            $data['created_by_current_user']= $createduser;
+            $data['profile_picture_url']=$imagepath;
+            $data['fullname']=html_entity_decode($fullname);
             if($att_Path){
-                $fileData['fileURL'] = $att_Path;
-                $fileData['file_mime_type'] = $att_type;
+                if(strpos($att_type,'image') == false){
+                    $att_Path = $site_URL.'/index.php?module=Vtiger&action=ExternalDownloadLink&record='.$data['id'];
+                }
+                $data['file'] = $att_name;
+                $data['file_url'] = $att_Path;
+                $data['file_mime_type'] = $att_type;
             }
             
-            $comment_data[] = array(
-                'id' => $adb->query_result($comments,$j,'modcommentsid'),
-                'parent' => $parent,
-                'content' => html_entity_decode($adb->query_result($comments,$j,'commentcontent')),
-                'created'=>date_format($created,"Y-m-d H:i:s"),
-                'created_by_current_user'=>$createduser,
-                'profile_picture_url'=>$imagepath,
-                'fullname'=>html_entity_decode($fullname)
-            );
+            $comment_data[] = $data;
             
         }
     }
