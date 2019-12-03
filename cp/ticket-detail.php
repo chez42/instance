@@ -103,7 +103,7 @@ if(isset($_GET['record'])){
 					<!--End:: App Aside Mobile Toggle-->
 
 					<!--Begin:: App Aside-->
-					<div class="kt-grid__item kt-app__toggle kt-app__aside" id="kt_user_profile_aside">
+					<div class="kt-grid__item kt-app__toggle kt-app__aside" id="kt_user_profile_aside" style = "width:290px;">
 
 						<!--begin:: Widgets/Applications/User/Profile1-->
 						<div class="kt-portlet" style="height: 97%;">
@@ -173,7 +173,7 @@ if(isset($_GET['record'])){
 									<input type="hidden" name="startIndex" value="10" />
 										<div class="kt-portlet__body">
 											<div id="containers" style="">
-                                                <div class="kt-scroll" id="comments-container" data-height="410" data-mobile-height="225" style="overflow:auto; max-height:430px;"></div>
+                                                <div class="kt-scroll" id="comments-container" data-height="410" data-mobile-height="225"></div>
 											</div>
 										</div>
 									</form>
@@ -250,7 +250,7 @@ if(isset($_GET['record'])){
 
     				enableReplying : true,
     				
-    				textareaRows: 2,
+    				textareaRows: 3,
 
     				textareaPlaceholderText: 'Leave a comment',
 
@@ -316,58 +316,7 @@ if(isset($_GET['record'])){
     			        
     				},
 
-    				/*uploadAttachments: function(commentArray, success, error) {
-				        var responses = 0;
-				        var successfulUploads = [];
-				
-				        var serverResponded = function() {
-				            responses++;
-				            
-				            // Check if all requests have finished
-				            if(responses == commentArray.length) {
-				                
-				                // Case: all failed
-				                if(successfulUploads.length == 0) {
-				                    error();
-
-				                // Case: some succeeded
-				                } else {
-				                    success(successfulUploads)
-				                }
-				            }
-				        }
-
-				        $(commentArray).each(function(index, commentJSON) {
-				        	
-				            // Create form data
-				            var formData = new FormData();
-				            $(Object.keys(commentJSON)).each(function(index, key) {
-				                var value = commentJSON[key];
-				                if(value) formData.append(key, value);
-				            });
-				            formData.append('ticketid',<?php  echo $_REQUEST['record'];?>);
-				            
-				            $.ajax({
-				                url: 'save-comments.php',
-				                type: 'POST',
-				                data: formData,
-				                cache: false,
-				                contentType: false,
-				                processData: false,
-				                success: function(data) {
-					                var data = JSON.parse(data);
-					                if(data.result.success){
-					                	commentJSON['id'] = data.result.modcommentid;
-				                    	successfulUploads.push(commentJSON);
-					                }
-				                    serverResponded();
-				                },
-				                error: function(data) {
-				                    serverResponded();
-				                },
-				            });
-				        });
-				    }*/
+    			
     				
     			});
     		});
