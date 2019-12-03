@@ -9044,6 +9044,7 @@ var KTChat = function () {
 							ps.update();
 						}
 					}
+					$('.filename').remove();
 					jQuery(parentEl).waitMe('hide');
 				}
 			});
@@ -9103,6 +9104,13 @@ var KTChat = function () {
 
 	        $('input[type="file"]').change(function(e){
 	        	file = e.target.files[0];
+	        	var row = $(this).parent().parent();
+	        	console.log(row);
+	        	if(row.find('.filename').length){
+	        		row.find('.filename').text(file.name);
+	        	}else{
+	        		row.find('.kt-avatar__upload').after('<div class="filename" style="color:black !important;font-size: 1rem !important;">'+file.name+'</div>');
+	        	}
 	        });
 		},
 
