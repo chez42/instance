@@ -112,7 +112,26 @@ class RingCentral extends Vtiger_CRMEntity {
             $relationLabel = 'RingCentral';
             $contact_module_model->unsetRelatedList( $ringcentral_module_model , $relationLabel);
         }
-       
+        
+        $account_module_model = Vtiger_Module::getInstance( 'Accounts' );
+        
+        $accrelList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+            array($account_module_model->getId(),$ringcentral_module_model->getId()));
+        
+        if($adb->num_rows($accrelList)){
+            $relationLabel = 'RingCentral';
+            $account_module_model->unsetRelatedList( $ringcentral_module_model , $relationLabel);
+        }
+        
+        $lead_module_model = Vtiger_Module::getInstance( 'Leads' );
+        
+        $learelList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+            array($lead_module_model->getId(),$ringcentral_module_model->getId()));
+        
+        if($adb->num_rows($learelList)){
+            $relationLabel = 'RingCentral';
+            $lead_module_model->unsetRelatedList( $ringcentral_module_model , $relationLabel);
+        }
 
 	   
 		$contact_tab_id = Vtiger_Functions::getModuleId('Contacts');
@@ -125,6 +144,28 @@ class RingCentral extends Vtiger_CRMEntity {
         
         $linkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
         Vtiger_Link::deleteLink($contact_tab_id, 'DETAILVIEWBASIC', 'Ring Central', $linkurl);
+        
+        $acc_tab_id = Vtiger_Functions::getModuleId('Accounts');
+        
+        $acclinkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($acc_tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $acclinkurl);
+        
+        $acclinkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
+        Vtiger_Link::deleteLink($acc_tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $acclinkurl);
+        
+        $acclinkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($acc_tab_id, 'DETAILVIEWBASIC', 'Ring Central', $acclinkurl);
+        
+        $lead_tab_id = Vtiger_Functions::getModuleId('Leads');
+        
+        $leadlinkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($lead_tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $leadlinkurl);
+        
+        $leadlinkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
+        Vtiger_Link::deleteLink($lead_tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $leadlinkurl);
+        
+        $leadlinkurl = 'javascript:RingCentral_Js.triggerRingCentralDetail("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        Vtiger_Link::deleteLink($lead_tab_id, 'DETAILVIEWBASIC', 'Ring Central', $leadlinkurl);
         
 		$ringcentral_tab_id = Vtiger_Functions::getModuleId('RingCentral');
         $linkurl = 'layouts/v7/modules/RingCentral/resources/RingCentral.js';
@@ -146,10 +187,27 @@ class RingCentral extends Vtiger_CRMEntity {
             $contact_module_model->setRelatedList( $ringcentral_module_model , $relationLabel, Array( ));
         }
         
+        $acc_module_model = Vtiger_Module::getInstance( 'Accounts' );
+        $accList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+            array($acc_module_model->getId(),$ringcentral_module_model->getId()));
+        
+        if(!$adb->num_rows($accList)){
+            $relationLabel = 'RingCentral';
+            $acc_module_model->setRelatedList( $ringcentral_module_model , $relationLabel, Array( ));
+        }
+        
+        $lead_module_model = Vtiger_Module::getInstance( 'Leads' );
+        $ledList = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid =? AND related_tabid = ?",
+            array($lead_module_model->getId(),$ringcentral_module_model->getId()));
+        
+        if(!$adb->num_rows($ledList)){
+            $relationLabel = 'RingCentral';
+            $lead_module_model->setRelatedList( $ringcentral_module_model , $relationLabel, Array( ));
+        }
         
         $tab_id = Vtiger_Functions::getModuleId('Contacts');
 		$linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
+		$result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
         if(!$adb->num_rows($result)){
             Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $linkurl, '', '0', '', '', '');
         }
@@ -163,7 +221,33 @@ class RingCentral extends Vtiger_CRMEntity {
 		
         
         $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ? ",array($linkurl, $tab_id));
+        if($adb->num_rows($result) < 1){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $linkurl, '', '0', '', '', '');
+        }
+        
+        $tab_id = Vtiger_Functions::getModuleId('Accounts');
+        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
+        if(!$adb->num_rows($result)){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $linkurl, '', '0', '', '', '');
+        }
+        
+        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ? ",array($linkurl,$tab_id));
+        if($adb->num_rows($result) < 1){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $linkurl, '', '0', '', '', '');
+        }
+        
+        $tab_id = Vtiger_Functions::getModuleId('Leads');
+        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendSMSForm")';
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
+        if(!$adb->num_rows($result)){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send SMS through Ring Central', $linkurl, '', '0', '', '', '');
+        }
+        
+        $linkurl = 'javascript:RingCentral_Js.triggerRingCentral("index.php?module=RingCentral&view=MassActionAjax&mode=showSendFaxForm")';
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
         if($adb->num_rows($result) < 1){
             Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send Fax through RingCentral', $linkurl, '', '0', '', '', '');
         }
