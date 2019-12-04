@@ -361,7 +361,8 @@ Vtiger.Class("RingCentral_Js",{
 				module : "RingCentral",
 				view : "MassActionAjax",
 				record : record,
-				number : number
+				number : number,
+				srcmodule : app.getModuleName()
 			};
 			app.helper.showProgress();
 			
@@ -433,7 +434,8 @@ Vtiger.Class("RingCentral_Js",{
 				module : "RingCentral",
 				view : "MassActionAjax",
 				record : record,
-				number : number
+				number : number,
+				srcmodule : app.getModuleName()
 			};
 			app.helper.showProgress();
 			
