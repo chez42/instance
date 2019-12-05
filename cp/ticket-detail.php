@@ -44,6 +44,20 @@ if(isset($_GET['record'])){
     $ticket_detail = retrieve_info($api_url.'/webservice.php',$session_id,"9x$recordId");
     $ticket_detail = $ticket_detail['result'];
     
+    $element = array('ID' => $_SESSION['ID'], 'ticket_id' => $recordId);
+    
+    $postParams = array(
+        'operation'=>'get_ticket_documents',
+        'sessionName'=>$session_id,
+        'element'=>json_encode($element)
+    );
+    
+    $response = postHttpRequest($ws_url, $postParams);
+    
+    $response = json_decode($response,true);
+    
+    $ticket_docs = $response['result'];
+    //echo"<pre>";print_r($ticket_docs);echo"</pre>";exit;
     $ticketstatus = array(
         '----------',
         'Acknw',
@@ -73,7 +87,7 @@ if(isset($_GET['record'])){
 					<div class="kt-subheader__main">
 						<h3 class="kt-subheader__title">
 							<button class="kt-subheader__mobile-toggle kt-subheader__mobile-toggle--left" id="kt_subheader_mobile_toggle"><span></span></button>
-							Ticket </h3>
+							<a href="helpdesk.php">Ticket</a> </h3>
 						<span class="kt-subheader__separator kt-hidden"></span>
 						<div class="kt-subheader__breadcrumbs">
 							<a href="#" class="kt-subheader__breadcrumbs-home"><i class="flaticon2-shelter"></i></a>
@@ -155,6 +169,59 @@ if(isset($_GET['record'])){
 									</div>
 								</div>
 							</div>
+							<div class="kt-portlet kt-portlet--tabs kt-portlet--height-fluid">
+                            	<div class="kt-portlet__head">
+                            		<div class="kt-portlet__head-label">
+                            			<h3 class="kt-portlet__head-title">
+                            				Documents
+                            			</h3>
+                            		</div>
+                            	</div>
+                            	<div class="kt-portlet__body">
+                    				<div class="kt-widget4">
+                    					<?php if(!empty($ticket_docs)){
+											    foreach($ticket_docs as $document){
+											    ?>
+                        					<div class="kt-widget4__item">
+                        						<div class="kt-widget4__pic kt-widget4__pic--pic">
+                        							<img style="border-radius:10px;" src="images/<?php echo $document['icon']?>" />   
+                        						</div>
+                        						<div class="kt-widget4__info ticketinfo">
+                        							<a href="javascript:void(0)" data-filelocationtype="<?php echo $document['filelocationtype'];?>" 
+                        								data-filename="<?php echo $document['docname'];?>" data-fileid="<?php echo $document['notesid'];?>"
+                        								class="kt-widget4__username" style="font-size: 0.9rem !important;"title="Preview">
+                        								<?php echo $document['title']?>
+                        							</a>
+                        							<p class="kt-widget4__text">
+                        								<span class="document_preview" title="Preview" style="font-size:1.5em!important;">
+                            								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+                            									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            										<rect x="0" y="0" width="24" height="24"/>
+                            										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
+                            										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"/>
+                            									</g>
+                            								</svg>
+                            							</span>&nbsp;&nbsp;
+                            							<span class="document_download" title="Download" style="font-size:1.5em!important;">
+                            								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+                            									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            										<rect x="0" y="0" width="24" height="24"/>
+                            										<path d="M2,13 C2,12.5 2.5,12 3,12 C3.5,12 4,12.5 4,13 C4,13.3333333 4,15 4,18 C4,19.1045695 4.8954305,20 6,20 L18,20 C19.1045695,20 20,19.1045695 20,18 L20,13 C20,12.4477153 20.4477153,12 21,12 C21.5522847,12 22,12.4477153 22,13 L22,18 C22,20.209139 20.209139,22 18,22 L6,22 C3.790861,22 2,20.209139 2,18 C2,15 2,13.3333333 2,13 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
+                            										<rect fill="#000000" opacity="0.3" transform="translate(12.000000, 8.000000) rotate(-180.000000) translate(-12.000000, -8.000000) " x="11" y="1" width="2" height="14" rx="1"/>
+                            										<path d="M7.70710678,15.7071068 C7.31658249,16.0976311 6.68341751,16.0976311 6.29289322,15.7071068 C5.90236893,15.3165825 5.90236893,14.6834175 6.29289322,14.2928932 L11.2928932,9.29289322 C11.6689749,8.91681153 12.2736364,8.90091039 12.6689647,9.25670585 L17.6689647,13.7567059 C18.0794748,14.1261649 18.1127532,14.7584547 17.7432941,15.1689647 C17.3738351,15.5794748 16.7415453,15.6127532 16.3310353,15.2432941 L12.0362375,11.3779761 L7.70710678,15.7071068 Z" fill="#000000" fill-rule="nonzero" transform="translate(12.000004, 12.499999) rotate(-180.000000) translate(-12.000004, -12.499999) "/>
+                            									</g>
+                            								</svg>
+                            							</span>
+                        							</p>							 		 
+                        						</div>						 
+                        					</div> 
+                						<?php }}?> 
+                            		</div>
+                            	</div>
+                            </div>
+                            <div id="filePreviewModal" class="modal fade" aria-hidden="true">
+			
+    						</div>
 						</div>
 					</div>
 					
@@ -369,6 +436,52 @@ if(isset($_GET['record'])){
 	    			}
 	    		});
     		});
+
+    		jQuery(document).on('click','.document_preview, .document_download', function(){
+          		var self = $(this);
+          		$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+          		var currentTargetObject = self.closest('.ticketinfo').find('a');
+          		var fileId = currentTargetObject.data('fileid');
+        		var fileLocationType = currentTargetObject.data('filelocationtype');
+    	        var fileName = currentTargetObject.data('filename'); 
+    	        
+    	       	if(self.hasClass('document_download')){
+					var mode = 'download';
+    	       	}else if(self.hasClass('document_preview')){
+    	       		var mode = 'preview';
+    	       	}
+      			if(fileLocationType == 'I'){
+    	        	
+    	            $.ajax({
+						url:'filePreview.php',
+						data: 'file_id='+fileId+'&mode='+mode,
+						error: function(errorThrown) {
+							console.log(errorThrown);
+						},
+						success: function(data) {
+    						var success;
+						 	try {
+						        var data = JSON.parse(data);
+						        if(data.success)
+							        success = true;
+						    } catch (e) {
+					      		success = false;
+						    }
+						    if(success){
+						    	window.location.href = data.downloadUrl;
+						    }else{
+    							$(document).find('#filePreviewModal').html(data);
+    							$('#filePreviewModal').modal('show');
+						    }
+						    $('body').waitMe('hide');
+						}
+					});
+    	            
+    	        } else {
+    	            var win = window.open(fileName, '_blank');
+    	            win.focus();
+    	        }
+      		});
     		
     	});
     	
