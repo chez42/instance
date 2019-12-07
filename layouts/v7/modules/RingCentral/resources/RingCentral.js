@@ -231,7 +231,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		if(!thisInstance.connected){
 			
-			app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+			app.helper.showConfirmationBox({'message': "Let's connect with Ring Central"}).then(
 				
 				function(data) {
 					
@@ -252,10 +252,10 @@ Vtiger.Class("RingCentral_Js",{
 		} else {
 			
 			// Fire Ajax Call to Retrieve HTML here
-			if( $( "body" ).hasClass( "show_sidebar3" )){
+			/*if( $( "body" ).hasClass( "show_sidebar3" )){
 				app.helper.showErrorNotification({message: 'Call in Progress!'});
 				return true;
-			}
+			}*/
 			
 			var element = jQuery(e);
 			
@@ -265,7 +265,11 @@ Vtiger.Class("RingCentral_Js",{
 			
 			number = number.replace(/\D/g,'');
 			
-			if( !$( "body" ).hasClass( "show_sidebar3" )){
+			var url = decodeURIComponent(window.location.href.split('?', 1) + '?module=RingCentral&view=Call&record='+record+'&number='+number);
+			
+			var x = window.open(url,'','height=300,width=350,location=no,toolbar=0');
+			
+			/*if( !$( "body" ).hasClass( "show_sidebar3" )){
 				var params = {
 					'module' : 'RingCentral',
 					'record' : record,
@@ -316,7 +320,8 @@ Vtiger.Class("RingCentral_Js",{
 					}
 				});
 				
-			}
+			}*/
+			
 		}
 	},
 	
@@ -326,7 +331,7 @@ Vtiger.Class("RingCentral_Js",{
 		
 		if(!thisInstance.connected){
 			
-			app.helper.showConfirmationBox({'message': 'Invalid Token! Do you want to Reconnect?'}).then(
+			app.helper.showConfirmationBox({'message': "Let's connect with Ring Central"}).then(
 				
 				function(data) {
 					
@@ -643,7 +648,7 @@ Vtiger.Class("RingCentral_Js",{
 					thisInstance.Class.app_key = data.client_id;
 					
 					if(data.sip){
-						thisInstance.initializeSIP(data.sip);
+						//thisInstance.initializeSIP(data.sip);
 					}
 					
 				} else {
@@ -661,12 +666,12 @@ Vtiger.Class("RingCentral_Js",{
 		var thisInstance = this;
 		
 		var remoteVideoElement = document.getElementById('remoteVideo');
+		
 		var localVideoElement = document.getElementById('localVideo');
-			
 		
 		thisInstance.Class.webPhone = new RingCentral.WebPhone(sipInfo, {
 			appKey: thisInstance.Class.app_key,
-			logLevel: parseInt(3, 10),
+			logLevel: parseInt(1, 10),
 			audioHelper: {
 				enabled: true,
 				incoming: 'modules/RingCentral/resources/incoming.ogg',
