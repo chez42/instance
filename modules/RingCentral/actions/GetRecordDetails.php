@@ -13,6 +13,10 @@ class RingCentral_GetRecordDetails_Action extends Vtiger_Mass_Action {
         return true;
     }
     
+    public function validateRequest(Vtiger_Request $request) {
+       return true;
+    }
+    
     public function process(Vtiger_Request $request) {
         
         $mode = $request->getMode();
