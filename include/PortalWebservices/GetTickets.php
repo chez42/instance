@@ -42,7 +42,7 @@ function vtws_get_tickets($element, $user){
     
     if($count){
         
-        $sql = "SELECT DISTINCT *
+        $sql = "SELECT DISTINCT vtiger_troubletickets.*
         FROM vtiger_troubletickets
         inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_troubletickets.ticketid
         left join vtiger_contactdetails on vtiger_contactdetails.contactid=vtiger_troubletickets.parent_id
