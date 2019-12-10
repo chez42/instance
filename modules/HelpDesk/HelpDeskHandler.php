@@ -436,7 +436,7 @@ function HelpDesk_notifyTicketComment( $entityData ){
     
     $mailer->IsHTML(true);
     
-    $fromEmail = $HELPDESK_SUPPORT_EMAIL_ID //getFromEmailAddress();
+    $fromEmail = $HELPDESK_SUPPORT_EMAIL_ID; //getFromEmailAddress();
     
 	$replyTo = "ticket@omnisrv.com";
     
