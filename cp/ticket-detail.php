@@ -81,7 +81,7 @@ if(isset($_GET['record'])){
 		<div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
 
 			<!-- begin:: Subheader -->
-			
+			<input type="hidden" name="ticket_id" value="<?php echo $recordId;?>">
 			<div class="kt-subheader   kt-grid__item" id="kt_subheader">
 				<div class="kt-container  kt-container--fluid ">
 					<div class="kt-subheader__main">
@@ -170,14 +170,19 @@ if(isset($_GET['record'])){
 								</div>
 							</div>
 							<div class="kt-portlet kt-portlet--tabs kt-portlet--height-fluid">
-                            	<div class="kt-portlet__head">
-                            		<div class="kt-portlet__head-label">
+                            	<div class="kt-portlet__head pull-right">
+                            		<div class="kt-portlet__head-label pull-right">
                             			<h3 class="kt-portlet__head-title">
                             				Documents
                             			</h3>
+                            			<div style="margin-left: 75% !important;">
+                                			<button class="addDocs btn btn-brand" title="Add Documents">
+                                				<i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
                             		</div>
                             	</div>
-                            	<div class="kt-portlet__body">
+                            	<div class="kt-portlet__body ticketDocList" >
                     				<div class="kt-widget4">
                     					<?php if(!empty($ticket_docs)){
 											    foreach($ticket_docs as $document){
@@ -219,8 +224,38 @@ if(isset($_GET['record'])){
                             		</div>
                             	</div>
                             </div>
+                            <div id="add_doc_modal" class="modal fade"  aria-hidden="true">
+                            	<div class="modal-dialog" role="document">
+                                	<div class="modal-content">
+                                    	<div class="modal-header">
+                                    		<div class="filename  col-lg-11 " style="word-break: break-word;">
+                                            	<h5 class="modal-title" style="font-size: 1.2rem;">Upload File</h5>
+                                            </div>
+                                             <div class="col-lg-1">
+                                                <button type="button" class="docModalClose close" data-dismiss="modal" aria-label="Close">
+                                                  <span aria-hidden="true">×</span>
+                                                </button>
+                                             </div>
+                                      	</div>
+                                     	
+                                        <div class="modal-body row text-center" >
+                                           <div class="form-group row">
+                                           		<div class="col-lg-1"></div>
+                                				<div class="col-lg-10">
+                                					<div class="dropzone dropzone-default dz-clickable" id="kt_dropzone_1" style="padding: 90px!important;">
+                                						<div class="dropzone-msg dz-message needsclick">
+                                						    <h3 class="dropzone-msg-title">Drop files here or click to upload.</h3>
+                                						    <span class="dropzone-msg-desc"></span>
+                                						</div>
+                                					</div>
+                                				</div>
+                                				<div class="col-lg-1"></div>
+                                			</div>
+                                        </div>
+                                    </div>
+                                  </div>  
+                            </div>
                             <div id="filePreviewModal" class="modal fade" aria-hidden="true">
-			
     						</div>
 						</div>
 					</div>
@@ -302,6 +337,7 @@ if(isset($_GET['record'])){
     	?>
 		<link href="assets/css/jquery-comments.css" rel="stylesheet" type="text/css" />
 		<script src="assets/js/jquery-comments.js"></script>
+		<script type="text/javascript" src="assets/js/pages/crud/file-upload/dropzonejs.js"></script>
     	<script>
 
     	$(document).ready(function(){
@@ -481,6 +517,12 @@ if(isset($_GET['record'])){
     	            var win = window.open(fileName, '_blank');
     	            win.focus();
     	        }
+      		});
+
+      		jQuery(document).on('click','.addDocs',function(){
+
+      			$('#add_doc_modal').modal('show');
+				
       		});
     		
     	});

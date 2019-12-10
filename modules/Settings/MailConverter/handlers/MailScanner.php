@@ -512,6 +512,13 @@ class Vtiger_MailScanner {
         $bodyContent = explode("##- Please type your reply above this line -##",$mailrecord->_plainmessage);
         
         if(!empty($bodyContent[0])){
+            $contactId = '';
+            $contact = $adb->pquery("SELECT vtiger_contactdetails.contactid FROM vtiger_contactdetails
+            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.email = ?",array($mailrecord->_from));
+            if($adb->num_rows($contact))
+                $contactId = $adb->query_result($contact, 0, 'contactid');
+            
             $ticket = $adb->pquery("SELECT * FROM vtiger_troubletickets 
             INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
             WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.ticket_no = ?",array($ticket_no));
@@ -562,6 +569,7 @@ class Vtiger_MailScanner {
                 }
                 
                 $modComments->column_fields['commentcontent'] = $bodyContent[0];
+                $modComments->column_fields['customer'] = $contactId;
                 $modComments->column_fields['related_to'] = $ticketId;
                 $modComments->save('ModComments');
                 
