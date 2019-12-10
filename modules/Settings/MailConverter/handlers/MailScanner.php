@@ -117,15 +117,26 @@ class Vtiger_MailScanner {
 					unset($mailrecord);
 					continue;
 				}
-
-				// Apply rules configured for the mailbox
-				$crmid = false;
-				foreach($rules as $mailscannerrule) {
-					$crmid = $this->applyRule($mailscannerrule, $mailrecord, $mailbox, $messageid);
-					if($crmid) {
-						break; // Rule was successfully applied and action taken
-					}
+				
+				$createTicketComment = false;
+				$mailrecord->__parseBody($mailbox->_imap, $messageid);
+				$pattern = '/<span dir="ticket_no"><strong>(.*?)<\/strong><\/span>/';
+				if(preg_match($pattern, $mailrecord->_body, $matches)){
+				    $this->saveCommentsForTickets($matches[1], $mailrecord);
+				    $createTicketComment = true;
 				}
+				
+				if(!$createTicketComment){
+    					// Apply rules configured for the mailbox
+    					$crmid = false;
+    					foreach($rules as $mailscannerrule) {
+    						$crmid = $this->applyRule($mailscannerrule, $mailrecord, $mailbox, $messageid);
+    						if($crmid) {
+    							break; // Rule was successfully applied and action taken
+    						}
+    					}
+				}
+				
 				// Mark the email message as scanned
 				$this->markMessageScanned($mailrecord, $crmid);
 				$mailbox->markMessage($messageid);
@@ -493,6 +504,74 @@ class Vtiger_MailScanner {
         global $adb;
         $scannerId = $this->_scannerinfo->scannerid;
 		$adb->pquery("UPDATE vtiger_mailscanner SET isvalid=? WHERE scannerid=?", array(0,$scannerId));
+    }
+    
+    function saveCommentsForTickets($ticket_no, $mailrecord){
+        
+        global $adb;
+        $bodyContent = explode("##- Please type your reply above this line -##",$mailrecord->_plainmessage);
+        
+        if(!empty($bodyContent[0])){
+            $ticket = $adb->pquery("SELECT * FROM vtiger_troubletickets 
+            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.ticket_no = ?",array($ticket_no));
+            
+            if($adb->num_fields($ticket)){
+                $ticketId = $adb->query_result($ticket, 0, 'ticketid');
+                
+                $modComments = CRMEntity::getInstance('ModComments');
+                if(!empty($mailrecord->_attachments)){
+                    foreach($mailrecord->_attachments as $filename => $attachment){
+                        
+                        if($filename != '') {
+                            
+                            $finfo = new finfo(FILEINFO_MIME_TYPE);
+                            
+                            $filetype = $finfo->buffer($attachment);
+                            
+                            if($attachment != ''){
+                                
+                                $save_doc = true;
+                                
+                                $upload_filepath = decideFilePath();
+                                
+                                $attachmentid = $adb->getUniqueID("vtiger_crmentity");
+                                
+                                $filename = sanitizeUploadFileName($filename, $upload_badext);
+                                $new_filename = $attachmentid.'_'.$filename;
+                                
+                                $data = base64_decode($attachment);
+                                $description = 'MailManager Comments Attachment';
+                                
+                                $handle = @fopen($upload_filepath.$new_filename,'w');
+                                fputs($handle, $data);
+                                fclose($handle);
+                                
+                                $date_var = $adb->formatDate(date('Y-m-d H:i:s'), true);
+                                
+                                $crmquery = "insert into vtiger_crmentity (crmid,setype,description,createdtime) values(?,?,?,?)";
+                                $crmresult = $adb->pquery($crmquery, array($attachmentid, 'ModComments Attachment', $description, $date_var));
+                                
+                                $attachmentquery = "insert into vtiger_attachments(attachmentsid,name,description,type,path) values(?,?,?,?,?)";
+                                $attachmentreulst = $adb->pquery($attachmentquery, array($attachmentid, $filename, $description, $filetype, $upload_filepath));
+                                
+                                $modComments->column_fields['filename'] = $attachmentid;
+                            }
+                        }
+                    }
+                }
+                
+                $modComments->column_fields['commentcontent'] = $bodyContent[0];
+                $modComments->column_fields['related_to'] = $ticketId;
+                $modComments->save('ModComments');
+                
+                if($save_doc && $attachmentid > 0 && $modComments->id){
+                    $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+                    $res = $adb->pquery($related_doc,array($modComments->id,$attachmentid));
+                }
+            }
+            
+        }
     }
     
 }
