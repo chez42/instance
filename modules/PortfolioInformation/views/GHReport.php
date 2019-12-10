@@ -32,6 +32,10 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #        echo "GH1 REPORT CURRENTLY LOADING...<br />";
 #        ob_flush();
 #        flush();
+        global $adb;
+        $query = "CALL TD_PRICING_TO_INDEX(?, ?);";
+        $adb->pquery($query, array('AGG', '2019-01-01'));
+        $adb->pquery($query, array('EEM', '2019-01-01'));
 
         $orientation = $request->get('orientation');
         $calling_module = $request->get('calling_module');
@@ -103,6 +107,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
             $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
             $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+
+            $prepare_date = date("F d, Y");
             $viewer = $this->getViewer($request);
 
             $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
@@ -125,11 +131,12 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("SHOW_END_DATE", 1);
             $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
             $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
+            $viewer->assign("PREPARE_DATE", $prepare_date);
 
 
             if($calling_record) {
                 $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
-                $prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
+                $prepared_by = PortfolioInformation_Module_Model::GetPreparedByFormattedByRecordID($calling_record);
                 $record = VTiger_Record_Model::getInstanceById($calling_record);
                 $data = $record->getData();
                 $module = $record->getModule();
@@ -142,6 +149,21 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             }
 
             $ispdf = $request->get('pdf');
+            $logo = $current_user->getImageDetails();
+
+            if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+                if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+                    $logo = $logo['user_logo'][0];
+                    $logo = $logo['path']."_".$logo['name'];
+                } else
+                    $logo = 0;
+            } else
+                $logo = "";
+
+            if($logo == "_" || $logo == "")
+                $logo = "test/logo/Omniscient Logo small.png";
+
+            $viewer->assign("LOGO", $logo);
 
             if($ispdf) {
                 $personal_notes = $request->get('personal_notes');
@@ -176,7 +198,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $toc[] = array("title" => "#2", "name" => "Portfolio Performance");
                 $viewer->assign("TOC", $toc);
 
-                $logo = $current_user->getImageDetails();
+/*                $logo = $current_user->getImageDetails();
 
                 if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
                     if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
@@ -189,7 +211,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
                 if($logo == "_")
                     $logo = "test/logo/Omniscient Logo small.png";
-                $viewer->assign("LOGO", $logo);
+                $viewer->assign("LOGO", $logo);*/
 
                 /*                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);

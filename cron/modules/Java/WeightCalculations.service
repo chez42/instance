@@ -15,4 +15,3 @@ $adb->pquery($query, array($note));
 
 PortfolioInformation_ConvertCustodian_Model::UpdatePortfolioInception();
 PositionInformation_ConvertCustodian_Model::SetPositionOwnerShip();
-?>
