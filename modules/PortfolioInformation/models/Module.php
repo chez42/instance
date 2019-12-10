@@ -533,6 +533,27 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
+    static public function GetAccountNumbersFromRepCode($ccn, $limit = null)
+    {
+        global $adb;
+        if (strlen($limit) > 0)
+            $limit = " LIMIT {$limit} ";
+        $questions = generateQuestionMarks($ccn);
+
+        $query = "SELECT account_number FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
+                  WHERE production_number IN ({$questions}) AND e.deleted = 0 AND p.accountclosed = 0 AND stated_value_date >= '2019-10-01' {$limit}";
+        $result = $adb->pquery($query, array($ccn));
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $t[] = $v['account_number'];
+            }
+            return $t;
+        }
+        return 0;
+    }
+
 	static public function GetChartColorForTitle($title){
 		global $adb;
 		$query = "SELECT color FROM vtiger_chart_colors WHERE title = ?";
@@ -1703,6 +1724,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
+    static public function GetPreparedByFormattedByRecordID($record_id){
+        $record = VTiger_Record_Model::getInstanceById($record_id);
+        $assigned_user = $record->get('assigned_user_id');
+        $statement = new PortfolioInformation_Statements_Model();
+        return htmlspecialchars_decode($statement->GetPreparedByData($assigned_user));
+    }
+
     static public function GetPreparedByNameByRecordID($record_id)
     {
         if ($record_id) {
@@ -1964,7 +1992,10 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     {
         global $adb;
         $stratifi = new StratifiAPI();
-        $result = json_decode($stratifi->CreateNewStratifiAccount(""));
+        $result = json_decode($stratifi->CreateNewStratifiAccount("POR{$omniID}"));
+        echo " - result - ";
+        print_r($result);
+        echo "<br />";
         if ($result->id) {
             self::UpdateStratifiID($omniID, $result->id);
         }

@@ -66,8 +66,12 @@ class StratifiAPI {
         return $result;
     }
 
-    public function getAllAccounts(){
-        $extension = "/api/v1/accounts";
+    public function getAllAccounts($next = null){
+        if($next != null){
+            $next = substr($next, strpos($next, "/accounts") + 9);
+        }
+
+        $extension = "/api/v1/accounts{$next}";
         $url = $this->url . $extension;
         $result = $this->execQuery($url, $this->header, null, false);
         return $result;
@@ -140,7 +144,7 @@ class StratifiAPI {
         $extension = "/api/v1/accounts/" . $data['account_stratid'] . "/";
         $url = $this->url . $extension;
         $params = array();
-        $params['name'] = $data['stratifi_name'];//"POR" . $data['portfolioinformationid'];
+        $params['name'] = "POR" . $data['portfolioinformationid'];//$data['stratifi_name'];
         if(strlen($data['contact_stratid']) > 0)
             $params['investor'] = $data['contact_stratid'];
         if(strlen($data['advisor_stratid']) > 0)
