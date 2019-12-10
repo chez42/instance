@@ -5,18 +5,39 @@ var KTDropzoneDemo = function () {
     // Private functions
     var demo1 = function () {
         // single file upload
+    	
+    	var ticketId = $("[name='ticket_id']").val();
         $('#kt_dropzone_1').dropzone({
-            url: "https://keenthemes.com/scripts/void.php", // Set the url for your upload script location
+            url: "uploadticketdocs.php?ticket_id="+ticketId, // Set the url for your upload script location
             paramName: "file", // The name that will be used to transfer the file
             maxFiles: 1,
             maxFilesize: 5, // MB
-            addRemoveLinks: true,
+            //addRemoveLinks: true,
             accept: function(file, done) {
-                if (file.name == "justinbieber.jpg") {
-                    done("Naha, you don't.");
+                if (file.name) {
+                	 done();
                 } else {
-                    done();
+                    done("Naha, you don't.");
                 }
+            },
+            success :function(file,data){
+            	var data = JSON.parse(data);
+            	if(data.success){
+            		$('#add_doc_modal').waitMe({effect : 'orbit',text : 'Please wait...' });
+            		$('.docModalClose').trigger('click');
+            		this.removeAllFiles(file);
+            		$.ajax({
+						url:'FetchData.php',
+						data: 'ticket_id='+ticketId+'&module=TicketDocuments',
+						error: function(errorThrown) {
+							console.log(errorThrown);
+						},
+						success: function(data) {
+    						$('.ticketDocList').replaceWith(data);
+						    $('#add_doc_modal').waitMe('hide');
+						}
+					});
+            	}
             }
         });
 

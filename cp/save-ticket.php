@@ -27,7 +27,7 @@ foreach ($_POST as $name => $value) {
     $ticketData[$name] = $value;
 }
 
-$ticketData['assigned_user_id'] = '19x1';
+$ticketData['assigned_user_id'] = '19x'.$_SESSION['ownerId'];
 $ticketData['parent_id'] = '4x'.$_SESSION['ID'];
 
 if($_POST['recordId']){
@@ -36,6 +36,4 @@ if($_POST['recordId']){
 }else{
     $response = createEntity($ws_url, $session_id, 'HelpDesk', $ticketData);
 }
-
-header("Location: tickets.php");
-exit;
+echo json_encode($response);
