@@ -24,6 +24,22 @@ class PortfolioInformation_Stratifi_Model extends Vtiger_Module{
         }
     }
 
+    static public function CreateAccountsInStratifiForRepCodes(array $rep_codes){
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+        $count = 1;
+        foreach($accounts AS $k => $v){
+            $stratid = PortfolioInformation_Module_Model::DoesAccountHaveStratifiID($v);
+            echo "{$count} -- StratID for {$v}: " . $stratid . '<br />';
+            if($stratid == 0){
+                $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);//We need the crmid to create an account
+                PortfolioInformation_Module_Model::CreateStratifiPortfolioAccount($crmid);
+                echo $count . ') ' . $v . '.  Stratifi ID: ' . $stratid . '<br />';
+                $count++;
+            }
+            $count++;
+        }
+    }
+
     static public function SendAllPositionsToStratifi(){
         $strat = new StratifiAPI();
         $account_numbers = $strat->GetAccountsThatHaveStratifiID();
@@ -140,6 +156,16 @@ class PortfolioInformation_Stratifi_Model extends Vtiger_Module{
         }
     }
 
+    static public function UpdateStratifiAccountLinkingForRepCode(array $control_numbers){
+        $strat = new StratifiAPI();
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($control_numbers);
+
+        foreach($account_numbers AS $k => $v){
+            $result = $strat->UpdateStratifiAccountLinking($v);
+            echo $result . '<br /><br />';
+        }
+    }
+
     static public function UpdateStratifiAccountLinkingForAllAccounts(){
         $strat = new StratifiAPI();
         $account_numbers = $strat->GetAccountsThatHaveStratifiID();
@@ -163,4 +189,43 @@ class PortfolioInformation_Stratifi_Model extends Vtiger_Module{
         $account_numbers = $strat->GetAccountsThatHaveStratifiID();
         return count($account_numbers);
     }
+
+    static public function GetStratifiUserList(){
+        $strat = new StratAdvisors();
+        $result = json_decode($strat->GetAdvisorsFromStratifi());
+        $advisors = $result;
+        for($x = 0; $x <= $result->total_pages; $x++){
+            $result = json_decode($strat->GetAdvisorsFromStratifi($result->next));
+            foreach($result->results AS $k => $v){
+                $advisors->results[] = $v;
+            }
+        }
+        return $advisors;
+    }
+
+    static public function GetAccountsList(){
+        $strat = new StratifiAPI();
+        $result = json_decode($strat->getAllAccounts());
+        $accounts = $result;
+        for($x = 0; $x <= $result->total_pages; $x++){
+            $result = json_decode($strat->getAllAccounts($result->next));
+            foreach($result->results AS $k => $v){
+                $accounts->results[] = $v;
+            }
+        }
+        return $accounts;
+    }
+
+    static public function UpdateOmniscientUserWithStratifiIDsUsingUserID($omni_user_id, $stratifi_user_id, $company_id){
+        global $adb;
+        $query = "UPDATE vtiger_users SET stratid = ?, stratcompanyid = ? WHERE id = ?";
+        $adb->pquery($query, array($stratifi_user_id, $company_id, $omni_user_id));
+    }
+
+    static public function UpdateOmniscientUserWithStratifiIDsUsingUserEmail($omni_user_email, $stratifi_user_id, $company_id){
+        global $adb;
+        $query = "UPDATE vtiger_users SET stratid = ?, stratcompanyid = ? WHERE email1 = ?";
+        $adb->pquery($query, array($stratifi_user_id, $company_id, $omni_user_email));
+    }
+
 }
