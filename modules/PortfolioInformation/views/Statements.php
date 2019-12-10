@@ -16,26 +16,26 @@ class PortfolioInformation_Statements_View extends Vtiger_Index_View {
     }
 
     public function process(Vtiger_Request $request) {
-#        $list = PortfolioInformation_Indexes_Model::GetIndexList();
-        $list = PortfolioInformation_Indexes_Model::GetIndexListFiltered("base_asset_class");
-        $capitalization = PortfolioInformation_Indexes_Model::GetCapitalizationList();
-        $style = PortfolioInformation_Indexes_Model::GetStyleList();
-        $international = PortfolioInformation_Indexes_Model::GetInternationalList();
-        $sector = PortfolioInformation_Indexes_Model::GetSectorList();
-        $aclass = PortfolioInformation_Indexes_Model::GetBaseAssetClassList();
-        $preferences = PortfolioInformation_Indexes_Model::GetIndexPreferences();
+        $user = Users_Record_Model::getCurrentUserModel();
+
+#        $groups = $user->getRelatedGroupsInformation();//Array consisting of Name, ID, Description.  IE: $groups[]=array("name" => "Ryan", "ID" => "2233", "Description" => "Hello")
+        $groups = $user->getAccessibleGroups();
+        $users = $user->getAccessibleUsers();//key value of id/name
+
+        $statement = new PortfolioInformation_Statements_Model();
+
+        $prepared_by = $statement->GetPreparedByData($user->get('id'));
+        $formatted_prepared = htmlspecialchars_decode($prepared_by);
 
         $viewer = $this->getViewer($request);
         $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
         $viewer->assign('STYLES', self::getHeaderCss($request));
-        $viewer->assign("LIST", $list);
-        $viewer->assign("CAPITALIZATION", json_encode($capitalization));
-        $viewer->assign("STYLE", json_encode($style));
-        $viewer->assign("INTERNATIONAL", json_encode($international));
-        $viewer->assign("SECTOR", json_encode($sector));
-        $viewer->assign("ACLASS", json_encode($aclass));
-        $viewer->assign("PREFERENCES", json_encode($preferences));
-//        $viewer->fetch('layouts/v7/modules/Users/views/Indexes.tpl', $request->getModule());
+        $viewer->assign('GROUPS', $groups);
+        $viewer->assign('USERS', $users);
+        $viewer->assign('USER', $user);
+        $viewer->assign("PREPARED_BY", $prepared_by);
+        $viewer->assign("FORMATTED_PREPARED_BY", $formatted_prepared);
+
         $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Statements.tpl', $request->getModule());
         echo $screen_content;
     }
@@ -47,10 +47,7 @@ class PortfolioInformation_Statements_View extends Vtiger_Index_View {
         unset($headerScriptInstances[$moduleDetailFile]);
 
         $jsFileNames = array(
-            '~libraries/jquery/Drop-Down-Combo-Tree/comboTreePlugin.js',
             '~layouts/v7/modules/PortfolioInformation/resources/Statements.js',
-//            '~layouts/v7/modules/PortfolioInformation/resources/icontains.js',
-            "~/libraries/jquery/DataTables/datatables.js",
         );
 
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

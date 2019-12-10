@@ -1,6 +1,7 @@
 <?php
 
-$control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1');//SD2 is patrick berry, no longer active
+$control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
+                         'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
 $strat_hh = new StratHouseholds();
 $strat_contact = new StratContacts();
 $sAdvisors = new StratAdvisors();

@@ -36,8 +36,11 @@ class StratAdvisors extends StratifiAPI {
         return $result;
     }
 
-    public function GetAdvisorsFromStratifi(){
-        $extension = "/api/v1/advisors";
+    public function GetAdvisorsFromStratifi($next = null){
+        if($next != null){
+            $next = substr($next, strpos($next, "/advisors") + 9);
+        }
+        $extension = "/api/v1/advisors{$next}";
         $url = $this->getURL() . $extension;
         $body = "";
         $result = self::execQuery($url, $this->header, $body, false);
