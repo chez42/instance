@@ -37,10 +37,10 @@ if(isset($_SESSION['ID'])){
 		        
 				$row_data = array(
 				    '<a href="ticket-detail.php?record='.$ticket['crmid'].'">
-                        '.$ticket['label'].'
+                        '.$ticket['title'].'
                     </a>',
 				    $ticket['ticket_no'],
-				    $ticket['ticketpriorities'],
+				    $ticket['priority'],
 				    $ticket['status'],
 				    
 				    //'<a href="edit-ticket.php?record='.$ticket['crmid'].'">
