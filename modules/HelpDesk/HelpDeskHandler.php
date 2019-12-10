@@ -306,7 +306,7 @@ function HelpDesk_notifyOwnerOnTicketChange($entityData) {
 
 function HelpDesk_notifyTicketComment( $entityData ){
     
-    global $adb,$HELPDESK_SUPPORT_NAME,$HELPDESK_SUPPORT_EMAIL_ID;
+    global $site_URL, $adb,$HELPDESK_SUPPORT_NAME,$HELPDESK_SUPPORT_EMAIL_ID;
 	
     $currentUserModel = Users_Record_Model::getCurrentUserModel();
     
@@ -386,7 +386,7 @@ function HelpDesk_notifyTicketComment( $entityData ){
             	 			    		<tr>
             	 			    			<td valign="top" style="padding:0 15px 0 15px;width:40px">
             	 			    				<img width="40" height="40" alt="" style="height:auto;line-height:100%;outline:none;text-decoration:none;border-radius:5px"
-            	 			    				src="https://ci6.googleusercontent.com/proxy/76MGqz890_BP7SWGccccvZ4ygkh6nYrRw70kTOMrTGLh0G_4hgZAEFuKRDug_eDuIRSiP-hYCqvA9yDwprmyD8ZHfQPqCjDfTzYtrYbHQdHn84HaSs45S1rzUy_ek3MncDjQCL3kww-3RlpmhedVdEqX3TXScBg4mOSeiVsAg3UcQJ1kOa_1wjf9qNkR9Eg4OVC3GedQ70t3Lvdgqzzyjj8J_Rx1ipsYXnxvaWwHeZ0EPYHc=s0-d-e1-ft#https://secure.gravatar.com/avatar/8c3a530dd6cdd22bb909af2c8874bcfc?size=40&amp;default=https%3A%2F%2Fassets.zendesk.com%2Fimages%2F2016%2Fdefault-avatar-80.png&amp;r=g" class="CToWUd">
+            	 			    				src="'.$site_URL.'/test/user.png" class="CToWUd">
  			    				            </td>
 		                                	<td width="100%" style="padding:0;margin:0" valign="top">
                             		            <p style="font-family:\'Lucida Grande\',\'Lucida Sans Unicode\',\'Lucida Sans\',Verdana,Tahoma,sans-serif;font-size:15px;line-height:18px;margin-bottom:0;margin-top:0;padding:0;color:#1b1d1e">
@@ -438,7 +438,7 @@ function HelpDesk_notifyTicketComment( $entityData ){
     
     $fromEmail = $HELPDESK_SUPPORT_EMAIL_ID; //getFromEmailAddress();
     
-	$replyTo = "ticket@omnisrv.com";
+	$replyTo = "tickets@omnisrv.com";
     
 	$userName = $currentUserModel->getName();
     
@@ -517,7 +517,7 @@ function HelpDesk_notifyTicketComment( $entityData ){
         //To convert image url to valid
         $mailer->Body = Emails_Mailer_Model::makeImageURLValid($mailer->Body);
         
-        $status = $mailer->Send(true);
+        $mailer->Send(true);
     
     }
     
