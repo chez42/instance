@@ -9,6 +9,14 @@
 {strip}
 	<div class="col-lg-6 col-sm-6 col-md-6 detailViewButtoncontainer pull-right" >
 		<div class="btn-group pull-right">
+			<button class="btn btn-default " id="detailViewPreviousRecordButton" {if empty($PREVIOUS_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$PREVIOUS_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if} >
+		    	<i class="fa fa-chevron-left"></i>
+		    </button>
+		    <button class="btn btn-default  " id="detailViewNextRecordButton"{if empty($NEXT_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$NEXT_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if}>
+		    	<i class="fa fa-chevron-right"></i>
+			</button>
+		</div>
+		<div class="btn-group pull-right">
 			{foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWBASIC']}
 				<button class="btn btn-default" id="{$MODULE_NAME}_detailView_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel())}"
 						{if $DETAIL_VIEW_BASIC_LINK->isPageLoadLink()}
@@ -39,5 +47,6 @@
 				</ul>
 			{/if}
 		</div>
+		
 	</div>
 {/strip}
