@@ -96,8 +96,10 @@ Vtiger.Class("RingCentral_Js",{
 		var thisInstance = this;
 		
 		var listInstance = window.app.controller();
-		
-		var listSelectParams = listInstance.getListSelectAllParams(false);
+		if(app.getViewName() == 'List')
+			var listSelectParams = listInstance.getListSelectAllParams(false);
+		else
+			var listSelectParams = {};
 		
 		if (listSelectParams || single == true) {
 			
@@ -128,10 +130,14 @@ Vtiger.Class("RingCentral_Js",{
 					
 					if(data.success){
 						app.helper.hideModal();
-						listInstance.loadListViewRecords().then(function (e) {
-							listInstance.clearList();
+						if(app.getViewName() == 'List'){
+							listInstance.loadListViewRecords().then(function (e) {
+								listInstance.clearList();
+								app.helper.showSuccessNotification({message: 'Message Sent Successfully'});
+							});
+						}else{
 							app.helper.showSuccessNotification({message: 'Message Sent Successfully'});
-						});
+						}
 					} else {
 						app.helper.showErrorNotification({message: app.vtranslate(data.message)})
 					}

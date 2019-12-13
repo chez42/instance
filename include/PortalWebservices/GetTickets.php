@@ -20,12 +20,26 @@ function vtws_get_tickets($element, $user){
     
     $startIndex = $element['startIndex'];
     
+    $title = $element['title'];
+    
+    $ticket_no = $element['ticket_no'];
+    
+    $priority = $element['priority'];
+    
+    $status = $element['status'];
+    
+    $open_days = $element['cf_3272'];
+    
+    $due_date = $element['cf_656'];
+    
+    $modifiedtime = $element['modifiedtime'];
+    
     if($startIndex == ''){
         $startIndex = 0;
     }
     
     $tickets = array();
-    
+    $params = array();
     $count = 0;
     
     $sql = "SELECT * FROM vtiger_troubletickets
@@ -35,14 +49,52 @@ function vtws_get_tickets($element, $user){
     left join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid
     left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid
     where vtiger_crmentity.deleted=0 and vtiger_contactdetails.contactid = ? ";
+    $params[] = $id;
     
-    $result = $adb->pquery($sql,array($id));
+    if($title){
+        $sql .= " AND vtiger_troubletickets.title LIKE ?";
+        $params[] = '%'.$title.'%';
+    }
+    if($ticket_no){
+        $sql .= " AND vtiger_troubletickets.ticket_no LIKE ?";
+        $params[] = '%'.$ticket_no.'%';
+    }
+    if($priority){
+        $sql .= " AND vtiger_troubletickets.priority = ?";
+        $params[] = $priority;
+    }
+    if($status){
+        $sql .= " AND vtiger_troubletickets.status = ?";
+        $params[] = $status;
+    }
+    if($open_days){
+        $sql .= " AND vtiger_ticketcf.cf_3272 = ?";
+        $params[] = $open_days;
+    }
+    if($due_date){
+        $sql .= " AND vtiger_ticketcf.cf_656 = ?";
+        $params[] = $due_date;
+    }
+    if($modifiedtime){
+        $sql .= " AND vtiger_crmentity.modifiedtime LIKE ?";
+        $params[] = '%'.$modifiedtime.'%';
+    }
+    $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC ";
     
+    $result = $adb->pquery($sql, $params);
+   
     $count = $adb->num_rows($result);
+    
+    $ticketIds = array();
     
     if($count){
         
-        $sql = "SELECT DISTINCT vtiger_troubletickets.*
+        for($ti=0;$ti<$adb->num_rows($result);$ti++){
+            $ticketIds[] = $adb->query_result($result, $ti, 'ticketid');
+        }
+        
+        $sql = "SELECT DISTINCT vtiger_troubletickets.*, vtiger_crmentity.*, vtiger_ticketcf.*, 
+        vtiger_troubletickets.status as ticket_status
         FROM vtiger_troubletickets
         inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_troubletickets.ticketid
         left join vtiger_contactdetails on vtiger_contactdetails.contactid=vtiger_troubletickets.parent_id
@@ -50,10 +102,42 @@ function vtws_get_tickets($element, $user){
         left join vtiger_users on vtiger_users.id=vtiger_crmentity.smownerid
         left join vtiger_groups on vtiger_groups.groupid=vtiger_crmentity.smownerid
         
-        where vtiger_crmentity.deleted=0 and vtiger_contactdetails.contactid=?
-        ORDER BY vtiger_crmentity.modifiedtime DESC LIMIT {$startIndex},{$pageLimit}";
+        where vtiger_crmentity.deleted=0 and vtiger_contactdetails.contactid=?";
+        $params = array();
+        $params[] = $id;
         
-        $result = $adb->pquery($sql, array($id));
+        if($title){
+            $sql .= " AND vtiger_troubletickets.title LIKE ?";
+            $params[] = '%'.$title.'%';
+        }
+        if($ticket_no){
+            $sql .= " AND vtiger_troubletickets.ticket_no LIKE ?";
+            $params[] = '%'.$ticket_no.'%';
+        }
+        if($priority){
+            $sql .= " AND vtiger_troubletickets.priority = ?";
+            $params[] = $priority;
+        }
+        if($status){
+            $sql .= " AND vtiger_troubletickets.status = ?";
+            $params[] = $status;
+        }
+        if($open_days){
+            $sql .= " AND vtiger_ticketcf.cf_3272 = ?";
+            $params[] = $open_days;
+        }
+        if($due_date){
+            $sql .= " AND vtiger_ticketcf.cf_656 = ?";
+            $params[] = $due_date;
+        }
+        if($modifiedtime){
+            $sql .= " AND vtiger_crmentity.modifiedtime LIKE ?";
+            $params[] = '%'.$modifiedtime.'%';
+        }
+        
+        $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC LIMIT {$startIndex},{$pageLimit}";
+        
+        $result = $adb->pquery($sql, $params);
         
         if($adb->num_rows($result)){
             
@@ -66,7 +150,7 @@ function vtws_get_tickets($element, $user){
         
     }
     
-    return array("data" => $tickets, "count" => $count);
+    return array("data" => $tickets, "count" => $count, 'ticket_ids'=>$ticketIds);
     
 }
 ?>
