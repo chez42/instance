@@ -40,17 +40,30 @@ include_once 'includes/top-header.php';
 				
 				<div class="kt-portlet kt-portlet--mobile">
 					<div class="kt-portlet__body">
-						<table class="table table-striped- table-bordered table-hover table-checkable" id="tickets_list">
-							<thead>
-								<tr>
-									<th>Title</th>
-									<th>Ticket Number</th>
-									<th>Priority</th>
-									<th>Status</th>
-									<!-- <th>Action</th> -->
-								</tr>
-							</thead>
-						</table>
+    					<div class="table-responsive">
+    						<table class="table table-striped- table-bordered table-hover table table-checkable" id="tickets_list">
+    							<thead>
+    								<tr>
+    									<th>Title</th>
+    									<th>Ticket Number</th>
+    									<th>Priority</th>
+    									<th>Status</th>
+    									<th>Open days</th>
+    									<th>Due Date</th>
+    									<th>Last Modified</th>
+    								</tr>
+    								<tr>
+    									<td>Title</td>
+    									<td>Ticket Number</td>
+    									<td>Priority</td>
+    									<td>Status</td>
+    									<td>Open days</td>
+    									<td>Due Date</td>
+    									<td>Last Modified</td>
+    								</tr>
+    							</thead>
+    						</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -129,9 +142,10 @@ include_once 'includes/top-header.php';
 	?>
 	</body>
 	<script type="text/javascript">
-    	var table = jQuery('#tickets_list');
-    	table.DataTable({
-    		responsive: true,
+	  var srchVal;
+      var table = jQuery('#tickets_list').DataTable({
+		 	bSort: false,
+    		responsive: false,
     		searchDelay: 500,
     		processing: true,
     		serverSide: true,
@@ -143,16 +157,61 @@ include_once 'includes/top-header.php';
     		ajax: {
     			url: 'FetchData.php',
     			data: function ( d ) {
-    				return $.extend( {}, d, {
-    					"module": 'Tickets',
-    				} );
-    			}
+        			console.log(srchVal)
+        			if(typeof srchVal == 'undefined'){
+        				return $.extend( {}, d, {
+        					"module" : 'Tickets',	
+        				} );
+        			}else
+    					return $.extend( {}, d, srchVal );
+    			}	
     		},
+    		
+//     		drawCallback: function (settings, json) {
+        		
+//     		},
+    		
     		dom: "<'row'<'col-sm-3'l><'col-sm-3'f><'col-sm-6'p>>" +
     			"<'row'<'col-sm-5'i><'col-sm-12'tr>>" +
     			"<'row'<'col-sm-5'i><'col-sm-7'p>>",
     	});
 
+		$('#tickets_list thead td').each( function (i) {
+	        var title = $(this).text();
+	        var name = title.toLowerCase().replace(/ /g, '_');
+	        if(title != 'Priority' && title != 'Status' && title != 'Due Date' && title != 'Last Modified')
+	        	$(this).html( '<input type="text" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
+	        else if(title == 'Priority'){
+				var html = '<select class="search_filter form-control" name="'+name+'"><option value="">Select Priority</option>';
+				html += '<option value="Low">Low</option><option value="Normal">Normal</option>'+
+					'<option value="High">High</option><option value="Urgent">Urgent</option>'+
+					'</select>';
+	        	$(this).html( html );
+	        }else if(title == 'Status'){
+				var html = '<select class="search_filter form-control" name="'+name+'"><option value="">Select Status</option>';
+				html += '<option value="----------">----------</option><option value="Acknw">Acknw</option>'+
+					'<option value="Open">Open</option><option value="In Progress">In Progress</option>'+
+					'<option value="Hold">Hold</option><option value="Wait For Response">Wait For Response</option>'+
+					'<option value="Closed">Closed</option><option value="NIGO">NIGO</option>'+
+					'</select>';
+	        	$(this).html( html );
+	        }else if (title == 'Due Date' || title == 'Last Modified'){
+	        	$(this).html( '<input type="date" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
+	        }
+		        
+ 	    });
+
+		$(document).on('change', '.search_filter', function(){
+		 	var length = $('.search_filter').length;
+		 	var colVal = {};
+		 	colVal["module"] = 'Tickets';
+			$('.search_filter').each(function(sind, sval){
+				 colVal[$(this).attr('name')] = $(this).val();
+			});
+			srchVal = colVal;
+			table.search(srchVal).draw();
+		});
+      	
     	jQuery(document).on('click','.createTicket',function(){
   			$('#createTicketModal').modal('show');
   		});

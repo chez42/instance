@@ -74,7 +74,35 @@ if(isset($_GET['record'])){
         'High',
         'Urgent',
     );
+    $prevRecordId = null;
+    $nextRecordId = null;
+    $found = false;
     
+    if ($_SESSION['ticket_detail_navigation']) {
+        foreach($_SESSION['ticket_detail_navigation'] as $page=>$pageInfo) {
+            foreach($pageInfo as $index=>$record) {
+                //If record found then next record in the interation
+                //will be next record
+                if($found) {
+                    $nextRecordId = $record;
+                    break;
+                }
+                if($record == $recordId) {
+                    $found = true;
+                }
+                //If record not found then we are assiging previousRecordId
+                //assuming next record will get matched
+                if(!$found) {
+                    $prevRecordId = $record;
+                }
+            }
+            //if record is found and next record is not calculated we need to perform iteration
+            if($found && !empty($nextRecordId)) {
+                break;
+            }
+        }
+    }
+
     if($ticket_detail){
         ?>
 					
@@ -98,6 +126,17 @@ if(isset($_GET['record'])){
 							<!-- <span class="kt-subheader__breadcrumbs-link kt-subheader__breadcrumbs-link--active">Active link</span> -->
 						</div>
 					</div>
+					<div class="kt-subheader__toolbar">
+            			<div class="kt-subheader__wrapper">
+            			
+            				<button class="btn btn-dark btn-icon" title="Previous Record" onclick="window.location.href='ticket-detail.php?record=<?php echo $prevRecordId;?>'" <?php if(!$prevRecordId) echo'disabled="disabled"';?>>  
+            					<i class="la la-angle-left"></i>
+        					</button>
+        					<button class="btn btn-dark btn-icon" title="Next Record" onclick="window.location.href='ticket-detail.php?record=<?php echo $nextRecordId;?>'" <?php if(!$nextRecordId) echo'disabled="disabled"';?>>  
+            					<i class="la la-angle-right"></i>
+        					</button>
+                        </div>
+                    </div>
 				</div>
 			</div>
 
@@ -175,8 +214,8 @@ if(isset($_GET['record'])){
                             			<h3 class="kt-portlet__head-title">
                             				Documents
                             			</h3>
-                            			<div style="margin-left: 75% !important;">
-                                			<button class="addDocs btn btn-brand" title="Add Documents">
+                            			<div style="margin-left: 90% !important;">
+                                			<button class="addDocs btn btn-brand btn-icon" title="Add Documents">
                                 				<i class="fa fa-plus"></i>
                                             </button>
                                         </div>

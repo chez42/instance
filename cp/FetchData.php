@@ -24,15 +24,40 @@ if(isset($_SESSION['ID'])){
 	$data = array();
     
 	$total_records = 0;
+	 
+	$ticketIds = array();
 	
 	if($_GET['module'] == 'Tickets'){
+	    $search = array();
+	    if(isset($_REQUEST['title']) && $_REQUEST['title'] != ''){
+	        $search['title'] = $_REQUEST['title'];
+	    }
+	    if(isset($_REQUEST['ticket_number']) && $_REQUEST['ticket_number'] != ''){
+	        $search['ticket_no'] = $_REQUEST['ticket_number'];
+	    }
+	    if(isset($_REQUEST['priority']) && $_REQUEST['priority'] != ''){
+	        $search['priority'] = $_REQUEST['priority'];
+	    }
+	    if(isset($_REQUEST['status']) && $_REQUEST['status'] != ''){
+	        $search['status'] = $_REQUEST['status'];
+	    }
+	    if(isset($_REQUEST['open_days']) && $_REQUEST['open_days'] != ''){
+	        $search['cf_3272'] = $_REQUEST['open_days'];
+	    }
+	    if(isset($_REQUEST['due_date']) && $_REQUEST['due_date'] != ''){
+	        $search['cf_656'] = $_REQUEST['due_date'];
+	    }
+	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
+	        $search['modifiedtime'] = $_REQUEST['last_modified'];
+	    }
+	    $ticket_list = fetchData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
 	    
-		$ticket_list = fetchData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex);
-		
 		if(!empty($ticket_list['result']['count'])){
 		    
 		    $total_records = $ticket_list['result']['count'];
 		    
+		    $ticketIds[] = $ticket_list['result']['ticket_ids'];
+		    //$data[] = array('Title','Ticket Number','Priority','Status');
 		    foreach ($ticket_list['result']['data'] as $index => $ticket){
 		        
 				$row_data = array(
@@ -41,7 +66,10 @@ if(isset($_SESSION['ID'])){
                     </a>',
 				    $ticket['ticket_no'],
 				    $ticket['priority'],
-				    $ticket['status'],
+				    $ticket['ticket_status'],
+				    $ticket['cf_3272'],
+				    $ticket['cf_656'],
+				    $ticket['modifiedtime']
 				    
 				    //'<a href="edit-ticket.php?record='.$ticket['ticketid'].'">
 						//Edit
@@ -79,11 +107,13 @@ if(isset($_SESSION['ID'])){
 		'data'=> $data
 	);
     
+    $_SESSION['ticket_detail_navigation'] = $ticketIds;
+    
     echo json_encode($result);
 
 }
 
-function fetchData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex){
+function fetchData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex, $seacrh){
     
     $element = array(		
         'id' => $id,
@@ -91,6 +121,7 @@ function fetchData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex)
         'pageLimit' => $pageLimit,
         'startIndex' => $startIndex
     );
+    $element = array_merge($element, $seacrh);
     
 	$postParams = array(
 		'operation'=>'get_related_tickets',
@@ -99,7 +130,7 @@ function fetchData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex)
 	);
 	
 	$response = postHttpRequest($ws_url, $postParams);
-
+	
 	$response = json_decode($response, true);
 	return $response;
 }
