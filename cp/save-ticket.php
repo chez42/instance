@@ -24,6 +24,8 @@ $session_id = $loginObj->sessionName;
 $ticketData = array();
 
 foreach ($_POST as $name => $value) {
+    if($name == 'cf_656')
+        $value = date('Y-m-d', strtotime($value));
     $ticketData[$name] = $value;
 }
 

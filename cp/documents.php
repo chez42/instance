@@ -51,7 +51,7 @@
                         
                         <div class="kt-subheader__breadcrumbs">
                        		<a href="#" class="folderBreadcrumb kt-subheader__breadcrumbs-home" data-folder-id = "">
-                        		<i class="la la-home"></i>
+                        		<b><i style= "font-size:1.5rem !important;" class="la la-home"></i></b>
                         	</a>
                     	</div>
                         

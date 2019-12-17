@@ -147,7 +147,15 @@ $customer_detail = $customer_detail['result'];
                             </div>
                             <label class="col-lg-2 col-form-label">Wedding Anniversary</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>">
+								<div class="input-group date">
+									<input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>" id="kt_datepicker_3">
+									<div class="input-group-append">
+										<span class="input-group-text">
+											<i class="la la-calendar"></i>
+										</span>
+									</div>
+								</div>
+								<!-- <input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>"> -->
                             </div>
 						</div>
 					</form>

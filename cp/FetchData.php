@@ -45,11 +45,12 @@ if(isset($_SESSION['ID'])){
 	        $search['cf_3272'] = $_REQUEST['open_days'];
 	    }
 	    if(isset($_REQUEST['due_date']) && $_REQUEST['due_date'] != ''){
-	        $search['cf_656'] = $_REQUEST['due_date'];
+	        $search['cf_656'] = date('Y-m-d', strtotime($_REQUEST['due_date']));
 	    }
 	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
-	        $search['modifiedtime'] = $_REQUEST['last_modified'];
+	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
 	    }
+	   
 	    $ticket_list = fetchData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
 	    
 		if(!empty($ticket_list['result']['count'])){
@@ -68,8 +69,8 @@ if(isset($_SESSION['ID'])){
 				    $ticket['priority'],
 				    $ticket['ticket_status'],
 				    $ticket['cf_3272'],
-				    $ticket['cf_656'],
-				    $ticket['modifiedtime']
+				    date('m-d-Y', strtotime($ticket['cf_656'])),
+				    date('m-d-Y', strtotime($ticket['modifiedtime']))
 				    
 				    //'<a href="edit-ticket.php?record='.$ticket['ticketid'].'">
 						//Edit
