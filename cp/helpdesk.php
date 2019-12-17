@@ -35,7 +35,11 @@ include_once 'includes/top-header.php';
             		</div>
        	 		</div>
     		</div>
-    		
+    		<style>
+                tbody>tr>td:not(:first-child){
+                    text-align: left;
+                }
+    		</style>
     		<div class="kt-container  kt-container--fluid  kt-grid__item kt-grid__item--fluid">
 				
 				<div class="kt-portlet kt-portlet--mobile">
@@ -118,7 +122,15 @@ include_once 'includes/top-header.php';
                 					<div class="col-md-8">
                 						<div class="form-group">
                 							<label class="control-label">Due date</label>
-                							<input class="form-control"  type="date" id="cf_656" name="cf_656">
+                							<div class="input-group date">
+                								<input type="text" class="form-control" name="cf_656"  id="kt_datepicker_3">
+            									<div class="input-group-append">
+            										<span class="input-group-text">
+            											<i class="la la-calendar"></i>
+            										</span>
+            									</div>
+            								</div>
+<!--                 							<input class="form-control"  type="text" id="kt_datepicker_3"  name="cf_656"> -->
                 							<div class="help-block with-errors"></div>
                 						</div>
                 					</div>
@@ -141,6 +153,9 @@ include_once 'includes/top-header.php';
 	   include_once "includes/footer.php";
 	?>
 	</body>
+	
+	<script src="assets/js/pages/crud/forms/widgets/bootstrap-datepicker.js" type="text/javascript"></script>
+	
 	<script type="text/javascript">
 	  var srchVal;
       var table = jQuery('#tickets_list').DataTable({
@@ -196,7 +211,16 @@ include_once 'includes/top-header.php';
 					'</select>';
 	        	$(this).html( html );
 	        }else if (title == 'Due Date' || title == 'Last Modified'){
-	        	$(this).html( '<input type="date" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
+		        var html = '<div class="input-group date">'+
+        				'<input type="text" class="search_filter form-control" name="'+name+'"  id="kt_datepicker_3" palceholder="mm/dd/yyyy">'+
+        				'<div class="input-group-append">'+
+        					'<span class="input-group-text">'+
+        						'<i class="la la-calendar"></i>'+
+        					'</span>'+
+        				'</div>'+
+        			'</div>';
+        			$(this).html( html );
+// 	        	$(this).html( '<input type="date" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
 	        }
 		        
  	    });

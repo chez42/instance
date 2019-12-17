@@ -19,6 +19,13 @@ $session_id = $loginObj->sessionName;
 
 $customerId = $_SESSION['ID'];
 
+if(isset($_POST['cf_667']) && $_POST['cf_667'] != ''){
+    $_POST['cf_667'] = date('Y-m-d',strtotime($_POST['cf_667']));
+}
+if(isset($_POST['birthday']) && $_POST['birthday'] != ''){
+    $_POST['birthday'] = date('Y-m-d',strtotime($_POST['birthday']));
+}
+
 if(isset($_POST['password'])){
     
     $new_pass = $_POST['password'];
