@@ -117,7 +117,55 @@ class Users_Save_Action extends Vtiger_Save_Action {
 		}else {
 			$loadUrl = $recordModel->getDetailViewUrl();
 		}
-
+		
+		global $adb;
+		
+		$params = array();
+        
+		if($request->get('user_principal_name')){
+		    
+		    $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
+		        array($request->get('record')));
+		    
+		    if($adb->num_rows($check)){
+    		  
+		        $query = "UPDATE vtiger_msexchange_sync_settings SET impersonation_identifier = ?";
+    		    $params[] = $request->get('user_principal_name');
+    		    
+    		    if($request->get('sync_direction')){
+    		        $query .= ', direction = ?';
+    		        $params[] = $request->get('sync_direction');
+    		    }
+    		    if($request->get('automatic_calendar_sync')){
+    		        $query .= ', enable_cron = ?';
+    		        $params[] = ($request->get('automatic_calendar_sync') == 'on') ? 1 : 0;
+    		    }
+    		    $query .= ', sync_start_from = ?';
+    		    $params[] = date('Y-m-d');
+    		    
+    		    $query .= ' WHERE user = ? ';
+    		    $params[] = $request->get('record');
+    		    
+		    }else{
+		        
+		        $query = "INSERT INTO vtiger_msexchange_sync_settings(id, user, module, direction, impersonation_identifier, sync_start_from, enable_cron) VALUES (?,?,?,?,?,?,?)";
+		        
+		        $syncId = $adb->getUniqueID("vtiger_msexchange_sync_settings");
+		        $enable = ($request->get('automatic_calendar_sync') == 'on') ? 1 : 0;
+		        $params = array($syncId, $request->get('record'), 'Calendar', $request->get('sync_direction'), $request->get('user_principal_name'), date('Y-m-d'),$enable);
+		        
+		    }
+		    
+            $adb->pquery($query,$params);
+		}
+		
+		if(!empty($request->get('time'))){
+            
+		    $adb->pquery("UPDATE vtiger_users SET business_hours = ? WHERE id = ?",
+		        array(json_encode($request->get('time')), $request->get('record')));
+		    
+		}
+		
 		header("Location: $loadUrl");
 	}
 }

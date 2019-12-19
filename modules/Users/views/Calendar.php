@@ -200,6 +200,28 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 	public function calendarSettingsEdit(Vtiger_Request $request){
 		$viewer = $this->getViewer($request);
 		$this->initializeView($viewer,$request);
+		$module = $request->getModule();
+		global $adb;
+		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
+		    array($request->get('record')));
+		$syncData = array();
+		if($adb->num_rows($check)){
+		    $syncData = $adb->query_result_rowdata($check);
+		}
+		$viewer->assign('SYNCDATA', $syncData);
+		
+		$u_module = Vtiger_Module_Model::getInstance($module);
+		$field = Vtiger_Field_Model::getInstance('start_hour', $u_module);
+		$PicklistValues = $field->getPicklistValues();
+		$viewer->assign('TIMEPICKLIST',$PicklistValues);
+		
+		$bussiness_hours = '';
+		$time_val = $adb->pquery("SELECT vtiger_users.business_hours FROM vtiger_users WHERE id = ?",
+		    array($request->get('record')));
+		if($adb->num_rows($time_val))
+		    $bussiness_hours = json_decode(html_entity_decode($adb->query_result($time_val, 0, 'business_hours')),true);
+		
+	    $viewer->assign('BUSINESSHOURS',$bussiness_hours);
 		$viewer->view('CalendarSettingsEditView.tpl', $request->getModule());
 	}
 	
@@ -208,6 +230,24 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 	public function calendarSettingsDetail(Vtiger_Request $request){
 		$viewer = $this->getViewer($request);
 		$this->initializeView($viewer,$request);
+		
+		global $adb;
+		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
+		    array($request->get('record')));
+		$syncData = array();
+		if($adb->num_rows($check)){
+		    $syncData = $adb->query_result_rowdata($check);
+		}
+		$viewer->assign('SYNCDATA', $syncData);
+		
+		$bussiness_hours = '';
+		$time_val = $adb->pquery("SELECT vtiger_users.business_hours FROM vtiger_users WHERE id = ?",
+		    array($request->get('record')));
+		if($adb->num_rows($time_val))
+		    $bussiness_hours = json_decode(html_entity_decode($adb->query_result($time_val, 0, 'business_hours')),true);
+		    
+	    $viewer->assign('BUSINESSHOURS',$bussiness_hours);
+		
 		$viewer->view('CalendarSettingsDetailView.tpl', $request->getModule());
 	}
 

@@ -10,128 +10,135 @@
                 
             $user_id = getUserId_Ol($element['user_id']);
             
-            $query = "SELECT time_zone FROM vtiger_users WHERE id = ?";
+            $query = "SELECT time_zone, business_hours FROM vtiger_users WHERE id = ?";
             $result = $adb->pquery($query, array($user_id));
             $time_zone = $adb->query_result($result, 0, "time_zone");
-            
+            $business_hours = json_decode(html_entity_decode($adb->query_result($result, 0, 'business_hours')), true);
+           
             $date = date('Y-m-d', strtotime($element['curdate']));
             
-            $adb->pquery("create temporary table `possible_slots` (
-            `slot` datetime NULL)");
+            $day = strtolower(date('l',strtotime($date)));
             
-            $StartTime = $date." 06:00";
-            
-            $EndTime = $date." 18:00";
-            
-            $slot = $element['slot_time'];
-            
-            $ReturnArray = array ();
-            
-            $StartTime    = strtotime ($StartTime);
-            $EndTime      = strtotime ($EndTime);
-            
-            $AddMins  = $slot * 60;
-            
-            while ($StartTime <= $EndTime){
-                
-                $adb->pquery("insert into `possible_slots` (`slot`) values('".date ("Y-m-d H:i:s", $StartTime)."')");
-                
-                $StartTime += $AddMins;
-                
-            }
-            
-            $not_available_slots = array();
-            
-            $now = new DateTime(null, new DateTimeZone($time_zone));
-            if($now->getOffset() < 0){
-                $offset = -$now->getOffset();
-                $format = '-' . gmdate('H:i', $offset);
-            } else {
-                $format = '+' . gmdate('H:i', $now->getOffset());
-            }
-            
-            $currentTime = $now->format('Y-m-d H:i:s');
-            
-            $slot_interval = ($slot * 60) - 1;
-            
-            $result = $adb->pquery("SELECT DISTINCT `slot` FROM possible_slots AS d
-        	INNER JOIN vtiger_activity ON
-        	(
-                    
-        		(
-        			d.`slot` BETWEEN
-                    
-                    
-        			DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
-                    
-                    
-                    
-        			and DATE_SUB(DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s'), INTERVAL 1 SECOND)
-        		) or
-        		(
-        			DATE_SUB(DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s') , INTERVAL 1 SECOND)
-                    
-        			BETWEEN d.`slot` and DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND)
-                    
-        		) or
-                    
-        		(
-        			DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
-        			BETWEEN
-        				d.`slot` and
-        				DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND)
-        		) or
-        		(
-        			DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND) BETWEEN
-                    
-        			DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
-                    
-        			and
-                    
-        			DATE_FORMAT(
-        			            CONVERT_TZ(
-        			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
-        			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
-        		)
-                    
-                    
-        	) INNER JOIN vtiger_crmentity on crmid = activityid where deleted = 0 and smownerid = ? ",array($user_id));
-                
-            
-            $not_available_slots = array();
-            
-            for($i = 0; $i < $adb->num_rows($result); $i++){
-                $not_available_slots[] = $adb->query_result($result, $i, "slot");
-            }
-            
-            
-            $result = $adb->pquery("SELECT DISTINCT `slot` FROM possible_slots
-    	       where `slot` not in('". implode("','", $not_available_slots) . "')");
-            
+            $time_start = $business_hours[$day.'_start'];
+            $time_end = $business_hours[$day.'_end'];
+           
             $available_slots = array();
             
-            for($i = 0; $i < $adb->num_rows($result); $i++){
-                $availSlot = $adb->query_result($result, $i, "slot");
-                if(strtotime($availSlot) > strtotime($currentTime))
-                    $available_slots[] = array(date('H:i', strtotime($availSlot))); 
+            if($time_start) {
+                
+                $adb->pquery("create temporary table `possible_slots` (
+                `slot` datetime NULL)");
+                
+                $StartTime = $date." ".$time_start;
+                
+                $EndTime = $date." ".$time_end;
+                
+                $slot = $element['slot_time'];
+                
+                $ReturnArray = array ();
+                
+                $StartTime    = strtotime ($StartTime);
+                $EndTime      = strtotime ($EndTime);
+                
+                $AddMins  = $slot * 60;
+                
+                while ($StartTime <= $EndTime){
+                    
+                    $adb->pquery("insert into `possible_slots` (`slot`) values('".date ("Y-m-d H:i:s", $StartTime)."')");
+                    
+                    $StartTime += $AddMins;
+                    
+                }
+                
+                $now = new DateTime(null, new DateTimeZone($time_zone));
+                if($now->getOffset() < 0){
+                    $offset = -$now->getOffset();
+                    $format = '-' . gmdate('H:i', $offset);
+                } else {
+                    $format = '+' . gmdate('H:i', $now->getOffset());
+                }
+                
+                $currentTime = $now->format('Y-m-d H:i:s');
+                
+                $slot_interval = ($slot * 60) - 1;
+                
+                $result = $adb->pquery("SELECT DISTINCT `slot` FROM possible_slots AS d
+            	INNER JOIN vtiger_activity ON
+            	(
+                        
+            		(
+            			d.`slot` BETWEEN
+                        
+                        
+            			DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
+                        
+                        
+                        
+            			and DATE_SUB(DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s'), INTERVAL 1 SECOND)
+            		) or
+            		(
+            			DATE_SUB(DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s') , INTERVAL 1 SECOND)
+                        
+            			BETWEEN d.`slot` and DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND)
+                        
+            		) or
+                        
+            		(
+            			DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
+            			BETWEEN
+            				d.`slot` and
+            				DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND)
+            		) or
+            		(
+            			DATE_ADD(d.`slot`, INTERVAL $slot_interval SECOND) BETWEEN
+                        
+            			DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.date_start, ' ', vtiger_activity.time_start)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
+                        
+            			and
+                        
+            			DATE_FORMAT(
+            			            CONVERT_TZ(
+            			                CONCAT(vtiger_activity.due_date, ' ', vtiger_activity.time_end)
+            			                , '+0:00', '$format') ,'%Y-%m-%d %H:%i:%s')
+            		)
+                        
+                        
+            	) INNER JOIN vtiger_crmentity on crmid = activityid where deleted = 0 and smownerid = ? ",array($user_id));
+                    
+                
+                $not_available_slots = array();
+                
+                for($i = 0; $i < $adb->num_rows($result); $i++){
+                    $not_available_slots[] = $adb->query_result($result, $i, "slot");
+                }
+                
+                
+                $result = $adb->pquery("SELECT DISTINCT `slot` FROM possible_slots
+        	       where `slot` not in('". implode("','", $not_available_slots) . "')");
+                
+                for($i = 0; $i < $adb->num_rows($result); $i++){
+                    $availSlot = $adb->query_result($result, $i, "slot");
+                    if(strtotime($availSlot) > strtotime($currentTime))
+                        $available_slots[] = array(date('H:i', strtotime($availSlot))); 
+                }
+                
+                sort($available_slots);
             }
-            
-            sort($available_slots);
             
             $result = array('slots'=> $available_slots,'timezone'=>$time_zone);
         
