@@ -578,7 +578,7 @@
                     commentJSON.id += '-' + index;
                     commentJSON.content = '';
                     commentJSON.file = file;
-                    commentJSON.fileURL = 'cache/' + file.name;
+                    commentJSON.fileURL = 'files/' + file.name;
                     commentJSON.fileMimeType = file.type;
 
                     // Reverse mapping

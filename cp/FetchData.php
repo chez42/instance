@@ -81,6 +81,18 @@ if(isset($_SESSION['ID'])){
 				array_push($data, $row_data);
 			}
 		}
+		
+		$result = array(
+		    'draw' => $draw,
+		    'recordsTotal' => $total_records,
+		    'recordsFiltered' => $total_records,
+		    'data'=> $data
+		);
+		
+		$_SESSION['ticket_detail_navigation'] = $ticketIds;
+		
+		echo json_encode($result);
+		
 	}else if($_GET['module'] == 'TicketDocuments'){
 	    
 	    $element = array('ID' => $customer_id, 'ticket_id' => $_GET['ticket_id']);
@@ -101,16 +113,7 @@ if(isset($_SESSION['ID'])){
 	    
 	}
 	
-    $result = array(
-		'draw' => $draw,
-		'recordsTotal' => $total_records,
-		'recordsFiltered' => $total_records,
-		'data'=> $data
-	);
     
-    $_SESSION['ticket_detail_navigation'] = $ticketIds;
-    
-    echo json_encode($result);
 
 }
 

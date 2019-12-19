@@ -24,7 +24,7 @@ if(isset($_FILES['filename']) && !empty($_FILES['filename'])){
     $filetype = $_FILES['filename']['type'];
     $filesize = $_FILES['filename']['size'];
     
-    $upload_dir = 'cache';
+    $upload_dir = 'files';
     
     if($filesize > 0){
         
