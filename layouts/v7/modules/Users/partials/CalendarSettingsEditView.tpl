@@ -76,4 +76,204 @@
                 <br>
             {/if}
         {/foreach}
+        
+         <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >MS Exchange</h4>
+            <hr>
+            <table class="table table-borderless">
+                <tr>
+                	<td class="fieldLabel alignMiddle">
+                		User Principle Name 
+                	</td>
+                	<td class="fieldValue">
+                		<input type="text" name="user_principal_name" class="form-control" value="{if !empty($SYNCDATA)}{$SYNCDATA['impersonation_identifier']}{/if}">
+                	</td>
+                </tr>
+                <tr>
+                	<td class="fieldLabel alignMiddle">
+                		Sync Direction 
+                	</td>
+                	<td class="fieldValue">
+                		<select name="sync_direction" class="form-control select2">
+                			<option value="" >Select an option</option>
+                			<option value="11" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "11"}selected{/if}> Sync Both Ways </option>
+                			<option value="10" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "10"}selected{/if}> Sync from MS Exchange to CRM </option>
+                			<option value="01" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "01"}selected{/if}> Sync from CRM to MS Exchange </option>
+                		</select>
+                	</td>
+                </tr>
+                <tr>
+                	<td class="fieldLabel alignMiddle">
+                		Automatic Calendar Sync 
+                	</td>
+                	<td class="fieldValue">
+                		<input name="automatic_calendar_sync" {if !empty($SYNCDATA) && $SYNCDATA['enable_cron']}checked{/if} type="checkbox" />
+                	</td>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Business Hours</h4>
+            <hr>
+            <table class="table table-borderless">
+                <tr>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="monday" class="btn {if $BUSINESSHOURS['monday_start']}btn-success{else}btn-danger{/if} bus_hours">Mon</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="tuesday" class="btn {if $BUSINESSHOURS['tuesday_start']}btn-success{else}btn-danger{/if} bus_hours">Tue</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="wednesday" class="btn {if $BUSINESSHOURS['wednesday_start']}btn-success{else}btn-danger{/if} bus_hours">Wed</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="thursday" class="btn {if $BUSINESSHOURS['thursday_start']}btn-success{else}btn-danger{/if} bus_hours">Thu</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="friday" class="btn {if $BUSINESSHOURS['friday_start']}btn-success{else}btn-danger{/if} bus_hours">Fri</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="saturday" class="btn {if $BUSINESSHOURS['saturday_start']}btn-success{else}btn-danger{/if} bus_hours">Sat</button>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<button type="button" style="border-radius:5px !important;" data-day="sunday" class="btn {if $BUSINESSHOURS['sunday_start']}btn-success{else}btn-danger{/if} bus_hours">Sun</button>
+                	</td>
+                </tr>
+                <tr>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div>
+                			<span class="fieldLabel">Start Time</span>
+                			<br><br><br>
+                			<span class="fieldLabel">End Time</span>
+                		</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="monday_pick"  {if !$BUSINESSHOURS['monday_start']} style="display:none;" {/if} >
+		                	<select id="monday_start" class="inputElement select2"  name="time[monday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['monday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="monday_end" class="inputElement select2"  name="time[monday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['monday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="tuesday_pick" {if !$BUSINESSHOURS['tuesday_start']} style="display:none;" {/if}>
+		                	<select id="tuesday_start" class="inputElement select2"  name="time[tuesday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['tuesday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="tuesday_end" class="inputElement select2"  name="time[tuesday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['tuesday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="wednesday_pick" {if !$BUSINESSHOURS['wednesday_start']} style="display:none;" {/if}>
+		                	<select id="wednesday_start" class="inputElement select2"  name="time[wednesday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['wednesday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="wednesday_end" class="inputElement select2"  name="time[wednesday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['wednesday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="thursday_pick" {if !$BUSINESSHOURS['thursday_start']} style="display:none;" {/if}>
+		                	<select id="thursday_start" class="inputElement select2"  name="time[thursday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['thursday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="thursday_end" class="inputElement select2"  name="time[thursday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['thursday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="friday_pick" {if !$BUSINESSHOURS['friday_start']} style="display:none;" {/if}>
+		                	<select id="friday_start" class="inputElement select2"  name="time[friday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['friday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="friday_end" class="inputElement select2"  name="time[friday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['friday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="saturday_pick" {if !$BUSINESSHOURS['saturday_start']} style="display:none;" {/if}>
+		                	<select id="saturday_start" class="inputElement select2"  name="time[saturday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['saturday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="saturday_end" class="inputElement select2"  name="time[saturday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['saturday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                	<td class="fieldLabel" style="width:0px !important;text-align:center !important;">
+                		<div class="sunday_pick" {if !$BUSINESSHOURS['sunday_start']} style="display:none;" {/if}>
+		                	<select id="sunday_start" class="inputElement select2"  name="time[sunday_start]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('Start time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['sunday_start']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+							<br><br>
+							<select id="sunday_end" class="inputElement select2"  name="time[sunday_end]" style="width: 100px!imporant;">
+								<option value="">{vtranslate('End time','Vtiger')}</option>
+								{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$TIMEPICKLIST}
+									<option value="{Vtiger_Util_Helper::toSafeHTML($PICKLIST_NAME)}" {if $PICKLIST_VALUE eq $BUSINESSHOURS['sunday_end']} selected {/if}>{$PICKLIST_VALUE}</option>
+								{/foreach}
+							</select>
+						</div>
+                	</td>
+                </tr>
+                <tr>
+                	
+                </tr>
+            </table>
+        </div>
+        <br>
     </div> 

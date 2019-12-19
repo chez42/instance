@@ -144,4 +144,156 @@
             </div>
             <br>
         {/foreach}
+          <div class="block block_MS_Exchange" data-block="MS Exchange">
+
+                <div class="row">
+                    <h4 class="col-xs-8">MS Exchange</h4>
+                    {if !empty($SYNCDATA)}
+	                    <div class="col-xs-4 marginTop5px">
+	                        <div class=" pull-right detailViewButtoncontainer">
+	                            <div class="btn-group  pull-right">
+	                                <button class="btn btn-default revokeMSAccount" >Revoke Access</button>
+	                            </div>  
+	                        </div>
+	                    </div>
+                    {/if}
+                </div>
+                <hr>
+                <div class="blockData row">
+                    <table class="table detailview-table no-border">
+                        <tbody>
+                            <tr>
+			                	<td class="fieldLabel alignMiddle">
+			                		User Principle Name 
+			                	</td>
+			                	<td class="fieldValue">
+			                		{if !empty($SYNCDATA)}{$SYNCDATA['impersonation_identifier']}{/if}
+			                	</td>
+			                </tr>
+			                <tr>
+			                	<td class="fieldLabel alignMiddle">
+			                		Sync Direction 
+			                	</td>
+			                	<td class="fieldValue">
+		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "11"}Sync Both Ways{/if}
+		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "10"}Sync from MS Exchange to CRM{/if}
+		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "01"}Sync from CRM to MS Exchange{/if}
+			                	</td>
+			                </tr>
+			                <tr>
+			                	<td class="fieldLabel alignMiddle">
+			                		Automatic Calendar Sync 
+			                	</td>
+			                	<td class="fieldValue">
+			                		<input name="automatic_calendar_sync" disabled {if !empty($SYNCDATA) && $SYNCDATA['enable_cron']}checked{/if} type="checkbox" />
+			                	</td>
+			                </tr>
+			                {if !empty($SYNCDATA)}
+			                	<tr>
+			                		<td colspan="2" class="text-center">
+			                			 <button type="button"  class="btn btn-success syncNow">
+			                			 	<i class="fa fa-refresh"></i> <span>Sync Now</span>
+		                			 	</button>
+			                		</tr>
+			                	</tr>
+			                {/if}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
+            
+            <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Business Hours</h4>
+            <hr>
+            <table class="table table-borderless">
+                <tr>
+                	<td class="fieldLabel text-center">
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['monday_start']}btn-success{else}btn-danger{/if}">Mon</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['tuesday_start']}btn-success{else}btn-danger{/if}">Tue</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['wednesday_start']}btn-success{else}btn-danger{/if}">Wed</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['thursday_start']}btn-success{else}btn-danger{/if}">Thu</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['friday_start']}btn-success{else}btn-danger{/if}">Fri</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['saturday_start']}btn-success{else}btn-danger{/if}">Sat</button>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['sunday_start']}btn-success{else}btn-danger{/if}">Sun</button>
+                	</td>
+                </tr>
+                <tr>
+                	<td class="fieldLabel text-center">
+                		<div>
+                			<span>Start Time : </span>
+                			<br><br>
+                			<span>End Time : </span>
+                		</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="monday_pick">
+		                	{$BUSINESSHOURS['monday_start']}
+							<br><br>
+							{$BUSINESSHOURS['monday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="tuesday_pick">
+		                	{$BUSINESSHOURS['tuesday_start']}
+							<br><br>
+							{$BUSINESSHOURS['tuesday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="wednesday_pick">
+		                	{$BUSINESSHOURS['wednesday_start']}
+							<br><br>
+							{$BUSINESSHOURS['wednesday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="thursday_pick">
+		                	{$BUSINESSHOURS['thursday_start']}
+							<br><br>
+							{$BUSINESSHOURS['thursday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="friday_pick">
+		                	{$BUSINESSHOURS['friday_start']}
+							<br><br>
+							{$BUSINESSHOURS['friday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="saturday_pick">
+		                	{$BUSINESSHOURS['saturday_start']}
+							<br><br>
+							{$BUSINESSHOURS['saturday_end']}
+						</div>
+                	</td>
+                	<td class="fieldLabel text-center">
+                		<div class="sunday_pick">
+		                	{$BUSINESSHOURS['sunday_start']}
+							<br><br>
+							{$BUSINESSHOURS['sunday_end']}
+						</div>
+                	</td>
+                </tr>
+                <tr>
+                	
+                </tr>
+            </table>
+        </div>
+        <br>
     {/strip}
