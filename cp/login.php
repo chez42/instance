@@ -16,9 +16,9 @@
 							<a class="kt-login__logo" href="#">
 								<img src="<?php echo $portal_logo;?>">
 							</a>
-							<h3 class="kt-login__title"><?php echo $portal_title;?></h3>
+							<h3 class="kt-login__title"><?php echo 'OMNI Client Information Center';?></h3>
 							<span class="kt-login__desc" >
-								The ultimate Bootstrap & Angular 6 admin theme framework for next generation web apps.
+								"Empowering our clients to focus on their clients."
 							</span>
 							<div class="kt-login__actions" style = "display:none;">
 								<button type="button" id="kt_login_signup" class="btn btn-outline-brand btn-pill">Get An Account</button>
