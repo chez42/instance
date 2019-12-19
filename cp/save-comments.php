@@ -24,7 +24,7 @@ if($_REQUEST['content'] || !empty($_FILES['file'])){
         $filename = $_FILES['file']['name'];
         $filetype = $_FILES['file']['type'];
         $filesize = $_FILES['file']['size'];
-        $upload_dir = 'cache';
+        $upload_dir = 'files';
         if($filesize > 0){
             if(move_uploaded_file($_FILES["file"]["tmp_name"],$upload_dir.'/'.$filename)){
                 $filecontents = base64_encode(fread(fopen($upload_dir.'/'.$filename, "r"), $filesize));

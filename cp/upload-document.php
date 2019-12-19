@@ -53,7 +53,7 @@
 				$upload_error = 'LBL_PROBLEM_UPLOAD';
 			}
 			
-			$upload_dir = 'cache';
+			$upload_dir = 'files';
 		
 			if($filesize > 0){
 			

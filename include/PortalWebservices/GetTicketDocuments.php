@@ -4,10 +4,8 @@ function vtws_get_ticket_documents($element,$user){
     
     global $adb,$site_URL;
     
-    $element = json_decode($element,true);
-    
     $doc_data = array();
-   
+    
     $docs = $adb->pquery("SELECT vtiger_notes.*, vtiger_crmentity.createdtime FROM vtiger_notes
     INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notes.notesid
     INNER JOIN vtiger_senotesrel ON vtiger_senotesrel.notesid = vtiger_notes.notesid
