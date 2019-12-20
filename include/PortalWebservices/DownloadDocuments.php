@@ -3,8 +3,6 @@ function vtws_downloaddocuments($element,$user){
     
     global $adb,$site_URL;
     
-    $element = json_decode($element,true);
-   
     $moduleName = 'Documents';
     
     $recordId = $element['file_id'];

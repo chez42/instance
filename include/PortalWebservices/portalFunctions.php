@@ -4,8 +4,7 @@ require_once('vtlib/Vtiger/Module.php');
 
 function vtws_portalfunctions($element,$user){
     global $adb;
-    $element = json_decode($element,true);
-    
+ 
     $value = $element['function_name']($element['input_array']);
     
     return $value;

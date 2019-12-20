@@ -4,7 +4,6 @@
         
         global $adb,$site_URL;
         
-        $element = json_decode($element,true);
         $result = array();
         $save_doc = false;
         
