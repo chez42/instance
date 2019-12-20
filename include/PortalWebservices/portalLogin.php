@@ -11,8 +11,6 @@
 function vtws_portallogin($element,$user){
     
     global $adb,$site_URL;
-	
-    $element =  json_decode($element, true);
     
     $resultData = array();
     
@@ -136,8 +134,8 @@ function vtws_portallogin($element,$user){
                         
 						$logo = ($portalLogo);
 						
-						if(!file_exists($logo))
-							$logo = "images/logo1.png";
+// 						if(!file_exists($logo))
+// 							$logo = "images/logo1.png";
                     
 					} else {
                         $logo = "images/logo1.png";
