@@ -7,8 +7,6 @@ function vtws_widgetData($element,$user){
     
     global $adb,$site_URL;
     
-    $element = json_decode($element,true);
-    
     $widgetsPosition = array();
     
     $posSizeQuery = $adb->pquery("SELECT portal_widget_position FROM vtiger_contactdetails 
@@ -21,6 +19,9 @@ function vtws_widgetData($element,$user){
         $data['widgetsPosition'] = $widgetsPosition;
     }
 	
+    $ticketData = getTicketData($element['ID']);
+    $data['ticketWidget'] = $ticketData;
+    
 	$account_numbers = GetAccountNumbersFromRecord($element['ID']);
     
     $balances = PortfolioInformation_HistoricalInformation_Model::GetConsolidatedBalances($account_numbers, '1900-01-01', date("Y-m-d"));
@@ -97,3 +98,100 @@ function GetAccountNumbersFromRecord($crmid){
 
     return $accounts;
 }
+
+function getTicketData($contactId){
+    global $adb;
+    
+    $moduleModel = Vtiger_Module_Model::getInstance('HelpDesk');
+    
+    $statusQuery = $adb->pquery("SELECT vtiger_troubletickets.status, count(*) as statuscount FROM vtiger_troubletickets 
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
+    WHERE vtiger_crmentity.deleted =0 AND vtiger_troubletickets.parent_id = ? 
+    GROUP BY vtiger_troubletickets.status",array($contactId));
+    $statusData = array();
+    if($adb->num_rows($statusQuery)){
+        $statusResult = array();
+        for($s=0;$s<$adb->num_rows($statusQuery);$s++){
+            $statusResult[$adb->query_result($statusQuery, $s, 'status')] = $adb->query_result($statusQuery, $s, 'statuscount');
+//             if(!$adb->query_result($statusQuery, $s, 'status')){
+//                 $tmp['title'] = '';
+//                 $tmp['value'] = $adb->query_result($statusQuery, $s, 'statuscount');
+//                 $statusData[] = $tmp;
+//             }
+        }
+        $statusField = Vtiger_Field_Model::getInstance('ticketstatus',$moduleModel);
+        $statusPickList = $statusField->getPicklistValues();
+        
+        foreach($statusPickList as $statusValue){
+            //$statusData[$statusValue] = $statusResult[$statusValue] ? $statusResult[$statusValue]:0;
+            if( $statusValue != '----------'){
+                $tmp['title'] = $statusValue;
+                $tmp['value'] = $statusResult[$statusValue] ? $statusResult[$statusValue]:0;
+                $statusData[] = $tmp;
+            }
+        }
+        
+    }
+   
+    $timeQuery = $adb->pquery("SELECT vtiger_troubletickets.total_time_spent, count(*) as ticketcount FROM vtiger_troubletickets 
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
+    WHERE vtiger_crmentity.deleted =0 AND vtiger_troubletickets.parent_id = ?
+    GROUP BY vtiger_troubletickets.total_time_spent",array($contactId));
+    $timeData = array();
+    if($adb->num_rows($timeQuery)){
+        $timeResult = array();
+        for($s=0;$s<$adb->num_rows($timeQuery);$s++){
+            $timeResult[$adb->query_result($timeQuery, $s, 'total_time_spent')] = $adb->query_result($timeQuery, $s, 'ticketcount');
+            
+        }
+        foreach($timeResult as $time=>$count){
+           $hour = date('H:i',strtotime($time));
+           if($hour < '01:00' && $hour >= '00:00'){
+               $timeData['<1hrs'] += $count;
+           }elseif($hour < '02:00' && $hour >= '01:00'){
+               $timeData['<2hrs'] += $count;
+           }elseif($hour < '03:00' && $hour >= '02:00'){
+               $timeData['<3hrs'] += $count;
+           }elseif($hour < '04:00' && $hour >= '03:00'){
+               $timeData['<4hrs'] += $count;
+           }elseif($hour < '05:00' && $hour >= '04:00'){
+               $timeData['<5hrs'] += $count;
+           }elseif($hour >= '05:00'){
+               $timeData['>5hrs'] += $count;
+               
+           }
+        }
+        $finalData = array();
+        foreach($timeData as $timeKey => $timeVal){
+            $tmp['title'] = $timeKey;
+            $tmp['value'] = $timeVal;
+            $finalData[] = $tmp;
+        }
+        
+    }
+    
+    $catQuery = $adb->pquery("SELECT vtiger_troubletickets.category, count(*) as ticketcount FROM vtiger_troubletickets 
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
+    WHERE vtiger_crmentity.deleted =0 AND vtiger_troubletickets.parent_id = ?
+    GROUP BY vtiger_troubletickets.category",array($contactId));
+    $catData = array();
+    if($adb->num_rows($catQuery)){
+        $catResult = array();
+        for($s=0;$s<$adb->num_rows($catQuery);$s++){
+            $catResult[$adb->query_result($catQuery, $s, 'category')] = $adb->query_result($catQuery, $s, 'ticketcount');
+        }
+        $catField = Vtiger_Field_Model::getInstance('ticketcategories',$moduleModel);
+        $catPickList = $catField->getPicklistValues();
+        
+        foreach($catPickList as $catValue){
+            $tmp['title'] = $catValue;
+            $tmp['value'] = $catResult[$catValue] ? $catResult[$catValue]:0;
+            $catData[] = $tmp;
+        }
+        
+    }
+    
+    
+    return array('ticketStatus'=>$statusData, 'timeResult'=>$finalData, 'catData'=>$catData);
+}
+

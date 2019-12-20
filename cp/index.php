@@ -52,6 +52,13 @@
 	 
 	$pie = $response['result']['pie'];
 	
+	$ticketStatus = $response['result']['ticketWidget']['ticketStatus'];
+	
+	$ticketTime = $response['result']['ticketWidget']['timeResult'];
+	
+	$ticketType = $response['result']['ticketWidget']['catData'];
+	
+	$ticketProgress = array();
 ?>
 
         	<style>
@@ -271,8 +278,134 @@
                     			</div>
                     		</div>
                 		<?php }?>
-                	</div>
-                </div>          
+                		<?php if(!empty($ticketStatus)){?>
+                			<div data-gs-id="ticketbystatus" id="ticketbystatus" 
+                    			data-gs-x=<?php echo $widgetsPosition['ticketbystatus']['row'] ? $widgetsPosition['ticketbystatus']['row'] : 0;?> 
+                    			data-gs-y=<?php echo $widgetsPosition['ticketbystatus']['col'] ? $widgetsPosition['ticketbystatus']['col'] : 0;?> 
+                    			data-gs-width=<?php if($widgetsPosition['ticketbystatus']['width'])echo $widgetsPosition['ticketbystatus']['width'];else echo'4';?>
+                    			data-gs-height=<?php if($widgetsPosition['ticketbystatus']['height'])echo $widgetsPosition['ticketbystatus']['height'];else echo'5';?>
+                    			class="dashboardWidget grid-stack-item">
+                        		
+                                <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                                	
+                                	<div class="kt-portlet__head">
+                        				<div class = "kt-portlet__head-label">
+                        					<h3 class="kt-portlet__head-title">Ticket By Status</h3>
+                        				</div>
+                    				</div>
+                        			
+                        			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
+                            			<input type="hidden" id="ticket_status" value='<?php echo json_encode($ticketStatus);?>' />
+                            			<?php if(!empty($ticketStatus)){?>
+                                			<div id="ticketStatusWidget">
+        										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
+                                                    <div id="ticket_status_filtered_pie" style="height:175px; width:300px;"></div>
+                                                    <div style="clear:both;"></div>
+                                                    <div id="ticketstatuslegenddiv"></div>
+                                                </div>
+                    						</div>
+                        				<?php }else{?>
+                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        				<?php }?>
+                        			</div>
+                        		
+                        		</div>
+                        	</div>    
+                    	<?php }?>  
+                    	<?php if(!empty($ticketTime)){?>
+                        	<div data-gs-id="ticketbytimespent" id="ticketbytimespent" 
+                    			data-gs-x=<?php echo $widgetsPosition['ticketbytimespent']['row'] ? $widgetsPosition['ticketbytimespent']['row'] : 0;?> 
+                    			data-gs-y=<?php echo $widgetsPosition['ticketbytimespent']['col'] ? $widgetsPosition['ticketbytimespent']['col'] : 0;?> 
+                    			data-gs-width=<?php if($widgetsPosition['ticketbytimespent']['width'])echo $widgetsPosition['ticketbytimespent']['width'];else echo'4';?>
+                    			data-gs-height=<?php if($widgetsPosition['ticketbytimespent']['height'])echo $widgetsPosition['ticketbytimespent']['height'];else echo'5';?>
+                    			class="dashboardWidget grid-stack-item">
+                        		
+                                <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                                	
+                                	<div class="kt-portlet__head">
+                        				<div class = "kt-portlet__head-label">
+                        					<h3 class="kt-portlet__head-title">Ticket By Time Spent</h3>
+                        				</div>
+                    				</div>
+                        			
+                        			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
+                        				<input type="hidden" id="ticket_time" value='<?php echo json_encode($ticketTime);?>' />
+                            			<?php if(!empty($ticketTime)){?>
+                                			<div id="ticketTimeWidget">
+        										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
+                                                    <div id="ticket_time_filtered_pie" style="height:175px; width:300px;"></div>
+                                                    <div style="clear:both;"></div>
+                                                    <div id="tickettimelegenddiv"></div>
+                                                </div>
+                    						</div>
+                        				<?php }else{?>
+                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        				<?php }?>
+                        			</div>
+                        		</div>
+                        	</div> 
+                    	<?php }?>
+                    	<?php if(!empty($ticketProgress)){?>
+                        	<div data-gs-id="ticketbyprogress" id="ticketbyprogress" 
+                    			data-gs-x=<?php echo $widgetsPosition['ticketbyprogress']['row'] ? $widgetsPosition['ticketbyprogress']['row'] : 0;?> 
+                    			data-gs-y=<?php echo $widgetsPosition['ticketbyprogress']['col'] ? $widgetsPosition['ticketbyprogress']['col'] : 0;?> 
+                    			data-gs-width=<?php if($widgetsPosition['ticketbyprogress']['width'])echo $widgetsPosition['ticketbyprogress']['width'];else echo'4';?>
+                    			data-gs-height=<?php if($widgetsPosition['ticketbyprogress']['height'])echo $widgetsPosition['ticketbyprogress']['height'];else echo'5';?>
+                    			class="dashboardWidget grid-stack-item">
+                        		
+                                <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                                	
+                                	<div class="kt-portlet__head">
+                        				<div class = "kt-portlet__head-label">
+                        					<h3 class="kt-portlet__head-title">Ticket By Progress</h3>
+                        				</div>
+                    				</div>
+                        			
+                        			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
+                            			<?php if(!empty($ticketProgress)){?>
+                                			<div id="ticket_progress" data-vals='<?php echo $ticketProgress;?>' style="min-height:200px;"></div>
+                        				<?php }else{?>
+                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        				<?php }?>
+                        			</div>
+                        		</div>
+                        	</div>    
+                    	<?php }?>
+                    	<?php if(!empty($ticketType)){?>
+                        	<div data-gs-id="ticketbytype" id="ticketbytype" 
+                    			data-gs-x=<?php echo $widgetsPosition['ticketbytype']['row'] ? $widgetsPosition['ticketbytype']['row'] : 0;?> 
+                    			data-gs-y=<?php echo $widgetsPosition['ticketbytype']['col'] ? $widgetsPosition['ticketbytype']['col'] : 0;?> 
+                    			data-gs-width=<?php if($widgetsPosition['ticketbytype']['width'])echo $widgetsPosition['ticketbytype']['width'];else echo'4';?>
+                    			data-gs-height=<?php if($widgetsPosition['ticketbytype']['height'])echo $widgetsPosition['ticketbytype']['height'];else echo'5';?>
+                    			class="dashboardWidget grid-stack-item">
+                        		
+                                <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                                	
+                                	<div class="kt-portlet__head">
+                        				<div class = "kt-portlet__head-label">
+                        					<h3 class="kt-portlet__head-title">Ticket By Type</h3>
+                        				</div>
+                    				</div>
+                        			
+                        			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
+                        				<input type="hidden" id="ticket_type" value='<?php echo json_encode($ticketType);?>' />
+                            			<?php if(!empty($ticketType)){?>
+                        					<div id="ticketCatWidget">
+        										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
+                                                    <div id="ticket_cat_filtered_pie" style="height:175px; width:300px;"></div>
+                                                    <div style="clear:both;"></div>
+                                                    <div id="ticketcatlegenddiv"></div>
+                                                </div>
+                    						</div>
+                        				<?php }else{?>
+                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        				<?php }?>
+                        			</div>
+                        		</div>
+                        	</div>    
+                    	<?php }?>  
+                		</div>
+                	</div> 
 				</div>
 			</div>
 		</div>
