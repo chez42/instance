@@ -3,9 +3,7 @@
 function vtws_getdocuments($element,$user){
     
     global $adb,$site_URL;
-    
-    $element = json_decode($element,true);
-    
+
     $foldersData = array();
     
     $html = '';

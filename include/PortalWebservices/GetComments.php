@@ -4,8 +4,6 @@
         
         global $adb,$site_URL;
         
-        $element = json_decode($element,true);
-        
         $html .= '';
         
         if(isset($element['ID']) && $element['ID'] != ''){

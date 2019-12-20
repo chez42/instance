@@ -4,8 +4,6 @@ function vtws_updateportaldata($element,$user){
     
     global $adb,$site_URL;
     
-    $element = json_decode($element,true);
-	
 	$result = array();
 	
 	if(isset($element['ID']) && $element['ID'] != ''){
