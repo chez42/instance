@@ -35,7 +35,7 @@
     );
 	 
 	$response = postHttpRequest($ws_url, $postParams);
-	 
+	
 	$response = json_decode($response,true);
 	 
 	$widgetsPosition = $response['result']['widgetsPosition'];
@@ -297,11 +297,14 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                             			<input type="hidden" id="ticket_status" value='<?php echo json_encode($ticketStatus);?>' />
                             			<?php if(!empty($ticketStatus)){?>
-                                			<div id="ticketStatusWidget">
-        										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
-                                                    <div id="ticket_status_filtered_pie" style="height:175px; width:300px;"></div>
-                                                    <div style="clear:both;"></div>
-                                                    <div id="ticketstatuslegenddiv"></div>
+                                			<div id="ticketStatusWidget row">
+                                				<div class="col-md-4">
+            										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
+                                                        <div id="ticket_status_filtered_pie" style="height:200px; width:300px;"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8">
+                                                	<div id="ticketstatuslegenddiv"></div>
                                                 </div>
                     						</div>
                         				<?php }else{?>
@@ -331,10 +334,13 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_time" value='<?php echo json_encode($ticketTime);?>' />
                             			<?php if(!empty($ticketTime)){?>
-                                			<div id="ticketTimeWidget">
-        										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
-                                                    <div id="ticket_time_filtered_pie" style="height:175px; width:300px;"></div>
-                                                    <div style="clear:both;"></div>
+                                			<div id="ticketTimeWidget row">
+                                    			<div class="col-md-4">
+            										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
+                                                        <div id="ticket_time_filtered_pie" style="height:200px; width:300px;"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8">
                                                     <div id="tickettimelegenddiv"></div>
                                                 </div>
                     						</div>
@@ -390,10 +396,13 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_type" value='<?php echo json_encode($ticketType);?>' />
                             			<?php if(!empty($ticketType)){?>
-                        					<div id="ticketCatWidget">
-        										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
-                                                    <div id="ticket_cat_filtered_pie" style="height:175px; width:300px;"></div>
-                                                    <div style="clear:both;"></div>
+                        					<div id="ticketCatWidget row">
+                        						<div class="col-md-4">
+            										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
+                                                        <div id="ticket_cat_filtered_pie" style="height:200px; width:300px;"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8">
                                                     <div id="ticketcatlegenddiv"></div>
                                                 </div>
                     						</div>
@@ -436,13 +445,13 @@
     <script type="text/javascript">
     
     	$(function(){
-    		/*var widgetContent = jQuery('.dashboardWidgetContent', jQuery('.dashboardWidget'));
+    		var widgetContent = jQuery('.dashboardWidgetContent', jQuery('.dashboardWidget'));
         	for (var index=0, len = widgetContent.length; index < len; ++index) {
         		var widget = jQuery(widgetContent[index]);
         		widget.slimScroll({
         			height: widget.closest('.dashboardWidget').height()-100
         		});
-        	}*/
+        	}
         });
     
     	//var waitForFinalEvent=function(){var b={};return function(c,d,a){a||(a="I am a banana!");b[a]&&clearTimeout(b[a]);b[a]=setTimeout(c,d)}}();
@@ -501,9 +510,9 @@
 			
         	var widgetContent = jQuery('.dashboardWidgetContent', widget[0]['originalElement']);
         	
-    	    /*widgetContent.slimScroll({
+    	    widgetContent.slimScroll({
     			height: widgetContent.closest('.dashboardWidget').height()-100
-    		});*/
+    		});
         	gridStackSavePositions(activeGridstack.find('.dashboardWidget'));
         });
         
@@ -534,6 +543,10 @@
     		
         	var widgetRowColPositions = {}
         	
+        	Historical_Js.registerEvents();
+        	Consolidated_Js.registerEvents();
+        	
+        	//$("#mydiv").load(location.href + " #mydiv");
         	//if(isBreakpoint('lg') || isBreakpoint('xl')){
     	    
     	    for (var index=0, len = widgets.length; index < len; ++index) {
