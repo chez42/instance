@@ -138,14 +138,8 @@ var Historical_Js = {
         chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
-        legend.align = "center";
-        legend.markerType = "square";
-        legend.maxColumns = 1;
-       // legend.position = "right";
-        legend.marginRight = 20;
-        legend.valueText = "[[value]]";
-        legend.valueWidth = 100;
-        legend.switchable = false;
+        legend.markerType = "circle";
+        legend.maxColumns = 4;
         legend.labelText = "[[title]]:";
         chart.addLegend(legend, 'ticketstatuslegenddiv');
         
@@ -183,14 +177,8 @@ var Historical_Js = {
         chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
-        legend.align = "center";
-        legend.markerType = "square";
-        legend.maxColumns = 1;
-       // legend.position = "right";
-        legend.marginRight = 20;
-        legend.valueText = "[[value]]";
-        legend.valueWidth = 100;
-        legend.switchable = false;
+        legend.markerType = "circle";
+        legend.maxColumns = 4;
         legend.labelText = "[[title]]:";
         chart.addLegend(legend, 'tickettimelegenddiv');
         
@@ -228,14 +216,8 @@ var Historical_Js = {
         chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
-        legend.align = "center";
-        legend.markerType = "square";
-        legend.maxColumns = 1;
-       // legend.position = "right";
-        legend.marginRight = 20;
-        legend.valueText = "[[value]]";
-        legend.valueWidth = 100;
-        legend.switchable = false;
+        legend.markerType = "circle";
+        legend.maxColumns = 4;
         legend.labelText = "[[title]]:";
         chart.addLegend(legend, 'ticketcatlegenddiv');
         
