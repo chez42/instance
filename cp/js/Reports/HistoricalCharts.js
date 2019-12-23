@@ -1,4 +1,4 @@
-var Historical_Js = {
+	var Historical_Js = {
     /**
      * Function to register event for filling in the pie chart
      */
@@ -135,7 +135,7 @@ var Historical_Js = {
         chart.outlineThickness = 1;
         chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
         chart.startDuration = 0;
-        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+//        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
         legend.markerType = "circle";
@@ -174,7 +174,7 @@ var Historical_Js = {
         chart.outlineThickness = 1;
         chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
         chart.startDuration = 0;
-        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+//        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
         legend.markerType = "circle";
@@ -213,7 +213,7 @@ var Historical_Js = {
         chart.outlineThickness = 1;
         chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
         chart.startDuration = 0;
-        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+//        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         
         legend = new AmCharts.AmLegend();
         legend.markerType = "circle";
