@@ -10,7 +10,7 @@
  ********************************************************************************/
 -->*}
 <script type="text/javascript">
-	Vtiger_Funnel_Widget_Js('Vtiger_GroupedBySalesStage_Widget_Js',{},{});
+	Vtiger_AmChartFunnel_Widget_Js('Vtiger_GroupedBySalesStage_Widget_Js',{},{});
 </script>
 {foreach key=index item=cssModel from=$STYLES}
 	<link rel="{$cssModel->getRel()}" href="{$cssModel->getHref()}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
@@ -53,7 +53,7 @@
     </div>
 </div>
 <div class="dashboardWidgetContent">
-	{include file="dashboards/DashBoardWidgetContents.tpl"|@vtemplate_path:$MODULE_NAME}
+   {include file="dashboards/DashBoardWidgetContentsGroupByStage.tpl"|@vtemplate_path:$MODULE_NAME}
 </div>
 <div class="widgeticons dashBoardWidgetFooter">
     <div class="filterContainer">

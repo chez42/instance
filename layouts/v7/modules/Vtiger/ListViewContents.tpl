@@ -156,7 +156,8 @@
 						<td class="listViewEntryValue {if $LISTVIEW_HEADER->get('uitype') eq '72' || $LISTVIEW_HEADER->get('uitype') eq '71'  || $LISTVIEW_HEADER->get('uitype') eq '70' ||
 						$LISTVIEW_HEADER->get('uitype') eq '5' || $LISTVIEW_HEADER->get('uitype') eq '23' || $LISTVIEW_HEADER->get('uitype') eq '6' || $LISTVIEW_HEADER->get('uitype') eq '7'
 						|| $LISTVIEW_HEADER->get('uitype') eq '9' || $LISTVIEW_HEADER->get('typeofdata') eq 'N~O' }text-right{/if}" 
-						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
+						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" 
+						{if $LISTVIEW_HEADER->get('name') neq 'createdtime' && $LISTVIEW_HEADER->get('name') neq 'modifiedtime'}nowrap{/if}>
 							<span class="fieldValue">
 								<span class="value">
 									{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }

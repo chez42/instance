@@ -433,6 +433,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		}
 		//Step 4. encode and create the link
 		$baseModuleListLink = $this->getBaseModuleListViewURL();
+		$baseModuleListLink = str_ireplace("view=List", "view=GraphFilterList", $baseModuleListLink);
 		return $baseModuleListLink.'&search_params='. json_encode($listSearchParams).'&nolistcache=1';
 	}
 

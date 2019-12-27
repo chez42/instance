@@ -13,7 +13,7 @@
 	{include file="dashboards/WidgetHeader.tpl"|@vtemplate_path:$MODULE_NAME}
 </div>
 <div class="dashboardWidgetContent">
-	{include file="dashboards/DashBoardWidgetContents.tpl"|@vtemplate_path:$MODULE_NAME}
+	{include file="dashboards/DashBoardWidgetContentsOpenTicket.tpl"|@vtemplate_path:$MODULE_NAME}
 </div>
 <div class="widgeticons dashBoardWidgetFooter">
     <div class="footerIcons pull-right">
@@ -38,6 +38,61 @@
 				chartData.push(rowData);
 			}
 			return {literal}{'chartData':chartData}{/literal};
-		}
+		},
+		loadChart : function() {
+			var chartData = this.generateData();
+			
+			chartData = chartData.chartData;
+			
+			var finalchart = [];
+			var links = this.generateLinks();
+			
+			$.each(chartData, function(ind, ele){
+				var data =[];
+				data['title'] = ele[0];
+				data['value'] = ele[1];
+				data['user'] = ele[2];
+				data['url'] = links[ind];
+				finalchart.push(data);
+			});
+			
+			if(!finalchart) return false;
+			
+	        var chart;
+	        var legend;
+	
+	        chart = new AmCharts.AmPieChart();
+	        
+	        chart.dataProvider = finalchart;
+	        chart.titleField = "title";
+	        chart.valueField = "value";
+			chart.theme = "light";
+			chart.labelRadius = 30;
+	        chart.textColor= "#FFFFFF";
+	        chart.depth3D = 15;
+	        chart.angle = 30;
+	        chart.outlineColor = "#363942";
+	        chart.outlineAlpha = 0.8;
+	        chart.outlineThickness = 1;
+	        chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
+	        chart.startDuration = 0;
+	
+			chart.urlField = "url";
+			chart.urlTarget = "_blank";
+	
+			chart.radius = "40%";
+			
+	        legend = new AmCharts.AmLegend();
+	        legend.position = "bottom";
+			legend.labelText = "[[title]]:";
+			legend.valueWidth = 25;
+			legend.column = 4;
+	        chart.addLegend(legend);
+	
+	        if($("#"+this.getPlotContainer(false).attr('id')).length > 0) {
+	            chart.write(this.getPlotContainer(false).attr('id'));
+	        }
+	        
+	}
 	});
 </script>

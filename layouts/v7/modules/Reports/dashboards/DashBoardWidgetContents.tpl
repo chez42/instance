@@ -18,7 +18,7 @@
     <input type='hidden' name='clickthrough' value="{$CLICK_THROUGH}" />
     <div style="margin:0px 10px;">
         <div>
-            <div name='chartcontent' class="widgetChartContainer" style="height:245px;min-width:300px; margin: 0 auto">
+            <div name='chartcontent' id="chartcontent" class="widgetChartContainer" style="height:245px;min-width:300px; margin: 0 auto">
             <br>
             </div>
         </div>
