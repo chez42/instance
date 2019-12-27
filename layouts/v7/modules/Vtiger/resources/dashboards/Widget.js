@@ -1520,6 +1520,14 @@ Vtiger_Widget_Js('Vtiger_Trailingaum_Widget_Js',{},{
 
 Vtiger_Widget_Js('Vtiger_AmChartFunnel_Widget_Js',{},{
 	
+	 postInitializeCalls: function() {
+        var thisInstance = this;
+        this.getPlotContainer(false).off('vtchartClick').on('vtchartClick',function(e,data){
+        	if(data.url)
+                thisInstance.openUrl(data.url);
+        });
+    },
+	    
 	generateChartData : function() {
 		
 		var container = this.getContainer();
@@ -1565,7 +1573,9 @@ Vtiger_Widget_Js('Vtiger_AmChartFunnel_Widget_Js',{},{
 		legend.valueWidth = 100;
         chart.addLegend(legend);
 
-		chart.write("funnel_chart_container");
+        if($("#"+this.getPlotContainer(false).attr('id')).length > 0) {
+            chart.write(this.getPlotContainer(false).attr('id'));
+        }
 	}
 });
 	

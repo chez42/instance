@@ -97,9 +97,17 @@ class Potentials_GroupedBySalesStage_Dashboard extends Vtiger_IndexAjax_View {
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$data = $moduleModel->getPotentialsCountBySalesStage($owner, $dates);
         $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
+        $listViewUrl = str_ireplace("view=List", "view=GraphFilterList", $listViewUrl);
+       
+        $widgetData = array();
         for($i = 0;$i<count($data);$i++){
-            $data[$i][] = $listViewUrl.$this->getSearchParams($data[$i]['link'],$owner,$dates).'&nolistcache=1';
+            $url = $listViewUrl.$this->getSearchParams($data[$i][0],$owner,$dates);
+            $widgetData[$i] = array("title" => $data[$i][2], "value" => $data[$i][1], "url" => $url);
         }
+        
+//         for($i = 0;$i<count($data);$i++){
+//             $data[$i][] = $listViewUrl.$this->getSearchParams($data[$i]['link'],$owner,$dates).'&nolistcache=1';
+//         }
         
 		$widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
 
@@ -110,15 +118,16 @@ class Potentials_GroupedBySalesStage_Dashboard extends Vtiger_IndexAjax_View {
 		  $viewer->assign('END', date('m-d-Y',strtotime($dates['end'])));
 		$viewer->assign('WIDGET', $widget);
 		$viewer->assign('MODULE_NAME', $moduleName);
-		$viewer->assign('DATA', $data);
-
+		//$viewer->assign('DATA', $data);
+		$viewer->assign('DATA', $widgetData);
+		
 		//Include special script and css needed for this widget
 		$viewer->assign('STYLES',$this->getHeaderCss($request));
 		$viewer->assign('CURRENTUSER', $currentUser);
 
 		$content = $request->get('content');
 		if(!empty($content)) {
-			$viewer->view('dashboards/DashBoardWidgetContents.tpl', $moduleName);
+			$viewer->view('dashboards/DashBoardWidgetContentsGroupByStage.tpl', $moduleName);
 		} else {
 			$viewer->view('dashboards/GroupBySalesStage.tpl', $moduleName);
 		}

@@ -27,6 +27,8 @@ class HelpDesk_OpenTickets_Dashboard extends Vtiger_IndexAjax_View {
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 		$data = $moduleModel->getOpenTickets();
         $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
+        $listViewUrl = str_ireplace("view=List", "view=GraphFilterList", $listViewUrl);
+        
         for($i = 0;$i<count($data);$i++){
             $data[$i]["links"] = $listViewUrl.$this->getSearchParams($data[$i][name]).'&nolistcache=1';
         }
@@ -42,7 +44,7 @@ class HelpDesk_OpenTickets_Dashboard extends Vtiger_IndexAjax_View {
 
 		$content = $request->get('content');
 		if(!empty($content)) {
-			$viewer->view('dashboards/DashBoardWidgetContents.tpl', $moduleName);
+			$viewer->view('dashboards/DashBoardWidgetContentsOpenTicket.tpl', $moduleName);
 		} else {
 			$viewer->view('dashboards/OpenTickets.tpl', $moduleName);
 		}
