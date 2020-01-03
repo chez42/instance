@@ -56,7 +56,7 @@
 							
 						</tr>
 								
-						{assign var=PortalModules value=[{getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}
+						{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}
 						{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 						
 						{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
@@ -88,7 +88,7 @@
 									{/if}
 								</td>
 								<td class="fieldValue text-center">
-									{if $MODULE_NAME neq 'Accounts'}
+									{if $MODULE_NAME neq 'Accounts' && $MODULE_NAME neq 'Tickets'}
 										<select data-fieldtype="picklist" class="inputElement select2" type="picklist" name="portalModulesInfo[{$NAME_MODULE}_edit_records]"  >
 											<option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
 											<option value="1"> Yes </option>

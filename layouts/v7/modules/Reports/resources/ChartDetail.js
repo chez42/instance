@@ -789,6 +789,9 @@ Vtiger_Barchat_Widget_Js('Report_Verticalbarchart_Js', {},{
 		
 		chart.categoryField = "title";
 		
+		if(chartRotate)
+			chartData = chartData.sort().reverse();
+		
 		chart.dataProvider = chartData;
 		
 		var valueAxis = new AmCharts.ValueAxis();
@@ -837,7 +840,7 @@ Vtiger_Barchat_Widget_Js('Report_Verticalbarchart_Js', {},{
 		var catAxis = chart.categoryAxis;
         catAxis.gridPosition = "start";
         catAxis.gridCount = chartData.length;
-        catAxis.labelRotation = 90;
+        catAxis.labelRotation = 45;
 		catAxis.gridAlpha = 0;
 		catAxis.tickPosition = "start";
 		catAxis.tickLength = 20;
