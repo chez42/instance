@@ -52,13 +52,17 @@
 	 
 	$pie = $response['result']['pie'];
 	
-	$ticketStatus = $response['result']['ticketWidget']['ticketStatus'];
+	if(in_array('HelpDesk', $avmod)){
 	
-	$ticketTime = $response['result']['ticketWidget']['timeResult'];
-	
-	$ticketType = $response['result']['ticketWidget']['catData'];
-	
-	$ticketProgress = array();
+    	$ticketStatus = $response['result']['ticketWidget']['ticketStatus'];
+    	
+    	$ticketTime = $response['result']['ticketWidget']['timeResult'];
+    	
+    	$ticketType = $response['result']['ticketWidget']['catData'];
+    	
+    	$ticketProgress = array();
+    	
+	}
 ?>
 
         	<style>
@@ -278,7 +282,9 @@
                     			</div>
                     		</div>
                 		<?php }?>
-                		<?php if(!empty($ticketStatus)){?>
+                		<?php if(in_array('HelpDesk', $avmod)){
+                		    if(!empty($ticketStatus)){
+                		?>
                 			<div data-gs-id="ticketbystatus" id="ticketbystatus" 
                     			data-gs-x=<?php echo $widgetsPosition['ticketbystatus']['row'] ? $widgetsPosition['ticketbystatus']['row'] : 0;?> 
                     			data-gs-y=<?php echo $widgetsPosition['ticketbystatus']['col'] ? $widgetsPosition['ticketbystatus']['col'] : 0;?> 
@@ -412,7 +418,8 @@
                         			</div>
                         		</div>
                         	</div>    
-                    	<?php }?>  
+                    	<?php }
+                		}?>  
                 		</div>
                 	</div> 
 				</div>
