@@ -410,6 +410,137 @@ class ModCommentsCore extends CRMEntity {
 			// TODO Handle actions after this module is updated.
 		}
 	}
+	
+	function uploadAndSaveFile($id, $module, $file_details, $attachmentType='Attachment') {
+	    
+	    global $log;
+	    $log->debug("Entering into uploadAndSaveFile($id,$module,$file_details) method.");
+	    
+	    global $adb, $current_user;
+	    global $upload_badext;
+	    
+	    $date_var = date("Y-m-d H:i:s");
+	    
+	    //to get the owner id
+	    $ownerid = $this->column_fields['assigned_user_id'];
+	    if (!isset($ownerid) || $ownerid == '')
+	        $ownerid = $current_user->id;
+	        
+	        if (isset($file_details['original_name']) && $file_details['original_name'] != null) {
+	            $file_name = $file_details['original_name'];
+	        } else {
+	            $file_name = $file_details['name'];
+	        }
+	        
+	        // Check 1
+	        $save_file = 'true';
+	        //only images are allowed for Image Attachmenttype
+	        $mimeType = vtlib_mime_content_type($file_details['tmp_name']);
+	        $mimeTypeContents = explode('/', $mimeType);
+	        // For contacts and products we are sending attachmentType as value
+	        if ($attachmentType == 'Image' || ($file_details['size'] && $mimeTypeContents[0] == 'image')) {
+	            $save_file = validateImageFile($file_details);
+	        }
+	        if ($save_file == 'false') {
+	            return false;
+	        }
+	        
+	        // Check 2
+	        $save_file = 'true';
+	        //only images are allowed for these modules
+	        if ($module == 'Contacts' || $module == 'Products') {
+	            $save_file = validateImageFile($file_details);
+	        }
+	        
+	        $binFile = sanitizeUploadFileName($file_name, $upload_badext);
+	        
+	        $current_id = $adb->getUniqueID("vtiger_crmentity");
+	        
+	        $filename = ltrim(basename(" " . $binFile)); //allowed filename like UTF-8 characters
+	        $filetype = $file_details['type'];
+	        $filetmp_name = $file_details['tmp_name'];
+	        
+	        //get the file path inwhich folder we want to upload the file
+	        $upload_file_path = decideFilePath();
+	        
+	        // upload the file in server
+	        $upload_status = copy($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
+	        // temporary file will be deleted at the end of request
+	        
+	        if ($save_file == 'true' && $upload_status == 'true') {
+	            if($attachmentType != 'Image' && $this->mode == 'edit') {
+	                //Only one Attachment per entity delete previous attachments
+	                $res = $adb->pquery('SELECT vtiger_seattachmentsrel.attachmentsid FROM vtiger_seattachmentsrel
+									INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_seattachmentsrel.attachmentsid AND vtiger_crmentity.setype = ?
+									WHERE vtiger_seattachmentsrel.crmid = ?',array($module.' Attachment',$id));
+	                $oldAttachmentIds = array();
+	                for($attachItr = 0;$attachItr < $adb->num_rows($res);$attachItr++) {
+	                    $oldAttachmentIds[] = $adb->query_result($res,$attachItr,'attachmentsid');
+	                }
+	                if(count($oldAttachmentIds)) {
+	                    $adb->pquery('DELETE FROM vtiger_seattachmentsrel WHERE attachmentsid IN ('.generateQuestionMarks($oldAttachmentIds).')',$oldAttachmentIds);
+	                    //TODO : revisit to delete actual file and attachment entry,as we need to see the deleted file in the history when its changed
+	                    //$adb->pquery('DELETE FROM vtiger_attachments WHERE attachmentsid IN ('.generateQuestionMarks($oldAttachmentIds).')',$oldAttachmentIds);
+	                    //$adb->pquery('DELETE FROM vtiger_crmentity WHERE crmid IN ('.generateQuestionMarks($oldAttachmentIds).')',$oldAttachmentIds);
+	                }
+	            }
+	            //Add entry to crmentity
+	            $sql1 = "INSERT INTO vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,createdtime,modifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?)";
+	            $params1 = array($current_id, $current_user->id, $ownerid, $module." ".$attachmentType, $this->column_fields['description'], $adb->formatDate($date_var, true), $adb->formatDate($date_var, true));
+	            $adb->pquery($sql1, $params1);
+	            //Add entry to attachments
+	            $sql2 = "INSERT INTO vtiger_attachments(attachmentsid, name, description, type, path) values(?, ?, ?, ?, ?)";
+	            $params2 = array($current_id, $filename, $this->column_fields['description'], $filetype, $upload_file_path);
+	            $adb->pquery($sql2, $params2);
+	            //Add relation
+	            $sql3 = 'INSERT INTO vtiger_seattachmentsrel VALUES(?,?)';
+	            $params3 = array($id, $current_id);
+	            $adb->pquery($sql3, $params3);
+	            
+	            $crmid = $this->column_fields['related_to'];
+	            
+	            if($crmid && $current_id){
+	                
+	                $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
+                	vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
+                	WHERE is_default=1 and deleted=0";
+	                
+	                $result = $adb->pquery($query, array());
+	                
+	                if($adb->num_rows($result)){
+	                    $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
+	                }
+	                
+	                $focus = CRMEntity::getInstance('Documents');
+	                $focus->column_fields['notes_title'] = $filename;
+	                $focus->column_fields['filename'] = $filename;
+	                $focus->column_fields['filetype'] = $filetype;
+	                $focus->column_fields['filelocationtype'] = 'I';
+	                $focus->column_fields['filestatus'] = 1;
+	                $focus->column_fields['assigned_user_id'] = $ownerid;
+	                $focus->column_fields['related_to'] = $crmid;
+	                
+	                if($doc_fol_id)
+	                    $focus->column_fields['doc_folder_id'] = $doc_fol_id;
+	                    
+                    $focus->save('Documents');
+                    
+                    if($current_id > 0){
+                        $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+                        $res = $adb->pquery($related_doc,array($focus->id,$current_id));
+                    }
+                    
+                    $doc = 'insert into vtiger_senotesrel values(?,?)';
+                    $res = $adb->pquery($doc,array($crmid,$focus->id));
+	                
+	            }
+	            
+	            return $current_id;
+	        } else {
+	            //failed to upload file
+	            return false;
+	        }
+	}
 
 	/**
 	 * Handle saving related module information.
