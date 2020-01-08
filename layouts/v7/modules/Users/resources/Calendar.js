@@ -64,6 +64,31 @@ Settings_Users_PreferenceDetail_Js("Settings_Users_Calendar_Js",{},{
 		
 	},
 	
+	registerEventForCopyAppointmentUrl : function(){
+		
+		$(document).on("click", ".copytoclipboard", function(){
+			
+			var text = $(this).data('url');
+			var textArea = document.createElement( "textarea" );
+			textArea.value = text;
+			document.body.appendChild( textArea );
+			textArea.select();
+			try {
+				var successful = document.execCommand( 'copy' );
+				if(successful)
+					app.helper.showSuccessNotification({"message":'Url copy successfully'});
+				else
+					app.helper.showErrorNotification({message : 'Oops, unable to copy'});
+			} catch (err) {
+				app.helper.showErrorNotification({message : 'Oops, unable to copy'});
+			}
+			document.body.removeChild( textArea );
+			
+		});
+		
+		
+	},
+	
 	/**
 	 * register Events for my preference
 	 */
@@ -71,6 +96,7 @@ Settings_Users_PreferenceDetail_Js("Settings_Users_Calendar_Js",{},{
 		this._super();
 		this.registerEventForMsExchange();
 		this.registerEventForBusinessHours();
+		this.registerEventForCopyAppointmentUrl();
 		Settings_Users_PreferenceEdit_Js.registerChangeEventForCurrencySeparator();
 		Settings_Users_PreferenceEdit_Js.registerNameFieldChangeEvent();
 	}

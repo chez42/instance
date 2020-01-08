@@ -153,6 +153,7 @@
             $confirmation = $element['confirmation'];
             $notes = $element['notes'];
             $eventName = $element['name'];
+        $eventSub = $element['topic'];
             $slot = $element['slot_time'];
             $date = $element['date'];
             $type = $element['meetingType'];
@@ -194,7 +195,7 @@
             $end_time = date('H:i', strtotime($format, strtotime($end_time)));
             
             $event = CRMEntity::getInstance('Events');
-            $event->column_fields['subject'] = $eventName;
+        $event->column_fields['subject'] = $eventSub;
             $event->column_fields['date_start'] = $date;
             $event->column_fields['time_start'] = $start_time;
             $event->column_fields['assigned_user_id'] = $user_id;
@@ -205,14 +206,39 @@
             $event->column_fields['description'] = $notes;
             $event->column_fields['sendnotification'] = ($confirmation == 'on') ? 1 : 0;
             $event->column_fields['visibility'] = 'Private';
+		$event->column_fields['eventstatus'] = 'Planned';
             $event->save('Events');
             
             if($event->id)
                 $result = array('success'=>true, 'event_id'=>$event->id);
             else 
                 $result = array('success'=>false);
-        }
+    }else if($element['mode'] == 'logo'){
         
+        $user_id = getUserId_Ol($element['user_name']);
+        
+        $logo = '';
+        
+        $result = $adb->pquery("SELECT vtiger_attachments.* FROM vtiger_salesmanattachmentsrel
+		INNER JOIN vtiger_attachments ON vtiger_salesmanattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+		INNER JOIN vtiger_users ON vtiger_users.id = vtiger_salesmanattachmentsrel.smid
+		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_salesmanattachmentsrel.attachmentsid
+		WHERE vtiger_salesmanattachmentsrel.smid = ? and vtiger_crmentity.setype = ?", array($user_id, "User Logo"));
+        
+        if($adb->num_rows($result) == 1){
+            
+            $portalLogo = $site_URL;
+            $portalLogo .= "/".$adb->query_result($result, "0", "path");
+            $portalLogo .= $adb->query_result($result, "0", "attachmentsid");
+            $portalLogo .= "_".$adb->query_result($result, "0", "name");
+            
+            $logo = ($portalLogo);
+            
+        } 
+        
+        $result = array('success'=>true, 'logo'=>$logo);
+        
+    }
         return $result;
         
     }

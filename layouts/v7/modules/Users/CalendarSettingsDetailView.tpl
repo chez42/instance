@@ -79,6 +79,15 @@
                                             </div>
                                         </td>
                                         {assign var=COUNTER value=$COUNTER+1}
+                                    {else if $FIELD_MODEL->getName() eq "appointment_url"}
+                                    	<td class="fieldLabel textOverflowEllipsis {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldLabel_{$FIELD_MODEL->getName()}" >
+                                            <span class="muted">
+                                                {vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}
+                                            </span>
+                                        </td>
+                                        <td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}">
+                                    		{substr($APPOINTMENTURL, 0, 30)} &nbsp;&nbsp; <button class="btn-default copytoclipboard" data-url="{$APPOINTMENTURL}"><i class="fa fa-copy"></i></button>
+                                		</td>
                                     {else}
                                         {if $FIELD_MODEL->get('uitype') eq "20" or $FIELD_MODEL->get('uitype') eq "19" or $fieldDataType eq 'reminder' or $fieldDataType eq 'recurrence'}
                                             {if $COUNTER eq '1'}

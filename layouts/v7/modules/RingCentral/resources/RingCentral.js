@@ -12,6 +12,41 @@ Vtiger.Class("RingCentral_Js",{
 	
 	connected: false,
 	
+	ValidateTokenAndGetSIP: function(){
+		
+		var thisInstance = this;
+		
+		var params = {};
+		
+		params.module = 'RingCentral';
+		
+		params.action = 'ValidateTokenAndGetSIP';
+		
+		app.request.post({data:params}).then(
+			
+			function(err,data){
+				
+				if(err === null) {
+					
+					thisInstance.connected = true;
+					
+					thisInstance.from_no = data.from_no;
+					
+					thisInstance.app_key = data.client_id;
+					
+					if(data.sip){
+						//thisInstance.initializeSIP(data.sip);
+					}
+					
+				} else {
+					thisInstance.connected = false;	
+				}
+				
+			}
+		);
+	
+	},
+	
 	triggerRingCentral: function (massActionUrl) {
 		
 		var thisInstance = this;
@@ -27,7 +62,7 @@ Vtiger.Class("RingCentral_Js",{
 					var win = window.open(url,'','height=600,width=600,channelmode=1');
 		
 					window.RefreshPage = function() {
-						new RingCentral_Js().ValidateTokenAndGetSIP();
+						thisInstance.ValidateTokenAndGetSIP();
 					}
 					
 				},
@@ -152,15 +187,12 @@ Vtiger.Class("RingCentral_Js",{
 							var win = window.open(url,'','height=600,width=600,channelmode=1');
 	
 							window.RefreshPage = function() {
-								new RingCentral_Js().ValidateTokenAndGetSIP();
+								thisInstance.ValidateTokenAndGetSIP();
 							}
 						},
 				
 						function(error, err) {}
 					);
-					
-					//app.event.trigger('post.save.failed', err);
-					//jQuery(form).find("button[name='saveButton']").removeAttr('disabled');
 				
 				}
 			});
@@ -246,7 +278,7 @@ Vtiger.Class("RingCentral_Js",{
 					var win = window.open(url,'','height=600,width=600,channelmode=1');
 		
 					window.RefreshPage = function() {
-						new RingCentral_Js().ValidateTokenAndGetSIP();
+						thisInstance.ValidateTokenAndGetSIP();
 					}
 					
 				},
@@ -346,7 +378,7 @@ Vtiger.Class("RingCentral_Js",{
 					var win = window.open(url,'','height=600,width=600,channelmode=1');
 		
 					window.RefreshPage = function() {
-						new RingCentral_Js().ValidateTokenAndGetSIP();
+						thisInstance.ValidateTokenAndGetSIP();
 					}
 					
 				},
@@ -419,7 +451,7 @@ Vtiger.Class("RingCentral_Js",{
 					var win = window.open(url,'','height=600,width=600,channelmode=1');
 		
 					window.RefreshPage = function() {
-						new RingCentral_Js().ValidateTokenAndGetSIP();
+						thisInstance.ValidateTokenAndGetSIP();
 					}
 					
 				},
@@ -570,7 +602,7 @@ Vtiger.Class("RingCentral_Js",{
 				
 				thisInstance.registerEventForMouse();
 				
-				thisInstance.ValidateTokenAndGetSIP();
+				thisInstance.Class.ValidateTokenAndGetSIP();
 			
 			});
 			
@@ -632,40 +664,7 @@ Vtiger.Class("RingCentral_Js",{
 		}
 		
 	},
-	
-	ValidateTokenAndGetSIP: function(){
-		
-		var thisInstance = this;
-		
-		var params = {};
-		
-		params.module = 'RingCentral';
-		
-		params.action = 'ValidateTokenAndGetSIP';
-		
-		app.request.post({data:params}).then(
-			
-			function(err,data){
-				
-				if(err === null) {
-					
-					thisInstance.Class.connected = true;
-					thisInstance.Class.from_no = data.from_no;
-					thisInstance.Class.app_key = data.client_id;
-					
-					if(data.sip){
-						//thisInstance.initializeSIP(data.sip);
-					}
-					
-				} else {
-					thisInstance.Class.connected = false;	
-				}
-				
-			}
-		);
-		
-		
-	},
+
 	
 	initializeSIP: function(sipInfo){
 		
@@ -804,6 +803,4 @@ jQuery(document).ready(function(){
 		});
 		
 	}
-	
-	
 });
