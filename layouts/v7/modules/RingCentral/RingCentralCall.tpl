@@ -28,7 +28,7 @@
 		
 		<div class = "row">
 			<div class="col-md-12" style="font-size:15px !important;text-align:center;color:black;font-weight:600;padding-top:15px;">
-				{$LASTNAME}&nbsp;{$FIRSTNAME}<br>
+				{$FULLNAME}<br>
 			</div>
 		</div>
 		<hr/>

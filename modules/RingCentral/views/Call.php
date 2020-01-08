@@ -31,7 +31,7 @@ class RingCentral_Call_View extends Vtiger_IndexAjax_View {
             $FIELD_DATA_TYPE = $FIELD_MODEL->getFieldDataType();
             $FIELD_NAME = $FIELD_MODEL->getName();
             if($FIELD_MODEL->isHeaderField() && $FIELD_MODEL->isActiveField() && $recordModel->get($FIELD_NAME) && $FIELD_MODEL->isViewable()){
-                $fieldData[$FIELD_MODEL->get('label')] = $recordModel->get($FIELD_NAME);
+                $fieldData[$FIELD_MODEL->get('label')] = $recordModel->getDisplayValue($FIELD_NAME);
             }
         }
         $imagePath = '';
@@ -43,16 +43,26 @@ class RingCentral_Call_View extends Vtiger_IndexAjax_View {
             }
         }
         
-        $fullname = $recordModel->get('label');
-        $lastname = $recordModel->get('lastname');
-        $firstname = $recordModel->get('firstname');
+        $fullName= '';
+        $COUNTER = 0;
+        foreach ($MODULE_MODEL->getNameFields() as $NAME_FIELD){
+            $FIELD_MODEL = $MODULE_MODEL->getField($NAME_FIELD);
+            if($FIELD_MODEL->getPermissions()){
+                if($recordModel->getDisplayValue('salutationtype') && $FIELD_MODEL->getName() == 'firstname'){
+                    $fullName .= $recordModel->getDisplayValue('salutationtype');
+                }
+                $fullName .= trim($recordModel->get($NAME_FIELD));
+                if($COUNTER == 0 && ($recordModel->get($NAME_FIELD))){
+                    $fullName .= ' ';
+                    $COUNTER++;
+                }
+            }
+        }
         
         $viewer->assign('RECORD', $recordId);
         $viewer->assign('FIELDS', $fieldData);
         $viewer->assign('IMAGE', $imagePath);
-        $viewer->assign('FULLNAME', $fullname);
-        $viewer->assign('FIRSTNAME', $firstname);
-        $viewer->assign('LASTNAME', $lastname);
+        $viewer->assign('FULLNAME', $fullName);
         $viewer->assign('SITE_URL', $site_URL);
         $viewer->assign('NUMBER', $number);
         

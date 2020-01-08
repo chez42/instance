@@ -231,7 +231,7 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$viewer = $this->getViewer($request);
 		$this->initializeView($viewer,$request);
 		
-		global $adb;
+		global $adb,$site_URL;
 		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
 		    array($request->get('record')));
 		$syncData = array();
@@ -248,6 +248,8 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		    
 	    $viewer->assign('BUSINESSHOURS',$bussiness_hours);
 		
+	    $viewer->assign('APPOINTMENTURL', $site_URL.'/appointment/'.getUserName($request->get('record')));
+	    
 		$viewer->view('CalendarSettingsDetailView.tpl', $request->getModule());
 	}
 

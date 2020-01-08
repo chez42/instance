@@ -1,3 +1,29 @@
+<?php
+include_once("include/config.php");
+
+global $api_username, $api_accesskey, $api_url;
+
+$ws_url =  $api_url . '/webservice.php';
+
+$loginObj = login($ws_url, $api_username, $api_accesskey);
+
+$session_id = $loginObj->sessionName;
+    
+$data = $_REQUEST ;
+$data['mode'] = 'logo';
+$postParams = array(
+    'operation'=>'get_schedule_appointment',
+    'sessionName'=>$session_id,
+    'element'=>json_encode($data)
+);
+
+$response = postHttpRequest($ws_url, $postParams);
+
+$response = json_decode($response,true);
+
+$logoFile = $response['result']['logo'];
+
+?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -85,7 +111,7 @@
     <body onload="bodyLoad();">
     	<div id="mainwrap" class="container">	
     
-    	<img src="logo.png" id="avatar" class="thumbnail"/>
+    	<img src="<?php if($logoFile)echo $logoFile; else echo '48.png';?>" id="avatar" class="thumbnail" title="Manish Goyal"/>
     	<div class="text-center"><p class='lead' style='color: #777;font-size: 19px;font-weight:normal'>Welcome to my scheduling page. Please follow the instructions to book an appointment.</p></div>
     
     		<div class="col-sm-10 segment segment1 blockdiv" >
@@ -184,6 +210,9 @@
     						Contact Info</div>
     
     					<div class="col-sm-4">
+    						<input type="text" id="topic" name="topic"
+    							placeholder='Topic' class="required me-disable"
+    							disabled="disabled" />
     						<input type="text" id="userName" name="userName"
     							placeholder='Name' class="required me-disable"
     							disabled="disabled" /> <input type="text" id="email"
