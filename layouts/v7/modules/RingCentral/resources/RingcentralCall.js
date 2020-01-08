@@ -26,6 +26,24 @@ jQuery.Class("RingcentralCall_Js", {
 			
 		});
 		
+		$(document).on('click', '.number', function(){
+			$("#phoneScreen").val($("#phoneScreen").val() + $(this).attr("value"));
+			$("#phoneScreen").focus();
+		});
+		
+		$(document).on('keyup',"#phoneScreen", function(e){ 
+			var code = e.which;
+			if(code==13){
+				if($("#phoneScreen").val().trim() != ''){
+					thisInstance.Class.session.dtmf( $("#phoneScreen").val().trim() );
+				}
+			}
+		});
+		
+		$(document).on('click',".clear", function(e){ 
+			$("#phoneScreen").val('');
+		});
+		
 		$(document).on('click','.sendnotes',function(){
 			
 			var recordId = $(this).data('id');
@@ -118,20 +136,16 @@ jQuery.Class("RingcentralCall_Js", {
 		});
 					
 		thisInstance.Class.webPhone.userAgent.audioHelper.setVolume(0.5);
+			
+		var number = $(document).find('[name="number"]').val();
 		
+		if(number.length > 10){
+			number = '+' + number;
+		}
 		
-		thisInstance.Class.webPhone.userAgent.on('registered', function() {
-			
-			var number = $(document).find('[name="number"]').val();
-			
-			if(number.length > 10){
-				number = '+' + number;
-			}
-			thisInstance.Class.session = thisInstance.Class.webPhone.userAgent.invite(number, {
-				fromNumber: thisInstance.Class.from_no,
-				homeCountryId: 1
-			});
-			
+		thisInstance.Class.session = thisInstance.Class.webPhone.userAgent.invite(number, {
+			fromNumber: thisInstance.Class.from_no,
+			homeCountryId: 1
 		});
 		
 	},
