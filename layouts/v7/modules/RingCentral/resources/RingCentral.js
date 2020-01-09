@@ -305,7 +305,7 @@ Vtiger.Class("RingCentral_Js",{
 			
 			var url = decodeURIComponent(window.location.href.split('?', 1) + '?module=RingCentral&view=Call&record='+record+'&number='+number);
 			
-			var x = window.open(url,'','height=300,width=350,location=no,toolbar=0');
+			var x = window.open(url,'','height=650,width=600,location=no,toolbar=0');
 			
 			/*if( !$( "body" ).hasClass( "show_sidebar3" )){
 				var params = {

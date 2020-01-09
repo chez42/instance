@@ -7,7 +7,7 @@ session_start();
 
 include_once('functions.php');
 
-$api_url = 'https://dev.omnisrv.com/ver4manish';
+$api_url = 'https://hq.omnisrv.com/';
 
 $api_username = 'felipeluna';
 
