@@ -248,7 +248,7 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		    
 	    $viewer->assign('BUSINESSHOURS',$bussiness_hours);
 		
-	    $viewer->assign('APPOINTMENTURL', $site_URL.'/appointment/'.getUserName($request->get('record')));
+	    $viewer->assign('APPOINTMENTURL', $site_URL . 'appointment/'.getUserName($request->get('record')));
 	    
 		$viewer->view('CalendarSettingsDetailView.tpl', $request->getModule());
 	}
