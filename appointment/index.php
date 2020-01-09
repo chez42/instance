@@ -111,7 +111,7 @@ $logoFile = $response['result']['logo'];
     <body onload="bodyLoad();">
     	<div id="mainwrap" class="container">	
     
-    	<img src="<?php if($logoFile) echo $logoFile; else echo '48.png'; ?>" id="avatar" class="thumbnail"/>
+    	<img src="<?php if($logoFile) echo $logoFile; else echo 'logo.png'; ?>" id="avatar" class="thumbnail"/>
     	<div class="text-center"><p class='lead' style='color: #777;font-size: 19px;font-weight:normal'>Welcome to my scheduling page. Please follow the instructions to book an appointment.</p></div>
     
     		<div class="col-sm-10 segment segment1 blockdiv" >
