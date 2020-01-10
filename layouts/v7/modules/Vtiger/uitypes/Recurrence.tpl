@@ -21,14 +21,14 @@
 			<div>
 				<span>
 					<span class="alignMiddle">{vtranslate('LBL_REPEATEVENT', $MODULE)}&nbsp;&nbsp;</span>
-					<select class="select2 input-mini" name="repeat_frequency">
+					<select class="select2 input-mini recurring_select" name="repeat_frequency">
 						{for $FREQUENCY = 1 to 14}
 							<option value="{$FREQUENCY}" {if $FREQUENCY eq $RECURRING_INFORMATION['repeat_frequency']}selected{/if}>{$FREQUENCY}</option>
 						{/for}
 					</select>
 				</span>
 				<span>
-					<select class="select2 input-medium" style="width:100px;margin-left: 10px;" name="recurringtype" id="recurringType">
+					<select class="select2 input-medium recurring_select" style="width:100px;margin-left: 10px;" name="recurringtype" id="recurringType">
 						<option value="Daily" {if $RECURRING_INFORMATION['eventrecurringtype'] eq 'Daily'} selected {/if}>{vtranslate('LBL_DAYS_TYPE', $MODULE)}</option>
 						<option value="Weekly" {if $RECURRING_INFORMATION['eventrecurringtype'] eq 'Weekly'} selected {/if}>{vtranslate('LBL_WEEKS_TYPE', $MODULE)}</option>
 						<option value="Monthly" {if $RECURRING_INFORMATION['eventrecurringtype'] eq 'Monthly'} selected {/if}>{vtranslate('LBL_MONTHS_TYPE', $MODULE)}</option>
@@ -37,7 +37,7 @@
 				</span>
 				<span>
 					<span class="alignMiddle displayInlineBlock">&nbsp;&nbsp;{vtranslate('LBL_UNTIL', $MODULE)}</span>
-					<span class="input-group date pull-right inputElement">
+					<span class="input-group date pull-right inputElement recurring_date">
 						<input type="text" id="calendar_repeat_limit_date" class="dateField input-small form-control" name="calendar_repeat_limit_date" data-date-format="{$USER_MODEL->get('date_format')}" 
 							   value="{if $RECURRING_INFORMATION['recurringcheck'] neq 'Yes'}{$TOMORROWDATE}{elseif $RECURRING_INFORMATION['recurringcheck'] eq 'Yes'}{$RECURRING_INFORMATION['recurringenddate']}{/if}" 
 							   data-rule-date="true" data-rule-required="true"/>
@@ -88,7 +88,7 @@
 						</select>
 					</span>
 					<span class="col-lg-6 margin0">
-						<select id="repeatMonthDay" class="select2" name="repeatMonth_day" style="width: 120px;">
+						<select id="repeatMonthDay" class="select2 recurring_select" name="repeatMonth_day" style="width: 120px;">
 							<option value=0 {if $RECURRING_INFORMATION['repeatMonth_day'] eq 0} selected {/if}>{vtranslate('LBL_DAY0', $MODULE)}</option>
 							<option value=1 {if $RECURRING_INFORMATION['repeatMonth_day'] eq 1} selected {/if}>{vtranslate('LBL_DAY1', $MODULE)}</option>
 							<option value=2 {if $RECURRING_INFORMATION['repeatMonth_day'] eq 2} selected {/if}>{vtranslate('LBL_DAY2', $MODULE)}</option>

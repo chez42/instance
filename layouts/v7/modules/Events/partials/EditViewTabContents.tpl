@@ -10,9 +10,9 @@
 -->*}
 {literal}
 <style>
-.select2-container { width:100% !important;}
-.fieldBlockContainer .inputElement:not([type='checkbox']) { width:100% !important;}
-.editViewContents .input-group { width: 100% !important; min-width:100% !important;}
+.select2-container:not(.recurring_select) { width:100% !important;}
+.fieldBlockContainer .inputElement:not([type='checkbox']):not(.recurring_date) { width:100% !important;}
+.editViewContents .input-group:not(.recurring_date) { width: 100% !important; min-width:100% !important;}
 .editViewContents .fieldValue .referencefield-wrapper { width: 100% !important;}
 .editViewContents .referencefield-wrapper .input-group { width: 80% !important;  min-width:80% !important;}
 </style>
