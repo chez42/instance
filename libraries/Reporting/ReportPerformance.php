@@ -307,7 +307,8 @@ class Performance_Model extends Vtiger_Module {
                 $this->CalculateIndividualTWR($this->start_date, $this->end_date);//Creates intervals for each individual account
 //                $this->CalculateIndividualIRR($this->start_date, $this->end_date);
 
-                $this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount;
+                $this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount + $this->GetCommissionAmount();
+#            print_r($this->performance_summed);exit;
             }
 //        }else{
  //           $this->isValid = false;
@@ -372,6 +373,17 @@ class Performance_Model extends Vtiger_Module {
         }
     }
 
+    private function GetCommissionAmount(){
+        global $adb;
+
+        $query = "SELECT SUM(commission) AS commission FROM individual_performance";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'commission');
+        }
+        return 0;
+    }
+
     private function CalculateCapitalAppreciation(){
     $this->capital_appreciation = $this->ending_values_summed->value -
         ($this->beginning_values_summed->value +
@@ -424,7 +436,9 @@ class Performance_Model extends Vtiger_Module {
         foreach($this->account_numbers AS $k => $v){
             $this->individual_performance_summed[$v]['change_in_value'] = $this->individual_end_values[$v]->value -
                                                                           $this->individual_start_values[$v]->value -
-                                                                          $this->individual_performance_summed[$v]['Flow']->amount;
+                                                                          $this->individual_performance_summed[$v]['Flow']->amount -
+                                                                          $this->individual_performance_summed[$v]['Reversal']->amount +
+                                                                          $this->GetCommissionAmount();
         }
     }
 

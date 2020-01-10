@@ -30,9 +30,8 @@ class ModSecurities_Detail_View extends Vtiger_Detail_View {
         $eod = json_decode($guz->getSymbolRealTimePricing($symbol));
         $fund = json_decode($guz->getFundamentals($symbol));
 
-        $dividendData = json_decode($guz->getDividends($symbol, "US", '2018-01-01', '2019-11-04'));
-        print_r($dividendData);
-        exit;
+#        $dividendData = json_decode($guz->getDividends($symbol, "US", '2018-01-01', '2019-11-04'));
+
 #        ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
 #        ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
 #print_r($fund);exit;

@@ -214,10 +214,10 @@
                     <td style="font-weight:bold; font-size:8pt; color:#33256C;">Combined Portfolio Return (TWR)</td>
                     <td style="color:#33256C; text-align:right; font-weight:bold; font-size:8pt; padding-right:40pt;">{$YTDPERFORMANCE->GetTWR()|number_format:2:".":","}%</td>
                 </tr>
-                <tr>
+{*                <tr>
                     <td style="font-weight:bold; font-size:8pt; color:#33256C;">Blended Benchmark</td>
                     <td style="color:#33256C; text-align:right; font-size:8pt; padding-right:40pt;">{$YTDPERFORMANCE->GetBenchmark()|number_format:2:".":","}%</td>
-                </tr>
+                </tr>*}
                 <tr>
                     <td style="font-size:8pt;">NASDAQ US Dividend Achievers Select</td>
                     <td style="text-align:right; font-size:8pt; padding-right:40pt;">{$YTDPERFORMANCE->GetIndex("DVG")|number_format:2:".":","}%</td>
