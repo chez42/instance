@@ -569,7 +569,7 @@ Vtiger_Pie_Widget_Js('Report_Piechart_Js',{},{
 			return false;
 		}
 
-		var jsonData = jQuery('input[name=data]').val();
+		var jsonData = jQuery('input[name=data]', this.getContainer()).val();
 		
 		jsonData = JSON.parse(jsonData);
 	
@@ -648,8 +648,8 @@ Vtiger_Pie_Widget_Js('Report_Piechart_Js',{},{
 		legend.valueWidth = 100;
         chart.addLegend(legend);
         
-        if($("#"+this.getPlotContainer().attr('id')).length > 0) {
-            chart.write(this.getPlotContainer().attr('id'));
+        if($("#"+this.getPlotContainer().attr('id'), this.getContainer()).length > 0) {
+            chart.write(this.getPlotContainer().attr('id'), this.getContainer());
         }
 	}
 });
@@ -715,7 +715,7 @@ Vtiger_Barchat_Widget_Js('Report_Verticalbarchart_Js', {},{
 			return false;
 		}
 
-		var jsonData = jQuery('input[name=data]').val();
+		var jsonData = jQuery('input[name=data]', this.getContainer()).val();
 		
 		jsonData = JSON.parse(jsonData);
 		
@@ -844,8 +844,9 @@ Vtiger_Barchat_Widget_Js('Report_Verticalbarchart_Js', {},{
 		catAxis.gridAlpha = 0;
 		catAxis.tickPosition = "start";
 		catAxis.tickLength = 20;
-		if($("#"+this.getPlotContainer().attr('id')).length > 0) {
-            chart.write(this.getPlotContainer().attr('id'));
+		
+		if($("#"+this.getPlotContainer().attr('id'), this.getContainer()).length > 0) {
+            chart.write(this.getPlotContainer().attr('id'), this.getContainer());
         }
 	}
 });
