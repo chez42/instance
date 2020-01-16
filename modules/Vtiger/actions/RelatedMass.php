@@ -10,7 +10,7 @@
 
 abstract class Vtiger_RelatedMass_Action extends Vtiger_Action_Controller {
     
-    protected function getRecordsListFromRequest(Vtiger_Request $request) {
+    public function getRecordsListFromRequest(Vtiger_Request $request) {
 
         $module = $request->get('module');
         
