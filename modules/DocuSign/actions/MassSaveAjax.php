@@ -65,12 +65,13 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
         
         if(DocuSign_Config_Connector::$server == 'Sandbox'){
             $config->setHost('https://demo.docusign.net/restapi');
-            $OAuth = new \DocuSign\eSign\client\Auth\OAuth();
+            $OAuth = new \DocuSign\eSign\Client\Auth\OAuth();
             $OAuth->setBasePath($config->getHost());
-            $api_client = new \DocuSign\eSign\client\ApiClient($config,$OAuth);
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
         }
+		
         if(DocuSign_Config_Connector::$server == 'Production')
-            $api_client = new \DocuSign\eSign\client\ApiClient($config);
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config);
             
         $docuSign_settings_result = $adb->pquery("SELECT * FROM vtiger_document_designer_configuration WHERE
         vtiger_document_designer_configuration.userid = ? and ( access_token is not NULL and access_token != '' )",array($current_user->id));
@@ -225,12 +226,13 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
         
         if(DocuSign_Config_Connector::$server == 'Sandbox'){
             $config->setHost('https://demo.docusign.net/restapi');
-            $OAuth = new \DocuSign\eSign\client\Auth\OAuth();
+            $OAuth = new \DocuSign\eSign\Client\Auth\OAuth();
             $OAuth->setBasePath($config->getHost());
-            $api_client = new \DocuSign\eSign\client\ApiClient($config,$OAuth);
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
         }
+		
         if(DocuSign_Config_Connector::$server == 'Production')
-            $api_client = new \DocuSign\eSign\client\ApiClient($config);
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config);
             
         $docuSign_settings_result = $adb->pquery("SELECT * FROM vtiger_document_designer_configuration WHERE
         vtiger_document_designer_configuration.userid = ? and ( access_token is not NULL and access_token != '' )",array($current_user->id));
