@@ -2442,6 +2442,9 @@ class QuotingTool extends CRMEntity
                 } else {
                     $f = nl2br($f);
                 }
+                if($k == '$Contacts__sign_here$'){
+                    $f = "<span style='color:white;'>#SIGN_HERE#</span>";
+                }
                 $content = str_replace($k, $f, $content);
             }
         }
