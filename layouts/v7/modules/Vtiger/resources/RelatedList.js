@@ -1643,6 +1643,145 @@ jQuery.Class("Vtiger_RelatedList_Js",{
                 }
             });
         },
+        
+        registerEventForSendEnvelopeRelatedList : function(){
+    		var thisInstance = this;
+    		$(document).on('click', '.sendenveloperelated', function(){
+    			
+    			var selectedRecordCount = thisInstance.getSelectedRecordCount();
+    			if (!selectedRecordCount) {
+    				app.helper.showAlertBox({message: app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD')});
+	    			return;
+	    		}
+
+    			if (selectedRecordCount > 500) {
+	    			app.helper.showErrorNotification({message: app.vtranslate('JS_MASS_EDIT_LIMIT')});
+	    			return;
+	    		}
+    			
+    			var params = thisInstance.getListSelectAllParams();
+    			params['module'] = 'DocuSign';
+    			params['view'] = 'MassActionAjax';
+    			params['mode'] = 'showSendEmailFromRelated';
+    			params['src_module'] = 'Contacts';
+    			
+    			app.helper.showProgress();
+    			
+    			app.request.post({'data': params}).then(
+					function (err, data) {
+						app.helper.hideProgress();
+						if (data) {
+							app.helper.showModal(data, {'cb': function (modal) {
+								var docusignForm = jQuery('#sendEnvelope');
+								if(docusignForm.length){
+									 
+									var noteContentElement = docusignForm.find('[name="envelope_content"]');
+									if(noteContentElement.length > 0){
+										noteContentElement.addClass('ckEditorSource');
+										var ckEditorInstance = new Vtiger_CkEditor_Js();
+										ckEditorInstance.loadCkEditor(noteContentElement);
+									}
+									thisInstance.registerTemplateChangeEvent(docusignForm);	
+									thisInstance.registerFillMailContentEvent(docusignForm);
+									docusignForm.vtValidate({
+										submitHandler: function (form) {
+											thisInstance.sendEmailToRecords(jQuery(form));
+											return false;
+										}
+									});
+								}
+								}
+							});
+						}
+					}
+				);
+    		});
+    	},
+    	
+    	registerFillMailContentEvent: function (docusignForm) {
+    		docusignForm.on('change', '#selected_contacts', function (e) {
+    			var textarea = CKEDITOR.instances.envelope_content;
+    			var value = jQuery(e.currentTarget).val();
+    			if (textarea != undefined) {
+    				textarea.insertHtml(value);
+				} else if (jQuery('textarea[name="envelope_content"]')) {
+					var textArea = jQuery('textarea[name="envelope_content"]');
+					textArea.insertAtCaret(value);
+				}
+			});
+		},
+    	
+    	registerTemplateChangeEvent : function(docusignForm){
+    		
+    		docusignForm.on('change', '#templateid', function(){
+    			app.helper.showProgress();
+    			var data = new FormData(docusignForm[0]);
+    			
+    			jQuery.each(data, function (key, value) {
+    				data.append(key, value);
+    			});
+    			data.append('mode', 'getEmailContent');
+    			
+    			var postData = { 
+					'url': 'index.php', 
+					'type': 'POST', 
+					'data': data, 
+					processData: false, 
+					contentType: false 
+				};
+    			app.request.post(postData).then(function(err, data){
+    				if (err == null) {
+    					CKEDITOR.instances.envelope_content.setData(data);
+    				}
+    				app.helper.hideProgress();
+    			});
+    		});
+    		
+    	},
+    	
+    	sendEmailToRecords :function(form){
+    		var thisInstance = this;
+			var formData = form.serializeFormData();
+			formData['mode'] = 'SendEmail';
+			
+			var data = new FormData(form[0]);
+			
+			jQuery.each(data, function (key, value) {
+				data.append(key, value);
+			});
+			data.append('mode', 'SendEmail');
+			data.append('envelope_content', CKEDITOR.instances.envelope_content.getData());
+			
+			var postData = { 
+				'url': 'index.php', 
+				'type': 'POST', 
+				'data': data, 
+				processData: false, 
+				contentType: false 
+			};
+			
+			app.helper.showProgress();
+			app.request.post(postData).then(function (err, data) {
+				
+				app.helper.hideProgress();
+				
+				if (err == null) {
+					
+					if(data.success){
+						app.helper.hideModal();
+						var urlParams = {};
+		            	thisInstance.loadRelatedList(urlParams);
+		            	thisInstance.clearList();
+		            	app.helper.showSuccessNotification({message: 'Message Sent Successfully'});
+					} else {
+						app.helper.showErrorNotification({message: app.vtranslate(data.message)})
+					}
+				} 
+				
+			});
+			
+    	},
+    	
     
 })
 
@@ -1651,10 +1790,10 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 jQuery(document).ready(function(){
 	var recordId = app.getRecordId();
 	var moduleName = app.getModuleName();
-        var detailViewInstance = Vtiger_Detail_Js.getInstance();
-        var selectedTabElement = detailViewInstance.getSelectedTab();
-        var relatedModuleName = detailViewInstance.getRelatedModuleName();
-            var instance = Vtiger_RelatedList_Js.getInstance(recordId, moduleName, selectedTabElement, relatedModuleName);
+    var detailViewInstance = Vtiger_Detail_Js.getInstance();
+    var selectedTabElement = detailViewInstance.getSelectedTab();
+    var relatedModuleName = detailViewInstance.getRelatedModuleName();
+    var instance = Vtiger_RelatedList_Js.getInstance(recordId, moduleName, selectedTabElement, relatedModuleName);
 	
 	instance.initializePaginationEvents();
 	instance.relatedtriggerMassEdit();
@@ -1662,4 +1801,5 @@ jQuery(document).ready(function(){
 	instance.relatedmassDeleteRecords();
 	instance.relatedtriggerExportAction();
 	instance.relatedtriggerExportZipAction();
+	instance.registerEventForSendEnvelopeRelatedList();
 });
