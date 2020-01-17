@@ -607,6 +607,30 @@ Vtiger.Class("RingCentral_Js",{
 			});
 			
 		});
+		
+		
+		app.event.on('post.listViewFilter.click', function () {
+			thisInstance.registerEventForMouse();
+		});	
+	
+		app.event.on('post.relatedListLoad.click', function () {
+			thisInstance.registerEventForMouse();
+		});
+	
+		thisInstance.registerEventsForUserPrefrence();
+	
+		var view = app.getViewName();
+		if(view == 'List'){
+			
+			jQuery('#overlayPage').one('shown.bs.modal',function(){
+				thisInstance.registerEventForMouse();
+			});
+			
+			jQuery('#helpPageOverlay').one('shown.bs.modal', function () {
+				thisInstance.registerEventForMouse();
+			});
+			
+		}
 
 		
 		$(document).on('click','.closeOutgoing',function(){
@@ -777,30 +801,5 @@ Vtiger.Class("RingCentral_Js",{
 });
 
 jQuery(document).ready(function(){
-	
-	obj = new RingCentral_Js();
-	
-	app.event.on('post.listViewFilter.click', function () {
-		obj.registerEventForMouse();
-	});	
-	
-	app.event.on('post.relatedListLoad.click', function () {
-		obj.registerEventForMouse();
-	});
-	
-	obj.registerEventsForUserPrefrence();
-	
-	var view = app.getViewName();
-	
-	if(view == 'List'){
-		
-		jQuery('#overlayPage').one('shown.bs.modal',function(){
-			obj.registerEventForMouse();
-		});
-		
-		jQuery('#helpPageOverlay').one('shown.bs.modal', function () {
-			obj.registerEventForMouse();
-		});
-		
-	}
+	new RingCentral_Js();
 });
