@@ -1847,6 +1847,10 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['start'] = date("Y-m", strtotime("January 1st 2018"));
                 $dateReturn['end'] = date("Y-m", strtotime("December 31st 2018"));
                 break;
+            case "2019":
+                $dateReturn['start'] = date("Y-m", strtotime("January 1st 2019"));
+                $dateReturn['end'] = date("Y-m", strtotime("December 31st 2019"));
+                break;
             case "trailing_12":
                 $dateReturn['start'] = date("Y-m", strtotime("first day of this month -1 year"));
                 $dateReturn['end'] = date("Y-m", strtotime("last day of previous month"));
