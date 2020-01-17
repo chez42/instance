@@ -51,14 +51,14 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $start_date = $request->get("report_start_date");
             }
             else {
-                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
+                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['start'];
             }
 
             if(strlen($request->get('report_end_date')) > 1) {
                 $end_date = $request->get("report_end_date");
             }
             else {
-                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['end'];
+                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['end'];
             }
 
             $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
@@ -232,7 +232,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
     public function GeneratePDF($content, $logo = false, $orientation = 'LETTER', $calling_record){
         #       $pdf = new cNewPDFGenerator('c',$orientation,'8','Arial');
-        $pdf = new cMpdf7(['orientation' => 'P']);
+        $pdf = new cMpdf7(['orientation' => 'P', 'margin-top' => '200mm', 'margin-header' => '0', 'border' => '0', ]);
         if($logo)
             $pdf->logo = $logo;
 
@@ -243,10 +243,12 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
         $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css');
 
+        $pdf->SetupHeader();
         $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
         $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH.pdf");
+#        $pdf->DownloadView();
     }
 
     public function getHeaderScripts(Vtiger_Request $request) {

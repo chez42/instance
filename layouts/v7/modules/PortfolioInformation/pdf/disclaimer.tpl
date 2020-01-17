@@ -3,9 +3,9 @@
     <p>This report may include accounts which were closed during the period of the report. Highlighted accounts are included for informational purposes and are not considered for the purpose of calculating performance for this report.</p>
     <p>This report may include forecasts, projections and other predictive statements that represent Omniscient’s assumptions and expectations in light of currently available information. These forecasts involve risks, variables and uncertainties. The actual performance results may differ from those projected in this report. Consequently, no guarantee is presented or implied as to the accuracy of specific forecasts, projections or predictive statements contained herein.</p>
 
-    <p><strong>**Blended Benchmark Return</strong><br />
+{*    <p><strong>**Blended Benchmark Return</strong><br />
         Blended Benchmark Return is based on asset allocation of household at time of report generation.  This allocation may not be a complete representation of allocation over specified time period due to factors such as market movement, deposits and withdrawals and rebalancing.
-    </p>
+    </p>  *}
 
     <p>
         <strong>Beginning/Ending Values</strong><br />
