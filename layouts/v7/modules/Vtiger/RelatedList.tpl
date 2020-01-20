@@ -137,7 +137,7 @@
 								{assign var=RELATED_HEADERNAME value=$HEADER_FIELD->get('name')}
 								{assign var=RELATED_LIST_VALUE value=$RELATED_RECORD->get($RELATED_HEADERNAME)}
 								<td class="relatedListEntryValues" title="{strip_tags($RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME))}" data-field-type="{$HEADER_FIELD->getFieldDataType()}" nowrap>
-									<span class="value textOverflowEllipsis">
+									<span class="value {if $HEADER_FIELD->getFieldDataType() neq 'email' && $HEADER_FIELD->getFieldDataType() neq 'phone'} textOverflowEllipsis {/if}">
 										{if $RELATED_MODULE_NAME eq 'Documents' && $RELATED_HEADERNAME eq 'document_source'}
 											<center>{$RELATED_RECORD->get($RELATED_HEADERNAME)}</center>
 											{else}

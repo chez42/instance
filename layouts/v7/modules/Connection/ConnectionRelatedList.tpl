@@ -137,7 +137,7 @@
 								{assign var=RELATED_HEADERNAME value=$HEADER_FIELD->get('name')}
 								{assign var=RELATED_LIST_VALUE value=$RELATED_RECORD->get($RELATED_HEADERNAME)}
 								<td class="relatedListEntryValues" title="{strip_tags($RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME))}" data-field-type="{$HEADER_FIELD->getFieldDataType()}" nowrap>
-									<span class="value textOverflowEllipsis">
+									<span class="value {if $HEADER_FIELD->getFieldDataType() neq 'email' && $HEADER_FIELD->getFieldDataType() neq 'phone'} textOverflowEllipsis{/if}">
 										{if $HEADER_FIELD->get('uitype') eq '71' or $HEADER_FIELD->get('uitype') eq '72'}
 											{assign var=CURRENCY_SYMBOL value=Vtiger_RelationListView_Model::getCurrencySymbol($RELATED_RECORD->get('id'), $HEADER_FIELD)}
 											{assign var=CURRENCY_VALUE value=CurrencyField::convertToUserFormat($RELATED_RECORD->get($RELATED_HEADERNAME))}

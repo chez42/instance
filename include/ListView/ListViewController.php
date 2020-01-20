@@ -420,9 +420,9 @@ class ListViewController {
 					if($current_user->internal_mailer == 1){
 						//check added for email link in user detailview
 						$value = "<a class='emailField' data-rawvalue=\"$rawValue\" onclick=\"Vtiger_Helper_Js.getInternalMailer($recordId,".
-						"'$fieldName','$module');\">".textlength_check($value)."</a>";
+						"'$fieldName','$module');\">".($value)."</a>";
 					} else {
-						$value = '<a class="emailField" data-rawvalue="'.$rawValue.'" href="mailto:'.$rawValue.'">'.textlength_check($value).'</a>';
+						$value = '<a class="emailField" data-rawvalue="'.$rawValue.'" href="mailto:'.$rawValue.'">'.($value).'</a>';
 					}
 				} elseif($fieldDataType == 'boolean') {
 					if ($value === 'on') {
@@ -476,13 +476,13 @@ class ListViewController {
 						$value = str_replace(' |##| ', ', ', $value);
 					}
 				} elseif ($fieldDataType == 'skype') {
-					$value = ($value != "") ? "<a href='skype:$value?call'>".textlength_check($value)."</a>" : "";
+					$value = ($value != "") ? "<a href='skype:$value?call'>".($value)."</a>" : "";
 				} elseif ($field->getUIType() == 11) {
 					if($outgoingCallPermission && !empty($value)) {
 						$phoneNumber = $value;
 						$value = $phoneNumber;
 					}else {
-						$value = textlength_check($value);
+						$value = ($value);
 					}
 				} elseif($field->getFieldDataType() == 'reference') {
 					$referenceFieldInfoList = $this->queryGenerator->getReferenceFieldInfoList();
@@ -704,19 +704,19 @@ class ListViewController {
 	                    if($downloadType == 'I' ) {
 	                        $value = '<a href="index.php?module=Documents&action=DownloadFile&record='.$recordId.'&fileid='.$fileId.'"'.
 	   	                        ' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-	   	                        '" >'.textlength_check($value).
+	   	                        '" >'.($value).
 	   	                        '</a>';
 	                    } elseif($downloadType == 'E') {
 	                        $value = '<a onclick="event.stopPropagation()"'.
 	   	                        ' href="'.$fileName.'" target="_blank"'.
 	   	                        ' title="'.	getTranslatedString('LBL_DOWNLOAD_FILE',$module).
-	   	                        '" >'.textlength_check($value).
+	   	                        '" >'.($value).
 	   	                        '</a>';
 	                    } else {
 	                        $value = ' --';
 	                    }
 	                } else{
-	                    $value = textlength_check($value);
+	                    $value = ($value);
 	                }
 	                $value = $fileicon.$value;
 	            } elseif($module == 'Documents' && $fieldName == 'filesize') {
@@ -756,7 +756,7 @@ class ListViewController {
 	                //not check for permissions for non admin users for status and activity type field
 	                if($module == 'Calendar' && ($fieldName == 'taskstatus' || $fieldName == 'eventstatus' || $fieldName == 'activitytype')) {
 	                    $value = Vtiger_Language_Handler::getTranslatedString($value,$module);
-	                    $value = textlength_check($value);
+	                    $value = ($value);
 	                }
 	                else if ($value != '' && !$is_admin && $this->picklistRoleMap[$fieldName] &&
 	                    !in_array($value, $this->picklistValueMap[$fieldName]) && strtolower($value) != '--none--' && strtolower($value) != 'none' ) {
@@ -764,7 +764,7 @@ class ListViewController {
 	                            $module)."</font>";
 	                    } else {
 	                        $value =  Vtiger_Language_Handler::getTranslatedString($value,$module);
-	                        $value = textlength_check($value);
+	                        $value = ($value);
 	                    }
 	            }elseif($fieldDataType == 'date' || $fieldDataType == 'datetime') {
 	                if($value != '' && $value != '0000-00-00' && $value != 'NULL') {
@@ -829,18 +829,18 @@ class ListViewController {
 	                $matchPattern = "^[\w]+:\/\/^";
 	                preg_match($matchPattern, $rawValue, $matches);
 	                if(!empty ($matches[0])){
-	                    $value = '<a class="urlField cursorPointer" href="'.$rawValue.'" target="_blank">'.textlength_check($value).'</a>';
+	                    $value = '<a class="urlField cursorPointer" href="'.$rawValue.'" target="_blank">'.($value).'</a>';
 	                }else{
-	                    $value = '<a class="urlField cursorPointer" href="http://'.$rawValue.'" target="_blank">'.textlength_check($value).'</a>';
+	                    $value = '<a class="urlField cursorPointer" href="http://'.$rawValue.'" target="_blank">'.($value).'</a>';
 	                }
 	            } elseif ($fieldDataType == 'email') {
 	                global $current_user;
 	                if($current_user->internal_mailer == 1){
 	                    //check added for email link in user detailview
 	                    $value = "<a class='emailField' data-rawvalue=\"$rawValue\" onclick=\"Vtiger_Helper_Js.getInternalMailer($recordId,".
-	   	                    "'$fieldName','$module');\">".textlength_check($value)."</a>";
+	   	                    "'$fieldName','$module');\">".($value)."</a>";
 	                } else {
-	                    $value = '<a class="emailField" data-rawvalue="'.$rawValue.'" href="mailto:'.$rawValue.'">'.textlength_check($value).'</a>';
+	                    $value = '<a class="emailField" data-rawvalue="'.$rawValue.'" href="mailto:'.$rawValue.'">'.($value).'</a>';
 	                }
 	            } elseif($fieldDataType == 'boolean') {
 	                if ($value === 'on') {
@@ -856,7 +856,7 @@ class ListViewController {
 	                    $value = '--';
 	                }
 	            } elseif($field->getUIType() == 98) {
-	                $value = '<a href="index.php?module=Roles&parent=Settings&view=Edit&record='.$value.'">'.textlength_check(getRoleName($value)).'</a>';
+	                $value = '<a href="index.php?module=Roles&parent=Settings&view=Edit&record='.$value.'">'.(getRoleName($value)).'</a>';
 	            } elseif($fieldDataType == 'multipicklist') {
 	                if(!$is_admin && $value != '') {
 	                    $valueArray = ($rawValue != "") ? explode(' |##| ',$rawValue) : array();
@@ -883,7 +883,7 @@ class ListViewController {
 	                                    }
 	                        }
 	                        $value = implode(', ', $tmpArray);
-	                        $value = textlength_check($value);
+	                        $value = ($value);
 	                } else if ($value != '') {
 	                    $moduleName = getTabModuleName($field->getTabId());
 	                    $value = explode(' |##| ', $value);
@@ -894,13 +894,13 @@ class ListViewController {
 	                    $value = str_replace(' |##| ', ', ', $value);
 	                }
 	            } elseif ($fieldDataType == 'skype') {
-	                $value = ($value != "") ? "<a href='skype:$value?call'>".textlength_check($value)."</a>" : "";
+	                $value = ($value != "") ? "<a href='skype:$value?call'>".($value)."</a>" : "";
 	            } elseif ($field->getUIType() == 11) {
 	                if($outgoingCallPermission && !empty($value)) {
 	                    $phoneNumber = $value;
 	                    $value = $phoneNumber;
 	                }else {
-	                    $value = textlength_check($value);
+	                    $value = ($value);
 	                }
 	            } elseif($field->getFieldDataType() == 'reference') {
 	                $referenceFieldInfoList = $this->queryGenerator->getReferenceFieldInfoList();
@@ -912,7 +912,7 @@ class ListViewController {
 	                }
 	                if(!empty($value) && !empty($this->nameList[$fieldName]) && !empty($parentModule)) {
 	                    $parentMeta = $this->queryGenerator->getMeta($parentModule);
-	                    $value = textlength_check($this->nameList[$fieldName][$value]);
+	                    $value = ($this->nameList[$fieldName][$value]);
 	                    if ($parentMeta->isModuleEntity() && $parentModule != "Users") {
 	                        $value = "<a class='js-reference-display-value' href='?module=$parentModule&view=Detail&".
 	   	                        "record=$rawValue' title='".getTranslatedString($parentModule, $parentModule)."'>$value</a>";
@@ -921,7 +921,7 @@ class ListViewController {
 	                    $value = '--';
 	                }
 	            } elseif($fieldDataType == 'owner' || $fieldDataType == 'ownergroup') {
-	                $value = textlength_check($this->ownerNameList[$fieldName][$value]);
+	                $value = ($this->ownerNameList[$fieldName][$value]);
 	            } elseif ($field->getUIType() == 25) {
 	                //TODO clean request object reference.
 	                $contactId=$_REQUEST['record'];
@@ -939,7 +939,7 @@ class ListViewController {
 	                    $value = vt_suppressHTMLTags(implode(',',$json->decode($temp_val)));
 	                }
 	            } elseif ( in_array($uitype,array(7,9,90)) ) {
-	                $value = "<span align='right'>".textlength_check($value)."</span>";
+	                $value = "<span align='right'>".($value)."</span>";
 	            } elseif($field && $field->isNameField) {
 	                $value = "<a href='?module=$field->moduleName&view=Detail&".
 	   	                "record=$recordId' title='".vtranslate($field->moduleName, $field->moduleName)."'>$value</a>";
@@ -951,7 +951,7 @@ class ListViewController {
 	                    $url = 'index.php?module='.$module.
 	                    '&action=DownloadAttachment&record='.$recordId.'&attachmentid='.$attachmentId;
 	                    $displayValue = '<a href="'.$url.'" title="'.vtranslate('LBL_DOWNLOAD_FILE',$module).'">'.
-	   	                    textlength_check($attachmentName).
+	   	                    ($attachmentName).
 	   	                    '</a>';
 	                }
 	                $value = $displayValue;
