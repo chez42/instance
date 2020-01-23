@@ -19,7 +19,9 @@ Vtiger.Class("DocuSign_Js",{
 				if(err === null) {
 					
 					thisInstance.connected = true;
-					thisInstance.registerEventForSendEnvelopeButton();
+					app.event.on('post.relatedListLoad.click', function () {
+						thisInstance.registerEventForSendEnvelopeButton();
+					});
 					
 				} else {
 					

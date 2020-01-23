@@ -25,7 +25,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
     }
     
     public function process(Vtiger_Request $request) {
-       
+        
         $mode = $request->get('mode');
         if(!empty($mode)) {
             $this->invokeExposedMethod($mode, $request);
@@ -69,7 +69,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             $OAuth->setBasePath($config->getHost());
             $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
         }
-		
+        
         if(DocuSign_Config_Connector::$server == 'Production')
             $api_client = new \DocuSign\eSign\Client\ApiClient($config);
             
@@ -101,7 +101,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             $current_time = strtotime(date("Y-m-d H:i:s"));
             
             if(!$accountId || $token['expires_in'] < $current_time){
-               
+                
                 try {
                     
                     $refreshTokenData = $api_client->generateRefreshAccessToken(DocuSign_Config_Connector::$client_id, DocuSign_Config_Connector::$client_secret, $token['refresh_token']);
@@ -132,10 +132,10 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             $config->addDefaultHeader('Authorization', 'Bearer ' . $token['access_token']);
             
             if(DocuSign_Config_Connector::$server == 'Sandbox')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config, $OAuth);
-            if(DocuSign_Config_Connector::$server == 'Production')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config);
-            
+                $api_client = new \DocuSign\eSign\Client\ApiClient($config, $OAuth);
+                if(DocuSign_Config_Connector::$server == 'Production')
+                    $api_client = new \DocuSign\eSign\Client\ApiClient($config);
+                    
         } else {
             
             $result = array('message' => 'Invalid Token, Please Connect Application Again!');
@@ -221,7 +221,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
         $template = $request->get('templateid');
         
         $srcModule = $request->get('source_module');
-       
+        
         $config = new \DocuSign\eSign\Configuration();
         
         if(DocuSign_Config_Connector::$server == 'Sandbox'){
@@ -230,7 +230,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             $OAuth->setBasePath($config->getHost());
             $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
         }
-		
+        
         if(DocuSign_Config_Connector::$server == 'Production')
             $api_client = new \DocuSign\eSign\Client\ApiClient($config);
             
@@ -297,9 +297,9 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             $config->addDefaultHeader('Authorization', 'Bearer ' . $token['access_token']);
             
             if(DocuSign_Config_Connector::$server == 'Sandbox')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config, $OAuth);
-            if(DocuSign_Config_Connector::$server == 'Production')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config);
+                $api_client = new \DocuSign\eSign\Client\ApiClient($config, $OAuth);
+                if(DocuSign_Config_Connector::$server == 'Production')
+                    $api_client = new \DocuSign\eSign\Client\ApiClient($config);
                     
         } else {
             
@@ -314,7 +314,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             exit;
             
         }
-            
+        
         foreach($recordIds as $recordId) {
             
             $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
@@ -336,7 +336,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             try {
                 
                 $fileData = $this->pdfFileContent($recordId, $template, $srcModule);
-               
+                
                 $base64FileContent = $fileData['filecontent'];
                 $fileName = $fileData['filename'];
                 
@@ -385,11 +385,11 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
             }
             
         }
-       
+        
         $response = new Vtiger_Response();
         $response->setResult($result);
         $response->emit();
-        
+            
     }
     
     public function saveToken($token_data){
@@ -430,7 +430,7 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
         $entityId = $recordId;
         
         $templateId = $template;
-       
+        
         $recordModel = new QuotingTool_Record_Model();
         $record = $recordModel->getById($templateId);
         
@@ -641,6 +641,6 @@ class DocuSign_MassSaveAjax_Action extends Vtiger_Mass_Action {
         $data = array('filecontent'=>$fileContent, 'filename'=>$fileName);
         
         return $data;
-       
+        
     }
 }

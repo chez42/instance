@@ -1,6 +1,6 @@
 <?php
 include_once "modules/QuotingTool/QuotingTool.php";
-require_once 'modules/DocuSign/vendor/autoload.php';
+include_once "modules/DocuSign/vendor/autoload.php";
 include_once "include/simplehtmldom/simple_html_dom.php";
 class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
     
@@ -11,7 +11,7 @@ class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
     }
     
     function checkPermission(Vtiger_Request $request) {
-       return true;
+        return true;
     }
     
     public function process(Vtiger_Request $request) {
@@ -27,7 +27,7 @@ class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
     function SendEmail(Vtiger_Request $request){
         
         global $adb,$current_user;
-       
+        
         $moduleName = $request->getModule();
         $moduleModel = Vtiger_Module_Model::getInstance($request->get('source_module'));
         $recordIds = $this->getRecordsListFromRequest($request);
@@ -43,7 +43,7 @@ class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
             if(!empty($fieldValue)) {
                 $toEmail[$recordId] = $fieldValue;
             }
-           
+            
             $fullName= '';
             $COUNTER = 0;
             foreach ($moduleModel->getNameFields() as $NAME_FIELD){
@@ -64,7 +64,7 @@ class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
             $content = str_replace($recordId."_SIGN", "<span style='color:white;'>#".$recordId."_SIGN_HERE#</span>", $content);
         }
         
-    
+        
         $templateId = $request->get('templateid');
         $recordModel = new QuotingTool_Record_Model();
         $quotingToolSettingRecordModel = new QuotingTool_SettingRecord_Model();
@@ -110,162 +110,162 @@ class DocuSign_SendEmailToRelated_Action extends Vtiger_RelatedMass_Action {
         }
         
         $pdf = $quotingTool->createPdf($content, $record->get("header"), $record->get("footer"), $fileName, $record->get("settings_layout"), $parentRecord, "storage/QuotingTool/", array(), array(), false);
-       
+        
         $config = new \DocuSign\eSign\Configuration();
         
         if(DocuSign_Config_Connector::$server == 'Sandbox'){
             $config->setHost('https://demo.docusign.net/restapi');
-            $OAuth = new \DocuSign\eSign\client\Auth\OAuth();
+            $OAuth = new \DocuSign\eSign\Client\Auth\OAuth();
             $OAuth->setBasePath($config->getHost());
-            $api_client = new \DocuSign\eSign\client\ApiClient($config,$OAuth);
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
         }
         if(DocuSign_Config_Connector::$server == 'Production')
-            $api_client = new \DocuSign\eSign\client\ApiClient($config);
-        
-        $docuSign_settings_result = $adb->pquery("SELECT * FROM vtiger_document_designer_configuration WHERE
+            $api_client = new \DocuSign\eSign\Client\ApiClient($config);
+            
+            $docuSign_settings_result = $adb->pquery("SELECT * FROM vtiger_document_designer_configuration WHERE
         vtiger_document_designer_configuration.userid = ? and ( access_token is not NULL and access_token != '' )",array($current_user->id));
-        
-        if($adb->num_rows($docuSign_settings_result)){
             
-            $token_data = $adb->query_result_rowdata($docuSign_settings_result, 0);
-            
-            $token = array();
-            
-            $token['token_type'] = $token_data['token_type'];
-            
-            $token['expires_in'] = $token_data['expires_in'];
-            
-            $token['access_token'] = $token_data['access_token'];
-            
-            $token['refresh_token'] = $token_data['refresh_token'];
-            
-            try {
+            if($adb->num_rows($docuSign_settings_result)){
                 
-                $userDetail = $api_client->getUserInfo($token['access_token']);
+                $token_data = $adb->query_result_rowdata($docuSign_settings_result, 0);
                 
-                $accountId = $userDetail[0]['accounts'][0]['account_id'];
+                $token = array();
                 
-            } catch(Exception $e){
+                $token['token_type'] = $token_data['token_type'];
                 
-                $accountId = '';
+                $token['expires_in'] = $token_data['expires_in'];
                 
-            }
-            
-            $current_time = strtotime(date("Y-m-d H:i:s"));
-            
-            if(!$accountId || $token['expires_in'] < $current_time){
+                $token['access_token'] = $token_data['access_token'];
+                
+                $token['refresh_token'] = $token_data['refresh_token'];
                 
                 try {
                     
-                    $refreshTokenData = $api_client->generateRefreshAccessToken(DocuSign_Config_Connector::$client_id, DocuSign_Config_Connector::$client_secret, $token['refresh_token']);
+                    $userDetail = $api_client->getUserInfo($token['access_token']);
                     
-                    $token['access_token'] = $refreshTokenData[0]['access_token'];
-                    $token['refresh_token'] = $refreshTokenData[0]['refresh_token'];
-                    $token['token_type'] = $refreshTokenData[0]['token_type'];
-                    $token['expires_in'] = $refreshTokenData[0]['expires_in'];
-                    
-                    $this->saveToken($refreshTokenData);
+                    $accountId = $userDetail[0]['accounts'][0]['account_id'];
                     
                 } catch(Exception $e){
                     
-                    $result = array('message' => 'Invalid Token, Please Connect Application Again!');
-                    
-                    $response = new Vtiger_Response();
-                    
-                    $response->setError($result['message']);
-                    
-                    $response->emit();
-                    
-                    exit;
+                    $accountId = '';
                     
                 }
                 
+                $current_time = strtotime(date("Y-m-d H:i:s"));
+                
+                if(!$accountId || $token['expires_in'] < $current_time){
+                    
+                    try {
+                        
+                        $refreshTokenData = $api_client->generateRefreshAccessToken(DocuSign_Config_Connector::$client_id, DocuSign_Config_Connector::$client_secret, $token['refresh_token']);
+                        
+                        $token['access_token'] = $refreshTokenData[0]['access_token'];
+                        $token['refresh_token'] = $refreshTokenData[0]['refresh_token'];
+                        $token['token_type'] = $refreshTokenData[0]['token_type'];
+                        $token['expires_in'] = $refreshTokenData[0]['expires_in'];
+                        
+                        $this->saveToken($refreshTokenData);
+                        
+                    } catch(Exception $e){
+                        
+                        $result = array('message' => 'Invalid Token, Please Connect Application Again!');
+                        
+                        $response = new Vtiger_Response();
+                        
+                        $response->setError($result['message']);
+                        
+                        $response->emit();
+                        
+                        exit;
+                        
+                    }
+                    
+                }
+                
+                $config->addDefaultHeader('Authorization', 'Bearer ' . $token['access_token']);
+                
+                if(DocuSign_Config_Connector::$server == 'Sandbox')
+                    $api_client = new \DocuSign\eSign\Client\ApiClient($config, $OAuth);
+                    if(DocuSign_Config_Connector::$server == 'Production')
+                        $api_client = new \DocuSign\eSign\Client\ApiClient($config);
+                        
+            } else {
+                
+                $result = array('message' => 'Invalid Token, Please Connect Application Again!');
+                
+                $response = new Vtiger_Response();
+                
+                $response->setError($result['message']);
+                
+                $response->emit();
+                
+                exit;
+                
             }
             
-            $config->addDefaultHeader('Authorization', 'Bearer ' . $token['access_token']);
-            
-            if(DocuSign_Config_Connector::$server == 'Sandbox')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config, $OAuth);
-            if(DocuSign_Config_Connector::$server == 'Production')
-                $api_client = new \DocuSign\eSign\client\ApiClient($config);
+            try {
+                
+                $base64FileContent = base64_encode(file_get_contents($pdf));
+                
+                $document = new DocuSign\eSign\Model\Document([
+                    'document_base64' => $base64FileContent,
+                    'name' => $fileName,
+                    'file_extension' => 'pdf',
+                    'document_id' => '1' ,
+                ]);
+                
+                $count = 0;
+                foreach($toEmail as $record=>$email){
                     
-        } else {
+                    $signer[$count] = new DocuSign\eSign\Model\Signer([
+                        'email' => $email, 'name' => $contactName[$record],
+                        'recipient_id' => $record
+                    ]);
+                    
+                    $signHere[$count] = new \DocuSign\eSign\Model\SignHere([
+                        'anchor_string' => '#'.$record.'_SIGN_HERE#', 'anchor_units' => 'pixels',
+                        'anchor_y_offset' => '10', 'anchor_x_offset' => '20'
+                    ]);
+                    
+                    $signer[$count]->setTabs(new DocuSign\eSign\Model\Tabs(['sign_here_tabs' => [$signHere[$count]]]));
+                    $count++;
+                    
+                }
+                
+                $envelopeDefinition = new DocuSign\eSign\Model\EnvelopeDefinition([
+                    'email_subject' => "Please sign this document",
+                    'documents' => [$document],
+                    'recipients' => new DocuSign\eSign\Model\Recipients(['signers' => $signer]),
+                    'status' => "sent"
+                ]);
+                
+                $envelopeApi = new DocuSign\eSign\Api\EnvelopesApi($api_client);
+                $results = $envelopeApi->createEnvelope($accountId, $envelopeDefinition);
+                if($results['status'] == 'sent'){
+                    $envelopeId = $results['envelope_id'];
+                    
+                    $adb->pquery("INSERT INTO vtiger_sync_docusign_records(userid, envelopeid, contactid) VALUES (?, ?, ?)",
+                        array($current_user->id, $envelopeId, $parentRecord));
+                    
+                    $result = array('success' => true);
+                }else{
+                    $result = array('message' => 'Unable to send the email try again later.');
+                }
+                
+                
+            } catch(Exception $e){
+                $result = array('message' => $e->getMessage());
+            }
             
-            $result = array('message' => 'Invalid Token, Please Connect Application Again!');
             
             $response = new Vtiger_Response();
-            
-            $response->setError($result['message']);
-            
+            $response->setResult($result);
             $response->emit();
             
-            exit;
-            
-        }
-        
-        try {
-            
-            $base64FileContent = base64_encode(file_get_contents($pdf));
-            
-            $document = new DocuSign\eSign\Model\Document([
-                'document_base64' => $base64FileContent,
-                'name' => $fileName,
-                'file_extension' => 'pdf',
-                'document_id' => '1' ,
-            ]);
-            
-            $count = 0;
-            foreach($toEmail as $record=>$email){
-
-                $signer[$count] = new DocuSign\eSign\Model\Signer([
-                    'email' => $email, 'name' => $contactName[$record],
-                    'recipient_id' => $record
-                ]);
-                
-                $signHere[$count] = new \DocuSign\eSign\Model\SignHere([
-                    'anchor_string' => '#'.$record.'_SIGN_HERE#', 'anchor_units' => 'pixels',
-                    'anchor_y_offset' => '10', 'anchor_x_offset' => '20'
-                ]);
-                
-                $signer[$count]->setTabs(new DocuSign\eSign\Model\Tabs(['sign_here_tabs' => [$signHere[$count]]]));
-                $count++;
-                
-            }
-            
-            $envelopeDefinition = new DocuSign\eSign\Model\EnvelopeDefinition([
-                'email_subject' => "Please sign this document",
-                'documents' => [$document],
-                'recipients' => new DocuSign\eSign\Model\Recipients(['signers' => $signer]),
-                'status' => "sent"
-            ]);
-            
-            $envelopeApi = new DocuSign\eSign\Api\EnvelopesApi($api_client);
-            $results = $envelopeApi->createEnvelope($accountId, $envelopeDefinition);
-            if($results['status'] == 'sent'){
-                $envelopeId = $results['envelope_id'];
-                
-                $adb->pquery("INSERT INTO vtiger_sync_docusign_records(userid, envelopeid, contactid) VALUES (?, ?, ?)",
-                    array($current_user->id, $envelopeId, $parentRecord));
-                
-                $result = array('success' => true);
-            }else{
-                $result = array('message' => 'Unable to send the email try again later.');
-            }
-            
-            
-        } catch(Exception $e){
-            $result = array('message' => $e->getMessage());
-        }
-        
-        
-        $response = new Vtiger_Response();
-        $response->setResult($result);
-        $response->emit();
-        
     }
     
     function getEmailContent(Vtiger_Request $request){
-       
+        
         
         $moduleName = $request->getModule();
         $templateId = $request->get('templateid');
