@@ -1,4 +1,4 @@
-<?
+<?php
 
 class ContactItemType extends ItemType {
     public $FileAs; // string
