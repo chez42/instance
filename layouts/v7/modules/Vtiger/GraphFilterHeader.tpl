@@ -54,6 +54,36 @@
 				</div>
 			</div>
 		</div>
-		
+		{if $FIELDS_INFO neq null}
+			<script type="text/javascript">
+				var uimeta = (function () {
+					var fieldInfo = {$FIELDS_INFO};
+					return {
+						field: {
+							get: function (name, property) {
+								if (name && property === undefined) {
+									return fieldInfo[name];
+								}
+								if (name && property) {
+									return fieldInfo[name][property]
+								}
+							},
+							isMandatory: function (name) {
+								if (fieldInfo[name]) {
+									return fieldInfo[name].mandatory;
+								}
+								return false;
+							},
+							getType: function (name) {
+								if (fieldInfo[name]) {
+									return fieldInfo[name].type
+								}
+								return false;
+							}
+						},
+					};
+				})();
+			</script>
+		{/if}
 	</div>     
 {/strip}
