@@ -183,8 +183,8 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
         var captchaContents = '<script type="text/javascript">'+
         'var RecaptchaOptions = { theme : "clean" };' +
         '</script>'+
-        '<script type="text/javascript"'+
-        'src="http://www.google.com/recaptcha/api/challenge?k=6Lchg-wSAAAAAIkV51_LSksz6fFdD2vgy59jwa38">'+
+        '<script '+
+        'src="https://www.google.com/recaptcha/api.js">'+
         '</script>'+
         '<noscript>'+
             '<iframe src="http://www.google.com/recaptcha/api/noscript?k=6Lchg-wSAAAAAIkV51_LSksz6fFdD2vgy59jwa38"'+
@@ -197,11 +197,9 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
         showFormContents = showFormContents +
                 'var recaptchaValidationValue = document.getElementById("recaptcha_validation_value").value;'+
                 'if (recaptchaValidationValue!= true){'+
-                    'var recaptchaResponseElement = document.getElementsByName("recaptcha_response_field")[0].value;'+
-                    'var recaptchaChallengeElement = document.getElementsByName("recaptcha_challenge_field")[0].value;'+
+                	'var response = grecaptcha.getResponse();'+
                     'var captchaUrl = document.getElementById("captchaUrl").value;'+
-                    'var url = captchaUrl+"?recaptcha_response_field="+recaptchaResponseElement;'+
-                    'url = url + "&recaptcha_challenge_field="+recaptchaChallengeElement+"&callback=JSONPCallback";'+
+                    'var url = captchaUrl+"?recaptcha_response_field="+response+"&callback=JSONPCallback";'+
                     'jsonp.fetch(url);'+
                     'return false;'+
                 '}'+
@@ -227,8 +225,7 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
                 'var form = document.getElementById("__vtigerWebForm");'+
                 'form.submit();'+
             '} else {'+
-                'document.getElementById("recaptcha_reload").click();'+
-                'alert("you entered wrong captcha");'+
+                'alert("Please check captcha");'+
             '}'+
             'var element = document.getElementById("JSONPCallback_"+data.result.callId);'+
             'element.parentNode.removeChild(element);'+

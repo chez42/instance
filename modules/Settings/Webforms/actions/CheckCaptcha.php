@@ -19,27 +19,18 @@ include_once 'include/recaptcha/recaptchalib.php';
 class Webform_CheckCaptcha {
 
 	function checkCaptchaNow($request) {
-        // reCAPTCHA public and private keys to validate
-		$publickey = "6Lchg-wSAAAAAIkV51_LSksz6fFdD2vgy59jwa38";
-        $privatekey = "6Lchg-wSAAAAABUvZ57ogylowuv8SK0Hq4h2Yghs";
-
-        // to store the response from reCAPTCHA
-        $resp = null;
-
-        if ($request["recaptcha_response_field"]) {
-                $resp = recaptcha_check_answer ($privatekey,
-                                                $_SERVER["REMOTE_ADDR"],
-                                                $request["recaptcha_challenge_field"],
-                                                $request["recaptcha_response_field"]);
-
-                if ($resp->is_valid) {
-                        $this->sendResponse(true, $request['callId']);
-                } else {
-                        $this->sendResponse(false, $request['callId']);
-                }
-        } else {
-			$this->sendResponse(false, $request['callId']);
-		}
+        
+		global $captcha_secret_key;
+		
+		$cap_response = $request['recaptcha_response_field'];
+	    $response=file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$captcha_secret_key."&response=".$cap_response);
+	    $responseKeys = json_decode($response,true);
+	    if(intval($responseKeys["success"]) !== 1) {
+	        $this->sendResponse(false, $request['callId']);
+	    } else {
+	        $this->sendResponse(true, $request['callId']);
+	    }
+		
 	}
 
 	protected function sendResponse($success, $callId) {

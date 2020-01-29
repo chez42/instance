@@ -119,6 +119,7 @@
 					</table>
 					{if $IS_CAPTCHA_ENABLED}
 						<div id="captchaField"></div>
+						<div class="g-recaptcha" data-sitekey="{$SITEKEY}"></div>
 						<input type="hidden" id="captchaUrl" value="{$CAPTCHA_PATH}">
 						<input type="hidden" id="recaptcha_validation_value" >
 					{/if}

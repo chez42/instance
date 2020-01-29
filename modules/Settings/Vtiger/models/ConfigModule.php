@@ -128,6 +128,11 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 			'list_max_entries_per_page'		=> array('label' => 'LBL_MAX_ENTRIES_PER_PAGE_IN_LISTVIEW',	'fieldType' => 'input'),
 		    'master_password'               => array('label' => 'LBL_MASTER_PASSWORD',					'fieldType' => 'input'),
 		    'PORTAL_URL'                    => array('label' => 'Portal Url',					        'fieldType' => 'input'),
+		    
+		    'captcha_secret_key'               => array('label' => 'Captcha Secret Key',					'fieldType' => 'input'),
+		    'captcha_site_key'               => array('label' => 'Captcha Site Key',					'fieldType' => 'input'),
+		    
+		    
 		);
 	}
 
