@@ -202,4 +202,14 @@ class Users_Field_Model extends Vtiger_Field_Model {
 	    return $validator;
 	}
 	
+	public function getFieldInfo() {
+	    
+	    $this->fieldInfo = parent::getFieldInfo();
+	    if($this->getFieldDataType() == 'theme'){
+	        $this->fieldInfo['picklistvalues'] = Vtiger_Theme::getAllSkins();
+	    }
+	    
+	    return $this->fieldInfo;
+	}
+	
 }

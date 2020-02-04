@@ -321,3 +321,69 @@ Vtiger_Detail_Js("Users_Detail_Js",{
 
 // Actually, Users Module is in Settings. Controller in application.js will check for Settings_Users_Detail_Js 
 Users_Detail_Js("Settings_Users_Detail_Js");
+
+
+Vtiger_Field_Js('Vtiger_Theme_Field_Js',{},{
+
+	/**
+	 * Function to get the pick list values
+	 * @return <object> key value pair of options
+	 */
+	getPickListValues : function() {
+		return this.get('picklistvalues');
+	},
+
+	/**
+	 * Function to get the ui
+	 * @return - select element and chosen element
+	 */
+	getUi : function() {
+		//added class inlinewidth
+		var html = '<select class="select2 inputElement inlinewidth" name="'+ this.getName() +'" id="field_'+this.getModuleName()+'_'+this.getName()+'">';
+		var pickListValues = this.getPickListValues();
+		var selectedOption = app.htmlDecode(this.getValue());
+		
+		html += '<option value="">'+app.vtranslate('JS_SELECT_OPTION')+'</option>';
+
+		var data = this.getData();
+		var picklistColors = data['picklistColors'];
+
+		var fieldName = this.getName();
+		for(var option in pickListValues) {
+			html += '<option value="'+option+'" ';
+
+			
+			className = 'picklistColor_'+option.replace(' ', '_');
+			html += 'class="'+className+'"';
+
+			if(option == selectedOption) {
+				html += ' selected ';
+			}
+			option = option.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+			    return letter.toUpperCase();
+			});
+			html += '>'+option+'</option>';
+		}
+		html +='</select>';
+
+		
+		html +='<style type="text/css">';
+		
+		for(var option in pickListValues) {
+			
+			className = '.picklistColor_'+option.replace(' ', '_');
+			
+			html += className+'{background-color: '+pickListValues[option]+' !important;}';
+
+			className = className + '.select2-highlighted';
+			html += className+'{white: #ffffff !important;}';
+			
+		}
+		html +='<\style>';
+		
+
+		var selectContainer = jQuery(html);
+		this.addValidationToElement(selectContainer);
+		return selectContainer;
+	}
+});
