@@ -32,7 +32,11 @@
                          {assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
                          {assign var="refrenceList" value=$FIELD_MODEL->getReferenceList()}
                          {assign var="refrenceListCount" value=count($refrenceList)}
-                         {if $FIELD_MODEL->getName() eq 'theme' or $FIELD_MODEL->getName() eq 'rowheight'}
+                         {*{if $FIELD_MODEL->getName() eq 'theme' or $FIELD_MODEL->getName() eq 'rowheight'}
+                            <input type="hidden" name="{$FIELD_MODEL->getName()}" value="{$FIELD_MODEL->get('fieldvalue')}"/> 
+                            {continue}
+                         {/if}*}
+                         {if $FIELD_MODEL->getName() eq 'rowheight'}
                             <input type="hidden" name="{$FIELD_MODEL->getName()}" value="{$FIELD_MODEL->get('fieldvalue')}"/> 
                             {continue}
                          {/if}
