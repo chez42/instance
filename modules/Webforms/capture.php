@@ -29,7 +29,38 @@ class Webform_Capture {
 		$currentLanguage = Vtiger_Language_Handler::getLanguage();
 		$moduleLanguageStrings = Vtiger_Language_Handler::getModuleStringsFromFile($currentLanguage);
 		vglobal('app_strings', $moduleLanguageStrings['languageStrings']);
-
+		
+		if($request['captcha']){
+		    
+		    global $captcha_secret_key;
+		    
+		    $cap_response = $request['recaptcha_validation_value'];
+		    
+		    // post request to server
+		    $url = 'https://www.google.com/recaptcha/api/siteverify';
+		    $data = array('secret' => $captcha_secret_key, 'response' => $cap_response);
+		   
+		    $options = array(
+		        'http' => array(
+		            'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+		            'method'  => 'POST',
+		            'content' => http_build_query($data)
+		        )
+		    );
+		    
+		    $context  = stream_context_create($options);
+		    $response = file_get_contents($url, false, $context);
+		    $responseKeys = json_decode($response,true);
+		    header('Content-type: application/json');
+		   
+		    if(intval($responseKeys["success"]) !== 1) {
+		        $returnUrl = $request['current_url'];
+		        $this->sendResponse($returnUrl, false , true);
+		        return;
+		    } 
+		   
+		}
+		
 		$returnURL = false;
 		try {
 			if (!vtlib_isModuleActive('Webforms'))
@@ -41,7 +72,6 @@ class Webform_Capture {
 
 			$returnURL = $webform->getReturnUrl();
 			$roundrobin = $webform->getRoundrobin();
-
 			// Retrieve user information
 			$user = CRMEntity::getInstance('Users');
 			$user->id = $user->getActiveAdminId();

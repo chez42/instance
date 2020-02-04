@@ -118,10 +118,11 @@
 						{/foreach}
 					</table>
 					{if $IS_CAPTCHA_ENABLED}
-						<div id="captchaField"></div>
+						<script src="https://www.google.com/recaptcha/api.js?render=6Le3K9UUAAAAAFWA63o8xttqxFJmuWnQCmjMsHkz"></script>
 						<div class="g-recaptcha" data-sitekey="{$SITEKEY}"></div>
-						<input type="hidden" id="captchaUrl" value="{$CAPTCHA_PATH}">
-						<input type="hidden" id="recaptcha_validation_value" >
+						<input type="hidden" id="captcha" name="captcha" value='{$IS_CAPTCHA_ENABLED}'>
+						<input type="hidden" id="current_url" name="current_url">
+						<input type="hidden" id="recaptcha_validation_value" name="recaptcha_validation_value">
 					{/if}
 					<input type="submit" value="Submit" ></input>
 				</form>
