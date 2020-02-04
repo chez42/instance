@@ -54,9 +54,11 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
 					'var M=ua.match(/(opera|chrome|safari|firefox|msie)\\/?\\s*(\\.?\\d+(\\.\\d+)*)/i);'+
 					'if(M && (tem= ua.match(/version\\/([\\.\\d]+)/i))!= null) M[2]= tem[1];'+
 					 'M=M? [M[1], M[2]]: [N, navigator.appVersion, "-?"];'+
-					'var browserName = M[0];'+
-
-						'var form = document.getElementById("__vtigerWebForm"), '+
+					'var browserName = M[0];';
+					  if(container.find('[name=isCaptchaEnabled]').val() == true) {
+						  showFormContents = Settings_Webforms_Detail_Js.getCaptchaCode(showFormContents);
+					  }
+					  showFormContents = showFormContents +'var form = document.getElementById("__vtigerWebForm"), '+
 						'inputs = form.elements; '+
 						'form.onsubmit = function() { '+
 							'var required = [], att, val; '+
@@ -125,14 +127,12 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
 								'alert("Maximum allowed file size including all files is 50MB.");'+
 								'return false;'+
 							'}';
-                    if(container.find('[name=isCaptchaEnabled]').val() == true) {
-                        showFormContents = Settings_Webforms_Detail_Js.getCaptchaCode(showFormContents);
-                    } else {
+                  
                         showFormContents = showFormContents +
 						'}; '+
                         '}'+
 					'</script>';
-                    }
+                  
 					//Html contents should be placed inside textarea element
 					container.find('#showFormContent').text(showFormContents);
 					//Rendering content has been removed from container
@@ -180,57 +180,16 @@ Settings_Vtiger_Detail_Js('Settings_Webforms_Detail_Js', {
      * @return <string> showFormContents
      */
     getCaptchaCode : function(showFormContents) {
-        var captchaContents = '<script type="text/javascript">'+
-        'var RecaptchaOptions = { theme : "clean" };' +
-        '</script>'+
-        '<script '+
-        'src="https://www.google.com/recaptcha/api.js">'+
-        '</script>'+
-        '<noscript>'+
-            '<iframe src="http://www.google.com/recaptcha/api/noscript?k=6Lchg-wSAAAAAIkV51_LSksz6fFdD2vgy59jwa38"'+
-                'height="300" width="500" frameborder="0"></iframe><br>'+
-            '<textarea name="recaptcha_challenge_field" rows="3" cols="40">'+
-            '</textarea>'+
-            '<input type="hidden" name="recaptcha_response_field" value="manual_challenge">'+
-        '</noscript>';
-        showFormContents = showFormContents.replace('<div id="captchaField"></div>',captchaContents);
+        
         showFormContents = showFormContents +
-                'var recaptchaValidationValue = document.getElementById("recaptcha_validation_value").value;'+
-                'if (recaptchaValidationValue!= true){'+
-                	'var response = grecaptcha.getResponse();'+
-                    'var captchaUrl = document.getElementById("captchaUrl").value;'+
-                    'var url = captchaUrl+"?recaptcha_response_field="+response+"&callback=JSONPCallback";'+
-                    'jsonp.fetch(url);'+
-                    'return false;'+
-                '}'+
-            '}; '+
-        '};'+
-        'var jsonp = {' +
-            'callbackCounter: 0,'+
-
-            'fetch: function(url) {'+
-                'url = url +"&callId="+this.callbackCounter;'+
-                'var scriptTag = document.createElement("SCRIPT");'+
-                'scriptTag.src = url;'+
-                'scriptTag.async = true;'+
-                'scriptTag.id = "JSONPCallback_"+this.callbackCounter;'+
-                'scriptTag.type = "text/javascript";'+
-                'document.getElementsByTagName("HEAD")[0].appendChild(scriptTag);'+
-                'this.callbackCounter++;'+
-            '}'+
-        '};'+
-        'function JSONPCallback(data) {'+
-            'if(data.result.success == true) {'+
-                'document.getElementById("recaptcha_validation_value").value = true;'+
-                'var form = document.getElementById("__vtigerWebForm");'+
-                'form.submit();'+
-            '} else {'+
-                'alert("Please check captcha");'+
-            '}'+
-            'var element = document.getElementById("JSONPCallback_"+data.result.callId);'+
-            'element.parentNode.removeChild(element);'+
-        '}'+
-        '</script>';
+	        'grecaptcha.ready(function() {'+
+				'var sitekey = document.getElementsByClassName("g-recaptcha")[0].getAttribute("data-sitekey");'+
+	            'grecaptcha.execute(sitekey, {action: "homepage"}).then(function(token) {'+
+		            'var currentUrl = window.location.href;'+
+	            	'document.getElementById("recaptcha_validation_value").value = token;'+
+	            	'document.getElementById("current_url").value = currentUrl;'+
+	          '  });'+
+	        '});';
   
         return showFormContents;
     }
