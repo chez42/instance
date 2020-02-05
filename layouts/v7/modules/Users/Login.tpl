@@ -1,60 +1,47 @@
 {strip}
+{literal}
+	<style>
+	
+	.login-footer .login-social li {
+	    display: inline-block;
+	    list-style: none;
+	    margin-right: 1em;
+	}
+	.login-social {padding-top:5px;}
+	.fa { color:white;}
+	.login-footer {
+	position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255,250,240,0.39);}
+	</style>
+
+{/literal}
 <input type="hidden" id="auto_login" data-uname="{$AUTO_U}" data-pword="{$AUTO_P}" />
-		<div class="user-login-5">
+		<div>
+			
 			<video autoplay muted loop id="myVideo">
-				<source src="layouts/v7/resources/marketing/videograss.mp4" type="video/mp4">
+				<source src="test/logo/login-video.mp4" type="video/mp4">
 			</video>
-            <div class="row bs-reset">
+			
+            <div class="row">
+            	
             	<div class="col-md-12">
-            		<img class="login-logo" src="layouts/v7/resources/Images/logo.png" style = "width:210px;"/>
+            		<img class="login-logo" src="test/logo/Omnilogo.png" style = "width:210px;margin:30px;"/>
             	</div>
-            	 <div class="col-md-6 col-md-push-6 col-sm-12 col-xs-12 bs-reset mt-login-5-bsfix">
-                	<div class="col-md-1 col-sm-1 col-xs-1"></div>
-                	<div class="col-md-10 col-sm-10 col-xs-10" style="display: inline-block; padding: 15% 0px 0px 0px">
-	                    <div class="adCarousel ads">
-				            <div class="overlay">
-				               <img class="slideshow-img" src="layouts/v7/resources/marketing/img4.jpg">
-				               <div class="text-block txt-load">
-				                  <h3> Beautiful Improved Desktop </h3>          <!-- Title 1st Slide -->
-				                  <p> Brighter and sharper working environment makes the system fun to use. </p>  <!-- Body text 1st Slide -->
-				               </div>
-				            </div>
-				            <div class="overlay">
-				               <img class="slideshow-img" data-lazy="layouts/v7/resources/marketing/img1.jpg">
-				               <div class="text-block txt-load">
-				                  <h3> Enterprise Quality Automation </h3>      <!-- Title 2nd Slide -->
-				                  <p> Workflows and email marketing automation integrated right into Omniscient.</p>  <!-- Body text 2nd Slide -->
-				               </div>
-				            </div>
-				            <div class="overlay">
-				               <img class="slideshow-img" data-lazy="layouts/v7/resources/marketing/img3.jpg">
-				               <div class="text-block txt-load">
-				                  <h3>Better Integration</h3>  <!-- Title 3rd Slide -->
-				                  <p> Ring Central, Wealthkit, Stratifi and Microsoft Exchange are a few of the new world class integrations incorporated in version 4. </p> <!-- Body text 3rd Slide -->
-				               </div>
-				            </div>
-				            <div class="overlay">
-				               <img class="slideshow-img" data-lazy="layouts/v7/resources/marketing/img2.jpg">
-				               <div class="text-block txt-load">
-				                  <h3> Your World In One Place </h3>  <!-- Title 4th Slide -->
-				                  <p> See every aspect of your business with beautiful reports and dashboards...then take action with a single click!. </p>      <!-- Body text 4th Slide -->
-				               </div>
-				            </div>
-				            <div class="overlay">
-				               <img class="slideshow-img" data-lazy="layouts/v7/resources/marketing/img5.jpg">
-				               <div class="text-block txt-load">
-				                  <h3>Secure Client Portal</h3>  <!-- Title 5th Slide -->
-				                  <p>Share information to and from your clients.</p>  <!-- Body text 5th Slide -->
-				               </div>
-				            </div>
-				         </div>
-			         </div>
-			         <div class="col-md-1 col-sm-1 col-xs-1"></div>
-                </div>
-                <div class="col-md-6 col-md-pull-6 col-sm-12 col-xs-12 login-container bs-reset mt-login-5-bsfix">
+            
+            </div>
+            
+            <div class="row" style = "margin-top:30px;">
+            	<div class="col-md-4">
+            	
+            	</div>
+            	<div class="col-md-4 col-sm-12">
                     <div class="login-content">
-                        <h1>Login to Omniscient CRM</h1>
-                        <form class="form-horizontal login-form" action="index.php" method="POST">
+                    
+                        <h1 style = "font-weight:600;color:white;font-size:24px;">Login to Omniscient CRM</h1>
+                        
+                        <form class="form-horizontal login-form" action="index.php" method="POST" style = "margin-top:30px;">
                          	<input type="hidden" name="module" value="Users"/>
                   			<input type="hidden" name="action" value="Login"/>
                         	<div class="alert alert-danger display-hide">
@@ -86,50 +73,31 @@
 	                            </div>
 							{/if}
                             <div class="row">
-                                <div class="col-xs-6">
-                                    <input class="form-control form-control-solid placeholder-no-fix form-group auto_u" type="text" autocomplete="off" placeholder="OMNI ID" name="username" required/> </div>
-                                <div class="col-xs-6">
-                                    <input class="form-control form-control-solid placeholder-no-fix form-group auto_p" type="password" autocomplete="off" placeholder="Passphrase" name="password" required/> </div>
+                                <div class="">
+                                    <input style = "border-radius:5px !important;" class="form-control  placeholder-no-fix form-group auto_u" type="text" autocomplete="off" placeholder="OMNI ID" name="username" required/>
+                                </div>
                             </div>
-                            <div class="row">
-                                
-                                <div class="col-sm-12 text-right">
-                                    <div class="forgot-password">
-                                        <a class="loginIssues"  href="https://ompw.omnisrv.com/pm/" class="forget-password" target="_blank">Login Issues?</a>
+                            <div class="row" style = "margin-top:30px;">
+                                <div class="">
+                                    <input style = "border-radius:5px !important;" class="form-control  placeholder-no-fix form-group auto_p" type="password" autocomplete="off" placeholder="Passphrase" name="password" required/> 
+                                </div>
+                            </div>
+                            <div class="row" style = "margin-top:30px;">
+                                <div class="col-sm-12 text-right" style = "padding-right:30px;">
+                                    <div class="forgot-password" style = "display:inline-block;">
+                                        <a style = "color:white;margin-right:10px;"" class="loginIssues"  href="https://ompw.omnisrv.com/pm/" class="forget-password" target="_blank">Login Issues?</a>
                                     </div>
-                                    <button class="btn green auto_submit" type="submit">Sign In</button>
+                                    <button class="btn green auto_submit" type="submit" style = "background:#0098CF;border-color:#0098CF;">Sign In</button>
                                 </div>
                             </div>
                         </form>
-                        
-                        <!-- BEGIN FORGOT PASSWORD FORM -->
-                        
-                        <form class="form-horizontal login-form forget-form1" action="forgotPassword.php" method="POST">
-						    <h3 class="font-green">Forgot Password ?</h3>
-                            <p>&nbsp;</p>
-                            <div class="alert alert-danger display-hide">
-                                <button class="close" data-close="alert"></button>
-                                <span>Enter any username and email.</span>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-6">
-                                    <input class="form-control placeholder-no-fix form-group" type="text" autocomplete="off" placeholder="Username" name="user_name" /> 
-                           		</div>
-                           		<div class="col-xs-6">
-                                    <input class="form-control placeholder-no-fix form-group" type="text" autocomplete="off" placeholder="Email" name="emailId" /> 
-                           		</div>
-                            </div>
-                            <div class="row">
-	                           	<div class="form-actions">
-	                                <button type="button" id="back-btn" class="btn green btn-outline">Back</button>
-	                                <button type="submit" class="btn btn-success uppercase pull-right">Submit</button>
-	                            </div>
-                            </div>
-                        </form>
-                        
-                        <!-- END FORGOT PASSWORD FORM -->
                     </div>
-                
+	            </div>
+	         
+	            <div class="col-md-4">
+	            	
+	           	</div>
+             </div>   
                     <div class="login-footer">
                         <div class="row bs-reset">
                             <div class="col-xs-5 bs-reset">
@@ -162,9 +130,9 @@
                                 </ul>
                             </div>
                             <div class="col-xs-7 bs-reset">
-                                <div class="login-copyright text-right">
-                                   <span>&copy; 2004-{date('Y')} </span>
-                                    <a href="http://www.omniscientcrm.com">Omniscient CRM</a>
+                                <div class="login-copyright text-right" style = "padding-top:5px;">
+                                   <span style = "color:white;padding-right:5px;">&copy; 2004-{date('Y')} </span>
+                                    <a href="http://www.omniscientcrm.com" style = "color:#0098CF;">Omniscient CRM</a>
                                 </div>
                             </div>
                         </div>
