@@ -912,7 +912,7 @@ class Users extends CRMEntity {
 					if(!empty($default_theme) && in_array($default_theme, $themeList)) {
 						$fldvalue = $default_theme;
 					} else {
-						$fldvalue = $themeList[0];
+						$fldvalue = ''; //$themeList[0];
 					}
 				}
 				if($current_user->id == $this->id) {
