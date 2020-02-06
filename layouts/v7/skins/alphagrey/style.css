@@ -7996,12 +7996,12 @@ a.btnReport:hover {
             .editViewContents .tab-item  {
             	background:none !important;
             }
-            .nav-tabs>li>a {
+            /*.nav-tabs>li>a {
             	color:white;
-            }
-            /*.related-tabs .nav-tabs>li, .related-tabs .nav-tabs>li> a{
-            	color: #ffffff;
             }*/
+            .related-tabs .nav-tabs>li, .related-tabs .nav-tabs>li> a{
+            	color: #ffffff;
+            }
             .related-tabs .nav-tabs>li.active> a{
             	color: #cf172c;
             }
@@ -8055,6 +8055,13 @@ a.btnReport:hover {
 			
             .btn-default i, .input-group.inputElement .input-group-addon i, .input-group-addon i, .referencefield-wrapper .createReferenceRecord i{
             	color: #ffffff;
+            }
+            #layoutEditorContainer .btn-default, #layoutEditorContainer .btn-default i {
+            	color : #666666 !important;
+            }
+            .btn-default:disabled i,
+			.btn-default[disabled] i{
+            	color : #666666 !important;
             }
             .module-buttons.btn:hover, .btn-default:hover{
             	background: #ffffff;
