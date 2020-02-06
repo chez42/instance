@@ -34,7 +34,28 @@ class RingCentral_ListView_Model extends Vtiger_ListView_Model {
 	 * @return <Array> - Associative array of Link type to List of  Vtiger_Link_Model instances for Mass Actions
 	 */
 	public function getListViewMassActions($linkParams) {
-	    $links = array();
+	    $currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+	    $moduleModel = $this->getModule();
+	    
+	    $linkTypes = array('LISTVIEWMASSACTION');
+	    $links = Vtiger_Link_Model::getAllByType($moduleModel->getId(), $linkTypes, $linkParams);
+	    
+	    
+	    $massActionLinks = array();
+	    if($currentUserModel->hasModuleActionPermission($moduleModel->getId(), 'EditView')) {
+	        $massActionLinks[] = array(
+	            'linktype' => 'LISTVIEWMASSACTION',
+	            'linklabel' => 'LBL_EDIT',
+	            'linkurl' => 'javascript:Vtiger_List_Js.triggerMassEdit("index.php?module='.$moduleModel->get('name').'&view=MassActionAjax&mode=showMassEditForm");',
+	            'linkicon' => ''
+	        );
+	    }
+	    
+	    
+	    foreach($massActionLinks as $massActionLink) {
+	        $links['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+	    }
+	    
 		return $links;
 	}
 
