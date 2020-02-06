@@ -19,9 +19,10 @@ class Vtiger_VCard_UIType extends Vtiger_Base_UIType {
         public function getDisplayValue($value, $record = false, $recordInstance = false) {
             $request = new Vtiger_Request($_REQUEST, $_REQUEST);
             $viewer = new Vtiger_Viewer();
+            $moduleName = $request->getModule();
             
             $viewer->assign("VCARD_RECORD", $record);
-
+            $viewer->assign("VCARD_MODULE", $moduleName);
 //            $viewer->assign("VCARD_RECORD", $request->get('record'));
             return $viewer->view("uitypes/VCard.tpl", "Vtiger", true);
         }
