@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class RingCentral_MassActionAjax_View extends Vtiger_IndexAjax_View {
+class RingCentral_MassActionAjax_View extends Vtiger_MassActionAjax_View {
 	function __construct() {
 		parent::__construct();
 		$this->exposeMethod('showSendSMSForm');

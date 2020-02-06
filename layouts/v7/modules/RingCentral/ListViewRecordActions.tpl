@@ -12,7 +12,7 @@
 <div class="table-actions">
     {if !$SEARCH_MODE_RESULTS}
     <span class="input" >
-        <!-- <input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/> -->
+         <input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/> 
     </span>
     {/if}
     {if $LISTVIEW_ENTRY->get('starred') eq 'Yes'}
