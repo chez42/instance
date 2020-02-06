@@ -184,9 +184,11 @@ function getTicketData($contactId){
         $catPickList = $catField->getPicklistValues();
         
         foreach($catPickList as $catValue){
-            $tmp['title'] = $catValue;
-            $tmp['value'] = $catResult[$catValue] ? $catResult[$catValue]:0;
-            $catData[] = $tmp;
+            if($catResult[$catValue] > 0){
+                $tmp['title'] = $catValue;
+                $tmp['value'] = $catResult[$catValue] ? $catResult[$catValue]:0;
+                $catData[] = $tmp;
+            }
         }
         
     }
