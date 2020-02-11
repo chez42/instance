@@ -76,4 +76,58 @@
         </div>
         <input type="hidden" name="record_id" value="{$RECORD->getId()}">
     </div>
+    {if $TIMECONTROL_ENABLE}
+	    <div  class="col-lg-4 pull-right" style="margin-top:10px;">
+			<div class="summaryWidgetContainer">
+				<form action="index.php" method="post" name="QuickTimer{$MODULE_NAME}">
+					<input type="hidden" name="module" value="Timecontrol">
+					<input type="hidden" name="record" value="{$TIMECONTROLID}">
+					<input type="hidden" name="modeTC" value="continueTimetracker">
+					<input type="hidden" name="mode" value="edit">
+					<input type="hidden" name="ticketId" value="{$RECORD->getId()}">
+					{if $SHOW_WATCH eq 'started'}<input type="hidden" name="action" value="Finish">{/if}
+					{if $SHOW_WATCH eq 'halted'}
+					<input type="hidden" name="isDuplicate" value="true">
+					<input type="hidden" name="view" value="Edit">
+					{*<input type="hidden" name="action" value="Save">*}
+					{/if}
+					<input type="hidden" name="stop_watch" value="{if $SHOW_WATCH eq 'halted'}0{else}1{/if}">
+					
+					<div class="widget_header clearfix">
+						<h4 class="display-inline-block pull-left">{vtranslate('Stopwatch','Timecontrol')}</h4>
+						<div class="pull-right">
+	                        
+							<button class="btn pull-right btn-success ticketHalted startTimer {if $SHOW_WATCH neq 'halted'}hide{/if}" type="submit">
+								<strong>{vtranslate('Start','Timecontrol')}</strong>
+							</button>
+	                        <button class="btn pull-right btn-danger ticketStart {if $SHOW_WATCH eq 'halted'}hide{/if} stopTimer" type="submit">
+	                            <strong>{vtranslate('LBL_WATCH_STOP','Timecontrol')}</strong>
+	                        </button>
+	                        
+						</div>
+					</div>
+					<div class="widget_contents" style="text-align: center; font-family: Source Code Pro, courier new, courier, monospace; font-size: 220%; font-weight: bold;">
+						<div class="ticketHalted {if $SHOW_WATCH neq 'halted'}hide{/if}">
+							<img src="modules/Timecontrol/images/clock-red-small.png" id="clock_image" style="vertical-align: middle; margin-right:16px;">
+							<span id="clock_display" style="vertical-align: middle">00:00</span>
+						</div>
+						<div class="ticketStart {if $SHOW_WATCH neq 'started'}hide{/if}">
+							<img src="modules/Timecontrol/images/clock-green-small.png" id="clock_image" style="vertical-align: middle; margin-right:16px;">
+							<span id="clock_display_hours" style="vertical-align: middle;">00</span><span id="clock_display_separator" style="vertical-align: middle;">:</span><span id="clock_display_minutes" style="vertical-align: middle;">00</span>
+							<span id="clock_display_separator2" style="vertical-align: middle;">:</span><span id="clock_display_seconds" style="vertical-align: middle;">00</span>
+							<input id="clock_counter" type="hidden" value="{$WATCH_COUNTER}">
+							<script type="text/javascript">
+							var tc_clock;
+							$(document).ready(function() {ldelim}
+								clearInterval(tc_clock);
+								updateClock(true);
+								tc_clock = setInterval("updateClock()", 1000);
+							{rdelim});
+							</script>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	{/if}
 {strip}
