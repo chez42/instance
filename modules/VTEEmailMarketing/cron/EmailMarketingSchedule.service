@@ -57,14 +57,15 @@ for($i=0;$i < $numrows; $i++){
         $number_sent_email = $adb->query_result($getScheduled,$i,'number_email');
         $count_send_email = $adb->query_result($getScheduled,$i,'count_sent');
         $total_email = $adb->query_result($getScheduled,$i,'total_email');
+        $batch_delivery = $adb->query_result($getScheduled,$i,'batch_delivery');
         $from_serveremailid = $adb->query_result($getScheduled,$i,'from_serveremailid');
         if($count_send_email <= $total_email){
-            saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP);
+            saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP,$batch_delivery);
         }
     }
 }
 
-function saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP){
+function saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$number_sent_email,$currentDate,$count_send_email,$total_email,$from_serveremailid,$multipleSMTP,$batch_delivery){
     global $adb, $current_user;
     $moduleName = 'Emails';
     $userId = $current_user->id;
@@ -72,13 +73,16 @@ function saveAndSentEmail($recordId,$templateEmailId,$from_name,$from_email,$num
     $content = $templateEmail['content'];
     $subject = $templateEmail['subject'];
     $recordIdEM = $recordId;
-    $getRecordRelated = $adb->pquery("SELECT DISTINCT(vtiger_vteemailmarketingrel.crmid), vtiger_vteemailmarketingrel.*
-    										FROM vtiger_vteemailmarketingrel
-                                            WHERE vteemailmarketingid = ?
-                                            AND (`status` = '' OR `status` IS NULL)
-                                            ORDER BY crmid ASC
-                                            LIMIT 0,$number_sent_email
-                                           ", array($recordId));
+    $query = "SELECT DISTINCT(vtiger_vteemailmarketingrel.crmid), vtiger_vteemailmarketingrel.*
+			FROM vtiger_vteemailmarketingrel
+            WHERE vteemailmarketingid = ?
+            AND (`status` = '' OR `status` IS NULL)
+            ORDER BY crmid ASC";
+      
+    if($batch_delivery)      
+    	$query .= " LIMIT 0,$number_sent_email";
+    
+    $getRecordRelated = $adb->pquery($query, array($recordId));
     $numrow = $adb->num_rows($getRecordRelated);
     for ($i = 0; $i < $numrow ; $i++) {
         $recordIds = $adb->query_result($getRecordRelated, $i, 'crmid');
