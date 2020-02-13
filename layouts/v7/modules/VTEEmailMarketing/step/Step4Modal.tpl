@@ -123,12 +123,12 @@
                         <h5 class="text-label">{vtranslate('LBL_DELIVERY_DATE', $MODULE)}</h5>
                         <div class="input-group inputElement schedule-date" style="margin-bottom: 3px">
                             <input type="text" class="dateField form-control" name="schedule_date"
-                                   data-date-format="dd-mm-yyyy" value="{$CURRENT_DATE_USER}" data-rule-required="true"
+                                   data-date-format="{$USER_MODEL->get('date_format')}" value="{$CURRENT_DATE_USER}" data-rule-required="true"
                                    data-rule-date="true" aria-required="true" aria-invalid="false">
                             <span class="input-group-addon"><i class="fa fa-calendar "></i></span>
                         </div>
                         <div class="input-group inputElement time schedule-time">
-                            <input type="text" data-format="12" name="schedule_time";
+                            <input type="text" data-format="{$USER_MODEL->get('hour_format')}" name="schedule_time";
                                    class="timepicker-default form-control ui-timepicker-input"
                                    value="{$CURRENT_TIME_USER}" data-rule-required="true" data-rule-time="true" autocomplete="off"
                                    aria-required="true" aria-invalid="false">
