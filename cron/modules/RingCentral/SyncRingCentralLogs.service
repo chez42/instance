@@ -259,7 +259,7 @@ function syncCalls($user_id, $calls){
 		
 		$obj->column_fields['assigned_user_id'] = $user_id;
 		
-		$log_date = date('Y-m-d',strtotime($record['creationTime']));
+		$log_date = date('Y-m-d',strtotime($record['startTime']));
 		$obj->column_fields['log_date'] = $log_date;
 		
 		$obj->save("RingCentral");
