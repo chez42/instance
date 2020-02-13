@@ -103,17 +103,17 @@
                             <div class="col-xs-5 bs-reset">
                                 <ul class="login-social">
 	                                <li>
-                                        <a href="https://www.facebook.com/OMNI2016/" target="_blank">
+                                        <a href="https://facebook.com/omnisrv/" target="_blank">
                                             <i class="fa fa-facebook"></i>
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="https://twitter.com/OMNIGlobal2016" target="_blank">
+                                        <a href="https://twitter.com/omnisrv" target="_blank">
                                             <i class="fa fa-twitter"></i>
                                         </a>
                                     </li>
                                     <li>
-                            		<a href="https://www.linkedin.com/company/omni-global-group?" target="_blank">
+                            		<a href="https://linkedin.com/company/omnisrv" target="_blank">
                                             <i class="fa fa-linkedin"></i>
                                         </a>
                                     </li>
@@ -123,7 +123,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="https://www.instagram.com/omni_global_2016/?hl=en" target="_blank">
+                                        <a href="https://instagram.com/omnisrv" target="_blank">
                                             <i class="fa fa-instagram"></i>
                                         </a>
                                     </li>
