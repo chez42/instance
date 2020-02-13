@@ -6,6 +6,44 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  *************************************************************************************/
+function updateClock(force) {
+	var clock_counter = document.getElementById('clock_counter');
+	clock_counter.value++;
+	var clock_display_separator = document.getElementById('clock_display_separator');
+	if (clock_counter.value % 2) {
+		clock_display_separator.style.visibility = 'hidden';
+	} else {
+		clock_display_separator.style.visibility = 'visible';
+	}
+	var clock_display_separator2 = document.getElementById('clock_display_separator2');
+	if (clock_counter.value % 2) {
+		clock_display_separator2.style.visibility = 'hidden';
+	} else {
+		clock_display_separator2.style.visibility = 'visible';
+	}
+	
+	var seconds = parseInt(clock_counter.value)%60;
+	if (clock_counter.value % 60 == 0 || force) {
+		var hours = parseInt(clock_counter.value / 60 / 60);
+		var minutes = parseInt(clock_counter.value / 60) % 60;
+		
+		if (hours < 10) {
+			hours = '0' + hours;
+		}
+		if (minutes < 10) {
+			minutes = '0' + minutes;
+		}
+		var clock_display_hours = document.getElementById('clock_display_hours');
+		var clock_display_minutes = document.getElementById('clock_display_minutes');
+		clock_display_hours.replaceChild(document.createTextNode(hours),clock_display_hours.firstChild);
+		clock_display_minutes.replaceChild(document.createTextNode(minutes),clock_display_minutes.firstChild);
+	}
+	if (seconds < 10) {
+		seconds = '0' + seconds;
+	}
+	var clock_display_seconds = document.getElementById('clock_display_seconds');
+	clock_display_seconds.replaceChild(document.createTextNode(seconds),clock_display_seconds.firstChild);
+}
 
 Vtiger.Class("Vtiger_Detail_Js",{
 

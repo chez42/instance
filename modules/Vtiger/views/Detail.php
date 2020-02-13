@@ -189,6 +189,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		}
 
 		$viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
+		$this->getTimecontrolWidgetData($request);
 		if($display) {
 			$this->preProcessDisplay($request);
 		}
@@ -792,6 +793,66 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
             $targetController = new $targetControllerClass();
             return $targetController->process($request);
         }
+	    
+	}
+	
+	
+	public function getTimecontrolWidgetData(Vtiger_Request $request){
+	    
+	    $moduleName = $request->getModule();
+	    $viewer = $this->getViewer($request);
+	    
+	    $moduleIns = Vtiger_Module_Model::getInstance('Timecontrol');
+	    $fieldInstance =  Vtiger_Field_Model::getInstance('relatedto', $moduleIns);
+	    $referenceList = $fieldInstance->getReferenceList();
+	    
+	    if(in_array($moduleName,$referenceList)){
+	        
+    	    global $adb, $current_user;
+    	    
+    	    $timeControl = $adb->pquery("SELECT * FROM vtiger_timecontrol
+            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_timecontrol.timecontrolid
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_timecontrol.timecontrolstatus='run'
+            AND vtiger_crmentity.smcreatorid = ?
+            AND vtiger_timecontrol.relatedto = ?",array($current_user->id, $request->get('record')));
+    	    
+    	    if($adb->num_rows($timeControl)){
+    	        
+    	        $timeControlId = $adb->query_result($timeControl, 0, 'timecontrolid');
+    	        
+    	        $recordModel = Vtiger_Record_Model::getInstanceById($timeControlId);
+    	        
+    	        $viewer->assign('TIMECONTROLID', $timeControlId);
+    	        if ($recordModel->get('timecontrolstatus')=='run') {
+    	            $date = $recordModel->get('date_start');
+    	            $time = $recordModel->get('time_start');
+    	            list($year, $month, $day) = explode('-', $date);
+    	            list($hour, $minute) = explode(':', $time);
+    	            
+    	            $starttime = mktime($hour, $minute, 0, $month, $day, $year);
+    	            
+    	            $datetimefield = new DateTimeField('');
+    	            $nowDate = $datetimefield->convertToUserTimeZone(date('Y-m-d H:i:s'));
+    	            
+    	            $counter = strtotime($nowDate->format('Y-m-d H:i:s'))-$starttime;
+    	            $viewer->assign('SHOW_WATCH', 'started');
+    	            $viewer->assign('WATCH_COUNTER', $counter);
+    	        }
+    	    }else {
+    	        $timeControl = $adb->pquery("SELECT * FROM vtiger_timecontrol
+                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_timecontrol.timecontrolid
+                WHERE vtiger_crmentity.deleted = 0 AND vtiger_timecontrol.relatedto = ?
+                ORDER BY timecontrolid DESC",array($request->get('record')));
+    	        
+    	        if($adb->num_rows($timeControl)){
+    	            $timeControlId = $adb->query_result($timeControl, 0, 'timecontrolid');
+    	            $viewer->assign('TIMECONTROLID', $timeControlId);
+    	        }
+    	        $viewer->assign('WATCH_DISPLAY', '00:00');
+    	        $viewer->assign('SHOW_WATCH', 'halted');
+    	    }
+    	    $viewer->assign('TIMECONTROL_ENABLE', true);
+	    }
 	    
 	}
 

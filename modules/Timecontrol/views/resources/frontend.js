@@ -406,20 +406,19 @@ var Timecontrol = {
                     module:'Timecontrol',
                     action:'Finish',
                     record: value
-            	}, function() {
+            	}, function(result) {
+            		var module = result.result.module;
             		app.helper.hideProgress();
             		Timecontrol.reloadCounter();
-            		if(app.getModuleName() == 'HelpDesk' && app.getViewName() == 'Detail'){
-            			var form = $('form[name="QuickTimerHelpDesk"]');
-            			if(form.length){
-            				if(value == form.find("[name='record']").val()){
-		    	           		form.find('.ticketStart').addClass('hide');
-		    	           		form.find('.ticketHalted').removeClass('hide');
-		    	           		form.trigger("reset");
-            				}
-            			}
-    	           		
-            		}
+            			
+        			var form = $('form[name="QuickTimer'+module+'"]');
+        			if(form.length){
+        				if(value == form.find("[name='record']").val()){
+	    	           		form.find('.ticketStart').addClass('hide');
+	    	           		form.find('.ticketHalted').removeClass('hide');
+	    	           		form.trigger("reset");
+        				}
+        			}
             			
                 });
             });
@@ -544,7 +543,8 @@ var Timecontrol = {
          
          $('.stopTimer').on('click',function(e){
      	   e.preventDefault();
-     	   var form = $('form[name="QuickTimerHelpDesk"]');
+     	   var module = app.getModuleName();
+     	   var form = $('form[name="QuickTimer'+module+'"]');
      	   app.helper.showProgress();
 	           	jQuery.post('index.php', {
 	                   module:'Timecontrol',
@@ -562,7 +562,8 @@ var Timecontrol = {
          
         $('.startTimer').on('click',function(e){
         	e.preventDefault();
-        	var form = $('form[name="QuickTimerHelpDesk"]');
+        	var module = app.getModuleName();
+        	var form = $('form[name="QuickTimer'+module+'"]');
         	app.helper.showProgress();
         	 jQuery.post('index.php', {
                  module:'Timecontrol',
