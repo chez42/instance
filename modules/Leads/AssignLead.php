@@ -11,9 +11,13 @@
 function AssignLead($entityData){
     
     $adb = PearDatabase::getInstance();
-    $moduleName = $entityData->getModuleName();
-    $wsId = $entityData->getId();
-    $parts = explode('x', $wsId);
+    
+	$moduleName = $entityData->getModuleName();
+    
+	$wsId = $entityData->getId();
+    
+	$parts = explode('x', $wsId);
+	
     $entityId = $parts[1];
     
     $roundrobin_logic=1;
@@ -39,13 +43,9 @@ function AssignLead($entityData){
         $adb->pquery("insert into workflow_roundrobin_logic VALUES(?)", array($nextRoundrobinLogic));
     }
     
-    $focus = CRMEntity::getInstance($moduleName);
-    
-    $focus->column_fields['lastname'] = 'wkflow test';
-    
-    $focus->column_fields['assigned_user_id'] = $roundrobin_logic;
-    
-    $focus->saveentity($moduleName);
+	$adb->pquery("update vtiger_crmentity set smownerid = ? where crmid = ?",
+	array($roundrobin_logic, $entityId));
+	
     
 }
 
