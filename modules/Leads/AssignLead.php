@@ -12,17 +12,17 @@ function AssignLead($entityData){
     
     $adb = PearDatabase::getInstance();
     
-	$moduleName = $entityData->getModuleName();
+    $wsId = $entityData->getId();
     
-	$wsId = $entityData->getId();
+    $parts = explode('x', $wsId);
     
-	$parts = explode('x', $wsId);
-	
     $entityId = $parts[1];
     
     $roundrobin_logic=1;
     
     $allUsers = getAllUserName();
+    
+    $user_list = array_keys($allUsers);
     
     $result = $adb->pquery("SELECT * FROM `workflow_roundrobin_logic`");
     
@@ -32,33 +32,22 @@ function AssignLead($entityData){
         $roundrobin_logic = $adb->query_result($result, 0, 'roundrobin_logic');
     }
     
-    if($roundrobin_logic >= max(array_keys($allUsers)))
-        $roundrobin_logic=1;
+    if($roundrobin_logic >= count($user_list))
+        $roundrobin_logic = 0;
         
-    $nextRoundrobinLogic = getNextRoundrobinLogin($roundrobin_logic, $allUsers);
-    
-    if($numOfRow){
-        $adb->pquery("UPDATE workflow_roundrobin_logic SET roundrobin_logic = ?", array($nextRoundrobinLogic));
-    }else{
-        $adb->pquery("insert into workflow_roundrobin_logic VALUES(?)", array($nextRoundrobinLogic));
-    }
-    
-	$adb->pquery("update vtiger_crmentity set smownerid = ? where crmid = ?",
-	array($roundrobin_logic, $entityId));
-	
-    
+        $roundrobinOwnerId = $user_list[$roundrobin_logic];
+        
+        $adb->pquery("update vtiger_crmentity set smownerid = ? where crmid = ?",
+            array($roundrobinOwnerId, $entityId));
+        
+        $nextRoundrobinLogic = ($roundrobin_logic+1)%count($user_list);
+        
+        
+        if($numOfRow){
+            $adb->pquery("UPDATE workflow_roundrobin_logic SET roundrobin_logic = ?", array($nextRoundrobinLogic));
+        }else{
+            $adb->pquery("insert into workflow_roundrobin_logic VALUES(?)", array($nextRoundrobinLogic));
+        }
+        
 }
-
-function getNextRoundrobinLogin($roundrobin_logic, $allUsers){
-    
-    $roundrobinlogic = ($roundrobin_logic+1)%max(array_keys($allUsers));
-    
-    if(!array_key_exists($roundrobinlogic, $allUsers)){
-        return getNextRoundrobinLogin($roundrobinlogic,$allUsers);
-    }else{
-        return $roundrobinlogic;
-    }
-    
-}
-
 ?>
