@@ -163,6 +163,27 @@
 							</div>
 						</div>
 					{/if}
+					<div class="col-sm-6 col-xs-6">
+						<div class="row">
+							<div class="col-sm-3 col-xs-3">Attachment</div>
+							<div class="col-sm-9 col-xs-9">
+								<input type="file" name="file[]" {if (!empty($TASK_OBJECT->attachments))}class="removeNoFileChosen"{/if} id="multiFile">
+								{if (!empty($TASK_OBJECT->attachments))}
+									<input type="hidden" name="attachments" value='{ZEND_JSON::encode($TASK_OBJECT->attachments)}' />
+								{/if}
+								<div id="attachments">
+	                                {foreach item=ATTACHMENT key=FILE_NAME from=$TASK_OBJECT->attachments}
+	                                    <div class="MultiFile-label customAttachment" data-file-id="{$ATTACHMENT}" >
+	                                        {if $ATTACHMENT}
+	                                            <a name="removeAttachment" class="cursorPointer">x </a>
+	                                        {/if}
+	                                        <span>{$FILE_NAME}</span>
+	                                    </div>
+	                                {/foreach}
+	                            </div>
+							</div>
+						</div>
+					</div>
 				</div>
 				<div class="row form-group">
 					<div class="col-sm-12 col-xs-12">

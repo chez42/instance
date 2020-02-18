@@ -25,6 +25,26 @@ class Settings_Workflows_ValidateExpression_Action extends Settings_Vtiger_Basic
 	}
 
 	public function ForTaskEdit(Vtiger_Request $request) {
+	    
+	    $uploadFiles = '';
+	    if(count($_FILES)) {
+	       $_FILES = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
+	      
+	       global $root_directory, $current_user;
+	       $upload_dir = $root_directory.'storage/WorkflowTaskFiles';
+	       if (!is_dir($upload_dir)) {
+	           mkdir($upload_dir);
+	       }
+	      
+	       foreach ($_FILES['file'] as $file){
+	           $filename = time().'_'.$file['name'];
+	           if(!$file['error']){
+	               move_uploaded_file($file["tmp_name"],$upload_dir.'/'.$filename);
+	               $uploadFiles[$file['name']] = $upload_dir.'/'.$filename;
+	           }
+	       }
+	    }
+	    
 		require_once 'modules/com_vtiger_workflow/expression_engine/include.inc';
 
 		$result = new Vtiger_Response();
@@ -44,7 +64,7 @@ class Settings_Workflows_ValidateExpression_Action extends Settings_Vtiger_Basic
 				}
 			}
 		}
-		$result->setResult(array('success' => true));
+		$result->setResult(array('success' => true, 'uploadedFiles'=>$uploadFiles));
 		$result->emit();
 	}
 

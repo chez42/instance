@@ -38,6 +38,9 @@ class VTEmailTask extends VTTask{
 		$replyTo 	= $taskContents['replyTo'];
 		$subject	= $taskContents['subject'];
 		$content	= $taskContents['content'];
+		
+		$attachments = $taskContents['attachments'];
+		
 		$isPdfTemplateEnabled = $this->pdf;
 		$pdfTemplateId = $this->pdfTemplateId;
 
@@ -144,6 +147,12 @@ class VTEmailTask extends VTTask{
 			$plainBody = Emails_Mailer_Model::convertToAscii($plainBody);
 			$plainBody = $emailRecord->convertUrlsToTrackUrls($plainBody,$entityId,'plain');
 			$mailerInstance->AltBody = $plainBody;
+		
+			if(!empty($attachments)){
+			    foreach ($attachments as $attachment_file_name => $attachment){
+			        $mailerInstance->AddAttachment($attachment, $attachment_file_name);
+			    }
+			}
 			
 			//Block to get file details if comment is having attachment
 			if(!empty($relatedInfo) && $relatedInfo['module'] == 'ModComments'){
@@ -342,6 +351,8 @@ class VTEmailTask extends VTTask{
 				$content .= '<br><br>'.  decode_html($userObj->signature);
 			}
 			$taskContents['content'] = $content;
+			
+			$taskContents['attachments'] = $this->attachments;
 			$this->contents = $taskContents;
 			$utils->revertUser();
 		}
