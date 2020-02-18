@@ -352,6 +352,8 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
 				thisInstance.registerSaveTaskSubmitEvent(taskType);
 				thisInstance.registerFillTaskFieldsEvent();
 				thisInstance.registerCheckSelectDateEvent();
+				if(taskType == 'VTEmailTask')
+					thisInstance.registerEventForFileUploadInEmailTask(container);
             });
          });
       });
@@ -389,6 +391,8 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
                 thisInstance.registerSaveTaskSubmitEvent(taskType);
                 thisInstance.registerFillTaskFieldsEvent();
                 thisInstance.registerCheckSelectDateEvent();
+                if(taskType == 'VTEmailTask')
+					thisInstance.registerEventForFileUploadInEmailTask(container);
             });  
          });
       });
@@ -438,10 +442,28 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
                        thisInstance[preSaveActionFunctionName].apply(thisInstance, [taskType]);
                     }
                     var params = form.serializeFormData();
+                   
+                   
                     var clonedParams = jQuery.extend({}, params);
-                    clonedParams.action ='ValidateExpression';
-                    clonedParams.mode ='ForTaskEdit';
-                    app.request.post({'data' : clonedParams}).then(function(error, data){
+                    clonedParams.action = 'ValidateExpression';
+                    clonedParams.mode = 'ForTaskEdit';
+                    
+                    var formData = new FormData();
+                    $.each(clonedParams, function(key, value){
+        				formData.append(key,value);
+        			});
+                    $.each(Vtiger_Index_Js.files, function(i, file) {
+                    	formData.append('file[]', file);
+                    });
+                    
+                    app.request.post(
+                		{
+            				data : formData, 
+            				contentType:false, 
+            				processData : false
+        				}
+            		).then(function(error, data){
+            			
                         if(error != null) {
                             app.helper.showErrorNotification({'message' : app.vtranslate('LBL_EXPRESSION_INVALID')});
                             return;
@@ -450,6 +472,9 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
                         if(!params.tmpTaskId) {
                             params.tmpTaskId = thisInstance.getUniqueNumber();
                         }
+                        if(data.uploadedFiles)
+                        	params.attachments = data.uploadedFiles;
+                       
                         var templateData = $('<input>').attr({
                                                type: 'hidden',
                                                name: 'tasks[]'
@@ -483,8 +508,23 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
                    }
                    form.find('[name="saveButton"]').attr('disabled', 'disabled');
                    var params = form.serializeFormData();
+                  
+                   var formData = new FormData();
+                   $.each(params, function(key, value){
+                	   formData.append(key,value);
+                   });
+                   $.each(Vtiger_Index_Js.files, function(i, file) {
+                	   formData.append('file[]', file);
+                   });
+                   
                    app.helper.showProgress();
-                   app.request.post({data:params}).then(function (error, data) {
+                   app.request.post(
+            		   {
+            			   data : formData, 
+            			   contentType:false, 
+            			   processData : false
+        			   }
+        		   ).then(function (error, data) {
                         app.helper.hideProgress();
                         if (data) {
                            thisInstance.getTaskList();
@@ -1350,7 +1390,64 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
 		this.registerEventForScheduledWorkflow();
 		this.registerEventForChangeInScheduledType();
         this.registerEventForChangeWorkflowState();
-    }
+    },
+    
+    registerEventForFileUploadInEmailTask : function(container){
+    	
+    	container.find('#saveTask').attr("enctype", "multipart/form-data");
+    	
+    	container.find('#multiFile').MultiFile({
+			list: '#attachments',
+			'afterFileSelect' : function(element, value, master_element){
+				var masterElement = master_element;
+				var newElement = jQuery(masterElement.current);
+				newElement.addClass('removeNoFileChosen');
+				var files_uploaded=[];
+				var fileSize = 0;
+				jQuery.each(master_element.files,function(key,element){
+					files_uploaded[key] = element;
+					fileSize += Number(element['size']);
+				});
+				Vtiger_Index_Js.files = files_uploaded;
+			},
+			'afterFileRemove' : function(element, value, master_element){
+				var files_uploaded=[];
+				var fileSize = 0;
+				jQuery.each(master_element.files,function(key,element){
+					files_uploaded[key] = element;
+					fileSize += Number(element['size']);
+				});
+				Vtiger_Index_Js.files = files_uploaded;
+				if (jQuery('#attachments').is(':empty')){
+					jQuery('.MultiFile,.MultiFile-applied').removeClass('removeNoFileChosen');
+				}
+			}
+		});
+    	
+    	this.registerEventForRemoveCustomAttachments();
+    },
+    
+	registerEventForRemoveCustomAttachments : function() {
+		var thisInstance = this;
+		var composeEmailForm = jQuery('#saveTask');
+		jQuery('[name="removeAttachment"]').on('click',function(e){
+			var attachmentsContainer = composeEmailForm.find('[ name="attachments"]');
+			var attachmentsInfo = JSON.parse(attachmentsContainer.val());
+			var element = jQuery(e.currentTarget);
+			var imageContainer = element.closest('div.MultiFile-label');
+			var imageContainerData = imageContainer.data();
+			var fileId = imageContainerData['fileId'];
+			var arr = {};
+			jQuery.each(attachmentsInfo,function(index,attachmentObject){
+				if((typeof attachmentObject != "undefined") && (attachmentObject != fileId)){
+					arr[index] = attachmentObject;
+				}
+			});
+			attachmentsContainer.val(JSON.stringify(arr));
+			imageContainer.remove();
+		});
+	},
+    
 });
 
 //http://stackoverflow.com/questions/946534/insert-text-into-textarea-with-jquery
