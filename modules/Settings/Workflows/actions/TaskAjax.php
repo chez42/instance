@@ -56,7 +56,27 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 	}
 
 	public function Save(Vtiger_Request $request) {
-
+	    
+	    $attachments = $request->get(attachments);
+	    $uploadFiles = '';
+	    if(count($_FILES)) {
+	        $_FILES = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
+	        
+	        global $root_directory, $current_user;
+	        $upload_dir = $root_directory.'storage/WorkflowTaskFiles';
+	        if (!is_dir($upload_dir)) {
+	            mkdir($upload_dir);
+	        }
+	        
+	        foreach ($_FILES['file'] as $file){
+	            $filename = time().'_'.$file['name'];
+	            if(!$file['error']){
+	                move_uploaded_file($file["tmp_name"],$upload_dir.'/'.$filename);
+	                $attachments[$file['name']] = $upload_dir.'/'.$filename;
+	            }
+	        }
+	    }
+	    
 		$workflowId = $request->get('for_workflow');
 		if(!empty($workflowId)) {
 			$record = $request->get('task_id');
@@ -89,7 +109,8 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 			}
 
 			$fieldNames = $taskObject->getFieldNames();
-						$getRawFields = array('field_value_mapping', 'content', 'fromEmail');
+			
+			$getRawFields = array('field_value_mapping', 'content', 'fromEmail');
 			foreach($fieldNames as $fieldName){
 				if(in_array($fieldName, $getRawFields)) {
 					$taskObject->$fieldName = $request->getRaw($fieldName);
@@ -100,7 +121,9 @@ class Settings_Workflows_TaskAjax_Action extends Settings_Vtiger_IndexAjax_View 
 					$taskObject->$fieldName = DateTimeField::convertToDBFormat($request->get($fieldName));
 				}
 			}
-
+			if(!empty($attachments))
+			    $taskObject->attachments = $attachments;
+			    
 			require_once 'modules/com_vtiger_workflow/expression_engine/include.inc';
 
 			$fieldMapping = Zend_Json::decode($taskObject->field_value_mapping);
