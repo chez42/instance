@@ -102,7 +102,7 @@ if(isset($_GET['record'])){
             }
         }
     }
-
+    
     if($ticket_detail){
         ?>
 					
@@ -576,6 +576,8 @@ if(isset($_GET['record'])){
 		
 	</body>
 	<div class="add_doc_modal"></div>
+	<div id="filePreviewModal" class="modal fade" aria-hidden="true">
+    						
 	<!-- end::Body -->
 </html>
             

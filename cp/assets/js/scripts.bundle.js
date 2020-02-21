@@ -8959,8 +8959,7 @@ var KTChat = function () {
 						
 						setTimeout(() => {
 							const container = document.querySelector('.kt-scroll');
-							alert( container.scrollHeight);
-							container.scrollTop = 0; //container.scrollHeight;
+							container.scrollTop = container.scrollHeight;
 						}, 0);
 					
 						
