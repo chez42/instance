@@ -26,22 +26,49 @@
 						<div class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround dropdown-menu-xl">
 
 							<!--begin: Head -->
+							
+							<?php 
+						  	   if($_SESSION['owner_name'] != ''){
+							?>
 							<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x" style="background-image: url(assets/media/misc/bg-1.jpg)">
 								<div class="kt-user-card__avatar">
-									<img class=" <?php if(!$portal_profile_image){ ?> kt-hidden <?php } ?>" alt="Pic" src="<?php echo $portal_profile_image;?>" />
-
+									
+									
+									<img  class ="<?php echo ($_SESSION['owner_image'] == '')?'kt-hidden':''; ?>" src="<?php echo $_SESSION['owner_image'];?>"/>
+									
+				
 									<!--use below badge element instead the user avatar to display username's first letter(remove kt-hidden class to display it) -->
-									<span class="kt-badge <?php if($portal_profile_image){ ?> kt-hidden <?php } ?> kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success"><?php  echo $_SESSION['name'][0]; ?></span>
+									
+									<span class="kt-badge <?php echo ($_SESSION['owner_image'] != '')?'kt-hidden':''; ?> kt-badge--lg kt-badge--rounded kt-badge--bold kt-font-success"><?php  echo $_SESSION['owner_name'][0]; ?></span>
+								
 								</div>
+								
 								<div class="kt-user-card__name">
 									<?php 
-									   echo $_SESSION['name'];
+									   echo $_SESSION['owner_name'];
+									   if($_SESSION['owner_title'] != ''){
+									       echo "<br/>";
+									       echo "<span style = 'font-size:1.0rem;'>".$_SESSION['owner_title']."</span>";;
+									   }
+									   if($_SESSION['owner_email'] != ''){
+									       echo "<br/>";
+									       echo "<span style = 'font-size:1.0rem;'>".$_SESSION['owner_email']."</span>";;
+									   }
+									   if($_SESSION['owner_office_phone'] != ''){
+									       echo "<br/>";
+									       echo "<span style = 'font-size:1.0rem;'>".$_SESSION['owner_office_phone']."</span>";;
+									   }
+									 
 									?>
 								</div>
 								<div class="kt-user-card__badge">
-									<a href="logout.php" class="btn btn-label btn-success btn-sm btn-bold">Sign Out</a>
+								
 								</div>
 							</div>
+							<?php 
+						  	   }
+							?>
+							
 
 							<!--end: Head -->
 
@@ -67,6 +94,16 @@
 									  <div class="kt-notification__item-details">
 										<div class="kt-notification__item-title kt-font-bold">
 											Change Password
+										</div>
+									</div>
+								</a>
+								<a href="logout.php" class="kt-notification__item">
+									<div class="kt-notification__item-icon">
+										<i class="flaticon2-calendar-3 kt-font-success"></i>
+									</div>
+									  <div class="kt-notification__item-details">
+										<div class="kt-notification__item-title kt-font-bold">
+											Sign Out
 										</div>
 									</div>
 								</a>
