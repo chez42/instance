@@ -55,14 +55,14 @@ function vtws_portallogin($element,$user){
                 $resultData["ownerId"] = $adb->query_result($result,0,'smownerid');
                 
                 
-                $owner_result = $adb->pquery("select * from vtiger_users where id = ?", array(1186));
+                $owner_result = $adb->pquery("select * from vtiger_users where id = ?", array($resultData["ownerId"]));
                 
                 if($adb->num_rows($owner_result)){
                     $resultData["owner_name"] = $adb->query_result($owner_result, 0, "first_name") . ' '. $adb->query_result($owner_result, 0, "last_name");
                     $resultData["owner_title"] = $adb->query_result($owner_result, 0, "title");
                     $resultData["owner_office_phone"] = $adb->query_result($owner_result, 0, "phone_work");
                     $resultData["owner_email"] = $adb->query_result($owner_result, 0, "email1");
-                    $userRecordModel = Vtiger_Record_Model::getInstanceById(1186, 'Users');
+                    $userRecordModel = Vtiger_Record_Model::getInstanceById($resultData["ownerId"], 'Users');
                     $userImageDetail = $userRecordModel->getImageDetails();
                     if(
                         !empty($userImageDetail['imagename'][0]['orgname']) &&
