@@ -8957,11 +8957,9 @@ var KTChat = function () {
 	                        suppressScrollX: KTUtil.attr(scrollEl, 'data-scroll-x') != 'true' ? true : false
 	                    });
 						
-						setTimeout(() => {
-							const container = document.querySelector('.kt-scroll');
-							container.scrollTop = container.scrollHeight;
-						}, 0);
-					
+						var chatContainer = $(".kt-scroll");
+						chatContainer.animate({ scrollTop: chatContainer[0].scrollHeight }, 400)
+
 						
 						jQuery(parentEl).waitMe('hide');
 					}
