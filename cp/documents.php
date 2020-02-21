@@ -58,9 +58,13 @@
                     </div>
 			        <div class="kt-subheader__toolbar">
             			<div class="kt-subheader__wrapper">
+                          <button class="add-doc-btn btn btn-brand btn-sm" title="Add Documents">
+            				<i class="fa fa-upload"></i> Upload
+                          </button>
                           <a href="#" class="btn ">
                           	Show Empty Folders : &nbsp;
                             <input class="pull-right" title="Empty Folders" type="checkbox" name="emptyFolder" value='1'>
+                            <i class = "fa fa-question-circle" data-toggle = "kt-tooltip" style = "margin-left:5px;font-size:15px !important;color:#5867dd;" data-content = "By Default Folders with Documents are shown, click this checkbox to view all Folders"  data-original-title = "By Default Folders with Documents are shown, click this checkbox to view all Folders"></i>
                 		  </a>
                         </div>
             		</div>
@@ -103,8 +107,63 @@
 	   include_once "includes/footer.php";
 	?>
 	</body>
+	<span class = "upload-docs"></span>
+	<link href="assets/plugins/custom/uppy/dist/uppy.min.css" rel="stylesheet" type="text/css" />
+    <script src="assets/plugins/custom/uppy/dist/uppy.min.js" type="text/javascript"></script>
+	
 	<script type="text/javascript">
     	$(document).ready(function(){
+
+			$(".add-doc-btn").click(function(){
+        		if($( 'body' ).find('.foldersData').data('parentFolder')){
+					$(".upload-docs").trigger("click");
+        		} else {
+        			var params = [];
+                    params['message'] = 'Please click any Folder before Upload';
+                	toastr.error(params['message']);
+   				}
+        	});
+
+    	    var uppy = Uppy.Core({
+    			autoProceed: false,
+				allowMultipleUploads: true,
+				restrictions: {
+    			    maxFileSize: 20971520,
+    			    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']
+    			}
+			}).use(Uppy.Dashboard, {
+          		inline: false,
+          		trigger: '.upload-docs',
+          		target: '.add_doc_modal',
+          		replaceTargetContent: true,
+          	  	showProgressDetails: true,
+           	 	height: 470,
+        	}).use(Uppy.XHRUpload, { endpoint: 'upload-document.php'})
+
+      		uppy.on('file-added', (result) => {
+      			uppy.setMeta({ doc_folder_id: $("[name='folderId']").val()})
+      		});
+      		
+      		uppy.on('complete', (result) => {
+
+				 var index = parseInt(jQuery('[name="startIndex"]').val());
+
+	    		 var empty = false;
+
+				 if($('[name="emptyFolder"]').prop('checked')){
+					var empty = true;
+				 }
+
+	    	     $.ajax({
+					url:'folderData.php',
+					data: 'folder_id='+$("[name='folderId']").val()+'&emptyFolder='+empty,
+					
+					success: function(data) {
+						$('.folderContent').html(data);
+						container.waitMe('hide');
+					}
+				});
+			});
 
     		$(document).on('click',".folderFiles",function(){
 
@@ -146,13 +205,6 @@
                         	html += '<a href="" class="kt-subheader__breadcrumbs-link folderBreadcrumb"  data-folder-id="'+folderId+'">';
                         	html += folderName + '</a>';
                         	
-                        	
-    						/*var html = '<p class="current-filter-name filter-name pull-left cursorPointer" '+
-    						' title="'+folderName+'">&nbsp;'+
-    						'<span class="la la-angle-right pull-left leftIcon" aria-hidden="true"></span>'+
-    						'<a class="folderBreadcrumb" data-folder-id="'+folderId+'">&nbsp;<b style="font-size:1.1rem;">'+folderName+'</b>&nbsp;</a> </p>';
-    						*/
-    						
     						jQuery('.kt-subheader__breadcrumbs').find('a:last').after(html);
     						
     					}
@@ -240,12 +292,8 @@
     		    		$.ajax({
     						url:'folderData.php',
     						data: 'folder_id='+folderId+'&index='+index+'&emptyFolder='+empty,
-    						error: function(errorThrown) {
-    							console.log(errorThrown);
-    						},
     						success: function(data) {
     							jQuery('[name="scrollevent"]').remove();
-    							console.log('daf');
     							$(document).find('.foldersData').append(data);
     							jQuery('[name="startIndex"]').val(index + 50);
     							$('body').waitMe('hide');
@@ -302,56 +350,7 @@
     	        }
       		});
     
-    	 /*$(function(){
-    		    $.contextMenu({
-    		        selector: '.fileDrag', 
-    		        build: function($trigger, e) {
-    		            return {
-    		                callback: function(key, options) {
-    		                	var fileId = $(this).data('fileid');
-    		                	if(key == 'preview'){
-    		                		var currentTargetObject = $(this).find('a');
-    		                		var fileLocationType = currentTargetObject.data('filelocationtype');
-    	                	        var fileName = currentTargetObject.data('filename'); 
-    	                	        if(fileLocationType == 'I'){
-    	                	        	
-    	                	            $.ajax({
-    	            						url:'filePreview.php',
-    	            						data: 'file_id='+fileId,
-    	            						error: function(errorThrown) {
-    	            							console.log(errorThrown);
-    	            						},
-    	            						success: function(data) {
-    		            						var success;
-                							 	try {
-                							        var data = JSON.parse(data);
-                							        if(data.success)
-                    							        success = true;
-                							    } catch (e) {
-            							      		success = false;
-                							    }
-                							    if(success){
-                							    	window.location.href = data.downloadUrl;
-                							    }else{
-        	            							$(document).find('#filePreviewModal').html(data);
-        	            							$('#filePreviewModal').modal('show');
-                							    }
-    	            						}
-    	            					});
-    	                	            
-    	                	        } else {
-    	                	            var win = window.open(fileName, '_blank');
-    	                	            win.focus();
-    	                	        }
-    		                	}
-    		                },
-    		                items: {
-    		                    "preview": {name: "Preview/Download", icon: "fa-eye", data :('toggle','modal')},
-    		                }
-    		            };
-    		        }
-    		    });
-    		});*/
+    	 
     	});
 
     	
@@ -362,9 +361,12 @@
     	$(document).ready(function(){
     
     		var container = $( 'body' );
+
     		MAX_UPLOAD_LIMIT_MB = 90;
+
             MAX_UPLOAD_LIMIT_BYTES = MAX_UPLOAD_LIMIT_MB * 1024 * 1024;
-            registerDragDropToUploadEvent(container);
+            
+            //registerDragDropToUploadEvent(container);
     	});
     
     	function registerEventShowAreaDropToUpload (container) {
@@ -473,4 +475,5 @@
             });
         }
     </script>
+    <div class="add_doc_modal"></div>
 </html>    

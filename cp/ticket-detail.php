@@ -215,10 +215,11 @@ if(isset($_GET['record'])){
                             				Documents
                             			</h3>
                             			<div style="margin-left: 90% !important;">
-                                			<button class="addDocs btn btn-brand btn-icon" title="Add Documents">
+                                			<button class="add-doc-btn btn btn-brand btn-icon" title="Add Documents">
                                 				<i class="fa fa-plus"></i>
                                             </button>
                                         </div>
+                                        
                             		</div>
                             	</div>
                             	<div class="kt-portlet__body ticketDocList" >
@@ -263,39 +264,9 @@ if(isset($_GET['record'])){
                             		</div>
                             	</div>
                             </div>
-                            <div id="add_doc_modal" class="modal fade"  aria-hidden="true">
-                            	<div class="modal-dialog" role="document">
-                                	<div class="modal-content">
-                                    	<div class="modal-header">
-                                    		<div class="filename  col-lg-11 " style="word-break: break-word;">
-                                            	<h5 class="modal-title" style="font-size: 1.2rem;">Upload File</h5>
-                                            </div>
-                                             <div class="col-lg-1">
-                                                <button type="button" class="docModalClose close" data-dismiss="modal" aria-label="Close">
-                                                  <span aria-hidden="true">×</span>
-                                                </button>
-                                             </div>
-                                      	</div>
-                                     	
-                                        <div class="modal-body row text-center" >
-                                           <div class="form-group row">
-                                           		<div class="col-lg-1"></div>
-                                				<div class="col-lg-10">
-                                					<div class="dropzone dropzone-default dz-clickable" id="kt_dropzone_1" style="padding: 90px!important;">
-                                						<div class="dropzone-msg dz-message needsclick">
-                                						    <h3 class="dropzone-msg-title">Drop files here or click to upload.</h3>
-                                						    <span class="dropzone-msg-desc"></span>
-                                						</div>
-                                					</div>
-                                				</div>
-                                				<div class="col-lg-1"></div>
-                                			</div>
-                                        </div>
-                                    </div>
-                                  </div>  
-                            </div>
-                            <div id="filePreviewModal" class="modal fade" aria-hidden="true">
-    						</div>
+                            
+                            
+						
 						</div>
 					</div>
 					
@@ -376,11 +347,45 @@ if(isset($_GET['record'])){
     	?>
 		<link href="assets/css/jquery-comments.css" rel="stylesheet" type="text/css" />
 		<script src="assets/js/jquery-comments.js"></script>
-		<script type="text/javascript" src="assets/js/pages/crud/file-upload/dropzonejs.js"></script>
+		<link href="assets/plugins/custom/uppy/dist/uppy.min.css" rel="stylesheet" type="text/css" />
+		<script src="assets/plugins/custom/uppy/dist/uppy.min.js" type="text/javascript"></script>
+		
+		
     	<script>
 
     	$(document).ready(function(){
 
+    		var uppy = Uppy.Core({
+					autoProceed: false,
+					allowMultipleUploads: true,
+    				restrictions: {
+        			    maxFileSize: 20971520,
+        			    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']
+        			}
+				}).use(Uppy.Dashboard, {
+              	inline: false,
+              	trigger: '.add-doc-btn',
+              	target: '.add_doc_modal',
+              	replaceTargetContent: true,
+                showProgressDetails: true,
+                height: 470,
+            }).use(Uppy.XHRUpload, { endpoint: 'upload-ticket-documents.php?ticket_id='+$("[name='ticket_id']").val() })
+
+          	uppy.on('complete', (result) => {
+
+          		$('#add_doc_modal').waitMe({effect : 'orbit',text : 'Please wait...' });
+
+        		$.ajax({
+					url:'FetchData.php',
+					data: 'ticket_id='+$("[name='ticket_id']").val()+'&module=TicketDocuments',
+					success: function(data) {
+						$('.ticketDocList').replaceWith(data);
+					    $('#add_doc_modal').waitMe('hide');
+					}
+				});
+				
+          	});
+    		
     		$(function() {
 				$('#comments-container').comments({
 
@@ -567,10 +572,10 @@ if(isset($_GET['record'])){
     	});
     	
     	</script>
-		<script src="assets/js/pages/custom/user/profile.js" type="text/javascript"></script>
+        <script src="assets/js/pages/custom/user/profile.js" type="text/javascript"></script>
 		
 	</body>
-
+	<div class="add_doc_modal"></div>
 	<!-- end::Body -->
 </html>
             

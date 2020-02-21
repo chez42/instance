@@ -39,7 +39,30 @@
 	$response = json_decode($response,true);
 	 
 	$widgetsPosition = $response['result']['widgetsPosition'];
-	 
+	
+	$widgetsPosition = array();
+	
+	$widgetsPosition['ticketbytype'] = array(
+	    'row' => 0,
+	    'col' => 0,
+	    'width' => 4,
+	    'height' => 5
+	);
+	
+	$widgetsPosition['ticketbystatus'] = array(
+	    'row' => 4,
+	    'col' => 0,
+	    'width' => 4,
+	    'height' => 5
+	);
+	
+	$widgetsPosition['ticketbytimespent'] = array(
+	    'row' => 8,
+	    'col' => 0,
+	    'width' => 4,
+	    'height' => 5
+	);
+	
 	$balances = $response['result']['balances'];
 	 
 	$margin_balance = $response['result']['margin_balance'];

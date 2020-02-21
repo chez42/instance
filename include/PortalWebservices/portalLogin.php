@@ -15,7 +15,7 @@ function vtws_portallogin($element,$user){
     $resultData = array();
     
     if($element['email']){
-       
+        
         $current_date = date("Y-m-d");
         
         
@@ -25,36 +25,54 @@ function vtws_portallogin($element,$user){
 		inner join vtiger_customerdetails on vtiger_portalinfo.id=vtiger_customerdetails.customerid
 		WHERE vtiger_crmentity.deleted = 0 AND vtiger_portalinfo.user_name = ? AND BINARY vtiger_portalinfo.user_password = ?
 		AND vtiger_portalinfo.isactive = ? and vtiger_customerdetails.portal=1
-		and vtiger_customerdetails.support_start_date <= ? and vtiger_customerdetails.support_end_date >= ?", 
-		array($element['email'],$element['pass'], 1,$current_date,$current_date));
+		and vtiger_customerdetails.support_start_date <= ? and vtiger_customerdetails.support_end_date >= ?",
+            array($element['email'],$element['pass'], 1,$current_date,$current_date));
         
         if($adb->num_rows($result)) {
             
             $customerid = null;
             
-			for ($i = 0; $i < $adb->num_rows($result); $i++) {
+            for ($i = 0; $i < $adb->num_rows($result); $i++) {
                 $customerid = $adb->query_result($result, $i,'id');
             }
-			
+            
             if($customerid){
                 
                 $resultData["ID"] = $customerid;
-				
+                
                 $contact_name = strtoupper(substr($adb->query_result($result,0 ,"firstname"), 0, 1)).' '.$adb->query_result($result,0,"lastname");
                 
-				$resultData["name"] = $contact_name;
+                $resultData["name"] = $contact_name;
                 
-				$customerid = $adb->query_result($result,0,'id');
+                $customerid = $adb->query_result($result,0,'id');
                 
-				$accountid = $adb->query_result($result,0,'accountid');
+                $accountid = $adb->query_result($result,0,'accountid');
                 
-				$resultData['accountid'] = $accountid;
+                $resultData['accountid'] = $accountid;
                 
-				$resultData['user_email'] = $adb->query_result($result,0,'user_name');
+                $resultData['user_email'] = $adb->query_result($result,0,'user_name');
                 
-				$resultData["ownerId"] = $adb->query_result($result,0,'smownerid');
+                $resultData["ownerId"] = $adb->query_result($result,0,'smownerid');
                 
-				$setype = getSalesEntityType($customerid);
+                
+                $owner_result = $adb->pquery("select * from vtiger_users where id = ?", array(1186));
+                
+                if($adb->num_rows($owner_result)){
+                    $resultData["owner_name"] = $adb->query_result($owner_result, 0, "first_name") . ' '. $adb->query_result($owner_result, 0, "last_name");
+                    $resultData["owner_title"] = $adb->query_result($owner_result, 0, "title");
+                    $resultData["owner_office_phone"] = $adb->query_result($owner_result, 0, "phone_work");
+                    $resultData["owner_email"] = $adb->query_result($owner_result, 0, "email1");
+                    $userRecordModel = Vtiger_Record_Model::getInstanceById(1186, 'Users');
+                    $userImageDetail = $userRecordModel->getImageDetails();
+                    if(
+                        !empty($userImageDetail['imagename'][0]['orgname']) &&
+                        !empty($userImageDetail['imagename'][0]['path'])) {
+                            $resultData["owner_image"] = "https://hq.omnisrv.com/" . $userImageDetail['imagename'][0]['path']."_".$userImageDetail['imagename'][0]['orgname'];
+                        }
+                }
+                
+                
+                $setype = getSalesEntityType($customerid);
                 
                 if($setype == 'Contacts'){
                     
@@ -76,8 +94,8 @@ function vtws_portallogin($element,$user){
                             if($adb->num_rows($defaultPortalInfo))
                                 $selectedPortalModulesInfo = $adb->query_result_rowdata($defaultPortalInfo);
                         }
-                    } 
-                  
+                    }
+                    
                     $selectedModules = array();
                     
                     foreach($PortalModules as $tabid => $module_name){
@@ -119,25 +137,25 @@ function vtws_portallogin($element,$user){
                     
                     $logo = '';
                     
-					$result = $adb->pquery("SELECT vtiger_attachments.* FROM vtiger_salesmanattachmentsrel
+                    $result = $adb->pquery("SELECT vtiger_attachments.* FROM vtiger_salesmanattachmentsrel
             		INNER JOIN vtiger_attachments ON vtiger_salesmanattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
             		INNER JOIN vtiger_users ON vtiger_users.id = vtiger_salesmanattachmentsrel.smid
             		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_salesmanattachmentsrel.attachmentsid
             		WHERE vtiger_salesmanattachmentsrel.smid = ? and vtiger_crmentity.setype = ?", array($resultData["ownerId"], "User Logo"));
-                   
+                    
                     if($adb->num_rows($result) == 1){
                         
-						$portalLogo = $site_URL;
+                        $portalLogo = $site_URL;
                         $portalLogo .= "/".$adb->query_result($result, "0", "path");
                         $portalLogo .= $adb->query_result($result, "0", "attachmentsid");
                         $portalLogo .= "_".$adb->query_result($result, "0", "name");
                         
-						$logo = ($portalLogo);
-						
-// 						if(!file_exists($logo))
-// 							$logo = "images/logo1.png";
-                    
-					} else {
+                        $logo = ($portalLogo);
+                        
+                        // 						if(!file_exists($logo))
+                            // 							$logo = "images/logo1.png";
+                        
+                    } else {
                         $logo = "images/logo1.png";
                     }
                     
@@ -145,7 +163,7 @@ function vtws_portallogin($element,$user){
                     
                     $profile_image = '';
                     
-					$result = $adb->pquery("SELECT vtiger_attachments.* FROM vtiger_seattachmentsrel
+                    $result = $adb->pquery("SELECT vtiger_attachments.* FROM vtiger_seattachmentsrel
             		INNER JOIN vtiger_attachments ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
             		INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.contactid = vtiger_seattachmentsrel.crmid
             		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_seattachmentsrel.attachmentsid
@@ -153,33 +171,33 @@ function vtws_portallogin($element,$user){
                     
                     if($adb->num_rows($result) == 1){
                         
-						$profileImage = $site_URL;
+                        $profileImage = $site_URL;
                         $profileImage .= "/".$adb->query_result($result, "0", "path");
                         $profileImage .= $adb->query_result($result, "0", "attachmentsid");
                         $profileImage .= "_".decode_html($adb->query_result($result, "0", "name"));
                         $profile_image = ($profileImage);
+                        
+                    }
                     
-					}
-                    
-                    $resultData["portal_profile_image"] = $profile_image;	
+                    $resultData["portal_profile_image"] = $profile_image;
                     
                 }
                 
                 $resultData['data']  = $list[0];
                 
                 $finalRes = array('success'=>true, 'data' => $resultData);
-				
+                
             } else {
                 
                 $finalRes = array('success'=>false);
+                
+            }
             
-			}
-			
         } else{
             
-			$finalRes = array('success'=>false);
-        
-		}
+            $finalRes = array('success'=>false);
+            
+        }
     }
     
     if(isset($element['fgtemail']) && $element['fgtemail'] != ''){

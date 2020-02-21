@@ -8,7 +8,7 @@ class Contacts_SavePortalPermissions_Action extends Vtiger_Action_Controller {
     function process(Vtiger_Request $request){
         
         global $current_user;
-       
+        
         $adb = PearDatabase::getInstance();
         
         $record = $request->get("record");
@@ -20,7 +20,7 @@ class Contacts_SavePortalPermissions_Action extends Vtiger_Action_Controller {
         $perQuery = $adb->pquery("SELECT * FROM vtiger_contact_portal_permissions WHERE crmid = ?", array($record));
         
         $result = array();
-       
+        
         if($adb->num_rows($perQuery)){
             $fieldArray =  explode('[',str_replace(']','',$field));
             $valueField = end($fieldArray);
@@ -32,7 +32,15 @@ class Contacts_SavePortalPermissions_Action extends Vtiger_Action_Controller {
             
         } else {
             
-            $result['error'] = true;
+            $fieldArray =  explode('[',str_replace(']','',$field));
+            $valueField = end($fieldArray);
+            
+            $adb->pquery("insert into vtiger_contact_portal_permissions
+			(crmid, " . $valueField . ") values (" . $record. "," . $value . ")",array());
+            
+            $result['success'] = true;
+            $result['value'] = $value;
+            
             
         }
         

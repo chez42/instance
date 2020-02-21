@@ -45,6 +45,26 @@ if(!empty($_REQUEST)) {
         $_SESSION['data'] = $data['data'];
         $_SESSION['portal_logo'] = $data['portal_logo'];
         $_SESSION['portal_profile_image'] = $data['portal_profile_image'];
+        
+        if($data["owner_name"]){
+            
+            if($data['owner_name'])
+                $_SESSION["owner_name"] = $data['owner_name'];
+            
+            if($data['owner_title'])
+                $_SESSION["owner_title"] = $data['owner_title'];
+                
+            if($data['owner_office_phone'])
+                $_SESSION["owner_office_phone"] = $data['owner_office_phone'];
+                
+            if($data['owner_email'])
+                $_SESSION["owner_email"] = $data['owner_email'];
+            
+            if($data['owner_image'])
+                $_SESSION["owner_image"] = $data['owner_image'];
+        
+        }
+        
         $result = true;
        // header("Location: index.php");
         
