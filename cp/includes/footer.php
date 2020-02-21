@@ -157,6 +157,58 @@
 
     	jQuery(document).ready(function() {
 
+    		$('<audio id="chatAudio"><source src="audio/notify.ogg" type="audio/ogg"><source src="audio/notify.mp3" type="audio/mpeg"><source src="audio/notify.wav" type="audio/wav"></audio>').appendTo('body');
+
+			window.WebSocket = window.WebSocket || window.MozWebSocket;
+    		
+    		var connection = new WebSocket('ws://dev.omnisrv.com:3000');
+    	
+    		connection.onopen = function () {};
+    		connection.onerror = function (error) {};
+    		
+    		connection.onmessage = function (message) {
+
+    			var data = JSON.parse(message.data);
+    			
+    			var contactid = data.contactid;
+    			
+    			var fromportal = data.fromportal;
+    			
+    			if(!fromportal && contactid == '<?php echo $_SESSION['ID']; ?>'){
+    				$.ajax({
+    					url:'getComments.php',
+    					success: function(data) {
+    						if($("#kt_chat_modal").is(":visible")){
+        						var scrollEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-scroll');
+        						
+        						var messagesEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-chat__messages');
+        						
+        						jQuery(messagesEl).append(data);
+        						
+        						new PerfectScrollbar(scrollEl, {
+        	                        wheelSpeed: 0.5,
+        	                        swipeEasing: true,
+        	                        suppressScrollX: KTUtil.attr(scrollEl, 'data-scroll-x') != 'true' ? true : false
+        	                    });
+        						
+        						setTimeout(() => {
+        							const container = document.querySelector('.kt-scroll');
+        							container.scrollTop = 0; //container.scrollHeight;
+        						}, 0);
+    						} else {
+								var params = [];
+    							params['message'] = 'New Message Received';
+    			               	toastr.error(params['message']);
+    						}
+    					}
+    				});
+    				$('#chatAudio')[0].play();
+    			}
+    		}
+
+
+        	
+
     		var validator = $('#change-password').validate({
         	    rules : {
         	         password : "required",

@@ -126,6 +126,31 @@ class ModCommentsCore extends CRMEntity {
 	}
 
 	function save_module($module) {
+	    $related_to = $this->column_fields['related_to'];
+	    
+	    $se_type = getSalesEntityType($related_to);
+	    
+	    if($se_type == 'Contacts'){
+	        
+	        $customer = $this->column_fields['customer'];
+	        if($customer){
+	            $from_portal = 1;
+	        } else {
+	            $from_portal = 0;
+	        }
+	        
+	        $ch = curl_init('http://dev.omnisrv.com:3000');
+	        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+	        $jsonData = json_encode([
+	            'contactid' => $related_to,
+	            'fromportal' => $from_portal
+	        ]);
+	        $query = http_build_query(['data' => $jsonData]);
+	        curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
+	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	        curl_exec($ch);
+	        curl_close($ch);
+	    }
 	}
 
 	/**
