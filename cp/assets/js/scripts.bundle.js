@@ -8944,10 +8944,26 @@ var KTChat = function () {
 						jQuery(parentEl).waitMe('hide');
 					},
 					success: function(data) {
+						
 						var scrollEl = KTUtil.find(parentEl, '.kt-scroll');
+						
 						var messagesEl = KTUtil.find(parentEl, '.kt-chat__messages');
+						
 						jQuery(messagesEl).append(data);
-						jQuery(scrollEl).scrollTop = parseInt(KTUtil.css(messagesEl, 'height'));
+						
+						new PerfectScrollbar(scrollEl, {
+	                        wheelSpeed: 0.5,
+	                        swipeEasing: true,
+	                        suppressScrollX: KTUtil.attr(scrollEl, 'data-scroll-x') != 'true' ? true : false
+	                    });
+						
+						setTimeout(() => {
+							const container = document.querySelector('.kt-scroll');
+							alert( container.scrollHeight);
+							container.scrollTop = 0; //container.scrollHeight;
+						}, 0);
+					
+						
 						jQuery(parentEl).waitMe('hide');
 					}
 				});

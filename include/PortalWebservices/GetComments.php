@@ -18,13 +18,13 @@
             vtiger_crmentity.createdtime, vtiger_crmentity.smcreatorid FROM vtiger_modcomments
             INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
             WHERE vtiger_crmentity.deleted=0 AND vtiger_modcomments.modcommentsid > 0 
-            AND related_to = ? ORDER BY vtiger_modcomments.modcommentsid DESC LIMIT ".$startIndex.",10",array($element['ID']));
+            AND related_to = ? ORDER BY vtiger_modcomments.modcommentsid DESC",array($element['ID']));
             
             if($adb->num_rows($commentQuery)){
                 
-                if($adb->num_rows($commentQuery) >= 10){
+                /*if($adb->num_rows($commentQuery) >= 10){
                     $html .= '<a href="#" style="min-width:100%!important;margin:15px!important;" class="pull-left more_comments" data-index="'.($startIndex + 10).'">More...</a>';
-                }
+                }*/
                 
                 for($c=$adb->num_rows($commentQuery)-1;$c>=0;$c--){
                     
@@ -56,7 +56,12 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];;
                         }
                         
-                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin:1.5rem!important;min-width:50%!important;">
+                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin-left: 1.5rem;
+    margin-top: 0px;
+    margin-right: 1.5rem;
+    padding: 10px;
+    margin-bottom: 0px;
+    min-width: 50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-media kt-media--circle kt-media--sm">';
                         if($profileImage && file_exists($profileImage)){
