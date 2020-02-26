@@ -101,7 +101,7 @@ if($adb->num_rows($ringCentral_settings_result)){
 		}
 		
 		if($current_time < strtotime($syncLastTime) ){
-			$syncLastTime = date('c', strtotime("-5 minutes", strtotime(date("Y-m-d H:i:s"))));
+			$syncLastTime = date('c', strtotime("-5 minutes", strtotime($syncLastTime) ));
 		}
 		
 		$adb->pquery("UPDATE vtiger_ringcentral_oauth SET lastmsgsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
@@ -159,7 +159,7 @@ if($adb->num_rows($ringCentral_settings_result)){
 		}
 		
 		if($current_time < strtotime($syncLastTime) ){
-			$syncLastTime = date('c', strtotime("-5 minutes", strtotime(date("Y-m-d H:i:s"))));
+			$syncLastTime = date('c', strtotime("-5 minutes", strtotime($syncLastTime) ));
 		}
 		
 		$adb->pquery("UPDATE vtiger_ringcentral_oauth SET lastcallsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
@@ -209,7 +209,7 @@ if($adb->num_rows($ringCentral_settings_result)){
         }
         
 		if($current_time < strtotime($syncLastTime) ){
-			$syncLastTime = date('c', strtotime("-5 minutes", strtotime(date("Y-m-d H:i:s"))));
+			$syncLastTime = date('c', strtotime("-5 minutes", strtotime($syncLastTime) ));
 		}
 		
         $adb->pquery("UPDATE vtiger_ringcentral_oauth SET lastfaxsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
