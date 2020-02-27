@@ -39,7 +39,7 @@
 
 {if $smarty.get.view eq 'Calendar' OR $smarty.get.view eq 'SharedCalendar'}
 
-<div class="sidebar-menu">
+<div class="sidebar-menu noprint">
 
 
     <div class="module-filters" id="module-filters">

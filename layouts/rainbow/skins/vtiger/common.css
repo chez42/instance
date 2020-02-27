@@ -9085,3 +9085,11 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 .emptyRecordsDiv, .emptyRecordsDiv:hover{
 	background-color: white !important;
 }
+
+.global-nav .navbar-nav > li .notifications {
+	margin-top : 10px !important;
+}
+
+.global-nav .navbar-nav > li #openTimeTracker {
+	margin : -5px !important;
+}
