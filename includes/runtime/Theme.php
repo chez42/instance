@@ -64,9 +64,11 @@ class Vtiger_Theme extends Vtiger_Viewer {
 	 * Function to get the Base Theme Path, until theme folder not selected theme folder
 	 * @return <string> - theme folder
 	 */
-	public static function getBaseThemePath(){
-		return 'layouts'. '/' . self::getLayoutName(). '/skins';
-	}
+    public static function getBaseThemePath(){
+        if(isset(self::$customLayout) && self::$customLayout!="")
+            return 'layouts'. '/' . self::$customLayout. '/skins';
+            else return 'layouts'. '/' . self::getLayoutName(). '/skins';
+    }
 
 	/**
 	 * Function to get the selected theme folder path

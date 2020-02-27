@@ -22,7 +22,10 @@ class Vtiger_JavaScript extends Vtiger_Viewer {
 		$filePath =  self::getBaseJavaScriptPath() . '/' . $fileName;
 		$completeFilePath = Vtiger_Loader::resolveNameToPath('~'.$filePath);
 
-		if(file_exists($completeFilePath)){
+        if(file_exists(self::getCustomLayoutPath().'/'.$fileName)){
+            return self::getCustomLayoutPath(true).'/'.$fileName;
+        }
+        elseif(file_exists($completeFilePath)){
 			return $filePath;
 		}
 		return false;
