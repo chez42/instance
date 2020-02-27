@@ -286,7 +286,11 @@ Vtiger.Class("Vtiger_DashBoard_Js",{
 			});
 		}
 	},
-
+	
+	getWaitingForResizeCompleteMsg: function () {
+		return '<div class="wait_resizing_msg"><p class="text-info">'+app.vtranslate('JS_WIDGET_RESIZING_WAIT_MSG')+'</p></div>';
+	},
+	
 	registerGridster : function() {
 		var thisInstance = this;
 		var widgetMargin = 5;
@@ -437,12 +441,24 @@ Vtiger.Class("Vtiger_DashBoard_Js",{
 		urlParams += "&tab="+activeTabId;
 		widgetContainer.waitMe({effect : 'orbit',text : 'Please wait...'});
 		if(mode == 'open') {
-			console.log('fsdf');
 			app.request.post({"url":urlParams}).then(function(err,data){
+				
 				widgetContainer.prepend(data);
 				vtUtils.applyFieldElementsView(widgetContainer);
+				
+				var widgetChartContainer = widgetContainer.find(".widgetChartContainer");
+				if (widgetChartContainer.length > 0) {
+					widgetChartContainer.css("height", widgetContainer.height() - 60);
+				}
+				
 				thisInstance.getWidgetInstance(widgetContainer);
-				widgetContainer.trigger(Vtiger_Widget_Js.widgetPostLoadEvent);
+				
+				try {
+					widgetContainer.trigger(Vtiger_Widget_Js.widgetPostLoadEvent);
+				} catch (error) {
+					widgetContainer.find('[name="chartcontent"]').html('<div>'+app.vtranslate('JS_NO_DATA_AVAILABLE')+'</div>').css({'text-align': 'center', 'position': 'relative', 'top': '100px'});
+				}
+				
 				widgetContainer.waitMe('hide');
 			});
 		} else {

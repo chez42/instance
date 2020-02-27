@@ -7,12 +7,7 @@
 * All Rights Reserved.
 ************************************************************************************}
 
-{assign var="APP_IMAGE_MAP" value=[	'MARKETING' => 'ti-thumb-up',
-									'SALES' => 'ti-money',
-									'SUPPORT' => 'ti-headphone-alt',
-									'INVENTORY' => 'ti-archive',
-									'PROJECT' => 'ti-bag'
- ]}
+{assign var="APP_IMAGE_MAP" value=Vtiger_MenuStructure_Model::getAppIcons()}
 
 <!-- <div class="llaa col-sm-12 col-xs-12 app-indicator-icon-container app-{$SELECTED_MENU_CATEGORY} hidden-sm hidden-xs" >
 	<div class="row" title="{if $MODULE eq 'Home' || !$MODULE} {vtranslate('LBL_DASHBOARD')} {else}{$SELECTED_MENU_CATEGORY}{/if}">

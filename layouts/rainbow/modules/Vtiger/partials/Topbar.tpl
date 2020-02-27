@@ -370,7 +370,7 @@
 				{assign var=MAILMANAGER_MODULE_MODEL value=Vtiger_Module_Model::getInstance('MailManager')}
 				{if $USER_PRIVILEGES_MODEL->hasModulePermission($MAILMANAGER_MODULE_MODEL->getId())}
 					<li>
-						<div>
+						<div style="margin:-5px !important;">
 							<a href="index.php?module=MailManager&view=List" target = "_blank" class="vicon"  title="{vtranslate('MailManager')}" aria-hidden="true">
 								<i class="vicon-mailmanager"></i>
 							</a>
