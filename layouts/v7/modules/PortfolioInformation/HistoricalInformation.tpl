@@ -14,7 +14,8 @@
         <option value="OmniOverview" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Overview</option>
         <option value="AssetClassReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Asset Class Report</option>
         <option value="GainLoss" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Gain/Loss</option>
-        <option value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report</option>
+        <option value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Estimated Income)</option>
+        <option value="GHReportActual" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Actual Income)</option>
         <option value="GH2Report" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GH2 Report</option>
         <option value="GHXReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GHX Report</option>
         <option value="LastYearIncome" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Income - Last Year</option>

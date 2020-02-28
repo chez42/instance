@@ -40,7 +40,7 @@
                                 <td style="text-align:right; padding:2px;">${$v.begin_value|number_format:2:".":","}</td>
                                 <td style="text-align:right; padding:2px;">${$v.net_flow|number_format:2:".":","}</td>
                                 <td style="text-align:right; padding:2px;">${$v.investmentreturn|number_format:2:".":","}</td>
-                                <td style="text-align:right; padding:2px;" class="net_return" data-net_return='{$v.net_return|number_format:2:".":","}'>{$v.net_return|number_format:2:".":","}</td>
+                                <td style="text-align:right; padding:2px;" class="net_return" data-net_return='{$v.net_return|number_format:6:".":","}'>{$v.net_return|number_format:6:".":","}</td>
                                 <td style="text-align:right; padding:2px;">${$v.end_value|number_format:2:".":","}</td>
                             </tr>
                         {/foreach}

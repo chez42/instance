@@ -3,7 +3,7 @@
         <body>
         <tr>
             <td>
-                <div id="sector_pie_holder" class="sector_pie_holder" style="height: 150px; width:450px;"></div>
+                <div id="sector_pie_holder" class="sector_pie_holder" style="height: 450px; width:450px;"></div>
             </td>
             <td>
                 <table class="table table-bordered DynaTable table-collapse">

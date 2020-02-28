@@ -229,6 +229,125 @@ class Transactions_Module_Model extends Vtiger_Module_Model {
         }
         return 0;
     }
-}
 
-?>
+    static public function MarkDupes($account_number = null){
+        global $adb;
+        $where = "";
+        $params = array();
+        $questions = generateQuestionMarks($account_number);
+        if($account_number){
+            $where .= " WHERE account_number IN ({$questions}) ";
+            $params[] = $account_number;
+        }
+        $query = "SELECT account_number, trade_date, crmids, cloudids 
+                  FROM DupeTransactionsToManipulate 
+                  {$where} ";
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetch_array($result)) {
+                self::MarkDupesFromCloudIDs($x['cloudids']);
+            }
+        }
+    }
+
+    static public function MarkDupesFromCloudIDs($cloudIDs){
+        $ids = explode(",", $cloudIDs);
+        $tmp = array();
+        $safeID = substr($ids[0], 0, 3);//Safe ID represents the first cloud ID.  Anything that doesn't start with this ID is removed for this transaction only.  It allows for 412 being valid for one row and 420 to be valid for another for example
+        foreach($ids AS $k => $v){
+            $directoryID = substr($v, 0, 3);
+            if($directoryID != $safeID){
+                self::MarkCloudIDAsDupe($v);
+            }
+        }
+    }
+
+    static public function MarkCloudIDAsDupe($cloudID){
+        global $adb;
+        $query = "UPDATE vtiger_transactions t 
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  SET dupe_flag = 1, transaction_type = CONCAT(transaction_type,  ' (DUPE)'), transaction_activity = CONCAT(transaction_activity, ' (DUPE)')
+                  WHERE cloud_transaction_id = ? AND dupe_flag != 1";
+        $adb->pquery($query, array($cloudID));
+    }
+
+    static public function DoTransactionsExistForDateAlready($account_number, $date){
+        global $adb;
+        $query = "SELECT COUNT(*) AS count FROM vtiger_transactions WHERE account_number = ? AND trade_date = ?";
+        $result = $adb->pquery($query, array($account_number, $date));
+
+        if($adb->num_rows($result) > 0){
+            if($adb->query_result($result, 0, 'count') > 0)
+                return true;
+        }
+        return false;
+    }
+
+    static public function GetEarliestPositionDateForTD($account_number){
+        global $adb;
+        $query = "SELECT MIN(date) as min_date
+                  FROM custodian_omniscient.custodian_positions_td 
+                  WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'min_date');
+        }
+        return 0;
+    }
+
+    static public function CreateReceiptOfSecuritiesFromTDPositions($account_number){
+        global $adb;
+        $created = array();
+        $count = 0;
+
+        $date = self::GetEarliestPositionDateForTD($account_number);
+        if(self::DoTransactionsExistForDateAlready($account_number, $date)){
+            $created['result'] = array("success" => 0,
+                                       "message" => "Transactions already exist for the earliest position date, not creating anything!");
+            echo json_encode($created);
+            return;
+        }
+        $query = "SELECT p.symbol, pr.price, pr.factor, s.securitytype, cf.aclass,
+                        (p.quantity + p.amount) AS quantity, (p.quantity + p.amount) * s.security_price * CASE WHEN cf.security_price_adjustment = 0 THEN 1 ELSE cf.security_price_adjustment END * CASE WHEN pr.factor > 0 THEN pr.factor ELSE 1 END AS total_value
+                  FROM custodian_omniscient.custodian_positions_td p 
+                  JOIN custodian_omniscient.custodian_prices_td pr ON p.date = pr.date AND P.symbol = pr.symbol
+                  JOIN live_omniscient.vtiger_modsecurities s ON s.security_symbol = p.symbol
+                  JOIN live_omniscient.vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  WHERE account_number = ?
+                  AND p.date = ?";
+        $result = $adb->pquery($query, array($account_number, $date));
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetch_array($result)) {
+                $symbol = $x['symbol'];
+                $trade_date = $date;
+                $quantity = $x['quantity'];
+                $price = $x['price'];
+                $net_amount = $x['total_value'];
+                $asset_class = $x['aclass'];
+                $security_type = $x['securitytype'];
+                $record = Vtiger_Record_Model::getCleanInstance("Transactions");
+                $record->set('mode', 'create');
+                $data = $record->getData();
+                $data['account_number'] = $account_number;
+                $data['security_symbol'] = $symbol;
+                $data['security_price'] = $price;
+                $data['quantity'] = $quantity;
+                $data['trade_date'] = $trade_date;
+                $data['net_amount'] = $net_amount;
+                $data['transaction_type'] = 'Flow';
+                $data['transaction_activity'] = 'Receipt of securities';
+                $data['security_type'] = $security_type;
+                $data['base_asset_class'] = $asset_class;
+                $data['asset_backed_factor'] = $asset_class;
+                $data['system_generated'] = 1;
+                $record->setData($data);
+                $record->save();
+                $count++;
+            }
+        }
+        $created['result'] = array('success' => 1,
+                                   'message' => 'Created ' . $count . ' new transactions for ' . $account_number . ' on ' . $date);
+        echo json_encode($created);
+        return;
+    }
+}

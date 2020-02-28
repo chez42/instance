@@ -6,7 +6,7 @@ class ModSecuritiesHandler extends VTEventHandler{
     }
     
     function handleEvent($eventName, $entityData) {return;
-        $recordId = $entityData->getId();
+/*        $recordId = $entityData->getId();
         $security_id = $entityData->get('security_id');
         $price = $entityData->get('security_price');
         $update_pc = $entityData->get('update_pc');
@@ -17,7 +17,7 @@ class ModSecuritiesHandler extends VTEventHandler{
         $sector_code_id = ModSecurities_SecurityBridge_Model::GetCodeIDBySectorClassName($entityData->get('sector'));
         ModSecurities_SecurityBridge_Model::UpdateSecurityCodeID($security_id, 10, $sector_code_id, $update_pc);//Update the asset class
         $frequency_id = ModSecurities_SecurityBridge_Model::GetPayFrequencyIDByFrequencyName($entityData->get('pay_frequency'));
-        ModSecurities_SecurityBridge_Model::UpdatePayFrequencyCodeID($security_id, $frequency_id, $update_pc);//Update the asset class
+        ModSecurities_SecurityBridge_Model::UpdatePayFrequencyCodeID($security_id, $frequency_id, $update_pc);//Update the asset class*/
     }
 }
 

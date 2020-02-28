@@ -19,7 +19,7 @@
 <div id="GHReport_wrapper">
     <div class="GHReport_section">
         <h2 style="width:100%; background-color:lightblue; text-align:center;">PORTFOLIO SUMMARY</h2>
-        <table style="width:100%">
+        <table style="width:100%;">
             <tr>
                 <td style="width:50%;">
                     <table style="display:block; width:90%; font-size:14px;">
@@ -33,9 +33,9 @@
                         <tbody>
                         {foreach from=$HOLDINGSPIEARRAY item=v}
                             <tr>
-                                <td style="font-weight:bold; width:50%; padding-bottom:2px;">{$v.title}</td>
-                                <td style="text-align:right; width:25%;">${$v.value|number_format:0:".":","}</td>
-                                <td style="text-align:right; width:25%;">{$v.percentage|number_format:2:".":","}%</td>
+                                <td style="font-weight:bold; width:50%; padding-bottom:10px;"><span style="color:{$v.color}">{$v.title}</span></td>
+                                <td style="text-align:right; width:25%; padding-bottom:10px;"><span style="color:{$v.color}">${$v.value|number_format:0:".":","}</span></td>
+                                <td style="text-align:right; width:25%; padding-bottom:10px;"><span style="color:{$v.color}">{$v.percentage|number_format:2:".":","}%</span></td>
                             </tr>
                         {/foreach}
                         <tr>
@@ -67,7 +67,7 @@
                         </tbody>
                     </table>
                 </td>
-                <td>
+                <td style="padding-left:100pt;">
                     {$PIE_IMAGE}
                 </td>
             </tr>
@@ -122,7 +122,7 @@
             </tr>
             <tr>
                 <td colspan="7" style="padding-top:25px;">S&amp;P 500</td>
-                <td style="text-align:right; font-weight:bold; padding-top:25px;">{$YTDPERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
+                <td style="text-align:right; font-weight:bold; padding-top:25px;">{$YTDPERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
             </tr>
             <tr>
                 <td colspan="7" style="background-color:RGB(245,245,245)">Barclays Aggregate Bond</td>
@@ -133,13 +133,13 @@
                 <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("EEM")|number_format:2:".":","}%</td>
             </tr>
             <tr>
-                <td colspan="7" style="background-color:RGB(245,245,245)">MSCI EAFE index</td>
-                <td style="text-align:right; font-weight:bold; background-color:RGB(245,245,245)">{$YTDPERFORMANCE->GetIndex("MSCI_EAFE")|number_format:2:".":","}%</td>
+                <td colspan="7" style="background-color:RGB(245,245,245)">MSCI EAFE Index</td>
+                <td style="text-align:right; font-weight:bold; background-color:RGB(245,245,245)">{$YTDPERFORMANCE->GetIndex("MSCIEAFE")|number_format:2:".":","}%</td>
             </tr>
-            <tr>
+{*            <tr>
                 <td colspan="7" style="font-weight:bold;">Blended Benchmark Return</td>
                 <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetBenchmark()|number_format:2:".":","}%</td>
-            </tr>
+            </tr>*}
             </tbody>
         </table>
     </div>

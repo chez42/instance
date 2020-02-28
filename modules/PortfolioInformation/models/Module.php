@@ -58,6 +58,28 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         }
     }
 
+    /**
+     * Get a list of all rep codes
+     */
+    static public function GetRepCodeList(){
+        global $adb;
+        $query = "SELECT production_number, origination
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  GROUP BY production_number";
+        $result = $adb->pquery($query, array());
+        $rep_codes = array();
+        if($adb->num_rows($result) > 0){
+            while ($v = $adb->fetchByAssoc($result)) {
+                $rep_codes[] = array("rep_code" => $v['production_number'],
+                                     "custodian" => $v['origination']);
+            }
+        }else{
+            return array();
+        }
+        return $rep_codes;
+    }
+
     static public function AssignPortfolioBasedOnRepCodes($account_number)
     {
         global $adb;
@@ -1013,6 +1035,13 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
+    static public function RemoveMonthlyIntervals(array $accounts){
+        global $adb;
+        $questions = generateQuestionMarks($accounts);
+        $query = "DELETE FROM intervals_daily WHERE AccountNumber IN ({$questions}) AND IntervalType = 'Monthly'";
+        $adb->pquery($query, array($accounts));
+    }
+
     static public function CalculateMonthlyIntervalsForAccounts(array $accounts, $start = null, $end = null)
     {
         global $adb;
@@ -1039,9 +1068,10 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 
         foreach ($accounts AS $k => $v) {
             $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
+            $params = array($v, $start, $end, $custodian, 'live_omniscient');
             $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
 #            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
-            $adb->pquery($query, array($v, $start, $end, $custodian, 'live_omniscient'));
+            $adb->pquery($query, $params, 'true');
         }
     }
 
@@ -1667,14 +1697,25 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     static public function GetAccountNameFromAccountNumber($account_number)
     {
         global $adb;
+        $desc = '';
 
-        $query = "SELECT description FROM vtiger_portfolioinformation p
+        $query = "SELECT first_name, last_name, description FROM vtiger_portfolioinformation p
                   JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
                   WHERE account_number=?";
         $result = $adb->pquery($query, array($account_number));
-        if ($adb->num_rows($result) > 0)
-            return $adb->query_result($result, 0, 'description');
-        return ' -- ';
+        if ($adb->num_rows($result) > 0){
+            $description = $adb->query_result($result, 0, 'description');
+            $first = $adb->query_result($result, 0, 'first_name');
+            $last = $adb->query_result($result, 0, 'last_name');
+            if(strlen(trim($description)) < 2){
+                $desc = $first . ' ' . $last;
+            }else{
+                $desc = $description;
+            }
+            return $desc;
+        }else{
+            return ' -- ';
+        }
     }
 
     static public function GetAccountTypeFromAccountNumber($account_number)
@@ -2246,6 +2287,75 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
             $adb->pquery($query, array($d));
+        }
+    }
+
+    static public function GetInceptionBalanceDateForAccountNumber($account_number){
+        global $adb;
+        $custodian = self::GetCustodianFromAccountNumber($account_number);
+        $field = '';
+        switch(strtolower($custodian)){
+            case "pershing":
+                $field = 'date';
+                break;
+            default:
+                $field = 'as_of_date';
+                break;
+        }
+
+        $query = "SELECT MIN({$field}) AS {$field} FROM custodian_omniscient.custodian_balances_{$custodian} WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "{$field}");
+        }
+        #fidelity = as_of_date
+        #schwab = as_of_date
+        #td = as_of_date
+        #pershing = date
+    }
+
+    static public function GetIntervalValueLessThanDate($account_number, $date){
+        global $adb;
+
+        $query = "SELECT * 
+                  FROM intervals_daily 
+			      WHERE IntervalEndDate < ?
+                  AND AccountNumber = ?
+			      ORDER BY IntervalEndDate DESC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $account_number), true);
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "intervalendvalue");
+        }
+        return 0;
+    }
+    static public function GetIntervalValueAsOfDate($account_number, $date){
+        global $adb;
+
+        $query = "SELECT * 
+                  FROM intervals_daily 
+			      WHERE IntervalEndDate <= ?
+                  AND AccountNumber = ?
+			      ORDER BY IntervalEndDate DESC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $account_number), true);
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "intervalendvalue");
+        }
+        return 0;
+    }
+
+    static public function TDBalanceCalculationsIndividual($account_number, $sdate, $edate){
+        global $adb;
+
+        $begin = new DateTime($sdate);
+        $end = new DateTime($edate);
+
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
+
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, 'live_omniscient')";
+        foreach ($period as $dt) {
+            $d = $dt->format("Y-m-d");
+            $adb->pquery($query, array($account_number, $d));
         }
     }
 

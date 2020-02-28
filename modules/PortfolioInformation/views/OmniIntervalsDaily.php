@@ -22,7 +22,7 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
         $accounts = explode(",", $account_numbers);
         $accounts = PortfolioInformation_Module_Model::ReturnValidAccountsFromArray($accounts);
 #        PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-#        PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts);
+        PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, '2019-01-01');
         $intervals = PortfolioInformation_Module_Model::GetDailyIntervalsForAccounts($accounts);
         $viewer = $this->getViewer($request);
 

@@ -161,7 +161,7 @@
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">CHANGE IN<br />VALUE</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">END<br />BALANCE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">INCOME</th>
+                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">EST. INCOME</th>
             </tr>
             </thead>
             <tbody>
@@ -170,29 +170,31 @@
                     <td style="font-size: 8pt; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
                     <td style="font-size: 8pt; margin:0; padding:0;">**{$account_number|substr:5}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
 {*                    <td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['change_in_value']|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['change_in_value']|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
+{*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>*}
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>
                 </tr>
             {/foreach}
             <tr>
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="2">&nbsp;</td>
 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">{$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.Flow->amount|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.Flow->amount|number_format:0:".":","}</td>
 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.change_in_value|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.change_in_value|number_format:0:".":","}</td>
 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>
+{*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>*}
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEstimatedIncome()->GetGrandTotal()|number_format:0:".":","}</td>
             </tr>
             </tbody>
         </table>

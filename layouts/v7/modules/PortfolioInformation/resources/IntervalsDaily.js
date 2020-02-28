@@ -28,17 +28,27 @@ jQuery.Class("IntervalsDaily_Js",{
                 if(cur <= end && cur >= start){
                     $(this).closest('tr').children('td, th').css('background-color','#98FB98');
                     var val = $(obj).siblings('.net_return').data('net_return');
-                    returns.push(val/100);
+                    returns.push(val);
+//                    returns.push(val/100);
                 }
             });
 
             function CalculateReturn(r){
                 var val = 1;
                 $.each(r, function(k, v){
-                    val = val * (1+v);
+                    val = val * (v);
                     count+=1;
                 });
                 val = (val - 1) * 100;
+                /*
+                var val = 0;
+                $.each(r, function(k, v){
+                    console.log(v);
+//                    val = val + v;
+                    val = parseFloat(val) + parseFloat(v);
+                    count+=1;
+                });
+                console.log("VALUE IS NOW " + val);*/
                 return(val.toFixed(2));
             }
             var r = CalculateReturn(returns);

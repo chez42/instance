@@ -1,0 +1,9 @@
+#inception_loader{display:none;}
+
+.rep_code_select{width:200px;}
+.section{display:block; max-width:50%; background-color:lightcyan; border:1px solid black; overflow: hidden}
+.section_header h2{text-align:center;}
+.block_left{float:left;}
+.block_right{float:right;}
+.inception_intervals{display:block; float:right}
+.clear_both{clear:both;}

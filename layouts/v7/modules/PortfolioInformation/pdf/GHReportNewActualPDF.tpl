@@ -47,7 +47,7 @@
     <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
         <tr>
             <td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}</td>
-{*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
+            {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
                     {$USER_DATA['first_name']} {$USER_DATA['last_name']}<br />
@@ -65,7 +65,7 @@
         <div class="GHReport_section" style="margin:0; padding:0;">
             <h2 class="blue_header" style="padding-top:2px; padding-bottom:2px;"><span style="font-size:10pt;">PLAN GOALS AND ASSUMPTIONS</span></h2>
             <p style="font-size:8pt;">{$POLICY|nl2br}</p>
-    {*        <p style="font-size:8pt;">Report Notes:</p>*}
+            {*        <p style="font-size:8pt;">Report Notes:</p>*}
             <p style="font-size:8pt;">{$PERSONAL_NOTES}</p>
         </div>
     {/if}
@@ -143,7 +143,7 @@
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">CHANGE IN<br />VALUE</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">END<br />BALANCE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">EST.<br />INCOME</th>
+                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">INCOME</th>
             </tr>
             </thead>
             <tbody>
@@ -160,14 +160,14 @@
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
                     <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-{*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
+{*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>*}
                 </tr>
             {/foreach}
             <tr>
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="2">&nbsp;</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">{$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.Flow->amount|number_format:0:".":","}</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
@@ -175,8 +175,8 @@
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-{*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEstimatedIncome()->GetGrandTotal()|number_format:0:".":","}</td>
+                {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>*}
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>
             </tr>
             </tbody>
         </table>
@@ -191,33 +191,33 @@
             </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td colspan="2" style="text-align:right; text-decoration:underline; font-size:8pt;">{$YTDPERFORMANCE->GetStartDateMDY()}-{$YTDPERFORMANCE->GetEndDateMDY()}</td>
-                </tr>
-                <tr>
-                    <td style="font-weight:bold; font-size:8pt; color:#33256C;">Combined Portfolio Return (TWR)</td>
-                    <td style="color:#33256C; text-align:right; font-weight:bold; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetTWR()|number_format:2:".":","}%</td>
-                </tr>
-{*                <tr>
-                    <td style="font-weight:bold; font-size:8pt; color:#33256C;">Blended Benchmark</td>
-                    <td style="color:#33256C; text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetBenchmark()|number_format:2:".":","}%</td>
-                </tr>*}
-                <tr>
-                    <td style="font-size:8pt;">NASDAQ US Dividend Achievers Select</td>
-                    <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("DVG")|number_format:2:".":","}%</td>
-                </tr>
-                <tr>
-                    <td style="font-size:8pt;">S&amp;P 500</td>
-                    <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
-                </tr>
-                <tr>
-                    <td style="font-size:8pt;">S&P 500 Bond Index</td>
-                    <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("SP500BDT")|number_format:2:".":","}%</td>
-                </tr>
-                <tr>
-                    <td style="font-size:8pt;">ICE U.S Treasury Core Bond TR Index</td>
-                    <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("IDCOTCTR")|number_format:2:".":","}%</td>
-                </tr>
+            <tr>
+                <td colspan="2" style="text-align:right; text-decoration:underline; font-size:8pt;">{$YTDPERFORMANCE->GetStartDateMDY()}-{$YTDPERFORMANCE->GetEndDateMDY()}</td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold; font-size:8pt; color:#33256C;">Combined Portfolio Return (TWR)</td>
+                <td style="color:#33256C; text-align:right; font-weight:bold; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetTWR()|number_format:2:".":","}%</td>
+            </tr>
+            {*                <tr>
+                                <td style="font-weight:bold; font-size:8pt; color:#33256C;">Blended Benchmark</td>
+                                <td style="color:#33256C; text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetBenchmark()|number_format:2:".":","}%</td>
+                            </tr>*}
+            <tr>
+                <td style="font-size:8pt;">NASDAQ US Dividend Achievers Select</td>
+                <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("DVG")|number_format:2:".":","}%</td>
+            </tr>
+            <tr>
+                <td style="font-size:8pt;">S&amp;P 500</td>
+                <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
+            </tr>
+            <tr>
+                <td style="font-size:8pt;">S&P 500 Bond Index</td>
+                <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("SP500BDT")|number_format:2:".":","}%</td>
+            </tr>
+            <tr>
+                <td style="font-size:8pt;">ICE U.S Treasury Core Bond TR Index</td>
+                <td style="text-align:right; font-size:8pt; padding-right:30pt;">{$YTDPERFORMANCE->GetIndex("IDCOTCTR")|number_format:2:".":","}%</td>
+            </tr>
             </tbody>
         </table>
     </div>

@@ -28,7 +28,11 @@ class ModSecurities_Detail_View extends Vtiger_Detail_View {
         }
 
         $eod = json_decode($guz->getSymbolRealTimePricing($symbol));
-        $fund = json_decode($guz->getFundamentals($symbol));
+        try {
+            $fund = json_decode($guz->getFundamentals($symbol));
+        }catch(Exception $e){//Exception if we try to access a fundamental that isn't a bond
+
+        }
 
 #        $dividendData = json_decode($guz->getDividends($symbol, "US", '2018-01-01', '2019-11-04'));
 

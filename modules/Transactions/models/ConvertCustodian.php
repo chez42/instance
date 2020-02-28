@@ -314,7 +314,7 @@ class Transactions_ConvertCustodian_Model extends Vtiger_Module_Model{
     }
 
 	static public function ReassignTransactions($account_number = null){
-	    global $adb;
+/*	    global $adb;
 
 	    $params = array();
 
@@ -348,12 +348,12 @@ class Transactions_ConvertCustodian_Model extends Vtiger_Module_Model{
         $query = "UPDATE ReplacedTransactions SET account_number = REPLACE(REPLACE(account_number, ' ', ''), '*', '')";
         $adb->pquery($query, array());
 
-        $query = "UPDATE vtiger_crmentity e 
+        $query = "UPDATE vtiger_crmentity e
                   JOIN ReplacedTransactions r ON r.transactionsid = e.crmid
                   JOIN PortfolioOwners o ON r.account_number = o.account_number
                   SET e.smownerid = o.portfolio_owner
                   WHERE e.smownerid=1 {$and}";
-        $adb->pquery($query, $params);
+        $adb->pquery($query, $params);*/
     }
 
 	static public function ConvertCustodian($custodian, $date, $comparitor, $newonly = 0){

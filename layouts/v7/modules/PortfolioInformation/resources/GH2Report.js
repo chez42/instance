@@ -1,29 +1,14 @@
 jQuery.Class("GH2Report_Js",{
     currentInstance : false,
-    chartInfo : [],
+    valuePieChart : [],
+    assetPieChart : [],
     getInstanceByView : function(){
         var instance = new GH2Report_Js();
         return instance;
     }
 },{
-    ClickEvents: function(){
+    ValuePieChart: function(){
         var self = this;
-
-        $(".ExportReport").click(function(e){
-            e.stopImmediatePropagation();
-            self.chartInfo.exporting.getImage("jpg").then(function(imgData){
-                $("#pie_image").val(encodeURIComponent(imgData));
-                console.log(imgData);
-                $("#export").submit();
-            });
-/*
-            var imgData = self.chartInfo.exporting.getImage("png");
-            $("#pie_image").val(imgData);
-            console.log($("#pie_image").val());
-//            $("#export").submit();*/
-        });
-
-
         am4core.options.commercialLicense = true;
         var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
         var chartData = $.parseJSON($("#holdings_values").val());
@@ -35,10 +20,22 @@ jQuery.Class("GH2Report_Js",{
         pieSeries.slices.template.stroke = am4core.color("#555354");
         pieSeries.dataFields.value = "value";
         pieSeries.dataFields.category = "title";
+        pieSeries.fontSize = 14;
 
         pieSeries.slices.template.strokeWidth = 2;
         pieSeries.slices.template.strokeOpacity = 1;
 
+        pieSeries.labels.horizontalCenter = 'middle';
+        pieSeries.labels.verticalCenter = 'middle';
+
+        pieSeries.labels.template.disabled = true;
+        /*
+        pieSeries.alignLabels = true;
+        pieSeries.labels.template.bent = true;
+        pieSeries.labels.template.radius = 3;
+        pieSeries.labels.template.padding(0,0,0,0);*/
+
+        pieSeries.ticks.template.disabled = true;
 //        pieSeries.labels.template.disabled = true;
 //        pieSeries.ticks.template.disabled = true;
 
@@ -57,11 +54,76 @@ jQuery.Class("GH2Report_Js",{
         });
         pieSeries.colors = colorSet;
 
-        self.chartInfo = chart;
+        self.valuePieChart = chart;
+    },
+
+    AssetPieChart: function(){
+        var self = this;
+        am4core.options.commercialLicense = true;
+        var chart = am4core.create("sector_pie_holder", am4charts.PieChart3D);
+        var chartData = $.parseJSON($("#sector_values").val());
+
+        chart.data = chartData;
+
+        chart.depth = 10;
+        chart.angle = 10;
+// Add and configure Series
+        var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+        pieSeries.slices.template.stroke = am4core.color("#555354");
+        pieSeries.dataFields.value = "value";
+        pieSeries.dataFields.category = "title";
+        pieSeries.fontSize = 14;
+
+        pieSeries.slices.template.strokeWidth = 2;
+        pieSeries.slices.template.strokeOpacity = 1;
+
+        pieSeries.labels.horizontalCenter = 'middle';
+        pieSeries.labels.verticalCenter = 'middle';
+
+        pieSeries.labels.template.disabled = true;
+
+        pieSeries.ticks.template.disabled = true;
+
+        var colorSet = new am4core.ColorSet();
+        var colors = [];
+        $.each(chartData,function(){
+            var element = jQuery(this);
+            colors.push(element["0"].color);
+        });
+
+        colorSet.list = colors.map(function(color) {
+            return new am4core.color(color);
+        });
+        pieSeries.colors = colorSet;
+
+        self.assetPieChart = chart;
+    },
+
+    ClickEvents: function(){
+        var self = this;
+
+        $(".ExportReport").click(function(e){
+            e.stopImmediatePropagation();
+            self.valuePieChart.exporting.getImage("jpg").then(function(imgData){
+                $("#pie_image").val(encodeURIComponent(imgData));
+                self.assetPieChart.exporting.getImage("jpg").then(function(imgData){
+                    $("#sector_pie_image").val(encodeURIComponent(imgData));
+                    $("#export").submit();
+//                console.log(imgData);
+                });
+            });
+            /*
+                        var imgData = self.chartInfo.exporting.getImage("png");
+                        $("#pie_image").val(imgData);
+                        console.log($("#pie_image").val());
+            //            $("#export").submit();*/
+        });
     },
 
     registerEvents : function() {
         this.ClickEvents();
+        this.ValuePieChart();
+        this.AssetPieChart();
     }
 });
 

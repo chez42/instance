@@ -67,8 +67,17 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $start_date = date("Y-m", strtotime($start_date));
             $end_date = date("Y-m", strtotime($end_date));
 
-#            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-#            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
+            foreach($accounts AS $k => $v){
+                if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
+                    echo $v;
+                    $query = "CALL TD_REC_TRANSACTIONS(?)";
+                    $adb->pquery($query, array($v));
+                };
+            }
+
+            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
+//            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $tmp_start_date, $tmp_end_date);
 
             $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
 
@@ -132,6 +141,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
             $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
             $viewer->assign("PREPARE_DATE", $prepare_date);
+            $viewer->assign("ACCOUNTS", $accounts);
 
 
             if($calling_record) {
@@ -223,6 +233,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $this->GeneratePDF($pdf_content, $logo, $orientation, $calling_record);
             }else {
                 $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
+                if($current_user->isAdminUser())
+                    $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/Administration.tpl', "PortfolioInformation");
                 $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GHReportNew.tpl', "PortfolioInformation");
                 echo $screen_content;
             }
@@ -247,7 +259,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
-        $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH.pdf");
+        $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH(Estimated).pdf");
 #        $pdf->DownloadView();
     }
 
@@ -270,6 +282,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 //            "modules.$moduleName.resources.OmniOverview",
             "modules.$moduleName.resources.MonthSelection",
             "modules.$moduleName.resources.GHReport",
+            "modules.$moduleName.resources.Administration",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
@@ -281,6 +294,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $cssFileNames = array(
             '~/layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css',
             '~/layouts/v7/modules/PortfolioInformation/css/GHReport.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/Administration.css',
             '~/libraries/shield/css/shield_all.min.css'
         );
         $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);

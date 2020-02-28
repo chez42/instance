@@ -55,6 +55,11 @@ class Transactions_FixTransaction_Action extends Vtiger_BasicAjax_Action
                 $record->save();
                 echo 1;
             }break;
+            case 'generatetd':{
+                $account_number = str_replace(",", "", $request->get('account_number'));
+                $result = Transactions_Module_Model::CreateReceiptOfSecuritiesFromTDPositions($account_number);
+                echo $result;
+            }
         }
     }
 }
