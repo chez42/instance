@@ -171,8 +171,8 @@
                 <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("EEM")|number_format:2:".":","}%</td>
             </tr>
             <tr>
-                <td>MSCI EAFE index</td>
-                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("MSCI_EAFE")|number_format:2:".":","}%</td>
+                <td>MSCI International World Index Price</td>
+                <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("990100")|number_format:2:".":","}%</td>
             </tr>
             </tbody>
         </table>

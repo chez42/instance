@@ -6,10 +6,10 @@
 {/foreach}
 
 {literal}
-<style>
-    .gh2table tbody tr:nth-child(even) {background-color:RGB(245, 245, 245);}
-    .gh2table tbody tr:nth-child(odd) {}
-</style>
+    <style>
+        .gh2table tbody tr:nth-child(even) {background-color:RGB(245, 245, 245);}
+        .gh2table tbody tr:nth-child(odd) {}
+    </style>
 {/literal}
 
 {assign var = "ytd_individual_performance_summed" value = $YTDPERFORMANCE->GetIndividualSummedBalance()}
@@ -66,41 +66,41 @@
                             <tbody>
                             {foreach from=$HOLDINGSPIEARRAY item=v}
                                 <tr>
-                                    <td style="font-weight:bold; width:50%; padding-bottom:10px;">{$v.title}</td>
-                                    <td style="text-align:right; width:25%; padding-bottom:10px;">${$v.value|number_format:2:".":","}</td>
-                                    <td style="text-align:right; width:25%; padding-bottom:10px;">{$v.percentage|number_format:2:".":","}%</td>
+                                    <td style="font-weight:bold; width:50%; padding-bottom:10px;"><span style="color:{$v.color}">{$v.title}</span></td>
+                                    <td style="text-align:right; width:25%; padding-bottom:10px;"><span style="color:{$v.color}">${$v.value|number_format:0:".":","}</span></td>
+                                    <td style="text-align:right; width:25%; padding-bottom:10px;"><span style="color:{$v.color}">{$v.percentage|number_format:2:".":","}%</span></td>
                                 </tr>
                             {/foreach}
                             <tr>
                                 <td>&nbsp;</td>
-                                <td style="text-align:right; border-top:1px solid black; padding-top:10px;">${$GLOBALTOTAL|number_format:2:".":","}</td>
+                                <td style="text-align:right; border-top:1px solid black; padding-top:10px;">${$GLOBALTOTAL|number_format:0:".":","}</td>
                                 <td>&nbsp;</td>
                             </tr>
                             {if $YTDPERFORMANCE->GetDividendAccrualAmount() neq 0}
                                 <tr>
                                     <td style="padding-top:10px; font-weight:bold;">Dividend Accrual:</td>
-                                    <td style="text-align:right; padding-top:10px;">${$YTDPERFORMANCE->GetDividendAccrualAmount()|number_format:2:".":","}</td>
+                                    <td style="text-align:right; padding-top:10px;">${$YTDPERFORMANCE->GetDividendAccrualAmount()|number_format:0:".":","}</td>
                                     <td>&nbsp;</td>
                                 </tr>
                             {/if}
                             {if $MARGIN_BALANCE neq 0}
                                 <tr>
                                     <td>
-                                        <p>Margin Balance: <span style="{if $MARGIN_BALANCE lt 0}color:red;{else}color:green;{/if}">${$MARGIN_BALANCE|number_format:2}</span></p>
+                                        <p>Margin Balance: <span style="{if $MARGIN_BALANCE lt 0}color:red;{else}color:green;{/if}">${$MARGIN_BALANCE|number_format:0}</span></p>
                                     </td>
                                 </tr>
                             {/if}
                             {if $NET_CREDIT_DEBIT neq 0}
                                 <tr>
                                     <td>
-                                        <p>Net Credit Debit: <span style="{if $NET_CREDIT_DEBIT lt 0}color:red;{else}color:green;{/if}">${$NET_CREDIT_DEBIT|number_format:2}</span></p>
+                                        <p>Net Credit Debit: <span style="{if $NET_CREDIT_DEBIT lt 0}color:red;{else}color:green;{/if}">${$NET_CREDIT_DEBIT|number_format:0}</span></p>
                                     </td>
                                 </tr>
                             {/if}
                             {if $UNSETTLED_CASH neq 0}
                                 <tr>
                                     <td>
-                                        <p>Unsettled Cash: <span style="{if $UNSETTLED_CASH lt 0}color:red;{else}color:green;{/if}">${$UNSETTLED_CASH|number_format:2}</span></p>
+                                        <p>Unsettled Cash: <span style="{if $UNSETTLED_CASH lt 0}color:red;{else}color:green;{/if}">${$UNSETTLED_CASH|number_format:0}</span></p>
                                     </td>
                                 </tr>
                             {/if}
@@ -123,7 +123,7 @@
                     <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right">Beginning Balance</th>
                     <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Flow</th>
                     <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Income</th>
-    {*                <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Other</th>*}
+                    {*                <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Other</th>*}
                     {*                <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center">Expenses</th>*}
                     <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Ending Value</th>
                     <th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:right">Investment Return</th>
@@ -136,32 +136,32 @@
                     <tr {if $ytd_individual_performance_summed[$account_number]['Flow']->disable_performance eq 1} style="{*background-color:#FFFFE0;*}" {/if}>
                         <td>**{$account_number|substr:5} ({$ytd_individual_performance_summed[$account_number]['account_type']})</td>
                         <td>{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
-                        <td style="text-align:right;">${$ytd_begin_values[$account_number]->value|number_format:2:".":","}</td>
-                        <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:2:".":","}</td>
-                        <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:2:".":","}</td>
+                        <td style="text-align:right;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
+                        <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:0:".":","}</td>
+                        <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
                         {*<td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Income']->amount|number_format:2:".":","}</td>*}
                         {*                    <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Expense']->amount|number_format:2:".":","}</td>*}
-                        <td style="text-align:right;">${$ytd_end_values[$account_number]->value|number_format:2:".":","}</td>
-                        <td style="text-align:right;">${$ytd_appreciation[$account_number]|number_format:2:".":","}</td>
+                        <td style="text-align:right;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
+                        <td style="text-align:right;">${$ytd_appreciation[$account_number]|number_format:0:".":","}</td>
                         {*                    <td style="text-align:right;">{$ytd_appreciation_percent[$account_number]|number_format:2:".":","}%</td>*}
                         <td style="text-align:right;">{$ytd_twr[$account_number]|number_format:2:".":","}%</td>
                     </tr>
                 {/foreach}
                 <tr>
                     <td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="2">Blended Portfolio Return</td>
-                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:2:".":","}</td>
-                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.Flow->amount|number_format:2:".":","}</td>
-                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.income_div_interest->amount|number_format:2:".":","}</td>
+                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</td>
+                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.Flow->amount|number_format:0:".":","}</td>
+                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>
                     {*<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.Income->amount|number_format:2:".":","}</td>*}
                     {*<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$ytd_performance_summed.Expense->amount|number_format:2:".":","}</td>*}
-                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:2:".":","}</td>
-                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetCapitalAppreciation()|number_format:2:".":","}</td>
+                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
+                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$YTDPERFORMANCE->GetCapitalAppreciation()|number_format:0:".":","}</td>
                     {*                    <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">{$YTDPERFORMANCE->GetAppreciationPercent()|number_format:2:".":","}%</td>*}
                     <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">{$YTDPERFORMANCE->GetTWR()|number_format:2:".":","}%</td>
                 </tr>
                 <tr>
                     <td colspan="7">S&amp;P 500</td>
-                    <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
+                    <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
                 </tr>
                 <tr>
                     <td colspan="7">Barclays Aggregate Bond</td>
@@ -172,13 +172,13 @@
                     <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("EEM")|number_format:2:".":","}%</td>
                 </tr>
                 <tr>
-                    <td colspan="7">MSCI EAFE index</td>
-                    <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("MSCI_EAFE")|number_format:2:".":","}%</td>
+                    <td colspan="7">MSCI EAFE Index</td>
+                    <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetIndex("MSCIEAFE")|number_format:2:".":","}%</td>
                 </tr>
-                <tr>
+{*                <tr>
                     <td colspan="7" style="font-weight:bold;">Blended Benchmark Return</td>
                     <td style="text-align:right; font-weight:bold;">{$YTDPERFORMANCE->GetBenchmark()|number_format:2:".":","}%</td>
-                </tr>
+                </tr>*}
                 </tbody>
             </table>
         </div>

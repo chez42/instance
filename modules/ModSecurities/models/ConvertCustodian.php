@@ -50,7 +50,7 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
                 $exchange = "US";
                 break;
             case "MSCI_EAFE":
-                $tmp_symbol = "990300";
+                $tmp_symbol = "990100";
                 $exchange = "INDX";
                 break;
             default:
