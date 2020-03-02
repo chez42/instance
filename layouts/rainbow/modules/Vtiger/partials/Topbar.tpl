@@ -547,6 +547,12 @@
 																<li id="createDocument"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
 															</ul>
 														</div>
+														{if $count % 3 == 2}
+															</div>
+														{/if}
+														{if !$hideDiv}
+															{assign var='count' value=$count+1}
+														{/if}
 													{else}
 														<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-xs-12{/if}">
 															<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
