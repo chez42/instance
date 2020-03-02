@@ -16,20 +16,23 @@
 		
 		for($i=0; $i< $total_oauth_results; $i++){
 			
-			$userid = $adb->query_result($exchange_users_query, $i, 'user');
+			try{
+				$userid = $adb->query_result($exchange_users_query, $i, 'user');
+				
+				$user_obj = CRMEntity::getInstance("Users");			
+				$user_obj->id = $userid;			
+				$user_obj->retrieve_entity_info($userid, "Users");
+				
+				vglobal("current_user", $user_obj);
 			
-			$user_obj = CRMEntity::getInstance("Users");			
-			$user_obj->id = $userid;			
-			$user_obj->retrieve_entity_info($userid, "Users");
-			
-			vglobal("current_user", $user_obj);
-		
-			$user = Users_Record_Model::getInstanceFromUserObject($user_obj);
+				$user = Users_Record_Model::getInstanceFromUserObject($user_obj);
+	    		
+	    		$request = new Vtiger_Request(array("module" => "MSExchange", "view" => "Sync", "source_module" => "Calendar"));
+	    		
+	    		$syncInstance = new MSExchange_Sync_View($request);
+	    		$syncInstance->sync($request, 'Calendar');
+    		} catch(Exception $e) {}
     		
-    		$request = new Vtiger_Request(array("module" => "MSExchange", "view" => "Sync", "source_module" => "Calendar"));
-    		
-    		$syncInstance = new MSExchange_Sync_View($request);
-    		$syncInstance->sync($request, 'Calendar');
 		}
 	}
 	
