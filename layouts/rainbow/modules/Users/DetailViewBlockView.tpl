@@ -108,7 +108,7 @@
 												{assign var=FIELD_DISPLAY_VALUE value=Vtiger_Util_Helper::toSafeHTML($FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue')))}
 											{/if}
 
-											<span class="value textOverflowEllipsis" data-field-type="{$FIELD_MODEL->getFieldDataType()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'} style="white-space:normal;" {/if} {if $fieldDataType eq 'email'}title='{$FIELD_MODEL->get('fieldvalue')}'{/if} >
+											<span class="value {if $FIELD_MODEL->get('uitype') neq "901"}textOverflowEllipsis{/if}" data-field-type="{$FIELD_MODEL->getFieldDataType()}" {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'} style="white-space:normal;" {/if} {if $fieldDataType eq 'email'}title='{$FIELD_MODEL->get('fieldvalue')}'{/if} {if $FIELD_MODEL->get('uitype') eq '901'}style="display:block!important;white-space:unset!important;"{/if} >
 												{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
 											</span>
 											{if $IS_AJAX_ENABLED && $FIELD_MODEL->isEditable() eq 'true' && $FIELD_MODEL->isAjaxEditable() eq 'true'}
@@ -121,10 +121,12 @@
 												</span>
 												<span class="action pull-right"><a href="#" onclick="return false;" class="editAction ti-pencil"></a></span>
 											{/if}
-										</div>
+										{if $FIELD_MODEL->get('uitype') neq "29001"}
+											</div>
+										{/if}
 									{/if}
 
-									{if $FIELD_MODEL_LIST|@count eq 1 and $FIELD_MODEL->get('uitype') neq "19" and $FIELD_MODEL->get('uitype') neq "20" and $FIELD_MODEL->get('uitype') neq "30" and $FIELD_MODEL->get('name') neq "recurringtype" and $FIELD_MODEL->get('uitype') neq "69" and $FIELD_MODEL->get('uitype') neq "105"}
+									{if $FIELD_MODEL_LIST|@count eq 1 and $FIELD_MODEL->get('uitype') neq "19" and $FIELD_MODEL->get('uitype') neq "20" and $FIELD_MODEL->get('uitype') neq "30" and $FIELD_MODEL->get('name') neq "recurringtype" and $FIELD_MODEL->get('uitype') neq "69" and $FIELD_MODEL->get('uitype') neq "105" and $FIELD_MODEL->get('uitype') neq "29001" and $FIELD_MODEL->get('uitype') neq "901"}
 										<div class="fieldLabel  col-xs-6 col-md-3 {$WIDTHTYPE}"></div><div class=" col-xs-6 col-md-3 {$WIDTHTYPE}"></div>
 									{/if}
 								{/foreach}
