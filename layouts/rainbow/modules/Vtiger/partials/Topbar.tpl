@@ -304,7 +304,7 @@
 															<a id="menubar_quickCreate_Events" class="quickCreateModule" data-name="Events"
 															   data-url="index.php?module=Events&view=QuickCreateAjax" href="javascript:void(0)"><i class="material-icons pull-left">event</i><span class="quick-create-module">{vtranslate('LBL_EVENT',$moduleName)}</span></a>
 														</div>
-														{*if $count % 3 == 2}
+														{*{if $count % 3 == 2}
 															</div>
 															<br>
 															<div class="row">
@@ -315,7 +315,7 @@
 														</div>
 														{if !$hideDiv}
 															{assign var='count' value=$count+1}
-														{/if*}
+														{/if}*}
 													{else if $singularLabel == 'SINGLE_Documents'}
 														<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-lg-4{/if} dropdown">
 															<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModuleSubmenu dropdown-toggle" data-name="{$moduleModel->getName()}" data-toggle="dropdown" 
@@ -340,6 +340,7 @@
 																<li id="createDocument"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
 															</ul>
 														</div>
+															
 													{else}
 														<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-lg-4{/if} {if $moduleModel->getName() eq 'Campaigns' || $moduleModel->getName() eq 'ProjectTask' || $moduleModel->getName() eq 'ProjectMilestone'}hide {/if}">
 															<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
@@ -511,7 +512,7 @@
 															<a id="menubar_quickCreate_Events" class="quickCreateModule" data-name="Events"
 															   data-url="index.php?module=Events&view=QuickCreateAjax" href="javascript:void(0)"><i class="material-icons pull-left">event</i><span class="quick-create-module">{vtranslate('LBL_EVENT',$moduleName)}</span></a>
 														</div>
-														{if $count % 3 == 2}
+														{*{if $count % 3 == 2}
 															</div>
 															<div class="row">
 														{/if}
@@ -521,7 +522,7 @@
 														</div>
 														{if !$hideDiv}
 															{assign var='count' value=$count+1}
-														{/if}
+														{/if}*}
 													{else if $singularLabel == 'SINGLE_Documents'}
 														<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-xs-12{/if} dropdown">
 															<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModuleSubmenu dropdown-toggle" data-name="{$moduleModel->getName()}" data-toggle="dropdown" 
@@ -547,12 +548,7 @@
 																<li id="createDocument"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
 															</ul>
 														</div>
-														{if $count % 3 == 2}
-															</div>
-														{/if}
-														{if !$hideDiv}
-															{assign var='count' value=$count+1}
-														{/if}
+														
 													{else}
 														<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-xs-12{/if}">
 															<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
