@@ -5,7 +5,8 @@
                 <li><a href="#">Performance</a>
                     <ul>
                         <li><a href="#" class="report_selection" data-report="GainLoss">Gain/Loss</a></li>
-                        <li><a href="#" class="report_selection" data-report="GHReport">GH1 Report</a></li>
+                        <li><a href="#" class="report_selection" data-report="GHReport">GH1 Report (Estimated Income)</a></li>
+                        <li><a href="#" class="report_selection" data-report="GHReportActual">GH1 Report (Actual Income)</a></li>
                         <li><a href="#" class="report_selection" data-report="GH2Report">GH2 Report</a></li>
                         <li><a href="#" class="report_selection" data-report="OmniOverview">Overview</a></li>
                     </ul>

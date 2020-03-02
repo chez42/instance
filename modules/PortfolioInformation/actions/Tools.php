@@ -14,6 +14,9 @@ class PortfolioInformation_Tools_Action extends Vtiger_BasicAjax_Action{
         $parse_type = $request->get('parse_type');
         $push_type = $request->get("push_type");
         $num_days = $request->get('num_days');
+        $file_type = $request->get('file_type');
+        $file_sdate = date("Y-m-d", strtotime($request->get('file_sdate')));
+        $file_edate = date("Y-m-d", strtotime($request->get('file_edate')));
 
         switch($todo){
             case "daily_intervals":
@@ -35,6 +38,12 @@ class PortfolioInformation_Tools_Action extends Vtiger_BasicAjax_Action{
                 $guz = new cPushGuzzle($custodian, $push_type);
                 $guz->pushFiles();
                 echo "Finished Push";
+            break;
+            case "find_missing":
+                $extensions = PortfolioInformation_Tools_Model::GetExtensionsFromType($file_type);
+                $missing = PortfolioInformation_Tools_Model::GetMissingFiles($extensions, $file_sdate, $file_edate);
+                echo json_encode($missing);
+            break;
         }
     }
 }

@@ -27,6 +27,11 @@ class PortfolioInformation_Tools_View extends Vtiger_Index_View {
         $rep_codes = $downloader->GetAllRepCodes();
         $history = $downloader->GetRepCodeHistory('all', $sdate, $edate);
 */
+
+#        $extensions = PortfolioInformation_Tools_Model::GetExtensionsFromType("Portfolios");
+#        $missing = PortfolioInformation_Tools_Model::GetMissingFiles($extensions, '2020-02-21', '2020-02-22');
+#        print_r($missing);exit;
+
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeList();
 #        print_r($rep_codes);exit;
         $viewer = $this->getViewer($request);
@@ -47,6 +52,7 @@ class PortfolioInformation_Tools_View extends Vtiger_Index_View {
         $jsFileNames = array(
 //            '~libraries/jquery/Drop-Down-Combo-Tree/comboTreePlugin.js',
             '~layouts/v7/modules/PortfolioInformation/resources/Tools.js',
+            "~/libraries/shield/shieldui-all.min.js",
 //            '~layouts/v7/modules/PortfolioInformation/resources/icontains.js',
         );
 
