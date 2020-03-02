@@ -28,6 +28,9 @@
 	<input type='hidden' value="{$PAGING_MODEL->getPageLimit()}" id='pageLimit'>
 	<input type="hidden" value="{$LISTVIEW_ENTRIES_COUNT}" id="noOfEntries">
 	<input type="hidden" value="{$NO_SEARCH_PARAMS_CACHE}" id="noFilterCache" >
+	<input type="hidden" name="cvid" value="{$VIEWID}" />
+	 <input type="hidden" name="allCvId" value="{CustomView_Record_Model::getAllFilterByModule($MODULE)->get('cvid')}" />
+	
 
 	<div id="table-content" class="table-container">
 		<form name='list' id='listedit' action='' onsubmit="return false;">
@@ -35,7 +38,19 @@
 				<thead>
 					<tr class="listViewContentHeader">
 						<th>
-							{vtranslate('LBL_ACTIONS', $QUALIFIED_MODULE)}
+							{if !$SEARCH_MODE_RESULTS}
+								{if Users_CustomView_Model::getNameBycvId({$VIEWID}) != 'LBL_INACTIVE_USERS'}	
+									<div class="table-actions">
+										<div style="float:left;">
+											<span class="input"  title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}">
+												<input class="listViewEntriesMainCheckBox" type="checkbox">
+											</span>
+										</div>
+									</div>
+								{/if}	
+							{elseif $SEARCH_MODE_RESULTS}
+								{vtranslate('LBL_ACTIONS', $QUALIFIED_MODULE)}
+							{/if}
 						</th>
 						{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
 							{if $LISTVIEW_HEADER->getName() neq 'last_name' and $LISTVIEW_HEADER->getName() neq 'email1' and $LISTVIEW_HEADER->getName() neq 'status'}
@@ -73,11 +88,15 @@
 								{if $LISTVIEW_HEADER->getName() eq 'last_name' or $LISTVIEW_HEADER->getName() eq 'email1' or $LISTVIEW_HEADER->getName() eq 'status'}
 									{continue}
 								{/if}
-								<th>
-									{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
-									{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
-									<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
-								</th>
+								{if $LISTVIEW_HEADER->getName() eq 'imagename' or $LISTVIEW_HEADER->getName() eq 'user_logo'}
+									<th>&nbsp;</th>
+								{else}
+									<th>
+										{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
+										{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
+										<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
+									</th>
+								{/if}
 							{/foreach}
 						</tr>
 					{/if}
@@ -95,19 +114,6 @@
 										<span class="fieldValue">
 											<span class="value textOverflowEllipsis">
 												<div style="margin-left: -13px;">
-													{assign var=IMAGE_DETAILS value=$LISTVIEW_ENTRY->getImageDetails()}
-													{foreach item=IMAGE_INFO from=$IMAGE_DETAILS}
-														{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
-															<div class='col-lg-2'>
-																<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}">
-															</div>
-														{/if}
-													{/foreach}
-													{if $IMAGE_DETAILS[0]['id'] eq null}
-														<div class='col-lg-2'>
-															<i class="ti-user userDefaultIcon"></i>
-														</div>
-													{/if}
 													<div class="usersinfo col-lg-9 textOverflowEllipsis" title="{$LISTVIEW_ENTRY->get('last_name')}">
 														<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)} {$LISTVIEW_ENTRY->get('last_name')}</a>
 													</div>
@@ -115,6 +121,36 @@
 														{$LISTVIEW_ENTRY->get('email1')}
 													</div>
 												</div>
+											</span>
+										</span>
+									</td>
+								{elseif $LISTVIEW_HEADER->getName() eq 'imagename' }
+									<td class="{$WIDTHTYPE}" nowrap>
+										<span class="fieldValue">
+											<span class="value textOverflowEllipsis">
+													{assign var=IMAGE_DETAILS value=$LISTVIEW_ENTRY->getImageDetails()}
+													{foreach item=IMAGE_INFO from=$IMAGE_DETAILS['imagename']}
+														{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
+															<div class='col-lg-2'>
+																<img  height="25px" width="25px" src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}">
+															</div>
+														{/if}
+													{/foreach}
+												</span>
+										</span>
+									</td>
+								{elseif $LISTVIEW_HEADER->getName() eq 'user_logo'}	
+									<td class="{$WIDTHTYPE}" nowrap>
+										<span class="fieldValue">
+											<span class="value textOverflowEllipsis">
+												{assign var=IMAGE_DETAILS value=$LISTVIEW_ENTRY->getImageDetails()}
+												{foreach item=IMAGE_INFO from=$IMAGE_DETAILS['user_logo']}
+													{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
+														<div class='col-lg-2'>
+															<img height="25px" width="25px" src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}">
+														</div>
+													{/if}
+												{/foreach}
 											</span>
 										</span>
 									</td>

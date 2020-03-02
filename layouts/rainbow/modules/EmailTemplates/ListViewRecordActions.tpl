@@ -12,7 +12,8 @@
 <div class="table-actions">
     {if !$SEARCH_MODE_RESULTS}
     <span class="input" >
-        <input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>
+        <input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"
+		{if !$CURRENT_USER_MODEL->isAdminUser() and $LISTVIEW_ENTRY->get('creatorid') neq $CURRENT_USER_MODEL->id} disabled="disabled"{/if} />
     </span>
     {/if}
     <span class="more dropdown action">
@@ -20,7 +21,9 @@
         <ul class="dropdown-menu">
             <li><a data-id="{$LISTVIEW_ENTRY->getId()}" href="{$LISTVIEW_ENTRY->getFullDetailViewUrl()}">{vtranslate('LBL_DETAILS', $MODULE)}</a></li>
             <li><a data-id="{$LISTVIEW_ENTRY->getId()}" href="javascript:void(0);" data-url="{$LISTVIEW_ENTRY->getEditViewUrl()}" name="editlink">{vtranslate('LBL_EDIT', $MODULE)}</a></li>
-            <li><a data-id="{$LISTVIEW_ENTRY->getId()}" class="deleteRecordButton">{vtranslate('LBL_DELETE', $MODULE)}</a></li>
+            {if $CURRENT_USER_MODEL->isAdminUser() or $LISTVIEW_ENTRY->get('creatorid') eq $CURRENT_USER_MODEL->id}
+            	<li><a data-id="{$LISTVIEW_ENTRY->getId()}" class="deleteRecordButton">{vtranslate('LBL_DELETE', $MODULE)}</a></li>
+        	{/if}
         </ul>
     </span>
             

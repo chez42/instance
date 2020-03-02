@@ -73,7 +73,7 @@
                                             <div class="btn-group">
                                                 {foreach item=DETAILVIEW_LINK from=$DETAILVIEW_LINKS}
                                                     {assign var=LINKNAME value=$DETAILVIEW_LINK->getLabel()}
-                                                    <button class="btn btn-secondary reportActions" name="{$LINKNAME}" data-href="{$DETAILVIEW_LINK->getUrl()}&source={$REPORT_MODEL->getReportType()}">
+                                                    <button class="btn btn-secondary reportActions" name="{$LINKNAME}" data-href="{$DETAILVIEW_LINK->getUrl()}{if $LINKNAME neq 'Send Email'}&source={$REPORT_MODEL->getReportType()}{/if}">
                                                         {$LINKNAME}
                                                     </button>
                                                 {/foreach}

@@ -56,7 +56,16 @@ Vtiger.Class("Calendar_Calendar_Js", {
 	holdFollowUp: function (eventId) {
 		var instance = Calendar_Calendar_Js.getInstance();
 		instance.holdFollowUp(eventId);
-	}
+	},
+	deleteCalendarTask: function (eventId, sourceModule) {
+		var instance = Calendar_Calendar_Js.getInstance();
+		instance.deleteCalendarTask(eventId, sourceModule);
+	},
+	markAsHeldTask: function (recordId) {
+		var instance = Calendar_Calendar_Js.getInstance();
+		instance.markAsHeldTask(recordId);
+	},
+
 
 }, {
 	init: function () {
@@ -128,9 +137,40 @@ Vtiger.Class("Calendar_Calendar_Js", {
 	},
 	markAsHeld: function (recordId) {
 		var thisInstance = this;
-		app.helper.showConfirmationBox({
-			message: app.vtranslate('JS_CONFIRM_MARK_AS_HELD')
-		}).then(function () {
+		
+		if(app.getTurnOfConfirmation() != 1){
+			
+			thisInstance.showPromptBox({
+				message: app.vtranslate('JS_CONFIRM_MARK_AS_HELD')
+			}).then(function (result) {
+				
+				var requestParams = {
+					module: "Calendar",
+					action: "SaveFollowupAjax",
+					mode: "markAsHeldCompleted",
+					record: recordId
+				};
+					
+				if(result.length)
+					requestParams['turn_of_confirmation'] = 1;
+				 
+				app.request.post({'data': requestParams}).then(function (e, res) {
+					jQuery('.vt-notification').remove();
+					if (e) {
+						app.event.trigger('post.save.failed', e);
+					} else if (res && res['valid'] === true && res['markedascompleted'] === true) {
+						thisInstance.updateListView();
+						thisInstance.updateCalendarView(res.activitytype);
+					} else {
+						app.helper.showAlertNotification({
+							'message': app.vtranslate('JS_FUTURE_EVENT_CANNOT_BE_MARKED_AS_HELD')
+						});
+					}
+				});
+			});
+		
+		}else if(app.getTurnOfConfirmation() == 1){
+			
 			var requestParams = {
 				module: "Calendar",
 				action: "SaveFollowupAjax",
@@ -152,7 +192,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 					});
 				}
 			});
-		});
+		}
 	},
 	registerCalendarSharingTypeChangeEvent: function (modalContainer) {
 		var selectedUsersContainer = app.helper.getSelect2FromSelect(
@@ -504,7 +544,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		}
 		return parsedConditions;
 	},
-	saveFeedSettings: function (modalContainer, feedIndicator) {
+	saveFeedSettings: function (modalContainer, feedIndicator, typeId) {
 		var thisInstance = this;
 		var modulesList = modalContainer.find('select[name="modulesList"]');
 		var moduleName = modulesList.val();
@@ -538,7 +578,9 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			viewColor: selectedColor,
 			viewConditions: conditions
 		};
-
+		if(typeId)
+			params['typeid'] = typeId;
+		
 		app.helper.showProgress();
 		app.request.post({'data': params}).then(function (e, data) {
 			if (!e) {
@@ -551,6 +593,11 @@ Vtiger.Class("Calendar_Calendar_Js", {
 
 				if (parsedConditions.hasOwnProperty('value')) {
 					calendarSourceKey += '_' + parsedConditions.value;
+					
+					if (editorMode != 'create')
+						calendarSourceKey += '_' + feedIndicator.find('.toggleCalendarFeed').data('calendarConditionName');
+					
+				
 					feedIndicatorTitle = moduleName + '(' + app.vtranslate(parsedConditions.value) + ') -' + translatedFieldName;
 				}
 
@@ -594,7 +641,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			}
 		});
 	},
-	registerColorEditorSaveEvent: function (modalContainer, feedIndicator) {
+	registerColorEditorSaveEvent: function (modalContainer, feedIndicator, typeId) {
 		var thisInstance = this;
 		modalContainer.find('[name="saveButton"]').on('click', function () {
 			var currentTarget = jQuery(this);
@@ -620,13 +667,13 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				}
 			}
 
-			thisInstance.checkDuplicateFeed(moduleName, fieldName, selectedColor, conditions).then(
+			thisInstance.checkDuplicateFeed(moduleName, fieldName, selectedColor, conditions, typeId).then(
 					function (result) {
-						thisInstance.saveFeedSettings(modalContainer, feedIndicator);
-					},
-					function () {
 						app.helper.showErrorNotification({'message': app.vtranslate('JS_CALENDAR_VIEW_YOU_ARE_EDITING_NOT_FOUND')});
 						currentTarget.removeAttr('disabled');
+					},
+					function () {
+						thisInstance.saveFeedSettings(modalContainer, feedIndicator, typeId);
 					});
 		});
 	},
@@ -661,8 +708,8 @@ Vtiger.Class("Calendar_Calendar_Js", {
 
 		var fieldSelectElement = modalContainer.find('[name="fieldsList"]');
 		fieldSelectElement.select2('val', feedCheckbox.data('calendarFieldname')).trigger('change');
-
-		thisInstance.registerColorEditorSaveEvent(modalContainer, feedIndicator);
+		var typeId = feedCheckbox.data('calendarTypeid');
+		thisInstance.registerColorEditorSaveEvent(modalContainer, feedIndicator, typeId);
 	},
 	showColorEditor: function (feedIndicator) {
 		var thisInstance = this;
@@ -735,7 +782,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 					});
 				});
 	},
-	checkDuplicateFeed: function (moduleName, fieldName, selectedColor, conditions) {
+	checkDuplicateFeed: function (moduleName, fieldName, selectedColor, conditions, typeId) {
 		var aDeferred = jQuery.Deferred();
 		var params = {
 			'module': 'Calendar',
@@ -746,6 +793,9 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			'viewColor': selectedColor,
 			'viewConditions': conditions
 		};
+		if(typeId)
+			params['typeid'] = typeId;
+		
 		app.request.post({'data': params}).then(function (e, result) {
 			if (!e) {
 				if (result['success']) {
@@ -1034,13 +1084,14 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		var thisInstance = this;
 		var params = {
 			submitHandler: function (form) {
-				jQuery("button[name='saveButton']").attr("disabled", "disabled");
-				if (this.numberOfInvalids() > 0) {
+				var e = jQuery.Event(Vtiger_Edit_Js.recordPresaveEvent);
+				$("#QuickCreate").trigger(e);
+				if (e.isDefaultPrevented()) {
 					return false;
 				}
-				var e = jQuery.Event(Vtiger_Edit_Js.recordPresaveEvent);
-				app.event.trigger(e);
-				if (e.isDefaultPrevented()) {
+				
+				jQuery("button[name='saveButton']").attr("disabled", "disabled");
+				if (this.numberOfInvalids() > 0) {
 					return false;
 				}
 				var formData = jQuery(form).serialize();
@@ -1149,7 +1200,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		this.showCreateModal('Events', startDateTime);
 	},
 	updateAllTasksOnCalendar: function () {
-		this._updateAllOnCalendar("Calendar");
+		this._updateAllOnCalendar("Task");
 	},
 	showTaskOnCalendar: function (data) {
 		this.updateAllTasksOnCalendar();
@@ -1157,15 +1208,18 @@ Vtiger.Class("Calendar_Calendar_Js", {
 	updateCalendar: function (calendarModule, data) {
 		if (calendarModule === 'Events') {
 			this.showEventOnCalendar(data);
-		} else if (calendarModule === 'Calendar') {
+		} else if (calendarModule === 'Task') {
 			this.showTaskOnCalendar(data);
 		}
 	},
 	registerPostQuickCreateSaveEvent: function () {
 		var thisInstance = this;
 		app.event.on("post.QuickCreateForm.save", function (e, data, formData) {
-			if (formData.module === 'Calendar' || formData.module === 'Events') {
-				thisInstance.updateCalendar(formData.calendarModule, data);
+			if (formData.module === 'Task' || formData.module === 'Events') {
+				if(formData.module === 'Task')
+					thisInstance.updateCalendar(formData.module, data);
+				else
+					thisInstance.updateCalendar(formData.calendarModule, data);
 			}
 		});
 	},
@@ -1373,16 +1427,19 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		var thisInstance = this;
 		var params = {
 			submitHandler: function (form) {
+				
+				var e = jQuery.Event(Vtiger_Edit_Js.recordPresaveEvent);
+				$("#QuickCreate").trigger(e);
+				if (e.isDefaultPrevented()) {
+					return false;
+				}
+				
 				jQuery("button[name='saveButton']").attr("disabled", "disabled");
 				if (this.numberOfInvalids() > 0) {
 					jQuery("button[name='saveButton']").removeAttr("disabled");
 					return false;
 				}
-				var e = jQuery.Event(Vtiger_Edit_Js.recordPresaveEvent);
-				app.event.trigger(e);
-				if (e.isDefaultPrevented()) {
-					return false;
-				}
+				
 				if (isRecurring) {
 					app.helper.showConfirmationForRepeatEvents().then(function (postData) {
 						thisInstance._updateEvent(form, postData);
@@ -1411,7 +1468,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			quickCreateNode.trigger('click');
 			quickCreateNode.data('url', quickCreateUrl);
 
-			if (moduleName === 'Events') {
+			if (moduleName === 'Events' || moduleName == 'Task') {
 				app.event.one('post.QuickCreateForm.show', function (e, form) {
 					thisInstance.registerEditEventModalEvents(form.closest('.modal'), isRecurring);
 				});
@@ -1419,7 +1476,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		}
 	},
 	showEditTaskModal: function (taskId) {
-		this.showEditModal('Calendar', taskId);
+		this.showEditModal('Task', taskId);
 	},
 	editCalendarTask: function (taskId) {
 		this.showEditTaskModal(taskId);
@@ -1462,14 +1519,22 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				timeString +
 			'</span>';
 
-			if (sourceModule === 'Calendar' || sourceModule == 'Events') {
-				popOverHTML += '' +
-						'<span class="pull-right cursorPointer" ' +
-						'onClick="Calendar_Calendar_Js.deleteCalendarEvent(\'' + eventObj.id +
-						'\',\'' + sourceModule + '\',' + eventObj.recurringcheck + ');" title="' + app.vtranslate('JS_DELETE') + '">' +
-						'&nbsp;&nbsp;<i class="ti-trash"></i>' +
-						'</span> &nbsp;&nbsp;';
-
+			if (sourceModule === 'Task' || sourceModule == 'Events') {
+				if(sourceModule == 'Events'){
+					popOverHTML += '' +
+							'<span class="pull-right cursorPointer" ' +
+							'onClick="Calendar_Calendar_Js.deleteCalendarEvent(\'' + eventObj.id +
+							'\',\'' + sourceModule + '\',' + eventObj.recurringcheck + ');" title="' + app.vtranslate('JS_DELETE') + '">' +
+							'&nbsp;&nbsp;<i class="ti-trash"></i>' +
+							'</span> &nbsp;&nbsp;';
+				}else if(sourceModule == 'Task'){
+					popOverHTML += '' +
+							'<span class="pull-right cursorPointer" ' +
+							'onClick="Calendar_Calendar_Js.deleteCalendarTask(\'' + eventObj.id +
+							'\',\'' + sourceModule +'\');" title="' + app.vtranslate('JS_DELETE') + '">' +
+							'&nbsp;&nbsp;<i class="fa fa-trash"></i>' +
+							'</span> &nbsp;&nbsp;';
+				}
 				if (sourceModule === 'Events') {
 					popOverHTML += '' +
 							'<span class="pull-right cursorPointer" ' +
@@ -1477,7 +1542,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 							'\',' + eventObj.recurringcheck + ');" title="' + app.vtranslate('JS_EDIT') + '">' +
 							'&nbsp;&nbsp;<i class="ti-pencil"></i>' +
 							'</span>';
-				} else if (sourceModule === 'Calendar') {
+				} else if (sourceModule === 'Task') {
 					popOverHTML += '' +
 							'<span class="pull-right cursorPointer" ' +
 							'onClick="Calendar_Calendar_Js.editCalendarTask(\'' + eventObj.id + '\');" title="' + app.vtranslate('JS_EDIT') + '">' +
@@ -1486,11 +1551,19 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				}
 
 				if (eventObj.status !== 'Held' && eventObj.status !== 'Completed') {
-					popOverHTML += '' +
-							'<span class="pull-right cursorPointer"' +
-							'onClick="Calendar_Calendar_Js.markAsHeld(\'' + eventObj.id + '\');" title="' + app.vtranslate('JS_MARK_AS_HELD') + '">' +
-							'<i class="ti-check"></i>' +
-							'</span>';
+					if (sourceModule === 'Events') {
+						popOverHTML += '' +
+								'<span class="pull-right cursorPointer"' +
+								'onClick="Calendar_Calendar_Js.markAsHeld(\'' + eventObj.id + '\');" title="' + app.vtranslate('JS_MARK_AS_HELD') + '">' +
+								'<i class="ti-check"></i>' +
+								'</span>';
+					}else if (sourceModule === 'Task') {
+						popOverHTML += '' +
+								'<span class="pull-right cursorPointer"' +
+								'onClick="Calendar_Calendar_Js.markAsHeldTask(\'' + eventObj.id + '\');" title="' + app.vtranslate('JS_MARK_AS_HELD') + '">' +
+								'<i class="fa fa-check"></i>' +
+								'</span>';
+					}
 				} else if (eventObj.status === 'Held') {
 					popOverHTML += '' +
 							'<span class="pull-right cursorPointer" ' +
@@ -1501,9 +1574,13 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			}
 			return popOverHTML;
 		};
-
+		if(event.relatedToLinks)
+			var title = event.relatedToLinks;
+		else 
+			var title = event.title;
+		
 		var params = {
-			'title': event.title,
+			'title': title,
 			'content': generatePopoverContentHTML(event),
 			'trigger': 'hover',
 			'closeable': true,
@@ -1653,6 +1730,10 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			},
 			eventMouseout: function (event, jsEvent, view) {
 				thisInstance.performMouseOutActions(event, jsEvent, view);
+			},
+			eventAfterRender : function(event,element,view){
+				element.attr('target', '_blank');
+				element.attr('data-relatedLinks',event.relatedToLinks);
 			},
 			viewRender: function (view, element) {
 				if (view.name === 'vtAgendaList') {
@@ -1983,5 +2064,117 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		this.registerWidgetPostLoadEvent();
 		this.initializeWidgets();
 		this.registerPostQuickCreateSaveEvent();
-	}
+	},
+	
+	showPromptBox: function(data) {
+		var aDeferred = jQuery.Deferred();
+        var buttonsInfo;
+        if((typeof data.buttons == "object") && (Object.keys(data.buttons).length > 0)){
+            buttonsInfo = data.buttons;
+        }else{
+            buttonsInfo = {
+					cancel: {
+						label: 'No',
+						className : 'btn-default confirm-box-btn-pad pull-right'
+					},
+					confirm: {
+						label: 'Yes',
+						className : 'confirm-box-ok confirm-box-btn-pad btn-primary'
+					}
+            }
+        }
+        
+        bootbox.prompt({
+            title: data['message'],
+            buttons: buttonsInfo,
+            inputType: 'checkbox',
+            inputOptions: [
+                {
+                    text: 'Turn Of Confirmation',
+                    value: '1',
+                },
+            ],
+            callback: function (result) {
+                if (result) {
+						aDeferred.resolve(result);
+					} else {
+						aDeferred.reject();
+					}
+            }
+        });
+			
+	        return aDeferred.promise();
+	    },
+	    
+	    _deleteCalendarTask: function (eventId, sourceModule, extraParams) {
+			var thisInstance = this;
+			if (typeof extraParams === 'undefined') {
+				extraParams = {};
+			}
+			var params = {
+				"module": "Task",
+				"action": "DeleteAjax",
+				"record": eventId,
+				"sourceModule": sourceModule
+			};
+			jQuery.extend(params, extraParams);
+
+			app.helper.showProgress();
+			app.request.post({'data': params}).then(function (e, res) {
+				app.helper.hideProgress();
+				if (!e) {
+					var deletedRecords = res['deletedRecords'];
+					for (var key in deletedRecords) {
+						var eventId = deletedRecords[key];
+						thisInstance.getCalendarViewContainer().fullCalendar('removeEvents', eventId);
+					}
+					app.helper.showSuccessNotification({
+						'message': app.vtranslate('JS_RECORD_DELETED')
+					});
+				} else {
+					app.helper.showErrorNotification({
+						'message': app.vtranslate('JS_NO_DELETE_PERMISSION')
+					});
+				}
+			});
+		},
+		deleteCalendarTask: function (eventId, sourceModule) {
+			var thisInstance = this;
+			app.helper.showPromptBox({
+				message: app.vtranslate('LBL_DELETE_CONFIRMATION')
+			}).then(function () {
+				thisInstance._deleteCalendarTask(eventId, sourceModule);
+			});
+		},
+		markAsHeldTask: function (recordId) {
+			var thisInstance = this;
+				
+			app.helper.showPromptBox({
+				message: app.vtranslate('JS_CONFIRM_MARK_AS_HELD')
+			}).then(function (result) {
+				
+				var requestParams = {
+					module: "Task",
+					action: "MarkAsCompleted",
+					mode: "markAsCompleted",
+					record: recordId
+				};
+				 
+				app.request.post({'data': requestParams}).then(function (e, res) {
+					jQuery('.vt-notification').remove();
+					if (e) {
+						app.event.trigger('post.save.failed', e);
+					} else if (res && res['valid'] === true && res['markedascompleted'] === true) {
+						thisInstance.updateListView();
+						thisInstance.updateCalendarView(res.activitytype);
+					} else {
+						app.helper.showAlertNotification({
+							'message': app.vtranslate('JS_FUTURE_EVENT_CANNOT_BE_MARKED_AS_HELD')
+						});
+					}
+				});
+			});
+			
+			
+		},
 });

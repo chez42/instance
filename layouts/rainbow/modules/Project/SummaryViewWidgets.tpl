@@ -25,37 +25,9 @@
 	{/foreach}
 	<div class="summaryMainContainer sh-effect1">
 	<div class="left-block col-lg-4 col-md-12 col-sm-12 col-xs-12">
-		<div class="summaryView">
-			<div class="summaryViewHeader" style="margin-bottom: 15px;">
-				<h4 class="display-inline-block">{vtranslate('LBL_KEY_METRICS', $MODULE_NAME)}</h4>
-			</div>
-			<div class="summaryViewFields">
-				{foreach item=SUMMARY_CATEGORY from=$SUMMARY_INFORMATION}
-					<div class="row roundedCorners ">
-						<ul class="list-group unstyled " style="    padding-left: 20px;">
-							{foreach key=FIELD_NAME item=FIELD_VALUE from=$SUMMARY_CATEGORY}
-							<li>
-										<label class="font-x-x-large label label-rounded {if !empty($FIELD_VALUE)}label-warning{else}label-success{/if}">
-											{if !empty($FIELD_VALUE)}{$FIELD_VALUE}{else}0{/if}
-										</label>
-										&nbsp;<label class="font-x-small">
-											{vtranslate($FIELD_NAME,$MODULE_NAME)}
-										</label>
-										
-									
-							</li>
-						{/foreach}
-					</ul>
-
-					</div>
-				{/foreach}
-			</div>
-		</div>
+			
 		{* Module Summary View*}
 		<div class="summaryView">
-			<div class="summaryViewHeader">
-				<h4 class="display-inline-block">{vtranslate('LBL_KEY_FIELDS', $MODULE_NAME)}</h4>
-			</div>
 			<div class="summaryViewFields">
 				{$MODULE_SUMMARY}
 			</div>
@@ -102,7 +74,68 @@
 		{/if}
 		{* Summary View Documents Widget Ends Here*}
 	</div>
+	<div class="middle-block col-lg-8 col-md-12 col-sm-12 col-xs-12">
+	{* Summary View Contacts Widget *}
+		{if $TASKS_WIDGET_MODEL}
+			{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance('ProjectTask')}
+			{assign var=PROGRESS_FIELD_MODEL value=$RELATED_MODULE_MODEL->getField('projecttaskprogress')}
+			{assign var=STATUS_FIELD_MODEL value=$RELATED_MODULE_MODEL->getField('projecttaskstatus')}
+			<div class="summaryWidgetContainer">
+				<div class="widgetContainer_tasks" data-url="{$TASKS_WIDGET_MODEL->getUrl()}" data-name="{$TASKS_WIDGET_MODEL->getLabel()}">
+					<div class="widget_header clearfix">
+						<input type="hidden" name="relatedModule" value="{$TASKS_WIDGET_MODEL->get('linkName')}" />
+						<!--<span class="toggleButton pull-left"><i class="fa fa-angle-down"></i>&nbsp;&nbsp;</span>-->
+						<h4 class="display-inline-block pull-left">{vtranslate($TASKS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
 
+						{if $TASKS_WIDGET_MODEL->get('action')}
+							<div class="pull-right">
+								<button class="btn addButton btn-sm btn-primary createRecord" id="createProjectTask" type="button" data-url="{$TASKS_WIDGET_MODEL->get('actionURL')}">
+									<i class="material-icons">add</i>&nbsp;<span class="hidden-sm hidden-xs">{vtranslate('LBL_ADD',$MODULE_NAME)}</span>
+								</button>
+							</div>
+						{/if}
+					</div>
+					<div class="clearfix">
+						<div class="widget_filter clearfix">
+							
+							{if $PROGRESS_FIELD_MODEL->isViewableInDetailView()}
+								<div class="pull-left marginRight15">
+									{assign var=FIELD_INFO value=$PROGRESS_FIELD_MODEL->getFieldInfo()}
+									{assign var=PICKLIST_VALUES value=$FIELD_INFO['picklistvalues']}
+									{assign var=FIELD_INFO value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_INFO))}
+									{assign var="SPECIAL_VALIDATOR" value=$PROGRESS_FIELD_MODEL->getValidator()}
+									<select class="select2" name="{$PROGRESS_FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $PROGRESS_FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
+										<option value="">{vtranslate('LBL_SELECT_PROGRESS',$MODULE_NAME)}</option>
+										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
+											<option value="{$PICKLIST_NAME}" {if $PROGRESS_FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
+										{/foreach}
+									</select>
+								</div>
+							{/if}
+							
+							&nbsp;&nbsp;
+							{if $STATUS_FIELD_MODEL->isViewableInDetailView()}
+								<div class="pull-left marginRight15">
+									{assign var=FIELD_INFO value=$STATUS_FIELD_MODEL->getFieldInfo()}
+									{assign var=PICKLIST_VALUES value=$FIELD_INFO['picklistvalues']}
+									{assign var=FIELD_INFO value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_INFO))}
+									{assign var="SPECIAL_VALIDATOR" value=$STATUS_FIELD_MODEL->getValidator()}
+									<select class="select2" name="{$STATUS_FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $STATUS_FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
+										<option value="">{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
+											<option value="{$PICKLIST_NAME}" {if $STATUS_FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
+										{/foreach}
+									</select>
+								</div>
+							{/if}
+						</div>
+					</div>
+					<div class="widget_contents"></div>
+				</div>
+			</div>
+		{/if}
+		{* Summary View Contacts Widget Ends Here *}
+	</div>	
 	<div class="middle-block col-lg-4 col-md-12 col-sm-12 col-xs-12">
 		{* Summary View Comments Widget*}
 		{if $COMMENTS_WIDGET_MODEL}
@@ -186,66 +219,7 @@
 		{/if}
 		{* Summary View Contacts Widget Ends Here *}
 
-		{* Summary View Contacts Widget *}
-		{if $TASKS_WIDGET_MODEL}
-			{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance('ProjectTask')}
-			{assign var=PROGRESS_FIELD_MODEL value=$RELATED_MODULE_MODEL->getField('projecttaskprogress')}
-			{assign var=STATUS_FIELD_MODEL value=$RELATED_MODULE_MODEL->getField('projecttaskstatus')}
-			<div class="summaryWidgetContainer">
-				<div class="widgetContainer_tasks" data-url="{$TASKS_WIDGET_MODEL->getUrl()}" data-name="{$TASKS_WIDGET_MODEL->getLabel()}">
-					<div class="widget_header clearfix">
-						<input type="hidden" name="relatedModule" value="{$TASKS_WIDGET_MODEL->get('linkName')}" />
-						<!--<span class="toggleButton pull-left"><i class="fa fa-angle-down"></i>&nbsp;&nbsp;</span>-->
-						<h4 class="display-inline-block pull-left">{vtranslate($TASKS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-
-						{if $TASKS_WIDGET_MODEL->get('action')}
-							<div class="pull-right">
-								<button class="btn addButton btn-sm btn-primary createRecord" id="createProjectTask" type="button" data-url="{$TASKS_WIDGET_MODEL->get('actionURL')}">
-									<i class="material-icons">add</i>&nbsp;<span class="hidden-sm hidden-xs">{vtranslate('LBL_ADD',$MODULE_NAME)}</span>
-								</button>
-							</div>
-						{/if}
-					</div>
-					<div class="clearfix">
-						<div class="widget_filter clearfix">
-							
-							{if $PROGRESS_FIELD_MODEL->isViewableInDetailView()}
-								<div class="pull-left marginRight15">
-									{assign var=FIELD_INFO value=$PROGRESS_FIELD_MODEL->getFieldInfo()}
-									{assign var=PICKLIST_VALUES value=$FIELD_INFO['picklistvalues']}
-									{assign var=FIELD_INFO value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_INFO))}
-									{assign var="SPECIAL_VALIDATOR" value=$PROGRESS_FIELD_MODEL->getValidator()}
-									<select class="select2" name="{$PROGRESS_FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $PROGRESS_FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option value="">{vtranslate('LBL_SELECT_PROGRESS',$MODULE_NAME)}</option>
-										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
-											<option value="{$PICKLIST_NAME}" {if $PROGRESS_FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
-										{/foreach}
-									</select>
-								</div>
-							{/if}
-							
-							&nbsp;&nbsp;
-							{if $STATUS_FIELD_MODEL->isViewableInDetailView()}
-								<div class="pull-left marginRight15">
-									{assign var=FIELD_INFO value=$STATUS_FIELD_MODEL->getFieldInfo()}
-									{assign var=PICKLIST_VALUES value=$FIELD_INFO['picklistvalues']}
-									{assign var=FIELD_INFO value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_INFO))}
-									{assign var="SPECIAL_VALIDATOR" value=$STATUS_FIELD_MODEL->getValidator()}
-									<select class="select2" name="{$STATUS_FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $STATUS_FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-										<option value="">{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
-										{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
-											<option value="{$PICKLIST_NAME}" {if $STATUS_FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
-										{/foreach}
-									</select>
-								</div>
-							{/if}
-						</div>
-					</div>
-					<div class="widget_contents"></div>
-				</div>
-			</div>
-		{/if}
-		{* Summary View Contacts Widget Ends Here *}
+		
 	</div>
 	<div class="clearfix"></div>
 	<br>

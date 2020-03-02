@@ -22,6 +22,7 @@
     <input type='hidden' value="{$TOTAL_ENTRIES}" id='totalCount'>
     <input type='hidden' value="{$TAB_LABEL}" id='tab_label' name='tab_label'>
     <input type='hidden' value="{$IS_RELATION_FIELD_ACTIVE}" id='isRelationFieldActive'>
+	<input type='hidden' value="{$CVID}" name='cvid'>
     <div class="relatedHeader">
         <div class="btn-toolbar row">
             <div class="col-lg-6 col-md-6 col-sm-6 btn-toolbar">
@@ -77,6 +78,80 @@
                     {/foreach}
                 </div>&nbsp;
             </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 btn-toolbar pull-right">
+                <div class="row pull-right">
+            	  	<div class="col-sm-6" style= "width: 42%;">
+                        <button type="button" class="btn changeMode btn-default" name="list"><i class="icon-plus icon-white"></i>&nbsp;List View</button>
+                    </div>
+                    <div class="col-sm-6" >
+                         <button type="button" class="btn changeMode btn-default" name="folder"><i class="icon-plus icon-white"></i>&nbsp;Folder View</button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <div class="clearfix" style="margin: 5px;"></div>
+        {foreach item=RELATED_LIST_MASSACTION from=$RELATED_LIST_MASSACTIONS name=massActions}
+        
+	        {if $RELATED_LIST_MASSACTION->getLabel() eq 'LBL_EDIT'}
+	            {assign var=editAction value=$RELATED_LIST_MASSACTION}
+	        {else if $RELATED_LIST_MASSACTION->getLabel() eq 'LBL_DELETE'}
+	            {assign var=deleteAction value=$RELATED_LIST_MASSACTION}
+	        {else if $RELATED_LIST_MASSACTION->getLabel() eq 'LBL_ADD_COMMENT'}
+	            {assign var=commentAction value=$RELATED_LIST_MASSACTION}
+	        {else if $RELATED_LIST_MASSACTION->getLabel() eq 'LBL_EXPORT'}
+	            {assign var=exportAction value=$RELATED_LIST_MASSACTION}
+	            {* $a is added as its print the index of the array, need to find a way around it *}
+	        {/if}
+	        
+	    {/foreach}
+		<div class = "row">
+			<div class="col-md-3">
+				<div class="btn-group relatedlistViewActionsContainer" role="group" aria-label="...">
+					{if $editAction}
+	                    <button type="button" class="btn btn-default relatededit" id={$MODULE}_reletedlistView_massAction_{$editAction->getLabel()} 
+	                            {if stripos($editAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" url='{$editAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$editAction->getUrl()}' {/if} title="{vtranslate('LBL_EDIT', $MODULE)}" disabled="disabled">
+	                        <i class="fa fa-pencil"></i>
+	                    </button>
+	                {/if}
+	                {if $deleteAction}
+	                    <button type="button" class="btn btn-default relateddelete" id={$MODULE}_reletedlistView_massAction_{$deleteAction->getLabel()} 
+	                            {if stripos($deleteAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" url='{$deleteAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$deleteAction->getUrl()}' {/if} title="{vtranslate('LBL_DELETE', $MODULE)}" disabled="disabled">
+	                        <i class="fa fa-trash"></i>
+	                    </button>
+	                {/if}
+	                {if $commentAction}
+	                    <button type="button" class="btn btn-default relatedcomment" id="{$MODULE}_reletedlistView_massAction_{$commentAction->getLabel()}" 
+	                            href="{$commentAction->getUrl()}" title="{vtranslate('LBL_COMMENT', $MODULE)}" disabled="disabled">
+	                        <i class="fa fa-comment"></i>
+	                    </button>
+	                {/if}
+	                
+	                <button type="button" class="btn btn-default relatedexportzip export" id="{$MODULE}_reletedlistView_massAction_Export_Zip"   
+                            href='index.php?module=Documents&view=RelatedExportZip'  title="{vtranslate('Export Zip', $MODULE)}" >
+                        Export Zip
+                    </button>
+                    
+				</div>
+				{if $exportAction}
+	                <div class="btn-group relatedlistViewMassActions" role="group">
+	                	<button type="button" class="btn btn-default relatedexport export" id={$MODULE}_reletedlistView_massAction_{$exportAction->getLabel()} 
+	                            {if stripos($exportAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" url='{$exportAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$exportAction->getUrl()}' {/if} title="{vtranslate('LBL_EXPORT', $MODULE)}" >
+	                        Export
+	                    </button>
+	                </div>    
+                {/if}
+               
+			</div>	
+		 	<div class="col-md-6">
+			 	<div class="hide messageContainer" style = "height:30px;">
+	                <center><a href="#" id="selectAllMsgDiv">{vtranslate('LBL_SELECT_ALL',$RELATED_MODULE_NAME)}&nbsp;Related&nbsp;{vtranslate($RELATED_MODULE_NAME ,$RELATED_MODULE_NAME)}&nbsp;<span id="totalRecordsCount" class="hide" value=""></span></a></center>
+	            </div>
+	            <div class="hide messageContainer" style = "height:30px;">
+	                <center><a href="#" id="deSelectAllMsgDiv">{vtranslate('LBL_DESELECT_ALL_RECORDS',$RELATED_MODULE_NAME)}</a></center>
+	            </div> 
+            </div>
+        
             {assign var=CLASS_VIEW_ACTION value='relatedViewActions'}
             {assign var=CLASS_VIEW_PAGING_INPUT value='relatedViewPagingInput'}
             {assign var=CLASS_VIEW_PAGING_INPUT_SUBMIT value='relatedViewPagingInputSubmit'}
@@ -103,6 +178,7 @@
             <thead>
                 <tr class="listViewHeaders">
                     <th style="min-width:100px">
+						<input class="relatedlistViewEntriesMainCheckBox" type="checkbox"style="margin-left:12px;">
                     </th>
                     {foreach item=HEADER_FIELD from=$RELATED_HEADERS}
                     {* hide time_start,time_end columns in the list as they are merged with with Start Date and End Date fields *}
@@ -160,6 +236,9 @@
                         data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
                                         {/if}>
                     <td style="width:120px!important">
+                    	<span class="input" style="margin:5px;" >
+					        <input type="checkbox" value="{$RELATED_RECORD->getId()}" class="relatedlistViewEntriesCheckBox"/>
+					    </span>
                         <span class="actionImages">
                             <a name="relationEdit" data-url="{$RELATED_RECORD->getEditViewUrl()}"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="material-icons">create</i></a>&nbsp;
                             {if $IS_DELETABLE}

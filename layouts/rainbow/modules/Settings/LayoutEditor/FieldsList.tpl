@@ -120,6 +120,10 @@
 														{assign var=NOT_S_FIELD_TITLE value={vtranslate('LBL_HIDE_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_KEY_FIELD',$QUALIFIED_MODULE))}}
 														{assign var=NOT_H_FIELD_TITLE value={vtranslate('LBL_HIDE_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_DETAIL_HEADER',$QUALIFIED_MODULE))}}
 														{assign var=IS_MANDATORY value=$FIELD_MODEL->isMandatory()}
+														
+														{assign var=R_L_FIELD_TITLE value={vtranslate('LBL_SHOW_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE))}}
+														{assign var=NOT_R_L_FIELD_TITLE value={vtranslate('LBL_HIDE_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE))}}
+														
 														<div class="fieldProperties col-sm-10" data-field-id="{$FIELD_MODEL->get('id')}">
 															<span class="mandatory switch text-capitalize {if (!$IS_MANDATORY)}disabled{/if} {if $FIELD_MODEL->isMandatoryOptionDisabled()} cursorPointerNotAllowed {else} cursorPointer {/if}"
 																	data-toggle="tooltip" {if $IS_MANDATORY} title="{$NOT_M_FIELD_TITLE}" {else} title="{$M_FIELD_TITLE}" {/if}>
@@ -163,7 +167,18 @@
 																	data-enable-value="1" data-disable-value="0"
 																	{if $FIELD_MODEL->isSummaryFieldOptionDisabled()}readonly="readonly"{/if}
 																	title="{vtranslate('LBL_KEY_FIELD',$QUALIFIED_MODULE)}"></i>&nbsp;{vtranslate('LBL_KEY_FIELD',$QUALIFIED_MODULE)}
-															</span><br><br>
+															</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+															{assign var=IS_RELATED_LIST_ENABLED value=$FIELD_MODEL->isRelateListViewEnabled()}
+															<span class="relatedList switch {if (!$IS_RELATED_LIST_ENABLED)} disabled {/if} 
+																	{if $FIELD_MODEL->isRelatedTabViewOptionDisabled()} cursorPointerNotAllowed {else} cursorPointer {/if}"
+																	data-toggle="tooltip" {if $IS_RELATED_LIST_ENABLED} title="{$NOT_R_L_FIELD_TITLE}" {else} title="{$R_L_FIELD_TITLE}" {/if}>
+																<img src="{vimage_path('MassEdit.png')}" data-name="related_list_view" 
+																	 data-enable-value="1" data-disable-value="0" title="{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}" 
+																	 {if $FIELD_MODEL->isRelatedTabViewOptionDisabled()}readonly="readonly"{/if} height=14 width=14 
+																	 />&nbsp;{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}
+															</span>
+															
+															<br><br>
 															<div class="defaultValue col-sm-12 {if !$FIELD_MODEL->hasDefaultValue()}disabled{/if} 
 																 {if $FIELD_MODEL->isDefaultValueOptionDisabled()} cursorPointerNotAllowed {/if}">
 																{assign var=DEFAULT_VALUE value=$FIELD_MODEL->getDefaultFieldValueToViewInV7FieldsLayOut()}
@@ -337,6 +352,15 @@
 																	data-enable-value="1" data-disable-value="0"
 																	{if $FIELD_MODEL->isSummaryFieldOptionDisabled()}readonly="readonly"{/if}
 																	title="{vtranslate('LBL_KEY_FIELD',$QUALIFIED_MODULE)}"></i>&nbsp;{vtranslate('LBL_KEY_FIELD',$QUALIFIED_MODULE)}
+															</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+															{assign var=IS_RELATED_LIST_ENABLED value=$FIELD_MODEL->isRelateListViewEnabled()}
+															<span class="relatedList switch {if (!$IS_RELATED_LIST_ENABLED)} disabled {/if} 
+																	{if $FIELD_MODEL->isRelatedTabViewOptionDisabled()} cursorPointerNotAllowed {else} cursorPointer {/if}"
+																	data-toggle="tooltip" {if $IS_RELATED_LIST_ENABLED} title="{$NOT_R_L_FIELD_TITLE}" {else} title="{$R_L_FIELD_TITLE}" {/if}>
+																<img src="{vimage_path('MassEdit.png')}" data-name="related_list_view" 
+																	 data-enable-value="1" data-disable-value="0" title="{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}" 
+																	 {if $FIELD_MODEL->isRelatedTabViewOptionDisabled()}readonly="readonly"{/if} height=14 width=14 
+																	 />&nbsp;{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}
 															</span><br><br>
 															<div class="defaultValue col-sm-12 {if !$FIELD_MODEL->hasDefaultValue()}disabled{/if} 
 																 {if $FIELD_MODEL->isDefaultValueOptionDisabled()} cursorPointerNotAllowed {/if}">

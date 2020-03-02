@@ -9,6 +9,13 @@
 
 {strip}
 	<div class="table-actions">
+		{if !$SEARCH_MODE_RESULTS}
+		    <span class="input" >
+			    {if $LISTVIEW_ENTRY->get('status') eq 'Active'}
+		        	<input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>
+			   	{/if}
+		    </span>
+	    {/if}
 		<span class="more dropdown action">
 			<span href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
 				<i title="{vtranslate("LBL_MORE_OPTIONS",$MODULE)}" class="ti-info-alt icon"></i>
@@ -20,7 +27,7 @@
 					{/if}
 					<li><a onclick="Settings_Users_List_Js.triggerChangePassword('{$LISTVIEW_ENTRY->getChangePwdUrl()}');">{vtranslate('LBL_CHANGE_PASSWORD', $MODULE)}</a></li>
 					{if $IS_MODULE_EDITABLE && $LISTVIEW_ENTRY->get('status') eq 'Active'}
-						<li><a href="{$LISTVIEW_ENTRY->getEditViewUrl()}&parentblock=LBL_USER_MANAGEMENT" name="editlink">{vtranslate('LBL_EDIT', $MODULE)}</a></li>
+						<li><a href="{$LISTVIEW_ENTRY->getEditViewUrl()}&parentblock=LBL_USER_MANAGEMENT" {*name="editlink"*}>{vtranslate('LBL_EDIT', $MODULE)}</a></li>
 					{/if}
 				{/if}
 				{if $IS_MODULE_DELETABLE && $LISTVIEW_ENTRY->getId() != $USER_MODEL->getId()}

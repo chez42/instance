@@ -107,6 +107,118 @@
 			<div class="col-lg-5 col-md-5 pull-right">
 				<div id="appnav" class="navbar-right">
 					<div class="btn-group">
+						{if $smarty.request.view eq 'List' and $smarty.request.module eq 'Users'}
+							<div class="btn-group listViewMassActions " role="group">
+								<button type="button" class="btn btn-default module-buttons dropdown-toggle" data-toggle="dropdown">
+									<img class="filterImage" src="layouts/v7/skins/images/filter.png" style="height: 13px; margin-right: 2px; vertical-align: middle;">
+									<span id="selected"> {vtranslate('LBL_MORE','Vtiger')}</span>&nbsp;<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu filter-menu" style="min-width:250px;">
+									<div class="module-filters" id="module-filters">
+										<div class="sidebar-container lists-menu-container">
+											<div class="sidebar-header clearfix">
+												<h5 class="pull-left">{vtranslate('LBL_LISTS',$MODULE)}</h5>
+												<button id="createFilter" data-url="{CustomView_Record_Model::getCreateViewUrl($MODULE)}" class="btn btn-sm btn-info pull-right sidebar-btn" title="{vtranslate('LBL_CREATE_LIST',$MODULE)}">
+													<div class="ti-plus" aria-hidden="true"></div>
+												</button> 
+											</div>
+											<hr>
+											<div>
+												<input class="search-list"  type="hidden" placeholder="{vtranslate('LBL_SEARCH_FOR_LIST',$MODULE)}">
+											</div>
+											<div class="menu-scroller scrollContainer" style="position:relative; top:0; left:0;height: 450px;">
+												<div class="list-menu-content">
+													{assign var="CUSTOM_VIEW_NAMES" value=array()}
+													{if $CUSTOM_VIEWS && count($CUSTOM_VIEWS) > 0}
+														{foreach key=GROUP_LABEL item=GROUP_CUSTOM_VIEWS from=$CUSTOM_VIEWS}
+														{if $GROUP_LABEL neq 'Mine' && $GROUP_LABEL neq 'Shared'}
+															{continue}
+														 {/if}
+														<div class="list-group" id="{if $GROUP_LABEL eq 'Mine'}myList{else}sharedList{/if}">   
+															<h6 class="lists-header {if count($GROUP_CUSTOM_VIEWS) <=0} hide {/if}" >
+																{if $GROUP_LABEL eq 'Mine'}
+																	{vtranslate('LBL_MY_LIST',$MODULE)}
+																{else}
+																	{vtranslate('LBL_SHARED_LIST',$MODULE)}
+																{/if}
+															</h6>
+															<input type="hidden" name="allCvId" value="{CustomView_Record_Model::getAllFilterByModule($MODULE)->get('cvid')}" />
+															<ul class="lists-menu" style="list-style: none;">
+															{assign var=count value=0}
+															{assign var=MODULE_MODEL value=Vtiger_Module_Model::getInstance($MODULE)}
+															{assign var=LISTVIEW_URL value=$MODULE_MODEL->getListViewUrl()}
+															{foreach item="CUSTOM_VIEW" from=$GROUP_CUSTOM_VIEWS name="customView"}
+																{assign var=IS_DEFAULT value=$CUSTOM_VIEW->isDefault()}
+																{assign var="CUSTOME_VIEW_RECORD_MODEL" value=CustomView_Record_Model::getInstanceById($CUSTOM_VIEW->getId())}
+																{assign var="MEMBERS" value=$CUSTOME_VIEW_RECORD_MODEL->getMembers()}
+																{assign var="LIST_STATUS" value=$CUSTOME_VIEW_RECORD_MODEL->get('status')}
+																{foreach key=GROUP_LABEL item="MEMBER_LIST" from=$MEMBERS}
+																	{if $MEMBER_LIST|@count gt 0}
+																	{assign var="SHARED_MEMBER_COUNT" value=1}
+																	{/if}
+																{/foreach}
+																<li style="font-size:12px;" class='listViewFilter {if $VIEWID eq $CUSTOM_VIEW->getId() && ($CURRENT_TAG eq '')} active {if $smarty.foreach.customView.iteration gt 10} {assign var=count value=1} {/if} {else if $smarty.foreach.customView.iteration gt 10} filterHidden hide{/if} '> 
+																	{assign var=VIEWNAME value={vtranslate($CUSTOM_VIEW->get('viewname'), $MODULE)}}
+																	{append var="CUSTOM_VIEW_NAMES" value=$VIEWNAME}
+																	 <a class="filterName listViewFilterElipsis" href="{$LISTVIEW_URL|cat:'&viewname='|cat:$CUSTOM_VIEW->getId()|cat:'&app='|cat:$SELECTED_MENU_CATEGORY}" oncontextmenu="return false;" data-filter-id="{$CUSTOM_VIEW->getId()}" title="{$VIEWNAME|@escape:'html'}">{$VIEWNAME|@escape:'html'}</a> 
+																		<div class="pull-right">
+																			<span class="js-popover-container" style="cursor:pointer;">
+																				<span  class="fa fa-angle-down" rel="popover" data-toggle="popover" aria-expanded="true" 
+																					{if $CUSTOM_VIEW->isMine() and $CUSTOM_VIEW->get('viewname') neq 'All'}
+																						data-deletable="{if $CUSTOM_VIEW->isDeletable() and $CUSTOM_VIEW->get('viewname') neq 'All'}true{else}false{/if}" 
+																						data-editable="{if $CUSTOM_VIEW->isEditable() }true{else}false{/if}" 
+																						{if $CUSTOM_VIEW->isEditable() || $CURRENT_USER_MODEL->isAdminUser()} 
+																						data-editurl="{$CUSTOM_VIEW->getEditUrl()}{/if}" 
+																						{if $CUSTOM_VIEW->isDeletable()}
+																						{if $SHARED_MEMBER_COUNT eq 1 or $LIST_STATUS eq 3} data-shared="1"{/if} 
+																						data-deleteurl="{$CUSTOM_VIEW->getDeleteUrl()}"{/if}
+																					   {/if}
+																					  toggleClass="fa {if $IS_DEFAULT}fa-check-square-o{else}fa-square-o{/if}" 
+																					  data-filter-id="{$CUSTOM_VIEW->getId()}" 
+																					  data-is-default="{$IS_DEFAULT}" data-defaulttoggle="{$CUSTOM_VIEW->getToggleDefaultUrl()}" 
+																					  data-default="{$CUSTOM_VIEW->getDuplicateUrl()}" 
+																					  data-isMine="{if $CUSTOM_VIEW->isMine() && ($CUSTOM_VIEW->get('viewname') neq 'LBL_ACTIVE_USERS' && $CUSTOM_VIEW->get('viewname') neq 'LBL_INACTIVE_USERS')}true{else}false{/if}">
+																				</span>
+																				 </span>
+																			</div>
+																		</li>
+																	{/foreach}
+																</ul>
+															
+														 </div>
+														{/foreach}
+															
+														<input type="hidden" id='allFilterNames'  value='{Vtiger_Util_Helper::toSafeHTML(Zend_JSON::encode($CUSTOM_VIEWS_NAMES))}'/>
+														<div id="filterActionPopoverHtml">
+															<ul class="listmenu hide" role="menu">
+																<li role="presentation" class="editFilter">
+																		<a role="menuitem"><i class="fa fa-pencil"></i>&nbsp;{vtranslate('LBL_EDIT',$MODULE)}</a>
+																	</li>
+																<li role="presentation" class="deleteFilter">
+																		<a role="menuitem"><i class="fa fa-trash"></i>&nbsp;{vtranslate('LBL_DELETE',$MODULE)}</a>
+																</li>
+																<li role="presentation" class="duplicateFilter">
+																			<a role="menuitem" ><i class="fa fa-files-o"></i>&nbsp;{vtranslate('LBL_DUPLICATE',$MODULE)}</a>
+																		</li>
+																<li role="presentation" class="toggleDefault">
+																			<a role="menuitem" >
+																		<i data-check-icon="fa-check-square-o" data-uncheck-icon="fa-square-o"></i>&nbsp;{vtranslate('LBL_DEFAULT',$MODULE)}
+																			</a>
+																		</li>
+																	</ul>
+														</div>
+							
+													{/if}
+													<div class="list-group hide noLists">
+														<h6 class="lists-header"><center> {vtranslate('LBL_NO')} {vtranslate('LBL_LISTS')} {vtranslate('LBL_FOUND')} ... </center></h6>
+													</div>
+												</div>
+										   </div> 
+										</div>
+									</div>    
+								</ul>
+						   </div> 
+						{/if}
 						{foreach item=BASIC_ACTION from=$MODULE_BASIC_ACTIONS}
 								{if $BASIC_ACTION->getLabel() == 'LBL_IMPORT'}
 									<button id="{$MODULE}_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($BASIC_ACTION->getLabel())}" type="button" class="btn addButton module-buttons" 

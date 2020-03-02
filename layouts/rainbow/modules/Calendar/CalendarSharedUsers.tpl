@@ -44,7 +44,7 @@
 					{assign var=INVISIBLE_CALENDAR_VIEWS_EXISTS value='true'}
 				{/if}
 			{/foreach}
-			{foreach key=ID item=GROUP from=$SHAREDGROUPS}
+			{*{foreach key=ID item=GROUP from=$SHAREDGROUPS}
 				{if $SHAREDUSERS_INFO[$ID]['visible'] != '0'}
 					<li class="activitytype-indicator calendar-feed-indicator" style="background-color:  {$SHAREDUSERS_INFO[$ID]['color']};">
 						<span class="userName textOverflowEllipsis" title="{$GROUP}">
@@ -61,7 +61,7 @@
 				{else}
 					{assign var=INVISIBLE_CALENDAR_VIEWS_EXISTS value='true'}
 				{/if}
-			{/foreach}
+			{/foreach}*}
 		</ul>
 		<ul class="hide dummy">
 			<li class="activitytype-indicator calendar-feed-indicator feed-indicator-template">

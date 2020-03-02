@@ -52,6 +52,8 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 	relatedContactElement : false,
 
 	recurringEditConfirmation : false,
+	
+	duplicateCheck: false,
 
 	getRelatedContactElement : function(form) {
 		if(typeof form == "undefined") {
@@ -310,7 +312,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			form = this.getForm();
 		}
 		var InitialFormData = form.serialize();
-		app.event.one(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
+		form.on(Vtiger_Edit_Js.recordPresaveEvent,function(e) {
 			thisInstance.registerRecurringEditOptions(e,form,InitialFormData);
 			thisInstance.addInviteesIds(form);
 			thisInstance.resetRecurringDetailsIfDisabled(form);
@@ -611,7 +613,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 	 },
 	 
 	registerBasicEvents : function(container) {
-
+		this.registerEventsHoldFollowUpField(container);
 		this._super(container);
 		this.registerRecordPreSaveEvent(container);
 		this.registerDateTimeHandlers(container);
@@ -622,5 +624,246 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 		this.registerRepeatMonthActions();
 		this.registerRelatedContactSpecificEvents(container);
 		this.registerRelatedTypeChangeEvent();
-	}
+		this.registerEventStatusChangeEvent(container);
+	},
+	
+	registerEvents: function(callParent) {
+		if(callParent != false){
+            this._super();
+        }
+        this.registerValidation();
+    },
+	 
+	registerEventsForTimeSoltsAvailability :function(form){
+		var aDeferred = jQuery.Deferred();
+		var timeStart = form.find('[name="time_start"]').val();
+		var dateStart = form.find('[name="date_start"]').val();
+		var dateEnd = form.find('[name="due_date"]').val();
+		var timeEnd = form.find('[name="time_end"]').val();
+		var record = form.find('input[name="record"]').val();
+		var userId = form.find('[name="assigned_user_id"]').val();
+		var params = {
+			'module' : 'Calendar',
+			'action' : 'CheckTimeAvailability',
+			'timestart' : timeStart,
+			'datestart' : dateStart,
+			'timeend' : timeEnd,
+			'dateend' : dateEnd,
+			'record' : record,
+			'user_id' : userId
+		};
+
+		app.request.post({data: params}).then(function(err, data) {
+			if (!err)  {
+				aDeferred.resolve(data);
+			}else{
+				aDeferred.reject(err);
+			}
+		});
+		return aDeferred.promise();
+	},
+	
+	genratePopOverEvent :function(form,data){
+		
+		var element = form.find('input[name="date_start"]');
+		var html = '';
+		html += 'Conflicts';
+		html += '<ul style="max-height: 200px; overflow-y: auto;">';
+		jQuery.each(data,function(i,val){
+			html += '<li>';
+			//style="color: #ffff00"'+val.subject+'
+			html += '<a style="color: #15c" target="_blank" href="index.php?module=Calendar&view=Detail&record='+val.activityid+'">('+val.dateStart+' - '+val.dueDate+')</a> </li>';
+		});
+		html += '</ul>';
+		
+		var template = '<div class="popover" role="tooltip" style="background: red;">' +
+	        '<style>' +
+	        '.popover.bottom>.arrow:after{border-bottom-color:red;2px solid #ddd}' +
+	        '.popover-content{font-size: 11px}' +
+	        '.popover-content ul{padding: 5px 0px 0 0px}' +
+	        '.popover-content li{list-style-type: none}' +
+	        '.popover{border: 2px solid #ddd;color: #fff;box-shadow: 0 0 6px #000; -moz-box-shadow: 0 0 6px #000;-webkit-box-shadow: 0 0 6px #000; -o-box-shadow: 0 0 6px #000;padding: 4px 10px 4px 10px;border-radius: 6px; -moz-border-radius: 6px; -webkit-border-radius: 6px; -o-border-radius: 6px;}' +
+	        '</style><div class="arrow">' +
+	        '</div>' +
+	        '<h3 class="popover-title"></h3><div class="popover-content"></div></div>';
+	    
+        jQuery(element).popover({
+            content: html,
+            placement: 'bottom',
+            html: true,
+            template:template,
+            trigger: 'onKeyPress',
+        });
+
+        setTimeout(function(){jQuery(element).popover('show');}, 0);
+        jQuery(element).closest('td').css({'opacity': 1});
+		
+	},
+	
+	/**
+     * Function to Validate and Save Event 
+     * @returns {undefined}
+     */
+    registerValidation : function () {
+
+        var editViewForm = this.getForm();
+        this.formValidatorInstance = editViewForm.vtValidate({
+        	'ignore' : ".ignore-validation,.select2-input,:not(:visible)",
+            submitHandler : function() {
+                var e = jQuery.Event(Vtiger_Edit_Js.recordPresaveEvent);
+                editViewForm.trigger(e);
+                if(e.isDefaultPrevented()) {
+                    return false;
+                }
+				window.onbeforeunload = null;
+                editViewForm.find('.saveButton').attr('disabled',true);
+                return true;
+            },
+            errorPlacement: function(error, element) {
+    			if($(error).text()) {
+
+    				if(element.hasClass('select2')) {
+    					element = app.helper.getSelect2FromSelect(element);
+    				}
+
+    				var positionsConf = {
+    					my: 'bottom left',
+    					at: 'top left'
+    				};
+
+    				var positionContainer = element.closest('.editViewContents');
+    				if(element.closest('.editViewPageDiv').length){
+    					positionContainer = element[0];
+    				}
+    				if(!positionContainer.length) {
+    					if(element.closest('#overlayPageContent').length) {
+    						var overlayElement = element.closest('#overlayPageContent');
+    						positionsConf.adjust = {
+    							x: parseInt(overlayElement.css('margin-left'))
+    						};
+    						positionContainer = overlayElement;
+    					}
+
+    					if(element.closest('.slimScrollDiv').length) {
+    						positionContainer = element.closest('.slimScrollDiv');
+    					} else if(element.closest('.mCustomScrollbar').length) {
+    						positionContainer = element.closest('.mCSB_container');
+    					} else if(element.closest('.modal').length){
+    						positionContainer = element.closest('.modal');
+    					} else {
+    						positionContainer = element.closest('form');
+    					}
+    				}
+
+    				if(positionContainer.length) {
+    					positionsConf.container = positionContainer;
+    					if(element.closest('#overlayPageContent').length) {
+    						var overlayElement = element.closest('#overlayPageContent');
+    						positionsConf.adjust = {
+    							x: parseInt(overlayElement.css('margin-left'))
+    						};
+    						positionContainer = overlayElement;
+    					}
+    				}
+
+    				element.qtip({
+    					content: {
+    						text: $(error).text()
+    					},
+    					show: {
+    						event: 'Vtiger.Validation.Show.Messsage'
+    					},
+    					hide: {
+    						event: 'Vtiger.Validation.Hide.Messsage'
+    					},
+    					position: positionsConf,
+    					style: {
+    						classes: 'qtip-red qtip-shadow'
+    					},
+    					events : {
+    						render: function(event, api) {
+    							var tooltip = api.elements.tooltip;
+    							setTimeout(function() {
+    								tooltip.hide();
+    							}, 5000);
+    							tooltip.on('click', function(event, api) {
+    								tooltip.hide();
+    							});
+    						}
+    					}
+    				});
+    				
+    				if($('.related-tabs').length){
+    					var eleId = element.closest('.fieldBlockContainer').data('block');
+    					$('.related-tabs ul li').each(function(index,blockEle){
+    						var link = $(blockEle).find('.tablinks').attr('href');
+    						if(link == '#'+eleId){
+    							$(blockEle).find('.tablinks').css('background-color','#ff9e9e !important');
+    						}
+    					});
+    				}
+    				element.trigger('Vtiger.Validation.Show.Messsage');
+    			}
+    			
+    		},
+            invalidHandler: function (event, validator) {   
+    			if($('.related-tabs').length){
+    				app.helper.showErrorNotification({message: 'Mandatory field missing'});
+    			}
+            },
+        });
+    },
+    
+    
+    registerEventsHoldFollowUpField : function(container){
+		
+		var showFollowUp = container.find('[name="events_show_follow_up"]').val();
+		
+		var defaultStatus = container.find('select[name="eventstatus"]').val();
+		
+		var ContainerElement = container.find('[name="events_show_follow_up"]').closest("td");
+		
+		var ContainerNextElement = ContainerElement.next("td");
+		
+		if(typeof showFollowUp != 'undefined' && showFollowUp == 'no' && !ContainerElement.closest("tr").hasClass("followUpContainer")){
+			
+			if(!ContainerElement.hasClass("followUpContainer"))
+				ContainerElement.addClass("hide followUpContainer");
+			
+			if(!ContainerNextElement.hasClass("followUpContainer"))
+				ContainerNextElement.addClass("hide followUpContainer");
+			
+			if(!ContainerElement.closest("tr").find(".empty_fields").length)
+				ContainerElement.closest("tr").append("<td class='empty_fields'>&nbsp;</td><td class='empty_fields'>&nbsp;</td>");
+			
+			if(defaultStatus == 'Held')
+				container.find(".empty_fields").hide();
+		}
+	},
+	
+
+	/**
+	 * Function to register the event status change event
+	 */
+	registerEventStatusChangeEvent : function(container){
+		var followupContainer = container.find('.followUpContainer');
+		//if default value is set to Held then display follow up container
+		var defaultStatus = container.find('select[name="eventstatus"]').val();
+		if(defaultStatus == 'Held'){
+			followupContainer.show();
+		}
+		container.find('select[name="eventstatus"]').on('change',function(e){
+			var selectedOption = jQuery(e.currentTarget).val();
+			if(selectedOption == 'Held'){
+				followupContainer.show();
+				if(container.find(".empty_fields").length > 0)
+					container.find(".empty_fields").hide();
+			} else{
+				if(container.find(".empty_fields").length > 0)
+					container.find(".empty_fields").show();
+				followupContainer.hide();
+			}
+		});
+	},
+	 
 });

@@ -83,7 +83,7 @@
 	}
 
 </style>
-<div class="stylerUi app-footer" style="display: none">
+<div class="stylerUi" style="display: none">
 	
 	<div class="presetsListContainer">
 		<div class="presetsTypeTab">
@@ -206,7 +206,8 @@
 		
 	</div>
 </div>
-
+<footer class="app-footer">
+</footer>
 
 <div id='overlayPage'>
 	<!-- arrow is added to point arrow to the clicked element (Ex:- TaskManagement), 

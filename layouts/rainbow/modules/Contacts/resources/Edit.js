@@ -10,18 +10,10 @@ Vtiger_Edit_Js("Contacts_Edit_Js",{},{
 	
 	//Will have the mapping of address fields based on the modules
 	addressFieldsMapping : {'Accounts' :
-									{'mailingstreet' : 'bill_street',  
-									'otherstreet' : 'ship_street', 
-									'mailingpobox' : 'bill_pobox',
-									'otherpobox' : 'ship_pobox',
-									'mailingcity' : 'bill_city',
-									'othercity' : 'ship_city',
-									'mailingstate' : 'bill_state',
-									'otherstate' : 'ship_state',
-									'mailingzip' : 'bill_code',
-									'otherzip' : 'ship_code',
-									'mailingcountry' : 'bill_country',
-									'othercountry' : 'ship_country'
+									{'mailingstreet' : 'ship_street',  
+									'mailingcity' : 'ship_city',
+									'mailingstate' : 'ship_state',
+									'mailingzip' : 'ship_code',
 									}
 							},
 							
@@ -192,5 +184,102 @@ Vtiger_Edit_Js("Contacts_Edit_Js",{},{
 		this.registerEventForCopyingAddress(container);
 		this.registerRecordPreSaveEvent(container);
 		this.registerReferenceSelectionEvent(container);
-	}
+		this.registerEventForEnablingPortal();
+	},
+	
+	registerEvents : function(){
+		this._super();
+		this.registerEnableDisablePortalReportsEvent();
+	},
+	
+	registerEnableDisablePortalReportsEvent : function(){
+		
+		jQuery(".mainmodule").on("click", function(e){
+			e.preventDefault();
+			var className = $(this).data('value');
+			var check = '';
+			
+			jQuery("."+className).each(function(index, elem){
+				if($(this). prop("checked") == false){
+					check = true;
+				}
+			});
+			jQuery("."+className).each(function(index, elem){
+				if($(this). prop("checked") == true){
+					check = false;
+				}
+			});
+			
+			if(check == true){
+				 jQuery("."+className).each(function(index, elem){
+					$(this).prop('checked', true);
+				 });
+			}else if(check == false){
+				jQuery("."+className).each(function(index, elem){
+					$(this).prop('checked', false);
+				});
+			}
+			
+		});
+	},
+	
+	/**
+	 * Function to register event for enabling portal
+	 * When portal is enabled some of the fields need
+	 * to be check for mandatory validation
+	 */
+	registerEventForEnablingPortal : function(){
+		var thisInstance = this;
+		var form = this.getForm();
+		var enablePortalField = form.find('[name="portal"]');
+        
+		var validationToggleFields = form.find('[name="portal_password"]');
+		enablePortalField.on('change',function(e){
+			var element = jQuery(e.currentTarget);
+			var addValidation;
+			if(element.is(':checked')){
+				addValidation = true;
+			}else{
+				addValidation = false;
+			}
+			
+			//If validation need to be added for new elements,then we need to detach and attach validation
+			//to form
+			if(addValidation){
+				thisInstance.AddOrRemoveRequiredValidation(validationToggleFields, true);
+			}else{
+				thisInstance.AddOrRemoveRequiredValidation(validationToggleFields, false);
+			}
+		})
+		if(!enablePortalField.is(":checked")){
+			thisInstance.AddOrRemoveRequiredValidation(validationToggleFields, false);
+		}else if(enablePortalField.is(":checked")){
+			thisInstance.AddOrRemoveRequiredValidation(validationToggleFields, true);
+		}
+	},
+	
+	AddOrRemoveRequiredValidation : function(dependentFieldsForValidation, addValidation) {
+		jQuery(dependentFieldsForValidation).each(function(key,value){
+			var relatedField = jQuery(value);
+			if(addValidation) {
+				relatedField.removeClass('ignore-validation').data('rule-required', true);
+				if(relatedField.is("select")) {
+					relatedField.attr('disabled',false);
+				}else {
+					relatedField.removeAttr('disabled');
+				}
+			} else if(!addValidation) {
+				relatedField.addClass('ignore-validation').removeAttr('data-rule-required');
+				if(relatedField.is("select")) {
+					relatedField.attr('disabled',true).trigger("change");
+					var select2Element = app.helper.getSelect2FromSelect(relatedField);
+					select2Element.trigger('Vtiger.Validation.Hide.Messsage');
+					select2Element.find('a').removeClass('input-error');
+				}else {
+					relatedField.attr('disabled','disabled').trigger('Vtiger.Validation.Hide.Messsage').removeClass('input-error');
+				}
+			}
+		});
+	},
+	
 })
