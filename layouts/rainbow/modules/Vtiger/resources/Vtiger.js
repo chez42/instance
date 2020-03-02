@@ -1993,9 +1993,9 @@ function eraseCookie(name) {
 
 $(function(){
 	
-	$('.main-container').on('click', function () {
-		  $(".main-container, .dashBoardContainer").removeClass("blurredContent");
-		});
+	$(window).on('click', function () {
+		$(".main-container, .dashBoardContainer").removeClass("blurredContent");
+	});
 	
 	$("#dropdownMenuButtonDesk").on("click",function(e){
 		
