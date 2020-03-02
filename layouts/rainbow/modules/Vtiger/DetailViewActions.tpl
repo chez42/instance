@@ -120,21 +120,19 @@
                         {if $MODULE_NAME eq 'Documents' && $DETAIL_VIEW_BASIC_LINK->getLabel() eq 'LBL_VIEW_FILE'}
                             data-filelocationtype="{$DETAIL_VIEW_BASIC_LINK->get('filelocationtype')}" data-filename="{$DETAIL_VIEW_BASIC_LINK->get('filename')}" >
                         <i class="material-icons">zoom_in</i>
-                        {/if}
-
-
-                        {if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_EDIT"}><i class="material-icons">create</i> {/if}
-                        {if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_SEND_EMAIL"}><i class="material-icons">email</i> {/if}
-
-{if $MODULE_NAME eq 'Project'}
- <span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
-{/if}
-{if $MODULE_NAME eq 'Leads'}
- <span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
-{/if}
-{if $MODULE_NAME eq 'Potentials'}
- <span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
-{/if}
+                        {else if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_EDIT"}>
+                        	<i class="material-icons">create</i> 
+                        {else if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_SEND_EMAIL"}>
+                        	<i class="material-icons">email</i>
+						{else if $MODULE_NAME eq 'Project'}
+						 	<span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
+						{else if $MODULE_NAME eq 'Leads'}
+						 	<span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
+						{else if $MODULE_NAME eq 'Potentials'}
+						 	<span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
+						{else} 
+						 	<span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
+						{/if}
 
                 
                 </button>

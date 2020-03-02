@@ -27,8 +27,7 @@
 		<input type='hidden' value="{$TOTAL_ENTRIES}" id='totalCount'>
 		<input type='hidden' value="{$TAB_LABEL}" id='tab_label' name='tab_label'>
 		<input type='hidden' value="{$IS_RELATION_FIELD_ACTIVE}" id='isRelationFieldActive'>
-		<input type='hidden' value="{$CVID}" name='cvid'>
-		
+
 		{include file="partials/RelatedListHeader.tpl"|vtemplate_path:$RELATED_MODULE_NAME}
 		{if $MODULE eq 'Products' && $RELATED_MODULE_NAME eq 'Products' && $TAB_LABEL === 'Product Bundles' && $RELATED_LIST_LINKS}
 			<div data-module="{$MODULE}" style = "margin-left:20px">
@@ -53,7 +52,7 @@
 								{else}
 									<th class="nowrap">
 									{if $HEADER_FIELD->get('column') eq "access_count" or $HEADER_FIELD->get('column') eq "idlists"}
-										<a href="javascript:void(0);" class="noSorting">{vtranslate($HEADER_FIELD->get('label'), $RELATED_MODULE->get('name'))}</a>
+										<a href="javascript:void(0);" class="noSorting">{vtranslate($HEADER_FIELD->get('label'), $RELATED_MODULE_NAME)}</a>
 									{else}
 										<a href="javascript:void(0);" class="listViewContentHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $HEADER_FIELD->get('column')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-fieldname="{$HEADER_FIELD->get('column')}">
 											{if $COLUMN_NAME eq $HEADER_FIELD->get('column')}
@@ -62,11 +61,11 @@
 												<i class="fa fa-sort customsort"></i>
 											{/if}
 											&nbsp;
-											{vtranslate($HEADER_FIELD->get('label'), $RELATED_MODULE->get('name'))}
+											{vtranslate($HEADER_FIELD->get('label'), $RELATED_MODULE_NAME)}
 											&nbsp;{if $COLUMN_NAME eq $HEADER_FIELD->get('column')}<img class="{$SORT_IMAGE}">{/if}&nbsp;
 										</a>
 										{if $COLUMN_NAME eq $HEADER_FIELD->get('column')}
-											<a href="#" class="removeSorting"><i class="material-icons">close</i></a>
+											<a href="#" class="removeSorting"><i class="fa fa-remove"></i></a>
 										{/if}
 									{/if}
 								{/if}
@@ -76,7 +75,7 @@
 						<tr class="searchRow">
 							<th class="inline-search-btn">
 								<button class="btn btn-danger btn-sm" data-trigger="clearSearch" style="width: 40%;">{vtranslate("Clear",$MODULE)}</button>&nbsp;
-								<button class="btn btn-success btn-sm" data-trigger="relatedListSearch" style="width: 55%;">{vtranslate("LBL_SEARCH",$MODULE)}</button>
+								<button class="btn btn-success btn-sm" data-trigger="relatedListSearch" style="width: 54%;">{vtranslate("LBL_SEARCH",$MODULE)}</button>
 							</th>
 							{foreach item=HEADER_FIELD from=$RELATED_HEADERS}
 								<th>
@@ -94,7 +93,7 @@
 						<tr class="listViewEntries" data-id='{$RELATED_RECORD->getId()}' 
 							{if $RELATED_MODULE_NAME eq 'Calendar'}
 								data-recurring-enabled='{$RELATED_RECORD->isRecurringEnabled()}'
-								{assign var=DETAILVIEWPERMITTED value=isPermitted($RELATED_MODULE->get('name'), 'DetailView', $RELATED_RECORD->getId())}
+								{assign var=DETAILVIEWPERMITTED value=isPermitted($RELATED_MODULE_NAME, 'DetailView', $RELATED_RECORD->getId())}
 								{if $DETAILVIEWPERMITTED eq 'yes'}
 									data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
 								{/if}
@@ -102,32 +101,35 @@
 								data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
 							{/if}>
 							<td class="related-list-actions">
-								<span class="input" >
+								<span class="input" style="margin:5px;" >
 							        <input type="checkbox" value="{$RELATED_RECORD->getId()}" class="relatedlistViewEntriesCheckBox"/>
 							    </span>
-							    <span>
-							    	<a class="quickView icon action" data-app="{$SELECTED_MENU_CATEGORY}" title="{vtranslate('LBL_QUICK_VIEW', $MODULE)}" style="padding-left:10px;">
-							    		<i class="fa fa-eye"></i>
-							    	</a>
-							    </span>
-								<span class="actionImages">
-									{if $RELATED_MODULE_NAME eq 'PriceBooks' AND (!empty($RELATED_HEADERS['listprice']) || !empty($RELATED_HEADERS['unit_price']))}
-										{if !empty($RELATED_HEADERS['listprice'])}
-											{assign var="LISTPRICE" value=CurrencyField::convertToUserFormat($RELATED_RECORD->get('listprice'), null, true)}
+								<span class="actionImages">&nbsp;&nbsp;&nbsp;
+									{assign var=checkPermission value={HelpDesk_Record_Model::checkPermission('Edit',$RELATED_RECORD->getId())}}
+									{if $checkPermission}
+										{if $IS_EDITABLE && $RELATED_RECORD->isEditable() || $checkPermission}
+											{if $RELATED_MODULE_NAME eq 'PriceBooks' AND (!empty($RELATED_HEADERS['listprice']) || !empty($RELATED_HEADERS['unit_price']))}
+												{if !empty($RELATED_HEADERS['listprice'])}
+													{assign var="LISTPRICE" value=CurrencyField::convertToUserFormat($RELATED_RECORD->get('listprice'), null, true)}
+												{/if}
+											{/if}
+											{if $RELATED_MODULE_NAME eq 'PriceBooks'}
+												<a data-url="index.php?module=PriceBooks&view=ListPriceUpdate&record={$PARENT_RECORD->getId()}&relid={$RELATED_RECORD->getId()}&currentPrice={$LISTPRICE}"
+													class="editListPrice cursorPointer" data-related-recordid='{$RELATED_RECORD->getId()}' data-list-price={$LISTPRICE}
+											{else if $MODULE eq 'Products' && $RELATED_MODULE_NAME eq 'Products' && $TAB_LABEL === 'Product Bundles' && $RELATED_LIST_LINKS && $PARENT_RECORD->isBundle()}
+												{assign var=quantity value=$RELATED_RECORD->get($RELATION_FIELD->getName())}
+												<a class="quantityEdit"
+													data-url="index.php?module=Products&view=SubProductQuantityUpdate&record={$PARENT_RECORD->getId()}&relid={$RELATED_RECORD->getId()}&currentQty={$quantity}"
+													onclick ="Products_Detail_Js.triggerEditQuantity('index.php?module=Products&view=SubProductQuantityUpdate&record={$PARENT_RECORD->getId()}&relid={$RELATED_RECORD->getId()}&currentQty={$quantity}');if(event.stopPropagation){ldelim}event.stopPropagation();{rdelim}else{ldelim}event.cancelBubble=true;{rdelim}"
+											{else}
+												<a name="relationEdit" data-url="{$RELATED_RECORD->getEditViewUrl()}"
+											{/if}
+											><i class="fa fa-pencil" title="{vtranslate('LBL_EDIT', $MODULE)}"></i></a> &nbsp;&nbsp;
 										{/if}
-									{/if}
-									{if $RELATED_MODULE_NAME eq 'PriceBooks'}
-										<a data-url="index.php?module=PriceBooks&view=ListPriceUpdate&record={$PARENT_RECORD->getId()}&relid={$RELATED_RECORD->getId()}&currentPrice={$LISTPRICE}"
-											class="editListPrice cursorPointer" data-related-recordid='{$RELATED_RECORD->getId()}' data-list-price={$LISTPRICE}>
-											<i class="material-icons" title="{vtranslate('LBL_EDIT', $MODULE)}">create</i>
-										</a>&nbsp;
-									{/if}
-									{if $IS_EDITABLE && $RELATED_RECORD->isEditable()}
-										<button name="relationEdit" class="relationEdit cursorPointer"  data-url="{$RELATED_RECORD->getEditViewUrl()}"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="material-icons">create</i></button>&nbsp;
-									{/if}
-
-									{if $IS_DELETABLE}
-										<a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="material-icons">link_off</i></a>&nbsp;
+	
+										{if $IS_DELETABLE}
+											<a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="vicon-linkopen"></i></a>
+										{/if}
 									{/if}
 								</span>
 
@@ -136,8 +138,8 @@
 								{assign var=RELATED_HEADERNAME value=$HEADER_FIELD->get('name')}
 								{assign var=RELATED_LIST_VALUE value=$RELATED_RECORD->get($RELATED_HEADERNAME)}
 								<td class="relatedListEntryValues" title="{strip_tags($RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME))}" data-field-type="{$HEADER_FIELD->getFieldDataType()}" nowrap>
-									<span class="value {if $HEADER_FIELD->getFieldDataType() neq 'email' && $HEADER_FIELD->getFieldDataType() neq 'phone'} textOverflowEllipsis {/if}">
-										{if $RELATED_MODULE->get('name') eq 'Documents' && $RELATED_HEADERNAME eq 'document_source'}
+									<span class="value {if $HEADER_FIELD->getFieldDataType() neq 'email' && $HEADER_FIELD->getFieldDataType() neq 'phone'} textOverflowEllipsis{/if}">
+										{if $RELATED_MODULE_NAME eq 'Documents' && $RELATED_HEADERNAME eq 'document_source'}
 											<center>{$RELATED_RECORD->get($RELATED_HEADERNAME)}</center>
 											{else}
 												{if $HEADER_FIELD->isNameField() eq true or $HEADER_FIELD->get('uitype') eq '4'}
@@ -187,15 +189,15 @@
 											{else}
 												{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}
 												{* Documents list view special actions "view file" and "download file" *}
-												{if $RELATED_MODULE_NAME eq 'Documents' && $RELATED_HEADERNAME eq 'filename' && isPermitted($RELATED_MODULE->get('name'), 'DetailView', $RELATED_RECORD->getId()) eq 'yes'}
+												{if $RELATED_MODULE_NAME eq 'Documents' && $RELATED_HEADERNAME eq 'filename' && isPermitted($RELATED_MODULE_NAME, 'DetailView', $RELATED_RECORD->getId()) eq 'yes'}
 													<span class="actionImages">
 														{assign var=RECORD_ID value=$RELATED_RECORD->getId()}
 														{assign var="DOCUMENT_RECORD_MODEL" value=Vtiger_Record_Model::getInstanceById($RECORD_ID)}
 														{if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus')}
-															<a name="viewfile" href="javascript:void(0)" data-filelocationtype="{$DOCUMENT_RECORD_MODEL->get('filelocationtype')}" data-filename="{$DOCUMENT_RECORD_MODEL->get('filename')}" onclick="Vtiger_Header_Js.previewFile(event)"><i title="{vtranslate('LBL_VIEW_FILE', $RELATED_MODULE_NAME)}" class="icon-picture alignMiddle"></i></a> 
+															<a name="viewfile" href="javascript:void(0)" data-filelocationtype="{$DOCUMENT_RECORD_MODEL->get('filelocationtype')}" data-filename="{$DOCUMENT_RECORD_MODEL->get('filename')}" onclick="Vtiger_Header_Js.previewFile(event)"><i title="{vtranslate('LBL_VIEW_FILE', $RELATED_MODULE_NAME)}" class="icon-picture alignMiddle"></i></a>&nbsp;
 															{/if}
 															{if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus') && $DOCUMENT_RECORD_MODEL->get('filelocationtype') eq 'I'}
-															<a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}"><i title="{vtranslate('LBL_DOWNLOAD_FILE', $RELATED_MODULE_NAME)}" class="icon-download-alt alignMiddle"></i></a> 
+															<a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}"><i title="{vtranslate('LBL_DOWNLOAD_FILE', $RELATED_MODULE_NAME)}" class="icon-download-alt alignMiddle"></i></a>&nbsp;
 															{/if}
 													</span>
 												{/if}
