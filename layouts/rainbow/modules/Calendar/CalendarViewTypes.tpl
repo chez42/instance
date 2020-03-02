@@ -23,7 +23,8 @@
 					<input class="toggleCalendarFeed cursorPointer" type="checkbox" data-calendar-sourcekey="{$VIEWINFO['module']}_{$VIEWINFO['fieldname']}{if $VIEWINFO['conditions']['name'] neq ''}_{$VIEWINFO['conditions']['name']}{/if}" data-calendar-feed="{$VIEWINFO['module']}" 
 						   data-calendar-feed-color="{$VIEWINFO['color']}" data-calendar-fieldlabel="{vtranslate($VIEWINFO['fieldlabel'], $VIEWINFO['module'])}" 
 						   data-calendar-fieldname="{$VIEWINFO['fieldname']}" title="{vtranslate($VIEWINFO['module'],$VIEWINFO['module'])}" data-calendar-type="{$VIEWINFO['type']}" 
-						   data-calendar-feed-textcolor="white" data-calendar-feed-conditions='{$VIEWINFO['conditions']['rules']}' />&nbsp;&nbsp;
+						   data-calendar-feed-textcolor="white" data-calendar-typeid="{$VIEWINFO['typeid']}"
+						   data-calendar-feed-conditions='{$VIEWINFO['conditions']['rules']}' />&nbsp;&nbsp;
 					<i class="material-icons editCalendarFeedColor cursorPointer">create</i>&nbsp;&nbsp;
 					<i class="material-icons deleteCalendarFeed cursorPointer">delete</i>
 				</span>

@@ -15,6 +15,9 @@
 {/if}
 <div name='editContent'>
     {foreach key=BLOCK_LABEL item=BLOCK_FIELDS from=$RECORD_STRUCTURE name=blockIterator}
+		{if $BLOCK_LABEL eq 'Accessible Users And Groups'}
+			{if !is_admin($USER_MODEL)}{continue}{/if}
+		{/if}
 		{if $BLOCK_LABEL neq 'LBL_CALENDAR_SETTINGS'}
          {if $BLOCK_FIELDS|@count gt 0}
              <div class="fieldBlockContainer">
@@ -33,6 +36,10 @@
                             <input type="hidden" name="{$FIELD_MODEL->getName()}" value="{$FIELD_MODEL->get('fieldvalue')}"/> 
                             {continue}
                          {/if*}
+                         {if $FIELD_MODEL->getName() eq 'rowheight'}
+                            <input type="hidden" name="{$FIELD_MODEL->getName()}" value="{$FIELD_MODEL->get('fieldvalue')}"/> 
+                            {continue}
+                         {/if}
                          {if $FIELD_MODEL->isEditable() eq true}
                              {if $FIELD_MODEL->get('uitype') eq "19"}
                                  {if $COUNTER eq '1'}

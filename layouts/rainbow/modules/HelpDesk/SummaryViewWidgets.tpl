@@ -78,9 +78,9 @@
 <div class="middle-block col-lg-6 col-md-6 col-sm-6">
     
     {* Summary View Related Activities Widget*}
-        <div id="relatedActivities">
+        {*<div id="relatedActivities">
             {$RELATED_ACTIVITIES}
-        </div>
+        </div>*}
     {* Summary View Related Activities Widget Ends Here*}
     
     {* Summary View Comments Widget*}

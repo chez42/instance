@@ -31,6 +31,9 @@
 									{*if $FIELD_MODEL->getName() eq 'theme' or $FIELD_MODEL->getName() eq 'rowheight'}
 										{continue}
 									{/if*}
+									{if $FIELD_MODEL->getName() eq 'rowheight'}
+										{continue}
+									{/if}
 									{if $FIELD_MODEL->get('uitype') eq "83"}
 										{foreach item=tax key=count from=$TAXCLASS_DETAILS}
 											{if $COUNTER eq 2}

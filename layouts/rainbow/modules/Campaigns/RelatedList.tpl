@@ -171,7 +171,7 @@
 									{assign var=RELATED_HEADERNAME value=$HEADER_FIELD->get('name')}
 									{assign var=RELATED_LIST_VALUE value=$RELATED_RECORD->get($RELATED_HEADERNAME)}
 									<td class="{$WIDTHTYPE} relatedListEntryValues" data-field-type="{$HEADER_FIELD->getFieldDataType()}" nowrap>
-										<span class="value textOverflowEllipsis">
+										<span class="value {if $HEADER_FIELD->getFieldDataType() neq 'email' && $HEADER_FIELD->getFieldDataType() neq 'phone'} textOverflowEllipsis {/if}">
 											{if $HEADER_FIELD->isNameField() eq true or $HEADER_FIELD->get('uitype') eq '4'}
 												<a href="{$RELATED_RECORD->getDetailViewUrl()}">{$RELATED_RECORD->getDisplayValue($RELATED_HEADERNAME)}</a>
 											{elseif $HEADER_FIELD->get('uitype') eq '71' or $HEADER_FIELD->get('uitype') eq '72'}
