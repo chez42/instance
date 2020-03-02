@@ -74,11 +74,41 @@ jQuery.Class("Tools_Js",{
 //                alert("Finished parsing " +  selected_parse_type.text + " for " + selected_custodian.text);
             });
         });
+
+        $("#find").click(function(){
+            if(function_running == true) {
+                alert("Process already running.  Wait until it is finished loading and try again");
+                return;
+            }
+            function_running = true;
+
+            $("#inception_loader").show();
+            var sdate = $("#type_sdate").val();
+            var edate = $("#type_edate").val();
+            var file_type = $(".type_select").select2('data');
+            var data = new Array();
+
+            $.post("index.php", {module:'PortfolioInformation', action:'Tools', todo:'find_missing',
+                file_sdate:sdate, file_edate:edate, file_type:file_type.id}, function(response){
+                $("#inception_loader").hide();
+                function_running = false;
+                data = $.parseJSON(response);
+                $(".missing_files").empty();
+                data.forEach(function(i) {
+                    $(".missing_files").show();
+                    $(".missing_files").append("<p>" + i.directory + "</p>");
+                });
+            });
+        });
     },
 
     SelectEvents: function(){
         $(".rep_code_select").select2({
             placeholder: "Select rep code(s)"
+        });
+
+        $(".type_select").select2({
+            placeholder: "Select file type"
         });
 
         $(".custodian_select").select2({
@@ -106,13 +136,23 @@ jQuery.Class("Tools_Js",{
             }
         });
 
-        $("#select_end_date").datepicker({
+        $("#type_sdate").datepicker({
+            altFormat: "yy-mm-dd",
             changeMonth: true,
             changeYear: true,
             numberOfMonths: 3,
             onClose: function (selectedDate) {
             }
-        }).datepicker("setDate", new Date())
+        }).datepicker("setDate", new Date());
+
+        $("#type_edate").datepicker({
+            altFormat: "yy-mm-dd",
+            changeMonth: true,
+            changeYear: true,
+            numberOfMonths: 3,
+            onClose: function (selectedDate) {
+            }
+        }).datepicker("setDate", new Date());
     },
 
     registerEvents : function() {

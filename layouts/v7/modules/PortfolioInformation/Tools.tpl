@@ -80,4 +80,28 @@
             <input type="button" id="push" value="Push" />
         </div>
     </div>
+
+    <div class="section">
+        <div class="section_header">
+            <h2>Missing Files</h2>
+        </div>
+        <div class="block_left">
+            File Type:
+            <select class="type_select">
+                <option value="Balances">Balances</option>
+                <option value="Portfolios">Portfolios</option>
+                <option value="Securities">Securities</option>
+                <option value="Positions">Positions</option>
+                <option value="Prices">Prices</option>
+                <option value="Transactions">Transactions</option>
+            </select>
+            <input type="text" id="type_sdate" />
+            <input type="text" id="type_edate" />
+        </div>
+        <div class="block_right clear_both">
+            <input type="button" id="find" value="Find" />
+        </div>
+        <div class="block_left clear_both missing_files">
+        </div>
+    </div>
 </div>
