@@ -380,7 +380,16 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 				
 				if($forModule == 'Calendar' && $arre['contactid'] > 0){
 					if(!isset($cntactivityids[$key])) $cntactivityids[$key] = array("data" => DataTransform::sanitizeDataWithColumn($arre,$moduleMeta), "related_contacts" => array());
-				    if(!in_array($arre['contactid'], $cntactivityids[$key]['related_contacts'])) $cntactivityids[$key]['related_contacts'][] = $arre['contactid'];
+				    
+					
+					//if(!in_array($arre['contactid'], $cntactivityids[$key]['related_contacts'])) $cntactivityids[$key]['related_contacts'][] = $arre['contactid'];
+					
+					$contact_result = $adb->pquery("select crmid from vtiger_crmentity where deleted = 0 and crmid = ?", array($arre['contactid']));
+					
+					if($adb->num_rows($contact_result)){
+					    $cntactivityids[$key]['related_contacts'][] = $arre['contactid'];
+					}
+				
 				}
 				
 				if(vtws_isRecordDeleted($arre,$deleteColumnNames,$deleteFieldValues)){
