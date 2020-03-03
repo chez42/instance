@@ -10,7 +10,11 @@
 {foreach key=index item=jsModel from=$SCRIPTS}
     <script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 {/foreach}
-
+<style>
+	.fieldValue .value {
+	    white-space: unset !important;
+	}
+</style>
 <input type="hidden" id="recordId" value="{$RECORD->getId()}"/>
 {if $FIELDS_INFO neq null}
     <script type="text/javascript">
@@ -53,7 +57,7 @@
             <div class = "col-lg-2 col-md-2 col-sm-2">
                 <div class="clearfix">
                     <div class = "btn-group">
-                        <a class="btn btn-info fullDetailsButton" href = '{$RECORD->getFullDetailViewUrl()}&app={$SELECTED_MENU_CATEGORY}' target="_blank">{vtranslate('LBL_DETAILS',$MODULE_NAME)}</button>
+                        <a class="btn btn-info fullDetailsButton" href = '{$RECORD->getFullDetailViewUrl()}&app={$SELECTED_MENU_CATEGORY}' target='_blank'>{vtranslate('LBL_DETAILS',$MODULE_NAME)}</a>
 						{foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWBASIC']}
 							{if $DETAIL_VIEW_BASIC_LINK && $DETAIL_VIEW_BASIC_LINK->getLabel() == 'LBL_EDIT'}
 								<button class="btn btn-primary editRelatedRecord" onclick="window.location.href = '{$RECORD->getEditViewUrl()}'">{vtranslate('LBL_EDIT',$MODULE_NAME)}</button>

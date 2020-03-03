@@ -12,12 +12,6 @@
 		.input-group {
 		    min-width: 100% !important;
 		}
-		.related-tabs li {
-    		float: left !important;
-		}
-		.nav-tabs > li {
-		    margin: 0 2px !important; 
-		}
 	</style>
 	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
@@ -70,6 +64,17 @@
 				    	</a>
 				    </li>
 				{/foreach}
+				<li class="tab-item block block_LBL_INVITE_USER_BLOCK " >
+	    			{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
+					{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
+			    	<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#LBL_INVITE_USER_BLOCK" role="tab">
+			    		<span class="tab-label">
+				    		<strong>
+								{vtranslate("LBL_INVITE_USER_BLOCK",{$MODULE_NAME})}
+							</strong>
+						</span>
+			    	</a>
+			    </li>
 			</ul>
 		</div>
 		<div class = "tab-content" style="margin-top:10px;">
@@ -224,6 +229,9 @@
 													<span class="hide edit pull-left">
 														{if $fieldDataType eq 'multipicklist'}
 															<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}[]' data-type="{$fieldDataType}" data-displayvalue='{$FIELD_DISPLAY_VALUE}' data-value="{$FIELD_VALUE}" />
+														{else if $fieldDataType eq 'datetime'}
+															<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}'data-type="{$fieldDataType}" data-displayvalue='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'),$RECORD->getId(), $RECORD)}'
+															data-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'),$RECORD->getId(), $RECORD)}'  />
 														{else}
 															<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}' data-type="{$fieldDataType}" data-displayvalue='{$FIELD_DISPLAY_VALUE}' data-value="{$FIELD_VALUE}" />
 														{/if}
@@ -263,8 +271,7 @@
 								<h4 class="textOverflowEllipsis maxWidth50">
 									<i class="ti-plus cursorPointer alignMiddle blockToggle {if !($IS_HIDDEN)} hide {/if}" data-mode="hide" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
 									<i class="ti-minus cursorPointer alignMiddle blockToggle {if ($IS_HIDDEN)} hide {/if}" data-mode="show" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
-									&nbsp;
-									{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
+									&nbsp;{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
 								</h4>
 							</div>
 							<hr>
@@ -411,6 +418,19 @@
 															<span class="hide edit pull-left">
 																{if $fieldDataType eq 'multipicklist'}
 																	<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}[]' data-type="{$fieldDataType}" data-displayvalue='{$FIELD_DISPLAY_VALUE}' data-value="{$FIELD_VALUE}" />
+																{else if $fieldDataType eq 'datetime'}
+																	<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}'data-type="{$fieldDataType}" data-displayvalue='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'),$RECORD->getId(), $RECORD)}'
+																	data-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'),$RECORD->getId(), $RECORD)}'  />
+																{else if $fieldDataType eq 'multireference'}
+																	{assign var=CONTACTINFO value=[]}
+																	{foreach item=CONTACT_INFO from=$RELATED_CONTACTS}
+																		{if $CONTACT_INFO['id']}
+																			{$CONTACTINFO[] = ['id'=>$CONTACT_INFO['id'], 'name'=>Vtiger_Util_Helper::getRecordName($CONTACT_INFO['id'])]}
+																		{/if}
+																	{/foreach}
+																	<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}'data-type="{$fieldDataType}" data-displayvalue='{json_encode($CONTACTINFO, $smarty.const.JSON_HEX_APOS)}'
+																	data-value='{json_encode($CONTACTINFO, $smarty.const.JSON_HEX_APOS)}'  />
+																	 <input type="hidden" name="relatedContactInfo" data-value='{json_encode($CONTACTINFO, $smarty.const.JSON_HEX_APOS)}' />
 																{else}
 																	<input type="hidden" class="fieldBasicData" data-name='{$FIELD_MODEL->get('name')}' data-type="{$fieldDataType}" data-displayvalue='{$FIELD_DISPLAY_VALUE}' data-value="{$FIELD_VALUE}" />
 																{/if}
@@ -437,6 +457,36 @@
 					{/foreach}
 				</div>	
 			{/foreach}
+			<div class="block block_LBL_INVITE_USER_BLOCK tab-pane" id="LBL_INVITE_USER_BLOCK" >
+			    {assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
+			    {assign var="IS_HIDDEN" value=false}
+			    {assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
+			
+			    <div>
+			        <h4>{vtranslate('LBL_INVITE_USER_BLOCK',{$MODULE_NAME})}</h4>
+			    </div>
+			    <hr>
+			
+			    <div class="blockData">
+			        <table class="table detailview-table no-border">
+			            <tbody>
+			                <tr>
+			                    <td class="fieldLabel {$WIDTHTYPE}">
+			                        <span class="muted">{vtranslate('LBL_INVITE_USERS', $MODULE_NAME)}</span>
+			                    </td>
+			                    <td class="fieldValue {$WIDTHTYPE}">
+			                        {foreach key=USER_ID item=USER_NAME from=$ACCESSIBLE_USERS}
+			                            {if in_array($USER_ID,$INVITIES_SELECTED)}
+			                                {$USER_NAME} - {vtranslate($INVITEES_DETAILS[$USER_ID],$MODULE)}
+			                                <br>
+			                            {/if}
+			                        {/foreach}
+			                    </td>
+			                </tr>
+			            </tbody>
+			        </table>
+			    </div>
+			</div>
 		</div>	
 	</div>	
 {/strip}

@@ -106,11 +106,7 @@
 	                            {assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 								
                                 <li><a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
-								{if $moduleModel->getName() eq 'Portal'}
-									<span class="ti-desktop module-icon"></span>
-								{else}
-									{$moduleModel->getModuleIcon()}
-								{/if}
+									<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
 								<span class="hide-menu"> {$translatedModuleLabel}</span></a></li>
                                 {/foreach}
                             </ul>
@@ -261,11 +257,7 @@
 									<a href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" title="{$translatedModuleLabel}">
 									
 										<span class="module-icon">
-										{if $moduleModel->getName() eq 'Portal'}
-											<span class="ti-desktop module-icon"></span>
-										{else}
-											{$moduleModel->getModuleIcon()}
-										{/if}
+											<i class="material-icons">{$iconsarray[{strtolower($moduleName)}]}</i>
 										</span>
 										<span class="module-name textOverflowEllipsis">{$translatedModuleLabel}</span>
 									</a>

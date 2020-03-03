@@ -1781,11 +1781,14 @@ Vtiger.Class("Vtiger_Detail_Js",{
 
 	registerBlockAnimationEvent : function(){
 		var detailContentsHolder = this.getContentHolder();
-		detailContentsHolder.on('click','.blockToggle',function(e){
+		detailContentsHolder.on('click','.blockToggle',function(e){ 
 			var currentTarget =  jQuery(e.currentTarget);
 			var blockId = currentTarget.data('id');
 			var closestBlock = currentTarget.parents('.block');
 			var bodyContents = closestBlock.find('.blockData .table div');
+			if(closestBlock.find('.blockData table tbody').length){
+				var bodyContents = closestBlock.find('.blockData table tbody');
+			}
 			var data = currentTarget.data();
 			var module = app.getModuleName();
 			var hideHandler = function() {
@@ -1822,6 +1825,9 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var currentBlock = jQuery(block);
 			var headerAnimationElement = currentBlock.find('.blockToggle').not('.hide');
 			var bodyContents = currentBlock.find('.blockData .table div');
+			if(currentBlock.find('.blockData table tbody').length){
+				var bodyContents = currentBlock.find('.blockData table tbody');
+			}
 			var blockId = headerAnimationElement.data('id');
 			var cacheKey = module+'.'+blockId;
 			var value = app.storage.get(cacheKey);

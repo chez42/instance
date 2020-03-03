@@ -38,7 +38,7 @@
 						</span>
 					</span>
 				</div>
-				<div class="col-lg-3 col-xs-12">
+				<div class="col-lg-4 col-xs-12">
 					<div class="detailViewButtoncontainer">
 						<div class="btn-group pull-right">
 							{foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWPREFERENCE']}

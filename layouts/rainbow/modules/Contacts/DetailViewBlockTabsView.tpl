@@ -268,9 +268,9 @@
 							<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
 							<div>
 								<h4 class="textOverflowEllipsis maxWidth50">
-									<img class="cursorPointer alignMiddle blockToggle {if !($IS_HIDDEN)} hide {/if}" src="{vimage_path('arrowRight.png')}" data-mode="hide" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}>
-									<img class="cursorPointer alignMiddle blockToggle {if ($IS_HIDDEN)} hide {/if}" src="{vimage_path('arrowdown.png')}" data-mode="show" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}>&nbsp;
-									{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
+									<i class="ti-plus cursorPointer alignMiddle blockToggle {if !($IS_HIDDEN)} hide {/if}" data-mode="hide" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
+									<i class="ti-minus cursorPointer alignMiddle blockToggle {if ($IS_HIDDEN)} hide {/if}" data-mode="show" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
+									&nbsp;{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
 								</h4>
 							</div>
 							<hr>
