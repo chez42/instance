@@ -74,7 +74,7 @@
 						</tr>
 						<tr class="searchRow">
 							<th class="inline-search-btn">
-								<button class="btn btn-danger btn-sm" data-trigger="clearSearch" style="width: 40%;">{vtranslate("Clear",$MODULE)}</button>&nbsp;
+								{*<button class="btn btn-danger btn-sm" data-trigger="clearSearch" style="width: 40%;">{vtranslate("Clear",$MODULE)}</button>&nbsp;*}
 								<button class="btn btn-success btn-sm" data-trigger="relatedListSearch" style="width: 54%;">{vtranslate("LBL_SEARCH",$MODULE)}</button>
 							</th>
 							{foreach item=HEADER_FIELD from=$RELATED_HEADERS}
