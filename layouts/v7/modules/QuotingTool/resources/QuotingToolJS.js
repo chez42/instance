@@ -651,6 +651,13 @@ Vtiger.Class('QuotingToolJS', {
                             '</button></li>');
                         if (templates.length > 0) {
                             var firstButton = navContainer.find('li:first');
+                            if(!firstButton.length){
+                            	var navContainer = jQuery('#appnav .btn-group');
+                            	var button = jQuery('<button class="btn btn-primary module-buttons btn-quoting_tool" style="background-color: #1560bd; color: #ffffff">' +
+                                         '<div class="fa" aria-hidden="true"></div>&nbsp;&nbsp;' + app.vtranslate('Document Designer') +
+                                         '</button>');
+                            	var firstButton = navContainer.find('.btn:first');
+                            }
                             firstButton.before(button);
                             button.on('click', function () {
                                 var params = {

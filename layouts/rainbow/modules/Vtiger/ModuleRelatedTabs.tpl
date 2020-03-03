@@ -48,16 +48,16 @@
 								<span class="tab-icon">
 									{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
 									{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
-									{*{if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
+									{if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
 										<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
 									{else}
 										<i class="material-icons" >folder</i>
-									{/if}*}
+									{/if}
 									{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>*}
-									{$RELATED_MODULE_MODEL->getModuleIcon()}
+									{*$RELATED_MODULE_MODEL->getModuleIcon()*}
 								</span>
 							{/if}
-							<span class="numberCircle disabled" >0</span>
+							<span class="numberCircle disabled hide" >0</span>
 						</a>
 					</li>
 					{if ($RELATED_LINK->getId() == {$smarty.request.relationId})}
@@ -81,8 +81,8 @@
 									<span class="tab-icon">
 										{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
 	
-									{*<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>*}
-										<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>
+									<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
+										{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>*}
 									</span>
 								{/if}
 								<span class="numberCircle hide">0</span>
@@ -114,8 +114,8 @@
 										{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
 										<span class="tab-icon textOverflowEllipsis">
 						
-										{*<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>*}
-											<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>
+										<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
+											{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>*}
 											<span class="content"> &nbsp;{$DETAILVIEWRELATEDLINKLBL}</span>
 										</span>
 									{/if}
@@ -169,7 +169,8 @@
 							
 					<span class="tab-icon pull-right">
 								{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
-								<i class="material-icons" >{strtolower($RELATEDMODULENAME)}</i> 
+								<i class="material-icons" >{strtolower($RELATEDMODULENAME)}</i>
+								{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i> *}
 								<span class="numberCircle hide">0</span>
 							</span>
 							</a>
