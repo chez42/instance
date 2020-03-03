@@ -7,6 +7,11 @@
 * All Rights Reserved.
 ************************************************************************************}
 {strip}
+<style>
+	#listview-table thead, #listview-table tbody {
+     	display: contents !important;
+    }
+</style>
 {include file="PicklistColorMap.tpl"|vtemplate_path:$MODULE LISTVIEW_HEADERS=$RELATED_HEADERS}
 <div class="relatedContainer">
     {assign var=RELATED_MODULE_NAME value=$RELATED_MODULE->get('name')}
@@ -208,20 +213,21 @@
                     {/foreach}
                 </tr>
                 <tr class="searchRow">
-                        <th class="inline-search-btn">
-                            <button class="btn btn-success btn-sm" data-trigger="relatedListSearch">{vtranslate("LBL_SEARCH",$MODULE)}</button>
+                    <th class="inline-search-btn">
+                    	{*<button class="btn btn-danger btn-sm" data-trigger="clearSearch" style="width: 40%;">{vtranslate("Clear",$MODULE)}</button>&nbsp;*}
+                        <button class="btn btn-success btn-sm" data-trigger="relatedListSearch" style="width: 54%;">{vtranslate("LBL_SEARCH",$MODULE)}</button>
+                    </th>
+                    {foreach item=HEADER_FIELD from=$RELATED_HEADERS}
+                        <th>
+                            {if $HEADER_FIELD->get('column') eq 'time_start' or $HEADER_FIELD->get('column') eq 'time_end' or $HEADER_FIELD->get('column') eq 'folderid' or $HEADER_FIELD->getFieldDataType() eq 'reference'}
+                            {else}    
+                                {assign var=FIELD_UI_TYPE_MODEL value=$HEADER_FIELD->getUITypeModel()}
+                                {include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$RELATED_MODULE_NAME)
+                                FIELD_MODEL= $HEADER_FIELD SEARCH_INFO=$SEARCH_DETAILS[$HEADER_FIELD->getName()] USER_MODEL=$USER_MODEL}
+                                <input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$HEADER_FIELD->getName()]['comparator']}">
+                            {/if}
                         </th>
-                            {foreach item=HEADER_FIELD from=$RELATED_HEADERS}
-                                <th>
-                                    {if $HEADER_FIELD->get('column') eq 'time_start' or $HEADER_FIELD->get('column') eq 'time_end' or $HEADER_FIELD->get('column') eq 'folderid' or $HEADER_FIELD->getFieldDataType() eq 'reference'}
-                                    {else}    
-                                        {assign var=FIELD_UI_TYPE_MODEL value=$HEADER_FIELD->getUITypeModel()}
-                                        {include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$RELATED_MODULE_NAME)
-                                        FIELD_MODEL= $HEADER_FIELD SEARCH_INFO=$SEARCH_DETAILS[$HEADER_FIELD->getName()] USER_MODEL=$USER_MODEL}
-                                        <input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$HEADER_FIELD->getName()]['comparator']}">
-                                    {/if}
-                                </th>
-                            {/foreach}
+                    {/foreach}
                 </tr>
             </thead>
             {foreach item=RELATED_RECORD from=$RELATED_RECORDS}
