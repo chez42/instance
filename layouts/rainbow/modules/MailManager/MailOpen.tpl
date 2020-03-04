@@ -87,6 +87,7 @@
                         <i class="ti-info-alt" title="{vtranslate('LBL_SHOW_FULL_DETAILS', $MODULE)}"></i> 
                     </a> 
                 </span>
+                <br>
                 <span class="pull-left mmDetailDate">
                     {Vtiger_Util_Helper::formatDateTimeIntoDayString($MAIL->date(), true)}
                 </span>

@@ -16,11 +16,11 @@
 
 
     <div class="tagsContainer" id="tagCloud">
-    	
-		{foreach from=$TAGS[1] item=TAG_ID key=TAG_NAME}
-                    <div class="bg-success textOverflowEllipsis label" title="{$TAG_NAME}">
-			<a class="tagName cursorPointer" data-tagid="{$TAG_ID}" rel="{$TAGS[0][$TAG_NAME]}">{$TAG_NAME}</a>&nbsp;		
-                    </div>
+		{foreach from=$TAGS item=TAG_MODEL key=TAG_ID}
+			{assign var=TAG_LABEL value=$TAG_MODEL->getName()}
+            <div class="bg-success textOverflowEllipsis label tag" title="{$TAG_LABEL}" data-type="{$TAG_MODEL->getType()}" data-id="{$TAG_ID}">
+				<a class="tagName cursorPointer" data-tagid="{$TAG_ID}" rel="{$TAGS[0][$TAG_NAME]}">{$TAG_LABEL}</a>&nbsp;		
+            </div>
 		{/foreach}
 	</div></div>
     
