@@ -962,6 +962,9 @@ Vtiger.Class('Vtiger_Index_Js', {
 			var element = jQuery(e.currentTarget);
 			var closestTD = thisInstance.getParentElement(element).next();
 			var popupReferenceModule = element.val();
+			if(!closestTD.length){
+				var closestTD = element.closest('.fieldLabel').next();
+			}
 			var referenceModuleElement = jQuery('input[name="popupReferenceModule"]', closestTD).length ? 
 			jQuery('input[name="popupReferenceModule"]', closestTD) : jQuery('input.popupReferenceModule', closestTD);
 			var prevSelectedReferenceModule = referenceModuleElement.val();
