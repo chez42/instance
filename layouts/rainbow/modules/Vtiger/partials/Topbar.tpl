@@ -452,7 +452,7 @@
 							<div>
 								{assign var=IMAGE_DETAILS value=$USER_MODEL->getImageDetails()}
 								{$IMAGE_DETAILS = $IMAGE_DETAILS['imagename']}
-								{if $IMAGE_DETAILS neq '' && $IMAGE_DETAILS[0] neq '' && $IMAGE_DETAILS[0].path eq ''}
+								{if empty($IMAGE_DETAILS)}
 									<a href="#" class="userName dropdown-toggle " data-toggle="dropdown" role="button" title="{$USER_MODEL->get('first_name')} {$USER_MODEL->get('last_name')}
 									  ({$USER_MODEL->get('user_name')})">
 									  <i class="material-icons">perm_identity</i>
