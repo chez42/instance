@@ -28,12 +28,14 @@ function vtws_get_tickets($element, $user){
     if($adb->num_rows($permission_result)){
         $ticket_across_org = $adb->query_result($permission_result, 0, "tickets_record_across_org");
         $account_id = $adb->query_result($permission_result, 0, "accountid");
-        $contact_result = $adb->pquery("SELECT * FROM `vtiger_contactdetails`
-        inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
-        where accountid = ? and deleted = 0", array($account_id));
-        for($i = 0; $i < $adb->num_rows($contact_result); $i++){
-            $contact_ids[] = $adb->query_result($contact_result, $i, "contactid");
-        }
+        if($account_id){
+			$contact_result = $adb->pquery("SELECT * FROM `vtiger_contactdetails`
+			inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+			where accountid = ? and deleted = 0", array($account_id));
+			for($i = 0; $i < $adb->num_rows($contact_result); $i++){
+				$contact_ids[] = $adb->query_result($contact_result, $i, "contactid");
+			}
+		}
     }
     
     $module = $element['module'];
