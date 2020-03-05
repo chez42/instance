@@ -2581,7 +2581,10 @@ Vtiger.Class("Vtiger_List_Js", {
 			var containerTarget = jQuery(this).closest(container);
 			var content = jQuery(this).closest(".dropdown");
 			
-		
+			if(!dropdown.hasClass('open')){
+				dropdown.addClass('open');
+			}
+			
 			if (dropdown.find('[data-toggle]').length <= 0) {
 				return;
 			}
@@ -2663,11 +2666,25 @@ Vtiger.Class("Vtiger_List_Js", {
 					dropdown_menu.css('display', 'none');
 				}
 			});
-
+			
 			dropdown.on('hidden.bs.dropdown', function () {
 				dropdown_menu.removeClass('invisible');
 				fixed_dropdown_menu.remove();
+				jQuery('.listViewEntries').removeClass('dropDownOpen');
 			});
+		});
+		jQuery('.listViewEntries').mouseleave(function (e) {
+			var currentDropDown = jQuery(e.currentTarget).find('.dropdown');
+			setTimeout(function () {
+				if (jQuery('.dropdown-menu:hover').length == 0) {
+					if (currentDropDown.hasClass('open')) {
+						jQuery(e.currentTarget).find('.dropdown').trigger('click');
+					}
+					jQuery(e.currentTarget).removeClass('dropDownOpen');
+				} else {
+					jQuery(e.currentTarget).addClass('dropDownOpen');
+				}
+			}, 50);
 		});
 	},
 	getListViewContentHeight: function () {

@@ -266,6 +266,7 @@ $languageStrings = array(
     'LBL_USER_LOGO' => 'Upload Logo',
     'LBL_INACTIVATE_USERS' => 'Deactivate Users',
     'LBL_REACTIVATE_USERS' => 'Reactivate Users',
+    'LBL_USER_SIGNATURE' => 'User Signature',
 );
 
 $jsLanguageStrings = array(

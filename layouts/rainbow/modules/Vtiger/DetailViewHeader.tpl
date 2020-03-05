@@ -14,7 +14,7 @@
     <div class="detailview-header">
         <div class="row">
             {include file="modules/Vtiger/DetailViewHeaderTitle.tpl"|myclayout_path}
-            {include file="modules/Vtiger/DetailViewActions.tpl"|myclayout_path}
+            {include file="DetailViewActions.tpl"|vtemplate_path:$MODULE}
         </div>
 </div>
     
