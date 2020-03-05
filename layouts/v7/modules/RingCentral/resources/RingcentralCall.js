@@ -59,14 +59,14 @@ jQuery.Class("RingcentralCall_Js", {
 					success: function(result){
 						if (result.success) {
 							thisInstance.hangUp();
-							window.close();
+							thisInstance.Class.webPhone.userAgent.unregister();
 						}
 					}
 				});
 				
 			} else {
-				thisInstance.hangUp()	
-				window.close();
+				thisInstance.hangUp();
+				thisInstance.Class.webPhone.userAgent.unregister();
 			}
 			
 		});
@@ -136,6 +136,10 @@ jQuery.Class("RingcentralCall_Js", {
 		});
 					
 		thisInstance.Class.webPhone.userAgent.audioHelper.setVolume(0.5);
+		
+		thisInstance.Class.webPhone.userAgent.on('unregistered', function() {
+            window.close();
+        });
 			
 		var number = $(document).find('[name="number"]').val();
 		
