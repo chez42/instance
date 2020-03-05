@@ -204,7 +204,7 @@ body, html{
 }
 
 tbody .ps__rail-y{
-	background-color: rgba(<?= $text_contrast_menu_rgb ?>,.2) !important;
+	background-color: rgba(<?= $text_contrast_menu_rgb ?>,.9) !important;
 	width: 12px;
 }
 tbody .ps__thumb-y{
@@ -213,7 +213,7 @@ tbody .ps__thumb-y{
 
 
 .ps__rail-x{
-	background-color: rgba(<?= $text_contrast_menu_rgb ?>,.2) !important;
+	background-color: rgba(<?= $text_contrast_menu_rgb ?>,.9) !important;
 	height: 12px;
 }
 .ps__thumb-x{

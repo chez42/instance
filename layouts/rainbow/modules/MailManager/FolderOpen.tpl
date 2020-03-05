@@ -39,6 +39,9 @@
             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" id="mmDeleteMail" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
                 <i class="material-icons">delete</i>
             </span>
+             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" >
+	    		<i class="fa fa-link linkTo"></i>
+	        </span>
             <span class="btn btn-secondary  btn-sm cursorPointer moveToFolderDropDown more dropdown action" title="{vtranslate('LBL_MOVE_TO', $MODULE)}">
                 <span class='dropdown-toggle' data-toggle="dropdown">
                     <i class="material-icons mmMoveDropdownFolder">folder</i>
