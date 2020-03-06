@@ -99,7 +99,7 @@
 							{else}
 								data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
 							{/if}>
-							<td class="related-list-actions">
+							<td class="related-list-actions textOverflowEllipsis">
 								<span class="actionImages">&nbsp;&nbsp;&nbsp;
 									
 								</span>

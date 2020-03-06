@@ -241,7 +241,7 @@
                                         {else}
                         data-recordUrl='{$RELATED_RECORD->getDetailViewUrl()}'
                                         {/if}>
-                    <td style="width:120px!important">
+                    <td class="textOverflowEllipsis" style="width:120px!important">
                     	<span class="input" style="margin:5px;" >
 					        <input type="checkbox" value="{$RELATED_RECORD->getId()}" class="relatedlistViewEntriesCheckBox"/>
 					    </span>
