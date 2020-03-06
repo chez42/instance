@@ -2627,9 +2627,9 @@ Vtiger.Class("Vtiger_List_Js", {
 				'display': 'block',
 				'position': 'absolute',
 				'top': ftop,
-				'max-height': '70px',
+				'max-height': 'auto',
 				'min-height': '70px',
-				'height': '70px',
+				//'height': '70px',
 				'left': currtargetLeft + 'px',
 				'bottom': fbottom
 			}).appendTo(containerTarget);
