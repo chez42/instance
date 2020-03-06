@@ -13,7 +13,7 @@
 	     	display: contents !important;
 	    }
 	</style>
-	<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Vtiger/resources/List.js')}"></script>
+	<script type="text/javascript" src="{vresource_url('layouts/rainbow/modules/Vtiger/resources/List.js')}"></script>
 	<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Vtiger/resources/SearchList.js')}"></script>
 	<div id="searchResults-container" class="modal-body animated fadeIn" style="padding:0!important">
 		<div class="col-lg-12 clearfix">

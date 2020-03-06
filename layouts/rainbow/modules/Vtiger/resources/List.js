@@ -2678,6 +2678,7 @@ Vtiger.Class("Vtiger_List_Js", {
 			setTimeout(function () {
 				if (jQuery('.dropdown-menu:hover').length == 0) {
 					if (currentDropDown.hasClass('open')) {
+						currentDropDown.removeClass('open');
 						jQuery(e.currentTarget).find('.dropdown').trigger('click');
 					}
 					jQuery(e.currentTarget).removeClass('dropDownOpen');

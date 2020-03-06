@@ -8,6 +8,11 @@
 *************************************************************************************}
 
 {strip}
+	<style>
+		#listview-table thead, #listview-table tbody {
+	     	display: contents !important;
+	    }
+	</style>
 	<div class="col-sm-12 col-xs-12 " style="margin-top: 20px;">
 		<input type="hidden" id="pageStartRange" value="{$PAGING_MODEL->getRecordStartRange()}" />
 		<input type="hidden" id="pageEndRange" value="{$PAGING_MODEL->getRecordEndRange()}" />
