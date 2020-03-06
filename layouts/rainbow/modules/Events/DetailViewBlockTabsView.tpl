@@ -12,6 +12,15 @@
 		.input-group {
 		    min-width: 100% !important;
 		}
+		.related-tabs li {
+    		float: left !important;
+		}
+		.nav-tabs > li {
+		    margin: 0 2px !important; 
+		}
+		.fieldLabel.textOverflowEllipsis {
+		    white-space: unset !important;
+		}
 	</style>
 	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}

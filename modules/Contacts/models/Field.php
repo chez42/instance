@@ -22,5 +22,13 @@ class Contacts_Field_Model extends Vtiger_Field_Model {
 	    }
 	    return true;
 	}*/
+    
+    public function isAjaxEditable() {
+        if($this->getName() == 'cf_698') {
+            return false;
+        }
+        
+        return parent::isAjaxEditable();
+    }
 
 }

@@ -34,4 +34,4 @@
 	<div id="sidebar-essentials" class=" sidebar-essentials {if $LEFTPANELHIDE eq '1'} hide {/if}">
 		{include file="partials/SidebarEssentials.tpl"|vtemplate_path:$MODULE}
 	</div>
-    <div class="listViewPageDiv {if $LEFTPANELHIDE eq '1'} full-width {/if}" id="listViewContent">
+    <div class="listViewPageDiv content-area  {if $LEFTPANELHIDE eq '1'} full-width {/if}" id="listViewContent">

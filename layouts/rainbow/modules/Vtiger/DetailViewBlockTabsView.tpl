@@ -18,6 +18,9 @@
 		.nav-tabs > li {
 		    margin: 0 2px !important; 
 		}
+		.fieldLabel.textOverflowEllipsis {
+		    white-space: unset !important;
+		}
 	</style>
 	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
