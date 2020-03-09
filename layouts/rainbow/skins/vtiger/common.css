@@ -9093,3 +9093,21 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 .global-nav .navbar-nav > li #openTimeTracker {
 	margin : -5px !important;
 }
+
+.headerAjaxEdit .input-group {
+	float:none !important;
+}
+
+.form-control, .select2-container .select2-choice {
+	font-size: 16px !important;
+}
+
+.headerAjaxEdit .fieldLabel, .headerAjaxEdit .fieldValue{
+	min-height: fit-content !important;
+}
+
+.headerAjaxEdit .progress{
+	font-size: 15px !important;
+	margin-bottom: 0px !important;
+	padding: 0px !important;
+}

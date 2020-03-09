@@ -1252,12 +1252,14 @@ Vtiger.Class("Vtiger_Detail_Js",{
 
 		app.request.post({data:data}).then(
 			function(err, reponseData){
+				
 				if(err === null){
 					app.helper.showSuccessNotification({"message":""});
-					aDeferred.resolve(reponseData);
+					aDeferred.resolve(err,reponseData);
 				} else {
 					app.helper.showErrorNotification({"message":err});
 				}
+				
 			}
 		);
 
@@ -1495,7 +1497,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 
 						jQuery(currentTdElement).find('.input-group-addon').addClass('disabled');
 						app.helper.showProgress();
-						thisInstance.saveFieldValues(fieldNameValueMap).then(function(response) {
+						thisInstance.saveFieldValues(fieldNameValueMap).then(function(err, response) {
 							app.helper.hideProgress();
 							var postSaveRecordDetails = response;
 							if(fieldBasicData.data('type') == 'picklist' && app.getModuleName() != 'Users') {
