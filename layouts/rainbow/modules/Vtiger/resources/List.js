@@ -975,11 +975,15 @@ Vtiger.Class("Vtiger_List_Js", {
 		var value = null;
 		var fieldType = fieldElement.data('field-type');
 		var picklistTypes = ['owner', 'picklist', 'ownergroup', 'currencyList', 'DocFolderPicklist'];
+		
 		if (jQuery.inArray(fieldType, picklistTypes) !== -1) {
 			value = jQuery(".inputElement.select2", fieldElement).find(":selected").val();
 		} else if (fieldType === "reference") {
 			//value = inputElement.attr("value");
-			var value = $($.parseHTML(fieldElement.find(".inputElement")[0].outerHTML)).filter('input').attr("value");
+			if(fieldElement.find(".inputElement").length)
+				var value = $($.parseHTML(fieldElement.find(".inputElement")[0].outerHTML)).filter('input').attr("value");
+			else
+				value = inputElement.data('value');
 		} else if (fieldType === "multipicklist") {
 			var selectedOptions = jQuery(".inputElement.select2", fieldElement).find(":selected");
 			value = [];
@@ -996,6 +1000,7 @@ Vtiger.Class("Vtiger_List_Js", {
 		} else {
 			value = inputElement.val();
 		}
+		
 		return value;
 	},
 	/**
