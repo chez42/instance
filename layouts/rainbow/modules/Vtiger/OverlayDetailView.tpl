@@ -13,6 +13,7 @@
 <style>
 	.fieldValue .value {
 	    white-space: unset !important;
+	    overflow-wrap: break-word !important;
 	}
 </style>
 <input type="hidden" id="recordId" value="{$RECORD->getId()}"/>

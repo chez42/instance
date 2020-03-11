@@ -7925,13 +7925,13 @@ input[type=checkbox]:checked {border: 1px solid transparent!important;background
   .btn-primary.disabled.active,
   .btn-primary.disabled:active,
   .btn-primary.disabled:focus {
-    background: #FF1635;
+    background: #21ba5c;
     -webkit-box-shadow: 0 14px 26px -12px rgba(116, 96, 238, 0.42), 0 4px 23px 0 rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(116, 96, 238, 0.2);
     box-shadow: 0 14px 26px -12px rgba(116, 96, 238, 0.42), 0 4px 23px 0 rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(116, 96, 238, 0.2);
     border-color: transparent; }
 
 .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
-background-image: linear-gradient(to bottom,#FF4961 0,#FF1635 100%);border:1px solid #FF1635;}
+background-image: linear-gradient(to bottom,#21ba5c 0,#21ba5c 100%);border:1px solid #21ba5c;}
 	
 .btn-themecolor,
 .btn-themecolor.disabled {

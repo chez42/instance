@@ -2633,7 +2633,7 @@ Vtiger.Class("Vtiger_List_Js", {
 				'position': 'absolute',
 				'top': ftop,
 				'max-height': 'auto',
-				'min-height': '70px',
+				//'min-height': '70px',
 				//'height': '70px',
 				'left': currtargetLeft + 'px',
 				'bottom': fbottom
