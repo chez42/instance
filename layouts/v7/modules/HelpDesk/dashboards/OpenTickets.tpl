@@ -82,12 +82,12 @@
 	
 			chart.radius = "40%";
 			
-	        legend = new AmCharts.AmLegend();
+	        /*legend = new AmCharts.AmLegend();
 	        legend.position = "bottom";
 			legend.labelText = "[[title]]:";
 			legend.valueWidth = 25;
 			legend.column = 4;
-	        chart.addLegend(legend);
+	        chart.addLegend(legend);*/
 	
 	        if($("#"+this.getPlotContainer(false).attr('id')).length > 0) {
 	            chart.write(this.getPlotContainer(false).attr('id'));
