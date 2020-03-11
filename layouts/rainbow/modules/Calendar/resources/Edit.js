@@ -173,11 +173,13 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 	 */
 	getReferenceSearchParams : function(element){
 
-		var tdElement = jQuery(element).closest('.fieldLabel');
+		var tdElement = jQuery(element).closest('.fieldValue');
+		
 		var params = {};
 		var previousTd = tdElement.prev();
+		
 		var multiModuleElement = jQuery('select.referenceModulesList', previousTd);
-
+		
 		var referenceModuleElement;
 		if(multiModuleElement.length) {
 			referenceModuleElement = multiModuleElement;
@@ -185,6 +187,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			referenceModuleElement = jQuery('input[name="popupReferenceModule"]',tdElement).length ?
 										jQuery('input[name="popupReferenceModule"]',tdElement) : jQuery('input.popupReferenceModule',tdElement);
 		}
+		
 		var searchModule =  referenceModuleElement.val();
 		params.search_module = searchModule;
 		return params;
