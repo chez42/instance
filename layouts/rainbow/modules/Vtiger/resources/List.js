@@ -2713,33 +2713,6 @@ Vtiger.Class("Vtiger_List_Js", {
 	},
 	reflowList: function () {
 
-		$('#listview-table tr th').each(function (idx, ele) { 
-			var tdWidth = $('#listview-table tr td').eq(idx).width();
-			var thWidth = $(ele).width(); 
-			if(thWidth > tdWidth){
-				$('#listview-table tr td').eq(idx).width(thWidth);
-				$('#listview-table tr td').eq(idx).css("min-width", thWidth + "px");
-			}
-			else{
-				$(ele).width(tdWidth); 
-				$(ele).css("min-width", tdWidth + "px");
-			}
-		});
-		
-		if($("#listview-table thead tr:first").width()<$("#listview-table").width()){
-			var fixWidth = $("#listview-table thead tr th:last-child").width()+($("#listview-table").width()-$("#listview-table thead tr:first").width()+10);
-			$("#listview-table tbody tr td:last-child, #listview-table thead tr th:last-child").css("min-width", fixWidth + "px");
-		}
-				
-		if($('#table-content').length > 0){
-			const list_w = new PerfectScrollbar('#table-content', {suppressScrollY: true});
-			new PerfectScrollbar('#table-content',{suppressScrollY: true});
-			new PerfectScrollbar('#table-content tbody',{suppressScrollX: true});
-		}
-		
-		
-		
-		return;
 		if (typeof $.fn.perfectScrollbar !== 'function' || typeof $.fn.floatThead !== 'function') {
 			return;
 		}
@@ -2762,16 +2735,22 @@ Vtiger.Class("Vtiger_List_Js", {
 	},
 	registerFloatingThead: function () {
 		
-		return;
+		//return;
 		if (typeof $.fn.perfectScrollbar !== 'function' || typeof $.fn.floatThead !== 'function') {
 			return;
 		}
+		
 		var $table = jQuery('#listview-table');
+		
 		if (!$table.length)
 			return;
+		
 		var height = this.getListViewContentHeight();
+		
 		var width = this.getListViewContentWidth();
+		
 		var tableContainer = $table.closest('.table-container');
+		
 		tableContainer.css({
 			'position': 'relative',
 			'height': height,
@@ -2787,6 +2766,7 @@ Vtiger.Class("Vtiger_List_Js", {
 				return $table.closest('.table-container');
 			}
 		});
+		
 	},
 	getSelectedRecordCount: function () {
 		var count = 0;

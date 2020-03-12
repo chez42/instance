@@ -104,6 +104,13 @@ if(isset($_GET['record'])){
     }
     
     if($ticket_detail){
+        
+        $allowedModule = $_SESSION['data']['basic_details']['allowed_modules'];
+        
+        foreach ($allowedModule as $allModule){
+            if($allModule['module'] == 'HelpDesk')
+                $ticket_edit = $allModule['edit_record'];
+        }
         ?>
 					
 		<div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
@@ -190,18 +197,26 @@ if(isset($_GET['record'])){
 											
 											<div class="kt-widget__info">
 												<div class="kt-widget__data" style="width: 45%;">
-													<select class="form-control form-control-sm" name="ticketpriorities">
-														<?php foreach ($ticketpriorities as $priority){ ?>
-															<option value="<?php echo $priority;?>" <?php if($priority == $ticket_detail['ticketpriorities']) { echo "selected"; }?> ><?php echo $priority;?></option>
-														<?php } ?>
-													</select>
+    												<?php if($ticket_edit){?>
+    													<select class="form-control form-control-sm" name="ticketpriorities">
+    														<?php foreach ($ticketpriorities as $priority){ ?>
+    															<option value="<?php echo $priority;?>" <?php if($priority == $ticket_detail['ticketpriorities']) { echo "selected"; }?> ><?php echo $priority;?></option>
+    														<?php } ?>
+    													</select>
+													<?php }else{
+													    echo '<b>Priority</b> : '. $ticket_detail['ticketpriorities'];
+                                                    }?>
 												</div>
 												<div class="kt-widget__data" style="width: 45%;">
-													<select class="form-control form-control-sm" name="ticketstatus">
-														<?php foreach ($ticketstatus as $status){ ?>
-															<option value="<?php echo $status;?>" <?php if($status == $ticket_detail['ticketstatus']) { echo "selected"; }?> > <?php echo $status;?></option>
-														<?php } ?>
-													</select>
+    												<?php if($ticket_edit){?>
+    													<select class="form-control form-control-sm" name="ticketstatus">
+    														<?php foreach ($ticketstatus as $status){ ?>
+    															<option value="<?php echo $status;?>" <?php if($status == $ticket_detail['ticketstatus']) { echo "selected"; }?> > <?php echo $status;?></option>
+    														<?php } ?>
+    													</select>
+													<?php }else{
+													    echo '<b>Status</b> : '. $ticket_detail['ticketstatus'];
+													}?>
 												</div>
 											</div>
 										</div>

@@ -41,7 +41,7 @@
 					{if $COUNTER eq 1}
 						{$TABBLOCKNAME = $BLOCK_LABEL_KEY}
 					{/if}
- 				    <li class="tab-item block block_{$BLOCK_LABEL_KEY} {if $TABBLOCKNAME eq $BLOCK_LABEL_KEY}active{/if}" data-block="{$BLOCK_LABEL_KEY}" data-blockid="{$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}">
+ 				    <li class="tab-item  block_{$BLOCK_LABEL_KEY} {if $TABBLOCKNAME eq $BLOCK_LABEL_KEY}active{/if}" data-block="{$BLOCK_LABEL_KEY}" data-blockid="{$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}">
 		    			{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
 						{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 						<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
@@ -62,7 +62,7 @@
 					{if $TABBLOCKNAME eq ''}
 						{$TABBLOCKNAME = $TABNAME}
 					{/if}
-					 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if} block block_{$TABNAME|replace:' ':'_'} ">
+					 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if} block_{$TABNAME|replace:' ':'_'} ">
 						<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
 				    	<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#{$TABNAME|replace:' ':'_'}" role="tab">
 				    		<span class="tab-label">
@@ -86,7 +86,7 @@
 			    </li>
 			</ul>
 		</div>
-		<div class = "tab-content" style="margin-top:10px;">
+		<div class = "tab-content" style="margin-top:10px; border:0px !important;">
 			
 			{foreach key=BLOCK_LABEL_KEY item=FIELD_MODEL_LIST from=$RECORD_STRUCTURE}
 				{assign var=BLOCK value=$BLOCK_LIST[$BLOCK_LABEL_KEY]}
@@ -277,7 +277,7 @@
 							{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 							<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
 							<div>
-								<h4 class="textOverflowEllipsis maxWidth50">
+								<h4 class="textOverflowEllipsis maxWidth50" style="font-weight: bold !important;margin: 0px !important;padding: 10px !important;">
 									<i class="ti-plus cursorPointer alignMiddle blockToggle {if !($IS_HIDDEN)} hide {/if}" data-mode="hide" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
 									<i class="ti-minus cursorPointer alignMiddle blockToggle {if ($IS_HIDDEN)} hide {/if}" data-mode="show" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
 									&nbsp;{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}

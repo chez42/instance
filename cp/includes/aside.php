@@ -8,7 +8,7 @@
         $allowedModules = $user_basic_details['allowed_modules'];
         
         foreach($allowedModules as $moduleInfo){
-            if(isset($moduleInfo['edit_record']) && $moduleInfo['edit_record'] == 1 && $moduleInfo['module'] != 'Documents' ){
+            if(isset($moduleInfo['edit_record']) && $moduleInfo['edit_record'] == 1 && $moduleInfo['module'] != 'Documents' && $moduleInfo['module'] != 'HelpDesk'){
                 $allowedModuleForRecordCreation[$moduleInfo['module']] = array(
                     "label" => "LBL_NEW_".strtoupper($moduleInfo['module']), "link" => strtolower($moduleInfo['module']).".php?view=edit"
                 );
