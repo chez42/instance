@@ -44,8 +44,8 @@
 							<th>
 								{if !$SEARCH_MODE_RESULTS}
 									<div class="table-actions">
-										<div class="dropdown" style="float:left;margin-left:6px;">
-											<span class="input dropdown-toggle" title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}" data-toggle="dropdown">
+										<div style="float:left;margin-left:6px;">
+											<span class="input " title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}" >
 												<input class="listViewEntriesMainCheckBox" type="checkbox">
 											</span>
 										</div>
@@ -58,12 +58,13 @@
 							{foreach item=LISTVIEW_HEADER key=LISTVIEW_HEADER_KEY from=$LISTVIEW_HEADERS}
 								<th {if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY} nowrap="nowrap" {/if}>
 									<a href="#" class="listViewContentHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER_KEY}">
+										{vtranslate($LISTVIEW_HEADERS[$LISTVIEW_HEADER_KEY]['label'],$MODULE)}&nbsp;
 										{if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY}
 											<i class="fa fa-sort {$FASORT_IMAGE}"></i>
 										{else}
 											<i class="fa fa-sort customsort"></i>
 										{/if}
-										&nbsp;{vtranslate($LISTVIEW_HEADERS[$LISTVIEW_HEADER_KEY]['label'],$MODULE)}&nbsp;
+										&nbsp;
 									</a>
 									{if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY}
 										<a href="#" class="removeSorting"><i class="ti-close"></i></a>

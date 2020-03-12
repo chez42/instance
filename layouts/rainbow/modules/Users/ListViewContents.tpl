@@ -61,12 +61,13 @@
 								{/if}
 								<th {if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')} nowrap="nowrap" {/if} >
 									<a href="#" class="listViewContentHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER->get('name')}">
+										{vtranslate($HEADER_LABEL, $MODULE)}&nbsp;
 										{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
 											<i class="fa fa-sort {$FASORT_IMAGE}"></i>
 										{else}
 											<i class="fa fa-sort customsort"></i>
 										{/if}
-										&nbsp;{vtranslate($HEADER_LABEL, $MODULE)}&nbsp;
+										&nbsp;
 									</a>
 									{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
 										<a href="#" class="removeSorting"><i class="ti-close"></i></a>

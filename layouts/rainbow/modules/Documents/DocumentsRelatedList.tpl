@@ -7,11 +7,7 @@
 * All Rights Reserved.
 ************************************************************************************}
 {strip}
-<style>
-	#listview-table thead, #listview-table tbody {
-     	display: contents !important;
-    }
-</style>
+
 {include file="PicklistColorMap.tpl"|vtemplate_path:$MODULE LISTVIEW_HEADERS=$RELATED_HEADERS}
 <div class="relatedContainer">
     {assign var=RELATED_MODULE_NAME value=$RELATED_MODULE->get('name')}

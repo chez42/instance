@@ -23,9 +23,7 @@
 	.extensionContents .listview-table thead th {
     	border-bottom: thin solid #DDDDDD!important;
 	}
-	#listview-table thead, #listview-table tbody {
-     	display: contents !important;
-    }
+	
 </style>
 <div class="col-sm-12 col-xs-12 extensionContents">
 	{if !$MODAL}
