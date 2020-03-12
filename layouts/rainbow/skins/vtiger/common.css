@@ -4577,7 +4577,7 @@ form[name="notification_settings"] .select2-choice {
 
 
 .dashboardWidgetHeader .title {
-  margin-bottom: 10px;color:#666;padding: 5px;
+  /*margin-bottom: 10px;*/color:#666;padding: 5px;
 }
 .dashboardWidgetHeader:hover {
   cursor: move;
@@ -7515,7 +7515,7 @@ width: 120px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;displa
 
 /*Dashboard*/
 .widgetChartContainer{min-width: 220px!important;}
-.dashboardTitle{width: 100%!important;line-height: 22px;font-size: 16px;font-weight: bold; margin-left: 5px;}
+.dashboardTitle{/*width: 100%!important;*/line-height: 22px;font-size: 16px;font-weight: bold; margin-left: 5px;}
 
 @media only screen and (max-width: 374px){
 .dashBoardContainer .dashBoardTabContents ul li{width: 280px;}
@@ -8807,7 +8807,7 @@ html body .bg-white {  background-color: #ffffff; }
 
 .ExtensionscontentsDiv {padding: 20px;}
 .extensionWidgetContainer {padding: 20px!important;}
-.dashboardWidgetHeader .userList { margin-top: 15px;}
+.dashboardWidgetHeader .userList { /*margin-top: 15px;*/}
 
 #navbar li a:hover {background: rgba(0, 0, 0, 0.1); color: #f6f6f6;}
 #navbar li a i[class^="material"] {/*color: #fff;*/ font-size: 18px; line-height: 40px}
