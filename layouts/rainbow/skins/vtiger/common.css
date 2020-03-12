@@ -8810,7 +8810,7 @@ html body .bg-white {  background-color: #ffffff; }
 .dashboardWidgetHeader .userList { margin-top: 15px;}
 
 #navbar li a:hover {background: rgba(0, 0, 0, 0.1); color: #f6f6f6;}
-#navbar li a i[class^="material"] {color: #fff; font-size: 18px; line-height: 40px}
+#navbar li a i[class^="material"] {/*color: #fff;*/ font-size: 18px; line-height: 40px}
 #quickCreateModules a i[class^="material"], .summaryViewEntries i[class^="material"]  {color: #666!important; font-size: 20px!important; line-height: 24px!important;}
 
 .footerIcons i[class^="material"] {font-size:22px;}
