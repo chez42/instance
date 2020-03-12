@@ -573,7 +573,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 	},
     
 	initializePaginationEvents : function() {
-		$('#listview-table tr td').css("padding",0);
+		/*$('#listview-table tr td').css("padding",0);
 		$('#listview-table tr th').css("padding",0);
 		$('#listview-table tr:first th').each(function (idx, ele) { 
 			var tdWidth = $('#listview-table tr td').eq(idx).width();
@@ -601,7 +601,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 			new PerfectScrollbar('#table-content',{suppressScrollY: true});
 			new PerfectScrollbar('#table-content tbody',{suppressScrollX: true});
 		}
-		
+		*/
 		
 		var thisInstance = this;
 		var paginationObj = new Vtiger_Pagination_Js;

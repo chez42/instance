@@ -11,13 +11,11 @@
 {* START YOUR IMPLEMENTATION FROM BELOW. Use {debug} for information *}
 {include file="PicklistColorMap.tpl"|vtemplate_path:$MODULE}
 
-
-
 <div class="col-sm-12 col-xs-12 ">
 	{if $MODULE neq 'EmailTemplates' && $SEARCH_MODE_RESULTS neq true}
 		{assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
-		<div class="essentials-toggle hidden-sm hidden-xs" title="{vtranslate('LBL_LEFT_PANEL_SHOW_HIDE', 'Vtiger')}">
-			<span class="essentials-toggle-marker fa {if $LEFTPANELHIDE eq '1'}fa-chevron-left{else}fa-chevron-right{/if} cursorPointer"></span>
+		<div class="essentials-toggle" title="{vtranslate('LBL_LEFT_PANEL_SHOW_HIDE', 'Vtiger')}">
+			<span class="essentials-toggle-marker fa {if $LEFTPANELHIDE eq '1'}fa-chevron-right{else}fa-chevron-left{/if} cursorPointer"></span>
 		</div>
 	{/if}
 	<input type="hidden" name="view" id="view" value="{$VIEW}" />
@@ -43,23 +41,23 @@
 	<input type="hidden" name="folder_value" value="{$FOLDER_VALUE}" />
 	<input type="hidden" name="viewType" value="{$VIEWTYPE}" />
 	<input type="hidden" name="app" id="appName" value="{$SELECTED_MENU_CATEGORY}">
+	<input type="hidden" id="isExcelEditSupported" value="{if $MODULE_MODEL->isExcelEditAllowed()}yes{else}no{/if}" />
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
 		<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
 	{/if}
 	{if !$SEARCH_MODE_RESULTS}
 		{include file="ListViewActions.tpl"|vtemplate_path:$MODULE}
 	{/if}
-	
-	
-	<div id="table-content" class="table-container" >
-		<form name='list' id='listedit' action='' onsubmit="return false;" >
-			<table  id="listview-table" class="table table-striped table-hover {if $LISTVIEW_ENTRIES_COUNT eq '0'}listview-table-norecords {/if} listview-table ">
+
+	<div id="table-content" class="table-container">
+		<form name='list' id='listedit' action='' onsubmit="return false;">
+			<table id="listview-table" class="table {if $LISTVIEW_ENTRIES_COUNT eq '0'}listview-table-norecords {/if} listview-table ">
 				<thead>
 					<tr class="listViewContentHeader">
 						<th>
 							{if !$SEARCH_MODE_RESULTS}
 					<div class="table-actions">
-						<div style="float:left;">
+						<div  style="float:left;">
 							<span class="input" title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}">
 								<input class="listViewEntriesMainCheckBox" type="checkbox">
 							</span>
@@ -82,7 +80,7 @@
 									 {/if}
 									 {if $MODULE eq 'Documents'}style="width: 10%;"{/if}
 									 data-toggle="tooltip" data-placement="bottom" data-container="body">
-									<i class="ti-layout-column3-alt"></i>
+									<i class="fa fa-th-large"></i>
 								</div>
 							</div>
 						{/if}
@@ -91,9 +89,8 @@
 					{vtranslate('LBL_ACTIONS',$MODULE)}
 				{/if}
 				</th>
-				{if $MODULE eq "Contacts" or $MODULE eq "Products"}<th style="width:25px;">&nbsp;</th>{/if}
 				{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-					{if $SEARCH_MODE_RESULTS and ($LISTVIEW_HEADER->getFieldDataType() eq 'multipicklist')}
+					{if $SEARCH_MODE_RESULTS || ($LISTVIEW_HEADER->getFieldDataType() eq 'multipicklist') || ($LISTVIEW_HEADER->get('name') eq 'related_to') || ($LISTVIEW_HEADER->get('name') eq 'to_number')}
 						{assign var=NO_SORTING value=1}
 					{else}
 						{assign var=NO_SORTING value=0}
@@ -111,7 +108,7 @@
 							&nbsp;
 						</a>
 						{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
-							<a href="#" class="removeSorting"><i class="ti-close"></i></a>
+							<a href="#" class="removeSorting"><i class="fa fa-remove"></i></a>
 							{/if}
 					</th>
 				{/foreach}
@@ -124,12 +121,13 @@
 						<button class="btn btn-success btn-sm" data-trigger="listSearch">{vtranslate("LBL_SEARCH",$MODULE)}</button>
 					</div>
 					</th>
-					{if $MODULE eq "Contacts" or $MODULE eq "Products"}<th style="width:25px;">&nbsp;</th>{/if}
 					{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
 						<th>
-							{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
-							{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
-							<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
+							{if $LISTVIEW_HEADER->getName() neq 'related_to' && $LISTVIEW_HEADER->getName() neq 'to_number'}
+								{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
+								{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
+								<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
+							{/if}
 						</th>
 					{/foreach}
 					</tr>
@@ -151,24 +149,6 @@
 							{if ($LISTVIEW_ENTRY->get('document_source') eq 'Google Drive' && $IS_GOOGLE_DRIVE_ENABLED) || ($LISTVIEW_ENTRY->get('document_source') eq 'Dropbox' && $IS_DROPBOX_ENABLED)}
 						<input type="hidden" name="document_source_type" value="{$LISTVIEW_ENTRY->get('document_source')}">
 					{/if}
-					
-					{if $MODULE eq "Contacts" or $MODULE eq "Products"}
-					<td>				
-					{assign var=IMAGE_DETAILS value=$LISTVIEW_ENTRY->getImageDetails()}
-							{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
-							{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
-					<a class="thumbnailz" href="#thumb"><img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" style="width:30px;height:30px;border-radius:50%;" />
-					<span><img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}" style="width:300px;border-radius:0;"></span></a>
-							{else}
-								<img src="layouts/rainbow/skins/images/DefaultUserIcon.png"  style="width:30px;height:30px;border-radius:50%;" >
-							{/if}
-						{/foreach}
-						{if empty($IMAGE_DETAILS)}
-							<img src="layouts/rainbow/skins/images/DefaultUserIcon.png"  style="width:30px;height:30px;border-radius:50%;">
-						{/if}
-						
-					</td>
-					{/if}
 					{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
 						{assign var=LISTVIEW_HEADERNAME value=$LISTVIEW_HEADER->get('name')}
 						{assign var=LISTVIEW_ENTRY_RAWVALUE value=$LISTVIEW_ENTRY->getRaw($LISTVIEW_HEADER->get('column'))}
@@ -179,11 +159,10 @@
 						<td class="listViewEntryValue {if $LISTVIEW_HEADER->get('uitype') eq '72' || $LISTVIEW_HEADER->get('uitype') eq '71'  || $LISTVIEW_HEADER->get('uitype') eq '70' ||
 						$LISTVIEW_HEADER->get('uitype') eq '5' || $LISTVIEW_HEADER->get('uitype') eq '23' || $LISTVIEW_HEADER->get('uitype') eq '6' || $LISTVIEW_HEADER->get('uitype') eq '7'
 						|| $LISTVIEW_HEADER->get('uitype') eq '9' || $LISTVIEW_HEADER->get('typeofdata') eq 'N~O' }text-right{/if}" 
-						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}"
-						{if $LISTVIEW_HEADER->get('name') neq 'createdtime' && $LISTVIEW_HEADER->get('name') neq 'modifiedtime'}nowrap{/if}>
+						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
 							<span class="fieldValue">
 								<span class="value">
-									{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
+									{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $LISTVIEW_HEADER->getName() neq 'related_to' and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
 										<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}&app={$SELECTED_MENU_CATEGORY}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>
 										{if $MODULE eq 'Products' &&$LISTVIEW_ENTRY->isBundle()}
 											&nbsp;-&nbsp;<i class="mute">{vtranslate('LBL_PRODUCT_BUNDLE', $MODULE)}</i>
@@ -218,7 +197,7 @@
 													{assign var=PICKLIST_FIELD_ID value={$LISTVIEW_HEADER->getId()}}
 												{/if}
 											{/if}
-											<span {if !empty($LISTVIEW_ENTRY_VALUE)} class="picklist-color picklist-{$PICKLIST_FIELD_ID}-{Vtiger_Util_Helper::convertSpaceToHyphen($LISTVIEW_ENTRY->getRaw($LISTVIEW_HEADERNAME))}" {/if}> {$LISTVIEW_ENTRY_VALUE} </span>
+											<span {if !empty($LISTVIEW_ENTRY_VALUE)} class="picklist-color picklist-{$PICKLIST_FIELD_ID}-{Vtiger_Util_Helper::convertSpaceToHyphen($LISTVIEW_ENTRY_RAWVALUE)}" {/if}> {$LISTVIEW_ENTRY_VALUE} </span>
 										{else if $LISTVIEW_HEADER->getFieldDataType() eq 'multipicklist'}
 											{assign var=MULTI_RAW_PICKLIST_VALUES value=explode('|##|',$LISTVIEW_ENTRY->getRaw($LISTVIEW_HEADERNAME))}
 											{assign var=MULTI_PICKLIST_VALUES value=explode(',',$LISTVIEW_ENTRY_VALUE)}
@@ -235,6 +214,13 @@
 													{if !empty($MULTI_PICKLIST_VALUES[$MULTI_PICKLIST_INDEX + 1])},{/if}
 												</span>
 											{/foreach}
+											
+										{else if $LISTVIEW_HEADER->getName() eq 'related_to'}	
+											{assign var=relatedRecords value=RingCentral_Module_Model::getRelatedRecords($DATA_ID)}
+											{$relatedRecords}
+										{else if $LISTVIEW_HEADER->getName() eq 'to_number'}	
+											{assign var=relatedNo value=RingCentral_Module_Model::getRelatedNos($DATA_ID)}
+											{$relatedNo}
 										{else}
 											{$LISTVIEW_ENTRY_VALUE}
 										{/if}

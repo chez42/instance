@@ -7,11 +7,7 @@
 * All Rights Reserved.
 ************************************************************************************}
 {* modules/Vtiger/views/List.php *}
-<style>
-	#listview-table thead, #listview-table tbody {
-     	display: contents !important;
-    }
-</style>
+
 {* START YOUR IMPLEMENTATION FROM BELOW. Use {debug} for information *}
 {include file="PicklistColorMap.tpl"|vtemplate_path:$MODULE}
 

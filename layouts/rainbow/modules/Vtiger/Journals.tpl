@@ -9,11 +9,7 @@
 
 
 {strip}	
-	<style>
-		#listview-table thead, #listview-table tbody {
-	     	display: contents !important;
-	    }
-	</style>
+	
     {assign var=PAGING_MODEL value=$PAGING}
 	{assign var=RECORD_COUNT value=$RECENT_ACTIVITIES|@count}
 	{assign var=PAGE_NUMBER value=$PAGING->get('page')}

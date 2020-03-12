@@ -235,6 +235,19 @@
 													{if !empty($MULTI_PICKLIST_VALUES[$MULTI_PICKLIST_INDEX + 1])},{/if}
 												</span>
 											{/foreach}
+										{else if $LISTVIEW_HEADER->getName() eq 'view_permission'}
+											{assign var="userId" value=explode(' |##| ',$LISTVIEW_ENTRY->getRaw($LISTVIEW_HEADERNAME))}
+											{assign var="userName" value=""}
+											{foreach item=user_id from=$userId}
+												
+												{if getUserFullName($user_id)}
+													{$userName[] = getUserFullName($user_id)}
+												{else}
+													{assign var=group value=getGroupName($user_id)}
+													{$userName[] = $group[0]}
+												{/if}	
+											{/foreach}
+											{implode(', ',array_filter($userName))}
 										{else}
 											{$LISTVIEW_ENTRY_VALUE}
 										{/if}
