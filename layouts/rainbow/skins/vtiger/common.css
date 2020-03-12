@@ -9065,9 +9065,10 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 	width: 100%;
 }
 
-#listview-table thead, #listview-table tbody{
+/*#listview-table thead, #listview-table tbody{
 	display: block;
-}
+}*/
+
 #listview-table tbody{
 	overflow-y: auto;
 	max-height: 60vh;
