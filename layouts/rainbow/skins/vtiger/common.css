@@ -5956,7 +5956,7 @@ div.tooltip-inner {
   display: inline-block;
 }
 .summaryViewEntries .input-group.editElement {
-  width: 100%;
+  width: auto;
   display: flex;
 }
 .summaryView .summaryViewFields .input-group {

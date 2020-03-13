@@ -1294,7 +1294,7 @@ Vtiger.Class("Vtiger_List_Js", {
 				var element = jQuery(e.currentTarget);
 				var parentElement = element.closest('tr');
 				var searchTriggerElement = parentElement.find('[data-trigger="listSearch"]');
-				//searchTriggerElement.trigger('click');
+				searchTriggerElement.trigger('click');
 				prevSearchValues[fieldName] = searchValue;
 			}
 		});
