@@ -1,5 +1,7 @@
 <?php
 require_once("libraries/Reporting/Indexing.php");
+require_once("libraries/Reporting/ProjectedIncomeModel.php");
+require_once("libraries/Reporting/ReportCommonFunctions.php");
 
 function DetermineIntervalStartDate($account_number, $sdate){
     global $adb;
@@ -59,6 +61,7 @@ class Performance_Model extends Vtiger_Module {
     private $start_date_changed = false;
     private $end_date_changed = false;
     private $start_date, $end_date;
+    private $provided_start_date, $provided_end_date;//The actual passed in start and end dates unmodified
     private $performance;
     private $individual_performance_summed;
     private $individual_start_values, $individual_end_values;
@@ -71,9 +74,12 @@ class Performance_Model extends Vtiger_Module {
     private $account_numbers;
     private $dividend_accrual;
     private $benchmark;
+    private $estimated_income;
 
     public function Performance_Model(array $account_numbers, $start_date, $end_date){
         global $adb;
+        $this->provided_start_date = $start_date;
+        $this->provided_end_date = $end_date;
         $passed_in_date = $start_date;
         $this->account_numbers = $account_numbers;
 
@@ -151,7 +157,7 @@ class Performance_Model extends Vtiger_Module {
                 $individuals = new AccountValues();
                 $individuals->account_number = $v['accountnumber'];
                 $individuals->date = $v['intervalenddate'];
-                $individuals->value = $tmp->value;
+                $individuals->value = PortfolioInformation_Module_Model::GetIntervalBeginValueForDate($v['accountnumber'], $passed_in_date);//$tmp->value;
                 $individuals->disable_performance = PortfolioInformation_Module_Model::IsPerformanceDisabled($v['accountnumber']);
 ////                PortfolioInformation_Module_Model::CreateDailyIntervalsForAccounts($this->account_numbers, $v['intervalenddate']);
 /*
@@ -283,12 +289,16 @@ class Performance_Model extends Vtiger_Module {
                         $tmp->operation = $v['operation'];
                         $tmp->buy_sell_indicator = $v['buy_sell_indicator'];
                         $tmp->disable_performance = $v['disable_performance'];
+ #                       echo "SETTING: " . $v['account_number'] . '<br />';
                         $this->individual_performance_summed[$v['account_number']][$v['transaction_type']] = $tmp;
                         $this->individual_performance_summed[$v['account_number']]['account_name'] = PortfolioInformation_Module_Model::GetAccountNameFromAccountNumber($v['account_number']);
                         $this->individual_performance_summed[$v['account_number']]['account_type'] = PortfolioInformation_Module_Model::GetAccountTypeFromAccountNumber($v['account_number']);
                     }
                 }
-
+#foreach($this->individual_performance_summed AS $k => $v){
+#    print_r($v);
+#    echo "<br />";
+#}
 
                 $this->intervals = PortfolioInformation_Module_Model::GetIntervalsForAccounts($account_numbers);//Create combined accounts intervals
                 $monthly_start = $start_date;
@@ -303,10 +313,13 @@ class Performance_Model extends Vtiger_Module {
                 $this->CalculateInvestmentReturn();
                 $this->CalculateIndividualInvestmentReturn();
                 $this->CalculateIndividualChangeInValue();
-                $this->CalculateTWRFromIntervals($this->start_date, $this->end_date);
-                $this->CalculateIndividualTWR($this->start_date, $this->end_date);//Creates intervals for each individual account
+                $this->CalculateIndividualEstimatedIncome();
+                $this->CalculateIndividualTWRCumulative($this->start_date, $this->end_date);
+                $this->CalculateCombinedTWRCumulative($this->start_date, $this->end_date);
+//                $this->CalculateTWRFromIntervals($this->start_date, $this->end_date);
+//                $this->CalculateIndividualTWR($this->start_date, $this->end_date);//Creates intervals for each individual account
 //                $this->CalculateIndividualIRR($this->start_date, $this->end_date);
-
+                $this->CalculateEstimatedIncome();
                 $this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount + $this->GetCommissionAmount();
 #            print_r($this->performance_summed);exit;
             }
@@ -345,7 +358,105 @@ class Performance_Model extends Vtiger_Module {
             }else{
                 $this->individual_twr[$v] = 0;
             }
+
+            if($this->individual_twr[$v] >= 100){
+                $this->individual_twr[$v] = 0;
+            }
         }
+    }
+
+
+    public function CalculateIndividualTWRCumulative($start_date, $end_date){
+        global $adb;
+
+        foreach($this->account_numbers AS $k => $v){
+            $questions = generateQuestionMarks($v);
+            $twr = 1;
+            $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
+            $adb->pquery($query, array($v, $start_date, $end_date), true);
+            $query = "SELECT * FROM tmpDailyPreTWR";
+            $result = $adb->pquery($query, array());
+
+            if($adb->num_rows($result) > 0){
+                while($r = $adb->fetchByAssoc($result)){
+                    $twr *= $r['netreturnamount'];
+                }
+                $this->individual_twr[$v] = ($twr - 1) * 100;//$adb->query_result($result, 0, 'twr');
+            }else{
+                $this->individual_twr[$v] = 0;
+            }
+
+            if($this->individual_twr[$v] >= 100 || $this->individual_twr[$v] <= -100){
+                $this->individual_twr[$v] = 0;
+            }
+
+        }
+    }
+
+/*    public function CalculateIndividualTWRCumulative($start_date, $end_date){
+        global $adb;
+
+        foreach($this->account_numbers AS $k => $v){
+#            $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(\"942826345\", \"2019-01-01\", \"2020-02-11\", \"TD\", \"live_omniscient\");"
+            $query = 'CALL CALCULATE_MONTHLY_INTERVALS_FROM_DAILY("?", ?, ?)';
+            $adb->pquery($query, array($v, $start_date, $end_date));
+            $query = "SELECT SUM(twr) AS twr
+                      FROM tmpMonthlyTWR";
+            $result = $adb->pquery($query, array());
+            if($adb->num_rows($result) > 0){
+                $this->individual_twr[$v] = $adb->query_result($result, 0, 'twr');
+            }else{
+                $this->individual_twr[$v] = 0;
+            }
+        }
+    }*/
+
+    public function CalculateCombinedTWRCumulative($start_date, $end_date){
+        global $adb;
+        $twr = 1;
+
+        $questions = generateQuestionMarks($this->account_numbers);
+        $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
+//        $query = "CALL TWR_INTERVALS_CALCULATED(\"{$questions}\", ?, ?)";
+        $adb->pquery($query, array($this->account_numbers, $start_date, $end_date), true);
+
+        $query = "SELECT * FROM tmpDailyPreTWR";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+##                echo "({$v['intervalbegindate']} - {$v['intervalenddate']}) CALCULATING {$twr} *= {$v['netreturnamount']} equals ";
+                $twr *= $v['netreturnamount'];
+##                echo $twr . '<br />';
+            }
+            $this->twr = ($twr-1) * 100;//$adb->query_result($result, 0, 'twr');
+##            echo "final twr is " . $this->twr . '<br />';
+        }
+
+        if($this->twr >= 100 || $this->twr <= -100){
+            $this->twr = 0;
+        }
+
+
+        /*        $query = "SELECT SUM(twr) AS twr FROM tmpMonthlyTWR";
+                $result = $adb->pquery($query, array(), true);
+                if($adb->num_rows($result) > 0){
+                    $this->twr = $adb->query_result($result, 0, 'twr');
+                    return;
+                }
+                $this->twr = 0;
+        /*        $summed = $this->ending_values_summed->value;
+                $end_values = $this->GetIndividualEndValues();
+                $individual_twr = $this->GetIndividualTWR();
+                $return_total = 0;
+                foreach($this->account_numbers AS $k => $v){
+                    $end_values[$v]->weight = $end_values[$v]->value / $summed * 100;
+                    $end_values[$v]->twr = $individual_twr[$v];
+                    $end_values[$v]->return = ($end_values[$v]->twr/100) * $end_values[$v]->value;
+                    $return_total += $end_values[$v]->return;
+                }
+
+                $this->twr = $return_total / $summed * 100;*/
+
     }
 
     private function CalculateIndividualIRR($start_date, $end_date){
@@ -373,11 +484,15 @@ class Performance_Model extends Vtiger_Module {
         }
     }
 
-    private function GetCommissionAmount(){
+    private function GetCommissionAmount($account_number = null){
         global $adb;
-
-        $query = "SELECT SUM(commission) AS commission FROM individual_performance";
-        $result = $adb->pquery($query, array());
+        $params = array();
+        if($account_number) {
+            $and = " WHERE account_number = ?";
+            $params[] = $account_number;
+        }
+        $query = "SELECT SUM(commission) AS commission FROM individual_performance {$and}";
+        $result = $adb->pquery($query, $params);
         if($adb->num_rows($result) > 0){
             return $adb->query_result($result, 0, 'commission');
         }
@@ -410,6 +525,22 @@ class Performance_Model extends Vtiger_Module {
         }
     }
 
+    private function CalculateEstimatedIncome(){
+        $projected = new ProjectedIncome_Model($this->account_numbers);
+        $calendar = CreateMonthlyCalendar($this->start_date, $this->end_date);
+        $projected->CalculateMonthlyTotals($calendar);
+        $this->estimated_income = $projected;
+    }
+
+    private function CalculateIndividualEstimatedIncome(){
+        foreach($this->account_numbers AS $k => $v){
+            $projected = new ProjectedIncome_Model(array($v));
+            $calendar = CreateMonthlyCalendar($this->start_date, $this->end_date);
+            $projected->CalculateMonthlyTotals($calendar);
+            $this->individual_performance_summed[$v]['estimated'] = $projected;
+        }
+    }
+
     private function CalculateInvestmentReturn(){
         $this->capital_appreciation = $this->ending_values_summed->value -
             ($this->beginning_values_summed->value +
@@ -434,11 +565,17 @@ class Performance_Model extends Vtiger_Module {
 
     private function CalculateIndividualChangeInValue(){
         foreach($this->account_numbers AS $k => $v){
+/*            echo $v . '<br />';
+            echo $this->individual_end_values[$v]->value . ' (1) <br />';
+            echo $this->individual_start_values[$v]->value . ' (2) <br />';
+            echo $this->individual_performance_summed[$v]['Flow']->amount . ' (3) <br />';
+            echo $this->individual_performance_summed[$v]['Reversal']->amount . ' (4) <br />';
+            echo $this->GetCommissionAmount() . '(5)<br /><br />';*/
             $this->individual_performance_summed[$v]['change_in_value'] = $this->individual_end_values[$v]->value -
                                                                           $this->individual_start_values[$v]->value -
                                                                           $this->individual_performance_summed[$v]['Flow']->amount -
                                                                           $this->individual_performance_summed[$v]['Reversal']->amount +
-                                                                          $this->GetCommissionAmount();
+                                                                          $this->GetCommissionAmount($v);
         }
     }
 
@@ -573,6 +710,10 @@ class Performance_Model extends Vtiger_Module {
 
     public function GetIndividualIRR(){
         return $this->individual_irr;
+    }
+
+    public function GetEstimatedIncome(){
+        return $this->estimated_income;
     }
 
     public function ConvertPieToBenchmark($pie){

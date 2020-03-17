@@ -28,6 +28,8 @@ jQuery.Class("IntervalsDaily_Js",{
                 if(cur <= end && cur >= start){
                     $(this).closest('tr').children('td, th').css('background-color','#98FB98');
                     var val = $(obj).siblings('.net_return').data('net_return');
+                    if(val > 1.5 || val < 0.5)
+                        $(obj).siblings('.net_return').css('background-color','red');
                     returns.push(val);
 //                    returns.push(val/100);
                 }
@@ -294,11 +296,84 @@ jQuery.Class("IntervalsDaily_Js",{
         });
     },
 
+    DateSelection: function(){
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
+            var returns = new Array();
+            try {
+                var count = 0;
+                var start_date = picker.startDate.format('MMMM D, YYYY');
+                var end_date = picker.endDate.format('MMMM D, YYYY');
+                var sday = new Date(start_date);
+                var eday = new Date(end_date);
+
+                $('#IntervalTable tbody tr').each(function() {
+                    $(this).children('td, th').css('backgroundColor', '#DADADB');
+                });
+
+                $('.end_date').each(function(i, obj) {
+                    var cur = $.datepicker.parseDate("m-d-yy", $(obj).text());
+                    var dat = new Date(cur);
+                    if(dat <= eday && dat >= sday){
+                        $(this).closest('tr').children('td, th').css('background-color','#98FB98');
+                        var val = $(obj).siblings('.net_return').data('net_return');
+                        if(val > 1.1 || val < 0.9)
+                            $(obj).siblings('.net_return').css('background-color','red');
+                        returns.push(val);
+                    }
+                });
+
+                function CalculateReturn(r){
+                    var val = 1;
+                    $.each(r, function(k, v){
+                        val = val * (v);
+                        count+=1;
+                    });
+                    val = (val - 1) * 100;
+                    return(val.toFixed(2));
+                }
+                var r = CalculateReturn(returns);
+                average = (r / count).toFixed(2);
+                annual = (average * 12).toFixed(2);
+                $(".calculated_return").text(r + "%");
+                $(".average_return").text(average + "%");
+                $(".annual_return").text(annual + "%");
+            }catch(err){
+
+            }
+        });
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            maxDate: moment(),
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment()],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                '2019': [moment("20190101","YYYYMMDD"), moment("20191231","YYYYMMDD")],
+                'Inception': [moment("19000101","YYYYMMDD"), moment()]
+            }
+        }, cb);
+
+        cb(start, end);
+    },
+
     registerEvents : function() {
-        this.LineBarChart();
+        this.DateSelection();
+//        this.LineBarChart();
 //        this.Testing();
         var vtigerInstance = Vtiger_Index_Js.getInstance();
-    	vtigerInstance.registerEvents();
+        vtigerInstance.registerEvents();
     },
 
 
@@ -308,3 +383,42 @@ jQuery(document).ready(function($) {
     var instance = IntervalsDaily_Js.getInstanceByView();
     instance.registerEvents();
 });
+
+
+/*
+
+<div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+    <i class="fa fa-calendar"></i>&nbsp;
+    <span></span> <i class="fa fa-caret-down"></i>
+</div>
+
+<script type="text/javascript">
+$(function() {
+
+    var start = moment().subtract(29, 'days');
+    var end = moment();
+
+    function cb(start, end) {
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    $('#reportrange').daterangepicker({
+        startDate: start,
+        endDate: end,
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    }, cb);
+
+    cb(start, end);
+
+});
+</script>
+
+
+ */

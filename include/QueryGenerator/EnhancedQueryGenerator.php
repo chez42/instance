@@ -519,6 +519,32 @@ class EnhancedQueryGenerator extends QueryGenerator {
 					}
 				}
 			}
+			
+			if($this->meta->getTabName() == 'Documents' && $fieldName == 'related_to'){
+			    
+			    $tableJoinMapping['vtiger_senotesrel'] = 'LEFT JOIN' ;
+			    $tableJoinCondition['related_to']['vtiger_senotesrel'] = 'vtiger_senotesrel.notesid = vtiger_crmentity.crmid';
+			    $tableJoinMapping['vtiger_crmentityrelated_to'] = 'LEFT JOIN vtiger_crmentity as';
+			    $tableJoinCondition['related_to']['vtiger_crmentityrelated_to'] = 'vtiger_crmentityrelated_to.crmid = vtiger_senotesrel.crmid';
+			    
+			}
+			
+			if($this->meta->getTabName() == 'RingCentral' && $fieldName == 'related_to'){
+			    
+			    $tableJoinMapping['vtiger_seringcentralrel'] = 'LEFT JOIN' ;
+			    $tableJoinCondition['related_to']['vtiger_seringcentralrel'] = 'vtiger_seringcentralrel.ringcentralid = vtiger_crmentity.crmid';
+			    $tableJoinMapping['vtiger_crmentityrelated_to'] = 'LEFT JOIN vtiger_crmentity as';
+			    $tableJoinCondition['related_to']['vtiger_crmentityrelated_to'] = 'vtiger_crmentityrelated_to.crmid = vtiger_seringcentralrel.crmid';
+			    
+			}
+			
+			if($this->meta->getTabName() == 'RingCentral' && $fieldName == 'to_number'){
+			    
+			    $tableJoinMapping['vtiger_seringcentralrel'] = 'LEFT JOIN' ;
+			    $tableJoinCondition['related_to']['vtiger_seringcentralrel'] = 'vtiger_seringcentralrel.ringcentralid = vtiger_crmentity.crmid';
+			   
+			}
+			
 		}
 
 		$referenceTableList = array();
@@ -800,8 +826,20 @@ class EnhancedQueryGenerator extends QueryGenerator {
 							$fieldSql .= "$fieldGlue ".$tableName.'.' .
 									$field->getColumnName().' '.$valueSql.$specialCondition;
 						} else {
-							$fieldSql .= "$fieldGlue ".$tableName.'.' .
-									$field->getColumnName().' '.$valueSql;
+						    
+						    if($field->getColumnName() == 'related_to' && $this->meta->getTabName() == 'Documents'){
+						        $fieldSql .= "$fieldGlue ".'vtiger_crmentityrelated_to.label' 
+						            .' '.$valueSql;
+						    }else if($field->getColumnName() == 'related_to' && $this->meta->getTabName() == 'RingCentral'){
+						        $fieldSql .= "$fieldGlue ".'vtiger_crmentityrelated_to.label'
+						            .' '.$valueSql;
+						    }else if($this->meta->getTabName() == 'RingCentral' && $field->getColumnName() == 'to_number'){
+						        $fieldSql .= "$fieldGlue ".'vtiger_seringcentralrel.to_number'
+						            .' '.$valueSql;
+						    }else{
+    							$fieldSql .= "$fieldGlue ".$tableName.'.' .
+    									$field->getColumnName().' '.$valueSql;
+						    }
 						}
 					}
 				}
@@ -843,6 +881,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 			}
 		}
 
+		
 		// This is needed as there can be condition in different order and there is an assumption in makeGroupSqlReplacements API
 		// that it expects the array in an order and then replaces the sql with its the corresponding place
 		ksort($fieldSqlList);

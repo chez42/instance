@@ -1,10 +1,13 @@
 #inception_loader{display:none;}
 
 .rep_code_select{width:200px;}
-.section{display:block; max-width:50%; background-color:lightcyan; border:1px solid black; overflow: hidden}
+.section{display:block; max-width:100%; background-color:lightcyan; border:1px solid black; overflow: hidden}
 .section_header h2{text-align:center;}
 .block_left{float:left;}
 .block_right{float:right;}
 .inception_intervals{display:block; float:right}
 .clear_both{clear:both;}
 .missing_files{display:none;}
+.left_half{float:left; width:49%; display:block; border:1px solid red;}
+.right_half{float:right; width:49%; display:block; border:1px solid green;}
+.missing_files_section{float:left; max-width:100%; display:none;}

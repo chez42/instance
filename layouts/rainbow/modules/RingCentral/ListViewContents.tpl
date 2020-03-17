@@ -80,7 +80,7 @@
 									 {/if}
 									 {if $MODULE eq 'Documents'}style="width: 10%;"{/if}
 									 data-toggle="tooltip" data-placement="bottom" data-container="body">
-									<i class="fa fa-th-large"></i>
+									<i class="ti-layout-column3-alt"></i>
 								</div>
 							</div>
 						{/if}
@@ -123,11 +123,11 @@
 					</th>
 					{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
 						<th>
-							{if $LISTVIEW_HEADER->getName() neq 'related_to' && $LISTVIEW_HEADER->getName() neq 'to_number'}
+							{*if $LISTVIEW_HEADER->getName() neq 'related_to' && $LISTVIEW_HEADER->getName() neq 'to_number'*}
 								{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
 								{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
 								<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
-							{/if}
+							{*/if*}
 						</th>
 					{/foreach}
 					</tr>

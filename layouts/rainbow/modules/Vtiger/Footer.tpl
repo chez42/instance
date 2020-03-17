@@ -206,7 +206,7 @@
 		
 	</div>
 </div>
-<footer class="app-footer">
+<footer class="app-footer" style="display: none">
 </footer>
 
 <div id='overlayPage'>

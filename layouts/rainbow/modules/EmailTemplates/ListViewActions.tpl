@@ -130,11 +130,11 @@
                         {/if}
                     {/if}
                 {/if}
-                <div id="selectAllMsgDiv" class="hide" style = "height:30px;">
-                    <center><a href="#">{vtranslate('LBL_SELECT_ALL',$MODULE)}&nbsp;{vtranslate($MODULE ,$MODULE)}&nbsp;(<span id="totalRecordsCount" value=""></span>)</a></center>
+                <div class="hide alert alert-success messageContainer" style = "height:30px;">
+                    <center><a href="#" id="selectAllMsgDiv">{vtranslate('LBL_SELECT_ALL',$MODULE)}&nbsp;{vtranslate($MODULE ,$MODULE)}&nbsp;(<span id="totalRecordsCount" value=""></span>)</a></center>
                 </div>
-                <div id="deSelectAllMsgDiv" class="hide" style = "height:30px;">
-                    <center><a href="#">{vtranslate('LBL_DESELECT_ALL_RECORDS',$MODULE)}</a></center>
+                <div class="hide alert alert-warning messageContainer" style = "height:30px;">
+                    <center><a href="#" id="deSelectAllMsgDiv">{vtranslate('LBL_DESELECT_ALL_RECORDS',$MODULE)}</a></center>
                 </div>            
             </div>
             <div class="col-md-3">
