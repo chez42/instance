@@ -31,15 +31,18 @@ echo "<input type='hidden' value='".$projected_graph."' id='estimate_graph_value
 							<th>Payment Rate ($)</th>
 							<th>Quantity</th>
 							<?php
+							if(!empty($calendar)){
 								foreach($calendar as $month_detail){
 									echo '<th class="text-center">'.$month_detail['month_name'].'<br />'.$month_detail['year'].'</th>';
 								}
+							}
 							?>
 							<th>Year Total</th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php 
+						if(!empty($individual_projected)){
 							foreach($individual_projected as $account_number => $holder){
 								foreach($holder as $info){
 						?>
@@ -62,12 +65,14 @@ echo "<input type='hidden' value='".$projected_graph."' id='estimate_graph_value
 						<?php
 								}
 							}
+						}
 						?>
 					</tbody>
 					<tfoot>
 						<tr>
 							<td colspan="3">&nbsp;</td>
 							<?php 
+							if(!empty($calendar)){
 								foreach($calendar as $month_detail){
 									echo "<td class='text-right'>";
 									foreach($monthly_total as $month => $pd){
@@ -76,6 +81,7 @@ echo "<input type='hidden' value='".$projected_graph."' id='estimate_graph_value
 									}
 									echo '</td>';
 								}
+							}
 							?>
 							<td class="text-right">$<?php echo number_format($grand_total) ;?></td>
 						</tr>

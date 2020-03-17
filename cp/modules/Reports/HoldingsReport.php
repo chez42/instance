@@ -188,29 +188,32 @@
 									</tr>
 								</thead>
 								<tbody>
-									<?php foreach($secondary as $sk => $sv){ ?>
-										<tr class="secondary" data-toggle="collapse" id="detail-sec<?php echo $sk; ?>" data-target=".detail-sec<?php echo $sk; ?>">
-											<td colspan="5"><?php if(!empty($individual)){?><i class="fa fa-plus-circle font-blue font-lg"></i>&nbsp;<?php }?><?php echo $sv['securitytype']; ?></td>
-											<td><?php echo $sv['group_weight']; ?>%</td>
-											<td>$<?php echo number_format($sv['group_total'],2,".",","); ?></td>
-										</tr>
-										<?php 
-											foreach($individual as $ik => $iv){
-												if($sv['securitytype'] == $iv['securitytype']){
-										?>
-												<tr class="position holdings collapse detail-sec<?php echo $sk; ?>">
-													<td><?php echo $iv['security_symbol']; ?></td>
-													<td><?php echo $iv['description']; ?></td>
-													<td><?php echo $iv['account_number']; ?></td>
-													<td><?php echo number_format($iv['quantity'],2,".",","); ?></td>
-													<td>$<?php echo number_format($iv['last_price'],2,".",","); ?></td>
-													<td><?php echo number_format($iv['weight'],2,".",","); ?>%</td>
-													<td>$<?php echo number_format($iv['current_value'],2,".",","); ?></td>
-												</tr>
-									<?php
-												}
-											}
-										}
+									<?php 
+									if(!empty($secondary)){
+    									foreach($secondary as $sk => $sv){ ?>
+    										<tr class="secondary" data-toggle="collapse" id="detail-sec<?php echo $sk; ?>" data-target=".detail-sec<?php echo $sk; ?>">
+    											<td colspan="5"><?php if(!empty($individual)){?><i class="fa fa-plus-circle font-blue font-lg"></i>&nbsp;<?php }?><?php echo $sv['securitytype']; ?></td>
+    											<td><?php echo $sv['group_weight']; ?>%</td>
+    											<td>$<?php echo number_format($sv['group_total'],2,".",","); ?></td>
+    										</tr>
+    										<?php 
+    											foreach($individual as $ik => $iv){
+    												if($sv['securitytype'] == $iv['securitytype']){
+    										?>
+    												<tr class="position holdings collapse detail-sec<?php echo $sk; ?>">
+    													<td><?php echo $iv['security_symbol']; ?></td>
+    													<td><?php echo $iv['description']; ?></td>
+    													<td><?php echo $iv['account_number']; ?></td>
+    													<td><?php echo number_format($iv['quantity'],2,".",","); ?></td>
+    													<td>$<?php echo number_format($iv['last_price'],2,".",","); ?></td>
+    													<td><?php echo number_format($iv['weight'],2,".",","); ?>%</td>
+    													<td>$<?php echo number_format($iv['current_value'],2,".",","); ?></td>
+    												</tr>
+    									<?php
+    												}
+    											}
+    										}
+									}
 									?>
 								</tbody>
 							</table>

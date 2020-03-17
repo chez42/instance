@@ -74,6 +74,7 @@ echo "<input type='hidden' value='gh2report' id='report_type' />"
 					</thead>
 					<tbody>
 						<?php 
+						if(!empty($holdingspiearray)){
 							foreach($holdingspiearray as $pie_data){
 								echo "<tr>".
 									"<td>".$pie_data['title']."</td>".
@@ -81,6 +82,7 @@ echo "<input type='hidden' value='gh2report' id='report_type' />"
 									"<td>".number_format($pie_data['percentage'], 2)."%</td>".
 								"</tr>";
 							}
+						
 						?>
 						<tr>
 							<td>&nbsp;</td>
@@ -96,7 +98,8 @@ echo "<input type='hidden' value='gh2report' id='report_type' />"
 								<td>$<?php echo number_format($dividendAmount, 2); ?></td>
 								<td>&nbsp;</td>
 							</tr>
-						<?php endif; ?>
+						<?php endif; 
+						}?>
 					</tbody>
 				</table>
 			</div>
@@ -127,48 +130,50 @@ echo "<input type='hidden' value='gh2report' id='report_type' />"
 				</thead>
 				<tbody>
 					<?php 
-						foreach($ytd_individual_performance_summed as $account_number => $v){
-							echo "<tr>";
-							echo "<td>**".substr($account_number, 5).' ('.$ytd_individual_performance_summed[$account_number]['account_type'].')'."</td>";
-							echo "<td>".$ytd_individual_performance_summed[$account_number]['account_name']."</td>";
-							echo "<td>$".number_format($ytd_begin_values[$account_number]['value'],2)."</td>";
-							echo "<td>$".number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'], 2)."</td>";
-							echo "<td>$".number_format($ytd_individual_performance_summed[$account_number]['income_div_interest']['amount'], 2)."</td>";
-							echo "<td>$".number_format($ytd_end_values[$account_number]['value'], 2)."</td>";
-							echo "<td>$".number_format($ytd_appreciation[$account_number], 2)."</td>";
-							echo "<td>".number_format($ytd_twr[$account_number], 2)."%</td>";
-							echo "</tr>";
-						}
-					?>
-					<tr>
-						<td colspan="2"><b>Blended Portfolio Return</b></td>
-						<td><b>$<?php echo number_format($data['GetBeginningValuesSummed']['value'],2);?></b></td>
-						<td><b>$<?php echo number_format($ytd_performance_summed['Flow']['amount'],2);?></b></td>
-						<td><b>$<?php echo number_format($ytd_performance_summed['income_div_interest']['amount'],2);?></b></td>
-						<td><b>$<?php echo number_format($data['GetEndingValuesSummed']['value'],2);?></b></td>
-						<td><b>$<?php echo number_format($data['GetCapitalAppreciation'],2);?></b></td>
-						<td><b><?php echo number_format($data['GetTWR'],2);?>%</b></td>
-					</tr>
-					<tr>
-						<td colspan="7">S&amp;P 500</td>
-						<td><?php echo number_format($data['GetIndexSP'],2);?>%</td>
-					</tr>
-					<tr>
-						<td colspan="7">Barclays Aggregate Bond</td>
-						<td><?php echo number_format($data['GetIndexAGG'],2);?>%</td>
-					</tr>
-					<tr>
-						<td colspan="7">MSCI Emerging Market index</td>
-						<td><?php echo number_format($data['GetIndexEEM'],2);?>%</td>
-					</tr>
-					<tr>
-						<td colspan="7">MSCI EAFE index</td>
-						<td><?php echo number_format($data['GetIndexMSCI_EAFE'],2);?>%</td>
-					</tr>
-					<tr>
-						<td colspan="7"><b>Blended Benchmark Return</b></td>
-						<td><b><?php echo number_format($data['GetBenchmark'],2);?>%</b></td>
-					</tr>
+					if(!empty($ytd_individual_performance_summed)){
+    						foreach($ytd_individual_performance_summed as $account_number => $v){
+    							echo "<tr>";
+    							echo "<td>**".substr($account_number, 5).' ('.$ytd_individual_performance_summed[$account_number]['account_type'].')'."</td>";
+    							echo "<td>".$ytd_individual_performance_summed[$account_number]['account_name']."</td>";
+    							echo "<td>$".number_format($ytd_begin_values[$account_number]['value'],2)."</td>";
+    							echo "<td>$".number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'], 2)."</td>";
+    							echo "<td>$".number_format($ytd_individual_performance_summed[$account_number]['income_div_interest']['amount'], 2)."</td>";
+    							echo "<td>$".number_format($ytd_end_values[$account_number]['value'], 2)."</td>";
+    							echo "<td>$".number_format($ytd_appreciation[$account_number], 2)."</td>";
+    							echo "<td>".number_format($ytd_twr[$account_number], 2)."%</td>";
+    							echo "</tr>";
+    						}
+    					?>
+    					<tr>
+    						<td colspan="2"><b>Blended Portfolio Return</b></td>
+    						<td><b>$<?php echo number_format($data['GetBeginningValuesSummed']['value'],2);?></b></td>
+    						<td><b>$<?php echo number_format($ytd_performance_summed['Flow']['amount'],2);?></b></td>
+    						<td><b>$<?php echo number_format($ytd_performance_summed['income_div_interest']['amount'],2);?></b></td>
+    						<td><b>$<?php echo number_format($data['GetEndingValuesSummed']['value'],2);?></b></td>
+    						<td><b>$<?php echo number_format($data['GetCapitalAppreciation'],2);?></b></td>
+    						<td><b><?php echo number_format($data['GetTWR'],2);?>%</b></td>
+    					</tr>
+    					<tr>
+    						<td colspan="7">S&amp;P 500</td>
+    						<td><?php echo number_format($data['GetIndexSP'],2);?>%</td>
+    					</tr>
+    					<tr>
+    						<td colspan="7">Barclays Aggregate Bond</td>
+    						<td><?php echo number_format($data['GetIndexAGG'],2);?>%</td>
+    					</tr>
+    					<tr>
+    						<td colspan="7">MSCI Emerging Market index</td>
+    						<td><?php echo number_format($data['GetIndexEEM'],2);?>%</td>
+    					</tr>
+    					<tr>
+    						<td colspan="7">MSCI EAFE index</td>
+    						<td><?php echo number_format($data['GetIndexMSCI_EAFE'],2);?>%</td>
+    					</tr>
+    					<tr>
+    						<td colspan="7"><b>Blended Benchmark Return</b></td>
+    						<td><b><?php echo number_format($data['GetBenchmark'],2);?>%</b></td>
+    					</tr>
+					<?php }?>
 				</tbody>
 			</table>
 		</div>

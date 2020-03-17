@@ -102,6 +102,7 @@
                     top: 50%;
                     left: 50%;
                     margin-left: -50px;
+                    color: red;
                 }
            </style>
            
@@ -116,9 +117,12 @@
 				</div>
 				
 				<div class="kt-container  kt-container--fluid  kt-grid__item kt-grid__item--fluid">
+            		
+            		<?php if(!empty($avmod)){?>
             		<div class="gridstack grid-stack" data-gs-width="12" >
             		
             		<?php 
+            		
                         //$ACCOUNTS = json_encode($account_numbers);
                         
             		    $CONSOLIDATED = json_encode($balances);
@@ -442,10 +446,16 @@
                         		</div>
                         	</div>    
                     	<?php }
-                		}?>  
+                		}
+            		      ?>  
                 		</div>
                 	</div> 
 				</div>
+				<?php }else{?>
+        		    <div class="fullscreenDiv"> 
+    		    		<strong class="center">No Data Available!</strong>
+		    		</div>
+        		<?php }?>
 			</div>
 		</div>
 	

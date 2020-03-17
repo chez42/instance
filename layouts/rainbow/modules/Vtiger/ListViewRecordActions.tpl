@@ -15,13 +15,7 @@
         <input type="checkbox" value="{$LISTVIEW_ENTRY->getId()}" class="listViewEntriesCheckBox"/>
     </span>
     {/if}
-    {if $RECORD_ACTIONS}
-		{if $RECORD_ACTIONS['edit']}
-		<span class="edit icon action" title="{vtranslate('LBL_EDIT', $MODULE)}">
-		<a data-id="{$LISTVIEW_ENTRY->getId()}" href="{$LISTVIEW_ENTRY->getEditViewUrl()}&app={$SELECTED_MENU_CATEGORY}" data-url="{$LISTVIEW_ENTRY->getEditViewUrl()}&app={$SELECTED_MENU_CATEGORY}" name="editlink"> <i class="material-icons">create</i></a></span>
-		
-		{/if}
-	{/if}
+    
     {if $LISTVIEW_ENTRY->get('starred') eq 'Yes'}
         {assign var=STARRED value=true}
     {else}

@@ -289,6 +289,13 @@
 												{/if}
 											{/if}
 										</tr>
+										{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && $VIEW_SOURCE neq 'MASSEDIT'}
+											<tr>
+												<td colspan="{$NUM_OF_COL*2}">
+													{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE)}
+												</td>
+											</tr>
+										{/if}
 									</table>
 								</div>
 							{/if}

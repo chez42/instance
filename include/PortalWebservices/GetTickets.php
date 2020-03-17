@@ -58,6 +58,8 @@ function vtws_get_tickets($element, $user){
     
     $modifiedtime = $element['modifiedtime'];
     
+    $category = $element['category'];
+    
     if($startIndex == ''){
         $startIndex = 0;
     }
@@ -106,6 +108,11 @@ function vtws_get_tickets($element, $user){
         $sql .= " AND vtiger_crmentity.modifiedtime LIKE ?";
         $params[] = '%'.$modifiedtime.'%';
     }
+    if($category){
+        $sql .= " AND vtiger_troubletickets.category = ?";    
+        $params[] = $category;
+    }
+    
     $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC ";
     
     $result = $adb->pquery($sql, $params);
@@ -165,6 +172,11 @@ function vtws_get_tickets($element, $user){
         if($modifiedtime){
             $sql .= " AND vtiger_crmentity.modifiedtime LIKE ?";
             $params[] = '%'.$modifiedtime.'%';
+        }
+        
+        if($category){
+            $sql .= " AND vtiger_troubletickets.category = ?";
+            $params[] = $category;
         }
         
         $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC LIMIT {$startIndex},{$pageLimit}";

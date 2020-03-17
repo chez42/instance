@@ -50,6 +50,9 @@ if(isset($_SESSION['ID'])){
 	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
 	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
 	    }
+	    if(isset($_REQUEST['category']) && $_REQUEST['category'] != ''){
+	        $search['category'] = $_REQUEST['category'];
+	    }
 	   
 	    $ticket_list = fetchData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
 	    

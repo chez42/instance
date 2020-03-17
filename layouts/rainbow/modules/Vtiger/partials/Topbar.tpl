@@ -205,7 +205,10 @@
 								{assign var=APP_GROUPED_MENU value=Settings_MenuEditor_Module_Model::getAllVisibleModules()}
 							
 								{assign var=APP_LIST value=Vtiger_MenuStructure_Model::getAppMenuList()}
-							
+								
+								{assign var=APP_COUNT value=count($APP_LIST)}
+								
+								
 								{if $MODULE eq "Home"}
 									{assign var=SELECTED_MENU_CATEGORY value='Dashboard'}
 								{/if}
@@ -228,7 +231,7 @@
 											
 										{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
 										
-										<li class="with-childs {if $SELECTED_MENU_CATEGORY eq $APP_NAME}active{/if}"> 
+										<li class="with-childs {if $SELECTED_MENU_CATEGORY eq $APP_NAME}active{/if}" style="width:{100/$APP_COUNT}% !important;"> 
 											<a class="has-arrow waves-effect waves-dark " >
 												<i class="app-icon-list fa {$APP_IMAGE_MAP.$APP_NAME}" ></i>
 												<span class="hide-menu">{vtranslate("$APP_NAME")}</span>

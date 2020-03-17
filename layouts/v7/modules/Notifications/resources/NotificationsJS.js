@@ -12,7 +12,7 @@ Vtiger.Class("NotificationsJS", {}, {
         var thisInstance = this;
         var headerLinksBig = jQuery('#menubar_quickCreate').closest('li');
         var headerIcon = '<li>' +
-            '<div style="margin:15px;" class="">' +
+            '<div style="margin:15px;" class="notifications">' +
             '<span class="notification_bell module-buttons btn dropdown-toggle" data-toggle="dropdown" aria-hidden="true" title="Notifications" style="border:0px!important;background:none!important;">' +
             '<i></i></span>' +
             '<input type="hidden" name="notification_count" value="">' +
@@ -24,9 +24,28 @@ Vtiger.Class("NotificationsJS", {}, {
         var notificationContainer = jQuery('#headerNotification');
         var notificationList = jQuery('#notificationsBody');
         var notificationCounter = notificationContainer.find('.notification_count');
+        
+    	thisInstance.registerForGetNotifications();
+        
+       
+        notificationList.on('click', '.notification_link .notification_full_name', function (event) {
+            var currentTarget = jQuery(event.currentTarget);
+            $.when( clickToOk(this) ).done(function() {
+	            var notificationLink = currentTarget.closest('.notification_link');
+	            window.location.href = notificationLink.data('href');
+            })
+        });
 
+    },
+    
+    registerForGetNotifications : function(){
+    	
+    	var notificationContainer = jQuery('#headerNotification');
+        var notificationList = jQuery('#notificationsBody');
+        var notificationCounter = notificationContainer.find('.notification_count');
+       
         var params = {
-            'module': 'Notifications',
+    		'module': 'Notifications',
             'action': 'ActionAjax',
             'mode': 'getNotifications'
         };
@@ -34,7 +53,7 @@ Vtiger.Class("NotificationsJS", {}, {
     		function(err, response) {
                 if (!err) {
                 	
-                    notificationList.empty();
+                    //notificationList.empty();
 
                     var count = response.count;
                     
@@ -51,49 +70,41 @@ Vtiger.Class("NotificationsJS", {}, {
                     var listItem = '';
                     var itemLength = items.length;
                     var limitDivide = itemLength - 2;
-
+                    
                     for (var i = 0; i < itemLength; i++) {
                         item = items[i];
 
                         var divider = '';
-                        if (i >= 0 && i <= limitDivide) {
+                        if (i > 0 ) {
                             divider = '<div class="divider">&nbsp;</div>';
                         }
-
-                        listItem =
-                            '<li>' +
-                            '   <a class="notification_link" href="javascript:;" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
-                            '       <div class="notification-container">' +
-                            '           <i class="fa fa-check" onclick="return clickToOk(this);" title="Acknowledge"> </i>' +
-                            '           <div class="notification_detail">' +
-                            '               <span class="notification_full_name" title="' + item['full_name'] + '">' + item['full_name'] + '&nbsp;</span>' +
-                            '               <span class="notification_description" title="' + item['description'] + '">' + item['description'] + '&nbsp;</span>' +
-                            '               <span class="notification_createdtime" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
-                            '           </div>' +
-                            '           <div class="clearfix"></div>' +
-                            '       </div>' +
-                            '   </a>' +
-                            divider +
-                            '</li>';
-                        jQuery('#notificationsBody').append(listItem);
+                        if(!$('[data-notify-id="'+ item['id']+'"]').length){
+	                        listItem =
+	                            '<li data-notify-id="'+ item['id'] +'">' +
+	                            '   <a class="notification_link" href="javascript:;" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
+	                            '       <div class="notification-container">' +
+	                            '           <i class="fa fa-check" onclick="return clickToOk(this);" title="Acknowledge"> </i>' +
+	                            '           <div class="notification_detail">' +
+	                            '               <span class="notification_full_name" title="' + item['full_name'] + '">' + item['full_name'] + '&nbsp;</span>' +
+	                            '               <span class="notification_description" title="' + item['description'] + '">' + item['description'] + '&nbsp;</span>' +
+	                            '               <span class="notification_createdtime pull-right" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
+	                            '           </div>' +
+	//    	                            '           <div class="clearfix"></div>' +
+	                            '       </div>' +
+	                            '   </a>' +
+	                            divider +
+	                            '</li>';
+	                        jQuery('#notificationsBody').prepend(listItem);
+                        }
                     }
                 }else{
                 	app.helper.showErrorNotification({title: 'Error', message: err.message});
                 }
             }
         );
-
-      
-        notificationList.on('click', '.notification_link .notification_full_name', function (event) {
-            var currentTarget = jQuery(event.currentTarget);
-            $.when( clickToOk(this) ).done(function() {
-	            var notificationLink = currentTarget.closest('.notification_link');
-	            window.location.href = notificationLink.data('href');
-            })
-        });
-
     },
-     
+    
+    
     updateTotalCounter: function (notificationLink) {
         notificationLink.closest('li').addClass('hide');
 
@@ -110,18 +121,20 @@ Vtiger.Class("NotificationsJS", {}, {
     },
 
     registerEvents: function () {
+    	
         var thisInstance = this;
         thisInstance.addHeaderIcon();
+       
     }
 });
 
 jQuery(document).ready(function() {
 	
     setTimeout(function () {
-    	
-    	var instance = new NotificationsJS();
-        instance.registerEvents();
-        
+    	//setInterval(function(){
+	    	var instance = new NotificationsJS();
+	        instance.registerEvents();
+    	//}, 5000);
     }, 1000);
     
 });

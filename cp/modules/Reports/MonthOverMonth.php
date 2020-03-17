@@ -39,7 +39,9 @@ $MOM_TABLE = $data['MOM_TABLE'];
 				</tr>
 				</thead>
 				<tbody>
-					<?php foreach ($YEARS as $k=>$v){?>
+					<?php 
+					if(!empty($YEARS)){
+					foreach ($YEARS as $k=>$v){?>
 						<tr>
 							<td style="font-weight:bold; border-top:2px solid black;">DOW</td>
 							<?php for($x=1;$x<=12;$x++){?>
@@ -54,19 +56,21 @@ $MOM_TABLE = $data['MOM_TABLE'];
 							<td style="font-weight:bold"><?php echo $v ?></td>
 							<?php for($x=1;$x<=12;$x++){
 								$SET_TD = 0;
-								foreach ($MOM_TABLE as $mk =>$mv){
-									if ($mv['year'] == $v && $mv['month'] == $x){
-										$SET_TD = 1;?>
-										<td style="text-align:right;">$<?php echo number_format($mv['monthovermonth']) ?></td>
-								<?php }
-							}
+								if(!empty($MOM_TABLE)){
+    								foreach ($MOM_TABLE as $mk =>$mv){
+    									if ($mv['year'] == $v && $mv['month'] == $x){
+    										$SET_TD = 1;?>
+    										<td style="text-align:right;">$<?php echo number_format($mv['monthovermonth']) ?></td>
+    								<?php }
+    							     }
+								}
 							if ($SET_TD == 0){?>
 										<td style="text-align:center;">-</td>
 						  <?php     }
 								$SET_TD = 0;
 							 }?>
 						</tr>
-					<?php }?>
+					<?php } }?>
 				</tbody>
 			</table>
 		</div>

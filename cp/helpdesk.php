@@ -12,6 +12,9 @@ include_once "includes/aside.php";
 
 include_once 'includes/top-header.php';
 
+$category = $_REQUEST['category'];
+$status = $_REQUEST['status'];
+
 ?>
 		
 		<div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">
@@ -158,6 +161,15 @@ include_once 'includes/top-header.php';
 	
 	<script type="text/javascript">
 	  var srchVal;
+	  var searchRequest = '';
+	  var selectedStatus = '';
+      <?php if($category){?>
+	  	var searchRequest = "category=<?php echo $category; ?>";
+	  <?php }?>
+      <?php if($status){?>
+      	var searchRequest = "status=<?php echo $status?>";
+      	var selectedStatus = "<?php echo $status?>";
+	  <?php }?>
       var table = jQuery('#tickets_list').DataTable({
 		 	bSort: false,
     		responsive: false,
@@ -170,9 +182,9 @@ include_once 'includes/top-header.php';
     		},
     		
     		ajax: {
-    			url: 'FetchData.php',
+    			url: 'FetchData.php?'+searchRequest,
     			data: function ( d ) {
-        			console.log(srchVal)
+        			
         			if(typeof srchVal == 'undefined'){
         				return $.extend( {}, d, {
         					"module" : 'Tickets',	
@@ -204,10 +216,23 @@ include_once 'includes/top-header.php';
 	        	$(this).html( html );
 	        }else if(title == 'Status'){
 				var html = '<select class="search_filter form-control" name="'+name+'"><option value="">Select Status</option>';
-				html += '<option value="----------">----------</option><option value="Acknw">Acknw</option>'+
-					'<option value="Open">Open</option><option value="In Progress">In Progress</option>'+
-					'<option value="Hold">Hold</option><option value="Wait For Response">Wait For Response</option>'+
-					'<option value="Closed">Closed</option><option value="NIGO">NIGO</option>'+
+				html += '<option value="----------"';
+				if(selectedStatus == '----------'){html += 'selected';}
+				html +='>----------</option><option value="Acknw"';
+				if(selectedStatus == 'Acknw'){html += 'selected';}
+				html +='>Acknw</option><option value="Open"';
+				if(selectedStatus == 'Open'){html += 'selected';}
+				html +='>Open</option><option value="In Progress"';
+				if(selectedStatus == 'In Progress'){html += 'selected';}
+				html += '>In Progress</option><option value="Hold"';
+				if(selectedStatus == 'Hold'){html += 'selected';}
+				html+='>Hold</option><option value="Wait For Response"';
+				if(selectedStatus == 'Wait For Response'){html += 'selected';}
+				html+='>Wait For Response</option><option value="Closed"';
+				if(selectedStatus == 'Closed'){html += 'selected';}
+				html +='>Closed</option><option value="NIGO"';
+				if(selectedStatus == 'NIGO'){html += 'selected';}
+				html+='>NIGO</option>'+
 					'</select>';
 	        	$(this).html( html );
 	        }else if (title == 'Due Date' || title == 'Last Modified'){

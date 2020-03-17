@@ -247,6 +247,13 @@
     	        }
     	        
     	    });
+			<?php if($_SESSION['topbar']){?>
+    	    	$('.kt-header__topbar-wrapper').trigger('click');
+    	    	setTimeout(function() {
+    	    		$('.kt-header__topbar-wrapper').trigger('click');
+    	    		<?php unset($_SESSION['topbar']);?>
+    	    	}, 5000);
+			<?php }?>
     	    
     	});
     </script>
