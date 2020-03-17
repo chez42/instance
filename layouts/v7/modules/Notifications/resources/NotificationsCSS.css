@@ -73,13 +73,13 @@
 	padding: 8px;
 	font-size: 13px;
 	background-color: #ffffff;
-	position: fixed;
+	/*position: fixed;*/
 	z-index: 1000;
 	width: 384px;
 	border-bottom: 1px solid #dddddd;
 }
 #notificationsBody{
-	padding: 33px 5px 0px 8px !important;
+	padding: 0px 5px 0px 8px !important;
 	max-height:300px;
 }
 #notificationFooter{
@@ -101,7 +101,7 @@
     content: '';
 }
 .notification_detail span {
-    display: block;
+    /*display: block;*/
     margin: 2px 0;
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -114,6 +114,7 @@
     white-space: nowrap !important;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: block;
 }
 
 .notification_description {
@@ -131,6 +132,9 @@ a.notification_link:hover {
 
 .notification-container {
     position: relative;
+    margin-top : -20px !important;
+    margin-bottom : -20px !important;
+    /*margin: -10px 0px -10px 0px;*/
 }
 
 .notification-container .fa {

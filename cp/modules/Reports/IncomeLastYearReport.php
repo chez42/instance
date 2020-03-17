@@ -32,15 +32,18 @@
 							<th>Symbol</th>
 							<th>Name</th>
 							<?php
-								foreach($monthly_totals as $month_detail){
-									echo '<th class="text-center">'.$month_detail['month'].'<br />'.$month_detail['year'].'</th>';
-								}
+    							if(!empty($monthly_totals)){
+    								foreach($monthly_totals as $month_detail){
+    									echo '<th class="text-center">'.$month_detail['month'].'<br />'.$month_detail['year'].'</th>';
+    								}
+    							}
 							?>
 							<th class="text-center">Total</th>
 						</tr>
 					</thead>
 					<tbody>
 						<?php 
+						if(!empty($combined_symbols)){
 							foreach($combined_symbols as $symbol => $symbol_values){
 								echo "<tr><td>$symbol</td>
                                 <td style='width:10%;'>".$symbol_values[0]['security_name']."</td>";
@@ -59,6 +62,7 @@
 								}
 								echo "<td class='text-right'>$".number_format($year_end_totals[$symbol])."</td></tr>";
 							}
+						}
 						?>
 					</tbody>
 					<tfoot>
@@ -66,9 +70,11 @@
 							<td>&nbsp;</td>
 							<td>&nbsp;</td>
 							<?php 
+							if(!empty($monthly_totals)){
 								foreach($monthly_totals as $mnth_info){
 									echo "<td class='text-right'>$".number_format($mnth_info['monthly_total'])."</td>";
 								}
+							}
 							?>
 							<td class="text-right">$<?php echo number_format($data['grand_total']) ;?></td>
 						</tr>

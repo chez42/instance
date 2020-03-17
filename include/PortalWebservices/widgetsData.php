@@ -127,6 +127,7 @@ function getTicketData($contactId){
             if( $statusValue != '----------'){
                 $tmp['title'] = $statusValue;
                 $tmp['value'] = $statusResult[$statusValue] ? $statusResult[$statusValue]:0;
+                $tmp['url'] = 'helpdesk.php?status='.$statusValue;
                 $statusData[] = $tmp;
             }
         }
@@ -187,6 +188,7 @@ function getTicketData($contactId){
             if($catResult[$catValue] > 0){
                 $tmp['title'] = $catValue;
                 $tmp['value'] = $catResult[$catValue] ? $catResult[$catValue]:0;
+                $tmp['url'] = 'helpdesk.php?category='.$catValue;
                 $catData[] = $tmp;
             }
         }

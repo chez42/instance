@@ -12,7 +12,7 @@ class Notifications_Record_Model extends Vtiger_Record_Model
     public static function getNotificationsByUser($userId)
     {
         $db = PearDatabase::getInstance();
-        $sortBy = "DESC";
+        $sortBy = "ASC";
         
         $instances = array();
         $query = "SELECT * FROM vtiger_notifications AS notifications

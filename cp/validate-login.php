@@ -46,6 +46,8 @@ if(!empty($_REQUEST)) {
         $_SESSION['portal_logo'] = $data['portal_logo'];
         $_SESSION['portal_profile_image'] = $data['portal_profile_image'];
         
+        $_SESSION['topbar'] = true;
+        
         if($data["owner_name"]){
             
             if($data['owner_name'])

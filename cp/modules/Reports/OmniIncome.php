@@ -33,14 +33,17 @@ echo "<input type='hidden' value='".$DYNAMIC_GRAPH."' id='estimate_graph_values'
 					<tr>
 						<th style="font-weight:bold;">Symbol</th>
 						<th style="font-weight:bold;">Name</th>
-						<?php foreach($MONTHLY_TOTALS as $v){   ?>
+						<?php if(!empty($MONTHLY_TOTALS)){
+						    foreach($MONTHLY_TOTALS as $v){   ?>
 							<th style="font-weight:600; text-align:center;"><?php echo $v['month'];?><br /><?php echo $v['year'];?></th>
-						<?php }?>
+						<?php }}?>
 						<th style="font-weight:bold; text-align:center;">Total</th>
 					</tr>
 					<thead>
 					<tbody>
-					<?php foreach($COMBINED_SYMBOLS as $symbol=>$symbol_values){ ?>
+					<?php 
+					if(!empty($COMBINED_SYMBOLS)){
+					   foreach($COMBINED_SYMBOLS as $symbol=>$symbol_values){ ?>
 						<tr>
 							<td style="width:10%;"><?php echo $symbol;?></td>
 							<td style="width:10%;"><?php echo $symbol_values[0]['security_name'];?></td>
@@ -60,12 +63,16 @@ echo "<input type='hidden' value='".$DYNAMIC_GRAPH."' id='estimate_graph_values'
 								<?php }?>
 							<td style="text-align:right;">$<?php echo number_format($YEAR_END_TOTALS[$symbol],0,".",",");?></td>
 						</tr>
-					<?php }?>
+					<?php }
+					}?>
 					<tr>
 						<td colspan="2">&nbsp;</td>
-					<?php foreach($MONTHLY_TOTALS as $v){?>
+					<?php
+					if(!empty($MONTHLY_TOTALS)){
+					foreach($MONTHLY_TOTALS as $v){?>
 						<td style="font-weight:bold; text-align:right;">$<?php echo number_format($v['monthly_total'],0,".",",");?></td>
-					<?php }?>
+					<?php }
+					}?>
 						<td style="font-weight:bold; text-align:right;">$<?php echo number_format($GRAND_TOTAL,0,".",",");?></td>
 					</tr>
 					</tbody>

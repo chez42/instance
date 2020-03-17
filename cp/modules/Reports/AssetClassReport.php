@@ -55,70 +55,76 @@ echo "<input type='hidden' value='assetclassreport' id='report_type' />"
 		<table class="table table-bordered DynaTable table-collapse">
 			<thead>
 			<tr>
-				<?php foreach($DYNAHEADINGS as $k=>$heading){?>
+				<?php if(!empty($DYNAHEADINGS)){
+				    foreach($DYNAHEADINGS as $k=>$heading){?>
 					<th style="<?php echo isset($heading['heading_td_style']) ?  $heading['heading_td_style'] :  '';?>"><span style="<?php echo isset($heading['heading_span_style']) ? str_replace("bold", 600, $heading['heading_span_style']) : '';?>"><?php echo isset($heading['heading']) ? $heading['heading'] : '';?></span></th>
-				<?php }?>
+				<?php }
+				}?>
 			</tr>
 			</thead>
 			<tbody>
 			<?php $CatCount ='0';
-			foreach($DYNACATEGORIES as $CatArray){
-			    $count = 1;
-				foreach($CatArray as $k=>$cat){
-					if($k != 'category_id' && $k != 'totals'){
-						$CatCount = $CatCount+1;
-						if($cat != ''){?>
-							<tr data-toggle="collapse" id="asset_cat_<?php echo $CatCount;?>" data-target=".asset_cat_<?php echo $CatCount;?>">
-								<td><i class="fa fa-plus-circle" style="color:#3598dc!important;"></i>&nbsp;<strong><?php echo $cat;?></strong></td>
-								<?php foreach($DYNAHEADINGS as $a=>$heading){
-									if($a != 'heading'){?>
-										<td style="<?php echo $DYNARULES[$a]['cat_td_style'];?>">
-											<?php if($CatArray['totals'][$a] != ''){?>
-												<span style="<?php echo $DYNARULES[$a]['cat_span_style'];?>"><?php echo $DYNARULES[$a]['cat_prefix'].number_format($CatArray['totals'][$a].$DYNARULES[$a]['cat_suffix'],2);?></span>
-											<?php }?>
-										</td>
-								<?php }
-								}?>
-							</tr>
-						<?php }
-						foreach($DYNAROWS as $r){
-							foreach($r as $index=>$row){
-							    
-								if($index == 'fields' && $r['category_id'] == $CatArray['category_id'] && $count == count($CatArray)-2){?>
-									<tr class="holdings collapse asset_cat_<?php echo $CatCount;?>">
-										<?php foreach($row as $k => $v){
-										      if($v && ($k == 'quantity' || $k == 'price' || $k == 'market_value'))
-										          $v = is_numeric($v) ? number_format($v, 2) : 0;
-										    ?>
-											
-											<td style="<?php echo $DYNARULES[$k]['value_td_style'];?>">
-												<span style="<?php echo $DYNARULES[$k]['value_span_style'];echo $k;?>"><?php echo $DYNARULES[$k]['prefix'].$v.$DYNARULES[$k]['suffix'];?></span>
-											</td>
-										<?php }?>
-									</tr>
-							<?php }
-							}
-						}
-					}
-				}
-				$count++;
+			if(!empty($DYNACATEGORIES)){
+    			foreach($DYNACATEGORIES as $CatArray){
+    			    $count = 1;
+    				foreach($CatArray as $k=>$cat){
+    					if($k != 'category_id' && $k != 'totals'){
+    						$CatCount = $CatCount+1;
+    						if($cat != ''){?>
+    							<tr data-toggle="collapse" id="asset_cat_<?php echo $CatCount;?>" data-target=".asset_cat_<?php echo $CatCount;?>">
+    								<td><i class="fa fa-plus-circle" style="color:#3598dc!important;"></i>&nbsp;<strong><?php echo $cat;?></strong></td>
+    								<?php foreach($DYNAHEADINGS as $a=>$heading){
+    									if($a != 'heading'){?>
+    										<td style="<?php echo $DYNARULES[$a]['cat_td_style'];?>">
+    											<?php if($CatArray['totals'][$a] != ''){?>
+    												<span style="<?php echo $DYNARULES[$a]['cat_span_style'];?>"><?php echo $DYNARULES[$a]['cat_prefix'].number_format($CatArray['totals'][$a].$DYNARULES[$a]['cat_suffix'],2);?></span>
+    											<?php }?>
+    										</td>
+    								<?php }
+    								}?>
+    							</tr>
+    						<?php }
+    						foreach($DYNAROWS as $r){
+    							foreach($r as $index=>$row){
+    							    
+    								if($index == 'fields' && $r['category_id'] == $CatArray['category_id'] && $count == count($CatArray)-2){?>
+    									<tr class="holdings collapse asset_cat_<?php echo $CatCount;?>">
+    										<?php foreach($row as $k => $v){
+    										      if($v && ($k == 'quantity' || $k == 'price' || $k == 'market_value'))
+    										          $v = is_numeric($v) ? number_format($v, 2) : 0;
+    										    ?>
+    											
+    											<td style="<?php echo $DYNARULES[$k]['value_td_style'];?>">
+    												<span style="<?php echo $DYNARULES[$k]['value_span_style'];echo $k;?>"><?php echo $DYNARULES[$k]['prefix'].$v.$DYNARULES[$k]['suffix'];?></span>
+    											</td>
+    										<?php }?>
+    									</tr>
+    							<?php }
+    							}
+    						}
+    					}
+    				}
+    				$count++;
+    			}
 			}?>
 			<tr>
-				<?php foreach($DYNAHEADINGS as $a=>$heading){
-					$VALSET=0;
-					foreach($DYNATOTALS as $k=>$v){
-						if($a == $k){?>
-							<td style="<?php echo $DYNARULES[$k]['total_td_style'];?>;">
-								<?php if($DYNARULES[$k]['hide_from_total'] != 1){?>
-									<span style="<?php echo $DYNARULES[$k]['total_span_style'];?>;"><?php echo $DYNARULES[$k]['total_prefix'].number_format($v.$DYNARULES[$k]['total_suffix'],2);?></span>
-								<?php }?>
-							</td>
-					   <?php $VALSET=1;
-						}
-					}
-					if($VALSET == 0){?>
-						<td style="border-top:1px dotted black;">&nbsp;</td>
-				<?php }
+				<?php if(!empty($DYNAHEADINGS)){
+    				foreach($DYNAHEADINGS as $a=>$heading){
+    					$VALSET=0;
+    					foreach($DYNATOTALS as $k=>$v){
+    						if($a == $k){?>
+    							<td style="<?php echo $DYNARULES[$k]['total_td_style'];?>;">
+    								<?php if($DYNARULES[$k]['hide_from_total'] != 1){?>
+    									<span style="<?php echo $DYNARULES[$k]['total_span_style'];?>;"><?php echo $DYNARULES[$k]['total_prefix'].number_format($v.$DYNARULES[$k]['total_suffix'],2);?></span>
+    								<?php }?>
+    							</td>
+    					   <?php $VALSET=1;
+    						}
+    					}
+    					if($VALSET == 0){?>
+    						<td style="border-top:1px dotted black;">&nbsp;</td>
+    				<?php }
+    				}
 				}?>
 			</tr>
 			</tbody>

@@ -80,6 +80,7 @@ $individual_summary = $data['individual_summary'];
 						<td><strong>$<?php echo number_format($t12Performance['performance_summed']['Flow']['amount'], 2, ".",","); ?></strong></td>
 					</tr>
 					<?php	
+					if(!empty($tablecategories)){
 						foreach($tablecategories as $cat_index => $table_category){
 							if($cat_index == 'Flow'){
 								foreach($table_category as $value){
@@ -95,6 +96,7 @@ $individual_summary = $data['individual_summary'];
 								}
 							}
 						}
+					}
 					?>
 					
 					<tr data-toggle="collapse" id="detail-row-income" data-target=".detail-row-income">
@@ -104,6 +106,7 @@ $individual_summary = $data['individual_summary'];
 						<td><strong>$<?php echo number_format($t12Performance['performance_summed']['Income']['amount'], 2, ".",","); ?></strong></td>
 					</tr>
 					<?php	
+					if(!empty($tablecategories)){
 						foreach($tablecategories as $cat_index => $table_category){
 							if($cat_index == 'Income'){
 								foreach($table_category as $value){
@@ -119,6 +122,7 @@ $individual_summary = $data['individual_summary'];
 								}
 							}
 						}
+					}
 					?>
 					
 					<tr data-toggle="collapse" id="detail-row-expense" data-target=".detail-row-expense">
@@ -128,6 +132,7 @@ $individual_summary = $data['individual_summary'];
 						<td><strong>$<?php echo number_format($t12Performance['performance_summed']['Expense']['amount'], 2, ".",","); ?></strong></td>
 					</tr>
 					<?php	
+					if(!empty($tablecategories)){
 						foreach($tablecategories as $cat_index => $table_category){
 							if($cat_index == 'Expense'){
 								foreach($table_category as $value){
@@ -143,6 +148,7 @@ $individual_summary = $data['individual_summary'];
 								}
 							}
 						}
+					}
 					?>
 					
 					<tr>
@@ -203,20 +209,22 @@ $individual_summary = $data['individual_summary'];
 					</tr>
 					<?php
 						$t3_individual_performance_summed = $individual_summary['t3']['individual_performance_summed'];
-						foreach($t3_individual_performance_summed as $account_number => $val){
-					?>
-							<tr>
-								<td>&nbsp;</td>
-								<td><?php echo $account_number; ?></td>
-								<td>$<?php echo number_format($individual_summary['t3']['begin_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t3']['end_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t3']['appreciation'][$account_number], 2); ?></td>
-								<td><?php echo number_format($individual_summary['t3']['twr'][$account_number], 2); ?>%</td>
-							</tr>
-					<?php											
+						if(!empty($t3_individual_performance_summed)){
+    						foreach($t3_individual_performance_summed as $account_number => $val){
+    					?>
+    							<tr>
+    								<td>&nbsp;</td>
+    								<td><?php echo $account_number; ?></td>
+    								<td>$<?php echo number_format($individual_summary['t3']['begin_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t3_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t3']['end_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t3']['appreciation'][$account_number], 2); ?></td>
+    								<td><?php echo number_format($individual_summary['t3']['twr'][$account_number], 2); ?>%</td>
+    							</tr>
+    					<?php											
+    						}
 						}
 					?>
 					<tr>
@@ -224,20 +232,22 @@ $individual_summary = $data['individual_summary'];
 					</tr>
 					<?php
 						$t6_individual_performance_summed = $individual_summary['t6']['individual_performance_summed'];
-						foreach($t6_individual_performance_summed as $account_number => $val){
-					?>
-							<tr>
-								<td>&nbsp;</td>
-								<td><?php echo $account_number; ?></td>
-								<td>$<?php echo number_format($individual_summary['t6']['begin_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t6']['end_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t6']['appreciation'][$account_number], 2); ?></td>
-								<td><?php echo number_format($individual_summary['t6']['twr'][$account_number], 2); ?>%</td>
-							</tr>
-					<?php											
+						if(!empty($t6_individual_performance_summed)){
+    						foreach($t6_individual_performance_summed as $account_number => $val){
+    					?>
+    							<tr>
+    								<td>&nbsp;</td>
+    								<td><?php echo $account_number; ?></td>
+    								<td>$<?php echo number_format($individual_summary['t6']['begin_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t6_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t6']['end_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t6']['appreciation'][$account_number], 2); ?></td>
+    								<td><?php echo number_format($individual_summary['t6']['twr'][$account_number], 2); ?>%</td>
+    							</tr>
+    					<?php											
+    						}
 						}
 					?>
 					<tr>
@@ -245,20 +255,22 @@ $individual_summary = $data['individual_summary'];
 					</tr>
 					<?php
 						$t12_individual_performance_summed = $individual_summary['t12']['individual_performance_summed'];
-						foreach($t12_individual_performance_summed as $account_number => $val){
-					?>
-							<tr>
-								<td>&nbsp;</td>
-								<td><?php echo $account_number; ?></td>
-								<td>$<?php echo number_format($individual_summary['t12']['begin_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
-								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t12']['end_values'][$account_number]['value'], 2); ?></td>
-								<td>$<?php echo number_format($individual_summary['t12']['appreciation'][$account_number], 2); ?></td>
-								<td><?php echo number_format($individual_summary['t12']['twr'][$account_number], 2); ?>%</td>
-							</tr>
-					<?php											
+						if(!empty($t12_individual_performance_summed)){
+    						foreach($t12_individual_performance_summed as $account_number => $val){
+    					?>
+    							<tr>
+    								<td>&nbsp;</td>
+    								<td><?php echo $account_number; ?></td>
+    								<td>$<?php echo number_format($individual_summary['t12']['begin_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Flow']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Income']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($t12_individual_performance_summed[$account_number]['Expense']['amount'],2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t12']['end_values'][$account_number]['value'], 2); ?></td>
+    								<td>$<?php echo number_format($individual_summary['t12']['appreciation'][$account_number], 2); ?></td>
+    								<td><?php echo number_format($individual_summary['t12']['twr'][$account_number], 2); ?>%</td>
+    							</tr>
+    					<?php											
+    						}
 						}
 					?>
 				</tbody>

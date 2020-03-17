@@ -52,17 +52,21 @@
 									<th rowspan="2">Symbol</th>
 									<th rowspan="2"><span>Description</span></th>
 									<?php 
+									if(!empty($display_months)){
 										foreach($display_months as $month){
 											echo '<th>'.$month."</th>";
 										}
+									}
 									?>
 									<th rowspan="2">Total</th>
 								</tr>
 								<tr>
 									<?php 
+									if(!empty($display_months)){
 										foreach($display_months as $month){
 											echo '<td><span>'.$display_years_current[$month].'</span></td>';
 										}
+									}
 									?>
 								</tr>	
 							</thead>
@@ -119,9 +123,12 @@
 								
 								<tr>
 									<td colspan="2">&nbsp;</td>
-									<?php foreach($display_months as $month){ ?>
+									<?php 
+									if(!empty($display_months)){
+									foreach($display_months as $month){ ?>
 										<td class="text-right"><strong>$<?php echo number_format($previous_monthly_totals[$month]['monthly_total']); ?></strong></td>
-									<?php }?>
+									<?php }
+									}?>
 									<td><strong>$<?php echo number_format($previous_monthly_totals['grand_total']); ?></strong></td>
 								</tr>
 							</tbody>

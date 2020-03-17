@@ -94,46 +94,49 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 							</tr>
 							</thead>
 							<tbody>
-							<?php foreach($holdingspiearray as $v){?>
-								<tr>
-									<td style="font-weight:bold; width:50%; padding-bottom:10px;"><?php echo $v['title'];?></td>
-									<td style="text-align:right; width:25%;">$<?php echo number_format($v['value'],2,".",",");?></td>
-									<td style="text-align:right; width:25%;"><?php echo number_format($v['percentage'],2,".",",");?>%</td>
-								</tr>
-							<?php }?>
-							<tr>
-								<td>&nbsp;</td>
-								<td style="text-align:right;" class="borderTop borderBottom">$<?php echo number_format($data['globaltotal'],2,".",",");?></td>
-								<td>&nbsp;</td>
-							</tr>
-							<?php if($MARGIN_BALANCE != 0){?>
-								<tr>
-									<td colspan="3">
-										<p>Margin Balance: <span style="<?php if($MARGIN_BALANCE < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($MARGIN_BALANCE,2);?></span></p>
-									</td>
-								</tr>
-							<?php }
-							if($NET_CREDIT_DEBIT != 0){?>
-								<tr>
-									<td colspan="3">
-										<p>Net Credit Debit: <span style="<?php if($NET_CREDIT_DEBIT < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($NET_CREDIT_DEBIT,2);?></span></p>
-									</td>
-								</tr>
-						   <?php }
-						   if($UNSETTLED_CASH != 0){?>
-								<tr>
-									<td colspan="3">
-										<p>Unsettled Cash: <span style="<?php if($UNSETTLED_CASH < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($UNSETTLED_CASH,2);?></span></p>
-									</td>
-								</tr>
-							<?php }
-							if($data['GetDividendAccrualAmount'] != 0){?>
-								<tr>
-									<td style="padding-top:10px; font-weight:bold;">Dividend Accrual:</td>
-									<td style="text-align:right; padding-top:10px;">$<?php echo number_format($data['GetDividendAccrualAmount'],2,".",",");?></td>
-									<td>&nbsp;</td>
-								</tr>
-							<?php }?>
+							<?php 
+							if(!empty($holdingspiearray)){
+    							foreach($holdingspiearray as $v){?>
+    								<tr>
+    									<td style="font-weight:bold; width:50%; padding-bottom:10px;"><?php echo $v['title'];?></td>
+    									<td style="text-align:right; width:25%;">$<?php echo number_format($v['value'],2,".",",");?></td>
+    									<td style="text-align:right; width:25%;"><?php echo number_format($v['percentage'],2,".",",");?>%</td>
+    								</tr>
+    							<?php }?>
+    							<tr>
+    								<td>&nbsp;</td>
+    								<td style="text-align:right;" class="borderTop borderBottom">$<?php echo number_format($data['globaltotal'],2,".",",");?></td>
+    								<td>&nbsp;</td>
+    							</tr>
+    							<?php if($MARGIN_BALANCE != 0){?>
+    								<tr>
+    									<td colspan="3">
+    										<p>Margin Balance: <span style="<?php if($MARGIN_BALANCE < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($MARGIN_BALANCE,2);?></span></p>
+    									</td>
+    								</tr>
+    							<?php }
+    							if($NET_CREDIT_DEBIT != 0){?>
+    								<tr>
+    									<td colspan="3">
+    										<p>Net Credit Debit: <span style="<?php if($NET_CREDIT_DEBIT < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($NET_CREDIT_DEBIT,2);?></span></p>
+    									</td>
+    								</tr>
+    						   <?php }
+    						   if($UNSETTLED_CASH != 0){?>
+    								<tr>
+    									<td colspan="3">
+    										<p>Unsettled Cash: <span style="<?php if($UNSETTLED_CASH < 0){?>color:red;<?php }else{?>color:green;<?php }?>">$<?php echo number_format($UNSETTLED_CASH,2);?></span></p>
+    									</td>
+    								</tr>
+    							<?php }
+    							if($data['GetDividendAccrualAmount'] != 0){?>
+    								<tr>
+    									<td style="padding-top:10px; font-weight:bold;">Dividend Accrual:</td>
+    									<td style="text-align:right; padding-top:10px;">$<?php echo number_format($data['GetDividendAccrualAmount'],2,".",",");?></td>
+    									<td>&nbsp;</td>
+    								</tr>
+    							<?php }
+							 }?>
 							</tbody>
 						</table>
 					</td>
@@ -164,25 +167,28 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 				</tr>
 				</thead>
 				<tbody>
-				<?php foreach($ytd_individual_performance_summed as $account_number=>$v){?>
-					<tr <?php if($ytd_individual_performance_summed[$account_number]['Flow']['disable_performance'] == 1){?> style="<!-- background-color:#FFFFE0; -->" <?php }?>>
-						<td><?php echo $ytd_individual_performance_summed[$account_number]['account_name'];?></td>
-						<td>**<?php echo substr($account_number,5);?></td>
-						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_begin_values[$account_number]['value'],2,".",",");?></span></td>
-						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'],2,".",",");?></span></td>
-						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['change_in_value'],2,".",",");?></span></td>
-						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_end_values[$account_number]['value'],2,".",",");?></span></td>
-						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['income_div_interest']['amount'],2,".",",");?></span></td>
-					</tr>
+				<?php 
+				if(!empty($ytd_individual_performance_summed)){
+    				foreach($ytd_individual_performance_summed as $account_number=>$v){?>
+    					<tr <?php if($ytd_individual_performance_summed[$account_number]['Flow']['disable_performance'] == 1){?> style="<!-- background-color:#FFFFE0; -->" <?php }?>>
+    						<td><?php echo $ytd_individual_performance_summed[$account_number]['account_name'];?></td>
+    						<td>**<?php echo substr($account_number,5);?></td>
+    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_begin_values[$account_number]['value'],2,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'],2,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['change_in_value'],2,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_end_values[$account_number]['value'],2,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['income_div_interest']['amount'],2,".",",");?></span></td>
+    					</tr>
+    				<?php }?>
+    				<tr>
+    					<td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="2">&nbsp;</td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetBeginningValuesSummed']['value'],2,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['Flow']['amount'],2,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['change_in_value'],2,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetEndingValuesSummed']['value'],2,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['income_div_interest']['amount'],2,".",",");?></span></td>
+    				</tr>
 				<?php }?>
-				<tr>
-					<td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="2">&nbsp;</td>
-					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetBeginningValuesSummed']['value'],2,".",",");?></span></td>
-					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['Flow']['amount'],2,".",",");?></span></td>
-					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['change_in_value'],2,".",",");?></span></td>
-					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetEndingValuesSummed']['value'],2,".",",");?></span></td>
-					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['income_div_interest']['amount'],2,".",",");?></span></td>
-				</tr>
 				</tbody>
 			</table>
 		</div>

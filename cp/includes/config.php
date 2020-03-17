@@ -31,9 +31,13 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
         $modules[] = $allowedModule['module'];
     }
 	
-    $avmod = array_values($modules);
+    $avmod = array();
     
-	$avmod = array_merge(array("Home"),$avmod);
+    if(!empty($modules)){
+        $avmod = array_values($modules);
+        
+    	$avmod = array_merge(array("Home"),$avmod);
+    }
     
     $GLOBALS['avmod'] = $avmod;
     
