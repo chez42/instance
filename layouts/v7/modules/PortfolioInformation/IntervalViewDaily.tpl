@@ -10,18 +10,23 @@
     <input type="hidden" id="calculated_return" name="calculated_return" value="" />
 </form>
 
-<div id="chartdiv" style="width:100%; height: 500px; font-size: 11px;"></div>
+{*<div id="chartdiv" style="width:100%; height: 500px; font-size: 11px;"></div>*}
 
 {if $INTERVALS|@count > 0}
     <div id="IntervalLeft" style="width:80%; display:block; float:left;">
-        <p><strong>Disclaimer: </strong>This page is currently in alpha testing and values may not have an accurate representation of the account</p>
+        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+            <i class="fa fa-calendar"></i>&nbsp;
+            <span></span> <i class="fa fa-caret-down"></i>
+        </div>
+
+        {*        <p><strong>Disclaimer: </strong>This page is currently in alpha testing and values may not have an accurate representation of the account</p>*}
         <table style="width:100%;">
             <tr style="width:100%">
                 <td style="width:80%">
                     <table id="IntervalTable" border="1px solid black;" style="width:100%;">
                         <thead>
                         <tr>
-                            <td style="text-align:center; padding:2px;">Account Number</td>
+{*                            <td style="text-align:center; padding:2px;">Account Number</td>*}
                             <td style="text-align:center; padding:2px;">Begin Date</td>
                             <td style="text-align:center; padding:2px;">End Date</td>
                             <td style="text-align:center; padding:2px;">Begin Value</td>
@@ -34,7 +39,7 @@
                         <tbody>
                         {foreach item=v from=$INTERVALS}
                             <tr>
-                                <td style="padding:2px;">{$v.account_number}</td>
+{*                                <td style="padding:2px;">{$v.account_number}</td>*}
                                 <td style="padding:2px;">{$v.begin_date}</td>
                                 <td style="padding:2px;" class="end_date">{$v.end_date}</td>
                                 <td style="text-align:right; padding:2px;">${$v.begin_value|number_format:2:".":","}</td>

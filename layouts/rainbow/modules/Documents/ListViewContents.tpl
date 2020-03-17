@@ -42,9 +42,13 @@
 	<input type="hidden" name="viewType" value="{$VIEWTYPE}" />
 	<input type="hidden" name="app" id="appName" value="{$SELECTED_MENU_CATEGORY}">
 	<input type="hidden" id="isExcelEditSupported" value="{if $MODULE_MODEL->isExcelEditAllowed()}yes{else}no{/if}" />
+	
+	<input type="hidden" value='{$FOLDER_NAME}' id="selectedDocFolID">
+	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
 		<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
 	{/if}
+	
 	{if !$SEARCH_MODE_RESULTS}
 		{include file="ListViewActions.tpl"|vtemplate_path:$MODULE}
 	{/if}
@@ -57,8 +61,8 @@
 						<th>
 							{if !$SEARCH_MODE_RESULTS}
 					<div class="table-actions">
-						<div class="dropdown" style="float:left;">
-							<span class="input dropdown-toggle" data-toggle="dropdown" title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}">
+						<div style="float:left;">
+							<span class="input" title="{vtranslate('LBL_CLICK_HERE_TO_SELECT_ALL_RECORDS',$MODULE)}">
 								<input class="listViewEntriesMainCheckBox" type="checkbox">
 							</span>
 						</div>
@@ -80,7 +84,7 @@
 									 {/if}
 									 {if $MODULE eq 'Documents'}style="width: 10%;"{/if}
 									 data-toggle="tooltip" data-placement="bottom" data-container="body">
-									<i class="fa fa-th-large"></i>
+									<i class="ti-layout-column3-alt"></i>
 								</div>
 							</div>
 						{/if}
@@ -90,13 +94,14 @@
 				{/if}
 				</th>
 				{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-					{if $SEARCH_MODE_RESULTS || ($LISTVIEW_HEADER->getFieldDataType() eq 'multipicklist') || ($LISTVIEW_HEADER->get('name') eq 'related_to') || ($LISTVIEW_HEADER->get('name') eq 'to_number')}
+					{if $SEARCH_MODE_RESULTS || ($LISTVIEW_HEADER->getFieldDataType() eq 'multipicklist') || ($LISTVIEW_HEADER->get('name') eq 'related_to')}
 						{assign var=NO_SORTING value=1}
 					{else}
 						{assign var=NO_SORTING value=0}
 					{/if}
 					<th {if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')} nowrap="nowrap" {/if}>
 						<a href="#" class="{if $NO_SORTING}noSorting{else}listViewContentHeaderValues{/if}" {if !$NO_SORTING}data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER->get('name')}"{/if} data-field-id='{$LISTVIEW_HEADER->getId()}'>
+							{vtranslate($LISTVIEW_HEADER->get('label'), $LISTVIEW_HEADER->getModuleName())}&nbsp;
 							{if !$NO_SORTING}
 								{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
 									<i class="fa fa-sort {$FASORT_IMAGE}"></i>
@@ -104,7 +109,7 @@
 									<i class="fa fa-sort customsort"></i>
 								{/if}
 							{/if}
-							&nbsp;{vtranslate($LISTVIEW_HEADER->get('label'), $LISTVIEW_HEADER->getModuleName())}&nbsp;
+							&nbsp;
 						</a>
 						{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
 							<a href="#" class="removeSorting"><i class="fa fa-remove"></i></a>
@@ -122,7 +127,7 @@
 					</th>
 					{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
 						<th>
-							{*if $LISTVIEW_HEADER->getName() neq 'related_to' && $LISTVIEW_HEADER->getName() neq 'to_number'*}
+							{*if $LISTVIEW_HEADER->get('name') neq 'related_to'*}
 								{assign var=FIELD_UI_TYPE_MODEL value=$LISTVIEW_HEADER->getUITypeModel()}
 								{include file=vtemplate_path($FIELD_UI_TYPE_MODEL->getListSearchTemplateName(),$MODULE) FIELD_MODEL= $LISTVIEW_HEADER SEARCH_INFO=$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()] USER_MODEL=$CURRENT_USER_MODEL}
 								<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS[$LISTVIEW_HEADER->getName()]['comparator']}">
@@ -157,11 +162,11 @@
 						{assign var=LISTVIEW_ENTRY_VALUE value=$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
 						<td class="listViewEntryValue {if $LISTVIEW_HEADER->get('uitype') eq '72' || $LISTVIEW_HEADER->get('uitype') eq '71'  || $LISTVIEW_HEADER->get('uitype') eq '70' ||
 						$LISTVIEW_HEADER->get('uitype') eq '5' || $LISTVIEW_HEADER->get('uitype') eq '23' || $LISTVIEW_HEADER->get('uitype') eq '6' || $LISTVIEW_HEADER->get('uitype') eq '7'
-						|| $LISTVIEW_HEADER->get('uitype') eq '9' || $LISTVIEW_HEADER->get('typeofdata') eq 'N~O' }text-right{/if}" 
-						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}" nowrap>
+						|| $LISTVIEW_HEADER->get('uitype') eq '9' || $LISTVIEW_HEADER->get('typeofdata') eq 'N~O'}text-right{/if}" 
+						data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}">
 							<span class="fieldValue">
 								<span class="value">
-									{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $LISTVIEW_HEADER->getName() neq 'related_to' and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
+									{if ($LISTVIEW_HEADER->isNameField() eq true or $LISTVIEW_HEADER->get('uitype') eq '4') and $MODULE_MODEL->isListViewNameFieldNavigationEnabled() eq true }
 										<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}&app={$SELECTED_MENU_CATEGORY}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}</a>
 										{if $MODULE eq 'Products' &&$LISTVIEW_ENTRY->isBundle()}
 											&nbsp;-&nbsp;<i class="mute">{vtranslate('LBL_PRODUCT_BUNDLE', $MODULE)}</i>
@@ -214,12 +219,12 @@
 												</span>
 											{/foreach}
 											
-										{else if $LISTVIEW_HEADER->getName() eq 'related_to'}	
-											{assign var=relatedRecords value=RingCentral_Module_Model::getRelatedRecords($DATA_ID)}
+										{else if $LISTVIEW_HEADER->getName() eq 'doc_folder_id'}	
+											{Vtiger_Functions::getCRMRecordLabel($LISTVIEW_ENTRY_VALUE)}
+										
+										{else if $LISTVIEW_HEADER->getName() eq 'contactid' || $LISTVIEW_HEADER->getName() eq 'related_to'}	
+											{assign var=relatedRecords value=Documents_Module_Model::getRelatedRecords($DATA_ID)}
 											{$relatedRecords}
-										{else if $LISTVIEW_HEADER->getName() eq 'to_number'}	
-											{assign var=relatedNo value=RingCentral_Module_Model::getRelatedNos($DATA_ID)}
-											{$relatedNo}
 										{else}
 											{$LISTVIEW_ENTRY_VALUE}
 										{/if}

@@ -19,41 +19,45 @@
                 {assign var=deleteAction value=$LIST_MASSACTION}
             {else if $LIST_MASSACTION->getLabel() eq 'LBL_ADD_COMMENT'}
                 {assign var=commentAction value=$LIST_MASSACTION}
+            {else if $LIST_MASSACTION->getLabel() eq 'LBL_ADD_FOLDER'}
+                {assign var=folderAction value=$LIST_MASSACTION}
             {else}
                 {$a = array_push($LISTVIEW_MASSACTIONS_1, $LIST_MASSACTION)}
                 {* $a is added as its print the index of the array, need to find a way around it *}
             {/if}
         {/foreach}
         <div class = "row">
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-	            
-	           	            
-	            
+            <div class=" col-md-4">
             <div class="btn-group listViewActionsContainer" role="group" aria-label="...">
                 {if $editAction}
-                    <button type="button" class="btn btn-warning" id={$MODULE}_listView_massAction_{$editAction->getLabel()} 
-                            {if stripos($editAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" onclick='{$editAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$editAction->getUrl()}' {/if} title="{vtranslate('LBL_EDIT', $MODULE)}" disabled="disabled" tippytitle >
-                        <i class="material-icons">create</i>
+                    <button type="button" class="btn btn-default" id={$MODULE}_listView_massAction_{$editAction->getLabel()} 
+                            {if stripos($editAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" onclick='{$editAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$editAction->getUrl()}' {/if} title="{vtranslate('LBL_EDIT', $MODULE)}" disabled="disabled">
+                        <i class="fa fa-pencil"></i>
                     </button>
                 {/if}
                 {if $deleteAction}
-                    <button type="button" class="btn btn-danger" id={$MODULE}_listView_massAction_{$deleteAction->getLabel()} 
-                            {if stripos($deleteAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" onclick='{$deleteAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$deleteAction->getUrl()}' {/if} title="{vtranslate('LBL_DELETE', $MODULE)}" disabled="disabled" tippytitle >
-                        <i class="material-icons">delete</i>
+                    <button type="button" class="btn btn-default" id={$MODULE}_listView_massAction_{$deleteAction->getLabel()} 
+                            {if stripos($deleteAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" onclick='{$deleteAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$deleteAction->getUrl()}' {/if} title="{vtranslate('LBL_DELETE', $MODULE)}" disabled="disabled">
+                        <i class="fa fa-trash"></i>
                     </button>
                 {/if}
-                {if $commentAction}
-                    <button type="button" class="btn btn-info" id="{$MODULE}_listView_massAction_{$commentAction->getLabel()}" 
-                            onclick="Vtiger_List_Js.triggerMassAction('{$commentAction->getUrl()}')" title="{vtranslate('LBL_COMMENT', $MODULE)}" disabled="disabled" tippytitle >
-                        <i class="material-icons">comment</i>
+				{if $commentAction}
+                    <button type="button" class="btn btn-default" id="{$MODULE}_listView_massAction_{$commentAction->getLabel()}" 
+                            onclick="Vtiger_List_Js.triggerMassAction('{$commentAction->getUrl()}')" title="{vtranslate('LBL_COMMENT', $MODULE)}" disabled="disabled">
+                        <i class="fa fa-comment"></i>
                     </button>
                 {/if}
-
+                {*if $folderAction}
+                    <a type="button" class="btn btn-default" id="{$MODULE}_listView_massAction_{$folderAction->getLabel()}" 
+                            onclick="{$folderAction->getUrl()}" title="{vtranslate('LBL_ADD_FOLDER', $MODULE)}" >
+                        <i class="fa fa-plus"></i>
+                    </a>
+                {/if*}
                 {if count($LISTVIEW_MASSACTIONS_1) gt 0 or $LISTVIEW_LINKS['LISTVIEW']|@count gt 0}
                     <div class="btn-group listViewMassActions" role="group">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
                             {vtranslate('LBL_MORE','Vtiger')}&nbsp;
-                            <i class="material-icons">arrow_drop_down</i>
+                            <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             {foreach item=LISTVIEW_MASSACTION from=$LISTVIEW_MASSACTIONS_1 name=advancedMassActions}
@@ -121,15 +125,9 @@
                         </ul>
                     </div>
                 {/if}
-                
-                
-                
-                
-                
-               </div> 
-            
-            
             </div>
+            </div>
+           
             <div class='col-lg-4 col-md-4 col-sm-12 col-xs-12 text-center myc-filters'>
                                  
                 <div class="btn-group " role="group" style="width: 100%;">
@@ -220,13 +218,11 @@
                 
                 
             </div>
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                
+            <div class="col-md-4">
                 {assign var=RECORD_COUNT value=$LISTVIEW_ENTRIES_COUNT}
                 {include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
             </div>
-            
-            <div class='col-lg-12 col-md-12 col-sm-12 col-xs-12'>
+             <div class='col-lg-12 col-md-12 col-sm-12 col-xs-12'>
 	            {if $LISTVIEW_ENTRIES_COUNT eq '0' and $REQUEST_INSTANCE and $REQUEST_INSTANCE->isAjax()}
                     {if $smarty.session.lvs.$MODULE.viewname}
                         {assign var=VIEWID value=$smarty.session.lvs.$MODULE.viewname}
@@ -257,7 +253,7 @@
                     <center><a href="#" id="deSelectAllMsgDiv">{vtranslate('LBL_DESELECT_ALL_RECORDS',$MODULE)}</a></center>
                 </div>    
             </div>
-            
-        </div>	
+        </div>
+        	
      </div>
 {/strip}

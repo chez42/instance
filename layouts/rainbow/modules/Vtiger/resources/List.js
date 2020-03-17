@@ -2825,7 +2825,7 @@ Vtiger.Class("Vtiger_List_Js", {
 
 $(function(){
 	
-		var filters = $(".myc-filters");
+		var filters = $(".listViewPageDiv");
 		filters.on('click','.editFilter, .duplicateFilter',function(e){
 	            var element = jQuery(e.currentTarget);
 	            if(typeof element.data('url') == "undefined") return;

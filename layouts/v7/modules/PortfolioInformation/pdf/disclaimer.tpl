@@ -48,9 +48,11 @@
     </p>
 
     <p>
-        TWR calculation based on account transactions between the specified dates using monthly begin and end value intervals.<br />
-        Period Return refers to: (SUM(IntervalEndValue) - SUM(NetFlowAmount) - SUM(IntervalBeginValue)) / SUM(IntervalBeginValue) * 100<br />
-        TWR formula where Fx = 1+(periodreturn/100)<br />
-        Calculated TWR = ( (Fx...Fn) - 1) * 100
+        TWR calculation based on account transactions between the specified dates using <strong>daily</strong> begin and end value intervals.<br />
+        Daily interval calculations provide the best accuracy to the TWR performance over monthly due to price fluxuations against the date of flows.<br />
+        A deposit at the beginning of the month would have the same effect as a deposit at the end of the month using monthly, but would imediately take effect in daily.<br />
+        TWR formula is as follows:<br />
+        Holding Period = ((Interval End Value - (Flows) - IntervalBeginValue) / IntervalBeginValue + NetFlowAmount) + 1
+        TWR = ((Holding Period_1 x Holding Period_2 x ... x Holding Period_n) - 1) * 100
     </p>
 </div>

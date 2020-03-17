@@ -5,7 +5,7 @@ class cMpdf7 extends \Mpdf\Mpdf{
     var $pdf_pie = array();
     var $pdf_bar = array();
     var $pdf_line = array();
-    var $default_settings = array('mode' => 'utf-8', 'default_font' => 'Arial', 'format' => 'LETTER-L', 'margin-left' => 10, 'margin-right' => 10, 'margin-top' => 10, 'margin-bottom' => 10, 'margin-header' => 5, 'margin-footer' => 5);
+    var $default_settings = array('mode' => 'utf-8', 'default_font' => 'Arial', 'format' => 'A4', 'margin-left' => 0, 'margin-right' => 0, 'margin-top' => 0, 'margin-bottom' => 0, 'margin-header' => 0, 'margin-footer' => 0);
     var $colors = array("#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec");
     var $user_name;
     var $account_name;
@@ -20,6 +20,7 @@ class cMpdf7 extends \Mpdf\Mpdf{
         if(is_null($settings)) {
             $settings = $this->default_settings;
         }
+#        print_r($settings);exit;
         parent::__construct($settings);
     }
 
@@ -43,21 +44,24 @@ class cMpdf7 extends \Mpdf\Mpdf{
         $this->account_name = $accountname;//$accountname is set in overview.php or whatever the 'main' file that brings us to this file is
         $this->contact_name = getContactName($record);
         $this->user_name = GetUserFirstLastNameByID($userid, true);//Reverse so it is first name then Last name
-        $this->setAutoBottomMargin = 'stretch';
+//        $this->setAutoBottomMargin = 'stretch';
     }
 
     public function SetupHeader($logo='', $text, $inception='')
     {
-        $date = date("m/d/Y");
-        $viewer = new Vtiger_Viewer();
+
+//        $this->setAutoTopMargin='stretch';
+//        $date = date("m/d/Y");
+/*        $viewer = new Vtiger_Viewer();
         $viewer->assign("DATE", $date);
         $viewer->assign("TEXT", $text);
         $viewer->assign("LOGO", $logo);
         $viewer->assign("INCEPTION", $inception);
-        $header = $viewer->view("pdf/header.tpl", "PortfolioInformation", true);
+        $header = $viewer->view("pdf/header.tpl", "PortfolioInformation", true);*/
+        $header = 'hey now';
 
-        $this->logo = $logo;
-        $this->SetHTMLHeader($header);
+//        $this->logo = $logo;
+        $this->SetHTMLHeader();
     }
 
     public function SetupFooter()
@@ -96,6 +100,13 @@ class cMpdf7 extends \Mpdf\Mpdf{
         ob_clean();
         $this->Output($filename, 'D');
     }
+
+    public function DownloadView()
+    {
+        ob_clean();
+        $this->Output("S", "S");
+    }
+
 
     static public function CreateImageFile($filename, $data){
         $image = urldecode($data);
