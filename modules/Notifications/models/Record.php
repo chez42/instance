@@ -43,7 +43,7 @@ class Notifications_Record_Model extends Vtiger_Record_Model
         $total = 0;
         if ($db->num_rows($rs) && ($data = $db->fetch_array($rs))) {
             $total = intval($data[$alias_total]);
-            break;
+            //break;
         }
         return $total;
     }
