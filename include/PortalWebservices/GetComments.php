@@ -56,12 +56,7 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];;
                         }
                         
-                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin-left: 1.5rem;
-    margin-top: 0px;
-    margin-right: 1.5rem;
-    padding: 10px;
-    margin-bottom: 0px;
-    min-width: 50%!important;">
+                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-media kt-media--circle kt-media--sm">';
                         if($profileImage && file_exists($profileImage)){

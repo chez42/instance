@@ -4,18 +4,18 @@
   position: absolute;
   /*top: 120%;*/
   /*left: -40%;*/
-  width: 3.5em;
+  width: 3.2em;
   height: 2em;
   /*padding: 0 .75em;*/
   line-height: 2em;
   vertical-align: middle;
   margin: -1.25em 0 0 -2em;
-  background: #EC5411;
+ /* background: #EC5411;
   border-radius: .2em;
-  box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  box-shadow: 0 0 10px rgba(0, 0, 0, .2);*/
   font-family: Arial;
   font-size: 15px;
-  color: #FFF;
+  color: #001717;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .3);
 }
 

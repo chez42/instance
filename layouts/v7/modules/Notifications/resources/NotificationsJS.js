@@ -25,9 +25,30 @@ Vtiger.Class("NotificationsJS", {}, {
         var notificationList = jQuery('#notificationsBody');
         var notificationCounter = notificationContainer.find('.notification_count');
         
-    	thisInstance.registerForGetNotifications();
-        
+    	window.WebSocket = window.WebSocket || window.MozWebSocket;
+		
+		var connection = new WebSocket('ws://dev.omnisrv.com:3000');
+	
+		connection.onopen = function () {};
+		connection.onerror = function (error) {};
+		
+		connection.onmessage = function (message) {
+
+			var data = JSON.parse(message.data);
+			
+			var contactid = data.contactid;
+			
+			var fromportal = data.fromportal;
+			
+			var assigned_user_id = data.assigned_user_id;
+			
+			if(!fromportal && assigned_user_id == app.getUserId()){
+				thisInstance.registerForGetNotifications();
+			}
+		}
        
+	    thisInstance.registerForGetNotifications();
+	   
         notificationList.on('click', '.notification_link .notification_full_name', function (event) {
             var currentTarget = jQuery(event.currentTarget);
             $.when( clickToOk(this) ).done(function() {

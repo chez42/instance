@@ -10921,9 +10921,9 @@ code {
   height: auto;
   position: fixed;
   left: auto;
-  top: auto;
-  /*bottom: 25px;*/
-  right: 25px;
+  /*top: auto;*/
+  bottom: 0px;
+  right: 0px;
   margin: 0;
   -webkit-box-shadow: 0px 0px 60px -15px rgba(0, 0, 0, 0.2);
   box-shadow: 0px 0px 60px -15px rgba(0, 0, 0, 0.2);

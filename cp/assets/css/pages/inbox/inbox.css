@@ -148,7 +148,7 @@
   .kt-inbox .kt-inbox__list .kt-inbox__items {
     padding: 0; }
     .kt-inbox .kt-inbox__list .kt-inbox__items .kt-inbox__item {
-      display: none;
+      display: flex;
       -webkit-box-align: start;
       -ms-flex-align: start;
       align-items: flex-start;
@@ -443,7 +443,7 @@
 
 .kt-inbox .kt-inbox__view {
   padding: 0;
-  display: none; }
+  display: flex; }
   @media (min-width: 1025px) {
     .kt-inbox .kt-inbox__view {
       margin-left: 25px; } }
