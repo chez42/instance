@@ -21,6 +21,9 @@
 <style media="print">
 	.noprint { display:none; }
 	#sharedcalendar { margin-top:-70px; }
+	a[href]:after {
+        content: none !important;
+    }
 </style>
 <div id="sharedcalendar" class="calendarview col-lg-12">
 	{assign var=LEFTPANELHIDE value=$CURRENT_USER->get('leftpanelhide')}

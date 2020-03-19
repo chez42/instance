@@ -26418,11 +26418,12 @@ strong {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
     font-smoothing: antialiased;
-    content: "";
+    content: "";
     font-size: 0.8rem;
     line-height: 0;
     position: relative;
-    color: #74788d; }
+    color: #74788d; 
+    }
 
 .kt-notification .kt-notification__custom {
   display: -webkit-box;

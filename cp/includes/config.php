@@ -14,6 +14,7 @@ $api_url = 'https://hq.omnisrv.com/';
 $api_username = 'felipeluna';
 
 $api_accesskey = 'vW6MiyBQVSfQjt3o';
+$websocketUrl = 'wss://dev.omnisrv.com:3000';
 
 $GLOBALS['portal_logo'] = 'images/logo1.png';
 

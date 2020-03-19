@@ -147,6 +147,7 @@
 	</script>
 	
 	<?php 
+	   global $websocketUrl;
 	   include_once "includes/common-js.php";
 	?>
 	
@@ -161,7 +162,7 @@
 
 			window.WebSocket = window.WebSocket || window.MozWebSocket;
     		
-    		var connection = new WebSocket('ws://dev.omnisrv.com:3000');
+    		var connection = new WebSocket('<?php echo $websocketUrl;?>');
     	
     		connection.onopen = function () {};
     		connection.onerror = function (error) {};
@@ -203,11 +204,47 @@
     					}
     				});
     				$('#chatAudio')[0].play();
+    				getNotificaions();
     			}
     		}
+    		
+    		getNotificaions();
 
+    		$(document).on('click', '.closeNotify', function(){
+				var notifyId = $(this).data('notifyId');
+				var parent = $(this).parent();
+				$.ajax({
+					url:'getNotifications.php?mode=read&notify_id='+notifyId,
+					success: function(data) {
+						var readData = JSON.parse(data);
+						if(readData.success){
+							parent.remove();
+							var count = $('.notificationCount').data('countvalue')-1;
+							$('.notificationCount').text(count+' new');
+							var params = [];
+							params['message'] = 'Notification Read Successfully';
+			               	toastr.error(params['message']);
+						}else{
+							var params = [];
+							params['message'] = 'Something went wrong try again later';
+			               	toastr.error(params['message']);
+						}
+					}
+				});
+    		});
+			
+        	function getNotificaions(){
+        		$.ajax({
+					url:'getNotifications.php',
+					success: function(data) {
+						var notifyData = JSON.parse(data);
+						$('.notificationCount').attr('data-countValue', notifyData.count);
+						$('.notificationCount').text(notifyData.count+' new');
+						$('.notificationContentArea').append(notifyData.html);
+					}
+        		});
 
-        	
+        	}
 
     		var validator = $('#change-password').validate({
         	    rules : {
