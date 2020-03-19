@@ -12,7 +12,7 @@ class NotificationsHandler extends VTEventHandler {
         
         if($eventName == 'vtiger.entity.aftersave') {
             //return true;
-            if(!$data->isNew()){
+            if($data->isNew()){
                
                 $assigned_user_id = $data->get('assigned_user_id');
                 
@@ -22,7 +22,9 @@ class NotificationsHandler extends VTEventHandler {
                         $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
                         $ch = curl_init($protocol.$webSocket_url);
                         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                        
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+						curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
                         if($data->get('source') == 'PORTAL'){
                             $jsonData = json_encode([
                                 'assigned_user_id' => $assigned_user_id,
