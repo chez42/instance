@@ -27,15 +27,14 @@
                                     <h3 class="kt-head__title">
                                         User Notifications
                                         &nbsp;
-                                        <span class="btn btn-label-primary btn-sm btn-bold btn-font-md notificationCount">23 new</span>
+                                        <span class="btn btn-label-primary btn-sm btn-bold btn-font-md notificationCount">0 new</span>
                                     </h3>
                                     <div class="clearfix">&nbsp;</div>
                                 </div>
                                             
-                                <div class="tab-content ">
-                                    <div class="notificationContentArea kt-notification kt-margin-t-10 kt-margin-b-10 kt-scroll ps" data-scroll="true" data-height="300" data-mobile-height="200" style="height: 300px; overflow: hidden;">
-                                        
-                            		</div>
+                                <div class="tab-content">
+                                	<div class="notificationContentArea kt-notification kt-margin-t-10 kt-margin-b-10 kt-scroll ps" data-scroll="true" data-height="300" data-mobile-height="200" style="height: 300px; overflow: hidden;">
+                                    </div>
                                 </div>
             	            </form>
             	        </div>
