@@ -14,6 +14,32 @@
 				</div>
 				
 				<div class="kt-header__topbar">
+    				<div class="kt-header__topbar-item dropdown">
+                        <div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="10px,0px" aria-expanded="false">
+                            <span class="kt-header__topbar-icon kt-pulse kt-pulse--brand"><i class="flaticon2-bell-alarm-symbol"></i>
+                            	<span class="kt-pulse__ring"></span>
+                            </span>
+            	            <span class="kt-hidden kt-badge kt-badge--dot kt-badge--notify kt-badge--sm"></span>
+                	        </div>
+                	        <div class="dropdown-menu dropdown-menu-fit dropdown-menu-right dropdown-menu-anim dropdown-menu-top-unround dropdown-menu-lg" style="">
+                	            <form>
+                                <div class="kt-head kt-head--skin-light kt-head--fit-x kt-head--fit-b">
+                                    <h3 class="kt-head__title">
+                                        User Notifications
+                                        &nbsp;
+                                        <span class="btn btn-label-primary btn-sm btn-bold btn-font-md notificationCount">23 new</span>
+                                    </h3>
+                                    <div class="clearfix">&nbsp;</div>
+                                </div>
+                                            
+                                <div class="tab-content ">
+                                    <div class="notificationContentArea kt-notification kt-margin-t-10 kt-margin-b-10 kt-scroll ps" data-scroll="true" data-height="300" data-mobile-height="200" style="height: 300px; overflow: hidden;">
+                                        
+                            		</div>
+                                </div>
+            	            </form>
+            	        </div>
+            	    </div>
 					<div class="kt-header__topbar-item kt-header__topbar-item--user">
 						<div class="kt-header__topbar-wrapper" data-toggle="dropdown" data-offset="0px,0px">
 							<div class="kt-header__topbar-user">
