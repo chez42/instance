@@ -100,7 +100,7 @@
                _USERMETA =  { 'id' : "{$CURRENT_USER_MODEL->get('id')}",'admin' : "{$CURRENT_USER_MODEL->isAdminUser()}", 'menustatus' : "{$CURRENT_USER_MODEL->get('leftpanelhide')}", 
                               'currency' : "{$USER_CURRENCY_SYMBOL}", 'currencySymbolPlacement' : "{$CURRENT_USER_MODEL->get('currency_symbol_placement')}",
                           'currencyGroupingPattern' : "{$CURRENT_USER_MODEL->get('currency_grouping_pattern')}", 'truncateTrailingZeros' : "{$CURRENT_USER_MODEL->get('truncate_trailing_zeros')}",
-                          'turnOfConfirmation':"{$CURRENT_USER_MODEL->get('turn_of_confirmation')}"};
+                          'turnOfConfirmation':"{$CURRENT_USER_MODEL->get('turn_of_confirmation')}", 'websocket_url' : "{$WEBSOCKET_URL}"};
             {/if}
 		</script>
 		

@@ -8833,10 +8833,10 @@ tr.listViewEntries:nth-child(odd) {    background-color: #f9f9f9;}
 
 .fask{ list-style-type: none; width: 100vw;left: 0px!important;box-shadow: 0 5px 75px 2px rgba(64,70,74,.2)!important;
 border-radius: .35rem; background-color: rgba(255, 255, 255, 1); margin-top: 0px; }
-.faskfirst{ list-style-type: none;width: 200px;float: left;-webkit-padding-start: 10px; border-right: 0px solid #ddd;    height: 400px;}
+.faskfirst{ list-style-type: none;width: auto;float: left;-webkit-padding-start: 10px; border-right: 0px solid #ddd;    height: 400px;}
 .faskfirst li{ padding: 14px 4px;}
 .faskfirst li a i{ font-size: 18px;margin-right: 10px;}
-.fasksecond{list-style-type: none;width:calc(100vw - 202px); overflow-y: scroll; max-height: calc(100vh - 20px); }
+.fasksecond{list-style-type: none;width:auto; overflow-y: scroll; max-height: calc(100vh - 20px); }
 /* .fasksecond>li.with-childs:first-child { border-left: none;} */
 .fasksecond>li.with-childs { float: left; border-left:1px solid #ddd; margin: 0 0px; height:400px; width: 14.28%} 
 .fasksecond>li.with-childs>a{ padding: 15px 10px; line-height: 40px;} 
