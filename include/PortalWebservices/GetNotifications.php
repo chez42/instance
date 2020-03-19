@@ -72,13 +72,8 @@
                 for($n=0;$n<$adb->num_rows($notifyResult);$n++){
                     $notifyData = $adb->query_result_rowdata($notifyResult, $n);
                     
-                    $calendarDatetimeUIType = new Calendar_Datetime_UIType();
-                    
-                    $createdDateTime = $calendarDatetimeUIType->getDisplayValue($notifyData["createdtime"]);
-                    list($createdDate, $createdTime) = explode(" ", $createdDateTime);
-                    if ($currentUser->get("hour_format") == "12") {
-                        $createdTime = Vtiger_Time_UIType::getTimeValueInAMorPM($createdTime);
-                    }
+                    $titleTime = Vtiger_Util_Helper::formatDateTimeIntoDayString(date('Y-m-d H:i:s', strtotime($notifyData["createdtime"])));
+                    $showTime = Vtiger_Util_Helper::formatDateDiffInStrings(date('Y-m-d H:i:s', strtotime($notifyData["createdtime"])));
                     
                     $html .= '<a href="#" class="kt-notification__item notifyItem" data-notify-id="'.$notifyData['notificationsid'].'">
                             <div class="kt-notification__item-icon">';
@@ -88,18 +83,27 @@
                         $html .= '<i title="document" class="flaticon-doc kt-font-primary"></i>';
                     }
                     $html .= '</div>
-                            <div class="kt-notification__item-details">
-                                <div class="kt-notification__item-title">
-                                    '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'<br>
-                                    '.$notifyData['description'].'
-                                </div>
-                                <div class="kt-notification__item-time">
-                                    '.$createdDate . " " . $createdTime.'
-                                </div>
+                        <div class="kt-notification__item-details">
+                            <div class="kt-notification__item-title" title="'.getSalesEntityType($notifyData['related_to']).' : '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'">
+                                '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'<br>
+                                '.$notifyData['description'].'
                             </div>
-                            <i class="flaticon-close closeNotify" title="close" data-notify-id="'.$notifyData['notificationsid'].'"></i>
-                        </a>';
+                            <div class="kt-notification__item-time" title="'.$titleTime.'">
+                                '.$showTime.'
+                            </div>
+                        </div>
+                        <i class="flaticon-close closeNotify" title="close" data-notify-id="'.$notifyData['notificationsid'].'"></i>
+                    </a>';
                 }
+            }else{
+                $html .= '<div class="kt-grid kt-grid--ver" style="min-height: 200px;">
+                    <div class="kt-grid kt-grid--hor kt-grid__item kt-grid__item--fluid kt-grid__item--middle">
+                        <div class="kt-grid__item kt-grid__item--middle kt-align-center">
+                            All caught up!
+                            <br>No new notifications.
+                        </div>
+                    </div>
+                </div>';
             }
             
             return array('html' => $html, 'count' =>$notifyCount);
