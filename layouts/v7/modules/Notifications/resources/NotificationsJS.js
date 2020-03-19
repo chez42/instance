@@ -27,7 +27,7 @@ Vtiger.Class("NotificationsJS", {}, {
         
     	window.WebSocket = window.WebSocket || window.MozWebSocket;
 		
-		var connection = new WebSocket('ws://dev.omnisrv.com:3000');
+		var connection = new WebSocket('wss'+app.getWebSocketUrl());
 	
 		connection.onopen = function () {};
 		connection.onerror = function (error) {};

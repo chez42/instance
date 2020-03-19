@@ -263,6 +263,10 @@ window.app = (function () {
 			if (_USERMETA)
 				return _USERMETA.turnOfConfirmation;
 		},
+		getWebSocketUrl: function () {
+			if (_USERMETA)
+				return _USERMETA.websocket_url;
+		},
 		getModuleSpecificViewClass: function (view, module, parentModule) {
 
 			if (typeof module == 'undefined') {

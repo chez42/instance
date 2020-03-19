@@ -152,6 +152,7 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 
 	function preProcess(Vtiger_Request $request, $display=true) {
 		$currentUser = Users_Record_Model::getCurrentUserModel();
+		global $webSocket_url;
 		$viewer = $this->getViewer($request);
 		$viewer->assign('PAGETITLE', $this->getPageTitle($request));
 		$viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
@@ -165,7 +166,7 @@ abstract class Vtiger_View_Controller extends Vtiger_Action_Controller {
 			$viewer->assign('USER_CURRENCY_SYMBOL', $userCurrencyInfo['symbol']);
 		}
 		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
-
+		$viewer->assign('WEBSOCKET_URL', $webSocket_url);
 		if($display) {
 			$this->preProcessDisplay($request);
 		}
