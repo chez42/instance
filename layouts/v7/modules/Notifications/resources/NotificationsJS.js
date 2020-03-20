@@ -94,6 +94,12 @@ Vtiger.Class("NotificationsJS", {}, {
 
                     if (count == 0) {
                         notificationList.remove();
+                        var html = '<div id="notificationsBody" class="notifications table-responsive" style="height:100px;">'+
+                        '<div class="emptyRecordsContent" style="display: inline-block;font-size: 16px;'+
+                        'left: 50%;margin-left: -20%;position: absolute;width: 50%;top: 45%;">No Notifications found.</div>'+
+                        '</div>';
+                        jQuery('#notificationTitle').after(html);
+                        jQuery('.discardall').hide();
                         return;
                     }
 
@@ -102,7 +108,7 @@ Vtiger.Class("NotificationsJS", {}, {
                     var listItem = '';
                     var itemLength = items.length;
                     var limitDivide = itemLength - 2;
-                    
+                    console.log(itemLength);
                     for (var i = 0; i < itemLength; i++) {
                         item = items[i];
                        
