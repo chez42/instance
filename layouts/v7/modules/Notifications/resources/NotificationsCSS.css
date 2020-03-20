@@ -27,9 +27,9 @@
   background: transparent;
   box-shadow: none;
   transform-origin: 70% 1em;
-  animation-name: ring;
+  /*animation-name: ring;
   animation-duration: 2s;
-  animation-iteration-count: infinite;
+  animation-iteration-count: infinite;*/
 }
 
 @keyframes ring

@@ -71,7 +71,8 @@
 		<link href="assets/plugins/custom/jstree/dist/themes/default/style.css" rel="stylesheet" type="text/css" />
 		<link href="assets/plugins/custom/jqvmap/dist/jqvmap.css" rel="stylesheet" type="text/css" />
 		<link href="assets/plugins/custom/uppy/dist/uppy.min.css" rel="stylesheet" type="text/css" />
-
+		
+		<link href="assets/css/pages/inbox/inbox.css" rel="stylesheet" type="text/css" />
 		<!--end:: Vendor Plugins for custom pages -->
 
 		<!--end::Global Theme Styles -->
@@ -87,6 +88,22 @@
 		
 		<style>
 	       table {font-size:13px !important; }
+	       .kt-notification__item-title span {
+                display: block;
+                word-wrap: break-word;
+                white-space: pre-wrap;
+            }
+            .notification_full_name {
+                font-weight: bold;
+                cursor: pointer;
+               // white-space: nowrap !important;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: block;
+            }
+            .notification_description {
+                font-style: italic;
+            }
 		</style>
 	</head>
 
