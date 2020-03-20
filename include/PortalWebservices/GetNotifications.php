@@ -85,9 +85,8 @@
                     $html .= '</div>
                         <div class="kt-notification__item-details">
                             <div class="kt-notification__item-title" title="'.getSalesEntityType($notifyData['related_to']).' : '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'">
-                                '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'<br>
-                                '.$notifyData['description'].'
-                            </div>
+                                '.html_entity_decode($notifyData['description']).'
+                            </div></div>
                             <div class="kt-notification__item-time" title="'.$titleTime.'">
                                 '.$showTime.'
                             </div>

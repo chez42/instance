@@ -13,6 +13,8 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         $this->exposeMethod("getNotifications");
         $this->exposeMethod("getNotificationNumber");
         $this->exposeMethod("markNotificationRead");
+        $this->exposeMethod("replyForComment");
+        $this->exposeMethod("discardAllNotifications");
     }
     
     
@@ -57,21 +59,30 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
             if ($currentUser->get("hour_format") == "12") {
                 $createdTime = Vtiger_Time_UIType::getTimeValueInAMorPM($createdTime);
             }
+            $relatedModule = '';
             if(getSalesEntityType($n->get('related_record')) == 'Documents'){
                 $docRecord = Vtiger_Record_Model::getInstanceById($n->get('related_record'));
                 $detailUrl = $docRecord->getDetailViewUrl();
+                $relatedModule = 'Documents';
             }else if(getSalesEntityType($n->get('related_record')) == 'ModComments'){
                 $detailUrl = $relatedRecordModel->getDetailViewUrl();
                 $detailUrl .= '&relatedModule=ModComments&mode=showRelatedList&tab_label=ModComments';
+                $relatedModule = 'ModComments';
             }
             
             if(getSalesEntityType($relatedId) == 'Contacts'){
                 $fullName = $relatedRecordModel->get('firstname').' '.$relatedRecordModel->get('lastname');
+                $relatedToModule = 'Contacts';
             }else if(getSalesEntityType($relatedId) == 'HelpDesk'){
                 $fullName = $relatedRecordModel->get('ticket_title');
+                $relatedToModule = 'HelpDesk';
             }
             
-            $items[] = array("id" => $n->get("notificationsid"), "notificationno" => $n->get("notificationno"), "description" => $n->get("description"), "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, "rel_id" => $relatedId);
+            $items[] = array("id" => $n->get("notificationsid"), "notificationno" => $n->get("notificationno"), 
+                "description" => html_entity_decode($n->get("description")), "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
+                "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, 
+                "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$n->get('related_record'), 
+                "relatedToModule" => $relatedToModule);
         }
         $data["items"] = $items;
         $data["count"] = count($items);
@@ -91,6 +102,35 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         }
         $response->emit();
     }
+    
+    public function replyForComment(Vtiger_Request $request){
+        
+    }
+    
+    public function discardAllNotifications(Vtiger_Request $request){
+        global $adb;
+        $response = new Vtiger_Response();
+        $data = array();
+        $currentUser = Users_Record_Model::getCurrentUserModel();
+        $notifications = Notifications_Record_Model::getNotificationsByUser($currentUser->getId());
+    
+        if(!empty($notifications)){
+            foreach ($notifications as $notification){
+                $adb->pquery("UPDATE vtiger_notifications SET notification_status = ? WHERE notificationsid = ?",
+                    array('OK', $notification->get('notificationsid')));
+                $success = true;
+            }
+        }
+        if (!$success) {
+            $code = 200;
+            $response->setError($code, vtranslate("Unable to change notification status", $module));
+        }else{
+            $response->setResult(array('success'=>true));
+        }
+        $response->emit();
+        
+    }
+    
 }
 
 ?>

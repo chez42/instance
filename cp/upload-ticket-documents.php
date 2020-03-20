@@ -42,6 +42,7 @@ if($_REQUEST['ticket_id']){
                     'filelocationtype' => $filelocationtype,
                     'parent_id' => $parent_id,
                     'module' => 'HelpDesk',
+                    'customer'=>$customerid
                 );
             
                 if($filelocationtype == 'I' && isset($_FILES['filename']) && !empty($_FILES['filename'])){

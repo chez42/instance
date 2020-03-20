@@ -1132,49 +1132,49 @@ function add_document_attachment($input_array){
         
         //require_once('modules/Documents/Documents.php');
         
-        $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
+    $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
 	vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
 	WHERE is_default=1 and deleted=0";
         
-        $result = $adb->pquery($query, array());
-        
-        if($input_array['doc_folder_id']){
-            $doc_fol_id = $input_array['doc_folder_id'];
-        }elseif($adb->num_rows($result)){
-            $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
-        }
-        
-        $focus = CRMEntity::getInstance('Documents');
-        $focus->column_fields['notes_title'] = $title;
-        $focus->column_fields['filename'] = $filename;
-        $focus->column_fields['filetype'] = $filetype;
-        $focus->column_fields['filesize'] = $filesize;
-        $focus->column_fields['filelocationtype'] = $filelocationtype;
-        $focus->column_fields['filedownloadcount']= 0;
-        $focus->column_fields['filestatus'] = 1;
-        $focus->column_fields['assigned_user_id'] = $user_id;
-        $focus->column_fields['folderid'] = 1;
-        $focus->column_fields['notecontent'] = $note_desc;
-        $focus->column_fields['from_portal'] = 1;
-        $focus->column_fields['contactid'] = $id;
+    $result = $adb->pquery($query, array());
+    
+    if($input_array['doc_folder_id']){
+        $doc_fol_id = $input_array['doc_folder_id'];
+    }elseif($adb->num_rows($result)){
+        $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
+    }
+    
+    $focus = CRMEntity::getInstance('Documents');
+    $focus->column_fields['notes_title'] = $title;
+    $focus->column_fields['filename'] = $filename;
+    $focus->column_fields['filetype'] = $filetype;
+    $focus->column_fields['filesize'] = $filesize;
+    $focus->column_fields['filelocationtype'] = $filelocationtype;
+    $focus->column_fields['filedownloadcount']= 0;
+    $focus->column_fields['filestatus'] = 1;
+    $focus->column_fields['assigned_user_id'] = $user_id;
+    $focus->column_fields['folderid'] = 1;
+    $focus->column_fields['notecontent'] = $note_desc;
+    $focus->column_fields['from_portal'] = 1;
+    $focus->column_fields['contactid'] = $input_array['customer'];
     $focus->column_fields['related_to'] = $id;
         
-        if($doc_fol_id)
-            $focus->column_fields['doc_folder_id'] = $doc_fol_id;
-            
-            $focus->save('Documents');
-            
-            if($filelocationtype == "I" && $attachmentid > 0){
-                $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
-                $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
-            }
-            
-            $doc = 'insert into vtiger_senotesrel values(?,?)';
-            $res = $adb->pquery($doc,array($id,$focus->id));
-            
-            $log->debug("Exiting customer portal function add_document_attachment");
-            
-            return array("new_document" => array("document_id" => $focus->id));
+    if($doc_fol_id)
+        $focus->column_fields['doc_folder_id'] = $doc_fol_id;
+        
+    $focus->save('Documents');
+    
+    if($filelocationtype == "I" && $attachmentid > 0){
+        $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+        $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
+    }
+    
+    $doc = 'insert into vtiger_senotesrel values(?,?)';
+    $res = $adb->pquery($doc,array($id,$focus->id));
+    
+    $log->debug("Exiting customer portal function add_document_attachment");
+    
+    return array("new_document" => array("document_id" => $focus->id));
 }
 
 function getDefaultAssigneeId() {
