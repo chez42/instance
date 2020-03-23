@@ -49,7 +49,10 @@ Vtiger.Class("NotificationsJS", {}, {
 					thisInstance.registerForGetNotifications();
 					var style="<style>.notification_bell:after{ animation-name:ring !important;animation-duration:2s !important;animation-iteration-count: infinite !important;}</style>";
 			        $('head').append(style);
-			        
+			        var params = app.convertUrlToDataParams($(location).attr('href'));
+			        if(app.getModuleName() == 'Contacts' && params.relatedModule == 'ModComments'){
+			        	$('.related-tabs').find('li[data-module="ModComments"]').trigger('click');
+			        }
 				}
 			}
         }
