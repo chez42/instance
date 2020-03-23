@@ -870,3 +870,6 @@ tbody .ps__thumb-y{
 .notification_bell:before, .notification_bell:after{
 	color: <?= $text_contrast ?> !important;
 }
+.stellarnav ul ul{
+	max-width : unset !important;
+}
