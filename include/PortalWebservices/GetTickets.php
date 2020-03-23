@@ -60,6 +60,8 @@ function vtws_get_tickets($element, $user){
     
     $category = $element['category'];
     
+    $tickettime = $element['tickettime'];
+    
     if($startIndex == ''){
         $startIndex = 0;
     }
@@ -112,7 +114,23 @@ function vtws_get_tickets($element, $user){
         $sql .= " AND vtiger_troubletickets.category = ?";    
         $params[] = $category;
     }
-    
+   
+    if($tickettime){
+        if($tickettime == '<1hrs'){
+            $sql .= ' AND (vtiger_troubletickets.total_time_spent < "01:00" AND vtiger_troubletickets.total_time_spent >= "00:00")';
+        }elseif($tickettime == '<2hrs'){
+            $sql .= ' AND (vtiger_troubletickets.total_time_spent < "02:00" AND vtiger_troubletickets.total_time_spent >= "01:010")';
+        }elseif($tickettime == '<3hrs'){
+            $sql .= ' AND (vtiger_troubletickets.total_time_spent < "03:00" AND vtiger_troubletickets.total_time_spent >= "02:00")';
+        }elseif($tickettime == '<4hrs'){
+            $sql .= 'AND (vtiger_troubletickets.total_time_spent < "04:00" AND vtiger_troubletickets.total_time_spent >= "03:00")';
+        }elseif($tickettime == '<5hrs'){
+            $sql .= ' AND (vtiger_troubletickets.total_time_spent < "05:00" AND vtiger_troubletickets.total_time_spent >= "04:00")';
+        }elseif($tickettime == '<5hrs'){
+            $sql .= ' AND (vtiger_troubletickets.total_time_spent >= "05:00")';
+            
+        }
+    }
     $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC ";
     
     $result = $adb->pquery($sql, $params);

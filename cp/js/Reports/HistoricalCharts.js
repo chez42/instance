@@ -177,6 +177,9 @@
         chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa"];//,"#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"
         chart.startDuration = 0;
 //        chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+        chart.urlField = "url";
+		chart.urlTarget = "_blank";
+        
         
         legend = new AmCharts.AmLegend();
         legend.markerType = "circle";
