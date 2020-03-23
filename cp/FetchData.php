@@ -53,6 +53,9 @@ if(isset($_SESSION['ID'])){
 	    if(isset($_REQUEST['category']) && $_REQUEST['category'] != ''){
 	        $search['category'] = $_REQUEST['category'];
 	    }
+	    if(isset($_REQUEST['tickettime']) && $_REQUEST['tickettime'] != ''){
+	        $search['tickettime'] = $_REQUEST['tickettime'];
+	    }
 	   
 	    $ticket_list = fetchData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
 	    
@@ -139,6 +142,7 @@ function fetchData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex,
 	$response = postHttpRequest($ws_url, $postParams);
 	
 	$response = json_decode($response, true);
+	
 	return $response;
 }
 

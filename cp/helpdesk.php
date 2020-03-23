@@ -14,6 +14,7 @@ include_once 'includes/top-header.php';
 
 $category = $_REQUEST['category'];
 $status = $_REQUEST['status'];
+$ticketTime = $_REQUEST['tickettime'];
 
 ?>
 		
@@ -169,6 +170,9 @@ $status = $_REQUEST['status'];
       <?php if($status){?>
       	var searchRequest = "status=<?php echo $status?>";
       	var selectedStatus = "<?php echo $status?>";
+	  <?php }?>
+	  <?php if($ticketTime){?>
+	  	var searchRequest = "tickettime=<?php echo $ticketTime?>";
 	  <?php }?>
       var table = jQuery('#tickets_list').DataTable({
 		 	bSort: false,

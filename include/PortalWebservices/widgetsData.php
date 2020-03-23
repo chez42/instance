@@ -166,6 +166,7 @@ function getTicketData($contactId){
         foreach($timeData as $timeKey => $timeVal){
             $tmp['title'] = $timeKey;
             $tmp['value'] = $timeVal;
+            $tmp['url'] = 'helpdesk.php?tickettime='.$timeKey;
             $finalData[] = $tmp;
         }
         
