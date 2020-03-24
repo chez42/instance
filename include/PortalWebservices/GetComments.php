@@ -5,7 +5,7 @@
         global $adb,$site_URL;
         
         $html .= '';
-        
+        $commentData = array();
         if(isset($element['ID']) && $element['ID'] != ''){
                 
             if(isset($element['index'])){
@@ -48,7 +48,9 @@
                     $commentContent = html_entity_decode($adb->query_result($commentQuery, $c, 'commentcontent'));
                     $createdTime = date('M,d Y', strtotime($adb->query_result($commentQuery, $c, 'createdtime')));
                     $smOwner = $adb->query_result($commentQuery, $c, 'smcreatorid');
+                    
                     if($customer != $element['ID']){
+                        
                         $userModel = Users_Record_Model::getInstanceById($smOwner,'Users');
                         $imageDetail = $userModel->getImageDetails();
                         
@@ -56,7 +58,7 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];;
                         }
                         
-                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">
+                        /*$html.='<div '. $c .' class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-media kt-media--circle kt-media--sm">';
                         if($profileImage && file_exists($profileImage)){
@@ -72,10 +74,33 @@
                                 '.$commentContent;
                                 if($attachmentId){
                                     $html .= '<br/><a style="font-size:11px!important;" target="_blank" href="'.$site_URL.'/index.php?module=Vtiger&action=ExternalDownloadLink&record='.$commentId.'" >'.$attName.'</a>';
+                                    $html .= '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'.$commentId.'">
+            							<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">
+            								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+            									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            										<rect x="0" y="0" width="24" height="24"></rect>
+            										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>
+            										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>
+            									</g>
+            								</svg>
+            							</span>
+            						</a>';
                                 }
                         $html.=  '</div>
                         </div>';
-                       
+                        */
+                        $commentData[] = array(
+                            'profileImage' => $profileImage,
+                            'userName' => getOwnerName($smOwner),
+                            'createdTime' => $createdTime,
+                            'commentContent' => $commentContent,
+                            'attachmentId' => $attachmentId,
+                            'siteUrl' => $site_URL,
+                            'commentId' => $commentId,
+                            'attName' => $attName,
+                            'users' => true
+                        );
+                        
                     }else{
                         $cusModel = Vtiger_Record_Model::getInstanceById($element['ID']);
                         $cusimageDetail = $cusModel->getImageDetails();
@@ -84,7 +109,7 @@
                             $profileImage = $site_URL."/".$imagedetails['path']."_".$imagedetails['orgname'];
                         }
                        
-                        $html.='<div '. $c .' class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">
+                        /*$html.='<div '. $c .' class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">
                             <div class="kt-chat__user">
                                 <span class="kt-chat__datetime">'.$createdTime.'</span>
                                 <a href="#" class="kt-chat__username">You</a>
@@ -100,9 +125,32 @@
                                '.$commentContent;
                                 if($attachmentId){
                                     $html .= '<br/><a style="font-size:11px!important;" target="_blank" href="'.$site_URL.'/index.php?module=Vtiger&action=ExternalDownloadLink&record='.$commentId.'" >'.$attName.'</a>';
+                                    $html .= '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'.$commentId.'">
+            							<span class="document_preview" title="Preview" style="font-size:1.5em!important;">
+            								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+            									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+            										<rect x="0" y="0" width="24" height="24"></rect>
+            										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>
+            										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>
+            									</g>
+            								</svg>
+            							</span>
+            						</a>';
                                 }
                         $html.=  '</div>
-                        </div>';
+                        </div>';*/
+                        
+                        $commentData[] = array(
+                            'profileImage' => $profileImage,
+                            'userName' => getOwnerName($smOwner),
+                            'createdTime' => $createdTime,
+                            'commentContent' => $commentContent,
+                            'attachmentId' => $attachmentId,
+                            'siteUrl' => $site_URL,
+                            'commentId' => $commentId,
+                            'attName' => $attName,
+                            'client' => true   
+                        );
                     }
                      
                 }
@@ -111,6 +159,6 @@
             
         }
         
-        return $html;
+        return $commentData;
         
     }

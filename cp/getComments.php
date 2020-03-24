@@ -29,4 +29,4 @@ $response = postHttpRequest($ws_url, $postParams);
 
 $response = json_decode($response,true);
 
-echo $response['result'];
+echo json_encode($response['result']);

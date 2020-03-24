@@ -8949,7 +8949,81 @@ var KTChat = function () {
 						
 						var messagesEl = KTUtil.find(parentEl, '.kt-chat__messages');
 						
-						jQuery(messagesEl).append(data);
+						var commentData = JSON.parse(data);
+						
+						$.each(commentData, function(ind, ele){
+							var html = '';
+							if(ele.users){
+								  html = '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">'+
+		                            '<div class="kt-chat__user">'+
+		                                '<span class="kt-media kt-media--circle kt-media--sm">';
+		                        if(ele.profileImage){
+		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
+		                        }else{
+		                            html += '<i class="flaticon-user"  style="font-size:30px!important;"></i>';
+		                        }
+		                        html += '</span>'+
+		                                '<a href="#" class="kt-chat__username">'+ele.userName+'</a>'+
+		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
+		                            '</div>'+
+		                            '<div class="kt-chat__text">'+
+		                                ele.commentContent;
+		                                if(ele.attachmentId){
+		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
+		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
+		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
+		            								'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">'+
+		            									'<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">'+
+		            										'<rect x="0" y="0" width="24" height="24"></rect>'+
+		            										'<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>'+
+		            										'<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>'+
+		            									'</g>'+
+		            								'</svg>'+
+		            							'</span>'+
+		            						'</a>';
+		                                }
+		                        html +=  '</div>'+
+		                        	'</div>';
+		                        
+							}else if(ele.client){
+								 
+								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">'+
+		                            '<div class="kt-chat__user">'+
+		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
+		                                '<a href="#" class="kt-chat__username">You</a>'+
+		                                '<span class="kt-media kt-media--circle kt-media--sm">';
+		                        if(ele.profileImage){
+		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
+		                        }else{
+		                            html += '<i class="flaticon-user" style="font-size:30px!important;"></i>';
+		                        }
+		                        html += '</span>'+
+		                            '</div>'+
+		                            '<div class="kt-chat__text">'+
+		                            	ele.commentContent;
+		                                if(ele.attachmentId){
+		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
+		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
+		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
+		            								'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">'+
+		            									'<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">'+
+		            										'<rect x="0" y="0" width="24" height="24"></rect>'+
+		            										'<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>'+
+		            										'<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>'+
+		            									'</g>'+
+		            								'</svg>'+
+		            							'</span>'+
+		            						'</a>';
+		                                }
+		                        html +=  '</div>'+
+		                        	'</div>';
+							}
+							if(!$(document).find('div[data-commentId="'+ele.commentId+'"]').length)
+								jQuery(messagesEl).append(html);
+							
+						});
+						 
+						
 						
 						new PerfectScrollbar(scrollEl, {
 	                        wheelSpeed: 0.5,
@@ -8958,9 +9032,8 @@ var KTChat = function () {
 	                    });
 						
 						var chatContainer = $(".kt-scroll");
-						chatContainer.animate({ scrollTop: chatContainer[0].scrollHeight }, 400)
-
-						
+						//chatContainer.animate({ scrollTop: chatContainer[0].scrollHeight+chatContainer[0].scrollHeight }, 400)
+						scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'))+parseInt(KTUtil.css(messagesEl, 'height'));
 						jQuery(parentEl).waitMe('hide');
 					}
 				});
@@ -8987,6 +9060,42 @@ var KTChat = function () {
 				}
 			});
 		});
+		
+        jQuery(document).on('click','.chat_document_preview', function(){
+      		var self = $(this);
+      		$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+      		var currentTargetObject = self.closest('a');
+      		var fileId = currentTargetObject.data('fileid');
+    		var fileLocationType = currentTargetObject.data('filelocationtype');
+	        
+       		var mode = 'preview';
+  			if(fileLocationType == 'I'){
+	            $.ajax({
+					url:'filePreview.php',
+					data: 'file_id='+fileId+'&mode='+mode,
+					error: function(errorThrown) {
+						console.log(errorThrown);
+					},
+					success: function(data) {
+						var success;
+					 	try {
+					        var data = JSON.parse(data);
+					        if(data.success)
+						        success = true;
+					    } catch (e) {
+				      		success = false;
+					    }
+					    if(success){
+					    	window.location.href = data.downloadUrl;
+					    }else{
+							$(document).find('#chatfilePreviewModal').html(data);
+							$('#chatfilePreviewModal').modal('show');
+					    }
+					    $('body').waitMe('hide');
+					}
+				});
+	        }
+  		});
 		
 		// messaging
 		var handleMessaging = function() {
@@ -9042,9 +9151,20 @@ var KTChat = function () {
 							'</div>' +
 							'<div class="kt-chat__text kt-bg-light-brand">' +
 								textarea.value;
-							if(typeof file != 'undefined' && file.name)
+							if(typeof file != 'undefined' && file.name){
 								html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+data.fileurl+'" >'+file.name+'</a>';
-						
+								html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+data.modcommentid+'">'+
+	    							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
+	    								'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">'+
+	    									'<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">'+
+	    										'<rect x="0" y="0" width="24" height="24"></rect>'+
+	    										'<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>'+
+	    										'<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>'+
+	    									'</g>'+
+	    								'</svg>'+
+	    							'</span>'+
+	    						'</a>';
+							}
 						html +=	'</div>';
 	
 						KTUtil.setHTML(node, html);
