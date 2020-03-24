@@ -8936,13 +8936,18 @@ var KTChat = function () {
 		});
 		
 		jQuery(document).on('click', '.chat_modal', function(){
+			
 			if(jQuery(parentEl).hasClass('show') && jQuery(parentEl).find('.kt-chat__message').length == 0){
+				
 				jQuery(parentEl).waitMe({effect : 'orbit',text : '' });
+				
 				$.ajax({
 					url:'getComments.php',
+					
 					error: function(errorThrown) {
 						jQuery(parentEl).waitMe('hide');
 					},
+					
 					success: function(data) {
 						
 						var scrollEl = KTUtil.find(parentEl, '.kt-scroll');
@@ -8952,16 +8957,20 @@ var KTChat = function () {
 						var commentData = JSON.parse(data);
 						
 						$.each(commentData, function(ind, ele){
+							
 							var html = '';
+							
 							if(ele.users){
-								  html = '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">'+
+								  html = '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;margin-top:5px !important; margin-bottom:0px !important;padding: 10px;min-width: 50%!important;">'+
 		                            '<div class="kt-chat__user">'+
 		                                '<span class="kt-media kt-media--circle kt-media--sm">';
-		                        if(ele.profileImage){
+		                        
+								if(ele.profileImage){
 		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
 		                        }else{
 		                            html += '<i class="flaticon-user"  style="font-size:30px!important;"></i>';
 		                        }
+								
 		                        html += '</span>'+
 		                                '<a href="#" class="kt-chat__username">'+ele.userName+'</a>'+
 		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
@@ -8987,7 +8996,7 @@ var KTChat = function () {
 		                        
 							}else if(ele.client){
 								 
-								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">'+
+								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;margin-top:5px !important; margin-bottom:0px !important;min-width:50%!important;">'+
 		                            '<div class="kt-chat__user">'+
 		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
 		                                '<a href="#" class="kt-chat__username">You</a>'+

@@ -47,12 +47,17 @@ Vtiger.Class("NotificationsJS", {}, {
 				if(!fromportal && assigned_user_id == app.getUserId()){
 					
 					thisInstance.registerForGetNotifications();
+					
 					var style="<style>.notification_bell:after{ animation-name:ring !important;animation-duration:2s !important;animation-iteration-count: infinite !important;}</style>";
-			        $('head').append(style);
-			        var params = app.convertUrlToDataParams($(location).attr('href'));
-			        if(app.getModuleName() == 'Contacts' && params.relatedModule == 'ModComments'){
+			        
+					$('head').append(style);
+			        
+					var params = app.convertUrlToDataParams($(location).attr('href'));
+			        
+					if(app.getModuleName() == 'Contacts' && params.relatedModule == 'ModComments'){
 			        	$('.related-tabs').find('li[data-module="ModComments"]').trigger('click');
 			        }
+					
 				}
 			}
         }
@@ -97,16 +102,24 @@ Vtiger.Class("NotificationsJS", {}, {
 
                     if (count == 0) {
                         notificationList.remove();
-                        var html = '<div id="notificationsBody" class="notifications noNotifications table-responsive" style="height:100px;">'+
+                        
+						var html = '<div id="notificationsBody" class="notifications noNotifications table-responsive" style="height:100px;">'+
                         '<div class="emptyRecordsContent" style="display: inline-block;font-size: 16px;'+
                         'left: 50%;margin-left: -20%;position: absolute;width: 50%;top: 45%;">No Notifications found.</div>'+
                         '</div>';
-                        jQuery('#notificationTitle').after(html);
-                        jQuery('.discardall').hide();
-                        return;
-                    }else{
-                    	jQuery('.noNotifications').remove();
-                    }
+                        
+						jQuery('#notificationTitle').after(html);
+                        
+						jQuery('.discardall').hide();
+                        
+						return;
+						
+                    } else {
+                    	
+						jQuery('.emptyRecordsContent').remove();
+                    
+					}
+					
 
                     var items = response.items;
                     var item = null;
