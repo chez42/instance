@@ -74,6 +74,10 @@
             </div>
         </div>
     </div>
+    <div id="chatfilePreviewModal" class="modal fade" aria-hidden="true">
+			
+	</div>
+    
     
     <div class="modal fade" id="change_password_form" tabindex="-1" role="dialog"  aria-hidden="true">
 		<div class="modal-dialog" role="document">
@@ -184,7 +188,80 @@
         						
         						var messagesEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-chat__messages');
         						
-        						jQuery(messagesEl).append(data);
+        						var commentData = JSON.parse(data);
+        						
+        						$.each(commentData, function(ind, ele){
+        							var html = '';
+        							if(ele.users){
+        								  html = '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">'+
+        		                            '<div class="kt-chat__user">'+
+        		                                '<span class="kt-media kt-media--circle kt-media--sm">';
+        		                        if(ele.profileImage){
+        		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
+        		                        }else{
+        		                            html += '<i class="flaticon-user"  style="font-size:30px!important;"></i>';
+        		                        }
+        		                        html += '</span>'+
+        		                                '<a href="#" class="kt-chat__username">'+ele.userName+'</a>'+
+        		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
+        		                            '</div>'+
+        		                            '<div class="kt-chat__text">'+
+        		                                ele.commentContent;
+        		                                if(ele.attachmentId){
+        		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
+        		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
+        		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
+        		            								'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">'+
+        		            									'<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">'+
+        		            										'<rect x="0" y="0" width="24" height="24"></rect>'+
+        		            										'<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>'+
+        		            										'<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>'+
+        		            									'</g>'+
+        		            								'</svg>'+
+        		            							'</span>'+
+        		            						'</a>';
+        		                                }
+        		                        html +=  '</div>'+
+        		                        	'</div>';
+        		                        
+        							}else if(ele.client){
+        								 
+        								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">'+
+        		                            '<div class="kt-chat__user">'+
+        		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
+        		                                '<a href="#" class="kt-chat__username">You</a>'+
+        		                                '<span class="kt-media kt-media--circle kt-media--sm">';
+        		                        if(ele.profileImage){
+        		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
+        		                        }else{
+        		                            html += '<i class="flaticon-user" style="font-size:30px!important;"></i>';
+        		                        }
+        		                        html += '</span>'+
+        		                            '</div>'+
+        		                            '<div class="kt-chat__text">'+
+        		                            	ele.commentContent;
+        		                                if(ele.attachmentId){
+        		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
+        		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
+        		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
+        		            								'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">'+
+        		            									'<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">'+
+        		            										'<rect x="0" y="0" width="24" height="24"></rect>'+
+        		            										'<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>'+
+        		            										'<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>'+
+        		            									'</g>'+
+        		            								'</svg>'+
+        		            							'</span>'+
+        		            						'</a>';
+        		                                }
+        		                        html +=  '</div>'+
+        		                        	'</div>';
+        							}
+        							if(!$(document).find('div[data-commentId="'+ele.commentId+'"]').length)
+        								jQuery(messagesEl).append(html);
+        							
+        						});
+        						 
         						
         						new PerfectScrollbar(scrollEl, {
         	                        wheelSpeed: 0.5,
@@ -195,6 +272,7 @@
         						setTimeout(() => {
         							const container = document.querySelector('.kt-scroll');
         							container.scrollTop = 0; //container.scrollHeight;
+        							scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'))+parseInt(KTUtil.css(messagesEl, 'height'));
         						}, 0);
     						} else {
 								var params = [];
