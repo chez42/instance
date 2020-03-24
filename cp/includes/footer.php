@@ -180,33 +180,42 @@
     			var fromportal = data.fromportal;
     			
     			if(!fromportal && contactid == '<?php echo $_SESSION['ID']; ?>'){
-    				$.ajax({
-    					url:'getComments.php',
-    					success: function(data) {
-    						if($("#kt_chat_modal").is(":visible")){
-        						var scrollEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-scroll');
+    				
+					$.ajax({
+    					
+						url : 'getComments.php',
+    					
+						success: function(data) {
+    						
+							if($("#kt_chat_modal").is(":visible")){
+        						
+								var scrollEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-scroll');
         						
         						var messagesEl = KTUtil.find(document.getElementById('kt_chat_modal'), '.kt-chat__messages');
         						
         						var commentData = JSON.parse(data);
         						
         						$.each(commentData, function(ind, ele){
-        							var html = '';
+        							
+									var html = '';
+							
         							if(ele.users){
-        								  html = '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem;padding: 10px;min-width: 50%!important;">'+
+        								
+										html = '<div data-commentId="' + ele.commentId + '" class="kt-chat__message kt-chat__message--success" style="margin: 1.5rem; margin-top:5px !important; margin-bottom:0px !important; padding: 10px;min-width: 50%!important;">'+
         		                            '<div class="kt-chat__user">'+
         		                                '<span class="kt-media kt-media--circle kt-media--sm">';
-        		                        if(ele.profileImage){
+        		                        
+										if(ele.profileImage){
         		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
-        		                        }else{
+        		                        } else {
         		                            html += '<i class="flaticon-user"  style="font-size:30px!important;"></i>';
         		                        }
+										
         		                        html += '</span>'+
         		                                '<a href="#" class="kt-chat__username">'+ele.userName+'</a>'+
         		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
         		                            '</div>'+
-        		                            '<div class="kt-chat__text">'+
-        		                                ele.commentContent;
+        		                            '<div class="kt-chat__text">' + ele.commentContent;
         		                                if(ele.attachmentId){
         		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
         		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
@@ -224,18 +233,20 @@
         		                        html +=  '</div>'+
         		                        	'</div>';
         		                        
-        							}else if(ele.client){
+        							} else if(ele.client){
         								 
-        								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem!important;min-width:50%!important;">'+
+        								html += '<div data-commentId="'+ele.commentId+'" class="kt-chat__message kt-chat__message--right kt-chat__message--brand" style="margin:1.5rem !important; margin-top:5px !important; margin-bottom:0px !important; min-width:50%!important;">'+
         		                            '<div class="kt-chat__user">'+
         		                                '<span class="kt-chat__datetime">'+ele.createdTime+'</span>'+
         		                                '<a href="#" class="kt-chat__username">You</a>'+
         		                                '<span class="kt-media kt-media--circle kt-media--sm">';
-        		                        if(ele.profileImage){
+        		                        
+										if(ele.profileImage){
         		                            html += ' <img src="'+ele.profileImage+'" alt="image">';
         		                        }else{
         		                            html += '<i class="flaticon-user" style="font-size:30px!important;"></i>';
         		                        }
+										
         		                        html += '</span>'+
         		                            '</div>'+
         		                            '<div class="kt-chat__text">'+
@@ -257,6 +268,7 @@
         		                        html +=  '</div>'+
         		                        	'</div>';
         							}
+									
         							if(!$(document).find('div[data-commentId="'+ele.commentId+'"]').length)
         								jQuery(messagesEl).append(html);
         							
@@ -271,19 +283,26 @@
         						
         						setTimeout(() => {
         							const container = document.querySelector('.kt-scroll');
-        							container.scrollTop = 0; //container.scrollHeight;
+        							container.scrollTop = 0;
         							scrollEl.scrollTop = parseInt(KTUtil.css(messagesEl, 'height'))+parseInt(KTUtil.css(messagesEl, 'height'));
         						}, 0);
+								
     						} else {
+								
 								var params = [];
     							params['message'] = 'New Message Received';
     			               	toastr.error(params['message']);
-    						}
+    						
+							}
+							
     					}
     				});
+					
     				$('#chatAudio')[0].play();
-    				getNotificaions();
-    			}
+    				
+					getNotificaions();
+    			
+				}
     		}
     		
     		getNotificaions();
@@ -312,7 +331,8 @@
     		});
 			
         	function getNotificaions(){
-        		$.ajax({
+        		
+				$.ajax({
 					url:'getNotifications.php',
 					success: function(data) {
 						var notifyData = JSON.parse(data);
@@ -338,13 +358,15 @@
     	        e.preventDefault();
     	        
     	        if (validator.form()) {
-    	        	KTApp.block('#change-password', {
+    	        	
+					KTApp.block('#change-password', {
 		                overlayColor: '#000000',
 		                type: 'v2',
 		                state: 'primary',
 		                message: 'Processing...'
 		            });
-        	        $.ajax({
+        	        
+					$.ajax({
         	            type: "POST",
         	            url: 'update-customer.php',
         	            data: jQuery('#change-password').serialize(), // serializes the form's elements.
@@ -362,13 +384,21 @@
     	        }
     	        
     	    });
-			<?php if($_SESSION['topbar']){?>
-    	    	$('.kt-header__topbar-wrapper').trigger('click');
-    	    	setTimeout(function() {
+			
+			<?php 
+				if($_SESSION['topbar']){
+			?>
+    	    	
+				$('.kt-header__topbar-wrapper').trigger('click');
+    	    	
+				setTimeout(function() {
     	    		$('.kt-header__topbar-wrapper').trigger('click');
     	    		<?php unset($_SESSION['topbar']);?>
     	    	}, 5000);
-			<?php }?>
+			
+			<?php 
+				}
+			?>
     	    
     	});
     </script>

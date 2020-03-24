@@ -91,7 +91,7 @@
                                 '.$showTime.'
                             </div>
                         </div>
-                        <i class="flaticon-close closeNotify" title="close" data-notify-id="'.$notifyData['notificationsid'].'"></i>
+                        <i style = "font-size:10px;" class="flaticon2-cross closeNotify" title="close" data-notify-id="'.$notifyData['notificationsid'].'"></i>
                     </a>';
                 }
             }else{
