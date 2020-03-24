@@ -75,7 +75,7 @@
         </table>
     </div>
     <div class="GHReport_section">
-        <h2 style="width:100%; background-color:lightgrey; text-align:center; font-size:16px; padding:5px;"><span style="font-size:16px;">{$HEADING} PERFORMANCE ({$START_DATE|date_format:'%B, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B, %Y'})</span></h2>
+        <h2 style="width:100%; background-color:lightgrey; text-align:center; font-size:16px; padding:5px;"><span style="font-size:16px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B %d, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B %d, %Y'})</span></h2>
         <table class="table table-bordered" style="display:block; width:100%; font-size:14px;">
             <thead>
             <tr>
@@ -97,7 +97,7 @@
                 <tr {if $ytd_individual_performance_summed[$account_number]['Flow']->disable_performance eq 1} style="{*background-color:#FFFFE0;*}" {/if}>
                     <td style="width:10%;">**{$account_number|substr:5} ({$ytd_individual_performance_summed[$account_number]['account_type']})</td>
                     <td style="width:10%;">{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
-                    <td style="text-align:right; width:10%; padding-right:5px;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
+                    <td style="text-align:right; width:10%; padding-right:5px;">({$ytd_begin_values[$account_number]->date|date_format:'%m/%d/%Y'}) ${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
                     <td style="text-align:right; width:10%; padding-right:5px;">${$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:0:".":","}</td>
                     <td style="text-align:right; width:10%; padding-right:5px;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
                     {*<td style="text-align:right; width:10%">${$ytd_individual_performance_summed[$account_number]['Income']->amount|number_format:0:".":","}</td>*}

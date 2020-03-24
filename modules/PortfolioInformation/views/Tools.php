@@ -32,12 +32,19 @@ class PortfolioInformation_Tools_View extends Vtiger_Index_View {
 #        $missing = PortfolioInformation_Tools_Model::GetMissingFiles($extensions, '2020-02-21', '2020-02-22');
 #        print_r($missing);exit;
 
+#        $file_info = PortfolioInformation_Tools_Model::GetFileInfoFromTypeAndDates("positions", '2020-02-01', '2020-02-31');
+#        print_r($file_info);exit;
+#print_r($files);
+#exit;
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeList();
-#        print_r($rep_codes);exit;
+//        $calendar_rep_codes = PortfolioInformation_Tools_Model::GetCalendarRepCodesFromDates('2020-02-01', '2020-03-31');
+
         $viewer = $this->getViewer($request);
         $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
         $viewer->assign('STYLES', self::getHeaderCss($request));
         $viewer->assign("REP_CODES", $rep_codes);
+//        $viewer->assign("CALENDAR_REP_CODES", json_encode($calendar_rep_codes));
+//        $viewer->assign("FILE_INFO", json_encode($file_info));
         $viewer->assign("LOADER", "layouts/v7/modules/PortfolioInformation/images/Loader.gif");
         $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Tools.tpl', $request->getModule());
         echo $screen_content;
@@ -51,6 +58,7 @@ class PortfolioInformation_Tools_View extends Vtiger_Index_View {
 
         $jsFileNames = array(
 //            '~libraries/jquery/Drop-Down-Combo-Tree/comboTreePlugin.js',
+            "~layouts/v7/lib/jquery/fullcalendar/fullcalendar.js",
             '~layouts/v7/modules/PortfolioInformation/resources/Tools.js',
             "~/libraries/shield/shieldui-all.min.js",
 //            '~layouts/v7/modules/PortfolioInformation/resources/icontains.js',
@@ -64,6 +72,8 @@ class PortfolioInformation_Tools_View extends Vtiger_Index_View {
     public function getHeaderCss(Vtiger_Request $request) {
         $headerCssInstances = parent::getHeaderCss($request);
         $cssFileNames = array(
+            '~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/lib/jquery/fullcalendar/fullcalendar.css',
+            '~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/lib/jquery/fullcalendar/fullcalendar-bootstrap.css',
             '~/layouts/v7/modules/PortfolioInformation/css/Tools.css',
 //            '~libraries/jquery/Drop-Down-Combo-Tree/style.css',
         );
