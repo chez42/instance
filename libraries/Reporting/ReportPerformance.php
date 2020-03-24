@@ -9,7 +9,7 @@ function DetermineIntervalStartDate($account_number, $sdate){
 
     $query = "SELECT DATE_ADD(MAX(intervalbegindate), INTERVAL 1 DAY) AS begin_date
               FROM intervals_daily 
-              WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ? AND intervaltype = 'monthly'";
+              WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ?";
     $result = $adb->pquery($query, array($account_number, $sdate));
     if($adb->num_rows($result) > 0){
         $result = $adb->query_result($result, 0, 'begin_date');
@@ -26,7 +26,7 @@ function DetermineIntervalEndDate($account_number, $edate){
 
     $query = "SELECT MAX(intervalenddate) AS end_date
               FROM intervals_daily 
-              WHERE accountnumber IN ({$questions}) AND intervalenddate <= ? AND intervaltype = 'monthly'";
+              WHERE accountnumber IN ({$questions}) AND intervalenddate <= ?";
     $result = $adb->pquery($query, array($account_number, $edate));
     if($adb->num_rows($result) > 0){
         $result = $adb->query_result($result, 0, 'end_date');
@@ -61,7 +61,6 @@ class Performance_Model extends Vtiger_Module {
     private $start_date_changed = false;
     private $end_date_changed = false;
     private $start_date, $end_date;
-    private $provided_start_date, $provided_end_date;//The actual passed in start and end dates unmodified
     private $performance;
     private $individual_performance_summed;
     private $individual_start_values, $individual_end_values;
@@ -76,10 +75,8 @@ class Performance_Model extends Vtiger_Module {
     private $benchmark;
     private $estimated_income;
 
-    public function Performance_Model(array $account_numbers, $start_date, $end_date){
+    public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy){
         global $adb;
-        $this->provided_start_date = $start_date;
-        $this->provided_end_date = $end_date;
         $passed_in_date = $start_date;
         $this->account_numbers = $account_numbers;
 
@@ -92,25 +89,23 @@ class Performance_Model extends Vtiger_Module {
         $this->dividend_accrual = 0;
 
         //Get all rows with max intervalenddate <= to the date entered for the accounts
-        $query = "CALL GET_INTERVAL_START_DATE_VALUES_NOT_DAILY(\"{$questions}\", ?, ?)";
+        $query = "CALL GET_INTERVAL_START_DATE_VALUES(\"{$questions}\", ?, ?)";
         $adb->pquery($query, array($account_numbers, $start_date, $end_date));
-        $beginning_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily");
-        if($adb->num_rows($beginning_date_result) == 0){
-            $query = "CALL GET_INTERVAL_START_DATE_VALUES(\"{$questions}\", ?, ?)";
-            $adb->pquery($query, array($account_numbers, $start_date, $end_date));
-            $beginning_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily");
-        }
+        $beginning_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily");//Contains all account first date values
 #        echo $query . '<br />';
 #        print_r($account_numbers);
 #        echo '<br />' . $start_date . ' - ' . $end_date . '<br />';
 #        exit;
+
+        //Determine the absolute earliest date from all provided accounts.
+        //This filters out accounts that were created after the first existing account
         $result = $adb->pquery("SELECT MIN(intervalenddate) as intervaldate FROM tmp_intervals_daily");
         if($adb->num_rows($result) == 0){
             echo "There has been an error determining the earliest interval date!";
             return;
         }
-        $earliest_date = $adb->query_result($result, 0, 'intervaldate');
-        $earliest_start_date_result = $adb->pquery("SELECT IntervalBeginDate FROM tmp_intervals_daily WHERE IntervalEndDate = ?", array($earliest_date));
+        $earliest_date = $adb->query_result($result, 0, 'intervaldate');//Earliest date is the earliest account date
+        $earliest_start_date_result = $adb->pquery("SELECT IntervalBeginDate FROM tmp_intervals_daily WHERE IntervalEndDate = ?", array($earliest_date));//Earliest "start" date is the earliest accounts end of previous day
         $earliest_start_date = $adb->query_result($earliest_start_date_result, 0, 'intervalbegindate');
 
         $query = "CALL GET_INTERVAL_END_DATE_VALUES(\"{$questions}\", ?, ?)";
@@ -125,23 +120,24 @@ class Performance_Model extends Vtiger_Module {
             $this->dividend_accrual = $adb->query_result($accrual_result, 0, 'dividend_accrual_amount');
 
         #IF intervalenddate == date entered, use interalbeginvalue ELSE use intervalendvalue as the starting value
-        if($adb->num_rows($beginning_date_result) > 0 && $adb->num_rows($ending_date_result) > 0){
-            while($v = $adb->fetchByAssoc($beginning_date_result)){
+        if($adb->num_rows($beginning_date_result) > 0 && $adb->num_rows($ending_date_result) > 0){//If we have info for both beginning and end dates
+            while($v = $adb->fetchByAssoc($beginning_date_result)){//Loop through all beginning date results
                 $set_zero = 0;
-                $tmp = new AccountValues();
+                $tmp = new AccountValues();//variables: Account Number, Date, Value, disable performance
                 $tmp->account_number = $v['accountnumber'];
 
-                if($v['intervalenddate'] <= $earliest_date) {
-                    $tmp->value = $v['intervalbeginvalue'];
+                if($v['intervalenddate'] == $earliest_date) {//If the accounts first end date <= the earliest account date we have
+                    $tmp->value = $v['intervalbeginvalue'];//Set the value to the start value, and only if they are equal
                 }
 
-                if($earliest_date != $start_date){
-                    $this->start_date_changed = true;
-                    $start_date = $earliest_date;
-#                    $tmp->date = $start_date;
+                if($earliest_date != $start_date){//This happens if a weekend or holiday is chosen as a start date
+                    $this->start_date_changed = true;//Flag that we have changed the start date
+                    $start_date = $earliest_date;//Set the new start date to be the earliest date we have in our table (which would be a monday if saturday/sunday were selected for example)
                 }
 
-                $this->start_date = GetDatePlusOneDay($earliest_start_date);
+                $this->start_date = $earliest_date;
+
+//                $this->start_date = GetDatePlusOneDay($earliest_start_date);
 /*                if($v['intervalenddate'] != $start_date){
                     $this->start_date_changed = true;//We had to change the interval start date because we don't know what the end date started with
                     $start_date = $v['intervalenddate'];//GetDatePlusOneDay($v['intervalenddate']);//We don't want to calculate transactions for the same day we know the ending value for
@@ -149,15 +145,16 @@ class Performance_Model extends Vtiger_Module {
                 }*/
 #                if($this->start_date > $start_date || strlen($this->start_date) < 1)//Set the start date to the smallest date available
 #                    $this->start_date = $start_date;
-                $tmp->date = $this->start_date;
-                $this->beginning_values[] = $tmp;
+                //$start_date is now set to the earliest date (the true start date)
+                $tmp->date = $start_date;//Set the individual account start date to be the earliest date, even if in reality the account was opened 3 months later
+                $this->beginning_values[] = $tmp;//Now set our beginning values array to be equal to the accounts determined beginning oject information
 
                 $this->beginning_values_summed->date = $this->start_date;
 
                 $individuals = new AccountValues();
                 $individuals->account_number = $v['accountnumber'];
                 $individuals->date = $v['intervalenddate'];
-                $individuals->value = PortfolioInformation_Module_Model::GetIntervalBeginValueForDate($v['accountnumber'], $passed_in_date);//$tmp->value;
+                $individuals->value = PortfolioInformation_Module_Model::GetIntervalBeginValueForDate($v['accountnumber'], $start_date);//$tmp->value;
                 $individuals->disable_performance = PortfolioInformation_Module_Model::IsPerformanceDisabled($v['accountnumber']);
 ////                PortfolioInformation_Module_Model::CreateDailyIntervalsForAccounts($this->account_numbers, $v['intervalenddate']);
 /*
@@ -181,10 +178,10 @@ class Performance_Model extends Vtiger_Module {
                 }*/
 
                 if($individuals->disable_performance != 1)
-                    $this->beginning_values_summed->value += $individuals->value;
+                    $this->beginning_values_summed->value += $individuals->value;//Only add to the grand total if performance is enabled
 
 #                echo $v['accountnumber'] . ' -- ' . $v['intervalbeginvalue'] . "<br />";
-                $this->individual_start_values[$v['accountnumber']] = $individuals;
+                $this->individual_start_values[$v['accountnumber']] = $individuals;//This sets the individual account start information
 
 #                echo "Adding: " . $this->beginning_values_summed->value . " for " . $v['accountnumber'] . "..." . $start_date . "<br />";
             }
@@ -198,25 +195,27 @@ class Performance_Model extends Vtiger_Module {
 
                 if($v['intervalenddate'] != $this->end_date){
                     $this->end_date_changed = true;//We had to change the interval end date because we don't know what the end ended with
-                    $end_date = $v['intervalenddate'];
+                    $end_date = $v['intervalenddate'];//Set the end date to equal to the last end date for the account we are in the loop
                 }
 
+                // If an end date isn't already set, or the currently set "real end date" is less than the end date of the account we are on,
+                // set the "real end date" to equal the account we are on
                 if($this->end_date < $end_date || strlen($end_date) < 1)
                     $this->end_date = $end_date;
 
-                $tmp->date = $this->end_date;
+                $tmp->date = $this->end_date;//Set the account value object to equal the true end date
 
-                $this->ending_values[] = $tmp;
+                $this->ending_values[] = $tmp;//Set the ending values for this account
 
-                $this->ending_values_summed->date = $this->end_date;
-                if($tmp->disable_performance != 1)
-                    $this->ending_values_summed->value += $tmp->value;
+                $this->ending_values_summed->date = $this->end_date;//Set the combined end date to equal the real end date
+                if($tmp->disable_performance != 1)//If performance isn't disabled
+                    $this->ending_values_summed->value += $tmp->value;//Add account value if we are supposed to (performance enabled)
 
                 $individuals = new AccountValues();
                 $individuals->account_number = $v['accountnumber'];
                 $individuals->date = $v['intervalbegindate'];
                 $individuals->value = $v['intervalendvalue'];
-                $this->individual_end_values[$v['accountnumber']] = $individuals;
+                $this->individual_end_values[$v['accountnumber']] = $individuals;//Set the individual account end data
             }
 
             $query = "CALL PERFORMANCE(\"{$questions}\", ?, ?)";
@@ -323,6 +322,7 @@ class Performance_Model extends Vtiger_Module {
                 $this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount + $this->GetCommissionAmount();
 #            print_r($this->performance_summed);exit;
             }
+
 //        }else{
  //           $this->isValid = false;
 //        }
@@ -633,11 +633,11 @@ class Performance_Model extends Vtiger_Module {
     }
 
     public function GetStartDate(){
-        return date("F Y", strtotime($this->start_date));
+        return date("Y-m-d", strtotime($this->start_date));
     }
 
     public function GetEndDate(){
-        return date("F Y", strtotime($this->end_date));
+        return date("Y-m-d", strtotime($this->end_date));
     }
 
     public function GetStartDateMDY(){

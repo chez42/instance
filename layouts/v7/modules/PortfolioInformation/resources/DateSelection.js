@@ -16,23 +16,37 @@ jQuery.Class("DateSelection",{
     },
 
     firstLoad : function(){
+
+/*        $("#fromfield").datepicker({
+            format: 'yyyy-mm-dd'
+        }).on('changeDate', function(e){
+            updateZoom();
+            var start = $(this).val();
+            var end = $("#tofield").val();
+            zoomToDatesCustom(start, end);
+        });
+        */
         $("#select_start_date").datepicker({
-            defaultDate: "+1w",
-            changeMonth: true,
-            changeYear: true,
-            numberOfMonths: 3,
-            onClose: function (selectedDate) {
+                format: 'yyyy-mm-dd',
+                onClose: function (selectedDate) {
             }
         });
 
         $("#select_end_date").datepicker({
-            defaultDate: "+1w",
-            changeMonth: true,
-            changeYear: true,
-            numberOfMonths: 3,
+            format: 'yyyy-mm-dd',
             onClose: function (selectedDate) {
             }
         });
+
+        /*        $("#select_end_date").datepicker({
+                    defaultDate: "+1w",
+                    changeMonth: true,
+                    changeYear: true,
+                    changeDay: true,
+                    numberOfMonths: 3,
+                    onClose: function (selectedDate) {
+                    }
+                });*/
 
         $("#report_date_selection").change(function(e){
             e.stopImmediatePropagation();
@@ -59,8 +73,9 @@ jQuery.Class("DateSelection",{
         $("#calculate_report").click(function(e){
             e.stopImmediatePropagation();
             edate = $("#select_end_date").val();
+            sdate = $("#select_start_date").val();
             var loc = window.location.href;
-            loc += "&report_end_date=" + edate;
+            loc += "&report_start_date=" + sdate + "&report_end_date=" + edate;
             window.location.href = loc;
         });
     }

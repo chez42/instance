@@ -1,0 +1,14 @@
+#controls{background-color: black;}
+.controls_dates{float: left; margin-left: 15px; color:yellow;}
+.control_buttons{float: right; margin-right: 15px;}
+.control_buttons button{background-color:yellow;}
+
+#fromfield{color:white; background-color:black;}
+#tofield{color:white; background-color:black;}
+
+#IntervalTable{width:100%;}
+#IntervalLeft{width:80%; display:block; float:left;}
+
+#IntervalWrapper{height:500px; max-height:60%; display:block; float:left; overflow:auto;}
+
+#linechartdiv{width:100%; height: 40%; font-size: 11px; background-color:black;}

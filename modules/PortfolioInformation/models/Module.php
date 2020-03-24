@@ -283,6 +283,27 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
+    /**
+     * Determine if an account has any intervals between begin date and end date
+     * @param $account_number
+     * @param $sdate
+     * @param $edate
+     * @return bool
+     */
+    static public function DoesAccountHaveIntervalData($account_number, $sdate, $edate){
+        global $adb;//We use interval end date as that is technically the date we want to start with and this holds that day's beginning AND ending values
+        $query = "SELECT COUNT(*) as count
+                  FROM intervals_daily 
+                  WHERE IntervalEndDate >= ? AND IntervalEndDate <= ?
+                  AND AccountNumber = ?";
+        $result = $adb->pquery($query, array($sdate, $edate, $account_number));
+        if($adb->num_rows($result) > 0){
+            if($adb->query_result($result, 0, 'count') > 0)
+                return true;
+        }
+        return false;
+    }
+
     static public function CheckIfAccountExists($account_number)
     {
         global $adb;
@@ -1042,6 +1063,25 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $adb->pquery($query, array($accounts));
     }
 
+    static public function RemoveIntervals(array $accounts, $start = null, $end = null){
+        global $adb;
+        $and = "";
+        $params = array();
+        $params[] = $accounts;
+        if($start != null){
+            $and .= " AND intervalenddate >= ? ";
+            $params[] = $start;
+        }
+        if($start != null){
+            $and .= " AND intervalenddate <= ? ";
+            $params[] = $end;
+        }
+
+        $questions = generateQuestionMarks($accounts);
+        $query = "DELETE FROM intervals_daily WHERE AccountNumber IN ({$questions}) {$and}";
+        $adb->pquery($query, $params);
+    }
+
     static public function CalculateMonthlyIntervalsForAccounts(array $accounts, $start = null, $end = null)
     {
         global $adb;
@@ -1058,7 +1098,221 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         }
     }
 
-    static public function CalculateDailyIntervalsForAccounts(array $accounts, $start = null, $end = null)
+    static public function UpdateIntervalFlow($uid, $value){
+        global $adb;
+
+        $query = "UPDATE intervals_daily 
+                  SET NetFlowAmount = ? 
+                  WHERE uid = ?";
+        $adb->pquery($query, array($value, $uid), 'true');
+    }
+
+    static public function UpdateIntervalsFixMe($account_number, $value, $uid){
+        global $adb;
+
+        $query = "UPDATE intervals_daily 
+                  SET fixme = ? 
+                  WHERE accountnumber = ?
+                  AND uid = ?";
+        $adb->pquery($query, array($value, $account_number, $uid), 'true');
+    }
+
+    static public function SetTransactionTradeDatesByTypeBeforeDate($account_number, $date, $types){
+        global $adb;
+        $params = array();
+        $params[] = $date;
+        $params[] = $account_number;
+        $params[] = $types;
+        $params[] = $date;
+        $questions = generateQuestionMarks($types);
+
+        $query = "UPDATE vtiger_transactions t 
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                  SET t.proper_date = t.trade_date, t.trade_date = ?
+                  WHERE account_number = ?
+                  AND transaction_type IN ({$questions})
+                  AND trade_date < ?
+                  AND e.deleted = 0";
+        $adb->pquery($query, $params, true);
+    }
+
+    /**
+     * Get all transaction values summed of type passed in BEFORE the passed in date
+     * @param $account_number
+     * @param $typesfGetTransactionValuesByTypeBeforeDate
+     */
+    static public function GetTransactionValuesByTypeBeforeDate($account_number, $date, $types){
+        global $adb;
+        $params = array();
+        $questions = generateQuestionMarks($types);
+
+        $query = "SELECT * FROM vtiger_transactions t 
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                  WHERE account_number = ?
+                  AND transaction_type IN ({$questions})
+                  AND trade_date < ?
+                  AND e.deleted = 0";
+        $params[] = $account_number;
+        $params[] = $types;
+        $params[] = $date;
+
+        $value = 0;
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0){
+            while ($t = $adb->fetchByAssoc($result)) {
+                $val = $t['operation'] . $t['net_amount'];
+                $value += $val;
+            }
+        }
+        return $value;
+    }
+
+    static public function GetFirstIntervalEndDate($account_number){
+        global $adb;
+        $query = "SELECT IntervalEndDate 
+                  FROM intervals_daily 
+                  WHERE AccountNumber = ? 
+                  ORDER BY intervalenddate ASC LIMIT 1";
+        $result = $adb->pquery($query, array($account_number), 'true');
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'intervalenddate');
+        }
+        return false;
+    }
+
+    static public function CreateReconciliationTransactionFromBeginningValueIntervals($account_number){
+        global $adb;
+
+        $query = "SELECT * 
+                  FROM intervals_daily 
+                  WHERE AccountNumber = ? 
+                  AND intervalbeginvalue = 0 
+                  AND netflowamount != intervalendvalue
+                  AND IntervalEndValue != 0
+                  ORDER BY intervalenddate ASC";
+        $result = $adb->pquery($query, array($account_number), 'true');
+
+        $first_date = self::GetFirstIntervalEndDate($account_number);
+
+        //Check for transactions before the very first date that are flows or expenses and return their value
+        $before_value = self::GetTransactionValuesByTypeBeforeDate($account_number, $first_date, array('flow','expense'));
+
+        self::SetTransactionTradeDatesByTypeBeforeDate($account_number, $first_date, array('flow', 'expense'));
+
+        if($adb->num_rows($result) > 0){
+            while ($t = $adb->fetchByAssoc($result)) {
+                $begin_value = $t['intervalbeginvalue'];
+                $end_value = $t['intervalendvalue'];
+                $net_flow = $t['netflowamount'];
+                $uid = $t['uid'];
+                $transaction_amount = $end_value - $net_flow - $before_value;
+/*echo "END: " . $end_value . '<br />';
+echo "Net: " . $net_flow . '<br />';
+echo "Before: " . $before_value . '<br />';
+echo 'Transaction Amount: ' . $transaction_amount  . '<br />';
+exit;*/
+                if($begin_value == 0 && $end_value != 0 && $transaction_amount != 0){
+                    $transaction_amount = $end_value - $net_flow - $before_value;
+//                    echo "creating transaction for $" . $transaction_amount . ' - Account #' . $account_number . '<br />';
+                    $record = Vtiger_Record_Model::getCleanInstance("Transactions");
+                    $data = $record->getData();
+                    $data['security_symbol'] = 'CRMRECON';
+                    $data['description'] = 'System Generated Reconciliation Transaction (b)';
+                    $data['account_number'] = $account_number;
+                    $data['quantity'] = $transaction_amount;
+                    $data['net_amount'] = $transaction_amount;
+                    $data['transaction_type'] = 'Flow';
+                    $data['trade_date'] = $t['intervalenddate'];
+                    $data['transaction_activity'] = 'Reconciliation Transaction';
+                    $data['system_generated'] = 1;
+                    if($transaction_amount < 0)
+                        $data['operation'] = '-';
+                    $record->set('mode','create');
+                    $record->setData($data);
+                    $record->save();
+                    self::UpdateIntervalFlow($uid, $transaction_amount + $net_flow);
+                }
+            }
+        }
+    }
+
+    static public function CreateReconciliationTransactionFromEndValueIntervals($account_number){
+        global $adb;
+
+        $query = "SELECT * 
+                      FROM intervals_daily 
+                      WHERE AccountNumber = ? 
+                      AND IntervalEndValue = 0 
+                      AND intervalbeginvalue != 0
+                      AND netflowamount != intervalbeginvalue";
+        $result = $adb->pquery($query, array($account_number), 'true');
+
+        if($adb->num_rows($result) > 0){
+            while ($t = $adb->fetchByAssoc($result)) {
+                $begin_value = $t['intervalbeginvalue'];
+                $end_value = $t['intervalendvalue'];
+                $net_flow = $t['netflowamount'];
+                $uid = $t['uid'];
+                if($end_value == 0 && $begin_value != 0){
+                    $transaction_amount = ($begin_value + $net_flow)*-1;
+
+                    $record = Vtiger_Record_Model::getCleanInstance("Transactions");
+                    $data = $record->getData();
+                    $data['security_symbol'] = 'CRMRECON';
+                    $data['description'] = 'System Generated Reconciliation Transaction (e)';
+                    $data['account_number'] = $account_number;
+                    $data['quantity'] = $transaction_amount;
+                    $data['net_amount'] = $transaction_amount;
+                    $data['transaction_type'] = 'Flow';
+                    $data['trade_date'] = $t['intervalenddate'];
+                    $data['transaction_activity'] = 'Reconciliation Transaction';
+                    $data['system_generated'] = 1;
+                    if($transaction_amount < 0)
+                        $data['operation'] = '-';
+                    $record->set('mode','create');
+                    $record->setData($data);
+                    $record->save();
+                    self::UpdateIntervalFlow($uid, $transaction_amount);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the last date calculated.  2010-01-01 if never calculated
+     * @param $account_number
+     * @return string
+     */
+    static public function AutoDetermineIntervalCalculationDates($account_number){
+        global $adb;
+        $query = "SELECT last_calculated FROM vtiger_interval_calculations WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result)> 0){
+            while ($v = $adb->fetchByAssoc($result)) {
+                return $v['last_calculated'];
+            }
+        }
+        return '2010-01-01';
+    }
+
+    static public function UpdateIntervalCalculationDate($account_number, $date){
+        global $adb;
+        $query = "INSERT INTO vtiger_interval_calculations (account_number, last_calculated)
+                  VALUES (?, ?)
+                  ON DUPLICATE KEY UPDATE last_calculated = VALUES(last_calculated)";
+        $adb->pquery($query, array($account_number, $date));
+    }
+
+    /**
+     * If auto is set to true, the start date will be ignored and auto determined from when the laster interval was run
+     * @param array $accounts
+     * @param null $start
+     * @param null $end
+     * @param bool $auto
+     */
+    static public function CalculateDailyIntervalsForAccounts(array $accounts, $start = null, $end = null, $auto=false)
     {
         global $adb;
         if (!$start)
@@ -1067,16 +1321,27 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             $end = date("Y-m-d");
 
         foreach ($accounts AS $k => $v) {
+            if($auto == true){
+                $start = self::AutoDetermineIntervalCalculationDates($v);
+                $end = date("Y-m-d");//If auto is on, but start/end dates were provided, we override those dates
+            }
+
             $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
             $params = array($v, $start, $end, $custodian, 'live_omniscient');
             $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
-#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
             $adb->pquery($query, $params, 'true');
+            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
+
+            if($auto == true)//We only want to update with the latest date possible, auto guarantees us this
+                self::UpdateIntervalCalculationDate($v, $end);
+            self::CreateReconciliationTransactionFromEndValueIntervals($v);
+
+            /*Old way of calculating intervals was monthly.. we have now moved to daily*/
+#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
         }
     }
 
-    static public function GetIntervalsForAccounts(array $accounts, $start = null, $end = null)
-    {
+    static public function GetIntervalsForAccounts(array $accounts, $start = null, $end = null){
         global $adb;
         $and = "";
         $questions = generateQuestionMarks($accounts);
@@ -1160,6 +1425,43 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
+    static public function GetDailyIntervalsForAccountsPreCalculated(array $accounts, $start_date, $end_date){
+        global $adb;
+        $twr = 1;
+
+        $questions = generateQuestionMarks($accounts);
+#        $query = "CALL CALCULATE_MONTHLY_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
+        $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
+//        $query = "CALL TWR_INTERVALS_CALCULATED(\"{$questions}\", ?, ?)";
+        $adb->pquery($query, array($accounts, $start_date, $end_date), true);
+
+        $query = "SELECT * FROM tmpDailyPreTWR ORDER BY intervalenddate ASC";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0){
+            $twr = 1;
+            while ($v = $adb->fetchByAssoc($result)) {
+                $twr = $twr * $v['netreturnamount'];
+                $intervals[] = array("account_number" => $v['accountnumber'],
+                    "begin_date" => date("m-d-Y", strtotime($v['intervalbegindate'])),
+                    "end_date" => date("m-d-Y", strtotime($v['intervalenddate'])),
+                    "begin_value" => $v['intervalbeginvalue'],
+                    "end_value" => $v['intervalendvalue'],
+                    "net_flow" => $v['netflowamount'],
+                    "net_return" => $v['netreturnamount'],
+                    "gross_return" => $v['grossreturnamount'],
+                    "expense_amount" => $v['expenseamount'],
+                    "incomeamount" => $v['incomeamount'],
+                    "journalamount" => $v['journalamount'],
+                    "tradeamount" => $v['tradeamount'],
+                    "investmentreturn" => $v['investmentreturn'],
+                    "net_return_percent" => ($v['netreturnamount']-1) * 100,
+                    "twr" => ($twr - 1) * 100);
+            }
+            return array_reverse($intervals);
+        }
+    }
+
     static public function GetDailyIntervalsForAccounts(array $accounts)
     {
         global $adb;
@@ -1168,11 +1470,17 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $params[] = $accounts;
 
         $query = "SELECT intervalbegindate, 
-                         intervalenddate, 
-                         DATE_FORMAT(intervalbegindate, '%m-%d-%Y') AS intervalbegindate_formatted, 
-                         DATE_FORMAT(intervalenddate, '%m-%d-%Y') AS intervalenddate_formatted, 
-                         intervalbeginvalue, intervalendvalue, netflowamount, netreturnamount, grossreturnamount, expenseamount, 
-                         incomeamount, journalamount, tradeamount, investmentreturn
+                  intervalenddate, 
+                  DATE_FORMAT(intervalbegindate, '%m-%d-%Y') AS intervalbegindate_formatted, 
+                  DATE_FORMAT(intervalenddate, '%m-%d-%Y') AS intervalenddate_formatted, 
+                  SUM(intervalbeginvalue) AS intervalbeginvalue, 
+                  SUM(intervalendvalue) AS intervalendvalue, 
+                  SUM(netflowamount) AS netflowamount, 
+                  netreturnamount, 
+                  SUM(grossreturnamount) AS grossreturnamount, 
+                  SUM(expenseamount) AS expenseamount, 
+                  SUM(incomeamount) AS incomeamount, journalamount, tradeamount, 
+                  SUM(investmentreturn) AS investmentreturn
                   FROM intervals_daily 
                   WHERE AccountNumber IN ({$questions}) AND IntervalType = 'daily'
                   GROUP BY intervalenddate 
@@ -1877,28 +2185,28 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['end'] = date("m/{$day}Y", strtotime("last year January 1st"));
                 break;
             case "ytd":
-                $dateReturn['start'] = date("Y-m", strtotime("January 1st " . date('Y')));
-                $dateReturn['end'] = date("Y-m", strtotime("last day of previous month"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st " . date('Y')));
+                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
                 break;
             case "2017":
-                $dateReturn['start'] = date("Y-m", strtotime("January 1st 2017"));
-                $dateReturn['end'] = date("Y-m", strtotime("December 31st 2017"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2017"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2017"));
                 break;
             case "2018":
                 $dateReturn['start'] = date("Y-m", strtotime("January 1st 2018"));
-                $dateReturn['end'] = date("Y-m", strtotime("December 31st 2018"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2018"));
                 break;
             case "2019":
-                $dateReturn['start'] = date("Y-m", strtotime("January 1st 2019"));
-                $dateReturn['end'] = date("Y-m", strtotime("December 31st 2019"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2019"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2019"));
                 break;
             case "trailing_12":
-                $dateReturn['start'] = date("Y-m", strtotime("first day of this month -1 year"));
-                $dateReturn['end'] = date("Y-m", strtotime("last day of previous month"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("first day of this month -1 year"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
                 break;
             case "trailing_6":
-                $dateReturn['start'] = date("Y-m", strtotime("first day of this month -6 months"));
-                $dateReturn['end'] = date("Y-m", strtotime("last day of previous month"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("first day of this month -6 months"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
                 break;
             case "custom":
                 $dateReturn['start'] = "";
@@ -2312,6 +2620,21 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         #schwab = as_of_date
         #td = as_of_date
         #pershing = date
+    }
+
+    static public function GetIntervalBeginValueForDate($account_number, $date){
+        global $adb;
+
+        $query = "SELECT * 
+                  FROM intervals_daily 
+			      WHERE IntervalEndDate >= ?
+                  AND AccountNumber = ?
+			      ORDER BY IntervalEndDate ASC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $account_number), true);
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "intervalbeginvalue");
+        }
+        return 0;
     }
 
     static public function GetIntervalValueLessThanDate($account_number, $date){
