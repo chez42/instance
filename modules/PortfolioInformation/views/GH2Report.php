@@ -28,12 +28,13 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
         $calling_record = $request->get('calling_record');
         $prepared_for = "";
 
+//        if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
         if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
             $accounts = explode(",", $request->get("account_number"));
             $accounts = array_unique($accounts);
 
             if(strlen($request->get('report_start_date')) > 1) {
-                $start_date = $request->get("report_start_date");
+                $start_date =  $request->get("report_start_date");
             }
             else {
                 $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['start'];
@@ -46,52 +47,37 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
                 $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['end'];
             }
 
-            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
-            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
+##            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
+##            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
 
-            $start_date = date("Y-m", strtotime($start_date));
-            $end_date = date("Y-m", strtotime($end_date));
+            $start_date = date("Y-m-d", strtotime($start_date));
+            $end_date = date("Y-m-d", strtotime($end_date));
 
-#            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
+//            PortfolioInformation_Module_Model::RemoveIntervals($accounts, $tmp_start_date, $tmp_end_date);
 //            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+//            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $tmp_start_date, $tmp_end_date);
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
+//            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, "2015-01-01", "2020-03-19");
+
+            $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    echo $v;
                     $query = "CALL TD_REC_TRANSACTIONS(?)";
                     $adb->pquery($query, array($v));
                 };
+                if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
+                    $tmp[] = $v;
             }
 
-            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $tmp_start_date, $tmp_end_date);
+            $accounts = $tmp;
 
-            /*            if(apcu_fetch('calcs_ran') != 1){
-                            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-                            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, GetFirstWeekdayDateFromMonthYear($start_date), GetDateMinusOneWorkingDay($start_date));
-                        }else{
-                            apcu_store('calcs_ran', 1, 60);
-                        }
-            */
-            $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
+            $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
 
             if (sizeof($accounts) > 0) {
-/*                PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
-                $categories = array("estimatedtype");
-                $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
-                $totals = array("current_value", "weight");
-                $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
-                $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
-                $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();*/
-
-                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $end_date);
                 $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
                 $sector_pie = PortfolioInformation_Reports_Model::GetPositionSectorsPie();
-                #$positions = PortfolioInformation_Reports_Model::GetPositionsFromValuesTable();
 
-#            print_r($estimateTable['table_categories']);
-#            echo "<br /><br />";
-/*                $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
-                PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-*/
                 global $adb;
                 $query = "SELECT @global_total as global_total";
                 $result = $adb->pquery($query, array());
@@ -100,12 +86,9 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
                 }
             };
 
-####            if(is_array($holdings_pie))//If the pie chart is going to be negative and isn't an array, prevent an error
-####                $holdings_pie = PortfolioInformation_Reports_Model::AddPercentageTotalToPie($holdings_pie, $global_total);
-
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
+            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $end_date);
+            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $end_date);
+            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $end_date);
             $date_options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh2_report");
 
             $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
@@ -113,9 +96,12 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
 
             $viewer = $this->getViewer($request);
 
-            $ytd_performance->CalculateIndividualTWRCumulative($tmp_start_date, $tmp_end_date);
+            $ytd_performance->CalculateIndividualTWRCumulative($start_date, $end_date);
 #print_r($positions);
 //            $ytd_performance->GetEstimatedIncome()->GetGrandTotal();exit;
+
+            $start_date = date("m/d/Y", strtotime($start_date));
+            $end_date = date("m/d/Y", strtotime($end_date));
 
             $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
             $viewer->assign('STYLES', self::getHeaderCss($request));
@@ -126,7 +112,7 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
             $viewer->assign("HOLDINGSSECTORPIESTRING", json_encode($sector_pie));
             $viewer->assign("HOLDINGSSECTORPIEARRAY", $sector_pie);
             $viewer->assign("HOLDINGSPIEARRAY", $new_pie);
-            $viewer->assign("POSITIONS", $positions);
+//            $viewer->assign("POSITIONS", $positions);
             $viewer->assign("GLOBALTOTAL", $global_total);
             $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
             $viewer->assign("MARGIN_BALANCE", $margin_balance);
@@ -139,8 +125,8 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
             $viewer->assign("DATE_OPTIONS", $date_options);
             $viewer->assign("SHOW_START_DATE", 1);
             $viewer->assign("SHOW_END_DATE", 1);
-            $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
-            $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
+            $viewer->assign("START_DATE", $start_date);
+            $viewer->assign("END_DATE", $end_date);
 
             if($calling_record) {
                 $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
@@ -221,7 +207,7 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/AllocationTypesPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }else {
                 $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
@@ -263,14 +249,14 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
             "~/libraries/amcharts/amcharts/plugins/export/export.js",
 #            "~/libraries/amcharts/2.0.5/amcharts/javascript/raphael.js",
             "~/libraries/jquery/acollaptable/jquery.aCollapTable.min.js",
-            "~/libraries/shield/shieldui-all.min.js",
+//            "~/libraries/shield/shieldui-all.min.js",
             "modules.PortfolioInformation.resources.DynamicChart",
             "modules.PortfolioInformation.resources.DynamicPie",
             "modules.$moduleName.resources.printing",
             "modules.$moduleName.resources.jqueryIdealforms",
 #            "modules.$moduleName.resources.OmniOverview",
             "modules.$moduleName.resources.GH2Report",
-            "modules.$moduleName.resources.MonthSelection",
+//            "modules.$moduleName.resources.MonthSelection",
             "modules.PortfolioInformation.resources.DateSelection",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

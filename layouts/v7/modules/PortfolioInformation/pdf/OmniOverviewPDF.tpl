@@ -21,9 +21,9 @@
     <thead>
     <tr>
         <th style="font-weight:bold; vertical-align:top; text-align:left; font-size:16px; text-decoration:underline;"></th>
-        <th style="font-weight:bold;">Trailing 3<br />({$T3PERFORMANCE->GetStartDateWithParams("M y")} to {$T3PERFORMANCE->GetEndDateWithParams("M y")})</th>
-        <th style="font-weight:bold;">Year to Date<br />({$T6PERFORMANCE->GetStartDateWithParams("M y")} to {$T6PERFORMANCE->GetEndDateWithParams("M y")})</th>
-        <th style="font-weight:bold;">Trailing 12<br />({$T12PERFORMANCE->GetStartDateWithParams("M y")} to {$T12PERFORMANCE->GetEndDateWithParams("M y")})</th>
+        <th style="font-weight:bold;">Trailing 3<br />({$T3PERFORMANCE->GetStartDateWithParams("m/d/Y")} to {$T3PERFORMANCE->GetEndDateWithParams("m/d/Y")})</th>
+        <th style="font-weight:bold;">Year to Date<br />({$T6PERFORMANCE->GetStartDateWithParams("m/d/Y")} to {$T6PERFORMANCE->GetEndDateWithParams("m/d/Y")})</th>
+        <th style="font-weight:bold;">Trailing 12<br />({$T12PERFORMANCE->GetStartDateWithParams("m/d/Y")} to {$T12PERFORMANCE->GetEndDateWithParams("m/d/Y")})</th>
     </tr>
     </thead>
     <tbody>

@@ -1,6 +1,9 @@
+{*
 {foreach key=index item=jsModel from=$SCRIPTS}
     <script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 {/foreach}
+*}
+
 {foreach key=index item=cssModel from=$STYLES}
     <link rel="{$cssModel->getRel()}" href="{$cssModel->getHref()}?parameter=1" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
 {/foreach}
@@ -114,7 +117,7 @@
             </table>
         </div>
         <div class="GHReport_section">
-            <h2 style="width:100%; background-color:lightgrey; text-align:center;"><span style="font-size:14px;">{$HEADING} PERFORMANCE ({$START_DATE|date_format:'%B, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B, %Y'})</span></h2>
+            <h2 style="width:100%; background-color:lightgrey; text-align:center;"><span style="font-size:14px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B %d, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B %d, %Y'})</span></h2>
             <table class="gh2table table table-bordered" style="display:block; width:100%;">
                 <thead>
                 <tr>
@@ -136,7 +139,7 @@
                     <tr {if $ytd_individual_performance_summed[$account_number]['Flow']->disable_performance eq 1} style="{*background-color:#FFFFE0;*}" {/if}>
                         <td>**{$account_number|substr:5} ({$ytd_individual_performance_summed[$account_number]['account_type']})</td>
                         <td>{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
-                        <td style="text-align:right;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
+                        <td style="text-align:right;">({$ytd_begin_values[$account_number]->date|date_format:'%m/%d/%Y'}) ${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
                         <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Flow']->amount|number_format:0:".":","}</td>
                         <td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
                         {*<td style="text-align:right;">${$ytd_individual_performance_summed[$account_number]['Income']->amount|number_format:2:".":","}</td>*}
