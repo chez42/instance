@@ -151,7 +151,7 @@
         </table>
     </div>
     <div class="GHReport_section">
-        <h2 class="grey_header"><span style="font-size:20px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B, %Y'})</span></h2>
+        <h2 class="grey_header"><span style="font-size:20px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B %d, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B %d, %Y'})</span></h2>
         <table class='table' style="font-family:Calibri, Sans-Serif;">
             <thead>
             <tr style="background-color:RGB(245, 245, 245);">

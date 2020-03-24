@@ -32,8 +32,11 @@ function GetDatePlusMonthsSpecified($date, $num_months){
     return date("Y-m-d",(strtotime("{$date} +{$num_months} months")));
 }
 
-function GetDateMinusMonths($num_months){
-    return date("Y-m-d", strtotime("TODAY -{$num_months} months"));
+function GetDateMinusMonths($num_months, $date){
+    if($date){
+        return date("Y-m-d", strtotime("{$date} -{$num_months} months"));
+    }else
+        return date("Y-m-d", strtotime("TODAY -{$num_months} months"));
 }
 
 function GetDateMinusDays($num_days){
@@ -48,8 +51,12 @@ function GetDatePlusOneDay($date){
     return date('Y-m-d',(strtotime ( '+1 day' , strtotime ( $date) ) ));
 }
 
-function GetDateStartOfYear(){
-    return date('Y') . '-01-01';
+function GetDateStartOfYear($date){
+    if($date){
+        return date("Y-01-01", strtotime($date));
+    }
+    else
+        return date('Y') . '-01-01';
 }
 
 function GetFirstDayLastYear(){

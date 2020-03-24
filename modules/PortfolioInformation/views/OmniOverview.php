@@ -23,21 +23,27 @@ class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
         $calling_module = $request->get('calling_module');
         $calling_record = $request->get('calling_record');
         if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
+            $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
+
             $accounts = explode(",", $request->get("account_number"));
             $accounts = array_unique($accounts);
-            $start = date('Y-m-d', strtotime('-7 days'));
+//            $start = date('Y-m-d', strtotime('-7 days'));//No longer used, originally it was just for calculating intervals
             $end = date('Y-m-d');
 #####            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-##            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);//Auto determine which intervals need calculated
 
 /*            $t3_performance = new Performance_Model($accounts, GetDateMinusMonths(TRAILING_3), date("Y-m-d"));
             $t6_performance = new Performance_Model($accounts, GetDateStartOfYear(), date("Y-m-d"));
             $t12_performance = new Performance_Model($accounts, GetDateMinusMonths(TRAILING_12), date("Y-m-d"));*/
-            $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
+            if(strlen($request->get('report_end_date')) > 1) {
+                $end_date = date("Y-m-d",strtotime($request->get("report_end_date")));
+            }else {
+                $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
+            }
 
-            $t3_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_3)), $end_date);
-            $t6_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateStartOfYear()), $end_date);
-            $t12_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_12)), $end_date);
+            $t3_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_3, $end_date)), $end_date);
+            $t6_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateStartOfYear($end_date)), $end_date);
+            $t12_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_12, $end_date)), $end_date);
 #            $t12_performance = new Performance_Model($accounts, "2016-04-13", "2017-07-02");
             $historical = new Historical_Model($accounts);
             $last_month = date('Y-m-d', strtotime('last day of previous month'));
@@ -100,19 +106,23 @@ class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
 
             };
 
+            $end_date = date("m/d/Y", strtotime($end_date));
+
             $viewer = $this->getViewer($request);
 
             $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
             $viewer->assign("MARGIN_BALANCE", $margin_balance);
             $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
             $viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
-
+            $viewer->assign("DATE_OPTIONS", $options);
+            $viewer->assign("OVERVIEW_STYLE", 1);
             $viewer->assign("ESTIMATE_TABLE", $estimateTable);
             $viewer->assign("T3PERFORMANCE", $t3_performance);
             $viewer->assign("T6PERFORMANCE", $t6_performance);
             $viewer->assign("T12PERFORMANCE", $t12_performance);
             $viewer->assign("TABLECATEGORIES", $table);
             $viewer->assign("HOLDINGSPIEVALUES", json_encode($holdings_pie));
+            $viewer->assign("END_DATE", $end_date);
             $viewer->assign("T12BALANCES", json_encode($t12_balances));
             $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
             $viewer->assign("ACCOUNT_NUMBER", $request->get("account_number"));
@@ -188,11 +198,12 @@ $pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display
 </div>';
 //                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/DynamicHoldings.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }else {
 #                $viewer->view('OmniOverview.tpl', "PortfolioInformation");
-                $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/OmniOverview.tpl', "PortfolioInformation");
+                $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
+                $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/OmniOverview.tpl', "PortfolioInformation");
                 $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/IndividualPerformance.tpl', "PortfolioInformation");
                 echo $screen_content;
             }
@@ -236,6 +247,7 @@ $pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display
 #            "modules.PortfolioInformation.resources.DynamicPie",
             "modules.$moduleName.resources.printing",
             "modules.$moduleName.resources.jqueryIdealforms",
+            "modules.PortfolioInformation.resources.DateSelection",
             "modules.$moduleName.resources.OmniOverview",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

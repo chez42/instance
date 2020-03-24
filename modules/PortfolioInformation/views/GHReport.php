@@ -61,25 +61,28 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['end'];
             }
 
-            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
-            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
+##            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
+##            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
 
-            $start_date = date("Y-m", strtotime($start_date));
-            $end_date = date("Y-m", strtotime($end_date));
+            $start_date = date("Y-m-d", strtotime($start_date));
+            $end_date = date("Y-m-d", strtotime($end_date));
 
+//            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
+//            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date);
+
+            $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    echo $v;
                     $query = "CALL TD_REC_TRANSACTIONS(?)";
                     $adb->pquery($query, array($v));
                 };
+                if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
+                    $tmp[] = $v;
             }
+            $accounts = $tmp;
 
-            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
-//            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $tmp_start_date, $tmp_end_date);
-
-            $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
+            $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
 
             if (sizeof($accounts) > 0) {
                 PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
@@ -90,7 +93,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
                 $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
 
-                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $end_date);
                 $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
 
 #            print_r($estimateTable['table_categories']);
@@ -108,14 +111,17 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
 ####            if(is_array($holdings_pie))//If the pie chart is going to be negative and isn't an array, prevent an error
 ####                $holdings_pie = PortfolioInformation_Reports_Model::AddPercentageTotalToPie($holdings_pie, $global_total);
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
+            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $end_date);
+            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $end_date);
+            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $end_date);
 
             $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
 
             $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
             $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+
+            $start_date = date("m/d/Y", strtotime($start_date));
+            $end_date = date("m/d/Y", strtotime($end_date));
 
             $prepare_date = date("F d, Y");
             $viewer = $this->getViewer($request);
@@ -138,8 +144,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("DATE_OPTIONS", $options);
             $viewer->assign("SHOW_START_DATE", 1);
             $viewer->assign("SHOW_END_DATE", 1);
-            $viewer->assign("START_DATE", $start_date . '-01T08:05:00');
-            $viewer->assign("END_DATE", $end_date . '-01T08:05:00');
+            $viewer->assign("START_DATE", $start_date);
+            $viewer->assign("END_DATE", $end_date);
             $viewer->assign("PREPARE_DATE", $prepare_date);
             $viewer->assign("ACCOUNTS", $accounts);
 
@@ -226,6 +232,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 /*                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
+
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GHReportNewPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
@@ -274,14 +281,15 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             "~/libraries/amcharts/amcharts/plugins/export/export.js",
 #            "~/libraries/amcharts/2.0.5/amcharts/javascript/raphael.js",
             "~/libraries/jquery/acollaptable/jquery.aCollapTable.min.js",
-            "~/libraries/shield/shieldui-all.min.js",
+//            "~/libraries/shield/shieldui-all.min.js",
 #            "modules.PortfolioInformation.resources.DynamicChart",
 //            "modules.PortfolioInformation.resources.DynamicPie",
             "modules.$moduleName.resources.printing",
             "modules.$moduleName.resources.jqueryIdealforms",
 //            "modules.$moduleName.resources.OmniOverview",
-            "modules.$moduleName.resources.MonthSelection",
+//            "modules.$moduleName.resources.MonthSelection",
             "modules.$moduleName.resources.GHReport",
+            "modules.PortfolioInformation.resources.DateSelection",
             "modules.$moduleName.resources.Administration",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
