@@ -164,12 +164,12 @@ jQuery(document).ready(function($) {
     var instance = OmniOverview_Module_Js.getInstanceByView();
     instance.registerEvents();
 
-    var pie = DynamicPie_Js.getInstanceByView();
+/*    var pie = DynamicPie_Js.getInstanceByView();
     pie.registerEvents();
 //    var chart = DynamicChart_JS.getInstanceByView();
 
 //    pie.CreatePie("dynamic_pie_holder", "holdings_values");
-    pie.CreatePie("sector_pie_holder", "sector_values", false);
+    pie.CreatePie("sector_pie_holder", "sector_values", false);*/
 //    pie.CreateGraph("dynamic_chart_holder", "t12_balances", "intervalenddateformatted", "intervalendvalue");
 
 //    chart.CreateChart("dynamic_chart_holder", "t12_balances");

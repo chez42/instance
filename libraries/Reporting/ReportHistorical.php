@@ -16,7 +16,7 @@ class Historical_Model extends Vtiger_Module {
         $query = "SELECT AccountNumber, IntervalID, IntervalBeginDate, DATE_FORMAT(IntervalEndDate, '%m-%d-%Y') AS IntervalEndDateFormatted, IntervalBeginValue, IntervalEndValue, NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, FirstDayFlows, FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount 
                   FROM HISTORICAL 
                   WHERE IntervalEndDate 
-                  BETWEEN ? AND ?
+                  BETWEEN ? AND LAST_DAY(?)
                   ORDER BY IntervalEndDate ASC";
         $result = $adb->pquery($query, array($start_date, $end_date));
         if($adb->num_rows($result) > 0){
@@ -34,7 +34,7 @@ class Historical_Model extends Vtiger_Module {
         $query = "SELECT AccountNumber, IntervalID, IntervalBeginDate, DATE_FORMAT(IntervalEndDate, '%b %Y') AS IntervalEndDateFormatted, IntervalBeginValue, IntervalEndValue, NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, FirstDayFlows, FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount 
                   FROM HISTORICAL 
                   WHERE IntervalEndDate 
-                  BETWEEN ? AND ?
+                  BETWEEN ? AND LAST_DAY(?)
                   ORDER BY IntervalEndDate ASC";
         $result = $adb->pquery($query, array($start_date, $end_date));
         if($adb->num_rows($result) > 0){

@@ -48,7 +48,8 @@ class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
             $historical = new Historical_Model($accounts);
             $last_month = date('Y-m-d', strtotime('last day of previous month'));
             $last_year = date('Y-m-d', strtotime("{$last_month} - 1 year"));
-            $t12_balances = $historical->GetEndValuesWithoutDay($last_year, $last_month);
+//            $t12_balances = $historical->GetEndValuesWithoutDay($last_year, $end_date);
+            $t12_balances = $historical->GetEndValues($last_year, $end_date);
             //Get a list of sub categories we can use to combine all the performance types into a table`
 
             $performance_summary_table['t3'] = $t3_performance->GetPerformanceSummed();
