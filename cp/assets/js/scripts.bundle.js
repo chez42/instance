@@ -9187,6 +9187,7 @@ var KTChat = function () {
 						}
 					}
 					$('.filename').remove();
+					file = '';
 					jQuery(parentEl).waitMe('hide');
 				}
 			});
