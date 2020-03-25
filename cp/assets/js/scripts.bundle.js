@@ -9188,6 +9188,7 @@ var KTChat = function () {
 					}
 					$('.filename').remove();
 					file = '';
+					$('input[type="file"]').val('');
 					jQuery(parentEl).waitMe('hide');
 				}
 			});
@@ -9248,7 +9249,6 @@ var KTChat = function () {
 	        $('input[type="file"]').change(function(e){
 	        	file = e.target.files[0];
 	        	var row = $(this).parent().parent();
-	        	console.log(row);
 	        	if(row.find('.filename').length){
 	        		row.find('.filename').text(file.name);
 	        	}else{

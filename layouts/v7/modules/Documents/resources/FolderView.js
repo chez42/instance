@@ -119,6 +119,38 @@ Vtiger.Class('Documents_FolderView_Js', {
 		    	}
 			}
 		});
+		 
+		 jQuery('div#page').scroll(function() {
+	         
+			if(scrollContainers.find('.fileDrag').length > 0){
+				  
+				 if ($('div#page').scrollTop() + $(window).height() >= $(document).height() - 30 && 
+	    			jQuery('[name="scrollevent"]').val() == 1){
+		    		app.helper.showProgress();
+		    		var folderId = scrollContainers.find('.foldersData').data('parentFolder');
+		    		var index = parseInt(jQuery('[name="startIndex"]').val());
+		    		
+		    		var params = {
+	    				module: 'Documents',
+	    				view: 'FolderView',
+	    				record: folderId,
+	    				mode : 'loadMoreFiles',
+	    				index : index,
+	    			};
+		    		app.request.post({data: params}).then(function (err, res) {
+						if(err == null){
+							if(res){
+								jQuery('[name="scrollevent"]').remove();
+								scrollContainers.find('.foldersData').append(res);
+								jQuery('[name="startIndex"]').val(index + parseInt(jQuery('[name="listLimit"]').val()));
+								thisInstance.makeFilesSortable();
+							}
+						}
+						app.helper.hideProgress();
+					});
+		    	}
+			}
+		});
 		
 	},
 	
