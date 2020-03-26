@@ -596,10 +596,10 @@ class EnhancedQueryGenerator extends QueryGenerator {
 		}
 
 		if ($this->meta->getTabName() == 'Documents') {
-			$tableJoinCondition['folderid'] = array(
-				'vtiger_attachmentsfolderfolderid' => "$baseTable.folderid = vtiger_attachmentsfolderfolderid.folderid"
-			);
-			$tableJoinMapping['vtiger_attachmentsfolderfolderid'] = 'INNER JOIN vtiger_attachmentsfolder';
+// 			$tableJoinCondition['folderid'] = array(
+// 				'vtiger_attachmentsfolderfolderid' => "$baseTable.folderid = vtiger_attachmentsfolderfolderid.folderid"
+// 			);
+// 			$tableJoinMapping['vtiger_attachmentsfolderfolderid'] = 'INNER JOIN vtiger_attachmentsfolder';
 		}
 
 		foreach ($tableJoinCondition as $fieldName => $conditionInfo) {

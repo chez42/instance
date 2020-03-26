@@ -19,7 +19,7 @@ class HelpDesk extends CRMEntity {
 	var $table_name = "vtiger_troubletickets";
 	var $table_index= 'ticketid';
 	var $tab_name = Array('vtiger_crmentity','vtiger_troubletickets','vtiger_ticketcf');
-	var $tab_name_index = Array('vtiger_crmentity'=>'crmid','vtiger_troubletickets'=>'ticketid','vtiger_ticketcf'=>'ticketid','vtiger_ticketcomments'=>'ticketid');
+	var $tab_name_index = Array('vtiger_crmentity'=>'crmid','vtiger_troubletickets'=>'ticketid','vtiger_ticketcf'=>'ticketid');
 	/**
 	 * Mandatory table for supporting custom fields.
 	 */
@@ -919,7 +919,7 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
    	                        " INNER JOIN $tableName $tableName$scope ON $tableName$scope.id = vtiger_crmentity$scope.smownerid ".
    	                        " OR $tableName$scope.id = vtiger_crmentity$scope.smcreatorid OR $tableName$scope.id = vtiger_ticketcf.financial_advisor ". 
    	                        " OR vtiger_ticket_view_permission.view_permission_id = $tableName$scope.id ".
-   	                        " AND (vtiger_ticket_view_permission.view_permission_id IN('". $view_permission_ids ."')  OR vtiger_crmentity.smcreatorid = '".$user->id."' ". 
+   	                        " AND (vtiger_ticket_view_permission.view_permission_id IN(". $view_permission_ids .")  OR vtiger_crmentity.smcreatorid = '".$user->id."' ". 
                             " OR vtiger_ticketcf.financial_advisor = '".$user->id."') ".
                             " ";
 	                    }

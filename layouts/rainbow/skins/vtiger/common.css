@@ -9115,3 +9115,12 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 .dropdown-menu {
 	z-index: 1002 !important;	
 }
+.listViewEntries .input-group {
+	margin-bottom: 0px !important;
+}
+.listViewEntries .date {
+	margin-left: -10px !important;
+}		
+.listViewEntries .referencefield-wrapper{
+	display: unset !important;
+}
