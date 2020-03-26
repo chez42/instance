@@ -698,7 +698,7 @@ class Vtiger_RelationListView_Model extends Vtiger_Base_Model {
 	 * @param <Array> $linkParams
 	 * @return <Array> - Associative array of Link type to List of  Vtiger_Link_Model instances for Mass Actions
 	 */
-	public function getRelatedListViewMassActions($linkParams) {
+	public function getRelatedListViewMassActions($linkParams = array()) {
 	    $currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 	    $moduleModel = $this->getRelatedModuleModel();
 	    
