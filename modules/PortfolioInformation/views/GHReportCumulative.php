@@ -55,13 +55,13 @@ class PortfolioInformation_GHReportCumulative_View extends Vtiger_Index_View
             if (strlen($request->get('report_start_date')) > 1) {
                 $start_date = $request->get("report_start_date");
             } else {
-                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['start'];
+                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
             }
 
             if (strlen($request->get('report_end_date')) > 1) {
                 $end_date = $request->get("report_end_date");
             } else {
-                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2019", false)['end'];
+                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['end'];
             }
 
             $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));

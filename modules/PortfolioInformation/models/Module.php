@@ -1199,20 +1199,21 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         //Check for transactions before the very first date that are flows or expenses and return their value
         $before_value = self::GetTransactionValuesByTypeBeforeDate($account_number, $first_date, array('flow','expense'));
 
-        self::SetTransactionTradeDatesByTypeBeforeDate($account_number, $first_date, array('flow', 'expense'));
-
         if($adb->num_rows($result) > 0){
+            self::SetTransactionTradeDatesByTypeBeforeDate($account_number, $first_date, array('flow', 'expense'));
             while ($t = $adb->fetchByAssoc($result)) {
                 $begin_value = $t['intervalbeginvalue'];
                 $end_value = $t['intervalendvalue'];
                 $net_flow = $t['netflowamount'];
                 $uid = $t['uid'];
                 $transaction_amount = $end_value - $net_flow - $before_value;
-/*echo "END: " . $end_value . '<br />';
+echo "Account: " . $account_number . '<br />';
+echo "END: " . $end_value . '<br />';
 echo "Net: " . $net_flow . '<br />';
 echo "Before: " . $before_value . '<br />';
 echo 'Transaction Amount: ' . $transaction_amount  . '<br />';
-exit;*/
+echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
+#exit;
                 if($begin_value == 0 && $end_value != 0 && $transaction_amount != 0){
                     $transaction_amount = $end_value - $net_flow - $before_value;
 //                    echo "creating transaction for $" . $transaction_amount . ' - Account #' . $account_number . '<br />';
@@ -1330,11 +1331,11 @@ exit;*/
             $params = array($v, $start, $end, $custodian, 'live_omniscient');
             $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
             $adb->pquery($query, $params, 'true');
-            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
+//            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
 
             if($auto == true)//We only want to update with the latest date possible, auto guarantees us this
                 self::UpdateIntervalCalculationDate($v, $end);
-            self::CreateReconciliationTransactionFromEndValueIntervals($v);
+//            self::CreateReconciliationTransactionFromEndValueIntervals($v);
 
             /*Old way of calculating intervals was monthly.. we have now moved to daily*/
 #            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
@@ -2186,7 +2187,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 break;
             case "ytd":
                 $dateReturn['start'] = date("Y-m-d", strtotime("January 1st " . date('Y')));
-                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("today"));
                 break;
             case "2017":
                 $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2017"));
@@ -2201,12 +2202,12 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2019"));
                 break;
             case "trailing_12":
-                $dateReturn['start'] = date("Y-m-d", strtotime("first day of this month -1 year"));
-                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("today -1 year"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("today"));
                 break;
             case "trailing_6":
-                $dateReturn['start'] = date("Y-m-d", strtotime("first day of this month -6 months"));
-                $dateReturn['end'] = date("Y-m-d", strtotime("last day of previous month"));
+                $dateReturn['start'] = date("Y-m-d", strtotime("today -6 months"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("today"));
                 break;
             case "custom":
                 $dateReturn['start'] = "";
