@@ -262,7 +262,7 @@
 							{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
 							{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 							<input type=hidden name="timeFormatOptions" data-value='{$DAY_STARTS}' />
-							<div>
+							<div  class="blockHeader">
 								<h4 class="textOverflowEllipsis maxWidth50"  style="font-weight: bold !important;margin: 0px !important;padding: 10px !important;">
 									<i class="ti-plus cursorPointer alignMiddle blockToggle {if !($IS_HIDDEN)} hide {/if}" data-mode="hide" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
 									<i class="ti-minus cursorPointer alignMiddle blockToggle {if ($IS_HIDDEN)} hide {/if}" data-mode="show" data-id={$BLOCK_LIST[$BLOCK_LABEL_KEY]->get('id')}></i>
