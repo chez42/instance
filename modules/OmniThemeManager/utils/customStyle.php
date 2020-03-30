@@ -873,3 +873,19 @@ tbody .ps__thumb-y{
 .stellarnav ul ul{
 	max-width : unset !important;
 }
+.blockHeader{
+	background: <?= $menu_color ?>;
+	color: <?= $text_contrast_menu ?>;
+	border-top-left-radius: <?= $border_radius ?>px;
+    border-top-right-radius: <?= $border_radius ?>px;
+}
+.related-tabs .tab-links{
+	padding-left: 15px;
+    padding-right: 15px;
+	border-radius: <?= $border_radius ?>px;
+	background: <?= $menu_color ?>;
+	color: <?= $text_contrast_menu ?>!important;
+}
+.nav-tabs>li>a{
+	color: <?= $text_contrast_menu ?>!important;
+}

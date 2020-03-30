@@ -1711,7 +1711,7 @@ input[type=checkbox]:checked {
 
 #detailView td.fieldValue .action {
   display: none;
-  position: absolute;
+  //position: absolute;
   margin-left: 10px;
 }
 #detailView td.fieldValue:hover .action {
@@ -2819,7 +2819,7 @@ input[type=checkbox]:checked {
   white-space: nowrap;
   overflow: hidden;
   font-size: 13px;
-  width: 60%;
+  //width: 60%;
   display: inline-block;
   text-overflow: ellipsis;
   vertical-align: middle;
@@ -5957,7 +5957,7 @@ div.tooltip-inner {
 }
 .summaryViewEntries .input-group.editElement {
   width: auto;
-  display: flex;
+  //display: flex;
 }
 .summaryView .summaryViewFields .input-group {
   line-height: 0;
@@ -9123,4 +9123,13 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 }		
 .listViewEntries .referencefield-wrapper{
 	display: unset !important;
+}
+.noSorting{
+	vertical-align: middle;
+    white-space: nowrap;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+#overlayPageContent #EditView .editViewBody {
+	margin-top: 0px;
 }
