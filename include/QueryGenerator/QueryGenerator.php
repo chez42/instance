@@ -740,36 +740,56 @@ class QueryGenerator {
 						$moduleList = $this->referenceFieldInfoList[$fieldName];
 						foreach($moduleList as $module) {
 							$nameFields = $this->moduleNameFields[$module];
-							$nameFieldList = explode(',',$nameFields);
-							$meta = $this->getMeta($module);
-							$columnList = array();
-							foreach ($nameFieldList as $column) {
-								if($module == 'Users') {
-									$instance = CRMEntity::getInstance($module);
-									$referenceTable = $instance->table_name;
-									// PriceBook don't have any owner fields
-									if(count($this->ownerFields) > 0 ||
-											$this->getModule() == 'Quotes' || $this->getModule() == 'PriceBooks') {
-										$referenceTable .= $fieldName;
-									}
-								} else {
-									$referenceField = $meta->getFieldByColumnName($column);
-									$referenceTable = $referenceField->getTableName().$fieldName;
-								}
-								if(isset($moduleTableIndexList[$referenceTable])) {
-									$referenceTable = "$referenceTable$fieldName";
-								}
-								$columnList[] = "$referenceTable.$column";
+							if(!empty($nameFields)){
+    							$nameFieldList = explode(',',$nameFields);
+    							$meta = $this->getMeta($module);
+    							$columnList = array();
+    							foreach ($nameFieldList as $column) {
+    								if($module == 'Users') {
+    									$instance = CRMEntity::getInstance($module);
+    									$referenceTable = $instance->table_name;
+    									// PriceBook don't have any owner fields
+    									if(count($this->ownerFields) > 0 ||
+    											$this->getModule() == 'Quotes' || $this->getModule() == 'PriceBooks') {
+    										$referenceTable .= $fieldName;
+    									}
+    								} else {
+    									$referenceField = $meta->getFieldByColumnName($column);
+    									$referenceTable = $referenceField->getTableName().$fieldName;
+    								}
+    								if(isset($moduleTableIndexList[$referenceTable])) {
+    									$referenceTable = "$referenceTable$fieldName";
+    								}
+    								$columnList[] = "$referenceTable.$column";
+    							}
+							
+    							if(count($columnList) > 1) {
+    								$columnSql = getSqlForNameInDisplayFormat(array('first_name'=>$columnList[0],'last_name'=>$columnList[1]),'Users');
+    							} else {
+    								$columnSql = implode('', $columnList);
+    							}
+    
+    							$fieldSql .= "$fieldGlue trim($columnSql) $valueSql";
+    							$fieldGlue = ' OR';
+							}else{
+							    if (in_array('Users', $moduleList)) {
+							        $columnSqlTable = 'vtiger_users'.$parentReferenceField.$fieldName;
+							        $columnSql = getSqlForNameInDisplayFormat(array('first_name' => $columnSqlTable.'.first_name',
+							            'last_name' => $columnSqlTable.'.last_name'), 'Users');
+							    } else if (in_array('DocumentFolders', $moduleList)) {
+							        $columnSql = "vtiger_attachmentsfolder".$fieldName.".foldername";
+							    } else if (in_array('Currency', $moduleList)) {
+							        $columnSql = "vtiger_currency_info$parentReferenceField$fieldName.currency_name";
+							    } else if ($baseFieldName == 'roleid') {
+							        $columnSql = 'vtiger_role.rolename';
+							    } else {
+							        $columnSql = 'vtiger_crmentity'.$parentReferenceField.$fieldName.'.label';
+							    }
+							    $fieldSql .= "$fieldGlue trim($columnSql) $valueSql";
+							    $fieldGlue = ' OR';
 							}
-							if(count($columnList) > 1) {
-								$columnSql = getSqlForNameInDisplayFormat(array('first_name'=>$columnList[0],'last_name'=>$columnList[1]),'Users');
-							} else {
-								$columnSql = implode('', $columnList);
-							}
-
-							$fieldSql .= "$fieldGlue trim($columnSql) $valueSql";
-							$fieldGlue = ' OR';
 						}
+						
 						if ($fieldName == 'roleid'){
 							$columnSql = 'vtiger_role.rolename';
 							$fieldSql .= "$fieldGlue trim($columnSql) $valueSql";
@@ -943,6 +963,7 @@ class QueryGenerator {
 		}
 		$sql .= " AND $baseTable.$baseTableIndex > 0";
 		$this->whereClause = $sql;
+		
 		return $sql;
 	}
 

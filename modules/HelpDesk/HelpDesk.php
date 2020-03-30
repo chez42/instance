@@ -130,8 +130,7 @@ class HelpDesk extends CRMEntity {
 		}
 		
 		/* ===  START : 28-Aug-2018 Changes For View Permission === */
-		
-		$this->saveViewPermissionIds();
+	    $this->saveViewPermissionIds();
 	}
 
 	function saveViewPermissionIds(){

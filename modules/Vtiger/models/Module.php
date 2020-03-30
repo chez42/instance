@@ -1549,7 +1549,20 @@ class Vtiger_Module_Model extends Vtiger_Module {
 			$selectColumnSql = $queryGenerator->getSelectClauseColumnSQL();
 			$newQuery = preg_split('/FROM/i', $query);
 			$selectColumnSql = 'SELECT DISTINCT vtiger_crmentity.crmid,'.$selectColumnSql;
+			
 			$query = $selectColumnSql.' FROM '.$newQuery[1];
+			
+			$extraQuery = '';
+			foreach($relatedModule->getFields() as $field_name=>$fieldInstance){
+			    if(in_array($fieldInstance->get('name'),$relatedListFields) && $fieldInstance->getFieldDataType() == 'reference'){
+			        $extraQuery .= ' LEFT JOIN vtiger_crmentity as vtiger_crmentity'.$field_name.' ON vtiger_crmentity'.$field_name.'.crmid = '.$fieldInstance->get('table').'.'.$fieldInstance->get('column').' ' ;
+			    }
+			    
+			}
+			$newQuery1 = preg_split('/WHERE/i', $query);
+			
+			$query = $newQuery1[0].$extraQuery.' WHERE '.$newQuery1[1];
+			
 		}
 
 		if ($nonAdminQuery) {
