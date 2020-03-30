@@ -91,7 +91,7 @@
                                     </ul>
                         {/if}
                    </div>---->
-<div class="btn-group">
+		<div class="btn-group">
             {assign var=STARRED value=$RECORD->get('starred')}
             {if $MODULE_MODEL->isStarredEnabled()}
                 <button class="btn btn-primary markStar {if $STARRED} active {/if}" id="starToggle">
@@ -121,9 +121,9 @@
                             data-filelocationtype="{$DETAIL_VIEW_BASIC_LINK->get('filelocationtype')}" data-filename="{$DETAIL_VIEW_BASIC_LINK->get('filename')}" >
                         <i class="material-icons">zoom_in</i>
                         {else if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_EDIT"}>
-                        	<i class="material-icons">create</i> 
+                        	<i class="fa fa-pencil"></i> 
                         {else if Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel()) eq "LBL_SEND_EMAIL"}>
-                        	<i class="material-icons">email</i>
+                        	<i class="fa fa-envelope"></i>
 						{else if $MODULE_NAME eq 'Project'}
 						 	<span class="hidden-sm hidden-xs">{vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE_NAME)}</span>
 						{else if $MODULE_NAME eq 'Leads'}

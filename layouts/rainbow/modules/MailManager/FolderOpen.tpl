@@ -30,14 +30,13 @@
         </span>
         <span class="col-lg-5 padding0px">
             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" id="mmMarkAsRead" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_MARK_AS_READ', $MODULE)}">
-                <!--<img src="layouts/v7/skins/images/envelope-open.png" id="mmEnvelopeOpenIcon">-->
-                <i class="material-icons">email</i>
+                <i class="fa fa-envelope"></i>
             </span>
             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" id="mmMarkAsUnread" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Mark_As_Unread', $MODULE)}">
-                <i class="materal-icons text-danger">email</i>
+                <i class="fa fa-envelope-open"></i>
             </span>
             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" id="mmDeleteMail" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
-                <i class="material-icons">delete</i>
+                <i class="fa fa-trash"></i>
             </span>
              <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" >
 	    		<i class="fa fa-link linkTo"></i>
