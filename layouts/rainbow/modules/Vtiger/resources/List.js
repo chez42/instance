@@ -2588,6 +2588,8 @@ Vtiger.Class("Vtiger_List_Js", {
 			
 			if(!dropdown.hasClass('open')){
 				dropdown.addClass('open');
+			}else if(dropdown.hasClass('open')){
+				dropdown.removeClass('open');
 			}
 			
 			if (dropdown.find('[data-toggle]').length <= 0) {
@@ -2677,6 +2679,13 @@ Vtiger.Class("Vtiger_List_Js", {
 				fixed_dropdown_menu.remove();
 				jQuery('.listViewEntries').removeClass('dropDownOpen');
 			});
+		});
+		jQuery('#page').on('click',function(e){
+			if(jQuery('.dropDownOpen').length && !jQuery(e.currentTarget).hasClass('.dropdown-menu')){
+				jQuery('.dropdown').removeClass('open');
+				jQuery(".fixedListDropDown").remove();
+				jQuery('.dropDownOpen').removeClass('dropDownOpen');
+			}
 		});
 		jQuery('.listViewEntries').mouseleave(function (e) {
 			var currentDropDown = jQuery(e.currentTarget).find('.dropdown');

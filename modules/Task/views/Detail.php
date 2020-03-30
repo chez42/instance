@@ -10,13 +10,8 @@
 
 class Task_Detail_View extends Vtiger_Detail_View {
 
-	/**
-	 * Function shows basic detail for the record
-	 * @param <type> $request
-	 */
-	function showModuleBasicView($request) {
-		return $this->showModuleDetailView($request);
-	}
 
+
+		
 	
 }

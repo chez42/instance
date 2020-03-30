@@ -284,8 +284,8 @@ tbody .ps__thumb-y{
 }
 
 .table-hover>tbody>tr:not(.emptyRecordsDiv):hover, .table-hover>tbody>tr:not(.emptyRecordsDiv):hover * {
-    background-color: <?= $main_bg_color ?> !important;
-    color: <?= $text_contrast ?> !important;
+    //background-color: <?= $main_bg_color ?> !important;
+    //color: <?= $text_contrast ?> !important;
 }
 
 .table-hover>tbody>tr.emptyRecordsDiv:hover, .table-hover>tbody>tr.emptyRecordsDiv:hover * {
