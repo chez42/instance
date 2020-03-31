@@ -2874,7 +2874,7 @@ th {
   white-space: nowrap;
   overflow: hidden;
   font-size: 13px;
-  width: 60%;
+  //width: 60%;
   display: inline-block;
   text-overflow: ellipsis;
   vertical-align: middle;

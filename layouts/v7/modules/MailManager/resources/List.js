@@ -298,6 +298,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			self.clearPreviewContainer();
 			self.loadMailContents(folderName);
 			container.find('#searchType').trigger('change');
+			self.registerEventForSingleMailActions();
 	});
 	},
 
@@ -679,6 +680,10 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		var self = this;
 		var container = self.getContainer();
 		container.find('.mmfolderMails').click(function(e) {
+			
+			if(jQuery(e.target).closest('span').parent().hasClass('singleMailActions'))
+				return;
+			
 			var emailElement = jQuery(e.currentTarget);
 			var parentEle = emailElement.closest('.mailEntry');
 			var msgNo = emailElement.find('.msgNo').val();
@@ -1534,7 +1539,11 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		var thisInstance = this;
 		var container = this.getContainer();
 		
-		container.on('click','.linkTo',function(){
+		container.on('click','.linkTo',function(e){
+			
+			if($(this).closest('span').parent().hasClass('singleMailActions'))
+				return;
+			
 			var msgNos = new Array();
 			container.find('.mailCheckBox').each(function(i, ele) {
 				var element = jQuery(ele);
@@ -1624,5 +1633,190 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		self.registerSearchTypeChangeEvent();
 		self.registerPostMailSentEvent();
 		self.registerClickLinkToEvent();
+	},
+	
+	registerEventForSingleMailActions : function(){
+		
+		var thisInstance = this;
+		var container = thisInstance.getContainer();
+			
+		jQuery(document).on('click', '#mmMarkAsReadSingle', function(){
+			
+			var folder = $(this).data('folder');
+			var msgId = $(this).data('msgno');
+			var msgNos = new Array();
+			msgNos.push(msgId);
+				
+			if(msgNos.length <= 0) {
+				app.helper.showAlertBox({message:app.vtranslate('JSLBL_NO_EMAILS_SELECTED')});
+				return false;
+			} else {
+				app.helper.showProgress(app.vtranslate("JSLBL_Updating")+"...");
+				var params = {
+					'module' : 'MailManager',
+					'view' : 'Index',
+					'_operation' : 'mail',
+					'_operationarg' : 'mark',
+					'_folder' : folder,
+					'_msgno' : msgNos.join(','),
+					'_markas' : 'read'
+				};
+				
+				app.request.post({data : params}).then(function(err,data) {
+					app.helper.hideProgress();
+					if(data.status) {
+						app.helper.showSuccessNotification({'message': app.vtranslate('JSLBL_MAILS_MARKED_READ')});
+						thisInstance.markMessageRead(msgNos);
+						thisInstance.updateUnreadCount("-"+thisInstance.getUnreadCountByMsgNos(msgNos), folder);
+					}
+				});
+			}
+		});
+		
+		jQuery(document).on('click', '#mmMarkAsUnreadSingle', function(){
+			var folder = $(this).data('folder');
+			var msgId = $(this).data('msgno');
+			var msgNos = new Array();
+			msgNos.push(msgId);
+
+			if(msgNos.length <= 0) {
+				app.helper.showAlertBox({message:app.vtranslate('JSLBL_NO_EMAILS_SELECTED')});
+				return false;
+			} else {
+				app.helper.showProgress(app.vtranslate("JSLBL_Updating")+"...");
+				var params = {
+					'module' : 'MailManager',
+					'view' : 'Index',
+					'_operation' : 'mail',
+					'_operationarg' : 'mark',
+					'_folder' : folder,
+					'_msgno' : msgNos.join(','),
+					'_markas' : 'unread'
+				};
+				app.request.post({data : params}).then(function(err,data) {
+					app.helper.hideProgress();
+					if(data.status) {
+						app.helper.showSuccessNotification({'message': app.vtranslate('JSLBL_MAILS_MARKED_UNREAD')});
+						thisInstance.markMessageUnread(msgNos);
+						thisInstance.updateUnreadCount("+"+thisInstance.getUnreadCountByMsgNos(msgNos), folder);
+					}
+				});
+			}
+		});
+		
+		jQuery(document).on('click', '#mmDeleteMailSingle', function(){
+			var folder = $(this).data('folder');
+			var msgId = $(this).data('msgno');
+			var msgNos = new Array();
+			msgNos.push(msgId);
+
+			if(msgNos.length <= 0) {
+				app.helper.showAlertBox({message:app.vtranslate('JSLBL_NO_EMAILS_SELECTED')});
+				return false;
+			} else {
+				app.helper.showPromptBox({'message' : app.vtranslate('LBL_DELETE_CONFIRMATION')}).then(function() {
+					app.helper.showProgress(app.vtranslate("JSLBL_Deleting")+"...");
+					var params = {
+						'module' : 'MailManager',
+						'view' : 'Index',
+						'_operation' : 'mail',
+						'_operationarg' : 'delete',
+						'_folder' : folder,
+						'_msgno' : msgNos.join(',')
+					};
+					app.request.post({data : params}).then(function(err,data) {
+						app.helper.hideProgress();
+						if(data.status) {
+							app.helper.showSuccessNotification({'message': app.vtranslate('JSLBL_MAILS_DELETED')});
+							thisInstance.updateUnreadCount("-"+thisInstance.getUnreadCountByMsgNos(msgNos), folder);
+							thisInstance.updatePagingCount(msgNos.length);
+							for(var i = 0; i < msgNos.length; i++) {
+								container.find('#mmMailEntry_'+msgNos[i]).remove();
+							}
+							var openedMsgNo = container.find('#mmMsgNo').val();
+							if(jQuery.inArray(openedMsgNo, msgNos) !== -1) {
+								thisInstance.clearPreviewContainer();
+							}
+						}
+					});
+				});
+			}
+		});
+		
+		jQuery(document).on('click', '.linkToSingle', function(){
+
+			var folder = $(this).data('folder');
+			var msgId = $(this).data('msgno');
+			var msgNos = new Array();
+			msgNos.push(msgId);
+
+			if(msgNos.length <= 0) {
+				app.helper.showAlertBox({message:app.vtranslate('JSLBL_NO_EMAILS_SELECTED')});
+				return false;
+			}
+			
+			var params = {
+				'module' : 'MailManager',
+				'view' : 'LinkTo',
+				'msgno' : msgNos,
+				'folder' : folder,
+			};
+			app.helper.showProgress();
+			app.request.post({data : params}).then(function(err,data) {
+				app.helper.hideProgress();
+	            if(!err) {
+	                app.helper.showModal(data, {
+	                    'cb' : function(modalContainer) {
+	                    	thisInstance.referenceFieldChangeEvent(modalContainer.find('form'));
+	                    	thisInstance.registerLinkToModalEvents(modalContainer);
+	                    }
+	                });
+	            }
+			});
+		});
+
+				
+		var moveFolder = container.find('#mmMoveToFolderSingle');
+		
+		moveFolder.on('click', 'a', function(e){
+			var element = jQuery(e.currentTarget);
+			var moveToFolder = element.closest('li').data('movefolder');
+			var folder = element.closest('li').data('folder');
+			var msgId = $(this).data('msgno');
+			var msgNos = new Array();
+			msgNos.push(msgId);
+			
+			if(msgNos.length <= 0) {
+				container.find('.moveToFolderDropDown').removeClass('open');
+				app.helper.showAlertBox({message:app.vtranslate('JSLBL_NO_EMAILS_SELECTED')});
+				return false;
+			} else {
+				app.helper.showProgress(app.vtranslate("JSLBL_MOVING")+"...");
+				var params = {
+					'module' : 'MailManager',
+					'view' : 'Index',
+					'_operation' : 'mail',
+					'_operationarg' : 'move',
+					'_folder' : folder,
+					'_moveFolder' : moveToFolder,
+					'_msgno' : msgNos.join(',')
+				};
+				app.request.post({data : params}).then(function(err,data) {
+					app.helper.hideProgress();
+					if(data.status) {
+						app.helper.showSuccessNotification({'message': app.vtranslate('JSLBL_MAIL_MOVED')});
+						var unreadCount = self.getUnreadCountByMsgNos(msgNos);
+						thisInstance.updateUnreadCount("-"+unreadCount, folder);
+						thisInstance.updateUnreadCount("+"+unreadCount, moveToFolder);
+						for(var i = 0; i < msgNos.length; i++) {
+							container.find('#mmMailEntry_'+msgNos[i]).remove();
+						}
+						container.find('.moveToFolderDropDown').removeClass('open');
+					}
+				});
+			}
+		});
+		
 	}
+	
 });
