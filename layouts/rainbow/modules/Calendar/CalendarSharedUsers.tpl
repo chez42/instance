@@ -8,6 +8,11 @@
  ************************************************************************************}
 {* modules/Calendar/views/ViewTypes.php *}
 {strip}
+<style>
+	.mCustomScrollBox {
+		max-height: min-content !important;
+	}
+</style>
 {assign var=SHARED_USER_INFO value= Zend_Json::encode($SHAREDUSERS_INFO)}
 {assign var=CURRENT_USER_ID value= $CURRENTUSER_MODEL->getId()}
 <input type="hidden" id="sharedUsersInfo" value= {Zend_Json::encode($SHAREDUSERS_INFO)} />
