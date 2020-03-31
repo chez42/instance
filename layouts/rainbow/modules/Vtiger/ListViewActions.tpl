@@ -144,10 +144,7 @@
                             {vtranslate('LBL_LISTS',$MODULE)} | Current: <b>{vtranslate($CURRENT_VIEW_RECORD_MODEL->get('viewname'))}</b >&nbsp;
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" style="width: 100%;">
-                         
-                            
-                            
+                        <ul class="dropdown-menu" role="menu" style="width: 100%;overflow: auto;height: 200px;">
                             
                              {assign var="CUSTOM_VIEW_NAMES" value=array()}
                         {if $CUSTOM_VIEWS && count($CUSTOM_VIEWS) > 0}

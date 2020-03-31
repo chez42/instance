@@ -8,7 +8,11 @@
  ************************************************************************************}
 {strip}
 
-
+	<style>
+		.mailEntry:hover .singleMailActions{
+			display:block !important;
+		}
+	</style>
 <!--sidebar toggle center-->
         <div id="sidebar-essentials" class="sidebar-essentials visible-xs visible-sm">
         <div class="col-xs-12 text-center visible-xs visible-sm" style="padding: 20px;">
@@ -47,7 +51,7 @@
                     <!--<i class="ti-arrow-right mmMoveDropdownArrow"></i>
                     <i class="fa fa-caret-down pull-right mmMoveDropdownCaret"></i>-->
                 </span>
-                <ul class="dropdown-menu" id="mmMoveToFolder">
+                <ul class="dropdown-menu" id="mmMoveToFolder" style="overflow:auto !important;height:200px !important;">
                     {foreach item=folder from=$FOLDERLIST}
                         <li data-folder="{$FOLDER->name()}" data-movefolder='{$folder}'>
                             <a class="paddingLeft15">
@@ -111,7 +115,7 @@
                     <div class="col-lg-11 mmfolderMails padding0px" title="{$MAIL->subject()}">
                         <input type="hidden" class="msgNo" value='{$MAIL->msgNo()}'>
                         <input type="hidden" class='mm_foldername' value='{$FOLDER->name()}'>
-                        <div class="col-lg-8 nameSubjectHolder font11px padding0px stepText">
+                        <div class="col-lg-4 nameSubjectHolder font11px padding0px stepText">
                             {assign var=DISPLAY_NAME value=$MAIL->from(33)}
                             {if $IS_SENT_FOLDER}
                                 {assign var=DISPLAY_NAME value=$MAIL->to(33)}
@@ -126,14 +130,49 @@
                                 <strong>{strip_tags($DISPLAY_NAME)}<br>{strip_tags($SUBJECT)}</strong>
                             {/if}
                         </div>
-                        <div class="col-lg-4 padding0px">
+                        <div class="col-lg-8 padding0px">
                             {assign var=ATTACHMENT value=$MAIL->attachments()}
                             {assign var=INLINE_ATTCH value=$MAIL->inlineAttachments()}
                             {assign var=ATTCHMENT_COUNT value=(count($ATTACHMENT) - count($INLINE_ATTCH))}
-                            <span class="pull-right">
-                                {if $ATTCHMENT_COUNT}
+                            
+                    		<span class="pull-right singleMailActions" style="display:none;">
+					            <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmMarkAsReadSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_MARK_AS_READ', $MODULE)}">
+					                <i class="material-icons">drafts</i>
+					            </span>
+					            <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmMarkAsUnreadSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Mark_As_Unread', $MODULE)}">
+					                <i class="material-icons text-danger">email</i>
+					            </span>
+					            <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmDeleteMailSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
+					                <i class="material-icons">delete</i>
+					            </span>
+					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm linkToSingle" data-msgno="{$MAIL->msgNo()}" data-folder="{$FOLDER->name()}" >
+						    		<i class="fa fa-link"></i>
+						        </span>
+					            <span class="btn btn-secondary singleMailDrop btn-sm cursorPointer moveToFolderDropDown more dropdown action" title="{vtranslate('LBL_MOVE_TO', $MODULE)}">
+					                <span class='dropdown-toggle' data-toggle="dropdown">
+					                    <i class="material-icons mmMoveDropdownFolder">folder</i>
+					                    <!--<i class="ti-arrow-right mmMoveDropdownArrow"></i>
+					                    <i class="fa fa-caret-down pull-right mmMoveDropdownCaret"></i>-->
+					                </span>
+					                <ul class="dropdown-menu" id="mmMoveToFolderSingle" style="right:0 !important;left:unset !important; overflow:auto !important;height:200px !important;"">
+					                    {foreach item=folder from=$FOLDERLIST}
+					                        <li data-folder="{$FOLDER->name()}" data-movefolder='{$folder}'>
+					                            <a class="paddingLeft15 " data-msgno="{$MAIL->msgNo()}">
+					                                {if mb_strlen($folder,'UTF-8')>20}
+					                                    {mb_substr($folder,0,20,'UTF-8')}...
+					                                {else}
+					                                    {$folder}
+					                                {/if}
+					                            </a>
+					                        </li>
+					                    {/foreach}
+					                </ul>
+					            </span>
+					        </span>
+					        <span class="pull-right" style="padding-right:5px;">
+                                {*if $ATTCHMENT_COUNT}
                                     <i class="material-icons font14px">attachment</i>&nbsp;
-                                {/if}
+                                {/if*}
                                 <span class='mmDateTimeValue' title="{Vtiger_Util_Helper::formatDateTimeIntoDayString(date('Y-m-d H:i:s', strtotime($MAIL->_date)))}">{Vtiger_Util_Helper::formatDateDiffInStrings(date('Y-m-d H:i:s', strtotime($MAIL->_date)))}</span>
                             </span>
                         </div>
