@@ -296,7 +296,8 @@ class Transactions_Module_Model extends Vtiger_Module_Model {
     }
 
     static public function CreateReceiptOfSecuritiesFromTDPositions($account_number){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
         $created = array();
         $count = 0;
 
@@ -311,8 +312,8 @@ class Transactions_Module_Model extends Vtiger_Module_Model {
                         (p.quantity + p.amount) AS quantity, (p.quantity + p.amount) * s.security_price * CASE WHEN cf.security_price_adjustment = 0 THEN 1 ELSE cf.security_price_adjustment END * CASE WHEN pr.factor > 0 THEN pr.factor ELSE 1 END AS total_value
                   FROM custodian_omniscient.custodian_positions_td p 
                   JOIN custodian_omniscient.custodian_prices_td pr ON p.date = pr.date AND P.symbol = pr.symbol
-                  JOIN live_omniscient.vtiger_modsecurities s ON s.security_symbol = p.symbol
-                  JOIN live_omniscient.vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  JOIN {$db_name}.vtiger_modsecurities s ON s.security_symbol = p.symbol
+                  JOIN {$db_name}.vtiger_modsecuritiescf cf USING (modsecuritiesid)
                   WHERE account_number = ?
                   AND p.date = ?";
         $result = $adb->pquery($query, array($account_number, $date));
