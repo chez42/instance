@@ -873,7 +873,7 @@ tbody .ps__thumb-y{
 .stellarnav ul ul{
 	max-width : unset !important;
 }
-.blockHeader{
+.detailBlockHeader{
 	background: <?= $menu_color ?>;
 	color: <?= $text_contrast_menu ?>;
 	border-top-left-radius: <?= $border_radius ?>px;
