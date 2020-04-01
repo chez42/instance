@@ -52,6 +52,7 @@
         $modComments->column_fields['customer'] = $element['ID'];
         $modComments->column_fields['related_to'] = $element['ID'];
         $modComments->column_fields['from_portal'] = true;
+        $modComments->column_fields['assigned_user_id'] = $element['owner_id'];
         $modComments->save('ModComments');
         $fileUrl = '';
         if($save_doc && $attachmentid > 0 && $modComments->id){
