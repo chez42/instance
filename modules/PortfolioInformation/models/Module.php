@@ -1,7 +1,7 @@
 <?php
 include_once "include/utils/omniscientCustom.php";
 include_once("libraries/Stratifi/StratifiAPI.php");
-
+global $dbconfig;
 class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 {
     /**
@@ -1084,7 +1084,8 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 
     static public function CalculateMonthlyIntervalsForAccounts(array $accounts, $start = null, $end = null)
     {
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
         if (!$start)
             $start = '1900-01-01';
         if (!$end)
@@ -1093,8 +1094,8 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         foreach ($accounts AS $k => $v) {
             $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
             $query = "CALL CALCULATE_MONTHLY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
-#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
-            $adb->pquery($query, array($v, $start, $end, $custodian, 'live_omniscient'));
+#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", {$db_name});
+            $adb->pquery($query, array($v, $start, $end, $custodian, $db_name));
         }
     }
 
@@ -1315,7 +1316,8 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
      */
     static public function CalculateDailyIntervalsForAccounts(array $accounts, $start = null, $end = null, $auto=false)
     {
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
         if (!$start)
             $start = '1900-01-01';
         if (!$end)
@@ -1328,9 +1330,10 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
             }
 
             $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
-            $params = array($v, $start, $end, $custodian, 'live_omniscient');
+            $params = array($v, $start, $end, $custodian, $db_name);
             $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
             $adb->pquery($query, $params, 'true');
+
 //            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
 
             if($auto == true)//We only want to update with the latest date possible, auto guarantees us this
@@ -1338,7 +1341,7 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
 //            self::CreateReconciliationTransactionFromEndValueIntervals($v);
 
             /*Old way of calculating intervals was monthly.. we have now moved to daily*/
-#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
+#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", {$db_name});
         }
     }
 
@@ -1885,24 +1888,26 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
     }
 
     static public function CopyTransactionsFromPCTableToCloud($account_number){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
         $query = "INSERT IGNORE INTO custodian_omniscient.custodian_transactions_pc
-                  SELECT t.*, o.custodian AS custodian FROM live_omniscient.vtiger_pc_transactions t
-                  JOIN live_omniscient.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id AND p.portfolio_account_number = ?
-                  JOIN live_omniscient.vtiger_pc_originations o ON o.id = t.origination_id
+                  SELECT t.*, o.custodian AS custodian FROM {$db_name}.vtiger_pc_transactions t
+                  JOIN {$db_name}.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id AND p.portfolio_account_number = ?
+                  JOIN {$db_name}.vtiger_pc_originations o ON o.id = t.origination_id
                   WHERE t.activity_id != 30 AND t.symbol_id != 0";
         $adb->pquery($query, array($account_number));
     }
 
     static public function CopyTransactionsFromCloudToCRM($account_number){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
 
         $query = "DROP TABLE IF EXISTS PCTransactions";
         $adb->pquery($query, array());
 
         $query = "CREATE TEMPORARY TABLE PCTransactions 
                   SELECT cloud_transaction_id 
-                  FROM live_omniscient.vtiger_transactions JOIN live_omniscient.vtiger_transactionscf USING (transactionsid) 
+                  FROM {$db_name}.vtiger_transactions JOIN {$db_name}.vtiger_transactionscf USING (transactionsid) 
                   WHERE pc_transferred = 1 AND account_number = ?";
         $adb->pquery($query, array($account_number));
 
@@ -1912,13 +1917,13 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
         $query = "CREATE TEMPORARY TABLE CreateTransactions 
 SELECT 0 AS crmid, 0000000.00000 AS price, m.omniscient_category, m.omniscient_activity, transaction_id, portfolio_id, sell_lot_id, trade_lot_id, link_id, custodian_id, symbol_id, activity_id, money_id, broker_id, report_as_type_id, quantity, total_value, conversion_value, accrued_interest, yield_at_purchase, advisor_fee, amount_per_share, other_fee, net_amount, settlement_date, trade_date, origina_trade_date, entry_date, link_date, odd_income_payment_flag, long_position_flag, reinvest_gains_flag, reinvest_income_flag, keep_fractional_shares_flag, taxable_prev_year_flag, complete_transaction_flag, is_reinvested_flag, notes, principal, add_sub_status_type_id, contribution_type_id, matching_method_id, custodian_account, original_link_account, origination_id, last_modified_date, trans_link_id, status_type_id, last_modified_user_id, dirty_flag, invalid_cost_basis_flag, cost_basis_adjustment, security_split_flag, reset_cost_basis_flag, deleted, account_number, data_set_id, symbol, custodian, m.operation 
 FROM custodian_omniscient.custodian_transactions_pc t 
-JOIN live_omniscient.pcmapping m ON m.id = t.activity_id AND m.rat = t.report_as_type_id AND m.add_sub_status_type = t.add_sub_status_type_id WHERE t.transaction_id NOT IN (SELECT cloud_transaction_id FROM PCTransactions) AND t.status_type_id = 100
+JOIN {$db_name}.pcmapping m ON m.id = t.activity_id AND m.rat = t.report_as_type_id AND m.add_sub_status_type = t.add_sub_status_type_id WHERE t.transaction_id NOT IN (SELECT cloud_transaction_id FROM PCTransactions) AND t.status_type_id = 100
         AND t.account_number = ?
 GROUP BY transaction_id";
         $adb->pquery($query, array($account_number));
 
-        $query = "UPDATE CreateTransactions t JOIN live_omniscient.vtiger_securities s ON t.symbol_id = s.security_id 
-JOIN live_omniscient.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id 
+        $query = "UPDATE CreateTransactions t JOIN {$db_name}.vtiger_securities s ON t.symbol_id = s.security_id 
+JOIN {$db_name}.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id 
 SET t.symbol = s.security_symbol, t.account_number = REPLACE(p.portfolio_account_number, '-', ''), operation = CASE WHEN operation IS NULL THEN '' ELSE operation END";
         $adb->pquery($query, array());
 
@@ -1929,27 +1934,31 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $query = "UPDATE CreateTransactions t SET price = COALESCE(ABS(net_amount / CASE WHEN quantity > 0 THEN quantity ELSE net_amount END), 0.0)";
         $adb->pquery($query, array());
 
-        $query = "UPDATE CreateTransactions SET crmid = live_omniscient.IncreaseAndReturnCrmEntitySequence()";
+        $query = "UPDATE CreateTransactions SET crmid = {$db_name}.IncreaseAndReturnCrmEntitySequence()";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO live_omniscient.vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), notes FROM CreateTransactions";
+        $query = "INSERT INTO {$db_name}.vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), notes FROM CreateTransactions";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO live_omniscient.vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation) SELECT crmid, account_number, symbol, price, ABS(quantity), trade_date, custodian, transaction_id, operation FROM CreateTransactions";
+        $query = "INSERT INTO {$db_name}.vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation) SELECT crmid, account_number, symbol, price, ABS(quantity), trade_date, custodian, transaction_id, operation FROM CreateTransactions";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO live_omniscient.vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, principal, comment, pc_transferred) SELECT crmid, custodian, omniscient_category, omniscient_activity, ABS(net_amount), ABS(principal), notes, 1 FROM CreateTransactions";
+        $query = "INSERT INTO {$db_name}.vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, principal, comment, pc_transferred) SELECT crmid, custodian, omniscient_category, omniscient_activity, ABS(net_amount), ABS(principal), notes, 1 FROM CreateTransactions";
         $adb->pquery($query, array());
     }
 
     static public function CreateTransactionsFromPCCloudUsingJava($custodian, $account_number){
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
+        global $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 
     static public function CreateTransactionsFromPCCloud($custodian, $account_number)
     {
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName=live_omniscient&custodian={$custodian}&account_number={$account_number}";
+        global $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 
@@ -1983,8 +1992,9 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 
     static public function CreateDailyIntervalsForAccounts(array $accounts, $date)
     {
-        global $adb;
-        $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, 'live_omniscient');";
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, {$db_name});";
         foreach ($accounts AS $k => $v) {
             $custodian = self::GetCustodianFromAccountNumber($v);
             $adb->pquery($query, array($v, $date, $date, $custodian));
@@ -2584,7 +2594,8 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     }
 
     static public function TDBalanceCalculations($sdate, $edate){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
 
         $begin = new DateTime($sdate);
         $end = new DateTime($edate);
@@ -2592,7 +2603,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
 
-        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS(?, 'live_omniscient')";
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS(?, {$db_name})";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
             $adb->pquery($query, array($d));
@@ -2668,7 +2679,8 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     }
 
     static public function TDBalanceCalculationsIndividual($account_number, $sdate, $edate){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
 
         $begin = new DateTime($sdate);
         $end = new DateTime($edate);
@@ -2676,7 +2688,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
 
-        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, 'live_omniscient')";
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, {$db_name})";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
             $adb->pquery($query, array($account_number, $d));
