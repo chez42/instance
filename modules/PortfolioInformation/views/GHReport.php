@@ -229,9 +229,9 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                     $logo = "test/logo/Omniscient Logo small.png";
                 $viewer->assign("LOGO", $logo);*/
 
-                /*                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
+                /*                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
+                                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
+                                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
 
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GHReportNewPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
@@ -255,12 +255,12 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         if($logo)
             $pdf->logo = $logo;
 
-        $stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css');
+        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GHReportPDF.css');
 
         $pdf->SetupHeader();
         $pdf->SetupFooter();
@@ -300,7 +300,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
     public function getHeaderCss(Vtiger_Request $request) {
         $headerCssInstances = parent::getHeaderCss($request);
         $cssFileNames = array(
-            '~/layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/GHReportPDF.css',
             '~/layouts/v7/modules/PortfolioInformation/css/GHReport.css',
             '~/layouts/v7/modules/PortfolioInformation/css/Administration.css',
             '~/libraries/shield/css/shield_all.min.css'
