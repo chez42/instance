@@ -62,7 +62,7 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
             $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    $query = "CALL TD_REC_TRANSACTIONS(?)";
+                    $query = "CALL TD_REC_TRANSACTIONS(?, ?)";
                     $adb->pquery($query, array($v));
                 };
                 if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
@@ -198,15 +198,15 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
                     $logo = "test/logo/Omniscient Logo small.png";
                 $viewer->assign("LOGO", $logo);
 
-                $pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/lighthouse.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/lighthouse.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 /*$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GH2ReportPDF.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/AllocationTypesPDF.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }else {
