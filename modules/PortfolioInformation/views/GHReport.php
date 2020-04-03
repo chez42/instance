@@ -32,7 +32,10 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #        echo "GH1 REPORT CURRENTLY LOADING...<br />";
 #        ob_flush();
 #        flush();
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $custodianDB = $dbconfig['custodianDB'];
+
         $query = "CALL TD_PRICING_TO_INDEX(?, ?);";
         $adb->pquery($query, array('AGG', '2019-01-01'));
         $adb->pquery($query, array('EEM', '2019-01-01'));
@@ -74,8 +77,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    $query = "CALL TD_REC_TRANSACTIONS(?)";
-                    $adb->pquery($query, array($v));
+                    $query = "CALL TD_REC_TRANSACTIONS(?, ?)";
+                    $adb->pquery($query, array($v, $custodianDB), true);
                 };
                 if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
                     $tmp[] = $v;

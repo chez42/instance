@@ -22,7 +22,10 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
     }
     
     function process(Vtiger_Request $request) {
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $custodianDB = $dbconfig['custodianDB'];
+
         $orientation = $request->get('orientation');
         $calling_module = $request->get('calling_module');
         $calling_record = $request->get('calling_record');
@@ -62,8 +65,8 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
             $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    $query = "CALL TD_REC_TRANSACTIONS(?, ?)";
-                    $adb->pquery($query, array($v));
+                    $query = "CALL TD_REC_TRANSACTIONS(?)";
+                    $adb->pquery($query, array($v), true);
                 };
                 if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
                     $tmp[] = $v;

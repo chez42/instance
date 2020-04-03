@@ -430,8 +430,8 @@ class PortfolioInformation_Reports_Model extends Vtiger_Module {
         $params[] = $account_numbers;
         $params[] = $as_of_date;
         $params[] = $db_name;
-        $params[] = $custodianDB;
-        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"{$questions}\", ?, ?, ?)";
+#        $params[] = $custodianDB;
+        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"{$questions}\", ?, ?)";
 #        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"'939741719'\", '2017-12-31', 'live_omniscient');";
         $adb->pquery($query, $params, true);
     }

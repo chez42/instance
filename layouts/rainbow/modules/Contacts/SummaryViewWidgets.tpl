@@ -71,7 +71,7 @@
 		</div>
 	{/if}
 	{* Historical Information Widget Model End*}
-		
+
 	{* Summary View Comments Widget*}
 	{if $COMMENTS_WIDGET_MODEL}
 		<div class="summaryWidgetContainer">

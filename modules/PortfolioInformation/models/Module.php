@@ -1,7 +1,7 @@
 <?php
 include_once "include/utils/omniscientCustom.php";
 include_once("libraries/Stratifi/StratifiAPI.php");
-global $dbconfig;
+
 class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 {
     /**
@@ -72,7 +72,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         if($adb->num_rows($result) > 0){
             while ($v = $adb->fetchByAssoc($result)) {
                 $rep_codes[] = array("rep_code" => $v['production_number'],
-                                     "custodian" => $v['origination']);
+                    "custodian" => $v['origination']);
             }
         }else{
             return array();
@@ -281,6 +281,91 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         if ($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'origination');
         return 0;
+    }
+
+
+    static public function GetTransactionFlowValueBeforeDate($account_number, $date, array $transaction_type){
+        $transactions_value = self::GetTransactionValuesByTypeOnDate($account_number, $date, $transaction_type, true);
+        return $transactions_value;
+        /*
+                return array("date" => $trade_date,
+                             "value" => $transactions_value);
+        */
+    }
+
+    static public function GetFirstTransactionDate($account_number){
+        global $adb;
+        $query = "SELECT MIN(trade_date) AS trade_date FROM vtiger_transactions WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        $trade_date = null;
+
+        if($adb->num_rows($result) > 0) {
+            $trade_date = $adb->query_result($result, 0, 'trade_date');
+            return $trade_date;
+        }else{
+            return 0;
+        }
+    }
+
+    /**
+     * Get all transaction values summed of type passed in ON the passed in date.  Less than true makes it less than date, rather than on date
+     * @param $account_number
+     * @param $typesfGetTransactionValuesByTypeOnDate
+     */
+    static public function GetTransactionValuesByTypeOnDate($account_number, $trade_date, array $types, $less_than = false){
+        global $adb;
+        $params = array();
+        $questions = generateQuestionMarks($types);
+
+        $params[] = $account_number;
+        $params[] = $types;
+        $params[] = $trade_date;
+
+        if($less_than == true)
+            $symbol = "<";
+        else
+            $symbol = "=";
+
+        $query = "SELECT * FROM vtiger_transactions t 
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                  WHERE account_number = ?
+                  AND transaction_type IN ({$questions})
+                  AND trade_date {$symbol} ?
+                  AND e.deleted = 0";
+        $value = 0;
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0){
+            while ($t = $adb->fetchByAssoc($result)) {
+                $val = $t['operation'] . $t['net_amount'];
+                $value += $val;
+            }
+        }
+        return $value;
+    }
+
+    /**
+     * Get the first balance and date from the cloud for the provided account/custodian
+     * @param $account_number
+     * @return array
+     * @throws Exception
+     */
+    static public function GetFirstBalanceInfo($account_number){
+        global $adb;
+        #1 Get balance start date and start value
+        $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($account_number);
+        $query = "CALL GET_FIRST_BALANCE(?, ?, @beginningNet, @beginningDate)";
+        $adb->pquery($query, array($account_number, $custodian));
+
+        $query = "SELECT @beginningnet AS net, @beginningdate AS date";
+        $result = $adb->pquery($query, array());
+
+        $start_value = $adb->query_result($result, 0, 'net');
+        $start_date = $adb->query_result($result, 0, 'date');
+
+        $info = array("value" => $start_value,
+            "date" => $start_date);
+        return $info;
     }
 
     /**
@@ -597,15 +682,15 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
-	static public function GetChartColorForTitle($title){
-		global $adb;
-		$query = "SELECT color FROM vtiger_chart_colors WHERE title = ?";
-		$result = $adb->pquery($query, array($title));
-		if($adb->num_rows($result) > 0){
-			return $adb->query_result($result, 0, 'color');
-		}
-		return 0;
-	}
+    static public function GetChartColorForTitle($title){
+        global $adb;
+        $query = "SELECT color FROM vtiger_chart_colors WHERE title = ?";
+        $result = $adb->pquery($query, array($title));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'color');
+        }
+        return 0;
+    }
 
     static public function GetRecordIDFromAccountNumber($account_number)
     {
@@ -1001,12 +1086,12 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
     static private function GetInvestmentReturn()
     {
         return (self::GetIntervalEndValue()['end_value'] - self::GetFlowAmount() - self::GetIntervalBeginValue()['begin_value']);
-/*      FLAW WITH THE LOGIC BELOW... It is summing all of the begin and end values in the table when we need the start and end dates only
-        global $adb;
-        $query = "SELECT SUM(IntervalEndValue) - SUM(NetFlowAmount) - SUM(IntervalBeginValue) AS InvestmentReturn FROM IntervalTemp";
-        $result = $adb->pquery($query, array());
-        $r = $adb->query_result($result, 0, 'investmentreturn');
-        echo $r;exit;*/
+        /*      FLAW WITH THE LOGIC BELOW... It is summing all of the begin and end values in the table when we need the start and end dates only
+                global $adb;
+                $query = "SELECT SUM(IntervalEndValue) - SUM(NetFlowAmount) - SUM(IntervalBeginValue) AS InvestmentReturn FROM IntervalTemp";
+                $result = $adb->pquery($query, array());
+                $r = $adb->query_result($result, 0, 'investmentreturn');
+                echo $r;exit;*/
     }
 
     static private function GetIntervalEndValue()
@@ -1080,6 +1165,9 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $questions = generateQuestionMarks($accounts);
         $query = "DELETE FROM intervals_daily WHERE AccountNumber IN ({$questions}) {$and}";
         $adb->pquery($query, $params);
+
+        $query = "DELETE FROM vtiger_interval_calculations WHERE account_number IN ({$questions})";
+        $adb->pquery($query, array($accounts));
     }
 
     static public function CalculateMonthlyIntervalsForAccounts(array $accounts, $start = null, $end = null)
@@ -1208,12 +1296,12 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                 $net_flow = $t['netflowamount'];
                 $uid = $t['uid'];
                 $transaction_amount = $end_value - $net_flow - $before_value;
-echo "Account: " . $account_number . '<br />';
-echo "END: " . $end_value . '<br />';
-echo "Net: " . $net_flow . '<br />';
-echo "Before: " . $before_value . '<br />';
-echo 'Transaction Amount: ' . $transaction_amount  . '<br />';
-echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
+                echo "Account: " . $account_number . '<br />';
+                echo "END: " . $end_value . '<br />';
+                echo "Net: " . $net_flow . '<br />';
+                echo "Before: " . $before_value . '<br />';
+                echo 'Transaction Amount: ' . $transaction_amount  . '<br />';
+                echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
 #exit;
                 if($begin_value == 0 && $end_value != 0 && $transaction_amount != 0){
                     $transaction_amount = $end_value - $net_flow - $before_value;
@@ -1330,18 +1418,93 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
             }
 
             $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
+
+            /*
+            1) Get the first balance date/value
+            2) Get the first transaction date for the account (do nothing with it yet)
+            3) Is first transaction trade date < balance start date?
+                        #3a) No, we're good to go, do nothing else
+                        #3b) Yes, proceed with 4
+            4) Get the sum of all transaction flows before the balance date
+             4a) Get sum of all transaction flows ON the balance date (needed to subtract from final balance total)
+            5) Balance = Balance_value(#1) - transaction_flow_on_first_day_value (#4a) - transaction_expense_value
+            5a) Transaction amount = Balance amount (#5) - Transaction Flows (#4)
+            6) Does 5a = 0?
+             6a) Yes, #7
+             6b) No, we need to create a transaction for the first transaction date (#2)
+            7) Create new balance in cloud using transaction date (#2) using the balance amount
+            */
+
+            //#1
+            $first_balance = self::GetFirstBalanceInfo($v, $custodian);
+            /*            echo "Balance Info: " . "<br />";
+                        print_r($first_balance);
+                        echo "<br />";*/
+
+            //#2  #intervals as excel sheet, remove monthly intervals from menu
+            $transaction_date = self::GetFirstTransactionDate($v);
+
+            //#3
+            if($transaction_date < $first_balance['date']) {
+                #4
+                $transaction_flow_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("flow"), true);
+                $transaction_expense_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("expense"), true);
+
+                $transaction_flow_on_first_day_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("flow"), false);
+                $transaction_expenses_on_first_day_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("expense"), false);
+                /*
+                                echo "Flow before balance date: $" . $transaction_flow_value . '<br />';
+                                echo "Expense before balance date: $" . $transaction_expense_value . '<br /><br />';
+
+                                echo "Transaction Flows on balance date: $" . $transaction_flow_on_first_day_value . '<br />';
+                                echo "Transaction Expenses on balance date: $" . $transaction_expenses_on_first_day_value . '<br />';
+                */
+                #5
+                $bamount = $first_balance['value'] - $transaction_flow_on_first_day_value - $transaction_expense_value;//Calculated balance is first known balance - flows for that day
+                #5a                                                                       //(If no flows that day, it is the same number)
+                $tamount = $bamount - $transaction_flow_value;
+
+#                echo "<br /><br />" . "Balance Amount to insert: " . $bamount . '<br />';
+#                echo "Transaction amount to insert: " . $tamount . '<br />';
+                #6
+                if($tamount != 0) {#6b
+//                    echo "Need to create a balance for {$custodian}, #{$v} for $" . $bamount . ' on ' . $transaction_date;
+
+                    //$custodian, $account_number, $balance, $date
+                    $record = Vtiger_Record_Model::getCleanInstance("Transactions");
+                    $data = $record->getData();
+                    $data['security_symbol'] = 'CRMRECON';
+                    $data['description'] = 'System Generated Reconciliation Transaction (e)';
+                    $data['account_number'] = $v;
+                    $data['quantity'] = ABS($tamount);
+                    $data['net_amount'] = ABS($tamount);
+                    $data['transaction_type'] = 'Flow';
+                    $data['trade_date'] = $transaction_date;
+                    $data['transaction_activity'] = 'Reconciliation Transaction';
+                    $data['system_generated'] = 1;
+                    if($tamount < 0)
+                        $data['operation'] = '-';
+                    $record->set('mode','create');
+                    $record->setData($data);
+                    $record->save();
+                }
+
+                #7
+                self::CreateBalanceInCustodian("custodian_omniscient", $custodian, $v, $bamount, $transaction_date);
+            }
+
             $params = array($v, $start, $end, $custodian, $db_name);
             $query = "CALL CALCULATE_DAILY_INTERVALS_LOOP(?, ?, ?, ?, ?)";
             $adb->pquery($query, $params, 'true');
-
 //            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
 
             if($auto == true)//We only want to update with the latest date possible, auto guarantees us this
                 self::UpdateIntervalCalculationDate($v, $end);
-//            self::CreateReconciliationTransactionFromEndValueIntervals($v);
 
+
+//            self::CreateReconciliationTransactionFromEndValueIntervals($v);
             /*Old way of calculating intervals was monthly.. we have now moved to daily*/
-#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", {$db_name});
+#            CALL CALCULATE_MONTHLY_INTERVALS_LOOP("34300882", "1900-01-01", "2017-10-12", "schwab", "live_omniscient");
         }
     }
 
@@ -1884,7 +2047,7 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
 	              JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid) 
 	              SET pc_transactions_transferred = 0 
 	              WHERE account_number = ? ";
-	    $adb->pquery($query, array($account_number));
+        $adb->pquery($query, array($account_number));
     }
 
     static public function CopyTransactionsFromPCTableToCloud($account_number){
@@ -1902,12 +2065,13 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
         global $adb, $dbconfig;
         $db_name = $dbconfig['db_name'];
 
+
         $query = "DROP TABLE IF EXISTS PCTransactions";
         $adb->pquery($query, array());
 
         $query = "CREATE TEMPORARY TABLE PCTransactions 
                   SELECT cloud_transaction_id 
-                  FROM {$db_name}.vtiger_transactions JOIN {$db_name}.vtiger_transactionscf USING (transactionsid) 
+                  FROM live_omniscient.vtiger_transactions JOIN live_omniscient.vtiger_transactionscf USING (transactionsid) 
                   WHERE pc_transferred = 1 AND account_number = ?";
         $adb->pquery($query, array($account_number));
 
@@ -1917,13 +2081,13 @@ echo 'Date entering for: ' . $t['intervalenddate'] . '<br />' . '<br />';
         $query = "CREATE TEMPORARY TABLE CreateTransactions 
 SELECT 0 AS crmid, 0000000.00000 AS price, m.omniscient_category, m.omniscient_activity, transaction_id, portfolio_id, sell_lot_id, trade_lot_id, link_id, custodian_id, symbol_id, activity_id, money_id, broker_id, report_as_type_id, quantity, total_value, conversion_value, accrued_interest, yield_at_purchase, advisor_fee, amount_per_share, other_fee, net_amount, settlement_date, trade_date, origina_trade_date, entry_date, link_date, odd_income_payment_flag, long_position_flag, reinvest_gains_flag, reinvest_income_flag, keep_fractional_shares_flag, taxable_prev_year_flag, complete_transaction_flag, is_reinvested_flag, notes, principal, add_sub_status_type_id, contribution_type_id, matching_method_id, custodian_account, original_link_account, origination_id, last_modified_date, trans_link_id, status_type_id, last_modified_user_id, dirty_flag, invalid_cost_basis_flag, cost_basis_adjustment, security_split_flag, reset_cost_basis_flag, deleted, account_number, data_set_id, symbol, custodian, m.operation 
 FROM custodian_omniscient.custodian_transactions_pc t 
-JOIN {$db_name}.pcmapping m ON m.id = t.activity_id AND m.rat = t.report_as_type_id AND m.add_sub_status_type = t.add_sub_status_type_id WHERE t.transaction_id NOT IN (SELECT cloud_transaction_id FROM PCTransactions) AND t.status_type_id = 100
+JOIN live_omniscient.pcmapping m ON m.id = t.activity_id AND m.rat = t.report_as_type_id AND m.add_sub_status_type = t.add_sub_status_type_id WHERE t.transaction_id NOT IN (SELECT cloud_transaction_id FROM PCTransactions) AND t.status_type_id = 100
         AND t.account_number = ?
 GROUP BY transaction_id";
         $adb->pquery($query, array($account_number));
 
-        $query = "UPDATE CreateTransactions t JOIN {$db_name}.vtiger_securities s ON t.symbol_id = s.security_id 
-JOIN {$db_name}.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id 
+        $query = "UPDATE CreateTransactions t JOIN live_omniscient.vtiger_securities s ON t.symbol_id = s.security_id 
+JOIN live_omniscient.vtiger_portfolios p ON t.portfolio_id = p.portfolio_id 
 SET t.symbol = s.security_symbol, t.account_number = REPLACE(p.portfolio_account_number, '-', ''), operation = CASE WHEN operation IS NULL THEN '' ELSE operation END";
         $adb->pquery($query, array());
 
@@ -1934,16 +2098,16 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $query = "UPDATE CreateTransactions t SET price = COALESCE(ABS(net_amount / CASE WHEN quantity > 0 THEN quantity ELSE net_amount END), 0.0)";
         $adb->pquery($query, array());
 
-        $query = "UPDATE CreateTransactions SET crmid = {$db_name}.IncreaseAndReturnCrmEntitySequence()";
+        $query = "UPDATE CreateTransactions SET crmid = live_omniscient.IncreaseAndReturnCrmEntitySequence()";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO {$db_name}.vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), notes FROM CreateTransactions";
+        $query = "INSERT INTO live_omniscient.vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), notes FROM CreateTransactions";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO {$db_name}.vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation) SELECT crmid, account_number, symbol, price, ABS(quantity), trade_date, custodian, transaction_id, operation FROM CreateTransactions";
+        $query = "INSERT INTO live_omniscient.vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation) SELECT crmid, account_number, symbol, price, ABS(quantity), trade_date, custodian, transaction_id, operation FROM CreateTransactions";
         $adb->pquery($query, array());
 
-        $query = "INSERT INTO {$db_name}.vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, principal, comment, pc_transferred) SELECT crmid, custodian, omniscient_category, omniscient_activity, ABS(net_amount), ABS(principal), notes, 1 FROM CreateTransactions";
+        $query = "INSERT INTO live_omniscient.vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, principal, comment, pc_transferred) SELECT crmid, custodian, omniscient_category, omniscient_activity, ABS(net_amount), ABS(principal), notes, 1 FROM CreateTransactions";
         $adb->pquery($query, array());
     }
 
@@ -2066,7 +2230,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                         $name = $contact_record->getName();
                         return $name;
                     }
-                        return $data['last_name'];
+                    return $data['last_name'];
                     break;
                 case "Contacts":
                     $contact_record = Contacts_Record_Model::getInstanceById($record_id);
@@ -2693,6 +2857,71 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             $d = $dt->format("Y-m-d");
             $adb->pquery($query, array($account_number, $d));
         }
+    }
+
+    static public function GetDateFieldForCustodianBalance($custodian){
+        $datefield = "";
+
+        switch(strtolower($custodian)){
+            case "pershing":
+                $datefield = "date";
+                break;
+            case "td":
+            case "fidelity":
+            case "schwab":
+                $datefield = "as_of_date";
+                break;
+        }
+
+        return $datefield;
+    }
+
+    static public function GetValueFieldForCustodianBalance($custodian){
+        $balance_field = "";
+
+        switch(strtolower($custodian)){
+            case "pershing":
+            case "fidelity":
+                $balance_field = "net_worth";
+                break;
+            case "td":
+            case "schwab":
+                $balance_field = "account_value";
+                break;
+        }
+
+        return $balance_field;
+    }
+
+    static public function GetInsertDateFieldCustodianBalance($custodian){
+        $insert_field = "";
+
+        switch(strtolower($custodian)){
+            case "pershing":
+            case "fidelity":
+            case "schwab":
+                $insert_field = "insert_date";
+                break;
+            case "td":
+                $insert_field = "calculated";
+                break;
+        }
+
+        return $insert_field;
+    }
+
+    static public function CreateBalanceInCustodian($database = 'custodian_omniscient', $custodian, $account_number, $balance, $date){
+        global $adb;
+        $datefield = self::GetDateFieldForCustodianBalance($custodian);
+        $balance_field = self::GetValueFieldForCustodianBalance($custodian);
+        $insert_date_field = self::GetInsertDateFieldCustodianBalance($custodian);
+
+        $query = "INSERT INTO {$database}.custodian_balances_{$custodian} (account_number, {$datefield}, {$balance_field}, {$insert_date_field})
+                  VALUES (?, ?, ?, NOW())
+                  ON DUPLICATE KEY UPDATE {$balance_field} = VALUES({$balance_field})";
+//        echo $query . '<br />' . $account_number . '<br />' . $date . '<br />' . $balance . '<br />';
+        $adb->pquery($query, array($account_number, $date, $balance));
+//        echo "SELECT * FROM custodian_balances_{$custodian} WHERE account_number = '{$account_number}'";
     }
 
 }
