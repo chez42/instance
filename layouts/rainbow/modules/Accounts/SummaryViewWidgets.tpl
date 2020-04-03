@@ -38,21 +38,6 @@
 		</div>
 		{* Module Summary View Ends Here*}
 
-		{* Summary View Comments Widget*}
-		{if $COMMENTS_WIDGET_MODEL}
-			<div class="summaryWidgetContainer">
-				<div class="widgetContainer_comments" data-url="{$COMMENTS_WIDGET_MODEL->getUrl()}" data-name="{$COMMENTS_WIDGET_MODEL->getLabel()}">
-					<div class="widget_header">
-						<input type="hidden" name="relatedModule" value="{$COMMENTS_WIDGET_MODEL->get('linkName')}" />
-						<h4 class="display-inline-block">{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-					</div>
-					<div class="widget_contents">
-					</div>
-				</div>
-			</div>
-		{/if}
-		{* Summary View Comments Widget Ends Here*}
-
 		{* Revenue Widget Model Start*}
 		{if $REPORTING_REVENUE_WIDGET_MODEL}
 			<div class="summaryWidgetContainer">
@@ -82,6 +67,21 @@
 			</div>
 		{/if}
 		{* Historical Information Widget Model End*}
+
+		{* Summary View Comments Widget*}
+		{if $COMMENTS_WIDGET_MODEL}
+			<div class="summaryWidgetContainer">
+				<div class="widgetContainer_comments" data-url="{$COMMENTS_WIDGET_MODEL->getUrl()}" data-name="{$COMMENTS_WIDGET_MODEL->getLabel()}">
+					<div class="widget_header">
+						<input type="hidden" name="relatedModule" value="{$COMMENTS_WIDGET_MODEL->get('linkName')}" />
+						<h4 class="display-inline-block">{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
+					</div>
+					<div class="widget_contents">
+					</div>
+				</div>
+			</div>
+		{/if}
+		{* Summary View Comments Widget Ends Here*}
 
 	</div>
 

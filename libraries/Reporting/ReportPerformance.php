@@ -90,8 +90,9 @@ class Performance_Model extends Vtiger_Module {
 
         //Get all rows with max intervalenddate <= to the date entered for the accounts
         $query = "CALL GET_INTERVAL_START_DATE_VALUES(\"{$questions}\", ?, ?)";
-        $adb->pquery($query, array($account_numbers, $start_date, $end_date));
+        $adb->pquery($query, array($account_numbers, $start_date, $end_date), true);
         $beginning_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily");//Contains all account first date values
+
 #        echo $query . '<br />';
 #        print_r($account_numbers);
 #        echo '<br />' . $start_date . ' - ' . $end_date . '<br />';

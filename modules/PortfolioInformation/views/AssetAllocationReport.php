@@ -170,14 +170,14 @@ class PortfolioInformation_AssetAllocationReport_View extends Vtiger_Index_View{
         /* === END : Changes For Report Logo 2016-12-07 === */
 
         if($ispdf) {
-            $pdf_content  = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicPie.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicHoldings.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+            $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/DynamicPie.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/DynamicHoldings.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
 
             $this->GeneratePDF($pdf_content, $logo);
         }
@@ -199,12 +199,12 @@ class PortfolioInformation_AssetAllocationReport_View extends Vtiger_Index_View{
 
         /* === END : Changes For Report Logo 2016-12-07 === */
 
-        $stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/HoldingsReport.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
 
         $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
@@ -241,10 +241,10 @@ class PortfolioInformation_AssetAllocationReport_View extends Vtiger_Index_View{
     public function getHeaderCss(Vtiger_Request $request) {
         $headerCssInstances = parent::getHeaderCss($request);
 		$cssFileNames = array(
-            '~/layouts/vlayout/modules/PortfolioInformation/css/pdf/TitlePage.css',
-            '~/layouts/vlayout/modules/PortfolioInformation/css/HoldingsReport.css',
-            '~/layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css',
-            '~/layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/pdf/TitlePage.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css',
             "~/libraries/amcharts/amcharts/plugins/export/export.css",
 //          "~/libraries/amcharts/amcharts_3.20.9/amcharts/plugins/export/export.css",
         );

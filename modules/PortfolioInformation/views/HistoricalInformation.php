@@ -23,6 +23,10 @@ class PortfolioInformation_HistoricalInformation_View extends Vtiger_Detail_View
 		$calling_module = $request->get('calling_module');
 		$calling_record = $request->get('calling_record');
 		$setype = GetSettypeFromID($request->get('calling_record'));
+        if(strlen($request->get('calling_record') ) == 0) {
+            echo "Records unable to be determined";
+            return;
+        }
 
 		if($setype == "PortfolioInformation"){
 			$account_numbers = array(PortfolioInformation_Module_Model::GetAccountNumberFromCrmid($request->get('calling_record')));

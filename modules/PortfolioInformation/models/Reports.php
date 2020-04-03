@@ -420,15 +420,20 @@ class PortfolioInformation_Reports_Model extends Vtiger_Module {
     }
 
     static public function GeneratePositionsValuesTable($account_numbers, $as_of_date){
-        global $adb;
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
+        $custodianDB = $dbconfig['custodianDB'];
+
         $questions = generateQuestionMarks($account_numbers);
         $params = array();
 
         $params[] = $account_numbers;
         $params[] = $as_of_date;
-        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"{$questions}\", ?, 'live_omniscient')";
+        $params[] = $db_name;
+#        $params[] = $custodianDB;
+        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"{$questions}\", ?, ?)";
 #        $query = "CALL CREATE_POSITIONS_VALUES_TABLE(\"'939741719'\", '2017-12-31', 'live_omniscient');";
-        $adb->pquery($query, $params);
+        $adb->pquery($query, $params, true);
     }
 
     static public function GetPositionValuesPie(){
