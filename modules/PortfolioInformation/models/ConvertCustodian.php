@@ -5,7 +5,7 @@
  * Date: 2016-03-29
  * Time: 1:48 PM
  */
-
+global $dbconfig;
 include_once("include/utils/omniscientCustom.php");
 
 class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{

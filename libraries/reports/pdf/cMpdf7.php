@@ -73,7 +73,7 @@ class cMpdf7 extends \Mpdf\Mpdf{
         $viewer->assign("LOGO", $this->logo);  // Omniver : 2016-12-07 changes for User Logo //
 
         $footer = $viewer->view("pdf/footer.tpl", "PortfolioInformation", true);
-//        $footer = $viewer->view("layouts/vlayout/modules/PortfolioInformation/pdf/footer.tpl", "PortfolioInformation", true);
+//        $footer = $viewer->view("layouts/v7/modules/PortfolioInformation/pdf/footer.tpl", "PortfolioInformation", true);
         $this->SetHTMLFooter ($footer);
         $this->defaultfooterline=0;
 
