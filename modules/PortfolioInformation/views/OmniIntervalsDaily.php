@@ -18,7 +18,7 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
         $module = $request->get('calling_module');
         $calling_record = $request->get('calling_record');
         $account_numbers = $request->get('account_number');
-//        if($module == "PortfolioInformation") {
+//        if($module == "PortfolioInformation") {//TEST
         $accounts = explode(",", $account_numbers);
         $accounts = PortfolioInformation_Module_Model::ReturnValidAccountsFromArray($accounts);
 #        PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
