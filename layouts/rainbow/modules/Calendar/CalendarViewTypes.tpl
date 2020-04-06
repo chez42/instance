@@ -9,9 +9,9 @@
 {* modules/Calendar/views/ViewTypes.php *}
 {strip}
 <style>
-	.mCustomScrollBox {
+	/*.mCustomScrollBox {
 		max-height: min-content !important;
-	}
+	}*/
 </style>
 <div class="sidebar-widget-contents" name='calendarViewTypes'>
 	<div id="calendarview-feeds">
