@@ -33,7 +33,7 @@ class ModSecurities_PriceInteraction_Action extends Vtiger_BasicAjax_Action{
 
     public function GetIndexPriceRange($symbol, $sdate, $edate){
         global $adb;
-        $query = "SELECT symbol, close, DATE_FORMAT(date,'%Y-%m-%d') AS formatted_date
+        $query = "SELECT symbol, close, open, DATE_FORMAT(date,'%Y-%m-%d') AS formatted_date
                   FROM vtiger_prices_index
                   WHERE symbol = ?
                   AND date BETWEEN ? AND ?";
@@ -43,8 +43,9 @@ class ModSecurities_PriceInteraction_Action extends Vtiger_BasicAjax_Action{
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
                 $tmp = array("date" => $v['formatted_date'],
-                              "symbol" => $v['symbol'],
-                              "value" => $v['close']);
+                    "symbol" => $v['symbol'],
+                    "open" => $v['open'],
+                    "value" => $v['close']);
                 $data[] = $tmp;
             }
         }
@@ -62,8 +63,8 @@ class ModSecurities_PriceInteraction_Action extends Vtiger_BasicAjax_Action{
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
                 $tmp = array("date" => $v['formatted_date'],
-                             "symbol" => $v['symbol'],
-                             "value" => $v['close']);
+                    "symbol" => $v['symbol'],
+                    "value" => $v['close']);
                 $data[] = $tmp;
             }
         }
