@@ -2169,6 +2169,7 @@ input[type=checkbox]:checked {
   position: relative;
   border: 0;
   padding: 15px;
+  padding-right:0px;
   margin-bottom: 0px;
   background: #FFFFFF;box-shadow: none; border-radius: 0px;
 }
@@ -2314,6 +2315,7 @@ input[type=checkbox]:checked {
 }
 .summaryWidgetContainer .noContent {
   padding: 10px;
+  border: 1px solid #F3F3F3;
 }
 .summaryView .fieldValue .value {
   max-width: 80%;
@@ -8463,8 +8465,10 @@ li.activitytype-indicator {color :#fff!important;}
 .fc-event{ margin: 10px 4px!important;border-radius: 5px!important;}
 
 
-.middle-block {padding-left: 0px!important;border-left: 1px solid #ddd;}
-.left-block {padding-right: 0px!important;}
+.middle-block {padding-left: 0px!important;}
+
+.left-block {padding-right: 0px!important;border-right: 1px solid #ddd;}
+
 .right-block{padding-left: 0px!important;border-left: 1px solid #ddd;}
 .btn-group>.btn-sm.dropdown-toggle {
          padding: 3px 3px 2px;-webkit-box-shadow: 0 2px 2px 0 rgba(116, 96, 238, 0.14), 0 3px 1px -2px rgba(116, 96, 238, 0.2), 0 1px 5px 0 rgba(116, 96, 238, 0.12);
@@ -8608,9 +8612,10 @@ i.deleteCondition{font-size: 20px;}
 .list-menu-content.list-group{margin-bottom: 10px!important;}
 
 .activities{padding:10px;}
+
 .activities .b-accent {
     border-color: #ccc !important;
-    border-left: 1px solid;
+    /*border-left: 1px solid;*/
 }
 .activities .streamline {
     position: relative;
