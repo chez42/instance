@@ -45,7 +45,7 @@
 	{* Balance Widget Model End*}
 </div>
 
-<div class="left-block col-lg-5">
+<div class="left-block col-lg-4">
 	{* Module Summary View*}
 		<div class="summaryView">
 			<div class="summaryViewHeader">
@@ -88,7 +88,7 @@
 	{* Summary View Comments Widget Ends Here*}
 </div>
 
-<div class="middle-block col-lg-7">
+<div class="middle-block col-lg-4">
 	{if $RECORD->getField('mailingstreet')->get('fieldvalue') neq '' or $RECORD->getField('mailingcity')->get('fieldvalue') neq ''}
 	<div class="summaryWidgetContainer">
 	<iframe class="mapIframe" width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAnSgEdBwrlr3f1rJtXLa7iSiMrgVjeSGY&q=
