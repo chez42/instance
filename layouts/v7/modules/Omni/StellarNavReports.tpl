@@ -23,7 +23,7 @@
                 <li><a href="#">Intervals</a>
                     <ul>
                         <li><a href="#" class="report_selection" data-report="OmniIntervalsDaily">Intervals Daily</a></li>
-                        <li><a href="#" class="report_selection" data-report="OmniIntervals">Intervals Monthly</a></li>
+{*                        <li><a href="#" class="report_selection" data-report="OmniIntervals">Intervals Monthly</a></li>*}
                     </ul>
                 </li>
             </ul>
