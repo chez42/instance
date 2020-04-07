@@ -27,7 +27,7 @@ function getReferenceReturn($symbol,$startDate,$endDate) {
 				  FROM vtiger_prices_index WHERE date <= ?
                   AND symbol = ?
                   order by price_date desc limit 1";
-        $end_result = $adb->pquery($query,array($endDate,$symbol));
+        $end_result = $adb->pquery($query,array($endDate,$symbol)); 
 
     if($adb->num_rows($end_result) <= 0)
         return 0;
