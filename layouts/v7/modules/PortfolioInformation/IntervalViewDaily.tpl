@@ -42,15 +42,15 @@
                     <tr>
                         {*                            <td style="text-align:center; padding:2px;">Account Number</td>
                                             <td style="text-align:center; padding:2px;">Begin Date</td>*}
-                        <th class="left_text padding2">End Date</th>
-                        <th class="right_text padding2">Begin Value</th>
+                        <th class="left_text padding2">End<br />Date</th>
+                        <th class="right_text padding2">Begin<br />Value</th>
                         <th class="right_text padding2">Net Flow Amount</th>
                         <th class="right_text padding2">Income Amount</th>
                         <th class="right_text padding2">Expense Amount</th>
                         <th class="right_text padding2">Investment Return</th>
-                        <th class="right_text padding2 end_value">End Value</th>
-                        <th class="right_text padding2">Day Return %</th>
-                        <th class="right_text padding2">Calculated TWR %</th>
+                        <th class="right_text padding2">End<br />Value</th>
+                        <th class="right_text padding2">Day(%)<br />G/L</th>
+                        <th class="right_text padding2">TWR(%)</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -66,7 +66,7 @@
                             <td class="right_text padding2 data_investmentreturn {if $v.investmentreturn lt 0} red {/if} {if $v.investmentreturn gt 0} green {/if}" data-investmentreturn="{$v.investmentreturn}">${$v.investmentreturn|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_end_value" data-end_value='{$v.end_value}'>${$v.end_value|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_net_return {if $v.net_return_percent lt 0} red {/if} {if $v.net_return_percent gt 0} green {/if}" data-net_return='{$v.net_return}'>{$v.net_return_percent|number_format:2:".":","}</td>
-                            <td class="right_text padding2 data_twr {if $v.twr lt 0} red {/if} {if $v.twr gt 0} green {/if}" data-twr="{$v.twr}">{$v.twr|number_format:2:".":","}</td>
+                            <td class="right_text padding2 data_twr {if $v.twr lt 0} red {/if} {if $v.twr gt 0} green {/if}" data-twr="{$v.twr}" data-calculated_twr="0">{$v.twr|number_format:2:".":","}</td>
                         </tr>
                     {/foreach}
                     </tbody>
@@ -74,134 +74,96 @@
             </div>
             <div id="IntervalRight">
                 <div class="table">
-                    <div class="tr">
+                    <div class="thead">
                         <div class="td">
-                            <h2>&nbsp;</h2>
                         </div>
-                        <div class="td">
-                            <h2>Client</h2>
+                        <div class="td aright">
+                            <h2>Portfolio</h2>
                         </div>
-                        <div class="td">
+                        <div class="td aright">
                             <h2>S&P 500</h2>
                         </div>
                     </div>
                     <div class="tr">
                         <div class="td">
-                            <p>Begin Value</p>
+                            Begin Value
                         </div>
-                        <div class="td">
-                            <p class="begin_value"></p>
+                        <div class="td aright">
+                            <span class="begin_value"></span>
                         </div>
-                        <div class="td">
-                            <p class="sp_return"></p>
-                        </div>
-                    </div>
-                    <div class="tr">
-                        <div class="td">
-                            <p>Flows</p>
-                        </div>
-                        <div class="td">
-                            <p class="selected_flows"></p>
-                        </div>
-                        <div class="td">
-                            <p class="sp_return"></p>
+                        <div class="td aright">
+                            <span class="sp_begin_value"></span>
                         </div>
                     </div>
                     <div class="tr">
                         <div class="td">
-                            <p>Income</p>
+                            Flows
                         </div>
-                        <div class="td">
-                            <p class="selected_income"></p>
+                        <div class="td aright">
+                            <span class="selected_flows"></span>
                         </div>
-                        <div class="td">
-                            <p class="sp_return"></p>
-                        </div>
-                    </div>
-                    <div class="tr">
-                        <div class="td">
-                            <p>Expenses</p>
-                        </div>
-                        <div class="td">
-                            <p class="selected_expenses"></p>
-                        </div>
-                        <div class="td">
-                            <p class="sp_return"></p>
+                        <div class="td aright">
+                            <span class="sp_selected_flows">N/A</span>
                         </div>
                     </div>
                     <div class="tr">
                         <div class="td">
-                            <p>Period Return</p>
+                            Income
                         </div>
-                        <div class="td">
-                            <p class="selected_twr"></p>
+                        <div class="td aright">
+                            <span class="selected_income"></span>
                         </div>
-                        <div class="td">
-                            <p class="sp_return"></p>
-                        </div>
-                    </div>
-                    <div class="tr">
-                        <div class="td">
-                            <p>Average Daily Return</p>
-                        </div>
-                        <div class="td">
-                            <p class="average_return"></p>
-                        </div>
-                        <div class="td">
-                            <p class="sp_average"></p>
+                        <div class="td aright">
+                            <span class="sp_selected_income">N/A</span>
                         </div>
                     </div>
                     <div class="tr">
                         <div class="td">
-                            <p>End Value</p>
+                            Expenses
                         </div>
-                        <div class="td">
-                            <p class="end_value"></p>
+                        <div class="td aright">
+                            <span class="selected_expenses"></span>
                         </div>
+                        <div class="td aright">
+                            <span class="sp_selected_expenses">N/A</span>
+                        </div>
+                    </div>
+                    <div class="tr">
                         <div class="td">
-                            <p class="sp_return"></p>
+                            Period Return
+                        </div>
+                        <div class="td aright">
+                            <span class="selected_twr"></span>
+                        </div>
+                        <div class="td aright">
+                            <span class="sp_twr"></span>
+                        </div>
+                    </div>
+                    <div class="tr">
+                        <div class="td">
+                            Average Daily Return
+                        </div>
+                        <div class="td aright">
+                            <span class="average_return"></span>
+                        </div>
+                        <div class="td aright">
+                            <span class="sp_average_return"></span>
+                        </div>
+                    </div>
+                    <div class="tr">
+                        <div class="td">
+                            End Value
+                        </div>
+                        <div class="td aright">
+                            <span class="end_value"></span>
+                        </div>
+                        <div class="td aright">
+                            <span class="sp_end_value"></span>
                         </div>
                     </div>
 
                 </div>
             </div>
-
-            {*
-                            <table>
-                                <thead>
-                                    <th>&nbsp;</th>
-                                    <th>Client</th>
-                                    <th>S&P 500</th>
-                                </thead>
-                                <tr>
-                                    <td>
-                                        <h2>Period Return</h2>
-                                    </td>
-                                    <td>
-                                        <p class="calculated_return"></p>
-                                    </td>
-                                    <td>
-                                        <p class="calculated_return"></p>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <h2>Average Daily Return</h2>
-                                    </td>
-                                    <td>
-                                        <p class="average_return"></p>
-                                    </td>
-                                    <td>
-                                        <p class="average_return"></p>
-                                    </td>
-                                </tr>
-            {*                    <tr>
-                                    <td style="width:100%; vertical-align:top; text-align:center; display:block;">
-                                        <h2 style="font-size:12px; color:white;">Annualized Return</h2>
-                                        <p style="font-weight:bold; font-size:16px; color:white;" class="annual_return"></p>
-                                    </td>
-                                </tr>
-                            </table>*}
         </div>
     {else}
         <h2>Sorry, there are no Intervals available currently</h2>

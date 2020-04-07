@@ -24,7 +24,7 @@
 {*        <option value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">Annual Summary</option>*}
         {*<option value="GH2Report" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH2 Report-P</option>*}
         <option value="OmniIntervalsDaily" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Daily</option>
-        <option value="OmniIntervals" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Monthly</option>
+        {*<option value="OmniIntervals" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Monthly</option>*}
         <option value="MonthOverMonth" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Month Over Month</option>
         {if $CURRENT_USER->isAdminUser()}
             <option value="PortfoliosReset" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>--Portfolios Transaction Reset--</option>

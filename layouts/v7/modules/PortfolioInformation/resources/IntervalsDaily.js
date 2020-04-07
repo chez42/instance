@@ -3,7 +3,10 @@
  */
 jQuery.Class("IntervalsDaily_Js",{
     currentInstance : false,
-
+    symbols : [],
+    chart : [],
+    chartData : [],
+    selectedCount : 0,
     getInstanceByView : function(){
         var instance = new IntervalsDaily_Js();
         return instance;
@@ -11,10 +14,6 @@ jQuery.Class("IntervalsDaily_Js",{
 },{
     CalculateTWR : function(sdate, edate){
         var self = this;
-//        var s = $(".amcharts-start-date-input").val();
-//        var e = $(".amcharts-end-date-input").val();
-//        var s = $("#fromfield").val();
-//        var e = $("#tofield").val();
         var returns = new Array();
         var selected_elements = new Array();
         try {
@@ -24,12 +23,9 @@ jQuery.Class("IntervalsDaily_Js",{
             var start = $.datepicker.parseDate("yy-mm-dd", sdate);
             var end = $.datepicker.parseDate("yy-mm-dd", edate);
 
-            /*            $('#IntervalTable tbody tr').each(function() {
-                            $(this).children('td, th').css('backgroundColor', '#DADADB');
-                        });*/
-
             $('.data_end_date').each(function(i, obj) {
                 var cur = $.datepicker.parseDate("m-d-yy", $(obj).text());
+                var val = 1;
                 if(cur <= end && cur >= start){
 //                    $(this).closest('tr').children('td, th').css('background-color','#98FB98');
                     $(this).closest('tr').show();
@@ -46,7 +42,8 @@ jQuery.Class("IntervalsDaily_Js",{
 //                        console.log(val);
                         $(obj).siblings('.data_net_return').css('background-color','red');
                     }
-                    var tmp = {begin_value: begin_value, flow: flow, income: income, expense: expense, end_value: end_value, net_return: net_return, twr: twr};
+                    var tmp = {begin_value: begin_value, flow: flow, income: income, expense: expense,
+                        end_value: end_value, net_return: net_return, twr: twr};
                     returns.push(tmp);
                     selected_elements.push($(obj).parent());
 //                    returns.push(val/100);
@@ -57,10 +54,18 @@ jQuery.Class("IntervalsDaily_Js",{
 
             function CalculateReturn(r){
                 var val = 1;
+//                $(".data_twr").attr("data-calculated_twr",0);//Reset the calculated TWR number for the chart
+                $(".data_twr").data("calculated_twr",0);
+
                 $.each(r, function(k, v){
                     val = val * (v.net_return);
                     var tmp = (val - 1) * 100;
+                    v.twr.attr("data-calculated_twr", tmp.toFixed(2));
+                    v.twr.data("calculated_twr",tmp.toFixed(2));
+
                     v.twr.text(tmp.toFixed(2));
+//                    console.log("Setting data-calculated_twr = " + tmp.toFixed(2));
+//                    $(v.twr).data('calculated_twr', tmp.toFixed(2));
                     if(tmp > 0) {
                         v.twr.removeClass('red');
                         v.twr.addClass('green');
@@ -88,13 +93,39 @@ jQuery.Class("IntervalsDaily_Js",{
             var r = CalculateReturn(returns);
             average = (r / count).toFixed(2);
             annual = (average * 12).toFixed(2);
+
+            self.selectedCount = count;
             $(".selected_twr").text(r + "%");
             $(".average_return").text(average + "%");
             $(".annual_return").text(annual + "%");
+
             self.SetCalculatedText(selected_elements);
+            self.SetChartTWR();
+
+            self.DetermineColor($(".selected_twr"), r);
+            self.DetermineColor($(".average_return"), average);
+
         }catch(err){
             console.log(err);
         }
+    },
+
+    /*This sets the line chart TWR to zero out based on zoom data*/
+    SetChartTWR: function(){
+        var chart = this.chart;
+        var chartData = this.chartData;
+
+        $('.data_end_date').each(function(i, obj){
+            var date = $(this).data('date');
+            var twr = $(this).siblings('.data_twr').data('calculated_twr');
+            $.each(chartData, function(k,v){
+                if(v.date == date){
+                    v.calculated_twr = twr;
+                }
+            });
+        });
+
+        chart.data = chartData;
     },
 
     SetCalculatedText: function(elements){
@@ -103,10 +134,13 @@ jQuery.Class("IntervalsDaily_Js",{
 //        console.log(elements[0].find("td:eq(0)").data('date'));
         var begin_value = parseFloat(elements[0].children('.data_begin_value').data('begin_value'));
         var end_value = parseFloat(elements.slice(-1).pop().children('.data_end_value').data('end_value'));//Get last array element, slide it, and pop it from the stack
+        var begin_date = elements[0].children('.data_end_date').data('date');
+        var end_date = elements[elements.length-1].children('.data_end_date').data('date');
         var flow = 0;
         var income = 0;
         var expense = 0;
         var investment = 0;
+        var twr = 0;
 
         $.each(elements, function(k, v){
             var tmp_begin = v.children('.data_begin_value').data('begin_value');
@@ -123,336 +157,53 @@ jQuery.Class("IntervalsDaily_Js",{
             expense += tmp_expense;
         });
 
+        var begin_val = self.ConvertDateAndReturnValueFromSymbolObject(begin_date, "mm-dd-yy");
+        var end_val = self.ConvertDateAndReturnValueFromSymbolObject(end_date, "mm-dd-yy");
+        var calculated_index = ( ((end_val/begin_val) * 100) - 100).toFixed(2);
+        var average_index = (calculated_index / self.selectedCount).toFixed(2);
+
+        self.DetermineColor($(".begin_value"), begin_value);
         $(".begin_value").text("$" + begin_value.toLocaleString());//Set the begin value text
-        $(".selected_flows").text("$" + flow.toLocaleString());//Set the end value text
-        $(".selected_income").text("$" + income.toLocaleString());//Set the end value text
-        $(".selected_expenses").text("$" + expense.toLocaleString());//Set the end value text
+        self.DetermineColor($(".selected_flows"), flow);
+        $(".selected_flows").text("$" + flow.toLocaleString());//Set the flow value text
+        self.DetermineColor($(".selected_income"), income);
+        $(".selected_income").text("$" + income.toLocaleString());//Set the income value text
+        self.DetermineColor($(".selected_expenses"), expense);
+        $(".selected_expenses").text("$" + expense.toLocaleString());//Set the expense value text
+        self.DetermineColor($(".end_value"), end_value);
         $(".end_value").text("$" + end_value.toLocaleString());//Set the end value text
+
+        /*        var tmp_date = $.datepicker.parseDate("mm-dd-yy", begin_date);
+                var tmp_formatted = $.datepicker.formatDate( "mm-dd-yy", tmp_date);
+                var begin_val = parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);//parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);*/
+
+        self.DetermineColor($(".sp_begin_value"), begin_val);
+        $(".sp_begin_value").text(Number(begin_val).toLocaleString());//Set the begin value text
+        self.DetermineColor($(".sp_end_value"), end_val);
+        $(".sp_end_value").text(Number(end_val).toLocaleString());//Set the begin value text
+        self.DetermineColor($(".sp_twr"), calculated_index);
+        $(".sp_twr").text(Number(calculated_index).toLocaleString() + "%");//Set the begin value text
+        self.DetermineColor($(".sp_average_return"), average_index);
+        $(".sp_average_return").text(Number(average_index).toLocaleString() + "%");//Set the begin value text
     },
 
-    /*    LineBarChart : function(){
-            var funcs = this;
-            var accounts = $("#account_numbers").val();
-            var data = new Array();
-            $.post("index.php", {module:'PortfolioInformation', action:'IntervalJSON', todo:'endvaluesdaily', account_numbers:accounts}, function(response){
-                data = $.parseJSON(response);
-                var chart = AmCharts.makeChart("chartdiv", {
-                    type: "stock",
-                    theme: "light",
-                    pathToImages: 'libraries/amcharts/amstockchart/images/',
-                    dataDateFormat: "MM-DD-YYYY",
-                    dataSets: [{
-                        fieldMappings: [{
-                            fromField: "end_value",
-                            toField: "end_value"
-                        },{
-                            fromField: "net_flow",
-                            toField: "value2"
-                        },{
-                            fromField: "investment_return",
-                            toField: "value3"
-                        },{
-                            fromField: "period_return",
-                            toField: "value4"
-                        }],
+    ConvertDateAndReturnValueFromSymbolObject: function(date, format){
+        var self = this;
+        var tmp_date = $.datepicker.parseDate(format, date);
+        var tmp_formatted = $.datepicker.formatDate( format, tmp_date);
+        var val = parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);//parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);
+        return val;
+    },
 
-                        dataProvider: data,
-                        categoryField: "end_date"
-                    }],
-                    panels: [{
-    //                    title: "Month End Values / Deposits & Withdrawls",
-                        showCategoryAxis: false,
-                        percentHeight: 70,
-                        recalculateToPercents: "never",
-                        depth3D: 14,
-                        angle: 25,
-                        valueAxes: [ {
-                            id: "v1",
-                            dashLength: 5,
-                            unit: "$",
-                            unitPosition: "left",
-                            stackType: "regular"
-                        } ],
-                        categoryAxis: {
-                            dashLength: 5
-                        },
-                        stockGraphs: [{
-                            title: "Month End Value",
-                            type: "line",
-                            id: "g1",
-                            valueField: "end_value",
-                            balloonText: "$[[value]]",
-                            comparable: true
-                        },{
-                            title: "Deposits / Withdrawals",
-                            balloonText: "$[[value]]",
-                            type: "column",
-                            id: "g2",
-                            valueField: "value2",
-                            useDataSetColors: false,
-                            fillAlphas: 0.3,
-                            negativeFillColors:"#a30013",
-                            negativeLineColor:"#a30013",
-                            fillColors:"#00d111",
-                            lineColor:"#00d111",
-                            comparable: true
-                        }],
-                        stockLegend: {
-                        }
-                    },{
-                        showCategoryAxis: true,
-    //                    title: "Investment Return $",
-                        recalculateToPercents: "never",
-                        depth3D: 14,
-                        angle: 25,
-                        valueAxes: [ {
-                            unit: "$",
-                            unitPosition: "left",
-                            dashLength: 5,
-                            stackType: "regular"
-                        } ],
-                        stockGraphs: [ {
-                            title: "Investment Return",
-                            balloonText: "$[[value]]",
-                            type: "column",
-                            id: "g3",
-                            valueField: "value3",
-                            fillAlphas: 0.3,
-                            comparable: true,
-                            useDataSetColors: false,
-                            negativeFillColors:"#a30013",
-                            negativeLineColor:"#a30013",
-                            fillColor:"#00d111",
-                            lineColor:"#00d111"
-                        }],
-                        stockLegend: {
-                        }
-                    },{
-                        showCategoryAxis: true,
-    //                    title: "Period Return %",
-                        depth3D: 14,
-                        angle: 25,
-                        recalculateToPercents: "never",
-                        valueAxes: [ {
-                            unit: "%",
-                            unitPosition: "right",
-                            dashLength: 5,
-                            stackType: "regular"
-                        } ],
-                        stockGraphs: [ {
-                            title: "Period Return",
-                            balloonText: "[[value]]%",
-                            type: "column",
-                            id: "g4",
-                            valueField: "value4",
-                            fillAlphas: 0.3,
-                            comparable: true,
-                            useDataSetColors: false,
-                            negativeFillColors:"#a30013",
-                            negativeLineColor:"#a30013",
-                            fillColor:"#00d111",
-                            lineColor:"#00d111"
-                        }],
-                        stockLegend: {
-                        }
-                    }],
+    DetermineColor: function(element, val){
+        element.removeClass('red');
+        element.removeClass('green');
 
-                    chartScrollbarSettings: {
-                        graph: "g1"
-                    },
-
-                    chartCursorSettings: {
-                        valueBalloonsEnabled: true,
-                        fullWidth:true,
-                        cursorAlpha:0.1
-                    },
-
-                    periodSelector: {
-                        dateFormat: "MM/DD/YYYY",
-                        periods: [{
-                            period: "MM",
-                            count: 1,
-                            label: "1 Month"
-                        }, {
-                            period: "MM",
-                            count: 3,
-                            label: "3 Months"
-                        }, {
-                            period: "MM",
-                            count: 6,
-                            selected: true,
-                            label: "6 Months"
-                        }, {
-                            period: "YYYY",
-                            count: 1,
-                            label: "1 Year"
-                        }, {
-                            period: "YTD",
-                            label: "YTD"
-                        }, {
-                            period: "MAX",
-                            label: "MAX"
-                        }]
-                    },
-                    "export": {
-                        libs: { "path": "libraries/amcharts/amstockchart/plugins/export/libs/" },
-                        "enabled": true,
-                        "menu": [ {
-                            "class": "export-main",
-                            "menu": [ {
-                                "label": "Download as image",
-                                "menu": [ "PNG", "JPG", "SVG" ]
-                            }, {
-                                "label": "Download data",
-                                "menu": [ "CSV", "XLSX" ]
-                            }, {
-                                "label": "Download Report",
-                                "click": function(){
-                                    chart.AmExport.capture( {}, function() {
-                                        // SAVE TO JPG
-                                        this.toJPG( {}, function( base64 ) {
-                                            var s = $(".amcharts-start-date-input").val();
-                                            var e = $(".amcharts-end-date-input").val();
-                                            var start = $.datepicker.parseDate("m-d-yy", s);
-                                            var end = $.datepicker.parseDate("m-d-yy", e);
-                                            var FormattedStart = $.datepicker.formatDate( "yy-mm-dd", new Date( start ) );
-                                            var FormattedEnd = $.datepicker.formatDate( "yy-mm-dd", new Date( end ) );
-
-                                            $('#start_date').val(FormattedStart);
-                                            $("#end_date").val(FormattedEnd);
-                                            $("#calculated_return").val($(".calculated_return").text());
-
-                                            // LOG IMAGE DATA
-                                            var image = encodeURIComponent(base64);
-                                            var input = $("<input>")
-                                                .attr("type", "hidden")
-                                                .attr("name", "image").val(image);
-                                            $('#IntervalForm').append($(input));
-                                            $("#IntervalForm").submit();
-                                        } );
-                                    } );
-                                }
-                            } ]
-                        } ]
-                    },
-                    "listeners": [{
-                        "event": "zoomed",
-                        "method": function(e) {
-                            funcs.ZoomChart();
-                        }
-                    }, {
-                        "event": "rendered",
-                        "method": function (e) {
-                            $(".amcharts-start-date-input").shieldDatePicker({
-                                events: {
-                                    change: function (e) {
-                                        funcs.ZoomChart();
-                                    }
-                                }
-                            });
-                            $(".amcharts-end-date-input").shieldDatePicker({
-                                events: {
-                                    change: function (e) {
-                                        funcs.ZoomChart();
-                                    }
-                                }
-                            });
-                        }
-                    }],
-                });
-            });
-        },
-
-        DateSelection: function(){
-            var start = moment().subtract(29, 'days');
-            var end = moment();
-
-            function cb(start, end) {
-                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            }
-
-    /*        $("#fromfield").shieldDatePicker({
-                events: {
-                    change: function (e) {
-    //                    funcs.ZoomChart();
-                    }
-                }
-            });
-            $("#tofield").shieldDatePicker({
-                events: {
-                    change: function (e) {
-    //                    funcs.ZoomChart();
-                    }
-                }
-            });*/
-
-    /*        $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
-                var returns = new Array();
-                try {
-                    var count = 0;
-                    var start_date = picker.startDate.format('MMMM D, YYYY');
-                    var end_date = picker.endDate.format('MMMM D, YYYY');
-                    var sday = new Date(start_date);
-                    var eday = new Date(end_date);
-
-                    $('#IntervalTable tbody tr').each(function() {
-                        $(this).children('td, th').css('backgroundColor', '#DADADB');
-                    });
-
-                    $('.end_date').each(function(i, obj) {
-                        var cur = $.datepicker.parseDate("m-d-yy", $(obj).text());
-                        var dat = new Date(cur);
-                        if(dat <= eday && dat >= sday){
-                            $(this).closest('tr').children('td, th').css('background-color','#98FB98');
-                            var val = $(obj).siblings('.net_return').data('net_return');
-                            if(val > 1.15 || val < 0.85) {
-    //                            console.log(val);
-                                $(obj).siblings('.net_return').css('background-color', 'red');
-                            }
-                            returns.push(val);
-                        }
-                    });
-
-                    function CalculateReturn(r){
-                        var val = 1;
-                        $.each(r, function(k, v){
-                            val = val * (v);
-                            count+=1;
-                        });
-                        val = (val - 1) * 100;
-                        return(val.toFixed(2));
-                    }
-                    var r = CalculateReturn(returns);
-                    average = (r / count).toFixed(2);
-                    annual = (average * 12).toFixed(2);
-                    $(".calculated_return").text(r + "%");
-                    $(".average_return").text(average + "%");
-                    $(".annual_return").text(annual + "%");
-                }catch(err){
-
-                }
-            });
-
-            $('#reportrange').daterangepicker({
-                startDate: start,
-                endDate: end,
-                maxDate: moment(),
-                ranges: {
-                    'Today': [moment(), moment()],
-                    'Yesterday': [moment().subtract(1, 'days'), moment()],
-                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month': [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                    '2019': [moment("20190101","YYYYMMDD"), moment("20191231","YYYYMMDD")],
-                    'Inception': [moment("19000101","YYYYMMDD"), moment()]
-                }
-            }, cb);
-
-            cb(start, end);
-        },
-    */
-    DateSelection: function() {
+        if(val >= 0) {
+            element.addClass('green');
+            return;
+        }
+        element.addClass('red');
     },
 
     TimelineChart2: function(){
@@ -462,7 +213,7 @@ jQuery.Class("IntervalsDaily_Js",{
         var chart = am4core.create("linechartdiv", am4charts.XYChart);
         chart.padding(0, 15, 0, 15);
         chart.colors.step = 3;
-//TODO: DEFAULT TO 3 MONTHS
+
         var mydata = {};
         var symbols = new Array("GSPC", "SP500BDT");
         var symbol_info;
@@ -482,33 +233,43 @@ jQuery.Class("IntervalsDaily_Js",{
         //Get the index prices
         //TODO:  sdate and edate need to be dynamic, not this hardcoded nonsense
         $.post("index.php", {module:'ModSecurities', action:'PriceInteraction', todo:'getprice', symbol:symbols, sdate:'2018-01-01', edate:'2020-12-31'}, function(response) {
-            symbol_info = $.parseJSON(response);
+            symbol_info = $.parseJSON(response);//Get index information
             var count = 0;
+            var tmpSymbols = {};
             $.each(symbol_info, function(a, symbol){
+                tmpSymbols[count] = symbol;//.push(symbol);
+//                self.symbols["symbol_" + count] = symbol;
+                var symbol_keys = {};
                 $.each(symbol, function(k, v){
-                    var parsed_date = $.datepicker.parseDate("yy-m-d", v.date)
+                    var parsed_date = $.datepicker.parseDate("yy-m-d", v.date);
                     var formatted = $.datepicker.formatDate( "mm-dd-yy", parsed_date);
                     if(typeof mydata[formatted] !== 'undefined') {
                         var tmp = mydata[formatted];
                         tmp['symbol_'+count] = v.value;
+                        tmp['calculated_twr'] = 0;
                         mydata[formatted] = tmp;
                     }
+                    var tmp_date = $.datepicker.parseDate("yy-m-d", v.date);
+                    var tmp_formatted = $.datepicker.formatDate( "mm-dd-yy", tmp_date);
+                    symbol_keys[tmp_formatted] = v;
                 });
+                tmpSymbols[count] = symbol_keys;
                 count = count + 1;
             });
-
+            self.symbols = tmpSymbols;
+//            console.log(self.symbols);
             $.each(mydata, function(k, v){
                 v.amcharts_date = new Date($.datepicker.parseDate("m-d-yy", v.date));
 //                console.log(v.symbol_1);
                 if(typeof(v.symbol_1) === 'undefined'){
                     v.symbol_1 = 0;
+                    v.calculated_twr = 0;
                 }
                 final.push(v);
             });
 
         }).done(function(){
-//            console.log(data);
-//            console.log(final);///omni8439   felipe.luna@omnisrv.com
+            self.chartData = final;
             chart.data = final;
 
 // the following line makes value axes to be arranged vertically.
@@ -554,13 +315,14 @@ jQuery.Class("IntervalsDaily_Js",{
 
             var series1 = chart.series.push(new am4charts.LineSeries());
             series1.dataFields.dateX = "amcharts_date";
-            series1.dataFields.valueY = "twr";
+            series1.dataFields.valueY = "calculated_twr";
             series1.dataFields.valueX = "end_value";
 //        series1.dataFields.valueYShow = "change";
 //            series1.tooltipText = "{name}: {valueY.change.formatNumber('[#0c0]+#.00|[#c00]#.##|0')}%";
 //            series1.tooltipText = "{name}: {valueY.formatNumber('[#0c0]+#.00|[#c00]#.##|0')}%, (${endValue.formatNumber('###,###.##')})";//";
-            series1.tooltipText = "Acct Value: (${valueX.formatNumber('###,###.##')})";//";
-            series1.name = "TWR";
+//            series1.tooltipText = "{name}: {valueY.formatNumber('###,###.##')}%, (${valueX.formatNumber('###,###.##')})";//";
+            series1.tooltipText = "{name}: {valueY.formatNumber('[#0c0]+#.00|[#c00]#.##|0')}%, (${valueX.formatNumber('###,###.##')})";
+            series1.name = "Portfolio TWR";
             series1.tooltip.getFillFromObject = false;
             series1.tooltip.getStrokeFromObject = true;
             series1.tooltip.background.fill = am4core.color("#fff");
@@ -582,60 +344,8 @@ jQuery.Class("IntervalsDaily_Js",{
             series2.tooltip.label.fill = series2.stroke;
             series2.groupFields.valueY = "open";
             series2.dataItems.template.locations.dateX = 0;
-            /*
-                        var series3 = chart.series.push(new am4charts.LineSeries());
-                        series3.dataFields.dateX = "amcharts_date";
-                        series3.dataFields.valueY = "symbol_1";
-            //            series3.dataFields.valueYShow = "changePercent";
-                        series3.tooltipText = "{name}: {valueY.changePercent.formatNumber('[#0c0]+#.00|[#c00]#.##|0')}%";
-                        series3.name = "SP500BDT";
-                        series3.tooltip.getFillFromObject = false;
-                        series3.tooltip.getStrokeFromObject = true;
-                        series3.tooltip.background.fill = am4core.color("#fff");
-                        series3.tooltip.background.strokeWidth = 2;
-                        series3.tooltip.label.fill = series3.stroke;
-            */
 
-            /*
-                        var valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
-                        valueAxis2.tooltip.disabled = true;
-                // height of axis
-                        valueAxis2.height = am4core.percent(35);
-                        valueAxis2.zIndex = 3
-                // this makes gap between panels
-                        valueAxis2.marginTop = 30;
-                        valueAxis2.renderer.baseGrid.disabled = true;
-                        valueAxis2.renderer.inside = true;
-                        valueAxis2.renderer.labels.template.verticalCenter = "bottom";
-                        valueAxis2.renderer.labels.template.padding(2, 2, 2, 2);
-                //valueAxis.renderer.maxLabelPosition = 0.95;
-                        valueAxis2.renderer.fontSize = "0.8em";
-
-                        valueAxis2.renderer.gridContainer.background.fill = am4core.color("#000000");
-                        valueAxis2.renderer.gridContainer.background.fillOpacity = 0.05;
-            */
-            /*        var volumeSeries = chart.series.push(new am4charts.StepLineSeries());
-                    volumeSeries.fillOpacity = 1;
-                    volumeSeries.fill = series1.stroke;
-                    volumeSeries.stroke = series1.stroke;
-                    volumeSeries.dataFields.dateX = "date";
-                    volumeSeries.dataFields.valueY = "quantity";
-                    volumeSeries.yAxis = valueAxis2;
-                    volumeSeries.tooltipText = "Volume: {valueY.value}";
-                    volumeSeries.name = "Series 2";
-            // volume should be summed
-            //        volumeSeries.groupFields.valueY = "sum";
-                    volumeSeries.tooltip.label.fill = volumeSeries.stroke;*/
             chart.cursor = new am4charts.XYCursor();
-
-            /*            var scrollbarX = new am4charts.XYChartScrollbar();
-                        scrollbarX.series.push(series1);
-                        scrollbarX.marginBottom = 20;
-                        var sbSeries = scrollbarX.scrollbarChart.series.getIndex(0);
-                        sbSeries.dataFields.valueYShow = undefined;
-                        chart.scrollbarX = scrollbarX;*/
-
-
             /**
              * Set up external controls
              */
@@ -649,8 +359,8 @@ jQuery.Class("IntervalsDaily_Js",{
             }
 
             document.getElementById("lyr").addEventListener("click", function() {
-                zoomToDatesCustom("2019-01-01", "2019-12-31");
                 SetButtonColor($(this), 'lightgreen');
+                zoomToDatesCustom("2019-01-01", "2019-12-31");
             });
 
             document.getElementById("b1m").addEventListener("click", function() {
@@ -739,28 +449,6 @@ jQuery.Class("IntervalsDaily_Js",{
                 zoomToDatesCustom(start, end);
             });
 
-            /*            $("#fromfield").shieldDateTimePicker({
-                            format:"{0:yyyy-MM-dd}",
-                            textTemplate: "{0:yyyy-MM-dd}",
-                            editable: true,
-                            events: {
-                                change: function (e) {
-                                    updateZoom();
-                                }
-                            }
-                        });
-
-                        $("#tofield").shieldDateTimePicker({
-                            format:"{0:yyyy-MM-dd}",
-                            textTemplate: "{0:yyyy-MM-dd}",
-                            editable: true,
-                            events: {
-                                change: function (e) {
-                                    updateZoom();
-                                }
-                            }
-                        });
-            */
             //Returns the Date object of today - num months
             function GetDateMinusMonths(num_months){
                 var dt = new Date();
@@ -823,100 +511,11 @@ jQuery.Class("IntervalsDaily_Js",{
                 console.log('auto zoom');
 
                 zoomToDatesCustom(start, end);
-
-                /*                dateAxis.zoomToDates(
-                                    new Date(2018, 3, 23),
-                                    new Date(2018, 3, 26)
-                                );*/
             });
 
         });
-    },
 
-    Clock : function(){
-        am4core.useTheme(am4themes_animated);
-//        am4core.useTheme(am4themes_dark);
-
-// create chart
-        var chart = am4core.create("linechartdiv", am4charts.GaugeChart);
-
-
-        chart.exporting.menu = new am4core.ExportMenu();
-
-        chart.startAngle = -90;
-        chart.endAngle = 270;
-
-        var axis = chart.xAxes.push(new am4charts.ValueAxis());
-        axis.min = 0;
-        axis.max = 12;
-        axis.strictMinMax = true;
-
-        axis.renderer.line.strokeWidth = 8;
-        axis.renderer.line.strokeOpacity = 1;
-        axis.renderer.minLabelPosition = 0.05; // hides 0 label
-        axis.renderer.inside = true;
-        axis.renderer.labels.template.radius = 30;
-        axis.renderer.grid.template.disabled = true;
-        axis.renderer.ticks.template.length = 12;
-        axis.renderer.ticks.template.strokeOpacity = 1;
-
-// serves as a clock face fill
-        var range = axis.axisRanges.create();
-        range.value = 0;
-        range.endValue = 12;
-        range.grid.visible = false;
-        range.tick.visible = false;
-        range.label.visible = false;
-
-        var axisFill = range.axisFill;
-        axisFill.fillOpacity = 0.8;
-        axisFill.disabled = false;
-        axisFill.fill = am4core.color("#FFFFFF");
-
-// hands
-        var hourHand = chart.hands.push(new am4charts.ClockHand());
-        hourHand.radius = am4core.percent(60);
-        hourHand.startWidth = 10;
-        hourHand.endWidth = 10;
-        hourHand.rotationDirection = "clockWise";
-        hourHand.pin.radius = 8;
-        hourHand.zIndex = 1;
-
-        var minutesHand = chart.hands.push(new am4charts.ClockHand());
-        minutesHand.rotationDirection = "clockWise";
-        minutesHand.startWidth = 7;
-        minutesHand.endWidth = 7;
-        minutesHand.radius = am4core.percent(78);
-        minutesHand.zIndex = 2;
-
-        var secondsHand = chart.hands.push(new am4charts.ClockHand());
-        secondsHand.fill = am4core.color("#DD0000");
-        secondsHand.stroke = am4core.color("#DD0000");
-        secondsHand.radius = am4core.percent(85);
-        secondsHand.rotationDirection = "clockWise";
-        secondsHand.zIndex = 3;
-        secondsHand.startWidth = 1;
-
-        updateHands();
-
-        setInterval(function () {
-            updateHands();
-        }, 1000)
-
-        function updateHands() {
-            // get current date
-            var date = new Date();
-            var hours = date.getHours();
-            var minutes = date.getMinutes();
-            var seconds = date.getSeconds();
-
-            // set hours
-            hourHand.showValue(hours + minutes / 60, 0);
-            // set minutes
-            minutesHand.showValue(12 * (minutes + seconds / 60) / 60, 0);
-            // set seconds
-            secondsHand.showValue(12 * date.getSeconds() / 60, 300);
-        }
+        self.chart = chart;
     },
 
     FloatHead : function(){
@@ -932,7 +531,6 @@ jQuery.Class("IntervalsDaily_Js",{
     },
 
     registerEvents : function() {
-        this.DateSelection();
 //        this.FloatHead();
 //        this.Clock();
         if (am4core.isReady) {
@@ -944,9 +542,7 @@ jQuery.Class("IntervalsDaily_Js",{
 //        this.Testing();
         var vtigerInstance = Vtiger_Index_Js.getInstance();
         vtigerInstance.registerEvents();
-    },
-
-
+    }
 });
 //REMOVED THE READY REQUIREMENT SO THIS LOADS IN A WIDGET EVEN AFTER A REFRESH
 jQuery(document).ready(function($) {
