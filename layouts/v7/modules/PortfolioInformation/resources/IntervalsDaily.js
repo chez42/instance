@@ -207,6 +207,7 @@ jQuery.Class("IntervalsDaily_Js",{
     },
 
     TimelineChart2: function(){
+        console.log("Chart Creating");
         var self = this;
         am4core.useTheme(am4themes_animated);
         am4core.useTheme(am4themes_dark);
@@ -218,6 +219,8 @@ jQuery.Class("IntervalsDaily_Js",{
         var symbols = new Array("GSPC", "SP500BDT");
         var symbol_info;
         var final = [];
+        var start_date = $("#start_date").val();
+        var end_date = $("#end_date").val();
 
         $($(".data_net_return").get().reverse()).each(function(e) {
             var date = $(this).siblings(".data_end_date").data('date');
@@ -232,7 +235,7 @@ jQuery.Class("IntervalsDaily_Js",{
 
         //Get the index prices
         //TODO:  sdate and edate need to be dynamic, not this hardcoded nonsense
-        $.post("index.php", {module:'ModSecurities', action:'PriceInteraction', todo:'getprice', symbol:symbols, sdate:'2018-01-01', edate:'2020-12-31'}, function(response) {
+        $.post("index.php", {module:'ModSecurities', action:'PriceInteraction', todo:'getprice', symbol:symbols, sdate:start_date, edate:end_date}, function(response) {
             symbol_info = $.parseJSON(response);//Get index information
             var count = 0;
             var tmpSymbols = {};
@@ -267,8 +270,10 @@ jQuery.Class("IntervalsDaily_Js",{
                 }
                 final.push(v);
             });
+            console.log('About to be done');
 
         }).done(function(){
+            console.log('Done portion started');
             self.chartData = final;
             chart.data = final;
 
@@ -503,15 +508,14 @@ jQuery.Class("IntervalsDaily_Js",{
                 self.CalculateTWR(start, end);
             }
 
-            chart.events.on("ready", function () {
+//            chart.events.on("ready", function () {
                 var d = GetDateMinusMonths(3);
                 var start = chart.dateFormatter.format(d, "yyyy-MM-dd");
                 var end = chart.dateFormatter.format(Date(), "yyyy-MM-dd");
                 SetButtonColor($("#b3m"), "lightgreen");
                 console.log('auto zoom');
-
                 zoomToDatesCustom(start, end);
-            });
+//            });
 
         });
 
@@ -534,8 +538,10 @@ jQuery.Class("IntervalsDaily_Js",{
 //        this.FloatHead();
 //        this.Clock();
         if (am4core.isReady) {
+            console.log('Ready');
             this.TimelineChart2();
         } else {
+            console.log('Not Ready');
             am4core.ready(this.TimelineChart2());
         }
 //        this.LineBarChart();
@@ -546,8 +552,11 @@ jQuery.Class("IntervalsDaily_Js",{
 });
 //REMOVED THE READY REQUIREMENT SO THIS LOADS IN A WIDGET EVEN AFTER A REFRESH
 jQuery(document).ready(function($) {
-    var instance = IntervalsDaily_Js.getInstanceByView();
-    instance.registerEvents();
+    $( window ).on( "load", function() {
+        var instance = IntervalsDaily_Js.getInstanceByView();
+        console.log('loaded');
+        instance.registerEvents();
+    });
 });
 
 

@@ -21,11 +21,17 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
 //        if($module == "PortfolioInformation") {
         $accounts = explode(",", $account_numbers);
         $accounts = PortfolioInformation_Module_Model::ReturnValidAccountsFromArray($accounts);
+        $start_date = date("Y-m-d");
 #        PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
 #        PortfolioInformation_Module_Model::AutoDetermineIntervalCalculationDates($accounts);
         PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
 //        $intervals = PortfolioInformation_Module_Model::GetDailyIntervalsForAccountsPreCalculated($accounts, '1900-01-01', date("Y-m-d"));
         $intervals = PortfolioInformation_Module_Model::GetDailyIntervalsForAccountsPreCalculated($accounts, '1900-01-01', date("Y-m-d"));
+        foreach($accounts AS $k => $v){
+            $tmp_date = PortfolioInformation_Module_Model::GetFirstIntervalEndDate($v);
+            if($tmp_date < $start_date)
+                $start_date = $tmp_date;
+        }
 
         $viewer = $this->getViewer($request);
 
@@ -33,6 +39,8 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
         $viewer->assign("ACCOUNT_NUMBERS", implode(",", $accounts));
         $viewer->assign('SCRIPTS', self::getHeaderScripts($request));
         $viewer->assign('STYLES', self::getHeaderCss($request));
+        $viewer->assign('START_DATE', $start_date);
+        $viewer->assign('END_DATE', date("Y-m-d"));
         $viewer->assign("SOURCE_RECORD", $calling_record);
         $viewer->assign("SOURCE_MODULE", $module);
         $viewer->view('IntervalViewDaily.tpl', "PortfolioInformation");
