@@ -134,22 +134,7 @@
 
 
 </div>
-<div class="middle-block col-lg-4">
-	{* Report Widget Model Start*}
-	{if $REPORT_WIDGET_MODEL}
-		<div class="summaryWidgetContainer">
-			<div class="widgetContainer_report" data-url="{$REPORT_WIDGET_MODEL->getUrl()}" data-name="{$REPORT_WIDGET_MODEL->getLabel()}">
-				<div class="widget_header">
-					<input type="hidden" name="relatedModule" value="{$REPORT_WIDGET_MODEL->get('linkName')}" />
-					<h4 class="display-inline-block">{vtranslate($REPORT_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-				</div>
-				<div class="widget_contents">
-				</div>
-			</div>
-		</div>
-	{/if}
-	{* Report Widget Model End*}
-
+<div class="right-block col-lg-4">
 	{* Risk Assessment Widget Model Start*}
     {if $RISK_ASSESSMENT_WIDGET_MODEL}
 		<div class="summaryWidgetContainer">
@@ -164,8 +149,7 @@
 		</div>
     {/if}
     {* Risk Assessment Widget Model End*}
-{*</div>
-<div class="right-block col-lg-4 col-sm-4 col-md-4">*}
+
 	{* Revenue Widget Model Start*}
 	{if $REPORTING_REVENUE_WIDGET_MODEL}
 		<div class="summaryWidgetContainer">
@@ -181,4 +165,21 @@
 	{/if}
 	{* Revenue Widget Model End*}
 </div>
+<div class="middle-block col-lg-8">
+	{* Report Widget Model Start*}
+	{if $REPORT_WIDGET_MODEL}
+		<div class="summaryWidgetContainer">
+			<div class="widgetContainer_report" data-url="{$REPORT_WIDGET_MODEL->getUrl()}" data-name="{$REPORT_WIDGET_MODEL->getLabel()}">
+				<div class="widget_header">
+					<input type="hidden" name="relatedModule" value="{$REPORT_WIDGET_MODEL->get('linkName')}" />
+					<h4 class="display-inline-block">{vtranslate($REPORT_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
+				</div>
+				<div class="widget_contents">
+				</div>
+			</div>
+		</div>
+	{/if}
+	{* Report Widget Model End*}
+</div>
+
 {/strip}

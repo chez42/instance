@@ -297,35 +297,33 @@ function toggleAdvancedStyleOptions(){
 
 function getCurrentUserStyle(){
 	var params = {
-						'module' : 'OmniThemeManager',
-						'action' : 'AjaxActions',
-						'mode' : "getStyleForCurrentUser"
-					}
-					$.post("index.php",params).then(function(data) {
-						console.log(data);
-						
-						if(data.result.success) {
-							currentStyle = data.result.style;
-							currentUser = data.result.user;
-							isAdminUser = data.result.isAdmin;
-							loadThemePresets();	
-							loadThemePresetsMYC();	
-							return currentStyle;
-						}					
-						else {							
-							var errstring="";
-							for(var m=0;m<data.result.messages.length;m++){
-								var me=m+1;
-								errstring+=me+") "+data.result.messages[m]+" <br>";
-							}
-							$("#errormsg").html("There was some error doing the requested operation! The following are the error details: <br>"+errstring);							
-							$("#errormsg").show();
-						}
-						
-					},
-					function(error,err){
-						console.log(error);
-					});
+		'module' : 'OmniThemeManager',
+		'action' : 'AjaxActions',
+		'mode' : "getStyleForCurrentUser"
+	}
+	$.post("index.php",params).then(function(data) {
+	
+		
+		if(data.result.success) {
+			currentStyle = data.result.style;
+			currentUser = data.result.user;
+			isAdminUser = data.result.isAdmin;
+			loadThemePresets();	
+			loadThemePresetsMYC();	
+			return currentStyle;
+		}					
+		else {							
+			var errstring="";
+			for(var m=0;m<data.result.messages.length;m++){
+				var me=m+1;
+				errstring+=me+") "+data.result.messages[m]+" <br>";
+			}
+			$("#errormsg").html("There was some error doing the requested operation! The following are the error details: <br>"+errstring);							
+			$("#errormsg").show();
+		}
+		
+	},
+	function(error,err){});
 }
 
 function applyPresetStyle(themeName){
@@ -343,11 +341,6 @@ function applyPresetStyle(themeName){
 	themePresetsNew["presetparams"]=defaultParams;
 	themePresetsNew["presetKey"]=themeName;
 	themePresetsNew["isApplied"]=true;
-	
-	//applyThemeForUser(themeName,false);
-	console.log(themePresetsNew);
-
-	
 }	
 
 
@@ -360,30 +353,28 @@ function applyThemeForUser(themeName,applyglobally){
 	var urlParams = encodeURIComponent(btoa(JSON.stringify(defaultParams)));
 	$("#mycCustomStyle").attr("href","index.php?module=OmniThemeManager&view=CustomStyle&mode=getCSSStyle&tp="+urlParams);
 				
-					if(applyglobally) {
-						var cr = confirm("Are you sure you want apply this style for ALL users in this crm ?");
-						if (cr == true) var ajmode="setStyleForAllUsers";
-						else return false;
-					}
-					else var ajmode="setStyleForCurrentUser";
-					
-					var params = {
-						'module' : 'OmniThemeManager',
-						'action' : 'AjaxActions',
-						'mode' : ajmode,
-						'styleid'	: themeName
-					}
-					app.helper.showProgress();
-					$.post("index.php",params).then(function(data) {
-						console.log(data);
-						selectStyleUi(themeName);
-						app.helper.hideProgress();
-						app.helper.showSuccessNotification({"message":'Style successfuly applied!'});
-						
-					},
-					function(error,err){
-						console.log(error);
-					});
+	if(applyglobally) {
+		var cr = confirm("Are you sure you want apply this style for ALL users in this crm ?");
+		if (cr == true) var ajmode="setStyleForAllUsers";
+		else return false;
+	}
+	else var ajmode="setStyleForCurrentUser";
+	
+	var params = {
+		'module' : 'OmniThemeManager',
+		'action' : 'AjaxActions',
+		'mode' : ajmode,
+		'styleid'	: themeName
+	}
+	app.helper.showProgress();
+	$.post("index.php",params).then(function(data) {
+
+		selectStyleUi(themeName);
+		app.helper.hideProgress();
+		app.helper.showSuccessNotification({"message":'Style successfuly applied!'});
+		
+	},
+	function(error,err){});
 }
 
 
@@ -490,7 +481,7 @@ function saveCustomStyle(){
 	}
 	themePresetsNew["presetparams"]["isApplied"]=true;
 	themePresetsNew["isApplied"]=true;
-	console.log(themePresetsNew);
+
 	
 	var params = {
 		'module' : 'OmniThemeManager',
@@ -500,13 +491,11 @@ function saveCustomStyle(){
 		"presetKey"	: themePresetsNew["presetKey"]
 	}
 	$.post("index.php",params).then(function(data) {
-			loadThemePresets(true);
-			app.helper.hideProgress();
-			app.helper.showSuccessNotification({"message":'Style successfuly saved!'});
-		},
-		function(error,err){
-			console.log(error);
-	});
+		loadThemePresets(true);
+		app.helper.hideProgress();
+		app.helper.showSuccessNotification({"message":'Style successfuly saved!'});
+	},
+	function(error,err){});
 	
 	/*
 	$.post( "stylePresets.php", themePresetsNew)
@@ -534,14 +523,12 @@ function deleteStyle(styleName){
 			"presetKey"	: themePresetsNew["presetKey"]
 		}
 		$.post("index.php",params).then(function(data) {
-				loadThemePresets();
-				app.helper.hideProgress();
-				app.helper.showSuccessNotification({"message":'Style successfuly deleted!'});
-				$('.addPresetStyle').hide(); $('.presetsListContainer').show();
-			},
-			function(error,err){
-				console.log(error);
-		});
+			loadThemePresets();
+			app.helper.hideProgress();
+			app.helper.showSuccessNotification({"message":'Style successfuly deleted!'});
+			$('.addPresetStyle').hide(); $('.presetsListContainer').show();
+		},
+		function(error,err){});
 		/*
 		$.post( "stylePresets.php", themePresetsNew)
 		  .done(function( data ) {
@@ -589,9 +576,7 @@ function duplicateStyle(styleName){
 	selectStyleUi(styleName);
 	if(themePresets[styleName] === undefined) tmpEditParams = themePresetsDefault[styleName];
 	else tmpEditParams = themePresets[styleName];
-	
-	console.log(themePresetsDefault);
-	console.log(tmpEditParams);
+
 	
 	$("#presetKey").val(styleName);
 	$("#presetKey").val("");
@@ -625,7 +610,7 @@ function loadThemePresets(refresh){
 			
 		$(".chosePresetStyle .presets").html("");
 		
-		console.log("tp:"+themePreset+"-cs:"+currentStyle);
+
 		for(var themePreset in themePresets){
 			var selected = "";
 			var checked = "";
