@@ -4,8 +4,8 @@
     <input type="hidden" name="source_module" id="source_module" value="{$SOURCE_MODULE}" />
     <input type="hidden" name="source_record" id="source_record" value="{$SOURCE_RECORD}" />
     <input type="hidden" name="account_numbers" id="account_numbers" value="{$ACCOUNT_NUMBERS}" />
-    <input type="hidden" id="start_date" name="start_date" value="" />
-    <input type="hidden" id="end_date" name="end_date" value="" />
+    <input type="hidden" id="start_date" name="start_date" value="{$START_DATE}" />
+    <input type="hidden" id="end_date" name="end_date" value="{$END_DATE}" />
     <input type="hidden" id="report_type" name="report_type" value="daily" />
     <input type="hidden" id="calculated_return" name="calculated_return" value="" />
 </form>
