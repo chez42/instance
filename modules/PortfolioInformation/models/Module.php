@@ -1387,12 +1387,13 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return '2010-01-01';
     }
 
-    static public function UpdateIntervalCalculationDate($account_number, $date){
+    static public function UpdateIntervalCalculationDate($account_number){
         global $adb;
         $query = "INSERT INTO vtiger_interval_calculations (account_number, last_calculated)
-                  VALUES (?, ?)
+                  SELECT AccountNumber, MAX(IntervalEndDate)
+                  FROM intervals_daily WHERE AccountNumber = ?
                   ON DUPLICATE KEY UPDATE last_calculated = VALUES(last_calculated)";
-        $adb->pquery($query, array($account_number, $date));
+        $adb->pquery($query, array($account_number));
     }
 
     /**
@@ -1499,7 +1500,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 //            self::CreateReconciliationTransactionFromBeginningValueIntervals($v);
 
             if($auto == true)//We only want to update with the latest date possible, auto guarantees us this
-                self::UpdateIntervalCalculationDate($v, $end);
+                self::UpdateIntervalCalculationDate($v);
 
 
 //            self::CreateReconciliationTransactionFromEndValueIntervals($v);
