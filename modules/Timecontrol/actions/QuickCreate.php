@@ -43,8 +43,38 @@ class Timecontrol_QuickCreate_Action extends Vtiger_Action_Controller {
     
             if(empty($title)) {
                 if(!empty($relatedto)) {
+                    
+                    if(getSalesEntityType($relatedto) == 'HelpDesk'){
+                        
+                        $tic_status = $adb->pquery("SELECT vtiger_troubletickets.* FROM vtiger_troubletickets
+                        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid =  vtiger_troubletickets.ticketid
+                        WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.ticketid = ?",array($relatedto));
+                        
+                        if($adb->num_rows($tic_status)){
+                            $ticketStatus = $adb->query_result($tic_status, 0, 'status');
+                           
+                            if($ticketStatus == 'QA'){
+                                $ticket = $adb->pquery("SELECT * FROM vtiger_modtracker_basic
+                                INNER JOIN vtiger_modtracker_detail ON vtiger_modtracker_detail.id = vtiger_modtracker_basic.id
+                                WHERE vtiger_modtracker_basic.crmid = ? AND vtiger_modtracker_detail.fieldname = ?
+                                AND postvalue = ?
+                                ORDER BY changedon DESC LIMIT 1",array($relatedto, 'ticketstatus', $ticketStatus));
+                                
+                                if($adb->num_rows($ticket)){
+                                    $ticketModified = $adb->query_result($ticket, 0, 'whodid');
+                                    $record->set('ticket_status_modified_by', getUserFullName($ticketModified));
+                                }
+                            }
+                            
+                            $record->set('ticket_status', $ticketStatus);
+                        }
+                       
+                        
+                    }
+                    
+                    
                     $record->set('relatedto', $relatedto);
-    
+                    
                     $record->set('title', 'Timer '.Vtiger_Functions::getCRMRecordLabel($relatedto));
                 } else {
                     $record->set('title', 'Timer '.rand(1000,9999));
