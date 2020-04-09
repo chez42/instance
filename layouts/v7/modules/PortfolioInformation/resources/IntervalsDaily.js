@@ -162,6 +162,9 @@ jQuery.Class("IntervalsDaily_Js",{
         var calculated_index = ( ((end_val/begin_val) * 100) - 100).toFixed(2);
         var average_index = (calculated_index / self.selectedCount).toFixed(2);
 
+        $(".start_date_range").text(begin_date);
+        $(".end_date_range").text(end_date);
+
         self.DetermineColor($(".begin_value"), begin_value);
         $(".begin_value").text("$" + begin_value.toLocaleString());//Set the begin value text
         self.DetermineColor($(".selected_flows"), flow);

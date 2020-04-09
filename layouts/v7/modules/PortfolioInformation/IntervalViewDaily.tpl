@@ -76,6 +76,11 @@
                 <div class="table">
                     <div class="thead">
                         <div class="td">
+                            <div id="date_ranges">
+                                (<span class="start_date_range"></span>
+                                &nbsp;-&nbsp;
+                                <span class="end_date_range"></span>)
+                            </div>
                         </div>
                         <div class="td aright">
                             <h2>Portfolio</h2>
