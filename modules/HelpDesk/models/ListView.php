@@ -30,6 +30,15 @@ class HelpDesk_ListView_Model extends Vtiger_ListView_Model {
 			);
 			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
 		}
+		
+		$massActionLink = array(
+		    'linktype' => 'LISTVIEWMASSACTION',
+		    'linklabel' => 'Export TimeSheet',
+		    'linkurl' => 'javascript:HelpDesk_List_Js.triggerExportTimeSheetAction("index.php?module='.$this->getModule()->getName().'&view=ExportTimeSheet");',
+		    'linkicon' => ''
+		);
+		$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		
 
 		return $massActionLinks;
 	}
