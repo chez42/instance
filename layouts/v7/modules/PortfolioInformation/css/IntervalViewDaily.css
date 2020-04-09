@@ -75,13 +75,16 @@ html,body{height:100%; background-color:black;}
 .main{
     width:220px;
 }
+
 .table2{
     display:table;
     table-layout:auto;
 }
-.row{
+
+.trow{
     display:table-row;
 }
+
 .cell{
     display:table-cell;
     width:auto;
