@@ -87,9 +87,13 @@
 		<script type="text/javascript">var __pageCreationTime = (new Date()).getTime();</script>
 		<script src="{vresource_url('layouts/v7/lib/jquery/jquery.min.js')}"></script>
 		<script src="{vresource_url('layouts/v7/lib/jquery/jquery-migrate-1.0.0.js')}"></script>
-		 <script src="{vresource_url('libraries/amcharts4/core.js')}"></script>
+{*		<script src="{vresource_url('libraries/amcharts4/core.js')}"></script>
         <script src="{vresource_url('libraries/amcharts4/charts.js')}"></script>
-        <script src="{vresource_url('libraries/amcharts4/themes/animated.js')}"></script>
+        <script src="{vresource_url('libraries/amcharts4/themes/animated.js')}"></script>*}
+		<script src="{vresource_url('libraries/amcharts4_9/core.js')}"></script>
+		<script src="{vresource_url('libraries/amcharts4_9/charts.js')}"></script>
+		<script src="{vresource_url('libraries/amcharts4_9/themes/animated.js')}"></script>
+
 		<script type="text/javascript">
 			var _META = { 'module': "{$MODULE}", view: "{$VIEW}", 'parent': "{$PARENT_MODULE}", 'notifier':"{$NOTIFIER_URL}", 'app':"{$SELECTED_MENU_CATEGORY}" };
             {if $EXTENSION_MODULE}

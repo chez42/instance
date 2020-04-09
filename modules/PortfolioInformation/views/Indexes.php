@@ -3,9 +3,9 @@
  * The Index settings page for users to select which indexes they want to show up in their reports
  *************************************************************************************/
 class PortfolioInformation_Indexes_View extends Vtiger_Index_View {
-    function preProcessTplName(Vtiger_Request $request) {
-        return 'PortfolioReportsPerProcess.tpl';
-    }
+    /*    function preProcessTplName(Vtiger_Request $request) {
+            return 'PortfolioReportsPerProcess.tpl';
+        }*/
 
     public function postProcess(Vtiger_Request $request) {
         $moduleName = $request->getModule();

@@ -83,7 +83,7 @@ class Contacts_ListView_Model extends Vtiger_ListView_Model {
 	}
 	
 	function getQuery() {
-	    
+
 	    $query = parent::getQuery();
 	    
 	    if($this->get('listmode') == 'connection'){
@@ -100,12 +100,13 @@ class Contacts_ListView_Model extends Vtiger_ListView_Model {
 	        
 	            $query .= " AND vtiger_contactdetails.contactid != ".$this->get('src_record')." ";
 	    }
-	    
-	    return $query;
+
+        $query = str_replace(" AND vtiger_contactdetails.contactid > 0", " ", $query);
+        return $query;
 	}
 	
 	function getConnections($recordId){
-	    
+
 	    global $adb;
 	    
 	    $connections = array();

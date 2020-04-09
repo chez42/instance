@@ -7,9 +7,9 @@ require_once("libraries/reports/new//holdings_report.php");
 
 class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
-    function preProcessTplName(Vtiger_Request $request) {
+/*    function preProcessTplName(Vtiger_Request $request) {
         return 'PortfolioReportsPerProcess.tpl';
-    }
+    }*/
 
     public function postProcess(Vtiger_Request $request) {
         $moduleName = $request->getModule();

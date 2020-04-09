@@ -5,9 +5,9 @@ require_once("libraries/reports/pdf/cNewPDFGenerator.php");
 
 class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
-    function preProcessTplName(Vtiger_Request $request) {
-        return 'PortfolioReportsPerProcess.tpl';
-    }
+    /*    function preProcessTplName(Vtiger_Request $request) {
+            return 'PortfolioReportsPerProcess.tpl';
+        }*/
     
     public function postProcess(Vtiger_Request $request) {
         $moduleName = $request->getModule();
