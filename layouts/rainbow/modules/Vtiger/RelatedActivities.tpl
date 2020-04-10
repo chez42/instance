@@ -136,7 +136,7 @@
 					<hr>
 				</div>
 			{/foreach}
-			</div></div>
+			
 		{else}
 			<div class="summaryWidgetContainer noContent">
 				<p class="textAlignCenter">{vtranslate('LBL_NO_PENDING_ACTIVITIES',$MODULE_NAME)}</p>
@@ -149,6 +149,8 @@
 				</div>
 			</div>
 		{/if}
+		</div>
+		</div>
 	</div>
 </div>
 {/strip}
