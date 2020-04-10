@@ -121,18 +121,13 @@
                             {assign var=ATTCHMENT_COUNT value=(count($ATTACHMENT) - count($INLINE_ATTCH))}
                            	
                              <span class="pull-right singleMailActions" style="display:none;">
-					            <span class="fa-stack fa-sm cursorPointer mmActionIcon" data-msgno="{$MAIL->msgNo()}" id="mmMarkAsReadSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_MARK_AS_READ', $MODULE)}">
+					            {*<span class="fa-stack fa-sm cursorPointer mmActionIcon" data-msgno="{$MAIL->msgNo()}" id="mmMarkAsReadSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_MARK_AS_READ', $MODULE)}">
 					                <img src="layouts/v7/skins/images/envelope-open.png" id="mmEnvelopeOpenIcon">
 					            </span>
 					            <span class="fa-stack fa-sm cursorPointer mmActionIcon" data-msgno="{$MAIL->msgNo()}" id="mmMarkAsUnreadSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Mark_As_Unread', $MODULE)}">
 					                <i class="fa fa-envelope fa-stack-lg"></i>
-					            </span>
-					            <span class="fa-stack fa-sm cursorPointer mmActionIcon" data-msgno="{$MAIL->msgNo()}" id="mmDeleteMailSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
-					                <i class="fa fa-trash-o fa-stack-lg"></i>
-					            </span>
-					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm linkToSingle" data-msgno="{$MAIL->msgNo()}" data-folder="{$FOLDER->name()}" >
-						    		<i class="fa fa-link" style="margin:8px !important;"></i>
-						        </span>
+					            </span>*}
+					           
 					            <span class="fa-stack fa-sm cursorPointer singleMailDrop moveToFolderDropDown more dropdown action" title="{vtranslate('LBL_MOVE_TO', $MODULE)}">
 					                <span class='dropdown-toggle' data-toggle="dropdown">
 					                    <i class="fa fa-folder mmMoveDropdownFolder"></i>
@@ -153,6 +148,22 @@
 					                    {/foreach}
 					                </ul>
 					            </span>
+					            <span class="fa-stack fa-sm cursorPointer mmActionIcon" data-msgno="{$MAIL->msgNo()}" id="mmDeleteMailSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
+					                <i class="fa fa-trash-o fa-stack-lg"></i>
+					            </span>
+					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm linkToSingle" data-msgno="{$MAIL->msgNo()}" data-folder="{$FOLDER->name()}" >
+						    		<i class="fa fa-link" style="margin:8px !important;"></i>
+						        </span>
+					            <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmReplySingle" data-folder="{$FOLDER->name()}" title="Reply">
+					                <i class="fa fa-reply"></i>
+					            </span>
+					            <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmReplyAllSingle" data-folder="{$FOLDER->name()}" title="Reply all">
+					                <i class="fa fa-reply-all"></i>
+					            </span>
+					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmForwardSingle" data-folder="{$FOLDER->name()}" title="Forward">
+					                <i class="fa fa-share"></i>
+					            </span>
+					            
 					        </span>
         					<span class="pull-right" style="padding-right:5px;">
                                 {*if $ATTCHMENT_COUNT}

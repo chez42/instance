@@ -1817,6 +1817,181 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			}
 		});
 		
-	}
+		jQuery(document).on('click', '#mmReplySingle', function(){
+
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.openReplySingleEmail(false, msgNo, folder);
+		});
+		
+		jQuery(document).on('click', '#mmReplyAllSingle', function(){
+
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.openReplySingleEmail(true, msgNo, folder);
+		});
+		
+		jQuery(document).on('click', '#mmForwardSingle', function(){
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.registerSingleForwardEvent(msgNo, folder);
+		});
+		
+	},
+	
+	openReplySingleEmail : function(all, msgNo, folder) {
+		var self = this;
+		if (typeof(all) == 'undefined') {
+			all = true;
+		}
+		
+		var params = {
+			'module' : 'MailManager',
+			'action' : 'Folder',
+			'mode' : 'emailContentForEmail',
+			'folder' : folder,
+			'msgno' : msgNo
+		};
+		app.helper.showProgress(app.vtranslate("JSLBL_Loading")+"...");
+		app.request.post({data : params}).then(function(err, data) {
+			
+			var mUserName = data.userName;
+			var from = data.from;
+			var to = all ? data.to : '';
+			var cc = all ? data.cc : '';
+	
+			var mailIds = '';
+			if(to != null) {
+				mailIds = to;
+			}
+			if(cc != null) {
+				mailIds = mailIds ? mailIds+','+cc : cc;
+			}
+	
+			mailIds = mailIds.replace(/\s+/g, '');
+	
+			var emails = mailIds.split(',');
+			for(var i = 0; i < emails.length ; i++) {
+				if(emails[i].indexOf(mUserName) != -1){
+					emails.splice(i,1);
+				}
+			}
+			mailIds = emails.join(',');
+	
+			mailIds = mailIds.replace(',,', ',');
+			if(mailIds.charAt(mailIds.length-1) == ',') {
+				mailIds = mailIds.slice(0, -1);
+			} else if(mailIds.charAt(0) == ','){
+				mailIds = mailIds.slice(1);
+			}
+	
+			var subject = JSON.parse(data.subject);
+			var body = data.body;
+			var date = data.date;
+	
+			var replySubject = (subject.toUpperCase().indexOf('RE:') == 0) ? subject : 'Re: ' + subject;
+			var replyBody = '<p></br></br></p><p style="margin:0;padding:0;">On '+date+', '+from+' wrote :</p><blockquote style="border:0;margin:0;border-left:1px solid gray;padding:0 0 0 2px;">'+body+'</blockquote><br />';
+			
+			var params = {
+				'step' : "step1",
+				'module' : "MailManager",
+				'view' : "MassActionAjax",
+				'mode' : "showComposeEmailForm",
+				'linktomodule' : 'true', 
+				'excluded_ids' : "[]",
+				'to' : '["'+from+'"]'
+			}
+			params['selected_ids'] = "[]";
+
+			if(mailIds) {
+				self.openComposeEmailForm("replyall", params, {'subject' : replySubject, 'body' : replyBody, 'ids' : mailIds});
+			} else {
+				self.openComposeEmailForm("reply", params, {'subject' : replySubject, 'body' : replyBody});
+			}
+			
+		});
+	},
+	
+	
+	registerSingleForwardEvent : function(msgNo, folderName) {
+		var params = {
+			'module' : 'MailManager',
+			'action' : 'Folder',
+			'mode' : 'emailContentForEmail',
+			'folder' : folderName,
+			'msgno' : msgNo
+		};
+		app.helper.showProgress(app.vtranslate("JSLBL_Loading")+"...");
+		app.request.post({data : params}).then(function(err, data) {
+			var msgNo = data.msgno;
+			var from = data.from;
+			var to = data.to;
+			var cc = data.cc ? data.cc : '';
+			var subject = JSON.parse(data.subject);
+			var body = data.body;
+			var date = data.date;
+			var folder = data.folder;
+
+			var fwdMsgMetaInfo = app.vtranslate('JSLBL_FROM') + from + '<br/>'+
+					app.vtranslate('JSLBL_DATE') + date + '<br/>'+
+					app.vtranslate('JSLBL_SUBJECT') + subject;
+			if (to != '' && to != null) {
+				fwdMsgMetaInfo += '<br/>'+app.vtranslate('JSLBL_TO') + to;
+			}
+			if (cc != '' && cc != null) {
+				fwdMsgMetaInfo += '<br/>'+app.vtranslate('JSLBL_CC') + cc;
+			}
+			fwdMsgMetaInfo += '<br/>';
+
+			var fwdSubject = (subject.toUpperCase().indexOf('FWD:') == 0) ? subject : 'Fwd: ' + subject;
+			var fwdBody = '<p></p><p>'+app.vtranslate('JSLBL_FORWARD_MESSAGE_TEXT')+'<br/>'+fwdMsgMetaInfo+'</p>'+body;
+			var attchmentCount = parseInt(data.att_count);
+			if(attchmentCount) {
+				var params = {
+					'module' : 'MailManager',
+					'view' : 'Index',
+					'_operation' : 'mail',
+					'_operationarg' : 'forward',
+					'messageid' : encodeURIComponent(msgNo),
+					'folder' : encodeURIComponent(folder),
+					'subject' : encodeURIComponent(fwdSubject),
+					'body' : encodeURIComponent(fwdBody)
+				};
+				app.request.post({'data' : params}).then(function(err, data) {
+					var draftId = data.emailid;
+					var newParams = {
+						'module' : 'Emails',
+						'view' : 'ComposeEmail',
+						'mode' : 'emailEdit',
+						'record' : draftId
+					};
+					app.request.post({data : newParams}).then(function(err,data) {
+						app.helper.hideProgress();
+						if(err === null) {
+							var dataObj = jQuery(data);
+							var descriptionContent = dataObj.find('#iframeDescription').val();
+							app.helper.showModal(data, {cb : function() {
+								var editInstance = new Emails_MassEdit_Js();
+								editInstance.registerEvents();
+								jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
+								jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
+							}});
+						}
+					});
+				});
+			} else {
+				app.helper.hideProgress();
+				var params = {
+					'step' : "step1",
+					'module' : "MailManager",
+					'view' : "MassActionAjax",
+					'mode' : "showComposeEmailForm",
+					'selected_ids' : "[]",
+					'excluded_ids' : "[]",
+				}
+				self.openComposeEmailForm("forward", params, {'subject' : fwdSubject, 'body' : fwdBody});
+			}
+		});
+	},
 	
 });
