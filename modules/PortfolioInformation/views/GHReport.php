@@ -77,8 +77,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $tmp = array();
             foreach($accounts AS $k => $v){
                 if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                    $query = "CALL TD_REC_TRANSACTIONS(?, ?)";
-                    $adb->pquery($query, array($v, $custodianDB), true);
+                    $query = "CALL TD_REC_TRANSACTIONS(?)";
+                    $adb->pquery($query, array($v), true);
                 };
                 if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
                     $tmp[] = $v;
