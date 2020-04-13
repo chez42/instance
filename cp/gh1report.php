@@ -49,7 +49,7 @@
         				</span>
             			<h3 class="kt-subheader__title" style = "padding-left:5px;">
     						GH1 Report
-							<input type="hidden" name="portfolio_account_number" id="portfolio_account_number" value="<?php echo implode(',',$accounts);?>"/>
+							<!-- <input type="hidden" name="portfolio_account_number" id="portfolio_account_number" value="<?php //echo implode(',',$accounts);?>"/> -->
 						</h3>
                         
                         <span class="kt-subheader__separator kt-hidden"></span>
