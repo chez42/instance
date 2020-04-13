@@ -17,7 +17,7 @@ $date_options = $data['date_options'];
 echo "<input type='hidden' value='".$holdingspievalues."' id='holdings_values' class='holdings_values' />";
 echo "<input type='hidden' value='".$holdingssectorpiestring."' id='sector_values' class='sector_values' />";
 echo "<input type='hidden' value='gh2report' id='report_type' />"
-
+    
 ?>
 <style>	
 	#gh2report_chart_table .borderless td, 
@@ -169,10 +169,10 @@ echo "<input type='hidden' value='gh2report' id='report_type' />"
     						<td colspan="7">MSCI EAFE index</td>
     						<td><?php echo number_format($data['GetIndexMSCI_EAFE'],2);?>%</td>
     					</tr>
-    					<tr>
+    					<!--<tr>
     						<td colspan="7"><b>Blended Benchmark Return</b></td>
-    						<td><b><?php echo number_format($data['GetBenchmark'],2);?>%</b></td>
-    					</tr>
+    						<td><b><?php //echo number_format($data['GetBenchmark'],2);?>%</b></td>
+    					</tr>-->
 					<?php }?>
 				</tbody>
 			</table>

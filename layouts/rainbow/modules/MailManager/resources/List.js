@@ -25,7 +25,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		app.request.post({"data" : params}).then(function(error, responseData) {
 			app.helper.hideProgress();
 			self.getContainer().find('#folders_list').html(responseData);
-			self.getContainer().find('#folders_list').mCustomScrollbar({
+			self.getContainer().find('#extraFolderList').mCustomScrollbar({
 				setHeight: 550,
 				autoExpandScrollbar: true,
 				scrollInertia: 200,
@@ -516,6 +516,11 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	registerSearchEvent : function() {
 		var self = this;
 		var container = self.getContainer();
+		container.find('#mailManagerSearchbox').keyup(function (event) {
+			if(event.keyCode == 13){
+				jQuery("#mm_searchButton").click();
+			}
+		});
 		container.find('#mm_searchButton').click(function() {
 			var query = container.find('#mailManagerSearchbox').val();
 			if(query.trim() == '') {
