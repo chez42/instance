@@ -80,7 +80,7 @@
     															$DYNARULES[$k]['value_as_data']=$v;}?>>
     														<?php 
     															$value = $v.$DYNARULES[$k]['suffix'];
-    															if($k != 'description' && $k != 'trade_date' && $k != 'days_held' && $k != 'system_generated'){
+    															if($k != 'description' && $k != 'trade_date' && $k != 'days_held' && $k != 'system_generated' && $k != 'account_number'){
     																$value = number_format($v.$DYNARULES[$k]['suffix'],2);
     															}
     														?>																
