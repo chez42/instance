@@ -8,20 +8,32 @@ unset($data['t12balances']);
 
 $data = json_encode($data);
 $data = json_decode($data, true);
-	
+
 
 $performance_summary = $data['performance_summary'];
 $t3Performance = $performance_summary['t3'];
 $t6Performance = $performance_summary['t6'];
 $t12Performance = $performance_summary['t12'];
-	
+
 $tablecategories = $data['tablecategories'];
 $individual_summary = $data['individual_summary'];
 ?>
 
 <input type="hidden" value='<?php echo $holdings_values; ?>' id="dynamic_pie_values" class="dynamic_pie_values" />
 <input type="hidden" id="t12_balances" class="t12_balances" value='<?php echo $t12balances; ?>' />
-
+<input type='hidden' value='overview' id='report_type' />
+<div class="kt-portlet" style = "padding-top:0px;">
+	<div class="kt-portlet__body">
+		<div class="form-group m-form__group row">
+			
+			<div class="col-sm-3">
+				<input type="text" id="select_end_date" class="form-control" value="<?php echo $data['END_DATE'];?>">
+			</div>
+		
+			<div class="col-sm-3"><input type="button" class="btn btn-info" id="calculate_report" value="Calculate" /></div>
+		</div>
+	</div>
+</div>
 <div class="kt-section">
 	<h2>
 		<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">

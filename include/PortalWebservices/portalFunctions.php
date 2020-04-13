@@ -4,7 +4,7 @@ require_once('vtlib/Vtiger/Module.php');
 
 function vtws_portalfunctions($element,$user){
     global $adb;
- 
+    
     $value = $element['function_name']($element['input_array']);
     
     return $value;
@@ -85,7 +85,7 @@ function get_reports($input_array){
         
         if(!empty($account_numbers)) {
             
-        $query = "SELECT *, vtiger_portfolioinformation.account_number as account_number FROM vtiger_portfolioinformation INNER JOIN vtiger_portfolioinformationcf ON
+            $query = "SELECT *, vtiger_portfolioinformation.account_number as account_number FROM vtiger_portfolioinformation INNER JOIN vtiger_portfolioinformationcf ON
 		vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid
 		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
 		LEFT JOIN vtiger_pc_account_custom on vtiger_pc_account_custom.account_number = vtiger_portfolioinformation.account_number
@@ -1132,49 +1132,49 @@ function add_document_attachment($input_array){
         
         //require_once('modules/Documents/Documents.php');
         
-    $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
+        $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
 	vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
 	WHERE is_default=1 and deleted=0";
         
-    $result = $adb->pquery($query, array());
-    
-    if($input_array['doc_folder_id']){
-        $doc_fol_id = $input_array['doc_folder_id'];
-    }elseif($adb->num_rows($result)){
-        $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
-    }
-    
-    $focus = CRMEntity::getInstance('Documents');
-    $focus->column_fields['notes_title'] = $title;
-    $focus->column_fields['filename'] = $filename;
-    $focus->column_fields['filetype'] = $filetype;
-    $focus->column_fields['filesize'] = $filesize;
-    $focus->column_fields['filelocationtype'] = $filelocationtype;
-    $focus->column_fields['filedownloadcount']= 0;
-    $focus->column_fields['filestatus'] = 1;
-    $focus->column_fields['assigned_user_id'] = $user_id;
-    $focus->column_fields['folderid'] = 1;
-    $focus->column_fields['notecontent'] = $note_desc;
-    $focus->column_fields['from_portal'] = 1;
-    $focus->column_fields['contactid'] = $input_array['customer'];
-    $focus->column_fields['related_to'] = $id;
+        $result = $adb->pquery($query, array());
         
-    if($doc_fol_id)
-        $focus->column_fields['doc_folder_id'] = $doc_fol_id;
+        if($input_array['doc_folder_id']){
+            $doc_fol_id = $input_array['doc_folder_id'];
+        }elseif($adb->num_rows($result)){
+            $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
+        }
         
-    $focus->save('Documents');
-    
-    if($filelocationtype == "I" && $attachmentid > 0){
-        $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
-        $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
-    }
-    
-    $doc = 'insert into vtiger_senotesrel values(?,?)';
-    $res = $adb->pquery($doc,array($id,$focus->id));
-    
-    $log->debug("Exiting customer portal function add_document_attachment");
-    
-    return array("new_document" => array("document_id" => $focus->id));
+        $focus = CRMEntity::getInstance('Documents');
+        $focus->column_fields['notes_title'] = $title;
+        $focus->column_fields['filename'] = $filename;
+        $focus->column_fields['filetype'] = $filetype;
+        $focus->column_fields['filesize'] = $filesize;
+        $focus->column_fields['filelocationtype'] = $filelocationtype;
+        $focus->column_fields['filedownloadcount']= 0;
+        $focus->column_fields['filestatus'] = 1;
+        $focus->column_fields['assigned_user_id'] = $user_id;
+        $focus->column_fields['folderid'] = 1;
+        $focus->column_fields['notecontent'] = $note_desc;
+        $focus->column_fields['from_portal'] = 1;
+        $focus->column_fields['contactid'] = $input_array['customer'];
+        $focus->column_fields['related_to'] = $id;
+        
+        if($doc_fol_id)
+            $focus->column_fields['doc_folder_id'] = $doc_fol_id;
+            
+            $focus->save('Documents');
+            
+            if($filelocationtype == "I" && $attachmentid > 0){
+                $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+                $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
+            }
+            
+            $doc = 'insert into vtiger_senotesrel values(?,?)';
+            $res = $adb->pquery($doc,array($id,$focus->id));
+            
+            $log->debug("Exiting customer portal function add_document_attachment");
+            
+            return array("new_document" => array("document_id" => $focus->id));
 }
 
 function getDefaultAssigneeId() {
@@ -1882,8 +1882,14 @@ function LoadOmniOverviewReport($input_array){
         $accounts = $request->get("account_number");
         $accounts = array_unique($accounts);
         
-        $start = date('Y-m-d', strtotime('-7 days'));
+        //$start = date('Y-m-d', strtotime('-7 days'));
         $end = date('Y-m-d');
+        
+        if(strlen($request->get('report_end_date')) > 1) {
+            $end_date = date("Y-m-d",strtotime($request->get("report_end_date")));
+        }else {
+            $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
+        }
         
         PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
         // 	PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
@@ -2890,7 +2896,7 @@ function LoadGainLoss($input_array){
             PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);
             
             $categories = array("security_symbol");
-            $fields = array('account_number','description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held');//, 'system_generated');//, "weight", "current_value");
+            $fields = array('description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held');//, 'system_generated');//, "weight", "current_value");
             $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
             $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
             $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);

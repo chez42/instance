@@ -57,17 +57,18 @@
         {/foreach}
         <br>
         <span class="padding15px"><b>{vtranslate('LBL_Folders', $MODULE)}</b></span>
-        
-        {assign var=IGNORE_FOLDERS value=array($INBOX_FOLDER, $SENT_FOLDER, $TRASH_FOLDER)}
-        {foreach item=FOLDER from=$FOLDERS}
-            {if !in_array($FOLDER->name(), $IGNORE_FOLDERS)}
-            <li class="cursorPointer mm_folder mmOtherFolder" data-foldername="{$FOLDER->name()}">
-                <b>{$FOLDER->name()}</b>
-                <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
-                   {$FOLDER->unreadCount()} 
-                </span>
-            </li>
-            {/if}
-        {/foreach}
+        <div id="extraFolderList">
+	        {assign var=IGNORE_FOLDERS value=array($INBOX_FOLDER, $SENT_FOLDER, $TRASH_FOLDER)}
+	        {foreach item=FOLDER from=$FOLDERS}
+	            {if !in_array($FOLDER->name(), $IGNORE_FOLDERS)}
+	            <li class="cursorPointer mm_folder mmOtherFolder" data-foldername="{$FOLDER->name()}">
+	                <b>{$FOLDER->name()}</b>
+	                <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
+	                   {$FOLDER->unreadCount()} 
+	                </span>
+	            </li>
+	            {/if}
+	        {/foreach}
+        </div>
     </ul>
 {/if}
