@@ -11,6 +11,9 @@
 </form>
 
 <div id="interval_page_wrapper">
+    {if $CURRENT_USER->isAdminUser()}
+        <button id="ResetIntervals">Reset Intervals</button>
+    {/if}
     <div id="controls" style="width: 100%; overflow: hidden;">
         <div class="controls_dates">
             From: <input type="text" id="fromfield" class="amcharts-input" />

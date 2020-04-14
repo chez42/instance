@@ -537,7 +537,17 @@ jQuery.Class("IntervalsDaily_Js",{
                 });*/
     },
 
+    ClickEvents : function(){
+        $("#ResetIntervals").click(function(){
+            var account_numbers = $("#account_numbers").val();
+                $.post("index.php", {module:'PortfolioInformation', action:'Tools', todo:'remove_intervals', account_numbers:account_numbers}, function(response) {
+                    console.log(response);
+                });
+        });
+    },
+
     registerEvents : function() {
+        this.ClickEvents();
 //        this.FloatHead();
 //        this.Clock();
         if (am4core.isReady) {
@@ -547,16 +557,14 @@ jQuery.Class("IntervalsDaily_Js",{
             console.log('Not Ready');
             am4core.ready(this.TimelineChart2());
         }
-//        this.LineBarChart();
-//        this.Testing();
         var vtigerInstance = Vtiger_Index_Js.getInstance();
         vtigerInstance.registerEvents();
     }
 });
 //REMOVED THE READY REQUIREMENT SO THIS LOADS IN A WIDGET EVEN AFTER A REFRESH
 jQuery(document).ready(function($) {
+    var instance = IntervalsDaily_Js.getInstanceByView();
     $( window ).on( "load", function() {
-        var instance = IntervalsDaily_Js.getInstanceByView();
         console.log('loaded');
         instance.registerEvents();
     });
