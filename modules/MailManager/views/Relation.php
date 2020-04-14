@@ -96,7 +96,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$jsFileNames = array("~libraries/jquery/instaFilta/instafilta.min.js");
 			$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
 			$viewer->assign('HEADER_SCRIPTS', $jsScriptInstances);
-			$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->linkToAvailableActions());
+			$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->getCurrentUserMailManagerAllowedModules()/*$this->linkToAvailableActions()*/);
 			$viewer->assign('ALLOWED_MODULES', $allowedModules);
 			$viewer->assign('MSGNO', $request->get('_msgno'));
 			$viewer->assign('FOLDER', $request->get('_folder'));
@@ -118,7 +118,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 
 			$linkedto = MailManager_Relate_Action::associate($mail, $linkto);
 
-			$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->linkToAvailableActions());
+			$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->getCurrentUserMailManagerAllowedModules()/*$this->linkToAvailableActions()*/);
 			$viewer->assign('ALLOWED_MODULES', $this->getCurrentUserMailManagerAllowedModules());
 			$viewer->assign('LINKEDTO', $linkedto);
 			$viewer->assign('MSGNO', $request->get('_msgno'));
@@ -139,10 +139,15 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 			$foldername = $request->get('_folder');
 
 			$connector = $this->getConnector($foldername);
+			
+			$mailheader = imap_headerinfo($connector->mBox, $request->get('_msgno'));
+			
+			$mailFromName = $mailheader->from[0]->personal;
+			
 			$mail = $connector->openMail($request->get('_msgno'), $foldername);
 			$folder = $connector->folderInstance($foldername);
 			$isSentFolder = $folder->isSentFolder();
-			$formData = $this->processFormData($mail, $isSentFolder);
+			$formData = $this->processFormData($mail, $isSentFolder, $mailFromName);
 			foreach ($formData as $key => $value) {
 				$request->set($key, $value);
 			}
@@ -345,7 +350,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 				$viewer->assign('MSGNO', $request->get('_msgno'));
 				$viewer->assign('LINKEDTO', $linkedto);
 				$viewer->assign('ALLOWED_MODULES', $this->getCurrentUserMailManagerAllowedModules());
-				$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->linkToAvailableActions());
+				$viewer->assign('LINK_TO_AVAILABLE_ACTIONS', $this->getCurrentUserMailManagerAllowedModules()/*$this->linkToAvailableActions()*/);
 				$viewer->assign('FOLDER', $foldername);
 
 				$response->setResult( array( 'ui' => $viewer->view( 'Relationship.tpl', 'MailManager', true ) ) );
@@ -404,7 +409,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	 * @param MailManager_Message_Model $mail
 	 * @return Array
 	 */
-	public function processFormData($mail, $isSentFolder = false) {
+	public function processFormData($mail, $isSentFolder = false, $mailFromName) {
 		$subject = $mail->subject();
 		$email = $mail->from();
 		if($isSentFolder) {
@@ -416,8 +421,19 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 
 		if(!empty($mail_address)) $name = explode('@', $mail_address);
 		if(!empty($name[1])) $companyName = explode('.', $name[1]);
+		
+		$fromName = explode(' ', $mailFromName);
+		
+		if($fromName[1]){
+		    $lastName = $fromName[1];
+		    $firstName = $fromName[0];
+		}else{
+		    $lastName = $fromName[0];
+		    $firstName = '';
+		}
 
-		$defaultFieldValueMap =  array( 'lastname'	=>	$name[0],
+		$defaultFieldValueMap =  array( 'lastname'	=>	$lastName,
+		        'firstname'     => $firstName,
 				'email'			=> $email[0],
 				'email1'		=> $email[0],
 				'accountname'	=> $companyName[0],
