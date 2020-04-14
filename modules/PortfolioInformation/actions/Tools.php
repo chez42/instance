@@ -66,6 +66,12 @@ class PortfolioInformation_Tools_Action extends Vtiger_BasicAjax_Action{
                 $file_info = PortfolioInformation_Tools_Model::GetRepCodeFileInfo($rep_code, $start_date, $end_date);
                 echo json_encode($file_info);
             break;
+            case "remove_intervals":
+                $accounts = explode(",", $request->get("account_numbers"));
+                $accounts = array_unique($accounts);
+                PortfolioInformation_Module_Model::RemoveIntervals($accounts);
+#                print_r($accounts);
+                echo json_encode("Intervals Removed.... ");
         }
     }
 }

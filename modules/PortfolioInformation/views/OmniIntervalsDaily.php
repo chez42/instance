@@ -32,9 +32,11 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
             if($tmp_date < $start_date)
                 $start_date = $tmp_date;
         }
+        $current_user = Users_Record_Model::getCurrentUserModel();
 
         $viewer = $this->getViewer($request);
 
+        $viewer->assign("CURRENT_USER", $current_user);
         $viewer->assign('INTERVALS', $intervals);
         $viewer->assign("ACCOUNT_NUMBERS", implode(",", $accounts));
         $viewer->assign('SCRIPTS', self::getHeaderScripts($request));
