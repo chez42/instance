@@ -163,7 +163,7 @@
 					                </ul>
 					            </span>
 					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm" data-msgno="{$MAIL->msgNo()}" id="mmDeleteMailSingle" data-folder="{$FOLDER->name()}" title="{vtranslate('LBL_Delete', $MODULE)}">
-					                <i class="fa fa-trash">delete</i>
+					                <i class="fa fa-trash"></i>
 					            </span>
 					             <span class="btn btn-secondary cursorPointer mmActionIcon btn-sm linkToSingle" data-msgno="{$MAIL->msgNo()}" data-folder="{$FOLDER->name()}" >
 						    		<i class="fa fa-link"></i>

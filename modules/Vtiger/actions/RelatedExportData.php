@@ -223,7 +223,7 @@ class Vtiger_RelatedExportData_Action extends Vtiger_RelatedMass_Action {
             $translatedHeaders[] = vtranslate(html_entity_decode($header, ENT_QUOTES), $this->moduleInstance->getName());
         }
         
-        $translatedHeaders = array_map('decode_html', $relatedColumnFields);
+        $translatedHeaders = array_map('decode_html', $translatedHeaders);
         
         return $translatedHeaders;
     }
@@ -509,6 +509,7 @@ class Vtiger_RelatedExportData_Action extends Vtiger_RelatedMass_Action {
             }
         }
         $moduleName = $this->moduleInstance->getName();
+        
         foreach($arr as $fieldName=>&$value){
             if(isset($this->fieldArray[$fieldName])){
                 $fieldInfo = $this->fieldArray[$fieldName];
@@ -545,7 +546,8 @@ class Vtiger_RelatedExportData_Action extends Vtiger_RelatedMass_Action {
                     $value = '';
                 }
             } elseif($uitype == 52 || $type == 'owner') {
-                $value = Vtiger_Util_Helper::getOwnerName($value);
+                //$value = Vtiger_Util_Helper::getOwnerName($value);
+                $value = getUserFullName($value);
             }elseif($type == 'reference'){
                 $value = trim($value);
                 if(!empty($value)) {
