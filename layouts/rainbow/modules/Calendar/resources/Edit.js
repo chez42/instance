@@ -628,6 +628,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 		this.registerRelatedContactSpecificEvents(container);
 		this.registerRelatedTypeChangeEvent();
 		this.registerEventStatusChangeEvent(container);
+		this.registerEventForGetTemplateData();
 	},
 	
 	registerEvents: function(callParent) {
@@ -866,6 +867,29 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 					container.find(".empty_fields").show();
 				followupContainer.hide();
 			}
+		});
+	},
+	
+	registerEventForGetTemplateData : function(){
+		var thisInstance = this;
+		jQuery(document).on('change', '[name="template_id"]', function(){
+			
+			var module = 'CalendarTemplate';
+			var tempValue = $(this).val();
+			var data = {};
+			data['record'] = tempValue;
+			data['source_module'] = module;
+			thisInstance.getRecordDetails(data).then(function(response){
+				var tmpData = response.data;
+				
+				jQuery('[name="subject"]').val(tmpData.subject);
+				jQuery('[name="location"]').val(tmpData.location);
+				
+				jQuery('[name="description"]').val(tmpData.description);
+			},
+			function(error, err){
+
+			});
 		});
 	},
 	 
