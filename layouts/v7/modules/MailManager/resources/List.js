@@ -299,6 +299,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			self.loadMailContents(folderName);
 			container.find('#searchType').trigger('change');
 			self.registerEventForSingleMailActions();
+			self.registerAutoCompleteSearchFields();
 	});
 	},
 
@@ -1919,6 +1920,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	
 	
 	registerSingleForwardEvent : function(msgNo, folderName) {
+		var self = this;
 		var params = {
 			'module' : 'MailManager',
 			'action' : 'Folder',
@@ -1995,6 +1997,49 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					'excluded_ids' : "[]",
 				}
 				self.openComposeEmailForm("forward", params, {'subject' : fwdSubject, 'body' : fwdBody});
+			}
+		});
+	},
+	
+	registerAutoCompleteSearchFields : function() {
+		var thisInstance = this;
+		jQuery(document).find('input#mailManagerSearchbox').autocomplete({
+			'minLength' : '3',
+			'source' : function(request, response){
+				//element will be array of dom elements
+				//here this refers to auto complete instance
+				var inputElement = jQuery(this.element[0]);
+				var searchValue = request.term;
+				var params = {};
+				params.module = app.getModuleName();
+				params.search_value = searchValue;
+				params.action = 'BasicAjax';
+				app.request.get({data:params}).then(function(err, res){
+					var reponseDataList = new Array();
+					var serverDataFormat = res;
+					if(serverDataFormat.length <= 0) {
+							jQuery(inputElement).val('');
+							serverDataFormat = new Array({
+									'label' : 'No Results Found',
+									'type'	: 'no results'
+							});
+					}
+					for(var id in serverDataFormat){
+							var responseData = serverDataFormat[id];
+							reponseDataList.push(responseData);
+					}
+					response(reponseDataList);
+				});
+				
+			},
+			'select' : function(event, ui ){
+				var selectedItemData = ui.item;
+				//To stop selection if no results is selected
+				if(typeof selectedItemData.type != 'undefined' && selectedItemData.type=="no results"){
+						return false;
+				}
+				
+				selectedItemData.selectedName = selectedItemData.value;
 			}
 		});
 	},
