@@ -72,7 +72,7 @@ class Vtiger_Viewer extends SmartyBC {
 //             $use_def_layout = false;
 //         }
         
-        $adb = PearDatabase::getInstance();
+        /*$adb = PearDatabase::getInstance();
         
         if(!isset($_SESSION['authenticated_user_id'])) $use_def_layout=true;
         else{
@@ -101,11 +101,25 @@ class Vtiger_Viewer extends SmartyBC {
                 else
                     $use_def_layout=true;
             }
+        }*/
+                
+        global $current_user;
+        
+        if(!isset($_SESSION['authenticated_user_id'])) {
+            $use_def_layout = true;
+        } else{
+            if($current_user->theme == 'rainbow'){
+                $use_def_layout = false;
+            } else {
+                $use_def_layout = true;
+            }
         }
         
         if($use_def_layout) self::$customLayout = "v7";
         else if(!$use_def_layout)self::$customLayout = "rainbow";
+        
         self::$customLayoutPath = __DIR__.'/../../layouts/'.self::$customLayout;
+        
         $this->tplDirs = array(self::$customLayoutPath, $this->getTemplateDir(0));
         
         // FOR SECURITY
