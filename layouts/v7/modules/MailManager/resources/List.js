@@ -1920,6 +1920,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	
 	
 	registerSingleForwardEvent : function(msgNo, folderName) {
+		var self = this;
 		var params = {
 			'module' : 'MailManager',
 			'action' : 'Folder',
