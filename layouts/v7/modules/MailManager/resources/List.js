@@ -2018,7 +2018,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					var reponseDataList = new Array();
 					var serverDataFormat = res;
 					if(serverDataFormat.length <= 0) {
-							jQuery(inputElement).val('');
+							//jQuery(inputElement).val('');
 							serverDataFormat = new Array({
 									'label' : 'No Results Found',
 									'type'	: 'no results'

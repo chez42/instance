@@ -11,6 +11,9 @@
 		.mailEntry:hover .singleMailActions{
 			display:block !important;
 		}
+		.mailEntry:hover .mailDateTime{
+			width:21%!important;
+		}
 	</style>
     <div class='col-lg-12 padding0px'>
         <span class="col-lg-1 paddingLeft5px">
@@ -165,7 +168,7 @@
 					            </span>
 					            
 					        </span>
-        					<span class="pull-right" style="padding-right:5px;">
+        					<span class="pull-right mailDateTime" style="padding-right:5px;">
                                 {*if $ATTCHMENT_COUNT}
                                     <i class="fa fa-paperclip font14px"></i>&nbsp;
                                 {/if*}
