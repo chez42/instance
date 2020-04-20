@@ -200,6 +200,17 @@
 								
 								<div class='fieldBlockContainer' data-block="{$BLOCK_LABEL}">
 									<h4 class='fieldBlockHeader'>{vtranslate($BLOCK_LABEL, $MODULE)}</h4>
+									{if $BLOCK_LABEL eq 'LBL_EVENT_INFORMATION'}
+										<div class="pull-right" style="margin-top:-35px !important;margin-right:10px !important;">
+											{assign var=CALENDAR_TEMPLATES value=CalendarTemplate_Module_Model::getAllTemplates()}
+											<select class="select2 inputElement" name="template_id" >
+												<option value="">Select Template</option>
+												{foreach item=TEMPLATE_NAME key=TEMPLATE_VALUE from=$CALENDAR_TEMPLATES}
+													<option value="{$TEMPLATE_VALUE}">{$TEMPLATE_NAME}</option>
+												{/foreach}
+											</select>
+										</div>
+									{/if}
 									<hr>
 									<table class="table table-borderless" style = "table-layout:fixed;">
 										<tr>
