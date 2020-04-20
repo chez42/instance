@@ -1782,6 +1782,37 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 			
     	},
     	
+    	
+	registerEventForSendEmailRelatedList : function(){
+		var thisInstance = this;
+		$(document).on('click', '.relatedEmail', function(){
+			
+			var selectedRecordCount = thisInstance.getSelectedRecordCount();
+			if (!selectedRecordCount) {
+				app.helper.showAlertBox({message: app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD')});
+    			return;
+    		}
+
+			if (selectedRecordCount > 500) {
+    			app.helper.showErrorNotification({message: app.vtranslate('JS_MASS_EDIT_LIMIT')});
+    			return;
+    		}
+			
+			var massActionUrl = $(this).attr('href');
+			
+			var postData =  thisInstance.getListSelectAllParams();
+			
+			delete postData.module;
+			delete postData.view;
+			delete postData.parent;
+			
+			var data = app.convertUrlToDataParams(massActionUrl);
+			jQuery.extend(postData, data);
+			
+			Vtiger_Index_Js.showComposeEmailPopup(postData);
+			
+		});
+	},
     
 })
 
@@ -1802,4 +1833,5 @@ jQuery(document).ready(function(){
 	instance.relatedtriggerExportAction();
 	instance.relatedtriggerExportZipAction();
 	instance.registerEventForSendEnvelopeRelatedList();
+	instance.registerEventForSendEmailRelatedList();
 });
