@@ -82,6 +82,12 @@
 	                        <i class="fa fa-comment"></i>
 	                    </button>
 	                {/if}
+	                {if $MODULE eq 'Accounts' && $RELATED_MODULE_NAME eq 'Contacts'}
+	                	 <button type="button" class="btn btn-default relatedEmail" id="{$MODULE}_reletedlistView_massAction_LBL_SEND_EMAIL" 
+	                            href="index.php?module={$RELATED_MODULE_NAME}&view=MassActionAjax&mode=showComposeEmailForm&step=step1" title="{vtranslate('Send Email', $MODULE)}" disabled="disabled">
+	                        <i class="fa fa-envelope"></i>
+	                    </button>
+	                {/if}
 				</div>
 				{if $exportAction}
 	                <div class="btn-group relatedlistViewMassActions" role="group">
