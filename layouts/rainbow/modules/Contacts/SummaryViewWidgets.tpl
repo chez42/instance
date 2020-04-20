@@ -164,8 +164,8 @@
 		</div>
 	{/if}
 	{* Revenue Widget Model End*}
-</div>
-<div class="middle-block col-lg-8">
+{*</div>
+<div class="middle-block col-lg-8">*}
 	{* Report Widget Model Start*}
 	{if $REPORT_WIDGET_MODEL}
 		<div class="summaryWidgetContainer">

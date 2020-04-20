@@ -87,7 +87,7 @@
 		{* Summary View Related Activities Widget*}
 		<div id="relatedActivities">
 			{$RELATED_ACTIVITIES}
-		</div></div></div>
+		</div>
 		{* Summary View Related Activities Widget Ends Here*}
 
 		{* Summary View Comments Widget*}
