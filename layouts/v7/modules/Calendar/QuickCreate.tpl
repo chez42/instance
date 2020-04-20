@@ -54,16 +54,12 @@
 						<div>
 							<div style="margin-left: 14px;width: 95%;">
 								{assign var=CALENDAR_TEMPLATES value=CalendarTemplate_Module_Model::getAllTemplates()}
-								{if !empty($CALENDAR_TEMPLATES)}
-									<select class="select2 inputElement" name="template_id" >
-								        <option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
-										{foreach item=TEMPLATE_NAME key=TEMPLATE_VALUE from=$CALENDAR_TEMPLATES}
-											<option value="{$TEMPLATE_VALUE}">{$TEMPLATE_NAME}</option>
-										{/foreach}
-									</select>
-								{else}
-									No Templates Found
-								{/if}
+								<select class="select2 inputElement" name="template_id" style = "width:100%;" >
+									 <option value="">Select Template</option>
+									{foreach item=TEMPLATE_NAME key=TEMPLATE_VALUE from=$CALENDAR_TEMPLATES}
+										<option value="{$TEMPLATE_VALUE}">{$TEMPLATE_NAME}</option>
+									{/foreach}
+								</select>
 							</div>
 						</div>
 						<div style="padding-top: 2%;">
