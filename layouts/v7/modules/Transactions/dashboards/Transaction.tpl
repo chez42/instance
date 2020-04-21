@@ -1,5 +1,9 @@
 {strip}
-	
+	<style>
+		.select2-choices .select2-search-field{
+			    position: unset !important;
+		}
+	</style>
 	{assign var="dateFormat" value=$CURRENT_USER_MODEL->get('date_format')}
 	
 	<div class="dashboardWidgetHeader">
@@ -8,13 +12,10 @@
 		<div class="title clearfix">
 	        <div class="dashboardTitle pull-left" title="{vtranslate($WIDGET->getTitle(), $MODULE_NAME)}" style="width: 20em;"><b>{vtranslate('Transactions')}</b></div>
 			
-			<div class="moreLinkDivContent pull-right hide">
-				<a class="miniListMoreLink" target="_blank" href='{$MORE_LINK_URL}'>{vtranslate('LBL_MORE')}...</a>
-			</div>
-		
+			
 	    </div>
 	    <div class="filterContainer">
-			<div class="row" style="margin-bottom:10px;">
+			<div class="row" style="margin-bottom:5px;">
 				<div class="col-lg-4">
 					<div class="pull-right">
 						{vtranslate('Transaction Type', $MODULE_NAME)}
@@ -72,7 +73,7 @@
 		        app.helper.hideModal();
 		        this.restrictContentDrag();
 		        var widgetContent = jQuery('.dashboardWidgetContent', this.getContainer());
-		        var adjustedHeight = this.getContainer().height()-50;
+		        var adjustedHeight = this.getContainer().height()-100;
 		        app.helper.showVerticalScroll(widgetContent,{'setHeight' : adjustedHeight});
 		        widgetContent.css({height: widgetContent.height()-40});
 				
@@ -83,7 +84,7 @@
 		        var widgetContent = jQuery('.dashboardWidgetContent', this.getContainer());
 		        var slimScrollDiv = jQuery('.slimScrollDiv', this.getContainer());
 		        var adjustedHeight = this.getContainer().height()-100;
-		        widgetContent.css({height: adjustedHeight});
+		        widgetContent.css({height: adjustedHeight-40});
 		        slimScrollDiv.css({height: adjustedHeight});
 			}
 		});
