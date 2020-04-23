@@ -8,8 +8,33 @@
  *************************************************************************************}
 
  
+{assign var="dateFormat" value=$CURRENTUSER->get('date_format')}
+	
 <div class="dashboardWidgetHeader">
-	{include file="dashboards/WidgetHeader.tpl"|@vtemplate_path:$MODULE_NAME}
+	{assign var=WidgetTitle value=$WIDGET->getTitle()}
+	{assign var="dateFormat" value=$CURRENTUSER->get('date_format')}
+	<div class="title clearfix">
+        <div class="dashboardTitle pull-left" title="{vtranslate('Client Distribution', $MODULE_NAME)}" style="width: 20em;"><b>{vtranslate('Client Distribution')}</b></div>
+		
+    </div>
+    <div class="filterContainer">
+		<div class="row">
+			<div class="col-lg-4">
+				<div class="pull-right">
+					{vtranslate('Expected Date', $MODULE_NAME)} 
+				</div>
+			</div>
+			{assign var=start_date value=date('m-d-Y',strtotime($TRADE_DATE['start_date']))}
+			{assign var=end_date value=date('m-d-Y',strtotime($TRADE_DATE['end_date']))}
+			<div class="col-lg-8">
+                <div class="input-daterange input-group dateRange widgetFilter" id="datepicker" name="trade_date">
+                    <input type="text" class="input-sm form-control" name="start" value="{$start_date}" style="height:30px;"/>
+                    <span class="input-group-addon">to</span>
+                    <input type="text" class="input-sm form-control" name="end" value="{$end_date}" style="height:30px;"/>
+                </div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="dashboardWidgetContent">
