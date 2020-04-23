@@ -1723,7 +1723,7 @@ Vtiger_Widget_Js('Vtiger_PopulationPyramid_Widget_Js',{},{
 		maleSeries.calculatePercent = true;
 		maleSeries.dataFields.categoryY = "age";
 		maleSeries.interpolationDuration = 1000;
-		maleSeries.columns.template.tooltipText = "Males, age{categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
+		maleSeries.columns.template.tooltipText = "Males, age {categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
 		//maleSeries.sequencedInterpolation = true;
 		
 		
@@ -1754,7 +1754,7 @@ Vtiger_Widget_Js('Vtiger_PopulationPyramid_Widget_Js',{},{
 		femaleSeries.fill = femaleChart.colors.getIndex(4);
 		femaleSeries.stroke = femaleSeries.fill;
 		//femaleSeries.sequencedInterpolation = true;
-		femaleSeries.columns.template.tooltipText = "Females, age{categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
+		femaleSeries.columns.template.tooltipText = "Females, age {categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
 		femaleSeries.dataFields.categoryY = "age";
 		femaleSeries.interpolationDuration = 1000;
 		
