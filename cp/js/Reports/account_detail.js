@@ -528,7 +528,7 @@ var Portfolio_Account_JS = {
 				
 				jQuery("#gh2_AllocationTypesWrapper").addClass("table-responsive");
 				
-				var table = "<table class='table table-bordered'><thead><tr><th>Description</th><th>Weight</th><th>Value</th></tr></thead><tbody>";
+				var table = "<table class='table table-bordered'><thead><tr><th><b>Description</b></th><th style='text-align:right;'><b>Weight</b></th><th style='text-align:right;'><b>Value</b></th></tr></thead><tbody>";
 
 				for (var i = 0; i < chart.dataProvider.length; i++) {
 					
@@ -536,8 +536,8 @@ var Portfolio_Account_JS = {
 					
 					table += '<tr style="background-color:'+dp.color+'; color:white;">';
 					table += '<td>' + dp.title + '</td>';
-					table += '<td>' + dp.percentage + '%</td>';
-					table += '<td>$' + thisInstance.numberFormat(dp.value, 2, '.', ',') + '</td>';
+					table += '<td style="text-align:right;">' + dp.percentage + '%</td>';
+					table += '<td style="text-align:right;">$' + thisInstance.numberFormat(dp.value, 2, '.', ',') + '</td>';
 					table += '</tr>';
 				}
 				
@@ -568,20 +568,20 @@ var Portfolio_Account_JS = {
         chart.valueField = "value";
         chart.colorField = 'color';
         chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
-        chart.labelRadius = -30;
-        chart.radius = 80;
+//        chart.labelRadius = -30;
+//        chart.radius = 80;
         chart.labelText = "";
         chart.textColor= "#FFFFFF";
-        chart.depth3D = 14;
-        chart.angle = 25;
-        chart.outlineColor = "#363942";
-        chart.outlineAlpha = 0.8;
-        chart.outlineThickness = 1;
+//        chart.depth3D = 14;
+//        chart.angle = 25;
+//        chart.outlineColor = "#363942";
+//        chart.outlineAlpha = 0.8;
+//        chart.outlineThickness = 1;
         chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
         chart.startDuration = 0;
 
         if(showLegend == true) {
-            legend = new AmCharts.AmLegend();
+            /*legend = new AmCharts.AmLegend();
             legend.align = "left";
             legend.markerType = "square";
             legend.maxColumns = 1;
@@ -591,7 +591,7 @@ var Portfolio_Account_JS = {
             legend.valueWidth = 100;
             legend.switchable = false;
             legend.labelText = "[[title]]:";
-            chart.addLegend(legend);
+            chart.addLegend(legend);*/
         }
         // WRITE
         chart.write(holder);

@@ -1,7 +1,7 @@
 <div style='padding-top: 0;margin-bottom: 2%;padding-right:15px;'>
 	{if count($DATA) gt 0}
 		
-		<div class="row" style="padding:5px">
+		<div class="row" style="padding:0px 5px 5px 5px;">
 			{foreach item=FIELD_MODEL from=$HEADERS}
 				{assign var=FIELD_LABEL value=$FIELD_MODEL->get("field_label")}
 				<div class="col-md-3"><strong>{vtranslate($FIELD_LABEL,$MODULE_NAME)}</strong></div>
@@ -9,7 +9,7 @@
 		</div>
 	
 		{foreach item=RECORD from=$DATA}
-			<div class="row" style="padding:5px">
+			<div class="row" style="padding:0px 5px 5px 5px;">
 				{foreach key=FIELD_NAME item=FIELD_MODEL from=$HEADERS}
 					<div class="col-md-3 textOverflowEllipsis {if $FIELD_NAME eq 'net_amount'}text-center{/if}" title="{strip_tags($RECORD->get($FIELD_NAME))}" style="padding-right: 5px;">
 						

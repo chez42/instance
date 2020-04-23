@@ -23,49 +23,52 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
         
         $db = PearDatabase::getInstance();
         
-        $query = "SELECT SUM(vtiger_transactionscf.net_amount) as totalamount, vtiger_contactscf.cf_3266 FROM vtiger_contactdetails
-        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid AND vtiger_crmentity.deleted = 0
-        INNER JOIN vtiger_contactscf ON vtiger_contactscf.contactid = vtiger_contactdetails.contactid
-        INNER JOIN vtiger_portfolioinformation ON vtiger_portfolioinformation.contact_link = vtiger_contactdetails.contactid
+        $query = "SELECT SUM(vtiger_transactionscf.net_amount) as totalamount, vtiger_contactscf.cf_3266 FROM vtiger_contactscf
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactscf.contactid
+        
+		INNER JOIN vtiger_portfolioinformation ON vtiger_portfolioinformation.contact_link = vtiger_contactscf.contactid
         INNER JOIN vtiger_crmentity crmpor ON crmpor.crmid = vtiger_portfolioinformation.portfolioinformationid AND crmpor.deleted =0
-        INNER JOIN vtiger_portfolioinformationcf ON vtiger_portfolioinformationcf.portfolioinformationid =vtiger_portfolioinformation.portfolioinformationid
+		
         INNER JOIN vtiger_transactions ON vtiger_transactions.account_number = vtiger_portfolioinformation.account_number
         INNER JOIN vtiger_crmentity crmtrans ON crmtrans.crmid = vtiger_transactions.transactionsid AND crmtrans.deleted = 0
         INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid".
         Users_Privileges_Model::getNonAdminAccessControlQuery('Contacts')
-        ."WHERE vtiger_transactionscf.transaction_activity = 'Management fee' GROUP BY vtiger_contactscf.cf_3266";
+        ."WHERE vtiger_transactionscf.transaction_activity = 'Management fee' and 
+		(vtiger_contactscf.cf_3266 > 0 and vtiger_contactscf.cf_3266 != '' and vtiger_contactscf.cf_3266 is not NULL) AND vtiger_crmentity.deleted = 0
+		GROUP BY vtiger_contactscf.cf_3266 ORDER BY vtiger_contactscf.cf_3266 ASC ";
         
-		 $result = $db->pquery($query,array());
-		 
-		 $response = array();
-		 
-		 $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
-		 $listViewUrl = str_ireplace("view=List", "view=GraphFilterList", $listViewUrl);
-		 
-		 $data = array();
-		 for($i=0; $i<$db->num_rows($result); $i++) {
-		     $row = $db->query_result_rowdata($result, $i);
-		     $tmp['title'] = 'Contact age:'.$row['cf_3266'];
-		     $tmp['value'] = $row['totalamount'];
-		     $tmp['url'] = $listViewUrl.$this->getSearchParams($row['cf_3266']).'&nolistcache=1';
-		     $data[] = $tmp;
-		 }
-		 
-		 $data  = array_values($data);
-		 
-		 $widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
-		 
-		 $viewer->assign('WIDGET', $widget);
-		 $viewer->assign('MODULE_NAME', $moduleName);
-		 $viewer->assign('CHART_DATA', $data);
-		 $viewer->assign('CURRENTUSER', $currentUser);
-		 
-		 $content = $request->get('content');
-		 if(!empty($content)) {
-		     $viewer->view('dashboards/ClientDistributionContents.tpl', $moduleName);
-		 } else {
-		     $viewer->view('dashboards/ClientDistribution.tpl', $moduleName);
-		 }
+        $result = $db->pquery($query,array());
+
+		
+        $response = array();
+        
+        $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
+        $listViewUrl = str_ireplace("view=List", "view=GraphFilterList", $listViewUrl);
+        
+        $data = array();
+        for($i=0; $i<$db->num_rows($result); $i++) {
+            $row = $db->query_result_rowdata($result, $i);
+            $tmp['title'] = $row['cf_3266'];
+            $tmp['value'] = $row['totalamount'];
+            $tmp['url'] = $listViewUrl.$this->getSearchParams($row['cf_3266']).'&nolistcache=1';
+            $data[] = $tmp;
+        }
+        
+        $data  = array_values($data);
+        
+        $widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
+        
+        $viewer->assign('WIDGET', $widget);
+        $viewer->assign('MODULE_NAME', $moduleName);
+        $viewer->assign('CHART_DATA', $data);
+        $viewer->assign('CURRENTUSER', $currentUser);
+        
+        $content = $request->get('content');
+        if(!empty($content)) {
+            $viewer->view('dashboards/ClientDistributionContents.tpl', $moduleName);
+        } else {
+            $viewer->view('dashboards/ClientDistribution.tpl', $moduleName);
+        }
     }
     
     function getSearchParams($value) {

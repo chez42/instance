@@ -2357,6 +2357,8 @@ function LoadGH2Report($input_array){
             $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
             $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
             $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
+            $output['GetGSPC'] =  $ytd_performance->GetIndex("GSPC");
+            $output['GetMSCIEAFE'] =  $ytd_performance->GetIndex("MSCIEAFE");
             
             if(isset($input_array['selectedDate']))
                 $output['selectedDate'] = $input_array['selectedDate'];

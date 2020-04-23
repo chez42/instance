@@ -36,24 +36,24 @@
 		loadChart : function() {
 		
 			var container = this.getContainer();
+			
 			var chartData = this.generateData();
+			
 			chartData = chartData.data;
 			
 	        var chart;
-	        var legend;
+	        
+			var legend;
 			
 	        chart = new AmCharts.AmSerialChart();
 	        
 	        chart.dataProvider = chartData;
 	        chart.theme = "light";
-		
 			chart.categoryField = "title";
 			
 			var valueAxis = new AmCharts.ValueAxis();
-		        
-			valueAxis.minimum = 0;
-	        
-			chart.addValueAxis(valueAxis);
+		    valueAxis.minimum = 0;
+	        chart.addValueAxis(valueAxis);
 			
 			var graph = new AmCharts.AmGraph();
 			
@@ -63,11 +63,10 @@
 			graph.urlTarget = "_blank";
 			
 			graph.lineAlpha = 0;
+			
 			graph.fillAlphas = 1;
 			
 			chart.addGraph(graph);
-			
-			chart.addTitle('Client Distribution');
 			
 			var catAxis = chart.categoryAxis;
 	        catAxis.gridPosition = "start";
