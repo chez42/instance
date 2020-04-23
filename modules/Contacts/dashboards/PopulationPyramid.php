@@ -10,8 +10,6 @@
 
 class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
     
-    
-    
     public function process(Vtiger_Request $request) {
         
         $currentUser = Users_Record_Model::getCurrentUserModel();
@@ -25,54 +23,69 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
         
         $db = PearDatabase::getInstance();
         
+        $query = "SELECT  Age,
+				SUM(cf_1718 = 'Female') Female,
+				SUM(cf_1718 = 'Male') Male,
+				COUNT(*) count
+				FROM ( SELECT  CASE ";
         
-        $query = "select concat(5*floor(cf_3266/5), '-', 5*floor(cf_3266/5) + 5) as `range`,cf_1718 as gender,
-         count(*) as count from `vtiger_contactdetails` inner join vtiger_contactscf on vtiger_contactscf.contactid=vtiger_contactdetails.contactid
-		 inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_contactdetails.contactid ".
-		 Users_Privileges_Model::getNonAdminAccessControlQuery('Contacts')
-		 ." where deleted=0 and cf_3266>0 and cf_1718 in ('Male','Female') group by `range`, gender order by cf_3266 asc" ;
-		 
-		 $result = $db->pquery($query,array());
-		 
-		 $response = array();
-		 
-		 $data = array();
-		 for($i=0; $i<$db->num_rows($result); $i++) {
-		     $row = $db->query_result_rowdata($result, $i);
-		     
-		     $range = $row['range'];
-		     
-		     $gender =  strtolower($row['gender']);
-		     
-		     $count = $row['count'];
-		     
-		     $data[$range]['age'] =  $range;
-		     
-		     $data[$range][$gender] =  $count;
-		     
-		     
-		     
-		 }
-		 
-		 $data  = array_values($data);
-		 
-		 
-		 $widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
-		 
-		 
-		 
-		 $viewer->assign('WIDGET', $widget);
-		 $viewer->assign('MODULE_NAME', $moduleName);
-		 $viewer->assign('CHART_DATA', $data);
-		 $viewer->assign('CURRENTUSER', $currentUser);
-		 
-		 
-		 $content = $request->get('content');
-		 if(!empty($content)) {
-		     $viewer->view('dashboards/PopulationPyramidContents.tpl', $moduleName);
-		 } else {
-		     $viewer->view('dashboards/PopulationPyramid.tpl', $moduleName);
-		 }
+        
+        for($i = 0; $i < 110; $i = $i + 5){
+            $query .= ' WHEN vtiger_contactscf.cf_3266 BETWEEN ';
+            $query .= $i;
+            $query .= ' AND ';
+            $query .= $i+5;
+            $query .= ' THEN ';
+            $query .=  "'" . $i;
+            $query .= '-';
+            $query .= $i + 5 . "'";
+        }
+        
+        $query .= ' END Age, cf_1718 from vtiger_contactscf
+		inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactscf.contactid ';
+        $query .= Users_Privileges_Model::getNonAdminAccessControlQuery('Contacts');
+        $query .= "where deleted = 0 and (vtiger_contactscf.cf_3266 > 0 and vtiger_contactscf.cf_3266 != '' and vtiger_contactscf.cf_3266 is not NULL and cf_3266 < 110)
+			and cf_1718 in ('Male','Female')) age_range group by Age";
+        
+        $result = $db->pquery($query,array());
+        
+        $response = array();
+        
+        $data = array();
+        
+        for($i=0; $i<$db->num_rows($result); $i++) {
+            
+            $row = $db->query_result_rowdata($result, $i);
+            
+            $data[$row['age']]['age'] =  $row['age'];
+            
+            $data[$row['age']]['male'] =  $row['male'];
+            
+            $data[$row['age']]['female'] =  $row['female'];
+        }
+        
+        $chart_data = array();
+        
+        for($i = 0; $i < 110; $i = $i + 5){
+            if(isset($data["$i-" . ($i + 5)])){
+                $chart_data[] = $data["$i-" . ($i + 5)];
+            }
+        }
+        
+        $widget = Vtiger_Widget_Model::getInstance($linkId, $currentUser->getId());
+        
+        $viewer->assign('WIDGET', $widget);
+        $viewer->assign('MODULE_NAME', $moduleName);
+        $viewer->assign('CHART_DATA', $chart_data);
+        $viewer->assign('CURRENTUSER', $currentUser);
+        
+        
+        $content = $request->get('content');
+        if(!empty($content)) {
+            $viewer->view('dashboards/PopulationPyramidContents.tpl', $moduleName);
+        } else {
+            $viewer->view('dashboards/PopulationPyramid.tpl', $moduleName);
+        }
     }
     
     
