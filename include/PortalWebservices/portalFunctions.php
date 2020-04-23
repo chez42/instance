@@ -2211,14 +2211,18 @@ function LoadGHReport($input_array){
             
             if($calling_record) {
                 $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
+                $prepared_by = PortfolioInformation_Module_Model::GetPreparedByFormattedByRecordID($calling_record);
                 $record = VTiger_Record_Model::getInstanceById($calling_record);
                 $data = $record->getData();
                 $module = $record->getModule();
                 if($module->getName() == "Accounts") {
-                    $policy = $data['cf_2525'];
-                    $output["policy"] = $policy;
+                    $policy = $data['cf_2525'];//Investment Policy Statement
+                    $output["Policy"] = $policy;
                 }
+                $output["PreparedFor"] = $prepared_for;
+                $output["PreparedBy"] = $prepared_by;
             }
+            
             
             $output["ytdperformance"] = $ytd_performance;
             $output["holdingspievalues"] = json_encode($new_pie);
@@ -2232,6 +2236,13 @@ function LoadGHReport($input_array){
             $output["start_date"] = $start_date;
             $output["end_date"] = $end_date;
             $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
+            
+            if(!empty($output['ytd_individual_performance_summed'])){
+                foreach($output['ytd_individual_performance_summed'] as $account_number=>$v){
+                    $output[$account_number]['EstimatedTotal'] = $output['ytd_individual_performance_summed'][$account_number]['estimated']->GetGrandTotal();
+                }
+            }
+            
             $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
             $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
             $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
@@ -2249,11 +2260,38 @@ function LoadGHReport($input_array){
             $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
             $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
             $output['GetTWR'] = $ytd_performance->GetTWR();
+            $output['GetDVG'] = $ytd_performance->GetIndex("DVG");
+            $output['GetGSPC'] = $ytd_performance->GetIndex("GSPC");
+            $output['GetSP500BDT'] = $ytd_performance->GetIndex("SP500BDT");
+            $output['GetIDCOTCTR'] = $ytd_performance->GetIndex("IDCOTCTR");
+            $output['GetEstimatedTotal'] =	$ytd_performance->GetEstimatedIncome()->GetGrandTotal();
             
-            if(isset($input_array['selectedDate']))
-                $output['selectedDate'] = $input_array['selectedDate'];
+            $output['GetStartDateMDY'] = $ytd_performance->GetStartDateMDY();
+            $output['GetEndDateMDY'] = $ytd_performance->GetEndDateMDY();
+            
+            $current_user = Users_Record_Model::getCurrentUserModel();
+            $output['UserData'] =  $current_user->getData();
+            $output["PrepareDate"] = date("F d, Y");
+            $logo = $current_user->getImageDetails();
+            if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+                if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+                    $logo = $logo['user_logo'][0];
+                    $logo = $logo['path']."_".$logo['name'];
+                } else
+                    $logo = 0;
+            } else
+                $logo = "";
                 
-                return $output;
+                if($logo == "_" || $logo == "")
+                    $logo = "test/logo/Omniscient Logo small.png";
+                    
+                    global $site_URL;
+                    $output["Logo"] = $site_URL.$logo;
+                    
+                    if(isset($input_array['selectedDate']))
+                        $output['selectedDate'] = $input_array['selectedDate'];
+                        
+                        return $output;
 }
 
 function LoadGH2Report($input_array){

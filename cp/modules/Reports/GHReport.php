@@ -23,9 +23,22 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 	#ghreport_chart_table .borderless>thead>tr>th {
 		border: 0;
 	}
-	.GHReport_UI_Wrapper{display:block; border:2px solid black; max-width:1024px; border-radius:25px; margin-left:auto;
-                     margin-right:auto; padding:5px; background-color: #FFFFCC}
-	.boxsizingborder{-webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; width:100%;}
+	.GHReport_UI_Wrapper{
+	   display:block; 
+	   border:1px solid black; 
+	   max-width:1024px; 
+	   //border-radius:25px; 
+	   margin-left:auto;
+       margin-right:auto; 
+       padding:5px; 
+       //background-color: #FFFFCC
+    }
+	.boxsizingborder{
+	   -webkit-box-sizing: border-box; 
+	   -moz-box-sizing: border-box; 
+	   box-sizing: border-box; 
+	   width:100%;
+    }
     
     #GHReport_header{width:100%;}
     
@@ -79,7 +92,26 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 
 <div class="kt-portlet__body">
 	<div id="GHReport_wrapper" class="GHReport_UI_Wrapper">
-	
+    	 <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
+            <tr>
+                <td style="width:70%; vertical-align: top;"><?php if($data['Logo'] != ''){?><img class="pdf_crm_logo" src="<?php echo $data['Logo']?>" style="width:60%;" /><?php }?></td>
+                
+                <td style="width:30%; font-size: 9pt;">
+                   <?php 
+                   if($data['PreparedBy'] == ''){
+                        echo $data['UserData']['first_name'] .' '. $data['UserData']['last_name'].'<br />';
+                        if($data['UserData']['title'] != ''){ echo $data['UserData']['title'].'<br />';}
+                        if($data['UserData']['email1'] != ''){echo $data['UserData']['email1'].'<br />' ;}
+                        if($data['UserData']['phone_work'] != ''){echo $data['UserData']['phone_work'];}
+                    }else{
+                        echo $data['PreparedBy'];
+                    }
+                    ?>
+                </td>
+            </tr>
+        </table>
+        <p style="margin:0; padding:0; font-size:9pt;"><span style="color:RGB(0,32,96); font-weight:bold; font-size:10pt;"><?php echo $data['PreparedFor'];?></span><br />Prepared: <?php echo $data['PrepareDate'];?></p>
+    	
 		<div class="GHReport_section">
 			<h2 class="blue_header">PORTFOLIO SUMMARY</h2>
 			<table style="width:100%" border="0">
@@ -99,13 +131,13 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
     							foreach($holdingspiearray as $v){?>
     								<tr>
     									<td style="font-weight:bold; width:50%; padding-bottom:10px;"><?php echo $v['title'];?></td>
-    									<td style="text-align:right; width:25%;">$<?php echo number_format($v['value'],2,".",",");?></td>
+    									<td style="text-align:right; width:25%;">$<?php echo number_format($v['value'],0,".",",");?></td>
     									<td style="text-align:right; width:25%;"><?php echo number_format($v['percentage'],2,".",",");?>%</td>
     								</tr>
     							<?php }?>
     							<tr>
     								<td>&nbsp;</td>
-    								<td style="text-align:right;" class="borderTop borderBottom">$<?php echo number_format($data['globaltotal'],2,".",",");?></td>
+    								<td style="text-align:right;" class="borderTop borderBottom">$<?php echo number_format($data['globaltotal'],0,".",",");?></td>
     								<td>&nbsp;</td>
     							</tr>
     							<?php if($MARGIN_BALANCE != 0){?>
@@ -147,10 +179,10 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 			</table>
 		</div>
 		<div class="GHReport_section">
-			<h2 class="grey_header" >
+			<h2 class="grey_header" style="padding:10px;" >
 				<span style="font-size:14px;">
 					<?php
-						echo "PERFORMANCE(".date('F, Y',strtotime($data['GetStartDate']))." to ".date('F, Y', strtotime($data['GetEndDate'])).")";
+						echo "PERFORMANCE(".date('F d, Y',strtotime($data['GetStartDate']))." to ".date('F d, Y', strtotime($data['GetEndDate'])).")";
 					?>
 				</span>
 			</h2>
@@ -173,56 +205,59 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
     					<tr <?php if($ytd_individual_performance_summed[$account_number]['Flow']['disable_performance'] == 1){?> style="<!-- background-color:#FFFFE0; -->" <?php }?>>
     						<td><?php echo $ytd_individual_performance_summed[$account_number]['account_name'];?></td>
     						<td>**<?php echo substr($account_number,5);?></td>
-    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_begin_values[$account_number]['value'],2,".",",");?></span></td>
-    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'],2,".",",");?></span></td>
-    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['change_in_value'],2,".",",");?></span></td>
-    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_end_values[$account_number]['value'],2,".",",");?></span></td>
-    						<td><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_individual_performance_summed[$account_number]['income_div_interest']['amount'],2,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_begin_values[$account_number]['value'],0,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'],0,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_individual_performance_summed[$account_number]['change_in_value'],0,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_end_values[$account_number]['value'],0,".",",");?></span></td>
+    						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($data[$account_number]['EstimatedTotal'],0,".",",");?></span></td>
     					</tr>
     				<?php }?>
     				<tr>
     					<td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="2">&nbsp;</td>
-    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetBeginningValuesSummed']['value'],2,".",",");?></span></td>
-    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['Flow']['amount'],2,".",",");?></span></td>
-    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['change_in_value'],2,".",",");?></span></td>
-    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($data['GetEndingValuesSummed']['value'],2,".",",");?></span></td>
-    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;">$</span><span style="text-align:right; float:right;width:90%;"><?php echo number_format($ytd_performance_summed['income_div_interest']['amount'],2,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($data['GetBeginningValuesSummed']['value'],0,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_performance_summed['Flow']['amount'],0,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_performance_summed['change_in_value'],0,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($data['GetEndingValuesSummed']['value'],0,".",",");?></span></td>
+    					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($data['GetEstimatedTotal'],0,".",",");?></span></td>
     				</tr>
 				<?php }?>
 				</tbody>
 			</table>
 		</div>
 		<div class="GHReport_section">
-			<h2 class="blue_header"><span style="font-size:14px;"><span style="font-size:14px;">Benchmark and Index Performance</span></h2>
-			<table class="table" border="0">
-				<tbody>
-				<tr>
-					<td colspan="2" style="font-weight:bold; background-color:RGB(245, 245, 245); text-align:left; text-decoration:underline;">PORTFOLIO PERFORMANCE</td>
-					<td colspan="2" style="font-weight:bold; background-color:RGB(245, 245, 245); text-align:left; text-decoration:underline;">BENCHMARK PERFORMANCE</td>
-				</tr>
-				<tr>
-					<td>Combined Return</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetTWR'],2,".",",");?>%</td>
-					<td>Combined Benchmark</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetBenchmark'],2,".",",");?>%</td>
-				</tr>
-				<tr>
-					<td colspan="4" style="font-weight:bold; background-color:RGB(245, 245, 245); text-align:left; text-decoration:underline;">BENCHMARK PERFORMANCE</td>
-				</tr>
-				<tr>
-					<td>S&amp;P 500</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetIndexSP'],2,".",",");?>%</td>
-					<td>AGG</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetIndexAGG'],2,".",",");?>%</td>
-				</tr>
-				<tr>
-					<td>MSCI Emerging Market index</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetIndexEEM'],2,".",",");?>%</td>
-					<td>MSCI EAFE index</td>
-					<td style="text-align:right; font-weight:bold;"><?php echo number_format($data['GetIndexMSCI_EAFE'],2,".",",");?>%</td>
-				</tr>
-				</tbody>
-			</table>
+			<h2 class="blue_header" style="padding:10px;"><span style="font-size:14px;">Performance Metrics</span></h2>
+            <table class="table ghperformancetable" border="0">
+                <thead>
+                <tr>
+                    <td colspan="2" style="font-weight:bold; background-color:RGB(245, 245, 245); text-align:left; text-decoration:underline; font-size:10pt;">PORTFOLIO PERFORMANCE</td>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="text-align:right; text-decoration:underline; font-size:8pt;"><?php echo $data['GetStartDateMDY'].'-'.$data['GetEndDateMDY'];?></td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:bold; font-size:8pt; color:#33256C;">Combined Portfolio Return (TWR)</td>
+                        <td style="color:#33256C; text-align:right; font-weight:bold; font-size:8pt; padding-right:40pt;"><?php echo number_format($data['GetTWR'],2,".",",");?>%</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:8pt;">NASDAQ US Dividend Achievers Select</td>
+                        <td style="text-align:right; font-size:8pt; padding-right:40pt;"><?php echo number_format($data['GetDVG'],2,".",",");?>%</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:8pt;">S&amp;P 500</td>
+                        <td style="text-align:right; font-size:8pt; padding-right:40pt;"><?php echo number_format($data['GetGSPC'],2,".",",");?>%</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:8pt;">S&P 500 Bond Index</td>
+                        <td style="text-align:right; font-size:8pt; padding-right:40pt;"><?php echo number_format($data['GetSP500BDT'],2,".",",");?>%</td>
+                    </tr>
+                    <tr>
+                        <td style="font-size:8pt;">ICE U.S Treasury Core Bond TR Index</td>
+                        <td style="text-align:right; font-size:8pt; padding-right:40pt;"><?php echo number_format($data['GetIDCOTCTR'],2,".",",");?>%</td>
+                    </tr>
+                </tbody>
+            </table>
 		</div>
 	</div>
 </div>
