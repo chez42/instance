@@ -27,4 +27,3 @@ class PortfolioInformation_FileAdministration_View extends Vtiger_Index_View{
         return $jsScriptInstances;
     }
 }
-?>
