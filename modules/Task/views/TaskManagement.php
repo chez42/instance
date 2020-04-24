@@ -158,9 +158,23 @@ class Task_TaskManagement_View extends Vtiger_Index_View {
             
             if ($name == 'viewname') {
                 $pagingModel->set('viewid', $value);
+                if($value){
+                    global $adb,$current_user;
+                    $check = $adb->pquery("SELECT * FROM vtiger_user_module_preferences WHERE tabid=? AND userid =?",
+                        array($moduleModel->getId(), $current_user->id));
+                    if($adb->num_rows($check)){
+                        $adb->pquery("UPDATE vtiger_user_module_preferences SET default_cvid = ? WHERE tabid = ? AND userid = ?",
+                            array($value, $moduleModel->getId(), $current_user->id));
+                    }else{
+                        $adb->pquery("INSERT INTO vtiger_user_module_preferences(userid, tabid, default_cvid) VALUES (?,?,?)",
+                            array($current_user->id, $moduleModel->getId(), $value));
+                    }
+                    $_SESSION['lvs'][$moduleName]['viewname'] = $value;
+                    $_SESSION['lvs'][$moduleName][$value]['start'] = 1;
+                }
             }
         }
-        
+       
         if ($request->get('priority') != null) {
             $conditions['priority'] = array();
             $conditions['priority']['comparator'] = 'e';
