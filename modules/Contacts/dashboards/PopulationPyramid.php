@@ -51,6 +51,9 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
         
         $response = array();
         
+        $listViewUrl = $moduleModel->getListViewUrlWithAllFilter();
+        $listViewUrl = str_ireplace("view=List", "view=GraphFilterList", $listViewUrl);
+        
         $data = array();
         
         for($i=0; $i<$db->num_rows($result); $i++) {
@@ -62,6 +65,11 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
             $data[$row['age']]['male'] =  $row['male'];
             
             $data[$row['age']]['female'] =  $row['female'];
+            
+            $gender = $row['male']?'Male':'Female';
+            
+            $data[$row['age']]['url'] = $listViewUrl.$this->getSearchParams($gender,$row['age']).'&nolistcache=1';
+            
         }
         
         $chart_data = array();
@@ -86,6 +94,20 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
         } else {
             $viewer->view('dashboards/PopulationPyramid.tpl', $moduleName);
         }
+    }
+    
+    function getSearchParams($gender,$range) {
+        $listSearchParams = array();
+        
+        $numVal = explode('-', $range);
+        $age = array();
+        for($i=$numVal[0]+1;$i<=$numVal[1];$i++){
+            $age[] = $i;
+        }
+        
+        $conditions = array(array('cf_1718','e',decode_html(urlencode(escapeSlashes($gender)))),array('cf_3266','c',decode_html(urlencode(escapeSlashes(implode(',',$age))))));
+        $listSearchParams[] = $conditions;
+        return '&search_params='. json_encode($listSearchParams);
     }
     
     

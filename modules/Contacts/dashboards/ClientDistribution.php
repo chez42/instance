@@ -56,7 +56,7 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
         INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid".
         Users_Privileges_Model::getNonAdminAccessControlQuery('Contacts')
         ."WHERE vtiger_transactionscf.transaction_activity = 'Management fee' and 
-		(vtiger_contactscf.cf_3266 > 0 and vtiger_contactscf.cf_3266 != '' and vtiger_contactscf.cf_3266 is not NULL) AND vtiger_crmentity.deleted = 0
+		(vtiger_contactscf.cf_3266 > 0 and vtiger_contactscf.cf_3266 != '' and vtiger_contactscf.cf_3266 is not NULL) AND vtiger_crmentity.deleted = 0 ";
         
         $startDate = (isset($trade_date['start']))?$trade_date['start']:"";
         
