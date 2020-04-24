@@ -1725,6 +1725,8 @@ Vtiger_Widget_Js('Vtiger_PopulationPyramid_Widget_Js',{},{
 		maleSeries.interpolationDuration = 1000;
 		maleSeries.columns.template.tooltipText = "Males, age {categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
 		//maleSeries.sequencedInterpolation = true;
+		maleSeries.columns.template.url = '{url}';
+		maleSeries.columns.template.urlTarget = '_blank';
 		
 		
 		var femaleChart = mainContainer.createChild(am4charts.XYChart);
@@ -1757,6 +1759,8 @@ Vtiger_Widget_Js('Vtiger_PopulationPyramid_Widget_Js',{},{
 		femaleSeries.columns.template.tooltipText = "Females, age {categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
 		femaleSeries.dataFields.categoryY = "age";
 		femaleSeries.interpolationDuration = 1000;
+		femaleSeries.columns.template.url = '{url}'
+		femaleSeries.columns.template.urlTarget = '_blank'
 		
 	}
 	
