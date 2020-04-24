@@ -17,7 +17,34 @@ include_once("libraries/Stratifi/StratifiAPI.php");
 class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
-    {/**NOTE TO SELF... First auto create companies... Then auto create advisors**/
+    {
+        /**NOTE TO SELF... First auto create companies... Then auto create advisors**/
+        global $adb;
+        $query = "SELECT id, user_name, first_name, last_name, advisor_control_number
+                  FROM vtiger_users
+                  GROUP BY id";
+        $result = $adb->pquery($query, array());
+        $list = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $tmp = array();
+                $tmp['id'] = $r['id'];
+                $tmp['user_name'] = $r['user_name'];
+                $tmp['first_name'] = $r['first_name'];
+                $tmp['last_name'] = $r['last_name'];
+                $ids = explode(",", $r['advisor_control_number']);
+                foreach($ids AS $k => $v){
+                    $tmp['advisor_control_number'] = $v;
+                    $list[] = $tmp;
+                }
+            }
+        }
+        foreach($list AS $k => $v){
+            $query = "INSERT IGNORE INTO users_to_repcode (username, first_name, last_name, rep_code) VALUES (?, ?, ?, ?)";
+            $adb->pquery($query, array($v['user_name'], $v['first_name'], $v['last_name'], $v['advisor_control_number']), true);
+        }
+
+        exit;
 
         require_once('modules/PortfolioInformation/models/DailyBalances.php');
         /**
@@ -25,8 +52,10 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
          */
         PortfolioInformation_TotalBalances_Model::ConsolidateBalances();
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+    }
+}
 #        CALL ARREAR_BILLING("939489313", "2019-01-08", "2019-04-08", 1, 3, @billAmount);
-        global $adb;
+/*        global $adb;
         $current_date = date("Y-m-d");
         $query = "SELECT portfolioinformationid, account_number, periodicity, annual_fee_percentage 
                   FROM vtiger_portfolioinformation p 
@@ -57,7 +86,7 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
             }
         }
         echo 'all finished';exit;
-echo 'no loop';exit;
+        echo 'no loop';exit;
         $url = "https://veoapi.advisorservices.com/InstitutionalAPIv2/api";
 
         $users = Trading_Ameritrade_Model::GetAmeritradeUsersInformation();
@@ -116,10 +145,11 @@ echo 'no loop';exit;
             $result = $strat->UpdatePositionsToStratifi($data);
             echo "Result: ";
             print_r($result);*/
-            echo '<br /><br />';
+/*            echo '<br /><br />';
         }
         echo "Finished Everything";
 exit;
+}
 
 /*        #PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily("2019-02-06");
