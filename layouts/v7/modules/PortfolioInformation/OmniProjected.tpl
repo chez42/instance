@@ -73,7 +73,7 @@
             {/foreach}
         {/foreach}
         <tr>
-            <td colspan="3">
+            <td colspan="4">
             {foreach item=month from=$CALENDAR}
                 <td style="font-weight:bold; text-align:right;">
                     {foreach from=$monthly_total key=k item=pd}
