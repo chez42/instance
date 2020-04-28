@@ -899,6 +899,22 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 				jQuery('[name="location"]').val(tmpData.location);
 
 				jQuery('[name="description"]').val(tmpData.description);
+				
+				if(tmpData.send_mail_reminder){
+					jQuery('[name="set_reminder"]').prop('checked',true);
+				}
+				if(tmpData.send_contact_notification){
+					jQuery('[name="sendnotification"]').prop('checked',true);
+				}
+				
+				var str = tmpData.category_default;
+				var categeory = str.split(" |##| ");
+			
+				$('select[name="cf_3294[]"]').val(categeory).trigger("change");
+
+				$('select[name="activitytype"]').val(tmpData.activitytype).trigger("change");
+				
+				$('select[name="taskpriority"]').val(tmpData.taskpriority).trigger("change");
 			},
 			function(error, err){
 
