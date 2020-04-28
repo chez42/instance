@@ -235,10 +235,19 @@ Calendar_Calendar_Js('Calendar_SharedCalendar_Js', {
 		};
 	},
 
-	getDefaultCalendarView : function() {
-		return 'month';
+	getDefaultCalendarView: function () {
+		var userDefaultActivityView = this.getUserPrefered('activity_view');
+		if (userDefaultActivityView === 'Today') {
+			userDefaultActivityView = 'agendaDay';
+		} else if (userDefaultActivityView === 'This Week') {
+			userDefaultActivityView = 'agendaWeek';
+		} else if (userDefaultActivityView === 'Agenda') {
+			userDefaultActivityView = 'agendaDay';
+		} else {
+			userDefaultActivityView = 'month';
+		}
+		return userDefaultActivityView;
 	},
-
 	initializeCalendar : function() {
 		var calendarConfigs = this.getCalendarConfigs();
 		this.getCalendarViewContainer().fullCalendar(calendarConfigs);
