@@ -2,13 +2,10 @@
     <link rel="{$cssModel->getRel()}" href="{$cssModel->getHref()}" type="{$cssModel->getType()}" media="{$cssModel->getMedia()}" />
 {/foreach}
 <div id="tableofcontents">
-{*    <div id="leftside" style="float:left; width:48%;">
-        <img src='test/logo/logo.png' />
-    </div>*}
-    <div id="rightside" style="float:right; width:48%; clear:both;">
+    <div id="rightside" style="float:right;width:48%;font-family:Arial,Sans-Serif;font-size:16px;">
         <h2>Table Of Contents</h2>
     </div>
-    <div class="leftside" style="float:left; padding-top:100px; width:50%; clear:both;">
+    <div class="leftside" style="text-align:left;padding-top:100px; width:50%; clear:both;font-family:Arial,Sans-Serif;font-size:16px;">
         <table class="TableOfContentsTable" style="width:100%;">
             <tr>
                 <td colspan="2" style="border-bottom: 1px dotted black;"><h2>Section</h2></td>
@@ -22,4 +19,4 @@
         </table>
     </div>
 </div>
-<div style="page-break-after: always" />
+<div style="page-break-after: always">&nbsp;</div>	

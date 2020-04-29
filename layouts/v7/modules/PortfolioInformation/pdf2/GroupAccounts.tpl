@@ -1,8 +1,8 @@
 {if !empty($PORTFOLIO_DATA)}
-    <div id="rightside" style="float:right; width:48%; clear:both;">
+    <div id="rightside" style="float:right; width:48%; clear:both;font-family:Arial,Sans-Serif;font-size:16px;">
         <h2>Accounts Overview</h2>
     </div>
-    <div id="account_info_wrapper">
+    <div id="account_info_wrapper" style = "font-family:Arial,Sans-Serif;font-size:16px;">
         <table class="holdings_report_account_info">
             <tr>
                 <td>&nbsp;</td>
@@ -18,17 +18,12 @@
                 <td style="padding-top: 25px;">&nbsp;</td>
                 <td style="padding-top: 25px;" class="center"><strong>Account Name</strong></td>
                 <td style="padding-top: 25px;" class="center"><strong>Account Type</strong></td>
-{*                <td class="center">Contact Name</td>*}
-                <td style="padding-top: 25px;" class="right"><strong>Total Value</strong></td>
+				<td style="padding-top: 25px;" class="right"><strong>Total Value</strong></td>
             </tr>
             {foreach from=$PORTFOLIO_DATA key=k item=v}
                 <tr>
                     <td>{$v.account_number}
                     <td class="center">{$v.first_name} {$v.last_name}</td>
-{*                    <td class="center">{if $CONTACTS[$v.account_number]}
-                            {$CONTACTS[$v.account_number]->get('firstname')} {$CONTACTS[$v.account_number]->get('lastname')}
-                        {/if}
-                    </td>*}
                     <td class="center">{$v.account_type}</td>
                     <td class="right">${$v.total_value|number_format:2:".":","}</td>
                 </tr>

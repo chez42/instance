@@ -127,7 +127,7 @@
                     </table>
                 </td>
                 <td>
-                    <span style="display:block;">{$PIE_IMAGE}</span>
+                    <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 300px; width:450px;"></div>
                 </td>
             </tr>
         </table>
