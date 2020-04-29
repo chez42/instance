@@ -8,27 +8,21 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
+class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
     
     function checkPermission(Vtiger_Request $request) {
-        return;
+        return true;
     }
-	
-	function __construct() {
-		parent::__construct();
-		$this->exposeMethod('GHReport');
-	}
     
     public function process(Vtiger_Request $request) {
-
+        
         global $adb,$site_URL;
-		set_time_limit(20);
+        
         $reports = $request->get('reportselect');
-		if(!empty($reports)) {
-			$this->invokeExposedMethod($reports, $request);
-			return;
-		}
-       
+        
+        $this->$reports($request);
+        
+        exit;
         
     }
     
@@ -48,6 +42,15 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 		
 		echo"<pre>";print_r($fileDir);echo"</pre>";exit;
 		
+    }
+	
+	function GenerateTableCategories($merged_transaction_types){
+        $table = array();
+        foreach($merged_transaction_types AS $k => $v){
+            $vals = array_unique($v);
+            $table[$k] = $vals;
+        }
+        return $table;
     }
 	
     function OmniOverview(Vtiger_Request $request){
@@ -147,7 +150,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("T12BALANCES", json_encode($t12_balances));
 				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
 				$viewer->assign("CALLING_RECORD", $calling_record);
-
+				$viewer->assign("SITEURL", $site_URL);
+				
 				$ispdf = $request->get('pdf');
 
 				$moduleName = $request->getModule();
@@ -194,11 +198,98 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniOverviewPDF.tpl', $moduleName);
+				$pdf_content .= '<div class="graph_image" style="width:240mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
+					<div id="dynamic_chart_holder" class="dynamic_chart_holder" style="display:block; height: 300px; width:65%; float:right;"></div>
+				</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/IndividualPerformance.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+				$pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display:block; margin-left:auto; margin-right:auto;">
+					<p>Asset Allocation</p>
+					<div id="dynamic_pie_holder" class="dynamic_pie_holder" style="display:block; height: 300px; width:35%; float:left;"></div>
+				</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+				<script type="text/javascript">';
+				if(!empty($t12_balances)){
+					$pdf_content .= 'createGraph();';
+				}
+				if(!empty($holdings_pie)){
+					$pdf_content .= 'createPie();';
+				}
+				$pdf_content .= 'function createPie() {
+						var self = this;
+						am4core.options.commercialLicense = true;
+						var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+						var chartData = $.parseJSON($("#holdings_values").val());
+
+						chart.data = chartData;
+
+						var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+						pieSeries.slices.template.stroke = am4core.color("#555354");
+						pieSeries.dataFields.value = "value";
+						pieSeries.dataFields.category = "title";
+						chart.fontSize = 16;
+
+						pieSeries.slices.template.strokeWidth = 2;
+						pieSeries.slices.template.strokeOpacity = 1;
+
+						var colorSet = new am4core.ColorSet();
+						var colors = [];
+						$.each(chartData,function(){
+							var element = jQuery(this);
+							colors.push(element["0"].color);
+						});
+
+						colorSet.list = colors.map(function(color) {
+							return new am4core.color(color);
+						});
+						pieSeries.colors = colorSet;
+
+					}
+
+					function createGraph() {
+						var self = this;
+						am4core.options.commercialLicense = true;
+						var chart = am4core.create("dynamic_chart_holder", am4charts.XYChart);
+						var chartData = $.parseJSON($("#t12_balances").val());
+
+						chart.data = chartData;
+
+						var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+						categoryAxis.renderer.grid.template.location = 0;
+						categoryAxis.dataFields.category = "intervalenddateformatted";
+						categoryAxis.renderer.minGridDistance = 40;
+						categoryAxis.fontSize = 11;
+
+
+						var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+						valueAxis.min = 0;
+				
+						valueAxis.renderer.minGridDistance = 30;
+
+				
+						var series = chart.series.push(new am4charts.ColumnSeries());
+						series.dataFields.categoryX = "intervalenddateformatted";
+						series.dataFields.valueY = "intervalendvalue";
+						series.columns.template.tooltipText = "${valueY.value}";
+						series.columns.template.tooltipY = 0;
+						series.columns.template.strokeOpacity = 0;
+
+				
+						series.columns.template.adapter.add("fill", function(fill, target) {
+							return chart.colors.getIndex(target.dataItem.index);
+						});
+
+						self.graphInfo = chart;
+					}
+				</script>';
 				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
@@ -221,12 +312,12 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-
-				echo "wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1';
+				
 				//unlink($bodyFileName);
 				
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 		
 		}
 		$this->GeneratePDF($fileDir);
@@ -405,7 +496,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 			$viewer->assign("TRAILING_AUM", json_encode($trailing_aum));
 			$viewer->assign("TRAILING_REVENUE", json_encode($trailing_revenue));
 			$viewer->assign("RANDOM", rand(1,100000));
-
+			$viewer->assign("SITEURL", $site_URL);
+			
 			$logo = $current_user->getImageDetails();
 			if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
 				if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
@@ -507,7 +599,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("COMPARISON_TABLE", $comparison_table);
 				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
 				$viewer->assign("CALLING_RECORD", $calling_record);
-
+				$viewer->assign("SITEURL", $site_URL);
 				$current_user = Users_Record_Model::getCurrentUserModel();
 				$logo = $current_user->getImageDetails();
 				if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
@@ -523,16 +615,16 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 					$logo = "test/logo/Omniscient Logo small.png";
 				$viewer->assign("LOGO", $logo);
 
-				$pdf_content  = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
+				$pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 
-				$stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GainLoss.css');
 
 				if (!is_dir($fileDir)) {
@@ -553,8 +645,9 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				//unlink($bodyFileName);
 		
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 			
 		}
 		
@@ -571,9 +664,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 		
 		$moduleName = $request->getModule();
         $recordIds = $this->getRecordsListFromRequest($request);
-   
-		$fileDir = 'cache/'.$request->get('reportselect');
-		
+        
+		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
 		foreach($recordIds as $recordId){
@@ -581,9 +673,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
             
 			global $adb, $dbconfig, $root_directory, $site_URL;
-			
 			$db_name = $dbconfig['db_name'];
-			
 			$custodianDB = $dbconfig['custodianDB'];
 			
 			$query = "CALL TD_PRICING_TO_INDEX(?, ?);";
@@ -707,7 +797,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 					$viewer->assign("PREPARED_BY", $prepared_by);
 				}
 				
-		
+				$ispdf = $request->get('pdf');
 				$logo = $current_user->getImageDetails();
 				
 				if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
@@ -776,17 +866,13 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				echo "wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1';
-				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				//unlink($bodyFileName);
-				echo "rere";
 				
-                    
-				
-			} else
+			} else{
 				continue;
+			}
 		
 		}
 		
@@ -918,7 +1004,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("END_DATE", $end_date);
 				$viewer->assign("PREPARE_DATE", $prepare_date);
 				$viewer->assign("ACCOUNTS", $accounts);
-
+				$viewer->assign("SITEURL", $site_URL);
 
 				if($calling_record) {
 					$prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
@@ -982,12 +1068,12 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 			
-				$stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css');
+				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GHReportPDF.css');
 
 				if (!is_dir($fileDir)) {
 					mkdir($fileDir);
@@ -1002,16 +1088,14 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				fclose($fb);
 				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-				echo "rere";
-				exit;
+				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				//unlink($bodyFileName);
 				
-			} else {
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
 			}
-			echo "rere";
 		}
 		
 		$this->GeneratePDF($fileDir);
@@ -1131,7 +1215,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("SHOW_END_DATE", 1);
 				$viewer->assign("START_DATE", $start_date);
 				$viewer->assign("END_DATE", $end_date);
-
+				$viewer->assign("SITEURL", $site_URL);
+				
 				if($calling_record) {
 					$prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
 					$prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
@@ -1199,11 +1284,11 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
-				$stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
 
 				if (!is_dir($fileDir)) {
 					mkdir($fileDir);
@@ -1223,10 +1308,13 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				//unlink($bodyFileName);
 			
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 		}
+		
 		$this->GeneratePDF($fileDir);
+		
     }
     
     function GHXReport(Vtiger_Request $request){
@@ -1335,7 +1423,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("START_DATE", $start_date . '-01T08:05:00');
 				$viewer->assign("END_DATE", $end_date . '-01T08:05:00');
 				$viewer->assign("SELECTED_INDEXES", $selected_indexes);
-
+				$viewer->assign("SITEURL", $site_URL);
 
 				if($calling_record) {
 					$prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
@@ -1404,12 +1492,12 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
-				$stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHXReportPDF.css');
+				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GHXReportPDF.css');
 
 				if (!is_dir($fileDir)) {
 					mkdir($fileDir);
@@ -1429,8 +1517,9 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				//unlink($bodyFileName);
 				
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 			
 		}
 		
@@ -1487,7 +1576,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("DYNAMIC_GRAPH", json_encode($graph));
 				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
 				$viewer->assign("CALLING_RECORD", $calling_record);
-
+				$viewer->assign("SITEURL", $site_URL);
+				
 				$ispdf = $request->get('pdf');
 				
                 $current_user = Users_Record_Model::getCurrentUserModel();
@@ -1556,8 +1646,9 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				//unlink($bodyFileName);
 				
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 			
 		}
 		
@@ -1622,7 +1713,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("GRAND_TOTAL", $projected->GetGrandTotal());
 				$viewer->assign("CALENDAR", $calendar);
 				$viewer->assign("CALLING_RECORD", $calling_record);
-
+				$viewer->assign("SITEURL", $site_URL);
+				
 				$ispdf = $request->get('pdf');
 
 				$current_user = Users_Record_Model::getCurrentUserModel();
@@ -1691,11 +1783,10 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				
 				//unlink($bodyFileName);
 				
-			} else
-				return "<div class='ReportBottom'></div>";
-			
-			
-			
+			} else{
+				continue;
+			}
+				
 		}
 		$this->GeneratePDF($fileDir);
 	   
@@ -1747,7 +1838,8 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$viewer->assign("DYNAMIC_GRAPH", json_encode($graph));
 				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
 				$viewer->assign("CALLING_RECORD", $calling_record);
-
+				$viewer->assign("SITEURL", $site_URL);
+				
 				$ispdf = $request->get('pdf');
 
 				$current_user = Users_Record_Model::getCurrentUserModel();
@@ -1787,16 +1879,16 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 					$logo = "test/logo/Omniscient Logo small.png";
 				$viewer->assign("LOGO", $logo);
 
-				$pdf_content = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/OmniIncomePDF.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+				$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniIncomePDF.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
-				$stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-				$stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/IncomePDF.css');
+				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/IncomePDF.css');
 
 				if (!is_dir($fileDir)) {
 					mkdir($fileDir);
@@ -1815,8 +1907,9 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				//unlink($bodyFileName);
-			} else
-				return "<div class='ReportBottom'></div>";
+			} else{
+				continue;
+			}
 			
 		}
 		$this->GeneratePDF($fileDir);
@@ -1981,6 +2074,7 @@ class PortfolioInformation_ReportPdf2_Action extends Vtiger_Mass_Action {
 			$viewer->assign("PREPARED_FOR", $prepared_for);
 			$viewer->assign("PREPARED_BY", $prepared_by);
 			$viewer->assign("MODULE", "PortfolioInformation");
+			$viewer->assign("SITEURL", $site_URL);
 
 			$viewer->assign("RANDOM", rand(1,100000));
 
