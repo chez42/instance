@@ -13,16 +13,44 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
     function checkPermission(Vtiger_Request $request) {
         return true;
     }
+	
+	function __construct() {
+		
+		parent::__construct();
+		
+		$this->exposeMethod('GHReport');
+		$this->exposeMethod('OmniOverview');
+		$this->exposeMethod('AssetClassReport');
+		$this->exposeMethod('GainLoss');
+		
+		$this->exposeMethod('GHReportActual');
+		$this->exposeMethod('GH2Report');
+		$this->exposeMethod('GHXReport');
+		$this->exposeMethod('LastYearIncome');
+		$this->exposeMethod('OmniProjected');
+		$this->exposeMethod('OmniIncome');
+		$this->exposeMethod('MonthOverMonth');
+	}
     
     public function process(Vtiger_Request $request) {
         
-        global $adb,$site_URL;
+        global $adb, $site_URL, $current_user;
         
-        $reports = $request->get('reportselect');
+		//$recordIds = $this->getRecordsListFromRequest($request);
         
-        $this->$reports($request);
+        //if(count($recordIds)<=1){
         
-        exit;
+		$report = $request->get('reportselect');
+		
+		$this->invokeExposedMethod($report, $request);
+            
+        //}else{
+            
+            //$adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
+                //(user_id, user_email, params) VALUES (?, ?, ?)",
+                //array($current_user->id, $current_user->email1, json_encode($_REQUEST)));
+            
+        //}
         
     }
     
@@ -40,9 +68,32 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
     
 	public function GeneratePDF($fileDir){
 		
-		echo"<pre>";print_r($fileDir);echo"</pre>";exit;
+		$zipname  = 'cache/'.strtotime('now').'.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipname, ZipArchive::CREATE);
+        foreach ($fileDir as $file) {
+            if(filetype($file) == 'file') {
+                if(file_exists($file)) {
+                    $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
+                }
+            }
+        }
+        $zip->close();
+        while(ob_get_level()) {
+            ob_end_clean();
+        }
+        header('Content-Type: application/zip');
+        header('Content-disposition: attachment; filename='.basename($zipname));
+        readfile($zipname);
+		
+		foreach ($fileDir as $file) {
+			unlink($file);	
+		}
+		
+        unlink($zipname);
 		
     }
+	
 	
 	function GenerateTableCategories($merged_transaction_types){
         $table = array();
@@ -66,6 +117,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -198,16 +251,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniOverviewPDF.tpl', $moduleName);
-				$pdf_content .= '<div class="graph_image" style="width:240mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
-					<div id="dynamic_chart_holder" class="dynamic_chart_holder" style="display:block; height: 300px; width:65%; float:right;"></div>
-				</div>';
+				$pdf_content .= '<div id="dynamic_chart_holder" class="dynamic_chart_holder" style = "width:1000px;height:300px;margin-top:20px;"></div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/IndividualPerformance.tpl', $moduleName);
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/IndividualPerformance.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-				$pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display:block; margin-left:auto; margin-right:auto;">
-					<p>Asset Allocation</p>
-					<div id="dynamic_pie_holder" class="dynamic_pie_holder" style="display:block; height: 300px; width:35%; float:left;"></div>
-				</div>';
+				$pdf_content .= '<div class="pie_image" style="width:1000px;height:500px;">
+			<p style="font-size:18px; font-family:Arial, Sans-Serif;">Asset Allocation</p>
+			<div id="dynamic_pie_holder" class="dynamic_pie_holder" style = "width:800px;height:400px;margin-top:20mm;"></div>
+		</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
@@ -287,7 +338,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 							return chart.colors.getIndex(target.dataItem.index);
 						});
 
-						self.graphInfo = chart;
+						
 					}
 				</script>';
 				
@@ -313,14 +364,16 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
 			}
 		
 		}
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 
     }
     
@@ -335,6 +388,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -522,6 +577,48 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 			$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 			
+			$pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+			<script type="text/javascript">';
+			
+			if(!empty($estimatePie)){
+				$pdf_content .= 'CreatePieWithDetails("dynamic_pie_holder", "estimate_pie_values");';
+			}
+			
+			$pdf_content .= 'function CreatePieWithDetails(holder, value_source, showLegend){
+					if($("#"+holder).length == 0)
+						return;
+
+					var chart;
+					var legend;
+
+					var chartData = $.parseJSON($("#"+value_source).val());
+
+					chart = new AmCharts.AmPieChart();
+					
+					chart.dataProvider = chartData;
+					chart.titleField = "title";
+					chart.valueField = "value";
+					chart.colorField = "color";
+					{*chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};*}
+					chart.labelRadius = -30;
+					chart.radius = 125;
+					chart.labelText = "[[percents]]%";
+					chart.textColor= "#FFFFFF";
+					chart.color = "#FFFFFF";
+					chart.depth3D = 14;
+					chart.angle = 25;
+					chart.outlineColor = "#363942";
+					chart.outlineAlpha = 0.8;
+					chart.outlineThickness = 1;
+					chart.colors = ["#8383ff","#aade98","#eab378","#9bc9ce","#eddb92","#c8c8fa","#bfe1c3","#dadbb9","#e8cf84","#84b3e8","#d8adec"];
+					chart.startDuration = 0;
+
+					chart.write(holder);
+				}
+			</script>';
+			
 			$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
 			$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 			$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
@@ -545,10 +642,13 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 			
-			//unlink($bodyFileName);
+			unlink($bodyFileName);
+			
+			$filePath[] = $whtmltopdfPath;
+			
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     
@@ -562,6 +662,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
+
+		$filePath = array();
 
 		foreach($recordIds as $recordId){
 			
@@ -643,15 +745,17 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
 		
+				$filePath[] = $whtmltopdfPath;
+				
 			} else{
 				continue;
 			}
 			
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 
     }
     
@@ -668,6 +772,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -845,6 +951,47 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
+				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($new_pie)){
+				
+					$pdf_content .= ' am4core.options.commercialLicense = true;
+					var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+					var chartData = $.parseJSON($("#holdings_values").val());
+
+					chart.data = chartData;
+
+					var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+					pieSeries.slices.template.stroke = am4core.color("#555354");
+					pieSeries.dataFields.value = "value";
+					pieSeries.dataFields.category = "title";
+					pieSeries.fontSize = 14;
+
+					pieSeries.slices.template.strokeWidth = 2;
+					pieSeries.slices.template.strokeOpacity = 1;
+
+					var colorSet = new am4core.ColorSet();
+					var colors = [];
+					$.each(chartData,function(){
+						var element = jQuery(this);
+						colors.push(element["0"].color);
+					});
+
+					colorSet.list = colors.map(function(color) {
+						return new am4core.color(color);
+					});
+					pieSeries.colors = colorSet;';
+
+				}
+				
+				$pdf_content .= '</script>';
+				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
@@ -868,7 +1015,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
@@ -876,7 +1025,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
         
     }
     
@@ -892,6 +1041,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
+
+		$filePath = array();
 
 		foreach($recordIds as $recordId){
 			
@@ -1068,6 +1219,47 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 			
+				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($new_pie)){
+				
+					$pdf_content .= ' am4core.options.commercialLicense = true;
+					var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+					var chartData = $.parseJSON($("#holdings_values").val());
+
+					chart.data = chartData;
+
+					var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+					pieSeries.slices.template.stroke = am4core.color("#555354");
+					pieSeries.dataFields.value = "value";
+					pieSeries.dataFields.category = "title";
+					pieSeries.fontSize = 14;
+
+					pieSeries.slices.template.strokeWidth = 2;
+					pieSeries.slices.template.strokeOpacity = 1;
+
+					var colorSet = new am4core.ColorSet();
+					var colors = [];
+					$.each(chartData,function(){
+						var element = jQuery(this);
+						colors.push(element["0"].color);
+					});
+
+					colorSet.list = colors.map(function(color) {
+						return new am4core.color(color);
+					});
+					pieSeries.colors = colorSet;';
+
+				}
+				
+				$pdf_content .= '</script>';
+				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
@@ -1091,14 +1283,16 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
 			}
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
     }
     
     function GH2Report(Vtiger_Request $request){
@@ -1115,6 +1309,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -1284,6 +1480,103 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
+				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($new_pie)){	
+					$pdf_content .= 'ValuePieChart();';
+				}
+				
+				if(!empty($sector_pie)){
+					$pdf_content .= 'AssetPieChart();';
+				}
+				
+					
+				$pdf_content .= 'function ValuePieChart(){
+						var self = this;
+						am4core.options.commercialLicense = true;
+						var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+						var chartData = $.parseJSON($("#holdings_values").val());
+
+						chart.data = chartData;
+
+						var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+						pieSeries.slices.template.stroke = am4core.color("#555354");
+						pieSeries.dataFields.value = "value";
+						pieSeries.dataFields.category = "title";
+						pieSeries.fontSize = 14;
+
+						pieSeries.slices.template.strokeWidth = 2;
+						pieSeries.slices.template.strokeOpacity = 1;
+
+						pieSeries.labels.horizontalCenter = "middle";
+						pieSeries.labels.verticalCenter = "middle";
+
+						pieSeries.labels.template.disabled = true;
+
+						pieSeries.ticks.template.disabled = true;
+
+						var colorSet = new am4core.ColorSet();
+						var colors = [];
+						$.each(chartData,function(){
+							var element = jQuery(this);
+							colors.push(element["0"].color);
+						});
+
+						colorSet.list = colors.map(function(color) {
+							return new am4core.color(color);
+						});
+						pieSeries.colors = colorSet;
+						
+					}
+
+					function AssetPieChart(){
+						var self = this;
+						am4core.options.commercialLicense = true;
+						var chart = am4core.create("sector_pie_holder", am4charts.PieChart3D);
+						var chartData = $.parseJSON($("#sector_values").val());
+
+						chart.data = chartData;
+
+						chart.depth = 10;
+						chart.angle = 10;
+
+						var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+						pieSeries.slices.template.stroke = am4core.color("#555354");
+						pieSeries.dataFields.value = "value";
+						pieSeries.dataFields.category = "title";
+						pieSeries.fontSize = 14;
+
+						pieSeries.slices.template.strokeWidth = 2;
+						pieSeries.slices.template.strokeOpacity = 1;
+
+						pieSeries.labels.horizontalCenter = "middle";
+						pieSeries.labels.verticalCenter = "middle";
+
+						pieSeries.labels.template.disabled = true;
+
+						pieSeries.ticks.template.disabled = true;
+
+						var colorSet = new am4core.ColorSet();
+						var colors = [];
+						$.each(chartData,function(){
+							var element = jQuery(this);
+							colors.push(element["0"].color);
+						});
+
+						colorSet.list = colors.map(function(color) {
+							return new am4core.color(color);
+						});
+						pieSeries.colors = colorSet;
+
+					}
+				</script>';
+				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
@@ -1306,14 +1599,16 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
 			
+				$filePath[] = $whtmltopdfPath;
+				
 			} else{
 				continue;
 			}
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     
@@ -1330,6 +1625,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+			
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -1402,8 +1699,6 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
 				$viewer = $this->getViewer($request);
 
-				$viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
-				$viewer->assign('STYLES', self::getHeaderCss($request));
 				$viewer->assign("ORIENTATION", $orientation);
 				$viewer->assign("YTDPERFORMANCE", $ytd_performance);
 				$viewer->assign("HOLDINGSPIEVALUES", json_encode($new_pie));
@@ -1492,6 +1787,47 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				
+				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($new_pie)){
+				
+					$pdf_content .= '  am4core.options.commercialLicense = true;
+					var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+					var chartData = $.parseJSON($("#holdings_values").val());
+
+					chart.data = chartData;
+
+					var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+					pieSeries.slices.template.stroke = am4core.color("#555354");
+					pieSeries.dataFields.value = "value";
+					pieSeries.dataFields.category = "title";
+					pieSeries.fontSize = 14;
+
+					pieSeries.slices.template.strokeWidth = 2;
+					pieSeries.slices.template.strokeOpacity = 1;
+
+					var colorSet = new am4core.ColorSet();
+					var colors = [];
+					$.each(chartData,function(){
+						var element = jQuery(this);
+						colors.push(element["0"].color);
+					});
+
+					colorSet.list = colors.map(function(color) {
+						return new am4core.color(color);
+					});
+					pieSeries.colors = colorSet;';
+
+				}
+				
+				$pdf_content .= '</script>';
+				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
@@ -1515,7 +1851,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
@@ -1523,7 +1861,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     
@@ -1538,6 +1876,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -1619,11 +1959,64 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+				$pdf_content .= '<div class="graph_image" style="width:220mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
+					<div id="dynamic_chart_holder" class="dynamic_chart_holder" style="display:block; width:100%; height:300px;"></div>
+				</div>';
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/LastYearIncomePDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
                
+				$pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/serial.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($graph)){
+					$pdf_content .= 'CreateGraph("dynamic_chart_holder", "estimate_graph_values", "category", "value");';
+				}
+				
+				$pdf_content .= 'function CreateGraph(holder, value_source, category_field, value_field){
+					if($("#"+holder).length == 0)
+						return;
+
+					var chart;
+					var chartData = $.parseJSON($("#"+value_source).val());
+
+					chart = new AmCharts.AmSerialChart();
+
+					chart.dataProvider = chartData;
+					chart.categoryField = category_field;
+					chart.marginTop = 25;
+					chart.marginBottom = 80;
+					chart.marginLeft = 50;
+					chart.marginRight = 100;
+					chart.startDuration = 1;
+
+					var valueAxis = new AmCharts.ValueAxis();
+					valueAxis.minimum = 0;
+					chart.addValueAxis(valueAxis);
+
+					var graph = new AmCharts.AmGraph();
+					graph.valueField = value_field;
+					graph.balloonText="[[category]]: $[[value]]";
+					graph.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+					graph.type = "column";
+					graph.lineAlpha = 0;
+					graph.fillAlphas = 1;
+					graph.fillColors = "#02B90E";
+					chart.addGraph(graph);
+					chart.angle = 30;
+					chart.depth3D = 10;
+
+					var catAxis = chart.categoryAxis;
+					catAxis.gridPosition = "start";
+					catAxis.gridCount = chartData.length;
+					catAxis.labelRotation = 90;
+					chart.write(holder);
+				}
+				</script>';
+			   
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/IncomePDF.css');
@@ -1644,7 +2037,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
@@ -1652,7 +2047,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     
@@ -1667,6 +2062,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -1756,10 +2153,63 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 				$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+				$pdf_content .= '<div class="graph_image" style="width:220mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
+					<div id="dynamic_chart_holder" class="dynamic_chart_holder" style="display:block; width:100%; height:300px;"></div>
+				</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniProjectedPDF.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+				
+				$pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/serial.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($graph)){
+					$pdf_content .= 'CreateGraph("dynamic_chart_holder", "estimate_graph_values", "category", "value");';
+				}
+				
+				$pdf_content .= 'function CreateGraph(holder, value_source, category_field, value_field){
+					if($("#"+holder).length == 0)
+						return;
+
+					var chart;
+					var chartData = $.parseJSON($("#"+value_source).val());
+
+					chart = new AmCharts.AmSerialChart();
+
+					chart.dataProvider = chartData;
+					chart.categoryField = category_field;
+					chart.marginTop = 25;
+					chart.marginBottom = 80;
+					chart.marginLeft = 50;
+					chart.marginRight = 100;
+					chart.startDuration = 1;
+
+					var valueAxis = new AmCharts.ValueAxis();
+					valueAxis.minimum = 0;
+					chart.addValueAxis(valueAxis);
+
+					var graph = new AmCharts.AmGraph();
+					graph.valueField = value_field;
+					graph.balloonText="[[category]]: $[[value]]";
+					graph.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+					graph.type = "column";
+					graph.lineAlpha = 0;
+					graph.fillAlphas = 1;
+					graph.fillColors = "#02B90E";
+					chart.addGraph(graph);
+					chart.angle = 30;
+					chart.depth3D = 10;
+
+					var catAxis = chart.categoryAxis;
+					catAxis.gridPosition = "start";
+					catAxis.gridCount = chartData.length;
+					catAxis.labelRotation = 90;
+					chart.write(holder);
+				}
+				</script>';
 				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
@@ -1781,14 +2231,16 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
 				
 			} else{
 				continue;
 			}
 				
 		}
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 	   
     }
     
@@ -1802,7 +2254,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
-
+		
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -1881,10 +2335,64 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 				$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+				 $pdf_content .= '<div class="graph_image" style="width:220mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
+					<div id="dynamic_chart_holder" class="dynamic_chart_holder" style="display:block; width:100%; height:300px;"></div>
+				</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniIncomePDF.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+				
+				
+				$pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+				<script src="'.$site_URL.'libraries/amcharts/amcharts/serial.js"></script>
+				<script type="text/javascript">';
+				
+				if(!empty($graph)){
+					$pdf_content .= 'CreateGraph("dynamic_chart_holder", "estimate_graph_values", "category", "value");';
+				}
+				
+				$pdf_content .= 'function CreateGraph(holder, value_source, category_field, value_field){
+					if($("#"+holder).length == 0)
+						return;
+
+					var chart;
+					var chartData = $.parseJSON($("#"+value_source).val());
+
+					chart = new AmCharts.AmSerialChart();
+
+					chart.dataProvider = chartData;
+					chart.categoryField = category_field;
+					chart.marginTop = 25;
+					chart.marginBottom = 80;
+					chart.marginLeft = 50;
+					chart.marginRight = 100;
+					chart.startDuration = 1;
+
+					var valueAxis = new AmCharts.ValueAxis();
+					valueAxis.minimum = 0;
+					chart.addValueAxis(valueAxis);
+
+					var graph = new AmCharts.AmGraph();
+					graph.valueField = value_field;
+					graph.balloonText="[[category]]: $[[value]]";
+					graph.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
+					graph.type = "column";
+					graph.lineAlpha = 0;
+					graph.fillAlphas = 1;
+					graph.fillColors = "#02B90E";
+					chart.addGraph(graph);
+					chart.angle = 30;
+					chart.depth3D = 10;
+
+					var catAxis = chart.categoryAxis;
+					catAxis.gridPosition = "start";
+					catAxis.gridCount = chartData.length;
+					catAxis.labelRotation = 90;
+					chart.write(holder);
+				}
+				</script>';
 				
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
 				$stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
@@ -1906,13 +2414,16 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
-				//unlink($bodyFileName);
+				unlink($bodyFileName);
+				
+				$filePath[] = $whtmltopdfPath;
+				
 			} else{
 				continue;
 			}
 			
 		}
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     
@@ -1963,7 +2474,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
-
+			
+		$filePath = array();
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
@@ -2120,10 +2633,13 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 			
-			//unlink($bodyFileName);
+			unlink($bodyFileName);
+			
+			$filePath[] = $whtmltopdfPath;
+			
 		}
 		
-		$this->GeneratePDF($fileDir);
+		$this->GeneratePDF($filePath);
 		
     }
     

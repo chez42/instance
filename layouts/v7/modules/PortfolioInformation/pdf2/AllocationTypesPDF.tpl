@@ -60,8 +60,3 @@
     </table>
 *}
 </div>
-{if $HOLDINGSSECTORPIESTRING neq ''}
-	<script type="text/javascript">
-		AssetPieChart();
-	</script>
-{/if}

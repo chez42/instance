@@ -12,13 +12,13 @@ Vtiger_List_Js("PortfolioInformation_List_Js", {
 	triggerReportPdf : function(url) {
     	var listInstance = window.app.controller();
 		
-		if(!app.getAdminUser()){
+		//if(!app.getAdminUser()){
 			var selectedRecordCount = listInstance.getSelectedRecordCount();
-			if (selectedRecordCount > 500) {
-				app.helper.showErrorNotification({message: app.vtranslate('JS_MASS_EDIT_LIMIT')});
+			if (selectedRecordCount > 5) {
+				app.helper.showErrorNotification({message: app.vtranslate('Please select Max 5 records')});
 				return;
 			}
-		}
+		//}
 		
 		var params = listInstance.getListSelectAllParams(true);
 		if (params) {

@@ -1,3 +1,4 @@
+<div style = "clear:both;"></div>
 {assign var = "t3_performance_summed" value = $T3PERFORMANCE->GetPerformanceSummed()}
 {assign var = "t6_performance_summed" value = $T6PERFORMANCE->GetPerformanceSummed()}
 {assign var = "t12_performance_summed" value = $T12PERFORMANCE->GetPerformanceSummed()}
@@ -8,20 +9,19 @@
 
 <input type="hidden" value='{$HOLDINGSPIEVALUES}' id="holdings_values" class="holdings_values" />
 <input type="hidden" id="t12_balances" class="t12_balances" value='{$T12BALANCES}' />
-
 <input type="hidden" value='{$DYNAMIC_PIE}' id="estimate_pie_values" />
 
 {if $MARGIN_BALANCE neq 0}
-    <p>Margin Balance: <span style="{if $MARGIN_BALANCE lt 0}color:red;{else}color:green;{/if}">${$MARGIN_BALANCE|number_format:2}</span></p>
+    <p style = "font-family:Arial,Sans-Serif;font-size:14px;">Margin Balance: <span style="{if $MARGIN_BALANCE lt 0}color:red;{else}color:green;{/if}">${$MARGIN_BALANCE|number_format:2}</span></p>
 {/if}
 {if $NET_CREDIT_DEBIT neq 0}
-    <p>Net Credit Debit: <span style="{if $NET_CREDIT_DEBIT lt 0}color:red;{else}color:green;{/if}">${$NET_CREDIT_DEBIT|number_format:2}</span></p>
+    <p style = "font-family:Arial,Sans-Serif;font-size:14px;">Net Credit Debit: <span style="{if $NET_CREDIT_DEBIT lt 0}color:red;{else}color:green;{/if}">${$NET_CREDIT_DEBIT|number_format:2}</span></p>
 {/if}
 {if $UNSETTLED_CASH neq 0}
-    <p>Unsettled Cash: <span style="{if $UNSETTLED_CASH lt 0}color:red;{else}color:green;{/if}">${$UNSETTLED_CASH|number_format:2}</span></p>
+    <p style = "font-family:Arial,Sans-Serif;font-size:14px;">Unsettled Cash: <span style="{if $UNSETTLED_CASH lt 0}color:red;{else}color:green;{/if}">${$UNSETTLED_CASH|number_format:2}</span></p>
 {/if}
 
-<table id="overview_performance" class="collap_performance table table-bordered" style="width:100%; display:block;">
+<table style="width:100%; font-family:Arial,Sans-Serif;font-size:16px;" cellpadding = "5">
     <thead>
     <tr>
         <th style="font-weight:bold; vertical-align:top; text-align:left; font-size:16px; text-decoration:underline;"></th>

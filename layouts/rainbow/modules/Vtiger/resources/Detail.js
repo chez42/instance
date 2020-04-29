@@ -2001,7 +2001,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					detailViewElement.removeClass('hide');
 					currentTarget.show();
 				} else {
-					var activityDiv = currentDiv.closest('.activityEntries');
+					var activityDiv = currentDiv.closest('.activities');
 					var activityId = activityDiv.find('.activityId').val();
 					var moduleName = activityDiv.find('.activityModule').val();
 					var activityType = activityDiv.find('.activityType').val();
@@ -2018,7 +2018,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 						calendarModule : moduleName,
 						origin : 'SummaryWidget'
 					};
-
+					
 					app.request.post({"data":params}).then(
 						function(err,data) {
 							currentTarget.closest('.summaryWidgetContainer').waitMe('hide');
