@@ -5,7 +5,7 @@
 {assign var='DYNACATEGORIES' value=$DYNATABLE['table_categories']}
 {assign var='DYNATOTALS' value=$DYNATABLE['TableTotals']}
 
-<table class="DynaTable">
+<table class="DynaTable" style = "font-family:Arial,Sans-Serif;font-size:16px;">
     <thead>
     <tr>
         {foreach from=$DYNAHEADINGS key=k item=heading}

@@ -54,9 +54,21 @@
 											{assign var=MODULE value=$MODULE_NAME}
 											{/if}
 												
-												
-
-											{if vimage_path($MODULE_NAME|cat:'.png') != false}
+											{if $MODULE_NAME eq 'PortfolioInformation'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-line-chart" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'Connection'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-users" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'ModComments'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-comments-o" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'RingCentral'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-phone-square" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'Task'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-tasks" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'Timecontrol'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-hourglass" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'EmailTemplates' || $moduleName eq 'CalendarTemplate'}
+												<i style="line-height: 28px;font-size: 20px;" class="fa fa-fast-forward" aria-hidden="true"></i>
+											{else if vimage_path($MODULE_NAME|cat:'.png') != false}
 												
 												<i class="ti-{strtolower($MODULE_LABEL)} alignMiddle" alt="{$MODULE_LABEL}" title="{$MODULE_LABEL}" ></i>
 											{else}

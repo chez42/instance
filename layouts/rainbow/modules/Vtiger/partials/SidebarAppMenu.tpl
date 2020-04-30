@@ -136,7 +136,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($TASK_MODULE_MODEL->getId())}
 							<li class="{if $MODULE eq "Task"}active{/if}"> 
 								<a class=" waves-effect waves-dark" href="index.php?module=Task&view=List" >
-									<i class="app-icon-list">{$TASK_MODULE_MODEL->getModuleIcon()}</i>
+									<i class="fa fa-tasks" aria-hidden="true"></i>
 									<span class="hide-menu"> {vtranslate('Task')}</span>
 								</a>
                         	</li>
@@ -145,7 +145,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($COMMENTS_MODULE_MODEL->getId())}
 							<li class="{if $MODULE eq "ModComments"}active{/if}"> 
 								<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" >
-									<i class="app-icon-list fa fa-comment"></i>
+									<i class="fa fa-comments-o" aria-hidden="true"></i>
 									<span class="hide-menu"> {vtranslate('ModComments')}</span>
 								</a>
                         	</li>
@@ -323,7 +323,7 @@
 					{if $EMAILTEMPLATES_MODULE_MODEL && $USER_PRIVILEGES_MODEL->hasModulePermission($EMAILTEMPLATES_MODULE_MODEL->getId())}
 						<li>
 							<a href="{$EMAILTEMPLATES_MODULE_MODEL->getDefaultUrl()}">
-								<span class="module-icon"><i class="material-icons">email</i></span>
+								<span class="module-icon"><i class="fa fa-fast-forward" aria-hidden="true"></i></span>
 								<span class="module-name textOverflowEllipsis"> {vtranslate($EMAILTEMPLATES_MODULE_MODEL->getName(), $EMAILTEMPLATES_MODULE_MODEL->getName())}</span>
 							</a>
 						</li>

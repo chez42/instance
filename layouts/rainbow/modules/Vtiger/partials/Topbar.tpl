@@ -136,7 +136,7 @@
 								{if $USER_PRIVILEGES_MODEL->hasModulePermission($TASK_MODULE_MODEL->getId())}
 									<li class="{if $MODULE eq "Task"}active{/if}"> 
 										<a class=" waves-effect waves-dark" href="index.php?module=Task&view=List" >
-											<i class="app-icon-list ">{$TASK_MODULE_MODEL->getModuleIcon()}</i>
+											<i class="fa fa-tasks" aria-hidden="true"></i>
 											<span class="hide-menu"> {vtranslate('Task')}</span>
 										</a>
 									</li>
@@ -147,7 +147,7 @@
 								{if $USER_PRIVILEGES_MODEL->hasModulePermission($COMMENTS_MODULE_MODEL->getId())}
 									<li class="{if $MODULE eq "ModComments"}active{/if}"> 
 										<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" >
-											<i class="app-icon-list fa fa-comment"></i>
+											<i class="fa fa-comments-o" aria-hidden="true"></i>
 											<span class="hide-menu"> {vtranslate('ModComments')}</span>
 										</a>
 	                        		</li>
@@ -242,7 +242,23 @@
 													{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 													<li>
 														<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
-														<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
+														{if $moduleName eq 'PortfolioInformation'}
+															<i class="fa fa-line-chart" aria-hidden="true"></i>
+														{else if $moduleName eq 'Connection'}
+															<i class="fa fa-users" aria-hidden="true"></i>
+														{else if $moduleName eq 'ModComments'}
+															<i class="fa fa-comments-o" aria-hidden="true"></i>
+														{else if $moduleName eq 'RingCentral'}
+															<i class="fa fa-phone-square" aria-hidden="true"></i>
+														{else if $moduleName eq 'Task'}
+															<i class="fa fa-tasks" aria-hidden="true"></i>
+														{else if $moduleName eq 'Timecontrol'}
+															<i class="fa fa-hourglass" aria-hidden="true"></i>
+														{else if $moduleName eq 'EmailTemplates' || $moduleName eq 'CalendarTemplate'}
+															<i class="fa fa-fast-forward" aria-hidden="true"></i>
+														{else}
+															<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
+														{/if}
 														<span class="hide-menu"> {$translatedModuleLabel}</span></a>
 													</li>
 												{/foreach}
@@ -433,7 +449,7 @@
 							<li>
 								<div>
 									<a href="#" class="taskManagement" title="{vtranslate('Tasks','Vtiger')}" aria-hidden="true">
-										<i class="material-icons">card_travel</i>
+										<i style="line-height: 40px;" class="fa fa-tasks" aria-hidden="true"></i>
 									</a>
 								</div>
 							</li>
