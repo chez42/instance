@@ -3,10 +3,10 @@
 {/foreach}
 <div id="mailinginfo">
     <div class="leftside" style="float:left; width:48%;">
-        <img src="{if $LOGO neq ''}{$LOGO}{else}test/logo/Omniscient Logo small.png{/if}" />
+        <img src="{if $LOGO neq ''}{$LOGO}{else}test/logo/Omni-CRM-LOGO-SMALL.png{/if}" />
     </div>
-    <div class="rightside" style="float:right; width:48%;">
-        <p style="width:60%; display:block; border-bottom:1px solid black"><span style="font-size:8px;">Prepared for</span></p>
+    <div class="rightside" style="float:right; width:48%;font-family:Arial,Sans-Serif;font-size:16px;">
+        <p style="width:60%; display:block; border-bottom:1px solid black;font-family:Arial,Sans-Serif;font-size:16px;">Prepared for</p>
         {if $MAILING_INFO}
             {if $MAILING_INFO['name']}
                 <p style="margin:0;padding:0">{$MAILING_INFO['name']}</p>
@@ -26,4 +26,5 @@
         {/if}
     </div>
 </div>
-<div style="page-break-after: always" />
+
+<div style="page-break-after: always">&nbsp;</div>

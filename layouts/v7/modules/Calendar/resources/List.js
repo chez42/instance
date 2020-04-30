@@ -83,9 +83,67 @@ Vtiger_List_Js("Calendar_List_Js", {
 		});
 	},
 
-	registerRowDoubleClickEvent: function () {
+	/*registerRowDoubleClickEvent: function () {
 		return true;
+	},*/
+	
+	validateAndSaveInlineEdit: function (currentTrElement) {
+		var listViewContainer = this.getListViewContainer();
+		var thisInstance = this;
+		var tdElements = jQuery('.listViewEntryValue', currentTrElement);
+		var record = currentTrElement.data('id');
+		var values = {};
+		for (var i = 0; i < tdElements.length; i++) {
+			var tdElement = jQuery(tdElements[i]);
+			var newValueElement = jQuery('.inputElement', tdElement);
+			var fieldName = tdElement.data("name");
+			values[fieldName] = thisInstance.getInlineEditedFieldValue(tdElement, newValueElement);
+		}
+		if(currentTrElement.find('[name="time_end"]').length)
+			values['time_end'] = currentTrElement.find('[name="time_end"]').val();
+		if(currentTrElement.find('[name="time_start"]').length)
+			values['time_start'] = currentTrElement.find('[name="time_start"]').val();
+		
+		var params = {
+			'ignore': ".listSearchContributor,input[type='hidden']",
+			submitHandler: function (form) {
+				// NOTE : hack added, submit was getting triggered for 2nd and 3rd click on save, need to debug this.
+				if (this.numberOfInvalids() > 0) {
+					this.form();
+					return false;
+				}
+				var params = {
+					'module': thisInstance.getModuleName(),
+					'action': 'SaveAjax',
+					'record': record
+				};
+				var params = jQuery.extend(values, params);
+				app.helper.showProgress();
+				jQuery('.inline-save', currentTrElement).find('button').attr('disabled', 'disabled');
+				app.request.post({data: params}).then(function (err, result) {
+					if (result) {
+						jQuery('.inline-save', currentTrElement).find('button').removeAttr('disabled');
+						var params = {};
+						thisInstance.loadListViewRecords(params).then(function (data) {
+							thisInstance.toggleInlineEdit(currentTrElement);
+							app.helper.hideProgress();
+							app.helper.showSuccessNotification({"message": ''});
+							//Register Event to show quick preview for reference field.
+							app.event.trigger('onclick.referenceField.quickPreview', currentTrElement);
+						});
+					} else {
+						app.helper.hideProgress();
+						app.helper.showErrorNotification({"message": err});
+						jQuery('.inline-save', currentTrElement).find('button').removeAttr('disabled');
+						return false;
+					}
+				});
+				return false;  // blocks regular submit since you have ajax
+			}
+		};
+		validateAndSubmitForm(listViewContainer.find('#listedit'), params);
 	},
+	
 	registerEvents: function() {
 		this._super();
 	}

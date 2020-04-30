@@ -43,12 +43,26 @@
 						data-module="{$RELATEDMODULENAME}" data-relation-id="{$RELATED_LINK->getId()}" {if $RELATEDMODULENAME eq "ModComments"} title {else} title="{$DETAILVIEWRELATEDLINKLBL}"{/if} {if $RELATEDFIELDNAME}data-relatedfield ="{$RELATEDFIELDNAME}"{/if} >
 						<a href="index.php?{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" class="textOverflowEllipsis" displaylabel="{$DETAILVIEWRELATEDLINKLBL}" recordsCount="" {if $RELATEDMODULENAME neq "ModComments"}tippytitle data-tippy-content="{$DETAILVIEWRELATEDLINKLBL}"{/if}>
 							{if $RELATEDMODULENAME eq "ModComments"}
-								<span class="tab-label" >{$DETAILVIEWRELATEDLINKLBL}</span>&nbsp;
+								<span class="tab-label" ><i class="fa fa-comments-o" aria-hidden="true"></i></span>&nbsp;
 									{else}
 								<span class="tab-icon">
 									{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
 									{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
-									{if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
+									{if $RELATEDMODULENAME eq 'PortfolioInformation'}
+										<i class="fa fa-line-chart" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'Connection'}
+										<i class="fa fa-users" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'ModComments'}
+										<i class="fa fa-comments-o" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'RingCentral'}
+										<i class="fa fa-phone-square" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'Task'}
+										<i class="fa fa-tasks" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'Timecontrol'}
+										<i class="fa fa-hourglass" aria-hidden="true"></i>
+									{else if $RELATEDMODULENAME eq 'EmailTemplates' || $RELATEDMODULENAME eq 'CalendarTemplate'}
+										<i class="fa fa-fast-forward" aria-hidden="true"></i>
+									{else if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
 										<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
 									{else}
 										<i class="material-icons" >folder</i>

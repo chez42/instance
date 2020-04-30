@@ -26,28 +26,18 @@
             </div>
             <div class="span6">
                 <div class="pull-right">
-                    {*<form method="post" id="export">
-                        <input type="hidden" value='{$ACCOUNT_NUMBER}' name="account_number" id="account_number" />
-                        <input type="hidden" value="PortfolioInformation" name="module" />
-                        <input type="hidden" value="" name="pie_image" id="pie_image" />
-                        <input type="hidden" value="GHReport" name="view" />
-                        <input type="hidden" value="{$ORIENTATION}" name="orientation" />
-                        <input type="hidden" value="1" name="pdf" />
-                        <input type="hidden" value="{$CALLING_RECORD}" name="calling_record" />
-                        <input type="hidden" value="{$START_DATE}" name="report_start_date" />
-                        <input type="hidden" value="{$END_DATE}" name="report_end_date" />
-                    </form>*}
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="GHReport_wrapper" style="font-family:Calibri, Sans-Serif; font-size:9pt;">
-    <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
+<div id="GHReport_wrapper" style="font-family:Arial, Sans-Serif; font-size:16px;">
+    <table id="GHReport_header" style="font-family:Arial, Sans-Serif;">
         <tr>
             <td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}</td>
-{*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
+
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
                     {$USER_DATA['first_name']} {$USER_DATA['last_name']}<br />
@@ -63,18 +53,18 @@
     <p style="margin:0; padding:0; font-size:9pt;"><span style="color:RGB(0,32,96); font-weight:bold; font-size:10pt;">{$PREPARED_FOR}</span><br />Prepared: {$PREPARE_DATE}</p>
     {if $PERSONAL_NOTES|count_characters ge 1 OR $POLICY ge 1}
         <div class="GHReport_section" style="margin:0; padding:0;">
-            <h2 class="blue_header" style="padding-top:2px; padding-bottom:2px;"><span style="font-size:10pt;">PLAN GOALS AND ASSUMPTIONS</span></h2>
-            <p style="font-size:8pt;">{$POLICY|nl2br}</p>
-    {*        <p style="font-size:8pt;">Report Notes:</p>*}
-            <p style="font-size:8pt;">{$PERSONAL_NOTES}</p>
+            <h2 class="blue_header" style="padding-top:2px; padding-bottom:2px;font-family:Arial, Sans-Serif; font-size:16px;">PLAN GOALS AND ASSUMPTIONS</h2>
+            <p style="font-family:Arial, Sans-Serif; font-size:14px;">{$POLICY|nl2br}</p>
+   
+            <p style="font-family:Arial, Sans-Serif; font-size:14px;">{$PERSONAL_NOTES}</p>
         </div>
     {/if}
     <div class="GHReport_section">
-        <h2 class="blue_header" style="padding-top:2px; padding-bottom:2px;"><span style="font-size:10pt;">PORTFOLIO SUMMARY</span></h2>
-        <table style="width:100%; font-family:Calibri, Sans-Serif;" border="0">
+        <h2 class="blue_header" style="padding-top:2px; padding-bottom:2px;font-family:Arial, Sans-Serif; font-size:16px;">PORTFOLIO SUMMARY</h2>
+        <table style="width:100%; font-family:Arial, Sans-Serif; font-size:16px;" border="0">
             <tr>
                 <td style="width:50%;">
-                    <table style="display:block; width:90%; font-size:9pt; font-family:Calibri, Sans-Serif;"  border="0">
+                    <table style="display:block; width:90%; font-family:Arial, Sans-Serif; font-size:16px;"  border="0">
                         <thead>
                         <tr>
                             <th style="font-weight:bold; text-align:left; background-color:RGB(245, 245, 245);" class="borderBottom grey_back">ASSET CLASS</th>
@@ -132,18 +122,18 @@
             </tr>
         </table>
     </div>
-    <div class="GHReport_section">
+    <div class="GHReport_section" style = "font-family:Arial, Sans-Serif; font-size:16px;">
         <h2 class="grey_header"><span style="font-size:20px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B %d, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B %d, %Y'})</span></h2>
         <table class='table' style="font-family:Calibri, Sans-Serif; width:100%; min-wdith:100%;">
             <thead>
             <tr style="background-color:RGB(245, 245, 245);">
                 <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:25%; text-align:right; text-decoration:underline;">ACCOUNT NAME</th>
                 <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">ACCT<br />NUMBER</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">BEG.<br />BALANCE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">CHANGE IN<br />VALUE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">END<br />BALANCE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">EST.<br />INCOME</th>
+                <th style="margin:0; padding:0; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">BEG.<br />BALANCE</th>
+                <th style="margin:0; padding:0;  font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
+                <th style="margin:0; padding:0;  font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">CHANGE IN<br />VALUE</th>
+                <th style="margin:0; padding:0; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">END<br />BALANCE</th>
+                <th style="margin:0; padding:0;  font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">EST.<br />INCOME</th>
             </tr>
             </thead>
             <tbody>

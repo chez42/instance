@@ -564,7 +564,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$logo = "";
 
 			if($logo == "_")
-				$logo = "test/logo/Omniscient Logo small.png";
+				$logo = "test/logo/Omni-CRM-LOGO-SMALL.png";
+			
 			$viewer->assign("LOGO", $logo);
 
 			$pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
@@ -601,7 +602,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 					chart.titleField = "title";
 					chart.valueField = "value";
 					chart.colorField = "color";
-					{*chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};*}
+					
 					chart.labelRadius = -30;
 					chart.radius = 125;
 					chart.labelText = "[[percents]]%";
@@ -664,12 +665,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$printed_date = date("mdY");
 
 		$filePath = array();
-
+		
+		global $adb, $dbconfig, $root_directory, $site_URL;
+		
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
             
-			global $adb, $dbconfig, $root_directory, $site_URL;
+		
 			$is_pdf = $request->get('pdf');
 			$orientation = '';
 			$calling_module = $moduleName;
@@ -714,12 +717,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 					$logo = "";
 
 				if($logo == "_")
-					$logo = "test/logo/Omniscient Logo small.png";
+					$logo = "test/logo/Omni-CRM-LOGO-SMALL.png";
+				
 				$viewer->assign("LOGO", $logo);
 
 				$pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
-				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GainLoss.tpl', "PortfolioInformation");
+				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 
 				$stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
@@ -773,12 +778,12 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$printed_date = date("mdY");
 
 		$filePath = array();
-		
+		global $adb, $dbconfig, $root_directory, $site_URL;
 		foreach($recordIds as $recordId){
 			
 			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
             
-			global $adb, $dbconfig, $root_directory, $site_URL;
+			
 			$db_name = $dbconfig['db_name'];
 			$custodianDB = $dbconfig['custodianDB'];
 			
@@ -916,7 +921,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 					$logo = "";
 				
 				if($logo == "_" || $logo == "")
-					$logo = "test/logo/Omniscient Logo small.png";
+					$logo = "test/logo/Omni-CRM-LOGO-SMALL.png";
 					
 				$viewer->assign("LOGO", $logo);
 					
@@ -1184,7 +1189,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 					$logo = "";
 
 				if($logo == "_" || $logo == "")
-					$logo = "test/logo/Omniscient Logo small.png";
+					$logo = "test/logo/Omni-CRM-LOGO-SMALL.png";
 
 				$viewer->assign("LOGO", $logo);
 

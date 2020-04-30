@@ -11,7 +11,7 @@
 -->*}
 {strip}
     <form id="detailView" data-name-fields='{ZEND_JSON::encode($MODULE_MODEL->getNameFields())}' method="POST">
-        <div class="contents">
+        <div class="contents detailview-table">
             {foreach key=BLOCK_LABEL_KEY item=FIELD_MODEL_LIST from=$RECORD_STRUCTURE}
                 <div class="block block_{$BLOCK_LABEL_KEY}">
                     {assign var=BLOCK value=$BLOCK_LIST[$BLOCK_LABEL_KEY]}
