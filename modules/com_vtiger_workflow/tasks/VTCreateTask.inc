@@ -18,6 +18,7 @@ require_once 'include/Webservices/DescribeObject.php';
 require_once 'include/Webservices/WebserviceField.php';
 require_once 'include/Webservices/EntityMeta.php';
 require_once 'include/Webservices/VtigerWebserviceObject.php';
+require_once 'modules/com_vtiger_workflow/VTSimpleTemplate.inc';
 
 require_once("modules/Users/Users.php");
 
@@ -102,9 +103,28 @@ class VTCreateTask extends VTTask{
             $time = $dbInsertDateTime->format('H:i:s');
         }
         
+        $taskData = Zend_Json::decode($this->getContents($entityData));
+        
+        if($taskData['assigned_user_id']){
+            $userName = $taskData['assigned_user_id'];
+            $userExists = $adb->pquery("SELECT * FROM vtiger_users
+            WHERE trim(CONCAT(vtiger_users.first_name,' ',vtiger_users.last_name)) = ? AND  vtiger_users.status = ?",
+                array($userName, 'Active'));
+            
+            if($adb->num_rows($userExists)){
+                $userId = vtws_getWebserviceEntityId('Users', $adb->query_result($userExists, 0, 'id'));
+            }else{
+                $groupExist = $adb->pquery('SELECT * FROM vtiger_groups
+                WHERE vtiger_groups.groupname = ?', array($userName));
+                if($adb->num_rows($groupExist)) {
+                    $userId = vtws_getWebserviceEntityId('Groups', $adb->query_result($userExists, 0, 'groupid'));
+                }
+            }
+        }
+        
         $fields = array(
-            'description'=>$this->description,
-            'subject'=>$this->todo,
+            'description'=>$taskData['description'],
+            'subject'=>$taskData['todo'],
             'task_priority'=>$this->priority,
             'task_status'=>$this->status,
             'assigned_user_id'=>$userId,
@@ -200,6 +220,53 @@ class VTCreateTask extends VTTask{
     
     public function getTimeFieldList() {
         return array('time');
+    }
+    
+   
+    public function getContents($entity, $entityCache=false) {
+        if (!$this->contents) {
+            global $adb, $current_user;
+            $taskContents = array();
+            $entityId = $entity->getId();
+            
+            $utils = new VTWorkflowUtils();
+            $adminUser = $utils->adminUser();
+            if (!$entityCache) {
+                $entityCache = new VTEntityCache($adminUser);
+            }
+            
+            $fromUserId = Users::getActiveAdminId();
+            $entityOwnerId = $entity->get('assigned_user_id');
+            if ($entityOwnerId) {
+                list ($moduleId, $fromUserId) = explode('x', $entityOwnerId);
+            }
+            
+            $ownerEntity = $entityCache->forId($entityOwnerId);
+            if($ownerEntity->getModuleName() === 'Groups') {
+                list($moduleId, $recordId) = vtws_getIdComponents($entityId);
+                $fromUserId = Vtiger_Util_Helper::getCreator($recordId);
+            }
+           
+            $userObj = CRMEntity::getInstance('Users');
+            $userObj->retrieveCurrentUserInfoFromFile($fromUserId);
+            
+          
+            $st = new VTSimpleTemplate($this->todo);
+            $taskContents['todo'] = $st->render($entityCache, $entityId);
+            
+            $ct = new VTSimpleTemplate($this->description);
+            $taskContents['description'] = $ct->render($entityCache, $entityId);
+            
+            $ct = new VTSimpleTemplate($this->assigned_user_id);
+            $taskContents['assigned_user_id'] = $ct->render($entityCache, $entityId);
+            
+            $this->contents = $taskContents;
+            $utils->revertUser();
+        }
+        if(is_array($this->contents)) {
+            $this->contents = Zend_Json::encode($this->contents);
+        }
+        return $this->contents;
     }
     
 }

@@ -216,7 +216,13 @@ class Settings_Workflows_EditV7Task_View extends Settings_Vtiger_Index_View {
 				$viewer->assign('EMAIL_TEMPLATES',$emailTemplates);
 			}
 		}
+        
+		$assigned_user_filed = $recordStructureInstance->getAllOwnerFields();
+		foreach($assigned_user_filed as $metaKey => $owner) {
+		    $omnerFieldoptions .= '<option value="$'.$metaKey.'">'.$owner->get('workflow_columnlabel').'</option>';
+		}
 
+		$viewer->assign('OWNER_FIELD_OPTION', $omnerFieldoptions);		  
 		$viewer->assign('ASSIGNED_TO', $assignedToValues);
 		$viewer->assign('EMAIL_FIELD_OPTION', $emailFieldoptions);
 		$viewer->assign('FROM_EMAIL_FIELD_OPTION', $fromEmailFieldOptions);

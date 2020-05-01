@@ -1759,7 +1759,7 @@ Vtiger_Widget_Js('Vtiger_PopulationPyramid_Widget_Js',{},{
 		femaleSeries.columns.template.tooltipText = "Females, age {categoryY}: {valueX} ({valueX.percent.formatNumber('#.0')}%)";
 		femaleSeries.dataFields.categoryY = "age";
 		femaleSeries.interpolationDuration = 1000;
-		femaleSeries.columns.template.url = '{url}'
+		femaleSeries.columns.template.url = '{url1}'
 		femaleSeries.columns.template.urlTarget = '_blank'
 		
 	}

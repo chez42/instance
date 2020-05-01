@@ -208,4 +208,12 @@ class Settings_Workflows_RecordStructure_Model extends Vtiger_RecordStructure_Mo
 		}
 		return $nameFields;
 	}
+	
+	/**
+	 * Function returns all the owner fields for the workflow record structure
+	 * @return type
+	 */
+	public function getAllOwnerFields() {
+	    return $this->getFieldsByType('owner');
+	}
 }
