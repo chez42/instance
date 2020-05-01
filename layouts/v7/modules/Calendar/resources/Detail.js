@@ -125,6 +125,19 @@ Vtiger_Detail_Js("Calendar_Detail_Js", {
 				fieldNameValueMap['value'] = fieldValue;
 				fieldNameValueMap['field'] = fieldName;
 				
+				if(fieldName == 'reminder_time'){
+					if(currentTdElement.find('input:checkbox').length){
+						if(currentTdElement.find('input:checkbox').is(':checked')) {
+							fieldNameValueMap['set_reminder'] = 'Yes';
+							fieldNameValueMap['remdays'] = currentTdElement.find('[name="remdays"]').val();
+							fieldNameValueMap['remhrs'] = currentTdElement.find('[name="remhrs"]').val();
+							fieldNameValueMap['remmin'] = currentTdElement.find('[name="remmin"]').val();
+						} else {
+							fieldNameValueMap['set_reminder'] = 'No';
+						}
+					}
+				}
+				
 				if(fieldType == 'multireference' && fieldName == 'contact_id'){
 					var cntId = fieldValue.split(',');
 					fieldNameValueMap['contactidlist'] = cntId.join(';');
@@ -202,12 +215,34 @@ Vtiger_Detail_Js("Calendar_Detail_Js", {
 								} else {
 									contentHolder.closest('.detailViewContainer').find('.detailview-header-block')
 									.find('.'+fieldName).html(postSaveRecordDetails[fieldName].display_value);
-							}
+								}
 							}
 							fieldBasicData.data('displayvalue',postSaveRecordDetails[fieldName].display_value);
 							fieldBasicData.data('value',postSaveRecordDetails[fieldName].value);
 							jQuery(currentTdElement).find('.input-group-addon').removeClass("disabled");
-
+							
+							if(fieldName == 'reminder_time'){
+								
+								if(currentTdElement.find('input:checkbox').length){
+									if(currentTdElement.find('input:checkbox').is(':checked')) {
+										var disVal = '';
+										if(currentTdElement.find('[name="remdays"]').val()){
+											disVal += currentTdElement.find('[name="remdays"]').val()+' days ';
+										}
+										if(currentTdElement.find('[name="remhrs"]').val()){
+											disVal += currentTdElement.find('[name="remhrs"]').val()+' hours ';
+										}
+										if(currentTdElement.find('[name="remmin"]').val()){
+											disVal += currentTdElement.find('[name="remmin"]').val()+' minutes';
+										}
+										fieldBasicData.data('displayvalue',disVal);
+										detailViewValue.html(disVal+' Before Event');
+									} else {
+										fieldBasicData.data('displayvalue','No');
+									}
+								}
+							}
+							
 							detailViewValue.css('display', 'inline-block');
 							editElement.addClass('hide');
 							editElement.removeClass('ajaxEdited');
