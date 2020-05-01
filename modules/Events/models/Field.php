@@ -53,7 +53,7 @@ class Events_Field_Model extends Calendar_Field_Model {
 	public function isAjaxEditable() {
 	    
 	    $ajaxRestrictedFields = array('recurringtype');
-	    if(!$this->isEditable() || $this->get('uitype') == 30 || in_array($this->get('name'), $ajaxRestrictedFields)) {
+	    if(!$this->isEditable() || in_array($this->get('name'), $ajaxRestrictedFields)) {
 			return false;
 		}
 		return true;
