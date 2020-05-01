@@ -888,7 +888,7 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 				jQuery('[name="description"]').val(tmpData.description);
 				
 				if(tmpData.send_mail_reminder){
-					jQuery('[name="set_reminder"]').prop('checked',true);
+					jQuery('[name="set_reminder"]').prop('checked',true).trigger('change');
 				}
 				if(tmpData.send_contact_notification){
 					jQuery('[name="sendnotification"]').prop('checked',true);
