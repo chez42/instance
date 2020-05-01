@@ -32,7 +32,13 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
         
         for($i = 0; $i < 110; $i = $i + 5){
             $query .= ' WHEN vtiger_contactscf.cf_3266 BETWEEN ';
-            $query .= $i;
+            
+			if($i == 0){
+				$query .= $i;
+            } else {
+				$query .= ($i+1);
+            }
+			
             $query .= ' AND ';
             $query .= $i+5;
             $query .= ' THEN ';
@@ -66,12 +72,10 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
             
             $data[$row['age']]['female'] =  $row['female'];
             
-            $gender = $row['male']?'Male':'Female';
-            
-            $data[$row['age']]['url'] = $listViewUrl.$this->getSearchParams($gender,$row['age']).'&nolistcache=1';
-            
+            $data[$row['age']]['url'] = $listViewUrl.$this->getSearchParams('Male',$row['age']).'&nolistcache=1';
+            $data[$row['age']]['url1'] = $listViewUrl.$this->getSearchParams('Female',$row['age']).'&nolistcache=1';
         }
-        
+       
         $chart_data = array();
         
         for($i = 0; $i < 110; $i = $i + 5){
