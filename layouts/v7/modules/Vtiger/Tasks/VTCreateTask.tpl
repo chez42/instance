@@ -16,7 +16,7 @@
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_TITLE',$QUALIFIED_MODULE)}<span class="redColor">*</span></div>
                 <div class="col-sm-8 col-xs-8">
-                	<div class="col-sm-6 col-xs-6">
+                	<div class="col-sm-6 col-xs-6" style="margin-left: -3%;">
                 		<input data-rule-required="true" class="fields inputElement" type="text" name="todo" value="{$TASK_OBJECT->todo}" id="subject" spellcheck="true"/>
                     </div>
                     <div class="col-sm-6 col-xs-6">
@@ -32,7 +32,7 @@
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_DESCRIPTION',$QUALIFIED_MODULE)}</div>
                 <div class="col-sm-8 col-xs-8">
-                	<div class="col-sm-6 col-xs-6">
+                	<div class="col-sm-6 col-xs-6" style="margin-left: -3%;">
                 		<input name="description" class="fields inputElement" type="text" value="{$TASK_OBJECT->description}" id="subject" spellcheck="true"/>
                     </div>
                     <div class="col-sm-6 col-xs-6">
@@ -72,8 +72,8 @@
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_ASSIGNED_TO',$QUALIFIED_MODULE)}</div>
                 <div class="col-sm-5 col-xs-5">
-                	<div class="col-sm-6 col-xs-6">
-						<input name="assigned_user_id" class="fields inputElement" type="text" value="{$TASK_OBJECT->assigned_user_id}"/>
+                	<div class="col-sm-6 col-xs-6" style="margin-left: -4%;">
+						<input name="assigned_user_id" readonly class="fields inputElement" type="text" value="{$TASK_OBJECT->assigned_user_id}"/>
 					</div>
 					<div class="col-sm-6 col-xs-6">
 						<select style="min-width: 250px" class="task-fields select2 overwriteSelection" data-placeholder={vtranslate('LBL_SELECT_OPTIONS',$QUALIFIED_MODULE)}>

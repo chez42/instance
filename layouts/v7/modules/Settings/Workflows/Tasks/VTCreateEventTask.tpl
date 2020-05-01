@@ -16,14 +16,32 @@
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_EVENT_NAME',$QUALIFIED_MODULE)}<span class="redColor">*</span></div>
                 <div class="col-sm-9 col-xs-9">
-                    <input data-rule-required="true" class="inputElement" name="eventName" type="text" value="{$TASK_OBJECT->eventName}" />
+                	<div class="col-sm-6 col-xs-6" style="margin-left: -3%;">
+                		<input data-rule-required="true" class="fields inputElement" type="text" name="eventName" value="{$TASK_OBJECT->eventName}" id="subject" spellcheck="true"/>
+                    </div>
+                    <div class="col-sm-6 col-xs-6">
+                    	<select style="min-width: 250px" class="task-fields select2" data-placeholder={vtranslate('LBL_SELECT_OPTIONS',$QUALIFIED_MODULE)}>
+							<option></option>
+							{$ALL_FIELD_OPTIONS}
+						</select>
+                    </div>
+                    {*<input data-rule-required="true" class="inputElement" name="eventName" type="text" value="{$TASK_OBJECT->eventName}" />*}
                     {$SHOWN_FIELDS_LIST['subject'] = 'subject'}
                 </div>
             </div>
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_DESCRIPTION',$QUALIFIED_MODULE)}</div>
                 <div class="col-sm-9 col-xs-9">
-                    <textarea class="inputElement" style="height: inherit;" name="description">{$TASK_OBJECT->description}</textarea>
+                	<div class="col-sm-6 col-xs-6" style="margin-left: -3%;">
+                		<input name="description" class="fields inputElement" type="text" value="{$TASK_OBJECT->description}" id="subject" spellcheck="true"/>
+                    </div>
+                    <div class="col-sm-6 col-xs-6">
+                    	<select style="min-width: 250px" class="task-fields select2" data-placeholder={vtranslate('LBL_SELECT_OPTIONS',$QUALIFIED_MODULE)}>
+							<option></option>
+							{$ALL_FIELD_OPTIONS}
+						</select>
+                    </div>
+                    {*<textarea class="inputElement" style="height: inherit;" name="description">{$TASK_OBJECT->description}</textarea>*}
                     {$SHOWN_FIELDS_LIST['description'] = 'description'}
                 </div>
             </div>
@@ -54,7 +72,16 @@
             <div class="row form-group">
                 <div class="col-sm-2 col-xs-2">{vtranslate('LBL_ASSIGNED_TO',$QUALIFIED_MODULE)}</div>
                 <div class="col-sm-5 col-xs-5">
-                    <select name="assigned_user_id" class="select2">
+                    <div class="col-sm-6 col-xs-6" style="margin-left: -4%;">
+						<input name="assigned_user_id" readonly class="fields inputElement" type="text" value="{$TASK_OBJECT->assigned_user_id}"/>
+					</div>
+					<div class="col-sm-6 col-xs-6">
+						<select style="min-width: 250px" class="task-fields select2 overwriteSelection" data-placeholder={vtranslate('LBL_SELECT_OPTIONS',$QUALIFIED_MODULE)}>
+							<option></option>
+							{$OWNER_FIELD_OPTION}
+						</select>
+					</div>
+                    {*<select name="assigned_user_id" class="select2">
                         <option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
                         {foreach from=$ASSIGNED_TO key=LABEL item=ASSIGNED_USERS_LIST}
                             <optgroup label="{vtranslate($LABEL,$QUALIFIED_MODULE)}">
@@ -66,7 +93,7 @@
                         <optgroup label="{vtranslate('LBL_SPECIAL_OPTIONS')}">
                                 <option value="copyParentOwner" {if $TASK_OBJECT->assigned_user_id eq 'copyParentOwner'} selected="" {/if}>{vtranslate('LBL_PARENT_OWNER')}</option>
                         </optgroup>
-                    </select>
+                    </select>*}
                 </div>
                 {$SHOWN_FIELDS_LIST['assigned_user_id'] = 'assigned_user_id'}
             </div>
