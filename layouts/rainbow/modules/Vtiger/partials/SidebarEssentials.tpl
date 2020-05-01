@@ -33,17 +33,21 @@
                                 {continue}
                              {/if}
                             <div class="list-group" id="{if $GROUP_LABEL eq 'Mine'}myList{else}sharedList{/if}">   
-                                <h5 class="lists-header {if count($GROUP_CUSTOM_VIEWS) <=0} hide {/if}" >
+                                
+								<h5 class="lists-header {if count($GROUP_CUSTOM_VIEWS) <=0} hide {/if}" >
                                     {if $GROUP_LABEL eq 'Mine'}
                                         {vtranslate('LBL_MY_LIST',$MODULE)}
                                     {else}
                                         {vtranslate('LBL_SHARED_LIST',$MODULE)}
-									    <i class="fa fa-plus-circle col pull-right" data-toggle="collapse" data-target="#shared_List"></i>
+									    <!-- <i class="fa fa-plus-circle col pull-right" data-toggle="collapse" data-target="#shared_List"></i> -->
                                     {/if}
                                 </h5>
-                                <input type="hidden" name="allCvId" value="{CustomView_Record_Model::getAllFilterByModule($MODULE)->get('cvid')}" />
-                                {if $GROUP_LABEL neq 'Mine'}<div class="collapse" id="shared_List"> {/if}
-                                <div class=" menu-scroller scrollContainer" style="position:relative; top:0; left:0;" {if $GROUP_LABEL neq 'Mine'}id="sharedList"{/if} > 
+                                
+								<input type="hidden" name="allCvId" value="{CustomView_Record_Model::getAllFilterByModule($MODULE)->get('cvid')}" />
+                                
+								{if $GROUP_LABEL neq 'Mine'} <!-- <div class="collapse" id="shared_List"> --> {/if}
+                                
+								<div class=" menu-scroller scrollContainer" style="position:relative; top:0; left:0;" {if $GROUP_LABEL neq 'Mine'}id="sharedList"{/if} > 
 	                               <div class="list-menu-content"> 
                                 <ul class="lists-menu">
 								{assign var=count value=0}
