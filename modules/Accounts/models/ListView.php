@@ -52,7 +52,16 @@ class Accounts_ListView_Model extends Vtiger_ListView_Model {
 			);
 			$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
 		}
-
+		
+		$massActionLink = array(
+		    'linktype' => 'LISTVIEWMASSACTION',
+		    'linklabel' => 'Generate Reports',
+		    'linkurl' => 'javascript:Vtiger_List_Js.triggerReportPdf("index.php?module='.$this->getModule()->getName().'&view=ReportPdf&mode=showSelectReportForm");',
+		    'linkicon' => ''
+		);
+		$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		
+		
 		return $massActionLinks;
 	}
 	
