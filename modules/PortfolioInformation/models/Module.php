@@ -2925,4 +2925,21 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 //        echo "SELECT * FROM custodian_balances_{$custodian} WHERE account_number = '{$account_number}'";
     }
 
+    static public function GetRepCodeListFromUsersTable(){
+        global $adb;
+        $query = "SELECT advisor_control_number
+                  FROM vtiger_users";
+        $result = $adb->pquery($query, array());
+        $list = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $ids = explode(",", $r['advisor_control_number']);
+                foreach($ids AS $k => $v){
+                    $list[] = $v;
+                }
+            }
+        }
+        return $list;
+    }
+
 }
