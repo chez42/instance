@@ -3,7 +3,7 @@
     <div class="left_half">
         <div class="section">
             <div class="section_header">
-                <h2>Missing Files</h2>
+{*                <h2>Missing Files</h2>
                 <p>Click a date in the calendar to view the missing rep codes for that date</p>
 {*                <p>Equals: This will take the first date, compare it to the second date and return a list of directories that
                     existed on date 1 that don't exist on date 2</p>
@@ -31,7 +31,7 @@
             </div>*}
     {*        <div class="block_left clear_both missing_files">
             </div>*}
-            <div id="missing_files_calendar" class="block_left clear_both"></div>
+{*            <div id="missing_files_calendar" class="block_left clear_both"></div>*}
         </div>
         <div class="section">
             <div class="section_header">
