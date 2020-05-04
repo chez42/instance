@@ -8,7 +8,11 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
+include_once("libraries/reports/new/nCommon.php");
+include_once("libraries/reports/new/nCombinedAccounts.php");
+
+
+class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     function checkPermission(Vtiger_Request $request) {
         return true;
@@ -111,28 +115,35 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportHistorical.php");
 		require_once("libraries/reports/new/holdings_report.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
-        
+       
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
 		$printed_date = date("mdY");
 
 		$filePath = array();
 		
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 		
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
 				$options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
 
-				$accounts = explode(",", $portfolio->get('account_number'));
 				$accounts = array_unique($accounts);
+				
 				$end = date('Y-m-d');
 				PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);//Auto determine which intervals need calculated
 				if(strlen($request->get('select_end_date')) > 1) {
@@ -201,13 +212,13 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("HOLDINGSPIEVALUES", json_encode($holdings_pie));
 				$viewer->assign("END_DATE", $end_date);
 				$viewer->assign("T12BALANCES", json_encode($t12_balances));
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("CALLING_RECORD", $calling_record);
 				$viewer->assign("SITEURL", $site_URL);
 				
 				$ispdf = $request->get('pdf');
 
-				$moduleName = $request->getModule();
+				//$moduleName = $request->getModule();
 				$current_user = Users_Record_Model::getCurrentUserModel();
 
 				$account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
@@ -256,9 +267,9 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/IndividualPerformance.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= '<div class="pie_image" style="width:1000px;height:500px;">
-			<p style="font-size:18px; font-family:Arial, Sans-Serif;">Asset Allocation</p>
-			<div id="dynamic_pie_holder" class="dynamic_pie_holder" style = "width:800px;height:400px;margin-top:20mm;"></div>
-		</div>';
+					<p style="font-size:18px; font-family:Arial, Sans-Serif;">Asset Allocation</p>
+					<div id="dynamic_pie_holder" class="dynamic_pie_holder" style = "width:800px;height:400px;margin-top:20mm;"></div>
+				</div>';
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
 				$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
 				$pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
@@ -382,7 +393,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		include_once("include/utils/omniscientCustom.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -392,7 +404,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		
 		foreach($recordIds as $recordId){
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+			if($module != 'PortfolioInformation'){
+				$accountNumbers = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				
+            }
+			
             
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			
@@ -414,12 +433,12 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			$ispdf = $request->get('pdf');
 		
 			$viewer = $this->getViewer($request);
-			$moduleName = $request->getModule();
-			$account_number = $portfolio->get('account_number');
+			//$moduleName = $request->getModule();
+			$account_number = $accountNumbers;
 
 			$total_weight = 0;
 			if(!is_array($account_number))
-				$accounts = explode(",", $portfolio->get('account_number'));
+				$accounts = explode(",", $accountNumbers);
 			else {
 				$accounts = $account_number;
 			}
@@ -658,7 +677,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		include_once("include/utils/omniscientCustom.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -670,16 +690,20 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		
 		foreach($recordIds as $recordId){
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
-		
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
+			
 			$is_pdf = $request->get('pdf');
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($portfolio->get('account_number') > 0)){
+			if(strlen($accountNumbers > 0)){
 				
-				$accounts = explode(",", $portfolio->get('account_number'));
 				$accounts = array_unique($accounts);
 
 				foreach($accounts AS $k => $v){
@@ -702,7 +726,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 				$viewer = $this->getViewer($request);
 				$viewer->assign("COMPARISON_TABLE", $comparison_table);
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("CALLING_RECORD", $calling_record);
 				$viewer->assign("SITEURL", $site_URL);
 				$current_user = Users_Record_Model::getCurrentUserModel();
@@ -771,7 +795,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportHistorical.php");
 		require_once("libraries/reports/new//holdings_report.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -781,8 +806,13 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		global $adb, $dbconfig, $root_directory, $site_URL;
 		foreach($recordIds as $recordId){
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
 			$db_name = $dbconfig['db_name'];
 			$custodianDB = $dbconfig['custodianDB'];
@@ -797,8 +827,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$current_user = Users_Record_Model::getCurrentUserModel();
 			
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 				
 				if(strlen($request->get('select_start_date')) > 1) {
@@ -881,7 +911,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
 				$viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
 				$viewer->assign("CALLING_RECORD", $calling_record);
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("HEADING", "");
 				$viewer->assign("USER_DATA", $current_user->getData());
 				$viewer->assign("DATE_OPTIONS", $options);
@@ -926,7 +956,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("LOGO", $logo);
 					
 				$personal_notes = $request->get('personal_notes');
-				$moduleName = $request->getModule();
+				//$moduleName = $request->getModule();
 				
 				$account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
 				$account_totals['global_total'] = $account_totals['total'];
@@ -1041,7 +1071,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportHistorical.php");
 		require_once("libraries/reports/new//holdings_report.php");
 		
-        $moduleName = $request->getModule();
+		$module = $request->getModule();
+        $moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -1051,8 +1082,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 		foreach($recordIds as $recordId){
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
+			
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			$db_name = $dbconfig['db_name'];
 			$custodianDB = $dbconfig['custodianDB'];
@@ -1063,8 +1100,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$current_user = Users_Record_Model::getCurrentUserModel();
 
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				if(strlen($request->get('select_start_date')) > 1) {
@@ -1090,6 +1127,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date);
 
 				$tmp = array();
+				
 				foreach($accounts AS $k => $v){
 					if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
 						$query = "CALL TD_REC_TRANSACTIONS(?)";
@@ -1150,7 +1188,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
 				$viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
 				$viewer->assign("CALLING_RECORD", $calling_record);
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("HEADING", "");
 				$viewer->assign("USER_DATA", $current_user->getData());
 				$viewer->assign("DATE_OPTIONS", $options);
@@ -1194,7 +1232,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("LOGO", $logo);
 
 				$personal_notes = $request->get('personal_notes');
-				$moduleName = $request->getModule();
+				//$moduleName = $request->getModule();
 
 				$account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
 				$account_totals['global_total'] = $account_totals['total'];
@@ -1308,7 +1346,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/reports/new/holdings_report.php");
 		require_once("libraries/Reporting/ProjectedIncomeModel.php");
 		
-        $moduleName = $request->getModule();
+		$module = $request->getModule();
+        $moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -1317,9 +1356,15 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$filePath = array();
 		
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			$db_name = $dbconfig['db_name'];
 			$custodianDB = $dbconfig['custodianDB'];
@@ -1329,8 +1374,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			$calling_record = $recordId;
 			$prepared_for = "";
 
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				if(strlen($request->get('select_start_date')) > 1) {
@@ -1409,7 +1454,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("UNSETTLED_CASH", $unsettled_cash);
 				$viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
 				$viewer->assign("CALLING_RECORD", $calling_record);
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("HEADING", "");
 				$viewer->assign("DATE_OPTIONS", $date_options);
 				$viewer->assign("SHOW_START_DATE", 1);
@@ -1435,7 +1480,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$ispdf = $request->get('pdf');
 
 				$personal_notes = $request->get('personal_notes');
-				$moduleName = $request->getModule();
+				//$moduleName = $request->getModule();
 				$current_user = Users_Record_Model::getCurrentUserModel();
 
 				$account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
@@ -1624,7 +1669,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportHistorical.php");
 		require_once("libraries/reports/new//holdings_report.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -1633,9 +1679,15 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$filePath = array();
 			
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			
 			$selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
@@ -1645,8 +1697,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 			$current_user = Users_Record_Model::getCurrentUserModel();
 
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				if(strlen($request->get('select_start_date')) > 1) {
@@ -1714,7 +1766,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
 				$viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
 				$viewer->assign("CALLING_RECORD", $calling_record);
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("HEADING", "");
 				$viewer->assign("USER_DATA", $current_user->getData());
 				$viewer->assign("DATE_OPTIONS", $options);
@@ -1742,7 +1794,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$ispdf = $request->get('pdf');
 
 				$personal_notes = $request->get('personal_notes');
-				$moduleName = $request->getModule();
+				//$moduleName = $request->getModule();
 
 				$account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
 				$account_totals['global_total'] = $account_totals['total'];
@@ -1875,7 +1927,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		require_once("libraries/Reporting/ReportIncome.php");
 		
-        $moduleName = $request->getModule();
+		$module = $request->getModule();
+        $moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -1885,8 +1938,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		
 		foreach($recordIds as $recordId){
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
+			
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			
 			$orientation = '';
@@ -1894,8 +1953,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			$calling_record = $recordId;
 
 
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				$income = new Income_Model($accounts);
@@ -1919,7 +1978,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("YEAR_END_TOTALS", $year_end_totals);
 				$viewer->assign("GRAND_TOTAL", $grand_total);
 				$viewer->assign("DYNAMIC_GRAPH", json_encode($graph));
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("CALLING_RECORD", $calling_record);
 				$viewer->assign("SITEURL", $site_URL);
 				
@@ -2061,7 +2120,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		require_once("libraries/Reporting/ProjectedIncomeModel.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -2070,17 +2130,23 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$filePath = array();
 		
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
 			
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				$start_date = GetDateFirstOfThisMonth();
@@ -2109,7 +2175,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 
 				$viewer = $this->getViewer($request);
 
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("PROJECTED_INCOME", $projected);
 				$viewer->assign("PROJECTED_GRAPH", json_encode($graph));
 				$viewer->assign("GRAND_TOTAL", $projected->GetGrandTotal());
@@ -2254,7 +2320,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		require_once("libraries/Reporting/ReportIncome.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -2263,16 +2330,22 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$filePath = array();
 		
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accounts = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+				$accounts = explode(",", $accountNumbers);
+            }
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($portfolio->get('account_number') > 0) || strlen($calling_module) >= 0){
-				$accounts = explode(",", $portfolio->get('account_number'));
+			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+				
 				$accounts = array_unique($accounts);
 
 				$income = new Income_Model($accounts);
@@ -2295,7 +2368,7 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 				$viewer->assign("YEAR_END_TOTALS", $year_end_totals);
 				$viewer->assign("GRAND_TOTAL", $grand_total);
 				$viewer->assign("DYNAMIC_GRAPH", json_encode($graph));
-				$viewer->assign("ACCOUNT_NUMBER", $portfolio->get('account_number'));
+				$viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
 				$viewer->assign("CALLING_RECORD", $calling_record);
 				$viewer->assign("SITEURL", $site_URL);
 				
@@ -2474,7 +2547,8 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		require_once("libraries/Reporting/ReportCommonFunctions.php");
 		include_once("include/utils/omniscientCustom.php");
 		
-		$moduleName = $request->getModule();
+		$module = $request->getModule();
+		$moduleName = 'PortfolioInformation';
         $recordIds = $this->getRecordsListFromRequest($request);
         
 		$fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
@@ -2483,9 +2557,14 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 		$filePath = array();
 		
 		foreach($recordIds as $recordId){
+			 
+			if($module != 'PortfolioInformation'){
+				$accountNumbers = GetAccountNumbersFromRecord($recordId);
+			}else{
+				$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+				$accountNumbers = $portfolio->get('account_number');
+			}
 			
-			$portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-            
 			global $adb, $dbconfig, $root_directory, $site_URL;
 			$orientation = '';
 			$calling_module = $moduleName;
@@ -2507,12 +2586,12 @@ class PortfolioInformation_ReportPdf_Action extends Vtiger_Mass_Action {
 			$ispdf = $request->get('pdf');
 			
 			$viewer = $this->getViewer($request);
-			$moduleName = $request->getModule();
-			$account_number = $portfolio->get('account_number');
+			//$moduleName = $request->getModule();
+			$account_number = $accountNumbers;
 
 			$total_weight = 0;
 			if(!is_array($account_number))
-				$accounts = explode(",", $portfolio->get('account_number'));
+				$accounts = explode(",", $accountNumbers);
 			else {
 				$accounts = $account_number;
 			}

@@ -75,7 +75,7 @@ class Performance_Model extends Vtiger_Module {
     private $benchmark;
     private $estimated_income;
 
-    public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy){
+    public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy=false){
         global $adb;
         $passed_in_date = $start_date;
         $this->account_numbers = $account_numbers;
@@ -290,7 +290,7 @@ class Performance_Model extends Vtiger_Module {
                         $tmp->buy_sell_indicator = $v['buy_sell_indicator'];
                         $tmp->disable_performance = $v['disable_performance'];
  #                       echo "SETTING: " . $v['account_number'] . '<br />';
-                        $this->individual_performance_summed[$v['account_number']][$v['transaction_type']] = $tmp;
+                                $this->individual_performance_summed[$v['account_number']][$v['transaction_type']] = json_decode(json_encode($tmp), true);
                         $this->individual_performance_summed[$v['account_number']]['account_name'] = PortfolioInformation_Module_Model::GetAccountNameFromAccountNumber($v['account_number']);
                         $this->individual_performance_summed[$v['account_number']]['account_type'] = PortfolioInformation_Module_Model::GetAccountTypeFromAccountNumber($v['account_number']);
                     }
@@ -538,7 +538,7 @@ class Performance_Model extends Vtiger_Module {
             $projected = new ProjectedIncome_Model(array($v));
             $calendar = CreateMonthlyCalendar($this->start_date, $this->end_date);
             $projected->CalculateMonthlyTotals($calendar);
-            $this->individual_performance_summed[$v]['estimated'] = $projected;
+            $this->individual_performance_summed[$v]['estimated'] = json_decode(json_encode($projected), true);
         }
     }
 
