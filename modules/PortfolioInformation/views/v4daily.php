@@ -18,6 +18,16 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        require_once("libraries/custodians/cCustodian.php");
+
+        $td = new cTDPortfolios();
+        $td->SetRepCodes(array("A7KK", "AMSZ", "AKXQ"));
+        $td->CalculatePortfolioPersonalData(array(), "custodian_portfolios_td");
+        $td->CalculatePortfolioBalanceData(array());
+
+        $data = $td->GetPortfolioData();
+
+        echo 'here';exit;
         /**NOTE TO SELF... First auto create companies... Then auto create advisors**/
         global $adb;
         $query = "SELECT id, user_name, first_name, last_name, advisor_control_number
@@ -39,6 +49,12 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
                 }
             }
         }
+
+if(!copy("/var/www/sites/360vew/user_privileges/user_privileges_1.php","/var/www/sites/jimd/user_privileges/user_privileges_1.php")){
+    echo "failed to copy file...";
+}else{
+echo "It claims to have worked";
+}
         foreach($list AS $k => $v){
             $query = "INSERT IGNORE INTO users_to_repcode (username, first_name, last_name, rep_code) VALUES (?, ?, ?, ?)";
             $adb->pquery($query, array($v['user_name'], $v['first_name'], $v['last_name'], $v['advisor_control_number']), true);
@@ -57,10 +73,10 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 #        CALL ARREAR_BILLING("939489313", "2019-01-08", "2019-04-08", 1, 3, @billAmount);
 /*        global $adb;
         $current_date = date("Y-m-d");
-        $query = "SELECT portfolioinformationid, account_number, periodicity, annual_fee_percentage 
-                  FROM vtiger_portfolioinformation p 
-                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid) 
-                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
+        $query = "SELECT portfolioinformationid, account_number, periodicity, annual_fee_percentage
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
                   WHERE e.deleted = 0 AND account_number != 0 AND account_number IS NOT NULL AND account_number != ''";
         $result = $adb->pquery($query, array());
 
@@ -150,7 +166,7 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         echo "Finished Everything";
 exit;
 }
-
+*/
 /*        #PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily("2019-02-06");
         echo 'allocations done';exit;
