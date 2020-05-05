@@ -40,21 +40,25 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         global $adb, $site_URL, $current_user;
         
-		//$recordIds = $this->getRecordsListFromRequest($request);
+		$recordIds = $this->getRecordsListFromRequest($request);
         
-        //if(count($recordIds)<=1){
+       if(count($recordIds)<=20){
         
 		$report = $request->get('reportselect');
 		
 		$this->invokeExposedMethod($report, $request);
             
-        //}else{
+        }else{
             
-            //$adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
-                //(user_id, user_email, params) VALUES (?, ?, ?)",
-                //array($current_user->id, $current_user->email1, json_encode($_REQUEST)));
+            $adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
+                (user_id, user_email, params) VALUES (?, ?, ?)",
+                array($current_user->id, $current_user->email1, json_encode($_REQUEST)));
             
-        //}
+            $response = new Vtiger_Response();
+            $response->setResult(true);
+            $response->emit();
+            
+        }
         
     }
     
@@ -139,7 +143,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				$options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
 
 				$accounts = array_unique($accounts);
@@ -702,7 +706,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($accountNumbers > 0)){
+			if(sizeof($accounts) > 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -827,7 +831,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$current_user = Users_Record_Model::getCurrentUserModel();
 			
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 				
@@ -1100,7 +1104,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 			$current_user = Users_Record_Model::getCurrentUserModel();
 
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -1374,7 +1378,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$calling_record = $recordId;
 			$prepared_for = "";
 
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -1697,7 +1701,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 
 			$current_user = Users_Record_Model::getCurrentUserModel();
 
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -1953,7 +1957,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$calling_record = $recordId;
 
 
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -2145,7 +2149,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
 			
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
@@ -2344,7 +2348,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			$orientation = '';
 			$calling_module = $moduleName;
 			$calling_record = $recordId;
-			if(strlen($accountNumbers > 0) || strlen($calling_module) >= 0){
+			if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
 				
 				$accounts = array_unique($accounts);
 
