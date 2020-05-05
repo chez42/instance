@@ -865,9 +865,10 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				}
 				$accounts = $tmp;
 				
-				$ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
+				//$ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
 				
 				if (sizeof($accounts) > 0) {
+					$ytd_performance = new Performance_Model($accounts, $start_date, $end_date);
 					PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
 					$categories = array("estimatedtype");
 					$fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
@@ -888,7 +889,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 					if($adb->num_rows($result) > 0){
 						$global_total = $adb->query_result($result, 0, 'global_total');
 					}
-				};
+				} else {
+					continue;
+				}
 				
 				$unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $end_date);
 				$margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $end_date);
