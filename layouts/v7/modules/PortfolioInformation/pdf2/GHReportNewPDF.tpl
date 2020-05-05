@@ -36,7 +36,7 @@
 <div id="GHReport_wrapper" style="font-family:Arial, Sans-Serif; font-size:16px;">
     <table id="GHReport_header" style="font-family:Arial, Sans-Serif;">
         <tr>
-            <td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}</td>
+            <td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$SITEURL}{$LOGO}" style="width:60%;" />{/if}</td>
 
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
