@@ -60,8 +60,8 @@ class Contacts_RelationAjax_Action extends Vtiger_RelationAjax_Action {
     	        $connectionObj = CRMEntity::getInstance('Connection');
     	        $connectionObj->column_fields['parent_contact_id'] = $sourceRecordId;
     	        $connectionObj->column_fields['child_contact_id'] =  $relatedRecordId;
-    	        $connectionObj->column_fields['related_type'] = 'Referrer';
-    	        $connectionObj->column_fields['connection_from'] = 'Referrer';
+    	        $connectionObj->column_fields['related_type'] = $request->get('connection_to_pop');
+    	        $connectionObj->column_fields['connection_from'] = $request->get('connection_from_pop');
     	        $connectionObj->save('Connection');
     	        
     	    }

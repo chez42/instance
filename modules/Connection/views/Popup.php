@@ -226,6 +226,15 @@ class Connection_Popup_View extends Vtiger_Popup_View {
                 $viewer->assign('LISTVIEW_COUNT', $totalCount);
             }
             
+            $connModel = Vtiger_Module_Model::getInstance($moduleName);
+            $fromField = Vtiger_Field_Model::getInstance('connection_from',$connModel);
+            $fromPickList = $fromField->getPicklistValues();
+            $viewer->assign('FROMFIELD', $fromPickList);
+            
+            $toField = Vtiger_Field_Model::getInstance('related_type',$connModel);
+            $toPickList = $toField->getPicklistValues();
+            $viewer->assign('TOFIELD', $toPickList);
+            
             $viewer->assign('MULTI_SELECT', $multiSelectMode);
             $viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
         }else{
