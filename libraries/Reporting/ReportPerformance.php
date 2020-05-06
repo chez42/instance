@@ -276,7 +276,7 @@ class Performance_Model extends Vtiger_Module {
                 $result = $adb->pquery($query, array());
 
                 foreach($this->individual_end_values AS $k => $v){
-                    $this->individual_performance_summed[$k] = '';
+                    $this->individual_performance_summed[$k] = array();
                 }
 
                 if($adb->num_rows($result) > 0){

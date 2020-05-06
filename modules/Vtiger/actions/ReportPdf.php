@@ -42,11 +42,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
 		$recordIds = $this->getRecordsListFromRequest($request);
         
-       if(count($recordIds)<=20){
+       if(count($recordIds)<=20 || $request->get('sendEmail')){
         
-		$report = $request->get('reportselect');
-		
-		$this->invokeExposedMethod($report, $request);
+			$report = $request->get('reportselect');
+			
+			$this->invokeExposedMethod($report, $request);
             
         }else{
             
@@ -101,7 +101,51 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         unlink($zipname);
 		
     }
-	
+    
+    function SendEmail($fileDir, $userEmail){
+        
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+        $zipname  = 'cache/'.strtotime('now').'.zip';
+        $zip = new ZipArchive;
+        $zip->open($zipname, ZipArchive::CREATE);
+        foreach ($fileDir as $file) {
+            if(filetype($file) == 'file') {
+                if(file_exists($file)) {
+                    $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
+                }
+            }
+        }
+        $zip->close();
+        
+        $mailer = Emails_Mailer_Model::getInstance();
+        $mailer->IsHTML(true);
+        $userName = $currentUserModel->getName();
+        
+        $emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
+        $fromEmail = $emailRecordModel->getFromEmailAddress();
+        $replyTo = $emailRecordModel->getReplyToEmail();
+        
+        $mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+        
+        $mailer->AddAddress($userEmail);
+        
+        $mailer->AddAttachment($zipname);
+        
+        $mailer->Subject = 'Portfolio Report Pdf';
+        
+        $mailer->Body = decode_html('Portfolio Report Pdf') ;
+        
+        $status = $mailer->Send(true);
+        
+        $error = $mailer->getError();
+        
+        foreach ($fileDir as $file) {
+            unlink($file);
+        }
+        
+        unlink($zipname);
+        
+    }
 	
 	function GenerateTableCategories($merged_transaction_types){
         $table = array();
@@ -388,7 +432,12 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			}
 		
 		}
-		$this->GeneratePDF($filePath);
+		
+		if(!$request->get('sendEmail')){
+		  $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 
     }
     
@@ -672,7 +721,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
@@ -788,7 +841,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 
     }
     
@@ -1117,7 +1174,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 		
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
         
     }
     
@@ -1392,7 +1453,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			}
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
     }
     
     function GH2Report(Vtiger_Request $request){
@@ -1715,7 +1780,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			}
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
@@ -1975,7 +2044,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
@@ -2168,7 +2241,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
@@ -2368,7 +2445,12 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			}
 				
 		}
-		$this->GeneratePDF($filePath);
+		
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 	   
     }
     
@@ -2558,7 +2640,12 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			}
 			
 		}
-		$this->GeneratePDF($filePath);
+		
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
@@ -2780,7 +2867,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			
 		}
 		
-		$this->GeneratePDF($filePath);
+		if(!$request->get('sendEmail')){
+		    $this->GeneratePDF($filePath);
+		}else if ($request->get('sendEmail')){
+		    $this->SendEmail($filePath, $request->get('userEmail'));
+		}
 		
     }
     
