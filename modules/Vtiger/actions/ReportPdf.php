@@ -104,6 +104,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     function SendEmail($fileDir, $userEmail){
         
+        global $adb;
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
         $zipname  = 'cache/'.strtotime('now').'.zip';
         $zip = new ZipArchive;
@@ -117,6 +118,14 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         }
         $zip->close();
         
+        $query='SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+					FROM  vtiger_emailtemplates WHERE vtiger_emailtemplates.templateid = 213';
+        
+        $result = $adb->pquery($query, array());
+        $body=decode_html($adb->query_result($result,0,'body'));
+        
+        $subject=decode_html($adb->query_result($result,0,'subject'));
+            
         $mailer = Emails_Mailer_Model::getInstance();
         $mailer->IsHTML(true);
         $userName = $currentUserModel->getName();
@@ -131,9 +140,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $mailer->AddAttachment($zipname);
         
-        $mailer->Subject = 'Portfolio Report Pdf';
+        $mailer->Subject = $subject;
         
-        $mailer->Body = decode_html('Portfolio Report Pdf') ;
+        $mailer->Body = $body ;
         
         $status = $mailer->Send(true);
         
@@ -419,11 +428,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -711,11 +768,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			fwrite($fb, $b);
 			fclose($fb);
 			
+			$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+			    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+			    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+			    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+			    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+			$footerFileName = $fileDir.'/footer_'.$name.'.html';
+			$ff = fopen($footerFileName, 'w');
+			$f = $footer;
+			fwrite($ff, $f);
+			fclose($ff);
+			
 			$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 			
-			$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+			$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 			
 			unlink($bodyFileName);
+			unlink($footerFileName);
 			
 			$filePath[] = $whtmltopdfPath;
 			
@@ -827,11 +932,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 		
 				$filePath[] = $whtmltopdfPath;
 				
@@ -1112,7 +1265,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				
 				
 				
-								$footer ="<!doctype html>
+			    $footer ="<!doctype html>
 				<html>
 					<head>
 						<meta charset='utf-8'>
@@ -1440,11 +1593,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -1767,11 +1968,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 			
 				$filePath[] = $whtmltopdfPath;
 				
@@ -2030,11 +2279,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -2227,11 +2524,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -2432,11 +2777,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -2627,11 +3020,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				fwrite($fb, $b);
 				fclose($fb);
 				
+				$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+				    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+				    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+				    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+				    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
 				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 				
-				$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 				
 				unlink($bodyFileName);
+				unlink($footerFileName);
 				
 				$filePath[] = $whtmltopdfPath;
 				
@@ -2857,11 +3298,59 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 			fwrite($fb, $b);
 			fclose($fb);
 			
+			$footer ="<!doctype html>
+				<html>
+					<head>
+						<meta charset='utf-8'>
+						<script>
+							function substitutePdfVariables() {
+			    
+								function getParameterByName(name) {
+									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+								}
+			    
+								function substitute(name) {
+									var value = getParameterByName(name);
+									var elements = document.getElementsByClassName(name);
+			    
+									for (var i = 0; elements && i < elements.length; i++) {
+										elements[i].textContent = value;
+									}
+								}
+			    
+								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+									.forEach(function(param) {
+										substitute(param);
+									});
+							}
+						</script>
+					</head>
+					<body onload='substitutePdfVariables()'>
+						<div style='width:100%;'>
+							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+								</p>
+							</div>
+							<div style='float:right;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							</div>
+						</div>
+					</body>
+				</html>";
+			$footerFileName = $fileDir.'/footer_'.$name.'.html';
+			$ff = fopen($footerFileName, 'w');
+			$f = $footer;
+			fwrite($ff, $f);
+			fclose($ff);
+			
 			$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
 			
-			$output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+			$output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 			
 			unlink($bodyFileName);
+			unlink($footerFileName);
 			
 			$filePath[] = $whtmltopdfPath;
 			
