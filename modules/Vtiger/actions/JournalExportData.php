@@ -92,6 +92,9 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
             }
             $entries[$j]["creator"] = getUserFullName($db->query_result($result, $j, "creator"));
             $entries[$j]["subject"] = html_entity_decode($db->query_result($result, $j, "subject"), ENT_QUOTES);
+//             if($entries[$j]["module"] == 'RingCentral'){
+//                 $entries[$j]["subject"] = 'N/A';
+//             }
             $entries[$j]["description"] = trim(strip_tags(html_entity_decode($db->query_result($result, $j, "description"), ENT_QUOTES)));
             if($entries[$j]["module"] == 'ModComments'){
                 $entries[$j]["description"] = 'N/A';
@@ -434,7 +437,36 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         
         if($creatorQuery)
             $listQuery .= $creatorQuery;
+            
+        $listQuery .= " UNION ";
+        
+        $listQuery .= " SELECT DISTINCT vtiger_crmentity.createdtime as createddate,
+        vtiger_crmentity.setype as module, concat(vtiger_ringcentral.direction, ' ' ,vtiger_ringcentral.ringcentral_type) as subject,
+        vtiger_crmentity.description as description,  vtiger_ringcentral.ringcentral_status as status,
+        vtiger_crmentity.smcreatorid as creator
+        FROM vtiger_ringcentral
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+        INNER JOIN vtiger_seringcentralrel ON vtiger_seringcentralrel.ringcentralid = vtiger_ringcentral.ringcentralid
+        WHERE vtiger_crmentity.deleted =0 AND vtiger_seringcentralrel.crmid = ".$parentRecordId;
+       
+        if($dateQuery)
+            $listQuery .=  $dateQuery;
+            
+        if($moduleQuery)
+            $listQuery .=  $moduleQuery;
+           
+        if($searchSubject){
+            $listQuery .= " AND concat(vtiger_ringcentral.direction, ' ' ,vtiger_ringcentral.ringcentral_type) LIKE '%$searchSubject%' ";
+        }
+        
+        if($searchDescription){
+            $listQuery .= " AND vtiger_crmentity.description LIKE '%$searchDescription%' ";
+        }
+        
+        if($creatorQuery)
+            $listQuery .= $creatorQuery;
                 
+        
         $listQuery .=" ORDER BY createddate DESC ";
         
         if($mode == 'ExportCurrentPage'){
