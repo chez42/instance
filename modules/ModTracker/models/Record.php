@@ -468,9 +468,36 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         
         if($creatorQuery)
             $listQuery .= $creatorQuery;
+         
+        $listQuery .= " UNION ";
+        
+        $listQuery .= " SELECT DISTINCT vtiger_crmentity.crmid , vtiger_crmentity.createdtime as createddate,
+        vtiger_crmentity.setype as module, concat(vtiger_ringcentral.direction, ' ' ,vtiger_ringcentral.ringcentral_type) as subject,
+        vtiger_ringcentral.ringcentral_status as status, vtiger_crmentity.description as description,
+        vtiger_crmentity.smcreatorid as creator
+        FROM vtiger_ringcentral
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+        INNER JOIN vtiger_seringcentralrel ON vtiger_seringcentralrel.ringcentralid = vtiger_ringcentral.ringcentralid
+        WHERE vtiger_crmentity.deleted =0 AND vtiger_seringcentralrel.crmid = ".$parentRecordId;
+        if($dateQuery)
+            $listQuery .=  $dateQuery;
             
+        if($moduleQuery)
+            $listQuery .=  $moduleQuery;
+            
+        if($searchSubject){
+            $listQuery .= " AND concat(vtiger_ringcentral.direction, ' ' ,vtiger_ringcentral.ringcentral_type) LIKE '%$searchSubject%' ";
+        }
+        
+        if($searchDescription){
+            $listQuery .= " AND vtiger_crmentity.description LIKE '%$searchDescription%' ";
+        }
+        
+        if($creatorQuery)
+            $listQuery .= $creatorQuery;
+        
         $listQuery .=" ORDER BY createddate DESC LIMIT $startIndex, ".($pageLimit+1);
-       
+        
         $result = $db->pquery($listQuery, array());
         $rows = $db->num_rows($result);
        
@@ -781,7 +808,31 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         
         if($creatorQuery)
             $listQuery .= $creatorQuery;
-           
+        
+        $listQuery .= " UNION ";
+        
+        $listQuery .= " SELECT DISTINCT vtiger_crmentity.crmid , vtiger_crmentity.createdtime as createddate,
+        vtiger_crmentity.setype as module, vtiger_ringcentral.related_to as subject, 
+        vtiger_ringcentral.ringcentral_status as status, vtiger_crmentity.description as description
+        FROM vtiger_ringcentral
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+        INNER JOIN vtiger_seringcentralrel ON vtiger_seringcentralrel.ringcentralid = vtiger_ringcentral.ringcentralid
+        WHERE vtiger_crmentity.deleted =0 AND vtiger_seringcentralrel.crmid = ".$recordId;
+        
+        if($dateQuery)
+            $listQuery .=  $dateQuery;
+            
+        if($moduleQuery)
+            $listQuery .=  $moduleQuery;
+            
+        if($searchDescription){
+            $listQuery .= " AND vtiger_crmentity.description LIKE '%$searchDescription%' ";
+        }
+        
+        if($creatorQuery)
+            $listQuery .= $creatorQuery;
+                    
+        
         $result = $db->pquery($listQuery,array());   
             
         return $db->num_rows($result);

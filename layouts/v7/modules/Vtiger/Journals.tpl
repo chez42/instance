@@ -92,6 +92,7 @@
 										<option value="Emails" {if in_array('Emails',$SEARCH_VALUES)} selected {/if}>Email</option>
 										<option value='ModComments' {if in_array('ModComments',$SEARCH_VALUES)} selected {/if}>Comment</option>
 										<option value='Documents' {if in_array('Documents',$SEARCH_VALUES)} selected {/if}>Documents</option>
+										<option value='RingCentral' {if in_array('RingCentral',$SEARCH_VALUES)} selected {/if}>RingCentral</option>
 									</select>
 								</div>
 								<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS['module']['comparator']}">

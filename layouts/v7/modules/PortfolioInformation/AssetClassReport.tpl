@@ -105,7 +105,7 @@
                                 {assign var=CatCount value=$CatCount+1}
                                 {if $cat != ''}
                                     <tr data-toggle="collapse" id="asset_cat_{$CatCount}" data-target=".asset_cat_{$CatCount}">
-                                        <td><i class="icon-plus"></i>&nbsp;<strong>{$cat}</strong></td>
+                                        <td><i class="fa fa-plus"></i>&nbsp;<strong>{$cat}</strong></td>
                                         {foreach from=$DYNAHEADINGS key=a item=heading}
                                             {if $a neq 'heading'}
                                                 {if $DYNARULES[$a]['cat_smarty_modifier'] != ''}
