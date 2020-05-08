@@ -19,15 +19,155 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
     function process(Vtiger_Request $request)
     {
         require_once("libraries/custodians/cCustodian.php");
+        echo "Script start: " . date("Y-m-d H:i:s") . '<br />';
 
-        $td = new cTDPortfolios();
-        $td->SetRepCodes(array("A7KK", "AMSZ", "AKXQ"));
-        $td->CalculatePortfolioPersonalData(array(), "custodian_portfolios_td");
-        $td->CalculatePortfolioBalanceData(array());
 
+/*
+        $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
+                                "custodian_securities_td");
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
+        print_r($data);
+        exit;
+*/
+/*
+        $td = new cFidelitySecurities("Fidelity", "custodian_omniscient", "securities",
+            "custodian_securities_fidelity");
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
+        print_r($data);
+        exit;
+*/
+
+
+
+        $schwab = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
+            "custodian_portfolios_schwab", "custodian_transactions_schwab",
+            array('08134583'));
+//        $fidelity->SetColumns(array("transaction_id"));
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        echo 'Memory Before: ' . memory_get_usage() . '<br />';
+        $data = $schwab->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
+        echo count($data) . '<br />';
+        echo 'Memory After: ' . memory_get_usage() . '<br />';
+        echo date("Y-m-d H:i:s");
+        exit;
+
+/*
+        $td = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+                                  "custodian_portfolios_td", "custodian_transactions_td",
+                                   array('A7KK', 'AMSZ'));
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        $data = $td->GetTransactionsDataBetweenDates('2019-01-01', '2020-05-01', array(), array());
+        print_r($data);
+        exit;
+*/
+/*
+        $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions",
+            "custodian_portfolios_fidelity", "custodian_transactions_fidelity",
+            array('GH1', 'GH2'));
+//        $fidelity->SetColumns(array("transaction_id"));
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        echo 'Memory Before: ' . memory_get_usage() . '<br />';
+            $data = $fidelity->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01', array(), array());
+//        echo count($data) . '<br />';
+        echo 'Memory After: ' . memory_get_usage() . '<br />';
+        echo date("Y-m-d H:i:s");
+        exit;
+*/
+
+/*
+        $td = new cSchwabPrices("Schwab", "custodian_omniscient", "prices",
+                             "custodian_portfolios_schwab", "custodian_prices_schwab",
+                                           array());
+        #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+        $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+        print_r($data);
+        exit;
+*/
+/*
+        $td = new cTDPrices("TD", "custodian_omniscient", "prices",
+                             "custodian_portfolios_td", "custodian_prices_td",
+                                           array());
+        #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+        $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+        print_r($data);
+        exit;
+*/
+/*
+        $fidelity = new cFidelityPrices("Fidelity", "custodian_omniscient", "prices",
+                             "custodian_prices_fidelity", "custodian_prices_fidelity",
+                                           array());
+        $data = $fidelity->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+        $data = $fidelity->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+        print_r($data);
+        exit;
+*/
+
+
+/*        $td = new cTDPositions("TD", "custodian_omniscient", "positions",
+                                "custodian_portfolios_td", "custodian_positions_td",
+                                              array('A7KK', 'AMSZ', 'AKXQ'));
+        $data = $td->GetPositionsData();
+        echo count($data);exit;
+        print_r($data);
+        exit;
+*/
+/*
+        $fidelity = new cFidelityPositions("Fidelity", "custodian_omniscient", "positions",
+                                "custodian_portfolios_fidelity", "custodian_positions_fidelity",
+                                              array('GH1', 'GH2'));
+        echo date("Y-m-d H:i:s");
+        $data = $fidelity->GetPositionsData();
+        echo count($data);
+        echo date("Y-m-d H:i:s");
+#        print_r($data);
+        exit;
+*/
+/*
+        $fidelity = new cSchwabPositions("Schwab", "custodian_omniscient", "positions",
+                                "custodian_portfolios_schwab", "custodian_positions_schwab",
+                                              array('08901624', '08781415'));
+        $fidelity->SetColumns(array("account_number", "symbol"));
+        $data = $fidelity->GetPositionsData();
+        echo count($data);
+        print_r($data);
+*/
+
+
+
+/*
+        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+                                 "custodian_portfolios_td", "custodian_balances_td",
+                                    array('A7KK', 'AMSZ', 'AKXQ'));
         $data = $td->GetPortfolioData();
+        print_r($data);
+        echo 'done';exit;
 
-        echo 'here';exit;
+        $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
+                                 "custodian_portfolios_fidelity", "custodian_balances_fidelity",
+                                    array('GH1'));
+        $data = $fidelity->GetPortfolioData();
+        print_r($data);
+        echo 'done';exit;
+*/
+/*
+        $schwab = new cSchwabPortfolios("Schwab", "custodian_omniscient", "portfolios",
+                                 "custodian_portfolios_schwab", "custodian_balances_schwab",
+                                    array('08901624', '08781415'));
+        $data = $schwab->GetPortfolioData();
+        echo count($data) . '<br />';
+*/
+/*
+        $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
+                                 "custodian_portfolios_fidelity", "custodian_balances_fidelity",
+                                    array('GH1'));
+        $data = $fidelity->GetPortfolioData();
+        print_r($data);
+        echo 'done';exit;
+*/
+        echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
+        echo 'done';exit;
         /**NOTE TO SELF... First auto create companies... Then auto create advisors**/
         global $adb;
         $query = "SELECT id, user_name, first_name, last_name, advisor_control_number
