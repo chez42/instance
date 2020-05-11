@@ -19,6 +19,8 @@ class MSExchange_SaveSyncSettings_Action extends Vtiger_BasicAjax_Action {
         
         $contactsSettings = $request->get('Contacts');
         $calendarSettings = $request->get('Calendar');
+        $taskSettings = $request->get('Task');
+        
         $sourceModule = $request->get('sourceModule');
         
         if(!empty($contactsSettings)){
@@ -31,6 +33,12 @@ class MSExchange_SaveSyncSettings_Action extends Vtiger_BasicAjax_Action {
             $calendarRequest = new Vtiger_Request($calendarSettings);
             $calendarRequest->set('sourcemodule', 'Calendar');
             MSExchange_Utils_Helper::saveSyncSettings($calendarRequest);
+        }
+        
+        if(!empty($taskSettings)){
+            $taskRequest = new Vtiger_Request($taskSettings);
+            $taskRequest->set('sourcemodule', 'Task');
+            MSExchange_Utils_Helper::saveSyncSettings($taskRequest);
         }
         
         $moduleModel = Vtiger_Module_Model::getInstance('MSExchange');

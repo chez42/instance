@@ -232,8 +232,8 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$this->initializeView($viewer,$request);
 		
 		global $adb,$site_URL;
-		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
-		    array($request->get('record')));
+		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
+		    array($request->get('record'), 'Calendar'));
 		$syncData = array();
 		if($adb->num_rows($check)){
 		    $syncData = $adb->query_result_rowdata($check);

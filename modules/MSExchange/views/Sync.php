@@ -18,7 +18,7 @@ class MSExchange_Sync_View extends MSExchange_List_View {
     	    
     	    $globalSettings = $moduleModel->getExchangeGlobalSettings();
     	    
-    		$modules = array('Contacts', 'Calendar');
+    		$modules = array('Contacts', 'Calendar','Task');
     		
     		if($request->get("source_module", false))
     		    $modules = array($request->get("source_module"));
@@ -30,15 +30,17 @@ class MSExchange_Sync_View extends MSExchange_List_View {
     		foreach ($modules as $sourceModule) {
     			
     		    $request->set('sourcemodule', $sourceModule);
-    
+    		    
     			if (!empty($globalSettings) && isset($globalSettings['url']) && $globalSettings['url'] != '') {
     			    
     			    if($sourceModule == 'Contacts'){
     			        $controller = new MSExchange_Contacts_Controller($user);
     			    } else if($sourceModule == 'Calendar'){
     			        $controller = new MSExchange_Calendar_Controller($user);
+    			    } else if($sourceModule == 'Task'){
+    			        $controller = new MSExchange_Task_Controller($user);
     			    }
-    			    
+    			   
     			    $isSyncReady = $controller->getMSExchangeModel()->isValidCredentials();
     			    
     			    if($isSyncReady){
