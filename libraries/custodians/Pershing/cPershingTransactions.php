@@ -3,32 +3,15 @@
 require_once("libraries/custodians/cCustodian.php");
 
 /**
- * Class cSchwabPortfolios
+ * Class cPershingPortfolios
  * This class allows the pulling of data from the custodian database
  */
-class cSchwabTransactions extends cCustodian
+class cPershingTransactions extends cCustodian
 {
     protected $transactions_data;//Holds the pricing information
 
-    protected function FillAccountNumbersFromRepCodes(){
-        global $adb;
-        $params = array();
-        $questions = generateQuestionMarks($this->rep_codes);
-        $params[] = $this->rep_codes;
-
-        $query = "SELECT t.trans 
-                  FROM {$this->database}.{$this->portfolio_table} p 
-                  JOIN {$this->database}.schwab_trimmed t ON t.original = p.account_number 
-                  WHERE rep_code IN ({$questions})
-                  ORDER BY file_date DESC";
-        $result = $adb->pquery($query, array($this->rep_codes), true);
-        if($adb->num_rows($result) > 0)
-            while($r = $adb->fetchByAssoc($result)){
-                $this->account_numbers[] = $r;
-            }
-    }
     /**
-     * cSchwabPortfolios constructor.
+     * cPershingPortfolios constructor.
      * @param string $custodian_name
      * @param string $database
      * @param string $module
@@ -103,8 +86,7 @@ class cSchwabTransactions extends cCustodian
         $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
                   WHERE account_number IN ({$questions}) AND trade_date BETWEEN ? AND ?";
         $result = $adb->pquery($query, $params, true);
-echo $query;
-print_r($params);exit;
+
         if ($adb->num_rows($result) > 0) {
             while ($r = $adb->fetchByAssoc($result)) {
                 $this->transactions_data[$r['account_number']][] = $r;
