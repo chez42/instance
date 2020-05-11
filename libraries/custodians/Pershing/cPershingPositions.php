@@ -2,14 +2,14 @@
 require_once("libraries/custodians/cCustodian.php");
 
 /**
- * Class cSchwabPortfolios
+ * Class cPershingPortfolios
  * This class allows the pulling of data from the custodian database
  */
-class cSchwabPositions extends cCustodian {
+class cPershingPositions extends cCustodian {
     private $positions_data;//Holds both personal and balance information
 
     /**
-     * cSchwabPortfolios constructor.
+     * cPershingPortfolios constructor.
      * @param string $custodian_name
      * @param string $database
      * @param string $module
@@ -47,11 +47,11 @@ class cSchwabPositions extends cCustodian {
         }
 
         if(!$date)
-            $date = $this->GetLatestPositionsDate("position_date");
+            $date = $this->GetLatestPositionsDate("as_of_date");
         $params[] = $date;
 
         $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
-                  WHERE account_number IN ({$questions}) AND position_date = ?";
+                  WHERE account_number IN ({$questions}) AND as_of_date = ?";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
