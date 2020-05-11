@@ -199,7 +199,7 @@ class MSExchange_Utils_Helper {
         
         }
         
-        if($source_module == 'Calendar'){
+        if($source_module == 'Calendar' || $source_module == 'Task'){
             
             $enable_cron = $request->get("enable_cron");
             
@@ -535,5 +535,25 @@ class MSExchange_Utils_Helper {
         
         $result = $db->pquery($sql, array($syncState, $user->id, $sourceModule));
         
+    }
+    
+    function getTaskSyncStartDate($user = false){
+        
+        if(!$user) $user = Users_Record_Model::getCurrentUserModel();
+        
+        $userId = $user->getId();
+        
+        if(!MSExchange_Utils_Helper::hasSettingsForUser($userId,'Task')) {
+            return false;
+        } else {
+            $db = PearDatabase::getInstance();
+            $sql = 'SELECT sync_start_from FROM ' . self::settings_table_name . ' WHERE user = ? AND module = ?';
+            $result = $db->pquery($sql, array($userId,'Task'));
+            $syncStartDate = $db->query_result($result, 0, 'sync_start_from');
+            if($syncStartDate)
+                return $syncStartDate;
+            else
+                return false;
+        }
     }
 }

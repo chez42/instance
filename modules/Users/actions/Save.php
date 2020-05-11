@@ -124,8 +124,8 @@ class Users_Save_Action extends Vtiger_Save_Action {
         
 		if($request->get('user_principal_name')){
 		    
-		    $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
-		        array($request->get('record')));
+		    $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
+		        array($request->get('record'), 'Calendar'));
 		    
 		    if($adb->num_rows($check)){
     		  
