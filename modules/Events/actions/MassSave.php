@@ -88,13 +88,14 @@ class Events_MassSave_Action extends Vtiger_MassSave_Action {
 			}
 			
 			
-	        $exchange_info = OmniCal_CRMExchangeHandler_Model::GetActivityIdAndChangeKey($recordId);
+	        /*$exchange_info = OmniCal_CRMExchangeHandler_Model::GetActivityIdAndChangeKey($recordId);
 			
 			if(!empty($exchange_info))
             	$recordModel->set("update_exchange", 1);
 			else
 				$recordModel->set("update_exchange", 0);
-				
+			*/
+			
 			$recordModels[$recordId] = $recordModel;
 		}	
 		
