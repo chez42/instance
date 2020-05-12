@@ -62,7 +62,10 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	registerFolderClickEvent : function() {
 		var self = this;
 		var container = self.getContainer();
-		container.find('.mm_folder').click(function(e) {
+		container.find('.mm_folder:not(i)').click(function(e) {
+			var target = jQuery(e.target);
+			
+			if(!target.hasClass('indicator')){
 			var folderElement = jQuery(e.currentTarget);
 			var folderName = folderElement.data('foldername');
 			container.find('.mm_folder').each(function(i, ele) {
@@ -77,6 +80,21 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			
 			if(jQuery(document).width()<768)
 				$('#modnavigator > div, .modules-menu').addClass('hidden-xs hidden-sm').css('width','100%');
+			}else{
+				
+				var parent = target.parent().parent();
+				if(parent.find('div').length){
+					if(target.hasClass('fa-angle-right')){
+						target.removeClass('fa-angle-right');
+						target.addClass('fa-angle-down');
+					}else if(target.hasClass('fa-angle-down')){
+						target.removeClass('fa-angle-down');
+						target.addClass('fa-angle-right');
+					}
+					
+				}
+				
+			}
 		});
 	},
 
@@ -1652,6 +1670,10 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		self.registerSearchTypeChangeEvent();
 		self.registerPostMailSentEvent();
 		self.registerClickLinkToEvent();
+		self.registerMailConverterButton();
+		self.registerAddMailboxButon();
+		self.scanMailBox();
+		self.deleteMailBox();
 	},
 	
 	registerEventForSingleMailActions : function(){
@@ -2054,5 +2076,319 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			}
 		});
 	},
+	
+	registerMailConverterButton : function(){
+		var thisInstance = this;
+		jQuery(document).on('click', '.addMailConverter', function(){
+			var scanner = $(this).data('scannerid');
+			var params = {};
+			params['module'] = app.getModuleName();
+			params['view'] = 'MailBoxEdit';
+			params['mode'] = 'mailBoxList';
+			params['record'] = scanner;
+			
+			app.request.post({data : params}).then(function(err,data) {
+				var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
+				app.helper.loadPageContentOverlay(data, overlayParams).then(function(container) {
+
+
+				});
+			});
+		});
+		
+	},
+	
+	registerAddMailboxButon : function(){
+		var thisInstance = this;
+		jQuery(document).on('click', '.addMailBox', function(){
+			
+			var params = {};
+			params['module'] = app.getModuleName();
+			params['view'] = 'MailBoxEdit';
+			params['mode'] = 'step1';
+			
+			if($(this).data('scannerid')){
+				params['create'] = 'existing';
+				params['record'] = $(this).data('scannerid');
+			}else{
+				params['create'] = 'new';
+			}
+			app.helper.showProgress();
+			app.request.post({data : params}).then(function(err,data) {
+				app.helper.showModal(data, {cb : function() {
+					thisInstance.firstStep();
+					thisInstance.activateHeader();
+					app.helper.hideProgress();
+					
+				}});
+			});
+			
+		});
+		
+	},
+	
+	firstStep: function (e) {
+		var thisInstance = this;
+		var form = jQuery('#mailBoxEditView');
+		
+		var params = {
+			submitHandler: function (form) {
+				var form = jQuery(form);
+				form.find('[name="saveButton"]').attr('disabled', 'disabled');
+				thisInstance.saveMailBox(form);
+			}
+		}
+		form.vtValidate(params);
+
+		form.submit(function (e) {
+			e.preventDefault();
+		});
+	},
+
+	saveMailBox: function (form) {
+		var thisInstance = this;
+		
+		var params = form.serializeFormData();
+		var errParams = {
+				position: {
+				'my' : 'bottom left',
+				'at' : 'top left',
+				'container' : jQuery('#mailBoxEditView')
+		}};
+		
+		var errorMsg = app.vtranslate('JS_REQUIRED_FIELD');
+		
+		var scannerName = params['scannername'];
+		
+		if(params['scannername'] == "") {
+			vtUtils.showValidationMessage(form.find('[name="scannername"]'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('[name="scannername"]'));
+		}
+		if(params['server'] == "") {
+			vtUtils.showValidationMessage(form.find('[name="server"]'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('[name="server"]'));
+		}
+		if(params['username'] == "") {
+			vtUtils.showValidationMessage(form.find('[name="username"]'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('[name="username"]'));
+		}
+		if(params['password'] == "") {
+			vtUtils.showValidationMessage(form.find('[name="password"]'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('[name="password"]'));
+		}
+			
+		params.scannername = jQuery('input[name="scannername"]').val();
+		params.module = 'MailConverter';
+		params.parent = 'Settings';
+		params.action = 'SaveMailBox';
+
+		app.helper.showProgress();
+		app.request.post({'data': params}).then(function (err, data) {
+			
+			if (typeof data != 'undefined') {
+				var create = jQuery("#create").val();
+				
+				var params = {};
+				params['module'] = app.getModuleName();
+				params['view'] = 'MailBoxEdit';
+				params['mode'] = 'step2';
+				params['create'] = create;
+				params['record'] = data.id;
+				
+				app.request.post({data : params}).then(function(err,data) {
+					jQuery('#step').val('step2');
+					jQuery('#recordId').val(params['record']);
+					jQuery('.addMailBoxStep').replaceWith(data);
+					thisInstance.secondStep();
+					if(create != 'new'){
+						jQuery('.nextStep').text('Finish');
+					}
+					form.append("<input type='hidden' name='mailbox_name' value='"+scannerName+"' />");
+					thisInstance.activateHeader();
+					app.helper.hideProgress();
+				});
+				
+			} else {
+				app.helper.hideProgress();
+				app.helper.showErrorNotification({'message': err['message']});
+			}
+		});
+	},
+
+	secondStep: function (e) {
+		var thisInstance = this;
+		var form = jQuery('#mailBoxEditView');
+		var params = {
+			submitHandler: function (form) {
+				var form = jQuery(form);
+				var checked = jQuery('input[type=checkbox][name=folders]:checked').length;
+				if (checked < 1) {
+					app.helper.showAlertNotification({'message': app.vtranslate('You must select atleast one folder.')});
+					return false;
+				} else {
+					form.find('[name="saveButton"]').attr('disabled', 'disabled');
+					var selectedFolders = jQuery('input[name=folders]:checked').map(function () {
+						return jQuery(this).val();
+					}).get();
+					thisInstance.saveFolders(selectedFolders);
+				}
+				return false;
+			}
+		}
+		form.vtValidate(params);
+
+		form.submit(function (e) {
+			e.preventDefault();
+		});
+	},
+
+	saveFolders: function (selectedFolders) {
+		var thisInstance = this;
+		var create = jQuery('#create').val();
+		var id = jQuery('#recordId').val();
+		
+		var url = 'module=MailConverter&parent=Settings&action=SaveFolders&folders='+selectedFolders+'&create='+create+'&record='+id;
+		var scannerName = jQuery('[name="mailbox_name"]').val();
+		
+		app.helper.showProgress();
+		app.request.post({'url': url}).then(function (err, data) {
+			app.helper.hideProgress();
+			
+			if (typeof data != 'undefined') {
+				if (create == 'new') {
+					var params = {};
+					params['module'] = app.getModuleName();
+					params['view'] = 'MailBoxEdit';
+					params['mode'] = 'step3';
+					params['create'] = create;
+					params['record'] = data.id;
+					
+					app.request.post({data : params}).then(function(err,data) {
+						jQuery('#step').val('step3');
+						jQuery('.fieldBlockContainer').replaceWith(data);
+						thisInstance.thirdStep();
+						jQuery(document).find('#ruleSave').append("<input type='hidden' name='mailbox_name' value='"+scannerName+"' />");
+						thisInstance.activateHeader();
+						app.helper.hideProgress();
+					});
+				}else{
+					app.helper.hideProgress();
+					app.helper.hideModal();
+				}
+			} else {
+				app.helper.hideProgress();
+				app.helper.showErrorNotification({'message': err['message']});
+			}
+		});
+	},
+
+	thirdStep: function (e) {
+		var thisInstance = this;
+		var form = jQuery('#ruleSave');
+		var params = {
+			submitHandler: function (form) {
+				var form = jQuery(form);
+				form.find('[name="saveButton"]').attr('disabled', 'disabled');
+				thisInstance.saveRule(form);
+			}
+		}
+		form.vtValidate(params);
+
+		form.submit(function (e) {
+			e.preventDefault();
+		});
+	},
+
+	saveRule: function (form) {
+		app.helper.showProgress();
+		var params = form.serializeFormData();
+		params.record = '';
+		app.request.post({'data': params}).then(function (err, data) {
+			app.helper.hideProgress();
+			
+			if (typeof data != 'undefined') {
+				app.helper.hideProgress();
+				app.helper.hideModal();
+				var scannername = form.find('[name="mailbox_name"]').val();
+				var scannerid = data.scannerId;
+				var html ='<li>'+
+					'<a href="#" data-scannerid="'+scannerid+'"> '+scannername+''+
+						'<i class="fa fa-trash pull-right deleteMailBox" title="Delete MailBox" data-scannerid="'+scannerid+'"></i>&nbsp;'+
+						'<i class="fa fa-plus pull-right addMailConverter" title="Add Rules MailBox" data-scannerid="'+scannerid+'"></i>&nbsp;'+
+						//'<i class="fa fa-folder pull-right addMailBox selectFolder" title="Select Folders" data-scannerid="'+scannerid+'"></i>&nbsp;'+
+						'<i class="fa fa-pencil pull-right addMailBox" title="Edit MailBox" data-scannerid="'+scannerid+'"></i>&nbsp;'+
+						'<i class="fa fa-refresh pull-right scanMailBox" title="Scan MailBox" data-scannerid="'+scannerid+'"></i>&nbsp;'+
+					'</a>'+
+				'</li>';
+				jQuery(document).find('.mailBoxDropDown').append(html);
+			} else {
+				app.helper.hideProgress();
+				app.helper.showErrorNotification({'message': err['message']});
+			}
+		});
+	},
+
+	/*
+	 * Function to activate the header based on the class
+	 * @params class name
+	 */
+	activateHeader: function () {
+		jQuery('.step.active').removeClass('active');
+		var step = jQuery('#step').val();
+		jQuery('#'+step).addClass('active');
+	},
+	
+
+	scanMailBox: function (url) {
+		var thisInstance = this;
+		
+		jQuery(document).on('click', '.scanMailBox', function(){
+			
+			var scannerId = $(this).data('scannerid');
+			
+			var url = "index.php?module=MailConverter&parent=Settings&record="+scannerId+"&action=ScanNow";
+			app.helper.showProgress();
+			app.request.post({'url': url}).then(function (err, data) {
+				app.helper.hideProgress();
+				if (typeof data != 'undefined') {
+					app.helper.showSuccessNotification({'message': data.message});
+				} else {
+					app.helper.showErrorNotification({'message': err['message']});
+				}
+			});
+			
+		});
+	},
+
+	deleteMailBox: function (url) {
+		var thisInstance = this;
+		jQuery(document).on('click', '.deleteMailBox', function(e){
+			
+			var scannerId = $(this).data('scannerid');
+			var element = jQuery(e.currentTarget).parent().parent();
+			
+			var url = "index.php?module=MailConverter&parent=Settings&record="+scannerId+"&action=DeleteMailBox";
+			app.helper.showConfirmationBox({'message': app.vtranslate('LBL_DELETE_CONFIRMATION')}).then(function () {
+				app.helper.showProgress();
+				app.request.post({'url': url}).then(function (err, data) {
+					element.remove();
+					app.helper.showSuccessNotification({'message': app.vtranslate('MailBox deleted Successfully')});
+					app.helper.hideProgress();
+				});
+			});
+			
+		});
+	},
+
+
+	
 	
 });

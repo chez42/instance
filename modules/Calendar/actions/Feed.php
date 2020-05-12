@@ -297,7 +297,8 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$queryGenerator = new QueryGenerator($moduleModel->get('name'), $currentUser);
 		}
 
-		$queryGenerator->setFields(array('subject', 'eventstatus', 'visibility','date_start','time_start','due_date','time_end','assigned_user_id','id','activitytype','recurringtype'));
+		$queryGenerator->setFields(array('subject', 'eventstatus', 'visibility','date_start',
+	    'time_start','due_date','time_end','assigned_user_id','id','activitytype','recurringtype','all_day_event'));
 		$query = $queryGenerator->getQuery();
 
 		$query.= " AND vtiger_activity.activitytype NOT IN ('Emails','Task') AND ";
@@ -400,6 +401,10 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 
 			$item['className'] = $cssClass;
 			$item['allDay'] = false;
+    			if($record['all_day_event']){
+    			    $item['allDay'] = true;
+    			    $item['end'] = date('Y-m-d h:m:i', strtotime($item['end'] . ' +1 day'));
+    			}
 			$item['color'] = $color;
 			$item['textColor'] = $textColor;
 			$item['module'] = $moduleModel->getName();
