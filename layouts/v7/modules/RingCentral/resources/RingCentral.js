@@ -746,8 +746,9 @@ Vtiger.Class("RingCentral_Js",{
 				'</div>'; 
 			}
 		}
-		
-		jQuery('.app-footer').append(html);
+		var dummy_html = '<div style = "display:none;" id = "dummy-div"></div>'
+		jQuery('.app-footer').append(dummy_html);
+		jQuery('#dummy-div').append(html);
 		
 		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><style>body.show_sidebar #push_sidebar{left:80%}#push_sidebarphone{-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;background-color:#fff;border:1px solid;border-radius:5px;position:fixed;z-index:99999999;width:20%;right:0;bottom:-200%;text-align:center;-webkit-transition:all .5s ease;-moz-transition:all .5s ease;-ms-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease;font-size:16px!important}body.show_sidebar3 #push_sidebarphone{bottom:0}</style>';
 		

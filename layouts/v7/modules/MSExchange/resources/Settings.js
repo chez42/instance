@@ -131,7 +131,7 @@ Vtiger.Class("MSExchange_Settings_Js", {
 		
 		$('#saveSettings').on('click', function(e){
 			e.preventDefault();
-			var fieldName = '"'+app.getModuleName()+"[impersonation_identifier]"+'"';
+			var fieldName = 'impersonation_identifier';
 			
 			if($("[name="+fieldName+"]").val()){
 				var params = {

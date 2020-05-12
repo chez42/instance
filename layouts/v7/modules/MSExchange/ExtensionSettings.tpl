@@ -40,7 +40,7 @@
 					{if !empty($GLOBAL_SETTINGS)}
 						{if isset($GLOBAL_SETTINGS['impersonate_user_account']) and !empty($GLOBAL_SETTINGS['impersonate_user_account'])}
 							{assign var=IMPERSONATIONTYPE value=$GLOBAL_SETTINGS['impersonation_type']}
-							{assign var=FieldName value=$SOURCEMODULE|cat:"[impersonation_identifier]"}
+							{assign var=FieldName value="impersonation_identifier"}
 							<div class="form-group m-form__group row">
 			                    {if $IMPERSONATIONTYPE eq 'smtp_address'}
 								    <label class="col-sm-3 col-md-2 col-form-label">{vtranslate('SMTP email address', $MODULE)} <span class="redColor">*</span></label>
@@ -71,10 +71,10 @@
 						{/if}
 					{/if}
 				
-					{if $SOURCEMODULE eq 'Contacts'}
+					{*if $SOURCEMODULE eq 'Contacts'*}
 						<input name="Contacts[enabled]" type="hidden" value="1"/>
 				        <div class="form-group m-form__group row">
-	                        <label class="col-sm-3 col-md-2 col-form-label">{vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
+	                        <label class="col-sm-3 col-md-2 col-form-label">Contact {vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
 	                        <div class="col-sm-4 col-md-4">
 	                        	<select name="Contacts[sync_direction]" class="form-control select2">
                                     <option value="11" {if $CONTACTS_SYNC_DIRECTION eq 11} selected {/if}> {vtranslate('LBL_SYNC_BOTH_WAYS', $MODULE)} </option>
@@ -83,11 +83,11 @@
                                 </select>
 	                        </div>
 	                    </div>
-					{/if}
-					{if $SOURCEMODULE eq 'Calendar'}
+					{*/if*}
+					{*if $SOURCEMODULE eq 'Calendar'*}
 						<input name="Calendar[enabled]" type="hidden" value="1"/ >
 						<div class="form-group m-form__group row">
-	                        <label class="col-sm-3 col-md-2 col-form-label">{vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
+	                        <label class="col-sm-3 col-md-2 col-form-label">Calendar {vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
 	                        <div class="col-sm-4 col-md-4">
 	                        	<select name="Calendar[sync_direction]" class="form-control select2">
                                     <option value="11" {if $CALENDAR_SYNC_DIRECTION eq 11} selected {/if}> {vtranslate('LBL_SYNC_BOTH_WAYS', $MODULE)} </option>
@@ -97,7 +97,7 @@
 	                        </div>
 	                    </div>
 	                    <div class="form-group m-form__group row">
-	                    	<label class="col-sm-3 col-md-2 col-form-label">{vtranslate('LBL_SYNC_START', $MODULE)}</label>
+	                    	<label class="col-sm-3 col-md-2 col-form-label">Calendar {vtranslate('LBL_SYNC_START', $MODULE)}</label>
 	                        <div class="col-sm-4 col-md-4">
 	                        	<div class="input-group">
 	                        		<input type="text" name="Calendar[sync_start_from]" class="dateField form-control m-input " data-rule-required="true"  data-rule-date="true" data-date-format="{$dateFormat}" data-fieldtype="date" value="{$SYNC_START_FROM}"/>
@@ -118,12 +118,12 @@
 								</label>
 							</div>
 						</div>
-					{/if}
+					{*/if*}
 					
-					{if $SOURCEMODULE eq 'Task'}
+					{*if $SOURCEMODULE eq 'Task'*}
 						<input name="Task[enabled]" type="hidden" value="1"/ >
 						<div class="form-group m-form__group row">
-	                        <label class="col-sm-3 col-md-2 col-form-label">{vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
+	                        <label class="col-sm-3 col-md-2 col-form-label">Task {vtranslate('LBL_SYNC_DIRECTION', $MODULE)}</label>
 	                        <div class="col-sm-4 col-md-4">
 	                        	<select name="Task[sync_direction]" class="form-control select2">
                                     <option value="11" {if $TASK_SYNC_DIRECTION eq 11} selected {/if}> {vtranslate('LBL_SYNC_BOTH_WAYS', $MODULE)} </option>
@@ -133,7 +133,7 @@
 	                        </div>
 	                    </div>
 	                    <div class="form-group m-form__group row">
-	                    	<label class="col-sm-3 col-md-2 col-form-label">{vtranslate('LBL_SYNC_START', $MODULE)}</label>
+	                    	<label class="col-sm-3 col-md-2 col-form-label">Task {vtranslate('LBL_SYNC_START', $MODULE)}</label>
 	                        <div class="col-sm-4 col-md-4">
 	                        	<div class="input-group">
 	                        		<input type="text" name="Task[sync_start_from]" class="dateField form-control m-input " data-rule-required="true"  data-rule-date="true" data-date-format="{$dateFormat}" data-fieldtype="date" value="{$SYNC_TASK_START_FROM}"/>
@@ -154,7 +154,7 @@
 								</label>
 							</div>
 						</div>
-					{/if}
+					{*/if*}
 					{if $SOURCEMODULE neq 'Task'}
 						<div class="form-group m-form__group row">
 							<div class="col-sm-6 col-xs-4 col-md-offset-2 col-sm-offset-3">
