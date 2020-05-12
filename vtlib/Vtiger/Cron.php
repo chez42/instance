@@ -330,11 +330,11 @@ class Vtiger_Cron {
 
 		$instances = array();
 		if($byStatus == 0) {
-			$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE status <> ? AND v4only = 1 ORDER BY SEQUENCE',array(self::$STATUS_DISABLED   ));
+			$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE status <> ? ORDER BY SEQUENCE',array(self::$STATUS_DISABLED   ));
 			//AND v4only = 1
 		}
 		else {
-			$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE v4only = 1 ORDER BY SEQUENCE');
+			$result = self::querySilent('SELECT * FROM vtiger_cron_task ORDER BY SEQUENCE');
 			//WHERE v4only = 1
 		}
 		if ($result && $adb->num_rows($result)) {

@@ -9,12 +9,14 @@ spl_autoload_register(function ($className) {
         include_once "libraries/custodians/Pershing/$className.php";
     }elseif (file_exists("libraries/custodians/Fidelity/$className.php")){
         include_once "libraries/custodians/Fidelity/$className.php";
+    }elseif (file_exists("libraries/custodians/Traits/$className.php")){
+        include_once "libraries/custodians/Traits/$className.php";
     }
 });
 
 class cCustodian{
     protected $custodian_name, $module, $database, $rep_codes, $account_numbers, $table, $portfolio_table, $columns;
-
+    protected $repcode_mapping;//The rep code associated to the proper user
 /*
     public function __construct($custodian_name = "TD", $database = "custodian_omniscient", $module = "transactions",
                                 $table = "custodian_transactions_td", $portfolio_table="custodian_portfolios_td"){
@@ -45,6 +47,7 @@ class cCustodian{
      */
     public function SetRepCodes(array $rep_codes){
         $this->rep_codes = $rep_codes;
+        $this->AssignRepCodeMapping();
         $this->FillAccountNumbersFromRepCodes();
     }
 
@@ -75,6 +78,17 @@ class cCustodian{
             while($r = $adb->fetchByAssoc($result)){
                 $this->account_numbers[] = $r;
             }
+    }
+
+    protected function AssignRepCodeMapping(){
+        global $adb;
+        foreach($this->rep_codes AS $k => $v){
+            $query = "SELECT id FROM vtiger_users WHERE advisor_control_number LIKE ('%{$v}%') LIMIT 1";
+            $result = $adb->pquery($query, array());
+            if($adb->num_rows($result) > 0){
+                $this->repcode_mapping[$v] = $adb->query_result($result, 0, 'id');
+            }
+        }
     }
 
     /**
@@ -153,5 +167,33 @@ class cCustodian{
             return $adb->query_result($result, 0, 'date');
 
         return 0;
+    }
+
+    /**
+     * Update the vtiger crmentity sequence
+     * @return string|string[]|null
+     * @throws Exception
+     */
+    protected function UpdateEntitySequence(){
+        global $adb;
+        $update_query = "UPDATE vtiger_crmentity_seq SET id = id+1";
+        $adb->pquery($update_query, array(), true);
+        $query = "SELECT id FROM vtiger_crmentity_seq";
+        $result = $adb->pquery($query, array());
+        return $adb->query_result($result, 0, 'id');
+    }
+
+    /**
+     * Determine if the account number exists in the CRM already
+     * @param $account_number
+     * @return bool
+     */
+    public function DoesAccountNumberExistInCRM($account_number){
+        global $adb;
+        $query = "SELECT account_number FROM vtiger_portfolioinformation WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0)
+            return true;
+        return false;
     }
 }
