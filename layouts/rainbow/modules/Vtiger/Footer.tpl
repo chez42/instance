@@ -206,7 +206,14 @@
 		
 	</div>
 </div>
-<footer class="app-footer" style="display: none">
+<div style = "clear:both;"></div>
+<footer class="app-footer">
+	<div class="vtFooter">
+		<p>
+			Powered by Omniscient CRM v4.0 &nbsp;&copy; 2004 - 2020&nbsp&nbsp;
+			<a href="//www.omnisrv.com" target="_blank">Omnisrv.com/</a>&nbsp;|&nbsp;<a href="#" onclick="window.open('../copyright.html','copyright', 'height=115,width=575').moveTo(210,620)">Read License</a>&nbsp;|&nbsp;<a href="https://omnisrv.com/privacy-policy/" target="_blank">Privacy Policy</a></p><p style="border-top:none; padding-top:15px; margin-bottom:20px;">DISCLAIMER: No representation is made as to this review's accuracy or completeness. Market values are obtained from sources believed to be reliable, but have not been audited and cannot be guaranteed. The performance data quoted represents past performance and does not guarantee future results. <br><br>The investment return and principal value of an investment will fluctuate thus an investor's shares, when redeemed, may be worth more or less than return data quoted herein. These reports are not intended to replace the client account statements provided by the custodian. 
+		</p>
+	</div>
 </footer>
 
 <div id='overlayPage'>
