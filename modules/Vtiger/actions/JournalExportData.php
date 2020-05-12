@@ -262,6 +262,10 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
             $listQuery .= " AND vtiger_modcomments.related_to = ".$parentRecordId." ";
         }
         
+        if($moduleName != 'HelpDesk'){
+            $listQuery .= " AND vtiger_modcomments.is_private != 1 ";
+        }
+        
         if($dateQuery)
             $listQuery .=  $dateQuery;
             
@@ -510,7 +514,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $header = implode("\", \"", $headers);
         $header = "\"" .$header;
         $header .= "\"\r\n";
-        echo $header;
+        echo str_replace('"','',$header);
         
         foreach($entries as $row) {
             foreach ($row as $key => $value) {

@@ -293,6 +293,11 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         else{
             $listQuery .= " AND vtiger_modcomments.related_to = ".$parentRecordId." ";
         }
+        
+        if($moduleName != 'HelpDesk'){
+            $listQuery .= " AND vtiger_modcomments.is_private != 1 ";
+        }
+        
         if($dateQuery)
             $listQuery .=  $dateQuery;
             
@@ -635,6 +640,10 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         }
         else{
             $listQuery .= " AND vtiger_modcomments.related_to = ".$recordId." ";
+        }
+        
+        if($moduleName != 'HelpDesk'){
+            $listQuery .= " AND vtiger_modcomments.is_private != 1 ";
         }
         
         if($dateQuery)

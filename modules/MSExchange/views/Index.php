@@ -180,7 +180,7 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	    
 	    $sourceModule = $request->getModule();
 	    
-	    if($sourceModule == 'Calendar'){
+	    //if($sourceModule == 'Calendar'){
 	        
 	        $syncStart = MSExchange_Utils_Helper::getCalendarSyncStartDate();
 	        
@@ -193,9 +193,9 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	            
 	        $viewer->assign("SYNC_START_FROM", $syncStart);
 	        $viewer->assign('AUTOMATIC_SYNC', MSExchange_Utils_Helper::checkCronEnabled('Calendar'));
-	    }
+	    //}
 	    
-	    if($sourceModule == 'Task'){
+	    //if($sourceModule == 'Task'){
 	        
 	        $syncStart = MSExchange_Utils_Helper::getTaskSyncStartDate();
 	        
@@ -209,7 +209,7 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	        $viewer->assign("SYNC_TASK_START_FROM", $syncStart);
 	        $viewer->assign('TASK_AUTOMATIC_SYNC', MSExchange_Utils_Helper::checkCronEnabled('Task'));
 	        
-	    }
+	    //}
 	    
 	    $viewer->assign('MODULE_MODEL', $moduleModel);
 	    $viewer->assign('MODULE', $moduleName);
