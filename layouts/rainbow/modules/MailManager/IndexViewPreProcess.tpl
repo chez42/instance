@@ -12,7 +12,7 @@
 <div class="container-fluid app-nav">
     <div class="row">
        {include file="modules/MailManager/partials/SidebarHeader.tpl"|myclayout_path}
-       {include file="modules/Vtiger/ModuleHeader.tpl"|myclayout_path}
+       {include file="modules/MailManager/ModuleHeader.tpl"|myclayout_path}
     </div>
 </div>
 </nav>
