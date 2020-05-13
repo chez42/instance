@@ -515,7 +515,7 @@ When click on sidebar toggler and also for tablet
   }
 }
 
-/*#page, html, body{
+#page, html, body{
 	overflow: hidden;
 }
 
