@@ -103,7 +103,7 @@ function addAcceptEventLink($body,$user_id,$recordModel) {
     }
     //$AcceptTrackingUrl not found in body of template
     $acceptLink = '<div class="invitationresponse"><a href="' . 
-            $acceptInvitationUrl. '" target="_blank">Accept - Add Event to Vtiger Calendar</a></div>';
+            $acceptInvitationUrl. '" target="_blank">Accept Event</a></div>';
     return substr_replace($body, $acceptLink, strpos($body, '</body>'), 0);
 }
 
