@@ -20,6 +20,7 @@ class Events_TrackAcceptInvitation_Handler {
 		if ($inviteeDetails[$userId] !== 'accepted') {
 			$recordModel->updateInvitationStatus($eventId, $userId, 'accepted');
 			$recordModel->set('assigned_user_id', $userId);
+			$recordModel->set('sendnotification', '0');
 			$recordModel->save();
 		}
 		echo 'Event added to your calendar - Thank you!';
