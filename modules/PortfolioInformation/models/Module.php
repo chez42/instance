@@ -2178,6 +2178,19 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         return 0;
     }
 
+    static public function GetAccountOwnerFromAccountNumber(string $account_number){
+        global $adb;
+        $query = "SELECT smownerid 
+                  FROM vtiger_crmentity e 
+                  JOIN vtiger_portfolioinformation p ON p.portfolioinformationid = e.crmid
+                  WHERE p.account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0,"smownerid");
+        }
+        return 1;
+    }
+
     static public function GetAccountNameFromAccountNumber($account_number)
     {
         global $adb;
