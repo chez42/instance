@@ -23,7 +23,7 @@ class cPushGuzzle{
         $this->tenant = "Omniscient";
         $this->user = "syncuser";
         $this->password = "Concert222";
-        $this->connection = "192.168.100.229";
+        $this->connection = "192.168.102.229";
         $this->dbname = "custodian_omniscient";
         $this->vtDBName = "live_omniscient";
 
