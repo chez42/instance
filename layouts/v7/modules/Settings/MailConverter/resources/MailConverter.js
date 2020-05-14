@@ -15,8 +15,8 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 				var mcInstance = Settings_MailConverter_Index_Js.mailConverterInstance;
 				app.helper.showVerticalScroll(jQuery('.addMailBoxStep'), {setHeight:'450px'});
 				mcInstance.saveRuleEvent();
-				mcInstance.setAssignedTo();
-				jQuery('#actions').trigger('change');
+				//mcInstance.setAssignedTo();
+				//jQuery('#actions').trigger('change');
 			}
 			app.helper.showModal(data, {cb:callBackFunction});
 		});
@@ -90,7 +90,8 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 				var form = jQuery(form);
 				form.find('[name="saveButton"]').attr('disabled', 'disabled');
 				app.helper.showProgress();
-				var params = form.serializeFormData();
+				//var params = form.serializeFormData();
+				var params = form.serialize();
 				app.request.post({data:params}).then(function (err, data) {
 					app.helper.hideProgress();
 					app.helper.hideModal();
@@ -137,7 +138,7 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 	},
 
 	setAssignedTo: function () {
-		jQuery('#actions').on('change', function () {
+		jQuery(document).on('change','#actions', function () {
 			var selectedAction = jQuery('#actions').val();
 			if (!(selectedAction == 'CREATE_HelpDesk_FROM'
 					|| selectedAction == 'CREATE_Leads_SUBJECT'
@@ -172,10 +173,37 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 	registerEvents: function () {
 		this.registerSortableEvent();
 		this.openMailBox();
-		this.setAssignedTo();
+		//this.setAssignedTo();
 		this.disableFolderSelection();
-		jQuery('#actions').trigger('change');
-	}
+		this.registerEventForAddActions();
+		//jQuery('#actions').trigger('change');
+	},
+	
+	registerEventForAddActions : function(){
+		jQuery(document).on('click', '.addMoreRules', function(){
+			
+			var row = $(this).closest("tr");
+			var ele = row.find('#actionsClone').clone(true);
+			if(app.getViewName() == 'List'){
+				var newRow = $('<tr class="row">');
+				newRow.append($('<td class="col-lg-2 control-label">'));
+				var newCol = $('<td class="col-lg-4">');
+			}else{
+				var newRow = $('<tr>');
+				newRow.append($('<td class="fieldLabel control-label" style="width:25%; padding-right:20px;">'));
+				var newCol = $('<td style="word-wrap:break-word;">');
+			}
+			ele.removeClass('hide').addClass('select2');
+			ele.attr('id','actions');
+			ele.attr('name','action1[]');
+			newRow.append(newCol.append(ele));
+			
+			newRow.insertAfter( row );
+			vtUtils.applyFieldElementsView(newRow);
+			
+		});
+	},
+	
 });
 
 //On Page Load

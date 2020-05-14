@@ -2309,7 +2309,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 
 	saveRule: function (form) {
 		app.helper.showProgress();
-		var params = form.serializeFormData();
+		//var params = form.serializeFormData();
+		var params = form.serialize();
 		params.record = '';
 		app.request.post({'data': params}).then(function (err, data) {
 			app.helper.hideProgress();

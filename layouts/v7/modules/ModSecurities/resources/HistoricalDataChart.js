@@ -146,6 +146,11 @@ jQuery.Class("HistoricalDataChart_Js",{
     registerEvents : function() {
         this.DisplayChart();
         this.ContentsDivChange();
+        $(".amChartsInputField").datepicker({
+            format: 'yyyy-mm-dd',
+            onClose: function (selectedDate) {
+	        }
+	    });
     }
     
 });
