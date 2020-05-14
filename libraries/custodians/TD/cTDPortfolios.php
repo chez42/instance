@@ -57,7 +57,7 @@ class cTDPortfolios extends cCustodian {
             $this->SetRepCodes($rep_codes);
             $this->GetPortfolioPersonalData();
             $this->GetPortfolioBalanceData();
-            $this->SetMissingPortfolios();
+            $this->SetupPortfolioComparisons();
         }
     }
 
@@ -191,8 +191,37 @@ class cTDPortfolios extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
+    protected function UpdatePortfolios(cTDPortfolioData $data){
+        global $adb;
+        $params[] = 'TD';
+        $params[] = $data->account_type;
+        $params[] = $data->first_name;
+        $params[] = $data->last_name;
+        $params[] = $data->account_value;
+        $params[] = $data->money_market;
+        $params[] = $data->rep_code;
+        $params[] = $data->street;
+        $params[] = $data->address2;
+        $params[] = $data->address3;
+        $params[] = $data->address4;
+        $params[] = $data->address5;
+        $params[] = $data->address6;
+        $params[] = $data->city;
+        $params[] = $data->state;
+        $params[] = $data->zip;
+        $params[] = $data->as_of_date;
+        $params[] = $data->account_number;
+
+        $query = "UPDATE vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  SET origination=?, account_type=?, first_name=?, last_name=?, total_value=?, money_market_funds=?,
+                      production_number=?, address1=?, address2=?, address3=?, address4=?, address5=?, address6=?, city=?, 
+                      state=?, zip=?, stated_value_date=? WHERE account_number = ?";
+        $adb->pquery($query, $params, true);
+    }
+
     /**
-     * Using the cTDPortfolioData class, create the portfolios
+     * Using the cTDPortfolioData class, create the portfolios.  Used with a pre-filled in cTDPortfolioData class (done manually)
      * @param cTDPortfolioData $data
      * @throws Exception
      */
@@ -211,13 +240,29 @@ class cTDPortfolios extends cCustodian {
      * Auto creates the portfolio's based on the data loaded into the $portfolio_data member.  If the account number exists in this data, it will be created
      */
     public function CreateNewPortfoliosFromPortfolioData(array $account_numbers){
-        foreach($account_numbers AS $k => $v){
-            $data = $this->portfolio_data[$v];
-            if(!empty($data)) {
-                $tmp = new cTDPortfolioData($data);
-                $this->CreateNewPortfolioUsingcTDPortfolioData($tmp);
+        if(!empty($account_numbers)) {
+            foreach ($account_numbers AS $k => $v) {
+                $data = $this->portfolio_data[$v];
+                if (!empty($data)) {
+                    $tmp = new cTDPortfolioData($data);
+                    $this->CreateNewPortfolioUsingcTDPortfolioData($tmp);
+                }
             }
         }
     }
 
+    /**
+     * Auto creates the portfolio's based on the data loaded into the $portfolio_data member.  If the account number exists in this data, it will be created
+     */
+    public function UpdatePortfoliosFromPortfolioData(array $account_numbers){
+        if(!empty($account_numbers)) {
+            foreach ($account_numbers AS $k => $v) {
+                $data = $this->portfolio_data[$v];
+                if (!empty($data)) {
+                    $tmp = new cTDPortfolioData($data);
+                    $this->UpdatePortfolios($tmp);
+                }
+            }
+        }
+    }
 }

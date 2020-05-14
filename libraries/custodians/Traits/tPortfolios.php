@@ -1,7 +1,11 @@
 <?php
 trait tPortfolios{
     protected $custodian_accounts, $existing_accounts, $missing_accounts;
-    protected function SetMissingPortfolios(){
+
+    /**
+     * Sets up the variables for determining which accounts exist with the custodian, which exist in the CRM, and which are missing
+     */
+    protected function SetupPortfolioComparisons(){
         global $adb;
         $params = array();
         $custodian_accounts = array();//List of custodian accounts
