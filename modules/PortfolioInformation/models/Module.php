@@ -2178,6 +2178,19 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         return 0;
     }
 
+    static public function GetAccountOwnerFromAccountNumber(string $account_number){
+        global $adb;
+        $query = "SELECT smownerid 
+                  FROM vtiger_crmentity e 
+                  JOIN vtiger_portfolioinformation p ON p.portfolioinformationid = e.crmid
+                  WHERE p.account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0,"smownerid");
+        }
+        return 1;
+    }
+
     static public function GetAccountNameFromAccountNumber($account_number)
     {
         global $adb;
@@ -2923,6 +2936,23 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 //        echo $query . '<br />' . $account_number . '<br />' . $date . '<br />' . $balance . '<br />';
         $adb->pquery($query, array($account_number, $date, $balance));
 //        echo "SELECT * FROM custodian_balances_{$custodian} WHERE account_number = '{$account_number}'";
+    }
+
+    static public function GetRepCodeListFromUsersTable(){
+        global $adb;
+        $query = "SELECT advisor_control_number
+                  FROM vtiger_users";
+        $result = $adb->pquery($query, array());
+        $list = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $ids = explode(",", $r['advisor_control_number']);
+                foreach($ids AS $k => $v){
+                    $list[] = $v;
+                }
+            }
+        }
+        return $list;
     }
 
 }

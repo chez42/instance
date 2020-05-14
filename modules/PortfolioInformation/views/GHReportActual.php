@@ -69,7 +69,7 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
 
 //            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
 //            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date);
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date, true);
 
             $tmp = array();
             foreach($accounts AS $k => $v){
