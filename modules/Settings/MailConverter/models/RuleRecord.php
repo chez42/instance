@@ -148,7 +148,19 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 
 		$actionString = $this->get('action');
 		$newActionString = $this->get('newAction');
-		if ($actionString != $newActionString) {
+        
+		$db = PearDatabase::getInstance();
+		$db->pquery("DELETE FROM vtiger_mailscanner_ruleactions, vtiger_mailscanner_actions USING vtiger_mailscanner_ruleactions 
+        INNER JOIN vtiger_mailscanner_actions ON vtiger_mailscanner_actions.actionid = vtiger_mailscanner_ruleactions.actionid
+        WHERE vtiger_mailscanner_ruleactions.ruleid = ?", array($ruleModel->ruleid));
+		
+		foreach($newActionString as $actionsString){
+		    $actionId = '';
+		    $actions = $this->getActions();
+		    $ruleModel->updateAction($actionModel->actionid, str_replace('_', ',', $actionsString));
+		}
+		
+	/*	if ($actionString != $newActionString) {
 			$actionId = '';
 			$actions = $this->getActions();
 			if ($actions) {
@@ -157,7 +169,7 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			}
 			//Svaing the Action info
 			$ruleModel->updateAction($actionModel->actionid, str_replace('_', ',', $newActionString));
-		}
+		}*/
 		return $ruleModel->ruleid;
 	}
 
@@ -184,8 +196,11 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 		if ($db->num_rows($result)) {
 			$recordModel = new self();
 			$recordModel->setData($db->query_result_rowdata($result));
-			$action = reset($recordModel->getActions());
-			return $recordModel->set('action', str_replace(',', '_', $action->actiontext));
+			$actions = $recordModel->getActions();
+			foreach($actions as $action){
+			    $actionText[] = str_replace(',', '_', $action->actiontext);
+			}
+			return $recordModel->set('action', $actionText);
 		}
 		return false;
 	}
@@ -205,8 +220,11 @@ class Settings_MailConverter_RuleRecord_Model extends Settings_Vtiger_Record_Mod
 			$rowData = $db->query_result_rowdata($result,$i);
 			$ruleModel = new self();
 			$ruleModel->setData($rowData);
-			$action = reset($ruleModel->getActions());
-			$ruleModel->set('action', str_replace(',', '_', $action->actiontext));
+			$actions = $ruleModel->getActions();
+			foreach($actions as $action){
+			    $actionText[] = str_replace(',', '_', $action->actiontext);
+			}
+			$ruleModel->set('action', $actionText);
 			$assignedTo = Settings_MailConverter_RuleRecord_Model::getAssignedTo($rowData['scannerid'], $rowData['ruleid']);
 			$ruleModel->set('assigned_to', $assignedTo[1]);
 			$ruleModelsList[$rowData['ruleid']] = $ruleModel;

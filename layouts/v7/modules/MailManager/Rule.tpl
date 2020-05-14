@@ -67,7 +67,13 @@
 				<div class="col-lg-12 padding10" style="padding-bottom: 10px;">
 					<div class="col-lg-1"></div>
 					<div class="col-lg-3 fieldLabel"><label>{vtranslate('action', $QUALIFIED_MODULE_NAME)}</label></div>
-					<div class="col-lg-7 fieldValue">{vtranslate($RULE_MODEL->get('action'), $QUALIFIED_MODULE_NAME)}</small></div>
+					<div class="col-lg-7 fieldValue">
+						{foreach item=action key=key from=$RULE_MODEL->get('action')}
+							{if $key neq 0}, {/if}
+							{vtranslate($action, $QUALIFIED_MODULE_NAME)}
+						{/foreach}
+						</small>
+					</div>
 				</div>
 			</fieldset>
 		</div>

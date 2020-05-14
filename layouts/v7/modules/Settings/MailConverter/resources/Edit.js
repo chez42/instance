@@ -26,6 +26,7 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 
 	saveMailBox: function (form) {
 		var params = form.serializeFormData();
+		
 		params.scannername = jQuery('input[name="scannername"]').val();
 		params.module = app.getModuleName();
 		params.parent = app.getParentModuleName();
@@ -106,7 +107,8 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 
 	saveRule: function (form) {
 		app.helper.showProgress();
-		var params = form.serializeFormData();
+		//var params = form.serializeFormData();
+		var params = form.serialize();
 		params.record = '';
 		app.request.post({'data': params}).then(function (err, data) {
 			app.helper.hideProgress();

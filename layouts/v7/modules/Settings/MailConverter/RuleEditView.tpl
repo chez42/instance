@@ -51,9 +51,15 @@
 												<br><br>
 												<textarea name="{$FIELD_MODEL->getName()}" class="form-control col-sm-12" style="padding: 3px 8px;">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
 											{else}
-												<select id="actions" name="action1" class="select2 fieldValue inputElement">
+												<select id="actionsClone" name="action2" class=" fieldValue inputElement hide">
 													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get($FIELD_NAME) eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
+														<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
+													{/foreach}
+												</select>
+												{assign var=ACTIONS value=$RECORD_MODEL->get($FIELD_NAME)}
+												<select id="actions" name="action1[]" class="select2 fieldValue inputElement">
+													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+														<option value="{$PICKLIST_KEY}" {if $ACTIONS[0] eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
 													{/foreach}
 												</select>
 											{/if}
@@ -74,10 +80,28 @@
 									<td class="col-lg-4">
 										{if $FIELD_NAME eq 'subject'}
 											<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" />
+										{else if $FIELD_NAME eq 'action'}
+											<a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
 										{/if}
 									</td>
 								</tr>
 							{/foreach}
+							{if $ACTIONS}
+								{foreach item=act key=key from=$ACTIONS}
+									{if $key neq 0}
+										<tr class="row">
+											<td class="col-lg-2"></td>
+											<td class="col-lg-4">
+												<select id="actions" name="action1[]" class="select2 fieldValue inputElement">
+													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+														<option value="{$PICKLIST_KEY}" {if $act eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
+													{/foreach}
+												</select>
+											</td>
+										</tr>
+									{/if}
+								{/foreach}
+							{/if}
 							<tr class="row" id="assignedToBlock">
 								<td class="col-lg-2 control-label"><label class="fieldLabel">{vtranslate('Assigned To')}</label></td>
 								<td class="col-lg-4">
