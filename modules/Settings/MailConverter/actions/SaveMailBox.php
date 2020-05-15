@@ -21,6 +21,8 @@ class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Ac
 		}
 
 		$recordModel->set('scannerOldName', $request->get('scannerOldName'));
+        $recordModel->set('userid', $request->get('userid'));
+		
 		$fieldsList = $recordModel->getModule()->getFields();
 		foreach ($fieldsList as $fieldName=>$fieldModel) {
 			$recordModel->set($fieldName, $request->get($fieldName));

@@ -62,6 +62,7 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
         $qualifiedModuleName = 'Settings:MailConverter';
         $viewer = $this->getViewer($request);
         $viewer->assign('QUALIFIED_MODULE_NAME', $qualifiedModuleName);
+        $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
         $viewer->view('Step1.tpl', $moduleName);
     }
     

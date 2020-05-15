@@ -37,8 +37,8 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 			'searchfor'		=> array('name' => 'searchfor',		'typeofdata' => 'V~O',	'label' => 'Look For',		'datatype' => 'picklist'),
 			'markas'		=> array('name' => 'markas',		'typeofdata' => 'V~O',	'label' => 'After Scan',	'datatype' => 'picklist'),
 			'isvalid'		=> array('name' => 'isvalid',		'typeofdata' => 'C~O',	'label' => 'Status',		'datatype' => 'boolean'),
-			'time_zone'		=> array('name' => 'time_zone',		'typeofdata' => 'V~O',	'label' => 'Time Zone',		'datatype' => 'picklist'));
-
+			'time_zone'		=> array('name' => 'time_zone',		'typeofdata' => 'V~O',	'label' => 'Time Zone',		'datatype' => 'picklist'),
+		    'userid'        => array('name' => 'userid',		'typeofdata' => 'V~O',	'label' => 'User Id',		'datatype' => 'string', 'isEditable' => false));
 		$fieldsList = array();
 		foreach($fields as $fieldName => $fieldInfo) {
 			$fieldModel = new Settings_MailConverter_Field_Model();
@@ -108,7 +108,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 	public function getMailboxes() {
 		$mailBox = array();
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery("SELECT scannerid, scannername FROM vtiger_mailscanner", array());
+		$result = $db->pquery("SELECT scannerid, scannername FROM vtiger_mailscanner WHERE (userid = 0 OR userid IS NULL)", array());
 		$numOfRows = $db->num_rows($result);
 		for ($i = 0; $i < $numOfRows; $i++) {
 			$mailBox[$i]['scannerid'] = $db->query_result($result, $i, 'scannerid');
@@ -184,6 +184,19 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 			$permissions = true;
 		}
 		return $permissions;
+	}
+	
+	public function getMailManagerMailboxes() {
+	    $mailBox = array();
+	    global $current_user;
+	    $db = PearDatabase::getInstance();
+	    $result = $db->pquery("SELECT scannerid, scannername FROM vtiger_mailscanner WHERE userid = ?", array($current_user->id));
+	    $numOfRows = $db->num_rows($result);
+	    for ($i = 0; $i < $numOfRows; $i++) {
+	        $mailBox[$i]['scannerid'] = $db->query_result($result, $i, 'scannerid');
+	        $mailBox[$i]['scannername'] = $db->query_result($result, $i, 'scannername');
+	    }
+	    return $mailBox;
 	}
 
 }
