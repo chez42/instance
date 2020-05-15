@@ -23,7 +23,7 @@ class MailManager_List_View extends MailManager_Abstract_View {
 	public function preProcess (Vtiger_Request $request, $display = true) {
 	    
 	    $viewer = $this->getViewer($request);
-	    $viewer->assign('MAILBOXES', Settings_MailConverter_Module_Model::getMailboxes());
+	    $viewer->assign('MAILBOXES', Settings_MailConverter_Module_Model::getMailManagerMailboxes());
         
 	    parent::preProcess($request, $display);
         

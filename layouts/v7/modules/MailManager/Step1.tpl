@@ -22,6 +22,7 @@
 					<input type="hidden" name="record" value="{$RECORD_MODEL->getId()}" />
 					<input type="hidden" name="scannerOldName" value="{$RECORD_MODEL->getName()}" />
 				{/if}
+				<input type="hidden" name="userid" value="{$USER_MODEL->id}" />
 				<div class="row">
 					<table class="table editview-table no-border">
 						<tbody>
