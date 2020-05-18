@@ -118,10 +118,10 @@ class MailManager_Mailbox_Model {
 		$db->pquery("DELETE FROM vtiger_mail_accounts WHERE user_id = ? AND account_id = ?", array($currentUserModel->getId(), $this->mId));
         
 		$mail = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE 
-        is_default = 0 AND user_id = ?", array($currentUserModel->getId()));
+        set_default = 0 AND user_id = ?", array($currentUserModel->getId()));
         
         if(!$db->num_rows($mail))	
-		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = 0 
+		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = 0 
             WHERE user_id = ? ORDER BY account_id DESC", array($currentUserModel->getId()));
 	}
 
@@ -145,12 +145,12 @@ class MailManager_Mailbox_Model {
 			$parameters[] = $this->mId;
 		} else {
 		    
-		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE 
+		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE 
             user_id = ?",array(1, $currentUserModel->getId()));
 			
 		    $sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username,
             mail_password, mail_protocol, ssltype, sslmeth, box_refresh,sent_folder, user_id, 
-            mails_per_page, account_name, status, is_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            mails_per_page, account_name, status, set_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			
 		    $parameters[] = vglobal('list_max_entries_per_page'); // Number of emails per page
 			$parameters[] = $this->username();
@@ -175,13 +175,13 @@ class MailManager_Mailbox_Model {
 		    return $instance;
 		} 
 		if(!$accountId){
-		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND is_default = 0", array($currentUserModel->getId()));
+		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND set_default = 0", array($currentUserModel->getId()));
 		}else{
 		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND account_id=?", array($currentUserModel->getId(), $accountId));
 		   
 		    if($mode != 'edit'){
-    		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
-    		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE user_id = ? AND account_id=?",array(0, $currentUserModel->getId(), $accountId));
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ? AND account_id=?",array(0, $currentUserModel->getId(), $accountId));
 		    }
 	    }
 		
