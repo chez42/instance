@@ -25,11 +25,26 @@
 				<div class="row">
 					<table class="table editview-table no-border">
 						<tbody>
+							<tr>
+                                <td class="fieldLabel control-label" style="width:25%;">
+                                    <label class="pull-right detailViewButtoncontainer">{vtranslate('Select Account',$MODULE)} <span class="redColor">*</span></label>
+                                </td>
+                                <td style="word-wrap:break-word;">
+                                    <select id="serverMailType" class="select2 fieldValue inputElement" data-validation-engine="validate[required]">
+                                        <option></option>
+                                        <option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('Gmail',$MODULE)}</option>
+                                        <option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('Yahoo',$MODULE)}</option>
+                                        <option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('Fastmail',$MODULE)}</option>
+                                        <option value='other' {if $SERVERNAME eq 'other'} selected {/if}>{vtranslate('Other',$MODULE)}</option>
+                                    </select>
+                                </td>
+                            </tr>
 							{foreach key=FIELD_NAME item=FIELD_MODEL from=$FIELDS}
 								{if !$RECORD_MODEL->isFieldEditable($FIELD_MODEL)}
 									{continue}
 								{/if}
-								<tr>
+								<tr {if $FIELD_NAME eq 'server' || $FIELD_NAME eq 'username' || $FIELD_NAME eq 'password'}class="settings_details {if $SERVERNAME eq ''}hide{/if}"
+									{else if $FIELD_NAME eq 'protocol' || $FIELD_NAME eq 'ssltype' || $FIELD_NAME eq 'sslmethod'}class="additional_settings {if $SERVERNAME neq 'other'}hide{/if}"{/if}>
 									<td class="fieldLabel control-label" style="width:25%;">
 										<label>{vtranslate($FIELD_MODEL->get('label'), $QUALIFIED_MODULE)}{if $FIELD_MODEL->isMandatory()} <span class="redColor">*</span>{/if}</label>
 									</td>

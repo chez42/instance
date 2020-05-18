@@ -9,7 +9,7 @@
  *************************************************************************************/
 $languageStrings = array(
     // Basic Strings
-	'Calendar'=>'Calendar',
+	'Calendar'=>'Event',
 	'SINGLE_Calendar' => 'Task',
 	'SINGLE_Events' => 'Event',
 	'LBL_ADD_TASK' => 'Add Task',

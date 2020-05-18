@@ -15,6 +15,7 @@
 			width:21%!important;
 		}
 	</style>
+	<input type="hidden" id="isMailUserName" value="{$MAILBOX->username()}"/>
     <div class='col-lg-12 padding0px'>
         <span class="col-lg-1 paddingLeft5px">
             <input type='checkbox' id='mainCheckBox' class="pull-left">

@@ -13,14 +13,16 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		return jQuery('.main-container');
 	},
 
-	loadFolders : function(folder) {
+	loadFolders : function(folder, accountid) {
+		
 		app.helper.showProgress(app.vtranslate("JSLBL_Loading_Please_Wait")+"...");
 		var self = this;
 		var params = {
 			'module' : app.getModuleName(),
 			'view' : 'Index',
 			'_operation' : 'folder',
-			'_operationarg' : 'getFoldersList'
+			'_operationarg' : 'getFoldersList',
+			'account_id' : accountid
 		}
 		app.request.post({"data" : params}).then(function(error, responseData) {
 			app.helper.hideProgress();
@@ -118,18 +120,20 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		var self = this;
 		var container = this.getContainer();
 		container.find('.mailbox_setting').click(function() {
+			var accountId = $(this).data('boxid');
 			app.helper.showProgress(app.vtranslate("JSLBL_Loading_Please_Wait")+"...");
 			var params = {
 				'module' : 'MailManager',
 				'view' : 'Index',
 				'_operation' : 'settings',
-				'_operationarg' : 'edit'
+				'_operationarg' : 'edit',
+				'account_id' : accountId
 			};
 			var popupInstance = Vtiger_Popup_Js.getInstance();
 			popupInstance.showPopup(params, '', function(data) {
 				app.helper.hideProgress();
 				self.handleSettingsEvents(data);
-				self.registerDeleteMailboxEvent(data);
+				//self.registerDeleteMailboxEvent(data);
 				self.registerSaveMailboxEvent(data);
 			});
 		});
@@ -197,15 +201,17 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	},
 
 	registerDeleteMailboxEvent : function(data) {
-		var settingContainer = jQuery(data);
-		settingContainer.find('#deleteMailboxBtn').click(function(e) {
+		var settingContainer = jQuery(document);
+		settingContainer.on('click', '#deleteMailboxBtn', function(e) {
+			var accountId = $(this).data('boxid');
 			e.preventDefault();
 			app.helper.showProgress(app.vtranslate("JSLBL_Deleting")+"...");
 			var params = {
 				'module' : 'MailManager',
 				'view' : 'Index',
 				'_operation' : 'settings',
-				'_operationarg' : 'remove'
+				'_operationarg' : 'remove',
+				'account_id' : accountId
 			};
 			app.request.post({"data" : params}).then(function(error, responseData) {
 				app.helper.hideProgress();
@@ -321,7 +327,11 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			container.find('#searchType').trigger('change');
 			self.registerEventForSingleMailActions();
 			self.registerAutoCompleteSearchFields();
-	});
+			
+			var userName = jQuery(document).find('#isMailUserName').val();
+			jQuery('.mailUserName').text(userName);
+			
+		});
 	},
 
 	/**
@@ -1674,6 +1684,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		self.registerAddMailboxButon();
 		self.scanMailBox();
 		self.deleteMailBox();
+		self.registerDeleteMailboxEvent();
+		self.registerOpenMailMangerId();
 	},
 	
 	registerEventForSingleMailActions : function(){
@@ -2117,6 +2129,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			app.request.post({data : params}).then(function(err,data) {
 				app.helper.showModal(data, {cb : function() {
 					thisInstance.firstStep();
+					thisInstance.handleSettingsMailBoxEvents();
 					thisInstance.activateHeader();
 					app.helper.hideProgress();
 					
@@ -2160,6 +2173,12 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		
 		var scannerName = params['scannername'];
 		
+		if(form.find('#serverMailType').val() == "") {
+			vtUtils.showValidationMessage(form.find('#serverMailType'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('#serverMailType'));
+		}
 		if(params['scannername'] == "") {
 			vtUtils.showValidationMessage(form.find('[name="scannername"]'), errorMsg, errParams);
 			return false;
@@ -2389,7 +2408,76 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		});
 	},
 
-
+	registerOpenMailMangerId: function(){
+		var thisInstance = this;
+		jQuery(document).on('click', '.openMailId', function(e){
+			var target = jQuery(e.target); 
+			if(target.hasClass('mailbox_setting'))return;
+			if(target.hasClass('deleteMailManager'))return;
+			
+			var accountId = $(this).data('boxid');
+			thisInstance.loadFolders('',accountId);
+			
+		});
+		
+	},
 	
+	handleSettingsMailBoxEvents : function() {
+		var settingContainer = jQuery(document);
+		settingContainer.on('change', '#serverMailType', function(e) {
+			var element = jQuery(e.currentTarget);
+			var serverType = element.val();
+			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
+			if(serverType == 'gmail' || serverType == 'yahoo') {
+				useServer = 'imap.gmail.com';
+				if(serverType == 'yahoo') {
+					useServer = 'imap.mail.yahoo.com';
+				}
+				useProtocol = 'IMAP4';
+				useSSLType = 'ssl';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+			} else if(serverType == 'fastmail') {
+				useServer = 'mail.messagingengine.com';
+				useProtocol = 'IMAP2';
+				useSSLType = 'tls';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+			} else if(serverType == 'other') {
+				useServer = '';
+				useProtocol = 'IMAP4';
+				useSSLType = 'ssl';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').removeClass('hide');
+			} else {
+				settingContainer.find('.settings_details').addClass('hide');
+			}
+
+			settingContainer.find('[name="username"]').val('');
+			settingContainer.find('[name="password"]').val('');
+			
+			if(useProtocol != '') {
+				settingContainer.find('[name="server"]').val(useServer);
+				settingContainer.find('[name="protocol"]').each(function(node) {
+					if(jQuery(node).val() == useProtocol) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="ssltype"]').each(function(node) {
+					if(jQuery(node).val() == useSSLType) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="sslmethod"]').each(function(node) {
+					if(jQuery(node).val() == useCert) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+			}
+		});
+	},
 	
 });
