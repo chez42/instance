@@ -11,7 +11,12 @@
 class Settings_MailConverter_ScanNow_Action extends Settings_Vtiger_Index_Action {
 
 	public function checkPermission(Vtiger_Request $request) {
-		parent::checkPermission($request);
+		
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        if(!$currentUserModel->isAdminUser() && $request->getModule() != 'MailConverter') {
+            throw new AppException(vtranslate('LBL_PERMISSION_DENIED', 'Vtiger'));
+        }
+	    
 		$recordId = $request->get('record');
 
 		if (!$recordId) {

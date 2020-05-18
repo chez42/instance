@@ -11,8 +11,13 @@
 class Settings_MailConverter_DeleteMailBox_Action extends Settings_Vtiger_Index_Action {
 
 	public function checkPermission(Vtiger_Request $request) {
-		parent::checkPermission($request);
-		$recordId = $request->get('record');
+       
+	    $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        if(!$currentUserModel->isAdminUser() && $request->getModule() != 'MailConverter') {
+            throw new AppException(vtranslate('LBL_PERMISSION_DENIED', 'Vtiger'));
+        }
+		
+        $recordId = $request->get('record');
 
 		if (!$recordId) {
 			throw new AppException(vtranslate('LBL_PERMISSION_DENIED', $request->getModule(false)));

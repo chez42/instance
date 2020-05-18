@@ -11,7 +11,12 @@
 class Settings_MailConverter_EditRule_View extends Settings_Vtiger_IndexAjax_View {
 
 	public function checkPermission(Vtiger_Request $request) {
-		parent::checkPermission($request);
+        
+	    $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        if(!$currentUserModel->isAdminUser() && $request->getModule() != 'MailConverter') {
+            throw new AppException(vtranslate('LBL_PERMISSION_DENIED', 'Vtiger'));
+        }
+        
 		$scannerId = $request->get('scannerId');
 
 		if(!$scannerId) {
