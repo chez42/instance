@@ -198,5 +198,18 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 	    }
 	    return $mailBox;
 	}
+	
+	public function setServerName($mServer) {
+	    if($mServer == 'imap.gmail.com') {
+	        $mServerName = 'gmail';
+	    } else if($mServer == 'imap.mail.yahoo.com') {
+	        $mServerName = 'yahoo';
+	    } else if($mServer == 'mail.messagingengine.com') {
+	        $mServerName = 'fastmail';
+	    } else {
+	        $mServerName = 'other';
+	    }
+	    return $mServerName;
+	}
 
 }

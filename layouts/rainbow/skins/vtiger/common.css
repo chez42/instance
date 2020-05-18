@@ -7463,7 +7463,11 @@ color: #fff;background-color: #c14444!important;border: 1px solid indianred!impo
     box-shadow: none!important;position: relative!important;margin-bottom: 0px!important;} }
 
 
-#sidebar-essentials{background:#fff;box-shadow:0 2px 4px rgba(0, 0, 0, 0.08)}
+#sidebar-essentials{
+	background:#fff;
+	box-shadow:0 2px 4px rgba(0, 0, 0, 0.08);
+	z-index: 1004;
+}
 
 /*footer {min-width: 100%;margin: 0px;}*/
 

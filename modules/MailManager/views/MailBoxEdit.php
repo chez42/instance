@@ -29,8 +29,10 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
             if($mode == 'step1'){
                 $moduleName = $request->getModule();
                 $qualifiedModuleName = 'Settings:MailConverter';
+                $serverName = '';
                 if ($recordId) {
                     $recordModel = Settings_MailConverter_Record_Model::getInstanceById($recordId);
+                    $serverName = Settings_MailConverter_Module_Model::setServerName($recordModel->get('server'));
                 } else {
                     $recordModel = Settings_MailConverter_Record_Model::getCleanInstance();
                 }
@@ -39,6 +41,8 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
                 if ($recordId) {
                     $viewer->assign('RECORD_ID', $recordId);
                 }
+                
+                $viewer->assign('SERVERNAME', $serverName);
                 $viewer->assign('CREATE', $request->get('create'));
                 $viewer->assign('RECORD_MODEL', $recordModel);
                 $viewer->assign('MODULE_MODEL', $recordModel->getModule());

@@ -17,7 +17,7 @@ class MailManager_Mailbox_Model {
 	protected $mSSLType  = 'ssl';
 	protected $mCertValidate = 'novalidate-cert';
 	protected $mRefreshTimeOut;
-	protected $mId;
+	public $mId;
 	protected $mServerName;
     protected $mFolder;
 
@@ -113,6 +113,10 @@ class MailManager_Mailbox_Model {
 		$db = PearDatabase::getInstance();
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$db->pquery("DELETE FROM vtiger_mail_accounts WHERE user_id = ? AND account_id = ?", array($currentUserModel->getId(), $this->mId));
+        
+		$mail = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE set_default = 0 AND user_id = ?", array($currentUserModel->getId()));
+        if(!$db->num_rows($mail))	
+		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = 0 WHERE user_id = ? ORDER BY account_id DESC", array($currentUserModel->getId()));
 	}
 
 	public function save() {
@@ -132,6 +136,7 @@ class MailManager_Mailbox_Model {
 			$sql = "UPDATE vtiger_mail_accounts SET display_name=?, mail_servername=?, mail_username=?, mail_password=?, mail_protocol=?, ssltype=?, sslmeth=?, box_refresh=?, sent_folder=? WHERE user_id=? AND account_id=?";
 			$parameters[] = $this->mId;
 		} else {
+		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
 			$sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username, mail_password, mail_protocol, ssltype, sslmeth, box_refresh,sent_folder, user_id, mails_per_page, account_name, status, set_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 			$parameters[] = vglobal('list_max_entries_per_page'); // Number of emails per page
 			$parameters[] = $this->username();
@@ -145,13 +150,27 @@ class MailManager_Mailbox_Model {
 		}
 	}
 
-	public static function activeInstance($currentUserModel = false) {
-		$db = PearDatabase::getInstance();
+	public static function activeInstance($accountId = false, $mode = false, $currentUserModel = false) {
+	    
+	    $db = PearDatabase::getInstance();
         if(!$currentUserModel)
             $currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$instance = new MailManager_Mailbox_Model();
-
-		$result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND set_default=0", array($currentUserModel->getId()));
+		
+		if($mode == 'edit' && $accountId == false){
+		    return $instance;
+		} 
+		if(!$accountId){
+		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND set_default=0", array($currentUserModel->getId()));
+		}else{
+		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND account_id=?", array($currentUserModel->getId(), $accountId));
+		   
+		    if($mode != 'edit'){
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ? AND account_id=?",array(0, $currentUserModel->getId(), $accountId));
+		    }
+	    }
+		
 		if ($db->num_rows($result)) {
 			$instance->mServer = trim($db->query_result($result, 0, 'mail_servername'));
 			$instance->mUsername = trim($db->query_result($result, 0, 'mail_username'));
@@ -164,6 +183,7 @@ class MailManager_Mailbox_Model {
             $instance->mFolder = trim($db->query_result($result, 0, 'sent_folder'));
 			$instance->mServerName = self::setServerName($instance->mServer);
 		}
+	
 		return $instance;
 	}
 
@@ -178,6 +198,24 @@ class MailManager_Mailbox_Model {
 			$mServerName = 'other';
 		}
 		return $mServerName;
+	}
+	
+	public static function getAllMailBoxes() {
+	    
+	    $mailBox = array();
+	    $db = PearDatabase::getInstance();
+
+	    $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        
+        $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=?", array($currentUserModel->getId()));
+        if ($db->num_rows($result)) {
+            for($u=0;$u<$db->num_rows($result);$u++){
+                $mailBox[$u]['account_id'] = $db->query_result($result, $u, 'account_id');
+                $mailBox[$u]['account_name'] = $db->query_result($result, $u, 'account_name');
+            }
+        }
+        
+        return $mailBox;
 	}
 
 }

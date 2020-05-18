@@ -40,6 +40,10 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	public function getViewer(Vtiger_Request $request) {
 		$viewer = parent::getViewer($request);
 		$viewer->assign('MAILBOX', $this->getMailboxModel());
+		
+		$allModels = MailManager_Mailbox_Model::getAllMailBoxes();
+		$viewer->assign('MAILMODELS', $allModels);
+		
 		$viewer->assign('QUALIFIED_MODULE', $request->get('module'));
 		return $viewer;
 	}
@@ -75,10 +79,10 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * Returns the active Instance of Current Users MailBox
 	 * @return MailManager_Mailbox_Model
 	 */
-	protected function getMailboxModel() {
-		if ($this->mMailboxModel === false) {
-			$this->mMailboxModel = MailManager_Mailbox_Model::activeInstance();
-		}
+	protected function getMailboxModel($accountId = false, $mode = false) {
+		//if ($this->mMailboxModel === false) {
+		    $this->mMailboxModel = MailManager_Mailbox_Model::activeInstance($accountId, $mode);
+		//}
 		return $this->mMailboxModel;
 	}
 
@@ -86,8 +90,8 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * Checks if the current users has provided Mail Server details
 	 * @return Boolean
 	 */
-	protected function hasMailboxModel() {
-		$model = $this->getMailboxModel();
+	protected function hasMailboxModel($accountId = false) {
+	    $model = $this->getMailboxModel($accountId);
 		return $model->exists();
 	}
 
