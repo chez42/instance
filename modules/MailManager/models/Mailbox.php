@@ -110,13 +110,19 @@ class MailManager_Mailbox_Model {
 	}
 
 	public function delete() {
-		$db = PearDatabase::getInstance();
+		
+	    $db = PearDatabase::getInstance();
+		
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		
 		$db->pquery("DELETE FROM vtiger_mail_accounts WHERE user_id = ? AND account_id = ?", array($currentUserModel->getId(), $this->mId));
         
-		$mail = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE set_default = 0 AND user_id = ?", array($currentUserModel->getId()));
+		$mail = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE 
+        is_default = 0 AND user_id = ?", array($currentUserModel->getId()));
+        
         if(!$db->num_rows($mail))	
-		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = 0 WHERE user_id = ? ORDER BY account_id DESC", array($currentUserModel->getId()));
+		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = 0 
+            WHERE user_id = ? ORDER BY account_id DESC", array($currentUserModel->getId()));
 	}
 
 	public function save() {
@@ -133,12 +139,20 @@ class MailManager_Mailbox_Model {
 		$parameters = array($this->username(), $this->server(), $this->username(), $this->password(false), $this->protocol(), $this->ssltype(), $this->certvalidate(), $this->refreshTimeOut(),$this->folder(), $currentUserModel->getId());
 
 		if ($isUpdate) {
-			$sql = "UPDATE vtiger_mail_accounts SET display_name=?, mail_servername=?, mail_username=?, mail_password=?, mail_protocol=?, ssltype=?, sslmeth=?, box_refresh=?, sent_folder=? WHERE user_id=? AND account_id=?";
+			$sql = "UPDATE vtiger_mail_accounts SET display_name=?, mail_servername=?, 
+            mail_username=?, mail_password=?, mail_protocol=?, ssltype=?, sslmeth=?, box_refresh=?, 
+            sent_folder=? WHERE user_id=? AND account_id=?";
 			$parameters[] = $this->mId;
 		} else {
-		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
-			$sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username, mail_password, mail_protocol, ssltype, sslmeth, box_refresh,sent_folder, user_id, mails_per_page, account_name, status, set_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-			$parameters[] = vglobal('list_max_entries_per_page'); // Number of emails per page
+		    
+		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE 
+            user_id = ?",array(1, $currentUserModel->getId()));
+			
+		    $sql = "INSERT INTO vtiger_mail_accounts(display_name, mail_servername, mail_username,
+            mail_password, mail_protocol, ssltype, sslmeth, box_refresh,sent_folder, user_id, 
+            mails_per_page, account_name, status, is_default, account_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+			
+		    $parameters[] = vglobal('list_max_entries_per_page'); // Number of emails per page
 			$parameters[] = $this->username();
 			$parameters[] = 1; // Status
 			$parameters[] = '0'; // Set Default
@@ -161,13 +175,13 @@ class MailManager_Mailbox_Model {
 		    return $instance;
 		} 
 		if(!$accountId){
-		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND set_default=0", array($currentUserModel->getId()));
+		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND status=1 AND is_default = 0", array($currentUserModel->getId()));
 		}else{
 		    $result = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=? AND account_id=?", array($currentUserModel->getId(), $accountId));
 		   
 		    if($mode != 'edit'){
-    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
-    		    $db->pquery("UPDATE vtiger_mail_accounts SET set_default = ? WHERE user_id = ? AND account_id=?",array(0, $currentUserModel->getId(), $accountId));
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE user_id = ?",array(1, $currentUserModel->getId()));
+    		    $db->pquery("UPDATE vtiger_mail_accounts SET is_default = ? WHERE user_id = ? AND account_id=?",array(0, $currentUserModel->getId(), $accountId));
 		    }
 	    }
 		
