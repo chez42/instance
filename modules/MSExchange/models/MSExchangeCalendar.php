@@ -56,4 +56,8 @@ class MSExchange_MSExchangeCalendar_Model {
 	        }
 	    }
 	}
+	
+	function setAllDayEvent($val){
+	    $this->data['IsAllDayEvent'] = $val;
+	}
 }
