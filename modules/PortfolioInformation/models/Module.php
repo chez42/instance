@@ -2605,7 +2605,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $data['account_number'] = $v['account_number'];
                 $data['quantity'] = 0;
                 $data['net_amount'] = 0;
-                $data['transaction_type'] = 'Trade';
+                $data['transaction_type'] = 'Flow';
                 $data['trade_date'] = date("Y-m-d");
                 $data['system_generated'] = 1;
                 $t->set('mode','create');
@@ -2635,9 +2635,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                         $tmp_quantity = $v['reconcile'];
                         $data['quantity'] = ABS($v['reconcile']);
                         $data['net_amount'] = ABS($v['reconcile']);
-                        $data['transaction_type'] = 'Trade';
-                        if($tmp_quantity < 0)
+                        $data['transaction_type'] = 'Flow';
+                        if($tmp_quantity < 0) {
                             $data['operation'] = '-';
+                            $data['transaction_activity'] = 'Transfer of securities';
+                        }else{
+                            $data['transaction_activity'] = 'Receipt of securities';
+                        }
                         $data['trade_date'] = date("Y-m-d");
                         $data['system_generated'] = 1;
                         $t->set('mode','create');
