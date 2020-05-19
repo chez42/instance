@@ -671,7 +671,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $query = "SELECT account_number FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
                   JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
-                  WHERE production_number IN ({$questions}) AND e.deleted = 0 AND p.accountclosed = 0 AND stated_value_date >= '2019-10-01' {$limit}";
+                  WHERE production_number IN ({$questions}) AND e.deleted = 0 AND p.accountclosed = 0 {limit} ";//AND stated_value_date >= '2019-10-01' {$limit}";
         $result = $adb->pquery($query, array($ccn));
         if ($adb->num_rows($result) > 0) {
             foreach ($result AS $k => $v) {

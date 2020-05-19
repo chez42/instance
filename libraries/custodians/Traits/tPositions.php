@@ -73,7 +73,7 @@ trait tPositions{
      * @param $symbol
      * @return bool
      */
-    public function DoesPositionExistInCRM($account_number, $symbol){
+    public function DoesPositionExistInCRM(string $account_number, string $symbol){
         global $adb;
         $query = "SELECT account_number 
                   FROM vtiger_positioninformation 
@@ -109,10 +109,46 @@ trait tPositions{
      */
     public function ClearPositionDataForAccounts(array $account_numbers){
         global $adb;
-        $questions = $account_numbers;
+        $questions = generateQuestionMarks($account_numbers);
         $query = "UPDATE vtiger_positioninformation p 
                   SET p.quantity = 0, p.current_value = 0
                   WHERE account_number IN ({$questions})";
         $adb->pquery($query, array($account_numbers));
+    }
+
+    public function GetPositionSymbolsFromDate(array $account_numbers, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "SELECT symbol FROM {$this->database}.{$this->table}
+                  WHERE account_number IN ({$questions}) AND date = ? 
+                  GROUP BY symbol";
+        $result = $adb->pquery($query, array($account_numbers, $date));
+        $symbols = array();
+        if($adb->num_rows($result) > 0){
+            while ($r = $adb->fetchByAssoc($result)) {
+                $symbols[] = $r['symbol'];
+            }
+        }
+        return $symbols;
+    }
+
+    /**
+     * Returns all securities for
+     * @param array $account_numbers
+     */
+    public function GetAllOldAndNewPositionSymbols(array $account_numbers){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "SELECT symbol FROM {$this->database}.{$this->table} 
+                  WHERE account_number IN ({$questions}) 
+                  GROUP BY symbol";
+        $result = $adb->pquery($query, array($account_numbers));
+        $symbols = array();
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[strtoupper(TRIM($v['symbol']))] = $v['symbol'];
+            }
+        }
+        return $symbols;
     }
 }
