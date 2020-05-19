@@ -271,6 +271,8 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                 
                 $entity['description'] = $exchangeRecord->getDescription();
                 
+                $entity['all_day_event'] = $exchangeRecord->isAllDay();
+                
                 if($exchangeRecord->isAllDay()){
                 	$entity['duration_hours'] = '24';
                 	$entity['duration_minutes'] = '0';	
@@ -514,6 +516,9 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
             $newEvent->setStart($startDate . ' ' . $startTime);
             $newEvent->setEnd($endDate. ' ' .$endTime); 
             
+            if($vtEvent->get('all_day_event'));
+                $newEvent->setAllDayEvent(true);
+            
             $eventAttendees = $vtEvent->get("event_attendees");
             
             if(!empty($eventAttendees)){
@@ -592,6 +597,9 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     
                     $newEvent->setStart($startDate . ' ' . $startTime);
                     $newEvent->setEnd($endDate. ' ' .$endTime);
+                    
+                    if($vtEvent->get('all_day_event'));
+                        $newEvent->setAllDayEvent(true);
                     
                     $eventAttendees = $vtEvent->get("event_attendees");
                     
