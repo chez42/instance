@@ -37,13 +37,59 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         print_r($data);
         exit;
 */
+/*        global $adb;
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode(array('A81E', 'A7OY', 'A7P4'));
+        $questions = generateQuestionMarks($accounts);
+        $query = "SELECT symbol FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}) GROUP BY symbol";
+        $result = $adb->pquery($query, array($accounts));
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                echo $v['symbol'] . '<br />';
+            }
+        }
+        exit;
+*/
+        $td = new cTDPositions("TD", "custodian_omniscient", "positions",
+            "custodian_portfolios_td", "custodian_positions_td",
+            array('A7KK', 'AMSZ', 'AKXQ'), array(), false);//Get positions, but don't auto load or anything (accounts still get set)
+        $symbols = $td->GetAllOldAndNewPositionSymbols($td->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
 
-                $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
-                                        "custodian_securities_td");
-        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
-                $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
-                print_r($data);
-                exit;
+        $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
+                        "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+                        "f.issue_date", "f.share_per_contact", "pr.factor");
+        $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
+            "custodian_securities_td", $symbols, array("TDCASH" => "Cash"), $fields);
+#        $crm_symbols = $td->GetExistingCRMSecurities();
+        $missing_symbols = $td->GetMissingCRMSecurities();
+
+#        $crm_symbols = $td->GetAllCRMSecurities();//Get all securities that are in the CRM
+#        $missing_symbols = array_diff_key($symbols, $crm_symbols);
+#        $td->SetSecurities($missing_symbols);
+        $td->CreateNewSecuritiesFromSecurityData($missing_symbols);
+        echo "Now check";
+        exit;
+
+
+        print_r($symbols);exit;
+        $latest_date = $td->GetLatestPositionsDate();
+        $symbols = $td->GetPositionSymbolsFromDate($accounts, $latest_date);
+
+        $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
+            "custodian_securities_td", $symbols);
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        $data = $td->GetMissingCRMSecurities();
+        $td->CreateNewSecuritiesFromSecurityData($data);
+        exit;
+
+
+        $missing = $td->GetMissingCRMPositions(array());
+
+        $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
+                                "custodian_securities_td");
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
+        print_r($data);
+        exit;
 
 /*
         $td = new cFidelitySecurities("Fidelity", "custodian_omniscient", "securities",

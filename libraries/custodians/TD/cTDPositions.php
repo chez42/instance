@@ -34,19 +34,23 @@ class cTDPositions extends cCustodian {
      * @param string $module
      * @param string $positions_table
      * @param string $table (REFERS TO BALANCE TABLE)
+     * @param auto_setup is used to run the GetPositionsData and SetupPositionComparisons function
      */
     public function __construct(string $custodian_name, string $database, string $module,
-                                string $portfolio_table, string $positions_table, array $rep_codes, array $symbol_replacements){
+                                string $portfolio_table, string $positions_table, array $rep_codes, array $symbol_replacements, $auto_setup = true, $columns='*'){
         $this->name = $custodian_name;
         $this->database = $database;
         $this->module = $module;
         $this->portfolio_table = $portfolio_table;
         $this->table = $positions_table;
         $this->symbol_replacements = $symbol_replacements;
+        $this->columns = $columns;
         if(!empty($rep_codes)) {
             $this->SetRepCodes($rep_codes);
-            $this->GetPositionsData();
-            $this->SetupPositionComparisons();
+            if($auto_setup) {
+                $this->GetPositionsData();
+                $this->SetupPositionComparisons();
+            }
         }
     }
 
@@ -56,7 +60,7 @@ class cTDPositions extends cCustodian {
      * @param null $date
      * @return mixed
      */
-    public function GetPositionsData($date=null){
+    public function GetPositionsData($date=null, $group_by_symbol=false){
         global $adb;
         $params = array();
         $questions = generateQuestionMarks($this->account_numbers);
@@ -72,8 +76,10 @@ class cTDPositions extends cCustodian {
             $date = $this->GetLatestPositionsDate("date");
         $params[] = $date;
 
+        if($group_by_symbol)
+            $group_by_symbol = " GROUP BY SYMBOL ";
         $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
-                  WHERE account_number IN ({$questions}) AND date = ?";
+                  WHERE account_number IN ({$questions}) AND date = ? {$group_by_symbol}";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){

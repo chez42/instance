@@ -47,12 +47,13 @@ class cTDPortfolios extends cCustodian {
      * @param string $table (REFERS TO BALANCE TABLE)
      */
     public function __construct(string $custodian_name, string $database, string $module,
-                                string $portfolio_table, string $balance_table, array $rep_codes){
+                                string $portfolio_table, string $balance_table, array $rep_codes, $columns='*'){
         $this->name = $custodian_name;
         $this->database = $database;
         $this->module = $module;
         $this->portfolio_table = $portfolio_table;
         $this->table = $balance_table;
+        $this->columns = $columns;
         if(!empty($rep_codes)) {
             $this->SetRepCodes($rep_codes);
             $this->GetPortfolioPersonalData();
