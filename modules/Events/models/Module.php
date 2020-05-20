@@ -28,14 +28,26 @@ class Events_Module_Model extends Calendar_Module_Model {
 	public function saveRecord(Vtiger_Record_Model $recordModel) {
         $recordModel = parent::saveRecord($recordModel);
         
+        global $adb;
+        
+        $invQuery = $adb->pquery("SELECT * FROM vtiger_invitees WHERE activityid = ? AND status = 'sent'",
+            array($recordModel->getId())); 
+        
+        $invities = array();
+        if($adb->num_rows($invQuery)){
+            for($inv=0;$inv<$adb->num_rows($invQuery);$inv++){
+                $invities[] = $adb->query_result($invQuery, $inv, 'inviteeid');
+            }
+        }
         //code added to send mail to the vtiger_invitees
-        $selectUsers = $recordModel->get('selectedusers');
-        if(!empty($selectUsers))
+        if(!empty($invities))
         {
-            $invities = implode(';',$selectUsers);
             $mail_contents = $recordModel->getInviteUserMailData();
             $activityMode = ($recordModel->getModuleName()=='Calendar') ? 'Task' : 'Events';
             sendInvitation($invities,$activityMode,$recordModel,$mail_contents);
+            
+            $adb->pquery("UPDATE vtiger_invitees SET status='sent mail' WHERE activityid=? AND inviteeid IN (".generateQuestionMarks($invities).")",
+                array($recordModel->getId(), $invities));
         }
     }
 

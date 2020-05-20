@@ -8,42 +8,6 @@
  *************************************************************************************/
 
 Settings_Users_PreferenceDetail_Js("Settings_Users_Calendar_Js",{},{
-    
-	
-	registerEventForMsExchange : function(){
-		$(document).on('click', '.syncNow', function(e) {
-			var module = $(this).data('module');
-            var params = {
-                module : 'MSExchange',
-                view : 'Sync',
-                source_module : module
-            }
-            app.helper.showProgress();
-            app.request.post({data: params}).then(function(error, data){
-                app.helper.hideProgress();
-				if(data.success){
-					app.helper.showSuccessNotification({"message":'Sync Successfully'});
-                } else {
-                	app.helper.showErrorNotification({message : data.error});
-				}
-            });
-        });
-		
-		$(document).on("click", ".revokeMSAccount", function(e){
-			var module = $(this).data('module');
-			var params = {
-				module : 'MSExchange',
-				view : 'List',
-				operation : 'deleteSync',
-				sourcemodule : module
-			};
-			app.helper.showProgress();
-			app.request.post({data: params}).then(function(error, data){
-				app.helper.hideProgress();
-				window.location.reload();
-			});       
-		});
-	},
 	
 	registerEventForBusinessHours : function(){
 		
@@ -90,79 +54,17 @@ Settings_Users_PreferenceDetail_Js("Settings_Users_Calendar_Js",{},{
 		
 	},
 	
-	registerEventForSubmitCalendarForm : function(){
-		
-		$('.CalendarEditViewSave').on('click', function(e){
-			e.preventDefault();
-			
-			if($('[name="user_principal_name"]').val()){
-				
-				var params = {
-						'module': app.getModuleName(),
-						'action' : "CheckExchange",
-						'record' : app.getRecordId(),
-						'user_principal_name' : $('[name="user_principal_name"]').val(),
-					}
-				app.helper.showProgress();
-				app.request.post({data:params}).then(
-					function(err,data) {
-						if(data){
-							if(data.success){
-								$('.CalendarEditView').submit();
-								app.helper.hideProgress();
-							}else{
-								app.helper.hideProgress();
-								app.helper.showErrorNotification({
-									title:app.vtranslate(data.message),
-									message :app.vtranslate(data.error)+' For MsExchange'
-								});
-							}
-						}
-					}
-				);
-			}
-		});
-		
-	},
 	
 	/**
 	 * register Events for my preference
 	 */
 	registerEvents : function(){
 		this._super();
-		this.registerEventForMsExchange();
 		this.registerEventForBusinessHours();
 		this.registerEventForCopyAppointmentUrl();
 		Settings_Users_PreferenceEdit_Js.registerChangeEventForCurrencySeparator();
 		Settings_Users_PreferenceEdit_Js.registerNameFieldChangeEvent();
-		this.registerEventForSubmitCalendarForm();
-		//this.registerEventForCopyMsData();
 	},
-	
-	
-	registerEventForCopyMsData : function(){
-		jQuery(document).on('click', '.copyCalendar', function(){
-			
-			var module = $(this).data('module');
-			
-			var principalName = jQuery('[name="user_principal_name"]').val();
-			var direction = jQuery('[name="sync_direction"]').val();
-			var autoSync = jQuery('[name="automatic_calendar_sync"]').prop('checked');
-			
-			if($(this).prop('checked') && module == 'Task'){
-				
-				jQuery('[name="task_user_principal_name"]').val(principalName);
-				jQuery('[name="task_sync_direction"]').val(direction).trigger('change');
-				jQuery('[name="automatic_task_sync"]').prop('checked', autoSync);
-				
-			}else if($(this).prop('checked') && module == 'Contacts'){
-				
-				jQuery('[name="contact_user_principal_name"]').val(principalName);
-				jQuery('[name="contact_sync_direction"]').val(direction).trigger('change');
-				
-			}
-			
-		});
-	},
+
 	
 });

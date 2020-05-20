@@ -516,7 +516,7 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
             $newEvent->setStart($startDate . ' ' . $startTime);
             $newEvent->setEnd($endDate. ' ' .$endTime); 
             
-            if($vtEvent->get('all_day_event'));
+            if($vtEvent->get('all_day_event'))
                 $newEvent->setAllDayEvent(true);
             
             $eventAttendees = $vtEvent->get("event_attendees");
@@ -598,7 +598,7 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     $newEvent->setStart($startDate . ' ' . $startTime);
                     $newEvent->setEnd($endDate. ' ' .$endTime);
                     
-                    if($vtEvent->get('all_day_event'));
+                    if($vtEvent->get('all_day_event'))
                         $newEvent->setAllDayEvent(true);
                     
                     $eventAttendees = $vtEvent->get("event_attendees");
