@@ -66,6 +66,14 @@ class Users_Record_Model extends Vtiger_Record_Model {
 		return 'index.php?module=' .$this->getModuleName() . '&parent=Settings&view=Calendar&record='.$this->getId();
 	}
 
+	public function getMsSettingsDetailViewUrl(){
+	    return 'index.php?module=' .$this->getModuleName() . '&parent=Settings&view=MsExchangeSettings&record='.$this->getId();
+	}
+	
+	public function getMsSettingsEditViewUrl(){
+	    return 'index.php?module='.$this->getModuleName() . '&parent=Settings&view=MsExchangeSettings&mode=Edit&record='.$this->getId();
+	}
+	
     public function getIndexSettingsUrl(){
         return 'index.php?module=' .$this->getModuleName() . '&parent=Settings&view=Indexes&record='.$this->getId();
     }

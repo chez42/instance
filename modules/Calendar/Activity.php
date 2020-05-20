@@ -385,15 +385,29 @@ function insertIntoRecurringTable(& $recurObj)
 		global $log,$adb;
 		$log->debug("Entering insertIntoInviteeTable(".$module.",".$invitees_array.") method ...");
 		if($this->mode == 'edit'){
-			$sql = "DELETE FROM vtiger_invitees WHERE activityid=?";
-			$adb->pquery($sql, array($this->id));
+		    
+		    $sql = "DELETE FROM vtiger_invitees WHERE activityid=? AND inviteeid NOT IN (".generateQuestionMarks($invitees_array).")";
+			$adb->pquery($sql, array($this->id, $invitees_array));
+			
 		}
 		foreach($invitees_array as $inviteeid)
 		{
 			if($inviteeid != '')
 			{
-				$query="INSERT INTO vtiger_invitees VALUES (?,?,?)";
-				$adb->pquery($query, array($this->id, $inviteeid, 'sent'));
+			    $checkInvi = $adb->pquery("SELECT * FROM vtiger_invitees WHERE activityid = ? AND inviteeid = ?", array($this->id, $inviteeid));
+			    if(!$adb->num_rows($checkInvi)){
+    			    
+			        $query="INSERT INTO vtiger_invitees VALUES (?,?,?)";
+    				$adb->pquery($query, array($this->id, $inviteeid, 'sent'));
+    				
+    				/*$notification = CRMEntity::getInstance('Notifications');
+    				$notification->column_fields['related_to'] = $this->id;
+    				$notification->column_fields['assigned_user_id'] = $inviteeid;
+    				$notification->column_fields['description'] = 'Invite Users';
+    				$notification->column_fields['source'] = 'PORTAL'; 
+    				$notification->save('Notifications');*/
+    				
+			    }
 			}
 		}
 		$log->debug("Exiting insertIntoInviteeTable method ...");

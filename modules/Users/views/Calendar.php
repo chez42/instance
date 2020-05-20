@@ -201,46 +201,9 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$viewer = $this->getViewer($request);
 		$this->initializeView($viewer,$request);
 		$module = $request->getModule();
+
 		global $adb;
-		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE module = 'Task' AND user = ?",
-		    array($request->get('record')));
-		
-		$syncData = array();
-		if($adb->num_rows($check)){
-		    $syncData = $adb->query_result_rowdata($check);
-		    $taskPrincipal = $adb->query_result($check, 0, 'impersonation_identifier');
-		}
-		$viewer->assign('SYNCDATA', $syncData);
-		
-		$checkCal = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE module = 'Calendar' AND user = ?",
-		    array($request->get('record')));
-		$syncCalData = array();
-		if($adb->num_rows($checkCal)){
-		    $syncCalData = $adb->query_result_rowdata($checkCal);
-		    $calPrincipal = $adb->query_result($checkCal, 0, 'impersonation_identifier');
-		}
-		$viewer->assign('CALENDARSYNCDATA', $syncCalData);
-		
-		$checkCon = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE module = 'Contacts' AND user = ?",
-		    array($request->get('record')));
-		$syncConData = array();
-		if($adb->num_rows($checkCon)){
-		    $syncConData = $adb->query_result_rowdata($checkCon);
-		    $conPrincipal = $adb->query_result($checkCon, 0, 'impersonation_identifier');
-		}
-		$viewer->assign('CONTACTSYNCDATA', $syncConData);
-		
-		$principal = '';
-		if($calPrincipal){
-		    $principal = $calPrincipal;
-		}else if($taskPrincipal){
-		    $principal = $taskPrincipal;
-		}else if($conPrincipal){
-		    $principal = $conPrincipal;
-		}
-		
-		$viewer->assign('PRINCIPAL', $principal);
-		
+	
 		$u_module = Vtiger_Module_Model::getInstance($module);
 		$field = Vtiger_Field_Model::getInstance('start_hour', $u_module);
 		$PicklistValues = $field->getPicklistValues();
@@ -263,29 +226,6 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$this->initializeView($viewer,$request);
 		
 		global $adb,$site_URL;
-		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-		    array($request->get('record'), 'Task'));
-		$syncData = array();
-		if($adb->num_rows($check)){
-		    $syncData = $adb->query_result_rowdata($check);
-		}
-		$viewer->assign('SYNCDATA', $syncData);
-		
-		$checkCal = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-		    array($request->get('record'), 'Calendar'));
-		$syncCalData = array();
-		if($adb->num_rows($checkCal)){
-		    $syncCalData = $adb->query_result_rowdata($checkCal);
-		}
-		$viewer->assign('CALENDARSYNCDATA', $syncCalData);
-		
-		$checkCon = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-		    array($request->get('record'), 'Contacts'));
-		$syncConData = array();
-		if($adb->num_rows($checkCon)){
-		    $syncConData = $adb->query_result_rowdata($checkCon);
-		}
-		$viewer->assign('CONTACTSYNCDATA', $syncConData);
 		
 		$bussiness_hours = '';
 		$time_val = $adb->pquery("SELECT vtiger_users.business_hours FROM vtiger_users WHERE id = ?",

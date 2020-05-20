@@ -206,6 +206,7 @@ class Settings_Vtiger_Module_Model extends Vtiger_Base_Model {
 		$settingsMenuList = array('LBL_MY_PREFERENCES'	=> array('My Preferences'	=> '',
 																 'Calendar Settings'=> '',
 																 'LBL_MY_TAGS'		=> $myTagSettingsUrl,
+		                                                          'Ms Exchange Settings' => '',
                                                                  'Index Settings' => ''),
 									'LBL_EXTENSIONS'	=> array('LBL_GOOGLE'		=> 'index.php?module=Contacts&parent=Settings&view=Extension&extensionModule=Google&extensionView=Index&mode=settings')
 								);

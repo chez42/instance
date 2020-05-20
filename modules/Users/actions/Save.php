@@ -114,125 +114,13 @@ class Users_Save_Action extends Vtiger_Save_Action {
 			$loadUrl = 'index.php?'.$request->getReturnURL();
 		} else if($request->get('mode') == 'Calendar'){
 			$loadUrl = $recordModel->getCalendarSettingsDetailViewUrl();
+		} else if($request->get('mode') == 'MsExchangeSetting'){
+		    $loadUrl = $recordModel->getMsSettingsDetailViewUrl();
 		}else {
 			$loadUrl = $recordModel->getDetailViewUrl();
 		}
 		
 		global $adb;
-		
-		$params = array();
-        
-		if($request->get('user_principal_name')){
-		    
-		    if($request->get('sync_direction')){
-    		  
-		        $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-    		        array($request->get('record'), 'Calendar'));
-    		    
-    		    if($adb->num_rows($check)){
-        		  
-    		        $query = "UPDATE vtiger_msexchange_sync_settings SET impersonation_identifier = ?";
-        		    $params[] = $request->get('user_principal_name');
-        		    
-        		    if($request->get('sync_direction')){
-        		        $query .= ', direction = ?';
-        		        $params[] = $request->get('sync_direction');
-        		    }
-        		    if($request->get('automatic_calendar_sync')){
-        		        $query .= ', enable_cron = ?';
-        		        $params[] = ($request->get('automatic_calendar_sync') == 'on') ? 1 : 0;
-        		    }
-        		    $query .= ', sync_start_from = ?';
-        		    $params[] = $request->get('calendar_sync_start_from');
-        		    
-        		    $query .= ' WHERE user = ? ';
-        		    $params[] = $request->get('record');
-        		    
-    		    }else{
-    		        
-    		        $query = "INSERT INTO vtiger_msexchange_sync_settings(id, user, module, direction, impersonation_identifier, sync_start_from, enable_cron) VALUES (?,?,?,?,?,?,?)";
-    		        
-    		        $syncId = $adb->getUniqueID("vtiger_msexchange_sync_settings");
-    		        $enable = ($request->get('automatic_calendar_sync') == 'on') ? 1 : 0;
-    		        $params = array($syncId, $request->get('record'), 'Calendar', $request->get('sync_direction'), $request->get('user_principal_name'), 
-    		            $request->get('calendar_sync_start_from'), $enable);
-    		        
-    		    }
-    		    
-                $adb->pquery($query,$params);
-                
-		    }
-		    if($request->get('task_sync_direction')){
-    		    $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-    		        array($request->get('record'), 'Task'));
-    		    
-    		    if($adb->num_rows($check)){
-    		        
-    		        $query = "UPDATE vtiger_msexchange_sync_settings SET impersonation_identifier = ?";
-    		        $params[] = $request->get('user_principal_name');
-    		        
-    		        if($request->get('task_sync_direction')){
-    		            $query .= ', direction = ?';
-    		            $params[] = $request->get('task_sync_direction');
-    		        }
-    		        if($request->get('automatic_task_sync')){
-    		            $query .= ', enable_cron = ?';
-    		            $params[] = ($request->get('automatic_task_sync') == 'on') ? 1 : 0;
-    		        }
-    		        $query .= ', sync_start_from = ?';
-    		        $params[] = $request->get('task_sync_start_from');
-    		        
-    		        $query .= ' WHERE user = ? ';
-    		        $params[] = $request->get('record');
-    		        
-    		    }else{
-    		        
-    		        $query = "INSERT INTO vtiger_msexchange_sync_settings(id, user, module, direction, impersonation_identifier, sync_start_from, enable_cron) VALUES (?,?,?,?,?,?,?)";
-    		        
-    		        $syncId = $adb->getUniqueID("vtiger_msexchange_sync_settings");
-    		        $enable = ($request->get('automatic_task_sync') == 'on') ? 1 : 0;
-    		        $params = array($syncId, $request->get('record'), 'Task', $request->get('task_sync_direction'), $request->get('user_principal_name'),
-    		            $request->get('task_sync_start_from'), $enable);
-    		        
-    		    }
-    		    
-    		    $adb->pquery($query,$params);
-		    }
-		    if($request->get('contact_sync_direction')){
-    		    $check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ? and module = ?",
-    		        array($request->get('record'), 'Contacts'));
-    		    
-    		    if($adb->num_rows($check)){
-    		        
-    		        $query = "UPDATE vtiger_msexchange_sync_settings SET impersonation_identifier = ?";
-    		        $params[] = $request->get('user_principal_name');
-    		        
-    		        if($request->get('contact_sync_direction')){
-    		            $query .= ', direction = ?';
-    		            $params[] = $request->get('contact_sync_direction');
-    		        }
-    		        
-    		        $query .= ', sync_start_from = ?';
-    		        $params[] = $request->get('contact_sync_start_from');
-    		        
-    		        $query .= ' WHERE user = ? ';
-    		        $params[] = $request->get('record');
-    		        
-    		    }else{
-    		        
-    		        $query = "INSERT INTO vtiger_msexchange_sync_settings(id, user, module, direction, impersonation_identifier, sync_start_from, enable_cron) VALUES (?,?,?,?,?,?,?)";
-    		        
-    		        $syncId = $adb->getUniqueID("vtiger_msexchange_sync_settings");
-    		        $enable =  0;
-    		        $params = array($syncId, $request->get('record'), 'Contacts', $request->get('contact_sync_direction'), $request->get('user_principal_name'), 
-    		            $request->get('contact_sync_start_from'), $enable);
-    		        
-    		    }
-    		    
-    		    $adb->pquery($query,$params);
-		    }
-		}
-		
 		
 		if(!empty($request->get('time'))){
             
