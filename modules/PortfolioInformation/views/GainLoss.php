@@ -40,7 +40,7 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
             PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);//Create combined gain loss table
 
             $categories = array("security_symbol");
-            $fields = array('account_number', 'description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
+            $fields = array('account_number', 'description', 'trade_date', 'security_price', 'transaction_activity', 'quantity', 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
             $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
             $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
             $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);
