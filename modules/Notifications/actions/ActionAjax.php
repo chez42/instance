@@ -15,6 +15,7 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         $this->exposeMethod("markNotificationRead");
         $this->exposeMethod("replyForComment");
         $this->exposeMethod("discardAllNotifications");
+        $this->exposeMethod("eventInvitations");
     }
     
     
@@ -69,21 +70,35 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
                 $detailUrl .= '&relatedModule=ModComments&mode=showRelatedList&tab_label=ModComments';
                 $relatedModule = 'ModComments';
             }
-            
+            $accepted = false;
             if(getSalesEntityType($relatedId) == 'Contacts'){
                 $fullName = $relatedRecordModel->get('firstname').' '.$relatedRecordModel->get('lastname');
                 $relatedToModule = 'Contacts';
             }else if(getSalesEntityType($relatedId) == 'HelpDesk'){
                 $fullName = $relatedRecordModel->get('ticket_title');
                 $relatedToModule = 'HelpDesk';
+            }else if(getSalesEntityType($relatedId) == 'Calendar'){
+                $fullName = $relatedRecordModel->get('subject');
+                $relatedToModule = 'Events';
+                $eveRecord = Vtiger_Record_Model::getInstanceById($relatedId);
+                $detailUrl = $eveRecord->getDetailViewUrl();
+                $relatedModule = 'Events';
+                global $adb;
+                $eventQuery = $adb->pquery("SELECT * FROM vtiger_invitees WHERE activityid = ? AND inviteeid = ? AND  (status != 'accepted' AND status != 'rejected' )",
+                    array($relatedId, $currentUser->id));
+                
+                if(!$adb->num_rows($eventQuery)){
+                    $accepted = true;
+                }
             }
             
             $items[] = array("id" => $n->get("notificationsid"), "notificationno" => $n->get("notificationno"), 
                 "description" => html_entity_decode($n->get("description")), "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
                 "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, 
                 "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$n->get('related_record'), 
-                "relatedToModule" => $relatedToModule);
+                "relatedToModule" => $relatedToModule, "accepted" => $accepted);
         }
+        
         $data["items"] = $items;
         $data["count"] = count($items);
         $response->setResult($data);
@@ -127,6 +142,34 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         }else{
             $response->setResult(array('success'=>true));
         }
+        $response->emit();
+        
+    }
+    
+    public function eventInvitations(Vtiger_Request $request){
+        
+        $response = new Vtiger_Response();
+        
+        $eventId = $request->get('event_id');
+        $eventStatus = $request->get('status');
+        $record = $request->get('record');
+        
+        $currentUser = Users_Record_Model::getCurrentUserModel();
+        $recordModel = Events_Record_Model::getInstanceById($eventId, 'Events');
+       
+        if($eventStatus == 'accept'){
+            $inviteeDetails = $recordModel->getInviteesDetails($userId);
+            if ($inviteeDetails[$userId] !== 'accepted') {
+                $recordModel->updateInvitationStatus($eventId, $currentUser->id, 'accepted');
+                $recordModel->set('assigned_user_id', $currentUser->id);
+                $recordModel->set('sendnotification', '0');
+                $recordModel->save();
+            }
+        }else if($eventStatus == 'reject'){
+            $recordModel->updateInvitationStatus($eventId, $currentUser->id, 'rejected');
+        }
+        
+        $response->setResult(array('success'=>true));
         $response->emit();
         
     }
