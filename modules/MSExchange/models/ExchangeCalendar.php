@@ -176,7 +176,7 @@ class MSExchange_ExchangeCalendar_Model extends MSExchange_MSExchange_Model{
                 ];
             } else {
                 $defaultOptions = [
-                    'SendMeetingInvitationsOrCancellations' => 'SendOnlyToAll'
+                    'SendMeetingInvitationsOrCancellations' => 'SendOnlyToChanged'
                 ];
             }
             
