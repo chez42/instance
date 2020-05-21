@@ -2432,17 +2432,17 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			
 			if(useProtocol != '') {
 				settingContainer.find('[name="server"]').val(useServer);
-				settingContainer.find('[name="protocol"]').each(function(node) {
+				settingContainer.find('[name="protocol"]').each(function(i, node) {
 					if(jQuery(node).val() == useProtocol) {
 						jQuery(node).attr('checked', true);
 					}
 				});
-				settingContainer.find('[name="ssltype"]').each(function(node) {
+				settingContainer.find('[name="ssltype"]').each(function(i, node) {
 					if(jQuery(node).val() == useSSLType) {
 						jQuery(node).attr('checked', true);
 					}
 				});
-				settingContainer.find('[name="sslmethod"]').each(function(node) {
+				settingContainer.find('[name="sslmethod"]').each(function(i, node) {
 					if(jQuery(node).val() == useCert) {
 						jQuery(node).attr('checked', true);
 					}

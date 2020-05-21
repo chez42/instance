@@ -383,12 +383,12 @@ function insertIntoRecurringTable(& $recurObj)
 	function insertIntoInviteeTable($module,$invitees_array)
 	{
 		global $log,$adb;
+		global $current_user;
 		$log->debug("Entering insertIntoInviteeTable(".$module.",".$invitees_array.") method ...");
+		
 		if($this->mode == 'edit'){
-		    
 		    $sql = "DELETE FROM vtiger_invitees WHERE activityid=? AND inviteeid NOT IN (".generateQuestionMarks($invitees_array).")";
 			$adb->pquery($sql, array($this->id, $invitees_array));
-			
 		}
 		foreach($invitees_array as $inviteeid)
 		{
@@ -400,12 +400,19 @@ function insertIntoRecurringTable(& $recurObj)
 			        $query="INSERT INTO vtiger_invitees VALUES (?,?,?)";
     				$adb->pquery($query, array($this->id, $inviteeid, 'sent'));
     				
-    				/*$notification = CRMEntity::getInstance('Notifications');
+    				$title = '<div class="pull-left" style="margin: 7px 5px 0px 0px !important;">
+                        <i class="vicon-calendar" title="Events" style="font-size: 1.5rem !important;"></i>
+                    </div>
+                    <div>
+                          <span class="notification_full_name" title="New Event Invitation"> New Event Invitation.&nbsp;</span>
+                          <span class="notification_description" title="'.getUserFullName($current_user->id).'  has sent you invitation for '. $this->column_fields['subject'] .'">' .substr('<b>'.getUserFullName($current_user->id).'</b>  has sent you invitation for <b>'. $this->column_fields['subject'].'</b>',0,35). '...&nbsp;</span>' ;
+    				
+    				$notification = CRMEntity::getInstance('Notifications');
     				$notification->column_fields['related_to'] = $this->id;
     				$notification->column_fields['assigned_user_id'] = $inviteeid;
-    				$notification->column_fields['description'] = 'Invite Users';
+    				$notification->column_fields['description'] = $title;
     				$notification->column_fields['source'] = 'PORTAL'; 
-    				$notification->save('Notifications');*/
+    				$notification->save('Notifications');
     				
 			    }
 			}

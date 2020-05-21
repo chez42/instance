@@ -68,6 +68,8 @@ Vtiger.Class("NotificationsJS", {}, {
 	    
 	    thisInstance.registerFunctionForComment();
 	    
+	    thisInstance.registerFunctionForAcceptInvitation();
+	    
         notificationList.on('click', '.notification_link .notification_full_name', function (event) {
             var currentTarget = jQuery(event.currentTarget);
             $.when( clickToOk(this) ).done(function() {
@@ -143,15 +145,20 @@ Vtiger.Class("NotificationsJS", {}, {
                         	reply = '<i title="reply" data-commentid="'+item['relatedRecord']+'" class="vicon-replytoall pull-right replyComment" style="margin:0px 20px 0px 0px !important;font-size: 1rem !important;"></i>';
                         }else if(item['relatedModule'] == "Documents"){
                         	moduleIcon = '<i class="vicon-documents" title="Documents"></i>';
+                        }else if(item['relatedModule'] == "Events"){
+                        	moduleIcon = '<i class="vicon-calendar" title="Events"></i>';
+                        	if(!item['accepted']){
+                        		reply = '<i title="Accept" data-event="accept" data-eventid="'+item['rel_id']+'" class="fa fa-check-circle pull-right eventAction" style="margin:0px 40px 0px 0px !important;color:green;"></i>';
+                        		reply += '<i title="Reject" data-event="reject" data-eventid="'+item['rel_id']+'" class="fa fa-times-circle pull-right eventAction" style="margin:0px 20px 0px 0px !important;color:red;"></i>';
+                        	}
                         }
-                       
                         if(!$('[data-notify-id="'+ item['id']+'"]').length){
 	                        listItem =
 	                            '<li data-notify-id="'+ item['id'] +'">' +
 	                            '   <a class="notification_link" href="javascript:;" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
 	                            '       <div class="notification-container">' +
 	                            			reply +
-	                            '           <i class="fa fa-check" onclick="return clickToOk(this);" title="Acknowledge"> </i>' +
+	                            '           <i class="fa fa-check markAsRead" onclick="return clickToOk(this);" title="Acknowledge"> </i>' +
 	                            '           <div class="notification_detail">' +
 	                            				item['description'] + 
 	                            '              <span class="notification_createdtime pull-right" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
@@ -222,7 +229,7 @@ Vtiger.Class("NotificationsJS", {}, {
     },
     
     saveComment : function (form){
-		console.log(form);
+		
 		var thisInstance = this;
 		form.on("click","button[name='saveButton']",function(e){
 			e.preventDefault();
@@ -309,7 +316,38 @@ Vtiger.Class("NotificationsJS", {}, {
         var thisInstance = this;
         thisInstance.addHeaderIcon();
        
-    }
+    },
+    
+    registerFunctionForAcceptInvitation : function(){
+    	var thisInstance = this;
+    	$(document).on('click', '.eventAction', function(){
+    		
+    		var ele = $(this).closest('.notification_link');
+    		var eventId = $(this).data('eventid');
+    		var notify_id = ele.data('id');
+    		var eventStatus = $(this).data('event');
+    		var params = {
+	    		'module': 'Notifications',
+	            'action': 'ActionAjax',
+	            'mode' : 'eventInvitations',
+	            'event_id' : eventId,
+	            'record' : notify_id,
+	            'status' : eventStatus
+    		};
+    		app.helper.showProgress();
+    		
+    		app.request.post({data:params}).then(
+    			function(error, data) {
+    				app.helper.hideProgress();
+    				if(data.success)
+    					ele.find('.markAsRead').trigger('click');
+    			}
+    		);
+    		
+    		
+    	});
+    },
+    
 });
 
 jQuery(document).ready(function() {

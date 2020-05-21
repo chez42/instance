@@ -129,9 +129,13 @@ function getActivityDetails($description,$user_id,$from='',$recordModel=false) {
 	$db = PearDatabase::getInstance();
 	$query='SELECT body FROM vtiger_emailtemplates WHERE subject=? AND systemtemplate=?';
 	$result = $db->pquery($query, array('Invitation', '1'));
+	
 	$body=decode_html($db->query_result($result,0,'body'));
-	$body=addAcceptEventLink($body,$user_id,$recordModel);
-    $list = $body;
+	
+	//Comment Accept Invitation Instead have added a notification
+	//$body = addAcceptEventLink($body,$user_id,$recordModel);
+    
+	$list = $body;
 	$list = str_replace('$invitee_name$', $name, $list);
 	$list = str_replace('$events-date_start$',$startDate->getDisplayDateTimeValue($inviteeUser) .' '.vtranslate($inviteeUser->time_zone, 'Users'),$list);
 	$list = str_replace('$events-due_date$',$endDate->getDisplayDateTimeValue($inviteeUser).' '.vtranslate($inviteeUser->time_zone, 'Users'),$list);
