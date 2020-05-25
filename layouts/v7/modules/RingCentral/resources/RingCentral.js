@@ -555,6 +555,20 @@ Vtiger.Class("RingCentral_Js",{
 						var recordId = app.getRecordId();
 					}
 					
+					if(jQuery(element).parents('.relatedContents').length){
+						var parentElem = jQuery(element).closest('td');
+						if($.trim($(this).text()) != ''){
+							var number = $.trim($(this).text());
+							var recordId = jQuery(element).closest('tr').data('id');
+						}
+					}
+				}
+				if(jQuery(element).parents('.searchResults').length){
+					var parentElem = jQuery(element).closest('td');
+					if($(this).attr("data-rawvalue") != ''){
+						var number = $(this).attr("data-rawvalue");
+						var recordId = jQuery(element).closest('tr').data('id');
+					}
 				}
 					
 				if (number !== '' && typeof number !== "undefined") {
@@ -619,8 +633,7 @@ Vtiger.Class("RingCentral_Js",{
 	
 		thisInstance.registerEventsForUserPrefrence();
 	
-		var view = app.getViewName();
-		if(view == 'List'){
+		//var view = app.getViewName();
 			
 			jQuery('#overlayPage').one('shown.bs.modal',function(){
 				thisInstance.registerEventForMouse();
@@ -630,7 +643,9 @@ Vtiger.Class("RingCentral_Js",{
 				thisInstance.registerEventForMouse();
 			});
 			
-		}
+		jQuery('#overlayPageContent').one('shown.bs.modal', function () {
+			thisInstance.registerEventForMouse();
+		});
 
 		
 		$(document).on('click','.closeOutgoing',function(){

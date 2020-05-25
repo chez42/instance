@@ -111,7 +111,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
     
     public function getHeaders($relationListView) {
         
-        $relatedColumnFields = array('CreatedDate', 'Type', 'Creator', 'Subject', 'Description', 'Status');
+        $relatedColumnFields = array('CreatedDate', 'Type', 'Assigned To', 'Subject', 'Description', 'Status');
         
         $translatedHeaders = array_map('decode_html', $relatedColumnFields);
         return $translatedHeaders;
@@ -182,7 +182,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
             if(!empty($searchCreator)){
                 $comma_separated_creator = implode("','", $searchCreator);
                 $comma_separated_creator = "'".$comma_separated_creator."'";
-                $creatorQuery = " AND vtiger_crmentity.smcreatorid IN (".$comma_separated_creator.") ";
+                $creatorQuery = " AND vtiger_crmentity.smownerid IN (".$comma_separated_creator.") ";
             }
         }
         
@@ -193,7 +193,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
             $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
             vtiger_crmentity.setype as module, vtiger_troubletickets.title as subject,
             vtiger_crmentity.description,
-            vtiger_troubletickets.status as status, vtiger_crmentity.smcreatorid as creator
+            vtiger_troubletickets.status as status, vtiger_crmentity.smownerid as creator
             FROM vtiger_troubletickets
             INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
             WHERE vtiger_crmentity.deleted = 0 ";
@@ -234,7 +234,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, vtiger_modcomments.commentcontent as subject,vtiger_crmentity.description,
-        vtiger_crmentity.status as status, vtiger_crmentity.smcreatorid as creator
+        vtiger_crmentity.status as status, vtiger_crmentity.smownerid as creator
         FROM vtiger_modcomments
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
         WHERE vtiger_crmentity.deleted = 0 ";
@@ -284,7 +284,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, vtiger_crmentity.label as subject,
         vtiger_crmentity.description as description,
-        vtiger_crmentity.status as status, vtiger_crmentity.smcreatorid as creator
+        vtiger_crmentity.status as status, vtiger_crmentity.smownerid as creator
         FROM vtiger_emaildetails
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_emaildetails.emailid
         INNER JOIN vtiger_seactivityrel ON vtiger_seactivityrel.activityid = vtiger_emaildetails.emailid
@@ -331,7 +331,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, vtiger_activity.subject as subject,
         vtiger_crmentity.description,
-        vtiger_activity.status as status, vtiger_crmentity.smcreatorid as creator
+        vtiger_activity.status as status, vtiger_crmentity.smownerid as creator
         FROM vtiger_activity ";
                         
         if( $moduleName == 'Contacts' )
@@ -370,7 +370,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, vtiger_task.subject as subject,
         vtiger_crmentity.description,
-        vtiger_task.task_status as status, vtiger_crmentity.smcreatorid as creator
+        vtiger_task.task_status as status, vtiger_crmentity.smownerid as creator
         FROM vtiger_task
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_task.taskid
         WHERE vtiger_crmentity.deleted =0";
@@ -402,7 +402,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, vtiger_notes.title as subject,
        	vtiger_crmentity.status as status, vtiger_crmentity.description as description,
-        vtiger_crmentity.smcreatorid as creator
+        vtiger_crmentity.smownerid as creator
         FROM vtiger_notes
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notes.notesid
         INNER JOIN vtiger_senotesrel ON vtiger_senotesrel.notesid = vtiger_notes.notesid
@@ -447,7 +447,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " SELECT DISTINCT vtiger_crmentity.createdtime as createddate,
         vtiger_crmentity.setype as module, concat(vtiger_ringcentral.direction, ' ' ,vtiger_ringcentral.ringcentral_type) as subject,
         vtiger_crmentity.description as description,  vtiger_ringcentral.ringcentral_status as status,
-        vtiger_crmentity.smcreatorid as creator
+        vtiger_crmentity.smownerid as creator
         FROM vtiger_ringcentral
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
         INNER JOIN vtiger_seringcentralrel ON vtiger_seringcentralrel.ringcentralid = vtiger_ringcentral.ringcentralid
