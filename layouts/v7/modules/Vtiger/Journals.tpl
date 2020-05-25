@@ -59,7 +59,7 @@
 								Type
 							</th>
 							<th class="nowrap">
-								Creator
+								Assigned To
 							</th>
 							<th class="nowrap">
 								Subject
