@@ -3,8 +3,7 @@ require_once("libraries/custodians/cCustodian.php");
 
 class cTDSecuritiesData{
     public $symbol, $description, $security_type, $price, $maturity, $annual_income_amount, $interest_rate, $multiplier,
-           $omni_base_asset_class, $first_coupon, $call_date, $call_price, $issue_date, $share_per_contact, $factor;
-    private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "TDCASH" => "Cash" will replace "TDCASH" from the CRM with "Cash" while checking if it exists or not
+           $omni_base_asset_class, $first_coupon, $call_date, $call_price, $issue_date, $share_per_contact, $factor, $filename;
 
     public function __construct($data){
         $this->symbol = $data['symbol'];
@@ -23,6 +22,7 @@ class cTDSecuritiesData{
         $this->issue_date = $data['issue_date'];
         $this->share_per_contact = $data['share_per_contact'];
         $this->factor = $data['factor'];
+        $this->filename = $data['filename'];
     }
 }
 
@@ -33,6 +33,7 @@ class cTDSecuritiesData{
 class cTDSecurities extends cCustodian {
     use tSecurities;
     private $securities_data;//Holds the security information
+    private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "TDCASH" => "Cash" will replace "TDCASH" from the CRM with "Cash" while checking if it exists or not
 
     public function __construct($name = "TD", $database = "custodian_omniscient", $module = "securities",
                                 $securities_table="custodian_securities_td", array $symbols, array $symbol_replacements, array $columns){
@@ -98,13 +99,45 @@ class cTDSecurities extends cCustodian {
      * @throws Exception
      */
     public function CreateNewSecuritiesUsingcTDSecuritiesData(cTDSecuritiesData $data){
-        print_r($data);exit;
         if(!$this->DoesSecurityExistInCRM($data->symbol)) {//If the security doesn't exist yet, create it
             $crmid = $this->UpdateEntitySequence();
 
             $this->FillEntityTable($crmid, $data);
             $this->FillSecuritiesTable($crmid, $data);
             $this->FillSecuritiesCFTable($crmid, $data);
+        }
+    }
+
+    public function UpdateSecuritiesUsingcTDSecuritiesData(cTDSecuritiesData $data){
+        echo 'updating - ' . $data->symbol . '<br />';
+        if($this->DoesSecurityExistInCRM($data->symbol)) {
+            global $adb;
+            $params = array();
+            $params[] = $data->price;
+            $params[] = $this->ConvertMDYtoYMD($data->maturity);
+            $params[] = $data->annual_income_amount;
+            $params[] = $data->interest_rate;
+            $params[] = $data->interest_rate;
+            $params[] = $data->multiplier;
+            $params[] = $data->omni_base_asset_class;
+            $params[] = $data->factor;
+            $params[] = $data->filename;
+            $params[] = $this->ConvertMDYtoYMD($data->first_coupon);
+            $params[] = $this->ConvertMDYtoYMD($data->call_date);
+            $params[] = $data->call_price;
+            $params[] = $this->ConvertMDYtoYMD($data->issue_date);
+            $params[] = $data->share_per_contact;
+            $params[] = $data->symbol;
+
+            $query = "UPDATE vtiger_modsecurities m 
+                      JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                      JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid
+                      SET m.security_price = ?, m.last_update = NOW(), m.maturity_date = ?, 
+                          cf.dividend_share = ?, cf.interest_rate = ?, m.interest_rate = ?, cf.security_price_adjustment = ?, cf.aclass = ?, 
+                          m.asset_backed_factor = ?, m.source = ?, 
+                          cf.first_coupon_date = ?, cf.call_date = ?, cf.call_price = ?, cf.issue_date = ?, cf.share_per_contract = ?
+                      WHERE m.security_symbol = ?";
+            $adb->pquery($query, $params, true);
         }
     }
 
@@ -141,22 +174,29 @@ class cTDSecurities extends cCustodian {
     }
 
     /**
-     * Auto updates the position's based on the data loaded into the $position_data member.
+     * Auto updates the securities based on the data loaded into the $securities_data member.
      * @param array $account_numbers
      */
-/*    public function UpdatePositionsFromPositionsData(array $account_numbers){
-        if(!empty($account_numbers)) {
-            foreach ($account_numbers AS $k => $v) {
-                foreach ($v AS $a => $position) {
-                    $data = $this->securities_data[$k][$a];
-                    if (!empty($data)) {
-                        $tmp = new cTDPositionsData($data);
-                        $this->UpdatePositionsUsingcTDPositionsData($tmp);
-                    }
+    public function UpdateSecuritiesFromSecuritiesData(array $symbols = null){
+        if(empty($symbols)){//If no symbols passed in, then we try and use the filled in securities
+            if(!empty($this->securities_data)){//If there are filled in securities, set the symbols
+                $symbols = array();
+                foreach ($this->securities_data AS $k => $v) {
+                    $symbols[] = $k;
                 }
             }
         }
-    }*/
+
+        if(!empty($symbols)) {
+            foreach ($symbols AS $k => $v) {
+                $data = $this->securities_data[$v];
+                if (!empty($data)) {
+                    $tmp = new cTDSecuritiesData($data);
+                    $this->UpdateSecuritiesUsingcTDSecuritiesData($tmp);
+                }
+            }
+        }
+    }
 
     /**
      * Create the new entity in the crmentity table
@@ -197,29 +237,12 @@ class cTDSecurities extends cCustodian {
         $params[] = $data->price;
         $params[] = $this->ConvertMDYtoYMD($data->maturity);
         $params[] = $data->interest_rate;
-        $params[] = $data->
-            /*
-            "SET m.security_symbol = f.symbol, m.security_name = f.description, " +
-            "m.prod_code = f.security_type, " +
-            "m.security_price = pr.price, m.last_update = NOW(), " +
-            "m.maturity_date = CASE WHEN f.maturity != '0000-00-00' THEN DATE_FORMAT(STR_TO_DATE(f.maturity, '%m/%d/%Y'), '%Y-%m-%d') ELSE m.maturity_date END, " +
-            "cf.provider = 'TD', cf.dividend_share = CASE WHEN f.annual_income_amount > 0 THEN f.annual_income_amount ELSE cf.dividend_share END, " +
-            "cf.interest_rate = CASE WHEN f.interest_rate > 0 THEN f.interest_rate ELSE cf.interest_rate END, " +
-            "m.interest_rate = CASE WHEN f.interest_rate > 0 THEN f.interest_rate ELSE m.interest_rate END, " +
-            "cf.security_price_adjustment = acm.multiplier, " + //CASE WHEN cf.security_price_adjustment = 0 OR cf.security_price_adjustment IS NULL THEN acm.multiplier ELSE cf.security_price_adjustment END, " +
-            "cf.aclass = CASE WHEN cf.aclass = '' OR cf.aclass IS NULL THEN acm.omni_base_asset_class ELSE cf.aclass END, " +
-            "m.securitytype = CASE WHEN m.securitytype = 'ETF' THEN m.securitytype ELSE acm.security_type END, " +
-            "cf.first_coupon_date = DATE_FORMAT(STR_TO_DATE(f.first_coupon, '%m/%d/%Y'), '%Y-%m-%d'), " +
-            "cf.dividend_share = f.annual_income_amount, " +
-            "cf.call_date = DATE_FORMAT(STR_TO_DATE(f.call_date, '%m/%d/%Y'), '%Y-%m-%d'), " +
-            "cf.call_price = f.call_price, " +
-            "cf.issue_date = DATE_FORMAT(STR_TO_DATE(f.issue_date, '%m/%d/%Y'), '%Y-%m-%d'), " +
-            "cf.share_per_contract = f.share_per_contact, " +
-            "m.asset_backed_factor = pr.factor " +
-             */
+        $params[] = $data->security_type;
+        $params[] = $data->factor;
+
         $questions = generateQuestionMarks($params);
         $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name, prod_code, security_price, maturity_date,
-                                                    interest_rate, securitytype)
+                                                    interest_rate, securitytype, asset_backed_factor)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
@@ -233,10 +256,21 @@ class cTDSecurities extends cCustodian {
         global $adb;
         $params = array();
         $params[] = $crmid;
-        $params[] = 1;
+        $params[] = "TD";
+        $params[] = $data->interest_rate;
+        $params[] = $data->multiplier;
+        $params[] = $data->omni_base_asset_class;
+        $params[] = $this->ConvertMDYtoYMD($data->first_coupon);
+        $params[] = $data->annual_income_amount;
+        $params[] = $this->ConvertMDYtoYMD($data->call_date);
+        $params[] = $data->call_price;
+        $params[] = $this->ConvertMDYtoYMD($data->issue_date);
+        $params[] = $data->share_per_contact;
 
         $questions = generateQuestionMarks($params);
-        $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, security_price_adjustment)
+        $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, provider, interest_rate, security_price_adjustment, 
+                                                      aclass, first_coupon_date, dividend_share, call_date, call_price, issue_date, 
+                                                      share_per_contract)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
@@ -246,33 +280,4 @@ class cTDSecurities extends cCustodian {
             return date("Y-m-d", strtotime($date));
         return null;
     }
-
-    /**
-     * Update the position in the CRM using the cTDPositionsData class
-     * @param cTDPositionsData $data
-     */
-/*    public function UpdatePositionsUsingcTDPositionsData(cTDPositionsData $data){
-        global $adb;
-        $params = array();
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->insert_date;
-        $params[] = $data->filename;
-        $params[] = $data->account_number;
-        $params[] = $data->symbol;
-
-        $query = "UPDATE vtiger_positioninformation p
-                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                  LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol
-                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-                  SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment = 0
-                                                                                 THEN 1 ELSE mcf.security_price_adjustment END
-                                                                                    * CASE WHEN m.asset_backed_factor > 0
-                                                                                    THEN m.asset_backed_factor ELSE 1 END,
-                  p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
-                  p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END,
-                  cf.last_update = ?, cf.custodian_source = ?
-                  WHERE account_number = ? AND p.security_symbol = ?";
-        $adb->pquery($query, $params, true);
-    }*/
 }
