@@ -60,12 +60,14 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
             "custodian_securities_td", $symbols, array("TDCASH" => "Cash"), $fields);
 #        $crm_symbols = $td->GetExistingCRMSecurities();
-        $missing_symbols = $td->GetMissingCRMSecurities();
+#        $missing_symbols = $td->GetMissingCRMSecurities();
 
 #        $crm_symbols = $td->GetAllCRMSecurities();//Get all securities that are in the CRM
 #        $missing_symbols = array_diff_key($symbols, $crm_symbols);
 #        $td->SetSecurities($missing_symbols);
-        $td->CreateNewSecuritiesFromSecurityData($missing_symbols);
+#        $td->CreateNewSecuritiesFromSecurityData($missing_symbols);
+        $custodian_symbols = $td->GetCustodianSecurities();
+        $td->UpdateSecuritiesFromSecuritiesData($custodian_symbols);
         echo "Now check";
         exit;
 
