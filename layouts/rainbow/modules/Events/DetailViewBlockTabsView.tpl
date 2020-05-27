@@ -21,6 +21,12 @@
 		.fieldLabel.textOverflowEllipsis {
 		    white-space: unset !important;
 		}
+		.referencefield-wrapper {
+			display:block;
+		}
+		.table.detailview-table.no-border .ajaxEdited .input-group-addon {
+			width:10% !important;
+		}
 	</style>
 	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
