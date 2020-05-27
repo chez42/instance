@@ -145,7 +145,8 @@ jQuery.Class("Vtiger_RelatedList_Js",{
         		}
         		thisInstance.registerEventForShowHiddenFolders();
         		
-                vtUtils.applyFieldElementsView(container);
+               // vtUtils.applyFieldElementsView(container);
+                
 				thisInstance.initializePaginationEvents();
                 thisInstance.triggerRelationAdditionalActions();
                 thisInstance.registerEvents();
