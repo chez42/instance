@@ -2246,6 +2246,101 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
 		}
 		return aDeferred.promise();
 	},
+	
+	triggerRelatedTabClickEvent: function () {
+		var thisInstance = this;
+		var contents = jQuery('#layoutEditorContainer').find('.contents');
+
+		contents.find('.relatedTab').click(function (e) {
+			var duplicationContainer = contents.find('#relatedTabContainer');
+			thisInstance.showDuplicationHandlingUI(duplicationContainer, e).then(function (data) {
+				var form = jQuery('.RelatedTabHandlingForm');
+
+				/*form.find('select').on('change', function () {
+					form.find('.formFooter').addClass('show').removeClass('hide');
+				});
+
+				form.find('.cancelLink').on('click', function () {
+					duplicationContainer.html('');
+					contents.find('.relatedTab').trigger('click');
+				});*/
+				vtUtils.showSelect2ElementView(form.find('select').addClass('select2'));
+				
+				form.find('#fieldsList').select2().select2Sortable();
+				
+				var params = {
+					submitHandler: function (form) {
+						var form = jQuery(form);
+						var params = form.serializeFormData();
+						if ((typeof params['fieldIdsList[]'] == 'undefined') && (typeof params['fieldIdsList'] == 'undefined')) {
+							params['fieldIdsList'] = '';
+						}
+
+						app.helper.showProgress();
+						app.request.post({'data': params}).then(function (error, data) {
+							app.helper.hideProgress();
+							if (error == null) {
+								var message = app.vtranslate('JS_RELATEDTAB_HANDLING_SUCCESS_MESSAGE');
+								app.helper.showSuccessNotification({'message': message});
+								form.find('.formFooter').removeClass('show').addClass('hide');
+							} else {
+								app.helper.showErrorNotification({'message': app.vtranslate('JS_RELATEDTAB_HANDLING_FAILURE_MESSAGE')});
+							}
+						});
+						return false;
+					}
+				}
+				form.vtValidate(params);
+			});
+		});
+	},
+	
+	triggerRoundRobinTabClickEvent: function () {
+		var thisInstance = this;
+		var contents = jQuery('#layoutEditorContainer').find('.contents');
+
+		contents.find('.roundRobinTab').click(function (e) {
+			var duplicationContainer = contents.find('#roundRobinTabContainer');
+			thisInstance.showDuplicationHandlingUI(duplicationContainer, e).then(function (data) {
+				var form = jQuery('.RoundRobinHandlingForm');
+				
+				form.find('select').on('change', function () {
+					form.find('.formFooter').addClass('show').removeClass('hide');
+				});
+	
+				form.find('.cancelLink').on('click', function () {
+					duplicationContainer.html('');
+					contents.find('.roundRobinTab').trigger('click');
+				});
+				vtUtils.showSelect2ElementView(form.find('select').addClass('select2'));
+				
+				var params = {
+					submitHandler: function (form) {
+						var form = jQuery(form);
+						var params = form.serializeFormData();
+						if ((typeof params['roleIdsList[]'] == 'undefined') && (typeof params['roleIdsList'] == 'undefined')) {
+							params['roleIdsList'] = '';
+						}
+	
+						app.helper.showProgress();
+						app.request.post({'data': params}).then(function (error, data) {
+							app.helper.hideProgress();
+							if (error == null) {
+								var message = app.vtranslate('Successfully updated roles for round robin tab');
+								app.helper.showSuccessNotification({'message': message});
+								form.find('.formFooter').removeClass('show').addClass('hide');
+							} else {
+								app.helper.showErrorNotification({'message': app.vtranslate('Failed to consider roles in round robin tab')});
+							}
+						});
+						return false;
+					}
+				}
+				form.vtValidate(params);
+			});
+		});
+	},
+	
 	/**
 	 * register events for layout editor
 	 */
@@ -2255,6 +2350,9 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
 		thisInstance.triggerFieldListTabClickEvent();
 		thisInstance.triggerRelatedModulesTabClickEvent();
 		thisInstance.triggerDuplicationTabClickEvent();
+		
+		thisInstance.triggerRelatedTabClickEvent();
+		thisInstance.triggerRoundRobinTabClickEvent();
 
 		var selectedTab = jQuery('.selectedTab').val();
 		jQuery('#layoutEditorContainer').find('.contents').find('.'+selectedTab).trigger('click');

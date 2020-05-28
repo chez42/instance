@@ -17,6 +17,8 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$this->exposeMethod('showRelatedListLayout');
 		$this->exposeMethod('showFieldEdit');
 		$this->exposeMethod('showDuplicationHandling');
+        $this->exposeMethod('showRelatedTabHandling');
+        $this->exposeMethod('showRoundRobinContent');
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -24,6 +26,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		switch($mode) {
 			case 'showRelatedListLayout'	:	$selectedTab = 'relatedListTab';	break;
 			case 'showDuplicationHandling'	:	$selectedTab = 'duplicationTab';	break;
+            case 'showRelatedTabHandling'	:	$selectedTab = 'relatedTab';	    break;
 			default							:	$selectedTab = 'detailViewTab';
 												if (!$mode) {
 													$mode = 'showFieldLayout';
@@ -237,7 +240,84 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 			$viewer->view('Index.tpl', $qualifiedModule);
 		}
 	}
+    
+    public function showRelatedTabHandling(Vtiger_Request $request) {
+        global $adb;
+        
+        $qualifiedModule = $request->getModule(false);
+        $sourceModuleName = $request->get('sourceModule');
+        $moduleModel = Vtiger_Module_Model::getInstance($sourceModuleName);
+        
+        $tabid = $moduleModel->getId();
+        
+        $result = $adb->pquery("SELECT vtiger_field.fieldid, vtiger_field.fieldlabel, vtiger_field.related_tab_field_seq
+        FROM `vtiger_field` WHERE vtiger_field.tabid = ? and vtiger_field.relatedlistview = ?
+        ORDER by ISNULL(vtiger_field.related_tab_field_seq), vtiger_field.related_tab_field_seq ASC",
+            array($tabid,1));
+        
+        $fields = array();
+        if($adb->num_rows($result)){
+            while ($row = $adb->fetch_array($result)){
+                if($row['related_tab_field_seq']){
+                    $selected = true;
+                }else{
+                    $selected = false;
+                }
+                $fields[$row['fieldid']] = array(
+                    'label' => $row['fieldlabel'],
+                    'field_seq' => $selected
+                );
+            }
+        }
+        
+        $viewer = $this->getViewer($request);
+        $viewer->assign('FIELDS', $fields);
+        $viewer->assign('SOURCE_MODULE', $sourceModuleName);
+        $viewer->assign('QUALIFIED_MODULE', $qualifiedModule);
+        $viewer->assign('SOURCE_MODULE_MODEL', $moduleModel);
+        $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        
+        if ($request->isAjax() && !$request->get('showFullContents')) {
+            $viewer->view('RelatedTab.tpl', $qualifiedModule);
+        } else {
+            $viewer->view('Index.tpl', $qualifiedModule);
+        }
+    }
+    
+    public function showRoundRobinContent(Vtiger_Request $request) {
+        global $adb;
+        
+        $qualifiedModule = $request->getModule(false);
+        $sourceModuleName = $request->get('sourceModule');
+        $moduleModel = Vtiger_Module_Model::getInstance($sourceModuleName);
 
+        $roleModels = Settings_Roles_Record_Model::getAll();
+        $roles = array();
+        foreach ($roleModels as $roleId=>$roleModel) {
+            $roleName = $roleModel->getName();
+            $roles[$roleName] = $roleId;
+        }
+        
+        $selectedRoles = $adb->pquery("SELECT * FROM vtiger_roundrobin_roles");
+        $selectedRole = array();
+        if($adb->num_rows($selectedRoles)){
+            $selectedRole = explode(',',$adb->query_result($selectedRoles, 0, 'roles'));
+        }
+        
+        $viewer = $this->getViewer($request);
+        $viewer->assign('ROLES_FIELD', $roles);
+        $viewer->assign('SELECTED_ROLES', $selectedRole);
+        $viewer->assign('SOURCE_MODULE', $sourceModuleName);
+        $viewer->assign('QUALIFIED_MODULE', $qualifiedModule);
+        $viewer->assign('SOURCE_MODULE_MODEL', $moduleModel);
+        $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        
+        if ($request->isAjax() && !$request->get('showFullContents')) {
+            $viewer->view('RoundRobinTab.tpl', $qualifiedModule);
+        } else {
+            $viewer->view('Index.tpl', $qualifiedModule);
+        }
+    }
 	/**
 	 * Function to get the list of Script models to be included
 	 * @param Vtiger_Request $request
@@ -249,6 +329,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$jsFileNames = array(
 			'~libraries/garand-sticky/jquery.sticky.js',
 			'~/libraries/jquery/bootstrapswitch/js/bootstrap-switch.min.js',
+            '~/libraries/jquery/select2/select2.sortable.js',
 		);
 
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

@@ -19,6 +19,8 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
         $this->exposeMethod('move');
         $this->exposeMethod('unHide');
 		$this->exposeMethod('updateDuplicateHandling');
+        $this->exposeMethod('updateFieldForRelatedTab');
+        $this->exposeMethod('updateForRoundRobinField');
     }
 
     public function add(Vtiger_Request $request) {
@@ -220,6 +222,45 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 		$response->emit();
 	}
 
+    public function updateFieldForRelatedTab(Vtiger_Request $request) {
+        $response = new Vtiger_Response();
+        try {
+            $sourceModule = $request->get('sourceModule');
+            $moduleModel = Settings_LayoutEditor_Module_Model::getInstanceByName($sourceModule);
+            
+            $fieldIdsList = $request->get('fieldIdsList');
+            $result = $moduleModel->updateFieldForRelatedTab($fieldIdsList);
+            
+            $response->setResult($result);
+        } catch (Exception $e) {
+            $response->setError($e->getCode(), $e->getMessage());
+        }
+        $response->emit();
+    }
+    
+    public function updateForRoundRobinField(Vtiger_Request $request) {
+        global $adb;
+        $response = new Vtiger_Response();
+        try {
+            
+            $roleIdsList = $request->get('roleIdsList');
+            $roleQuery = $adb->pquery("SELECT * FROM vtiger_roundrobin_roles");
+            
+            if($adb->num_rows($roleQuery)){
+                $adb->pquery("UPDATE vtiger_roundrobin_roles SET roles = ?",
+                    array(implode(',',$roleIdsList)));
+            }else{
+                 $adb->pquery("INSERT INTO vtiger_roundrobin_roles(roles) VALUES (?)",
+                     array(implode(',',$roleIdsList)));
+            }
+            
+            $response->setResult(true);
+        } catch (Exception $e) {
+            $response->setError($e->getCode(), $e->getMessage());
+        }
+        $response->emit();
+    }
+    
     public function validateRequest(Vtiger_Request $request) {
         $request->validateWriteAccess();
     }

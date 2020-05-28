@@ -165,6 +165,8 @@ $languageStrings = array(
 
 	'LBL_ENABLE_RELATED_LIST_FIELD' => 'Related Tab View' , //Change For 09-Aug-2018
 	
+    'LBL_RELATED_TAB_HANDLING' => 'Related Tab',
+    'LBL_SELECT_FIELDS_FOR_RELATEDTAB' => 'Select the fields for related tab',
 );
 
 $jsLanguageStrings = array(
@@ -229,4 +231,6 @@ $jsLanguageStrings = array(
 	'JS_DUPLICATE_HANDLING_SUCCESS_MESSAGE' => 'Successfully updated to consider selected fields in duplicates prevention',
 	'JS_DUPLICATE_HANDLING_FAILURE_MESSAGE' => 'Failed to consider selected fields in duplicates prevention',
 	'JS_DUPLICATE_CHECK_DISABLED' => 'Duplicate check is disabled',
+    'JS_RELATEDTAB_HANDLING_SUCCESS_MESSAGE' => 'Fields sequence updated Successfully',
+    'JS_RELATEDTAB_HANDLING_FAILURE_MESSAGE' => 'Operation Failed',
 );

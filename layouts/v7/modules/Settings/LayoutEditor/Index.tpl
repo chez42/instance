@@ -38,6 +38,10 @@
 					<li class="{if $SELECTED_TAB eq 'detailViewTab'}active {/if}detailViewTab"><a data-toggle="tab" href="#detailViewLayout" data-url="{$URL}" data-mode="showFieldLayout"><strong>{vtranslate('LBL_DETAILVIEW_LAYOUT', $QUALIFIED_MODULE)}</strong></a></li>
 					<li class="{if $SELECTED_TAB eq 'relatedListTab'}active {/if}relatedListTab"><a data-toggle="tab" href="#relatedTabOrder" data-url="{$URL}" data-mode="showRelatedListLayout"><strong>{vtranslate('LBL_RELATION_SHIPS', $QUALIFIED_MODULE)}</strong></a></li>
 					<li class="{if $SELECTED_TAB eq 'duplicationTab'}active {/if}duplicationTab"><a data-toggle="tab" href="#duplicationContainer" data-url="{$URL}" data-mode="showDuplicationHandling"><strong>{vtranslate('LBL_DUPLICATE_HANDLING', $QUALIFIED_MODULE)}</strong></a></li>
+					<li class="{if $SELECTED_TAB eq 'relatedTab'}active {/if}relatedTab"><a data-toggle="tab" href="#relatedTabContainer" data-url="{$URL}" data-mode="showRelatedTabHandling"><strong>{vtranslate('LBL_RELATED_TAB_HANDLING', $QUALIFIED_MODULE)}</strong></a></li>
+					{if $SELECTED_MODULE_NAME eq 'Leads'}
+						<li class="{if $SELECTED_TAB eq 'roundRobinTab'}active {/if}roundRobinTab"><a data-toggle="tab" href="#roundRobinTabContainer" data-url="{$URL}" data-mode="showRoundRobinContent"><strong>{vtranslate('Round Robin Handling', $QUALIFIED_MODULE)}</strong></a></li>
+					{/if}
 				</ul>
 				<div class="tab-content layoutContent themeTableColor overflowVisible">
 					<div class="tab-pane{if $SELECTED_TAB eq 'detailViewTab'} active{/if}" id="detailViewLayout">
@@ -53,6 +57,16 @@
 					<div class="tab-pane{if $SELECTED_TAB eq 'duplicationTab'} active{/if}" id="duplicationContainer">
 						{if $SELECTED_TAB eq 'duplicationTab'}
 							{include file=vtemplate_path('DuplicateHandling.tpl', $QUALIFIED_MODULE)}
+						{/if}
+					</div>
+					<div class="tab-pane{if $SELECTED_TAB eq 'relatedTab'} active{/if}" id="relatedTabContainer">
+						{if $SELECTED_TAB eq 'relatedTab'}
+							{include file=vtemplate_path('RelatedTab.tpl', $QUALIFIED_MODULE)}
+						{/if}
+					</div>
+					<div class="tab-pane{if $SELECTED_TAB eq 'roundRobinTab'} active{/if}" id="roundRobinTabContainer">
+						{if $SELECTED_TAB eq 'roundRobinTab'}
+							{include file=vtemplate_path('RoundRobinTab.tpl', $QUALIFIED_MODULE)}
 						{/if}
 					</div>
 				</div>
