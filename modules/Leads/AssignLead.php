@@ -20,10 +20,31 @@ function AssignLead($entityData){
     
     $roundrobin_logic=1;
     
-    $allUsers = getAllUserName();
+    $roles = $adb->pquery("SELECT * FROM vtiger_roundrobin_roles");
     
-    $user_list = array_keys($allUsers);
+    $role_list = array();
+    if($adb->num_rows($roles)){
+        $role_list = explode(',', $adb->query_result($roles, 0, 'roles'));
+    }
     
+    $user_list = array();
+    
+    if(!empty($role_list)){
+        $userQuery = $adb->pquery("SELECT * FROM vtiger_users 
+        INNER JOIN vtiger_user2role ON vtiger_user2role.userid = vtiger_users.id
+        WHERE vtiger_user2role.roleid IN (".generateQuestionMarks($role_list).")",
+            array($role_list));
+        
+        if($adb->num_rows($userQuery)){
+            for($u=0;$u<$adb->num_rows($userQuery);$u++){
+                $user_list[] = $adb->query_result($userQuery, $u, 'id');
+            }
+        }
+    } else {
+        $allUsers = getAllUserName();
+	$user_list = array_keys($allUsers);
+    }
+
     $result = $adb->pquery("SELECT * FROM `workflow_roundrobin_logic`");
     
     $numOfRow = $adb->num_rows($result);

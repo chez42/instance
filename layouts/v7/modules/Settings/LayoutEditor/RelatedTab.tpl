@@ -8,7 +8,7 @@
 *************************************************************************************}
 
 {strip}
-	<div class="duplicateHandlingDiv padding20">
+	<div class="relatedTabHandlingDiv padding20">
 		<form class="RelatedTabHandlingForm">
 			<input type="hidden" name="_source" value="{$SOURCE}" />
 			<input type="hidden" name="sourceModule" value="{$SOURCE_MODULE}" id="sourceModule" />
@@ -18,21 +18,23 @@
 			<input type="hidden" name="mode" value="updateFieldForRelatedTab" />
 
 			<br>
-			<div class="duplicateHandlingContainer show col-lg-12">
-				<div class="fieldsBlock">
-					<div><b>{vtranslate('LBL_SELECT_FIELDS_FOR_RELATEDTAB', $QUALIFIED_MODULE)}</b></div><br>
-					<select class="col-lg-7 select" id="fieldsList" multiple name="fieldIdsList[]" data-placeholder="{vtranslate('LBL_SELECT_FIELDS', $QUALIFIED_MODULE)}" data-rule-required="true" >
-						{foreach key=FIELD_ID item=FIELD_DATA from=$FIELDS}
-							<option {if $FIELD_DATA['field_seq']}selected=""{/if} value={$FIELD_ID}>
-								{vtranslate($FIELD_DATA['label'], $SOURCE_MODULE)}
-							</option>
-						{/foreach}
-					</select>
-				</div>
-				
-				<div class="formFooter " style="margin-top:100px">
-					<button class="btn btn-success" type="submit" name="saveButton"><strong>{vtranslate('LBL_SAVE', $MODULE)}</strong></button>
-					{*<a class="cancelLink" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE)}</a>*}
+			<div class="row">
+				<div class="relatedTabHandlingContainer  col-lg-12">
+					<div class="fieldsBlock">
+						<div><b>{vtranslate('LBL_SELECT_FIELDS_FOR_RELATEDTAB', $QUALIFIED_MODULE)}</b></div><br>
+						<select class="col-lg-10 select" id="fieldsList" multiple name="fieldIdsList[]" data-placeholder="{vtranslate('LBL_SELECT_FIELDS', $QUALIFIED_MODULE)}" data-rule-required="true" >
+							{foreach key=FIELD_ID item=FIELD_DATA from=$FIELDS}
+								<option {if $FIELD_DATA['field_seq']}selected=""{/if} value={$FIELD_ID} data-id="{$FIELD_ID}">
+									{vtranslate($FIELD_DATA['label'], $SOURCE_MODULE)}
+								</option>
+							{/foreach}
+						</select>
+					</div>
+					
+					<div class="formFooter hide" style="margin-top:100px">
+						<button class="btn btn-success" type="submit" name="saveButton"><strong>{vtranslate('LBL_SAVE', $MODULE)}</strong></button>
+						<a class="cancelLink" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE)}</a>
+					</div>
 				</div>
 			</div>
 		</form>

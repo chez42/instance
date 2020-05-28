@@ -497,12 +497,12 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
         //Fields Info
         if (count($fieldIdsList)) {
             
-            $query = 'UPDATE vtiger_field SET related_tab_field_seq =? WHERE tabid=?';
+            $query = 'UPDATE vtiger_field SET related_tab_field_seq =?, relatedlistview=0 WHERE tabid=?';
             $params = array(null,$tabId);
             $db->pquery($query, $params);
             
             for ($i=1; $i<=count($fieldIdsList); $i++){
-                $query = 'UPDATE vtiger_field SET related_tab_field_seq =? WHERE fieldid =? and tabid=?';
+                $query = 'UPDATE vtiger_field SET related_tab_field_seq =?, relatedlistview=1 WHERE fieldid =? and tabid=?';
                 $params = array($i,$fieldIdsList[$i-1],$tabId);
                 $db->pquery($query, $params);
             }

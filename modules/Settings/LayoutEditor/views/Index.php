@@ -250,19 +250,20 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
         
         $tabid = $moduleModel->getId();
         
-        $result = $adb->pquery("SELECT vtiger_field.fieldid, vtiger_field.fieldlabel, vtiger_field.related_tab_field_seq
-        FROM `vtiger_field` WHERE vtiger_field.tabid = ? and vtiger_field.relatedlistview = ?
+        $result = $adb->pquery("SELECT vtiger_field.fieldid, vtiger_field.fieldlabel,
+        vtiger_field.relatedlistview, vtiger_field.related_tab_field_seq
+        FROM vtiger_field WHERE vtiger_field.tabid = ? AND vtiger_field.presence != 1
         ORDER by ISNULL(vtiger_field.related_tab_field_seq), vtiger_field.related_tab_field_seq ASC",
-            array($tabid,1));
+            array($tabid));
         
         $fields = array();
         if($adb->num_rows($result)){
             while ($row = $adb->fetch_array($result)){
-                if($row['related_tab_field_seq']){
+                if($row['relatedlistview'] == 1)
                     $selected = true;
-                }else{
+                else 
                     $selected = false;
-                }
+                
                 $fields[$row['fieldid']] = array(
                     'label' => $row['fieldlabel'],
                     'field_seq' => $selected
@@ -329,7 +330,6 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$jsFileNames = array(
 			'~libraries/garand-sticky/jquery.sticky.js',
 			'~/libraries/jquery/bootstrapswitch/js/bootstrap-switch.min.js',
-            '~/libraries/jquery/select2/select2.sortable.js',
 		);
 
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
