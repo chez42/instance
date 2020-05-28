@@ -284,5 +284,21 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 		$adb->pquery("DELETE FROM vtiger_field WHERE tabid=?", Array($moduleInstance->id));
 		self::log("Deleting fields of the module ... DONE");
 	}
+    
+    static function getAllForRelatedTab($moduleInstance) {
+        global $adb;
+        $instances = false;
+        
+        $query = "SELECT * FROM vtiger_field WHERE relatedlistview = 1 and tabid=? ORDER by ISNULL(vtiger_field.related_tab_field_seq), vtiger_field.related_tab_field_seq ASC";
+        $queryParams = Array($moduleInstance->id);
+        
+        $result = $adb->pquery($query, $queryParams);
+        for($index = 0; $index < $adb->num_rows($result); ++$index) {
+            $instance = new self();
+            $instance->initialize($adb->fetch_array($result), $moduleInstance);
+            $instances[] = $instance;
+        }
+        return $instances;
+    }
 }
 ?>
