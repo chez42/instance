@@ -2252,30 +2252,47 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
 		var contents = jQuery('#layoutEditorContainer').find('.contents');
 
 		contents.find('.relatedTab').click(function (e) {
-			var duplicationContainer = contents.find('#relatedTabContainer');
-			thisInstance.showDuplicationHandlingUI(duplicationContainer, e).then(function (data) {
+			var relatedTabContainer = contents.find('#relatedTabContainer');
+			thisInstance.showDuplicationHandlingUI(relatedTabContainer, e).then(function (data) {
 				var form = jQuery('.RelatedTabHandlingForm');
 
-				/*form.find('select').on('change', function () {
+				form.find('select').on('change', function () {
 					form.find('.formFooter').addClass('show').removeClass('hide');
 				});
 
 				form.find('.cancelLink').on('click', function () {
 					duplicationContainer.html('');
 					contents.find('.relatedTab').trigger('click');
-				});*/
-				vtUtils.showSelect2ElementView(form.find('select').addClass('select2'));
+				});
 				
-				form.find('#fieldsList').select2().select2Sortable();
+				var selectElement = form.find('select').addClass('select2');
+				vtUtils.showSelect2ElementView(selectElement,{maximumSelectionSize: 15});
+				var chozenChoiceElement = jQuery("#s2id_fieldsList").find('ul.select2-choices');
+				chozenChoiceElement.sortable({
+					'containment': chozenChoiceElement,
+					start: function() { },
+					update: function() {
+						form.find('.formFooter').addClass('show').removeClass('hide');
+					}
+				});
 				
 				var params = {
 					submitHandler: function (form) {
 						var form = jQuery(form);
+						
 						var params = form.serializeFormData();
+						
 						if ((typeof params['fieldIdsList[]'] == 'undefined') && (typeof params['fieldIdsList'] == 'undefined')) {
 							params['fieldIdsList'] = '';
 						}
-
+						var selectValueElements = selectElement.select2('data');
+						var selectedValues = [];
+						for(i=0; i<selectValueElements.length; i++) {
+							selectedValues.push(selectValueElements[i].id);
+						}
+						if(selectedValues.length)
+							params['fieldIdsList[]'] = selectedValues;
+						
 						app.helper.showProgress();
 						app.request.post({'data': params}).then(function (error, data) {
 							app.helper.hideProgress();
