@@ -121,9 +121,9 @@
 												</span>
 												<span class="action pull-right"><a href="#" onclick="return false;" class="editAction ti-pencil"></a></span>
 											{/if}
-										{if $FIELD_MODEL->get('uitype') neq "29001"}
+										{*if $FIELD_MODEL->get('uitype') neq "29001"*}
 											</div>
-										{/if}
+										{*/if*}
 									{/if}
 
 									{if $FIELD_MODEL_LIST|@count eq 1 and $FIELD_MODEL->get('uitype') neq "19" and $FIELD_MODEL->get('uitype') neq "20" and $FIELD_MODEL->get('uitype') neq "30" and $FIELD_MODEL->get('name') neq "recurringtype" and $FIELD_MODEL->get('uitype') neq "69" and $FIELD_MODEL->get('uitype') neq "105" and $FIELD_MODEL->get('uitype') neq "29001" and $FIELD_MODEL->get('uitype') neq "901"}
