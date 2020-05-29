@@ -71,6 +71,22 @@ class MSExchange_Task_Connector extends MSExchange_Base_Connector{
             }
         }
         
+        $deletedRecords = $this->getMSExchangeDeletedEvents();
+        
+        if(!empty($deletedRecords)){
+            
+            foreach ($deletedRecords as $exchangeCalendar) {
+                
+                $itemId = $exchangeCalendar->getItemId();
+                
+                $recordModel = MSExchange_Task_Model::getInstanceFromValues(array('entity' => $exchangeCalendar));
+                
+                $recordModel->setType($this->getSynchronizeController()->getSourceType())->setMode(MSExchange_SyncRecord_Model::DELETE_MODE);
+                
+                $exchangeRecords[$itemId->getId()] = $recordModel;
+            }
+        }
+        
         $last_modified_time = date("Y-m-d H:i:s",max(array_map('strtotime',$exchange_modified_time)));
         
         $this->createdRecords = count($exchangeRecords);

@@ -27,6 +27,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 			case 'showRelatedListLayout'	:	$selectedTab = 'relatedListTab';	break;
 			case 'showDuplicationHandling'	:	$selectedTab = 'duplicationTab';	break;
             case 'showRelatedTabHandling'	:	$selectedTab = 'relatedTab';	    break;
+            case 'showRoundRobinContent'	:	$selectedTab = 'roundRobinTab';	    break;
 			default							:	$selectedTab = 'detailViewTab';
 												if (!$mode) {
 													$mode = 'showFieldLayout';

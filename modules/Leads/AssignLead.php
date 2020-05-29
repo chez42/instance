@@ -32,7 +32,7 @@ function AssignLead($entityData){
     if(!empty($role_list)){
         $userQuery = $adb->pquery("SELECT * FROM vtiger_users 
         INNER JOIN vtiger_user2role ON vtiger_user2role.userid = vtiger_users.id
-        WHERE vtiger_user2role.roleid IN (".generateQuestionMarks($role_list).")",
+        WHERE vtiger_users.status = 'Active' AND vtiger_user2role.roleid IN (".generateQuestionMarks($role_list).")",
             array($role_list));
         
         if($adb->num_rows($userQuery)){

@@ -229,7 +229,7 @@ class MSExchange_ExchangeTask_Model extends MSExchange_MSExchange_Model{
     
     public function getDeletedEventsChanges($sync_state = ''){
         $request = array();
-        $folder = $this->getFolder('task');
+        $folder = $this->getFolder('tasks');
         $request = array(
             'ItemShape' => array('BaseShape' => 'IdOnly'),
             'SyncFolderId' => array('FolderId' => $folder->toXmlObject()),
