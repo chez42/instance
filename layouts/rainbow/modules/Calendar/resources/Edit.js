@@ -597,12 +597,13 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 		   var element =jQuery(e.currentTarget);
 		   var repeatUI = jQuery('#repeatUI');
 		   if(element.is(':checked')) {
-			   repeatUI.css('visibility','visible');
+			   repeatUI.css('display','block');
 		   } else {
-			   repeatUI.css('visibility','collapse');
+			   repeatUI.css('display','none');
 		   }
 		 });
 	 },
+	 
 
 	 registerRelatedTypeChangeEvent: function() {
 		 var thisInstance = this;
