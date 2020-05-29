@@ -2123,7 +2123,12 @@ class Vtiger_Module_Model extends Vtiger_Module {
     
     public function getRelatedTabFields($blockInstance=false) {
         if(empty($this->fields)){
-            $moduleBlockFields = Vtiger_Field_Model::getAllForRelatedTab($this);
+            if($this->getName() == 'Calendar'){
+                $model = Vtiger_Module_Model::getInstance('Events');
+                $moduleBlockFields = Vtiger_Field_Model::getAllForRelatedTab($model);
+            }else{
+                $moduleBlockFields = Vtiger_Field_Model::getAllForRelatedTab($this);
+            }
             
             $this->fields = array();
             foreach($moduleBlockFields as $moduleField){
