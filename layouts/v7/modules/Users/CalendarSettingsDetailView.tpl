@@ -40,6 +40,10 @@
                                     {if !$FIELD_MODEL->isViewableInDetailView()}
                                         {continue}
                                     {/if}
+                                    {assign var="disableFields" value=array('15min', '30min', '1hr')}
+	                                {if in_array($FIELD_MODEL->getName(), $disableFields)}
+	                                	{continue}
+	                            	{/if}
                                     {if $FIELD_MODEL->get('uitype') eq "83"}
                                         {foreach item=tax key=count from=$TAXCLASS_DETAILS}
                                             {if $COUNTER eq 2}
@@ -153,98 +157,138 @@
             </div>
             <br>
         {/foreach}
-         
-        <div class='fieldBlockContainer'>
-            <h4 class='fieldBlockHeader' >Business Hours</h4>
+        <div class='block  fieldBlockContainer'>
+         	<div class="row">
+            	<h4 class='col-xs-8' >Appointment Slots Text</h4>
+        	</div>
             <hr>
-            <table class="table table-borderless">
-                <tr>
-                	<td class="fieldLabel text-center">
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['monday_start']}btn-success{else}btn-danger{/if}">Mon</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['tuesday_start']}btn-success{else}btn-danger{/if}">Tue</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['wednesday_start']}btn-success{else}btn-danger{/if}">Wed</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['thursday_start']}btn-success{else}btn-danger{/if}">Thu</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['friday_start']}btn-success{else}btn-danger{/if}">Fri</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['saturday_start']}btn-success{else}btn-danger{/if}">Sat</button>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['sunday_start']}btn-success{else}btn-danger{/if}">Sun</button>
-                	</td>
-                </tr>
-                <tr>
-                	<td class="fieldLabel text-center">
-                		<div>
-                			<span>Start Time : </span>
-                			<br><br>
-                			<span>End Time : </span>
-                		</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="monday_pick">
-		                	{$BUSINESSHOURS['monday_start']}
-							<br><br>
-							{$BUSINESSHOURS['monday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="tuesday_pick">
-		                	{$BUSINESSHOURS['tuesday_start']}
-							<br><br>
-							{$BUSINESSHOURS['tuesday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="wednesday_pick">
-		                	{$BUSINESSHOURS['wednesday_start']}
-							<br><br>
-							{$BUSINESSHOURS['wednesday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="thursday_pick">
-		                	{$BUSINESSHOURS['thursday_start']}
-							<br><br>
-							{$BUSINESSHOURS['thursday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="friday_pick">
-		                	{$BUSINESSHOURS['friday_start']}
-							<br><br>
-							{$BUSINESSHOURS['friday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="saturday_pick">
-		                	{$BUSINESSHOURS['saturday_start']}
-							<br><br>
-							{$BUSINESSHOURS['saturday_end']}
-						</div>
-                	</td>
-                	<td class="fieldLabel text-center">
-                		<div class="sunday_pick">
-		                	{$BUSINESSHOURS['sunday_start']}
-							<br><br>
-							{$BUSINESSHOURS['sunday_end']}
-						</div>
-                	</td>
-                </tr>
-                <tr>
-                	
-                </tr>
-            </table>
+             <div class="blockData row">
+	             <table class="table detailview-table no-border">
+	                <tbody>
+	                    {assign var=COUNTER value=0}
+	                    <tr>
+	                    	{assign var="slotFields" value=array('15min', '30min', '1hr')}
+	                    	{assign var=moduleInstance  value=Vtiger_Module::getInstance($MODULE)}
+		            		{foreach item=FIELD from=$slotFields}
+		            			{assign var=FIELD_MODEL  value=Vtiger_Field_Model::getInstance($FIELD, $moduleInstance)}
+	            				{if $COUNTER eq 2}
+		                        	<tr><tr>
+		                            {assign var=COUNTER value=1}
+		                        {else}
+		                            {assign var=COUNTER value=$COUNTER+1}
+		                        {/if}
+	            				<td class="fieldLabel textOverflowEllipsis {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldLabel_{$FIELD_MODEL->getName()}" >
+	            					<span class="muted">
+	            						{vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}
+	        						</span>
+	            				</td>
+	            				<td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" >
+	            					<span class="value textOverflowEllipsis" data-field-type="{$FIELD_MODEL->getFieldDataType()}"  >
+	                                    {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+	                                </span>
+	            				</td>
+	            			{/foreach}
+	                    </tr>
+	                </tbody>
+	            </table>
+            </div>
+        </div>
+        <br>
+        <div class='block fieldBlockContainer'>
+        	<div class="row">
+            	<h4 class='col-xs-8' >Business Hours</h4>
+        	</div>
+        	<hr>
+        	<div class="blockData row">
+	            <table class="table table-borderless">
+	                <tr>
+	                	<td class="fieldLabel text-center">
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['monday_start']}btn-success{else}btn-danger{/if}">Mon</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['tuesday_start']}btn-success{else}btn-danger{/if}">Tue</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['wednesday_start']}btn-success{else}btn-danger{/if}">Wed</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['thursday_start']}btn-success{else}btn-danger{/if}">Thu</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['friday_start']}btn-success{else}btn-danger{/if}">Fri</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['saturday_start']}btn-success{else}btn-danger{/if}">Sat</button>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<button type="button" style="border-radius:5px !important;" class="btn {if $BUSINESSHOURS['sunday_start']}btn-success{else}btn-danger{/if}">Sun</button>
+	                	</td>
+	                </tr>
+	                <tr>
+	                	<td class="fieldLabel text-center">
+	                		<div>
+	                			<span>Start Time : </span>
+	                			<br><br>
+	                			<span>End Time : </span>
+	                		</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="monday_pick">
+			                	{$BUSINESSHOURS['monday_start']}
+								<br><br>
+								{$BUSINESSHOURS['monday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="tuesday_pick">
+			                	{$BUSINESSHOURS['tuesday_start']}
+								<br><br>
+								{$BUSINESSHOURS['tuesday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="wednesday_pick">
+			                	{$BUSINESSHOURS['wednesday_start']}
+								<br><br>
+								{$BUSINESSHOURS['wednesday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="thursday_pick">
+			                	{$BUSINESSHOURS['thursday_start']}
+								<br><br>
+								{$BUSINESSHOURS['thursday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="friday_pick">
+			                	{$BUSINESSHOURS['friday_start']}
+								<br><br>
+								{$BUSINESSHOURS['friday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="saturday_pick">
+			                	{$BUSINESSHOURS['saturday_start']}
+								<br><br>
+								{$BUSINESSHOURS['saturday_end']}
+							</div>
+	                	</td>
+	                	<td class="fieldLabel text-center">
+	                		<div class="sunday_pick">
+			                	{$BUSINESSHOURS['sunday_start']}
+								<br><br>
+								{$BUSINESSHOURS['sunday_end']}
+							</div>
+	                	</td>
+	                </tr>
+	                <tr>
+	                	
+	                </tr>
+	            </table>
+            </div>
         </div>
         <br>
     {/strip}

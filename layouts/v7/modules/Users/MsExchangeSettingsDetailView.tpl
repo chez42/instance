@@ -11,7 +11,7 @@
 -->*}
 {strip}
 <form id="detailView" data-name-fields='{ZEND_JSON::encode($MODULE_MODEL->getNameFields())}' method="POST">
-    <div class="contents">
+    <div class="contents detailview-table">
 	     <div class="block">
 	        <div class="row">
 	            <div class="col-xs-12 marginTop5px">

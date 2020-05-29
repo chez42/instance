@@ -26,7 +26,8 @@
                                 {assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
                                 {assign var="refrenceList" value=$FIELD_MODEL->getReferenceList()}
                                 {assign var="refrenceListCount" value=count($refrenceList)}
-                                 {if $FIELD_MODEL->getName() eq 'appointment_url'}
+                                {assign var="disableFields" value=array('appointment_url', '15min', '30min', '1hr')}
+                                {if in_array($FIELD_MODEL->getName(), $disableFields)}
                                 	{continue}
                             	{/if}
                                 {if $FIELD_MODEL->isEditable() eq true}
@@ -80,6 +81,25 @@
             {/if}
         {/foreach}
          
+         <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Appointment Slots Text</h4>
+            <hr>
+            <div class="table table-borderless">
+                <div class="row">
+            		{assign var="slotFields" value=array('15min', '30min', '1hr')}
+            		{foreach item=FIELD from=$slotFields}
+            			 {assign var=moduleInstance  value=Vtiger_Module::getInstance($MODULE)}
+            			 {assign var=FIELD_MODEL  value=Vtiger_Field_Model::getInstance($FIELD, $moduleInstance)}
+            			 <div class="fieldLabel col-xs-12 col-md-3 alignMiddle">
+            			 	{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+            			 </div>
+            			 <div class="fieldValue col-xs-12 col-md-3"  >
+            			 	<input id="Users_editView_fieldName_{$FIELD_MODEL->getFieldName()}" type="text" data-fieldname="{$FIELD_MODEL->getFieldName()}" data-fieldtype="string" class="inputElement " name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}">
+            			 </div>
+            		{/foreach}
+        		</div>
+    		</div>
+        </div>
         <div class='fieldBlockContainer'>
             <h4 class='fieldBlockHeader' >Business Hours</h4>
             <hr>
