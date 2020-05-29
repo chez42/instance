@@ -418,7 +418,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
 										'Quotes' => array('LBL_ITEM_DETAILS'),
 										'SalesOrder' => array('LBL_ITEM_DETAILS'),
 										'PurchaseOrder' => array('LBL_ITEM_DETAILS'),
-		                                'Events' => array('LBL_INVITE_USER_BLOCK')
+		                                'Events' => array('LBL_INVITE_USER_BLOCK', 'Recurrence Details')
 										//'Events' => array('LBL_EVENT_INFORMATION', 'LBL_REMINDER_INFORMATION', 'LBL_RECURRENCE_INFORMATION', 'LBL_RELATED_TO', 'LBL_DESCRIPTION_INFORMATION', 'LBL_INVITE_USER_BLOCK')
 									);
 		if (in_array($moduleName, array_merge(getInventoryModules(), array('Calendar', 'Events', 'HelpDesk', 'Faq')))) {

@@ -23,6 +23,25 @@ $response = json_decode($response,true);
 
 $logoFile = $response['result']['logo'];
 
+if(isset($response['result']['15min']) && $response['result']['15min'] != ''){
+    $min15Text = $response['result']['15min'];
+} else {
+    $min15Text = 'say hi';
+}
+
+if(isset($response['result']['30min']) && $response['result']['30min'] != ''){
+    $min30Text = $response['result']['30min'];
+} else {
+    $min30Text = "let's keep it short";
+}
+
+
+if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
+    $hr1Text = $response['result']['1hr'];
+} else {
+    $hr1Text = "let's chat";
+}
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -127,7 +146,7 @@ $logoFile = $response['result']['logo'];
         							<div class="radio">
         								<label>
         									<input class="c-p selected_meeting_time" type="radio" data="15" name="selected_meeting_time" value="say hi">
-        									<i></i>say hi
+        									<i></i><?php echo $min15Text;?>
     									</label>
         							</div>
         						</div>
@@ -146,7 +165,7 @@ $logoFile = $response['result']['logo'];
     								<div class="radio">
     									<label>
     										<input class="c-p selected_meeting_time" type="radio" data="30" name="selected_meeting_time" value="let's keep it short">
-    										<i></i>let's keep it short
+    										<i></i><?php echo $min30Text;?>
     									</label>
     								</div>
     							</div>
@@ -165,7 +184,7 @@ $logoFile = $response['result']['logo'];
     								<div class="radio">
     									<label>
     										<input class="c-p selected_meeting_time" type="radio" data="60" name="selected_meeting_time" value="let's chat">
-    										<i></i>let's chat
+    										<i></i><?php echo $hr1Text;?>
     									</label>
     								</div>
     							</div>
