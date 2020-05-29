@@ -26,7 +26,8 @@
                                 {assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
                                 {assign var="refrenceList" value=$FIELD_MODEL->getReferenceList()}
                                 {assign var="refrenceListCount" value=count($refrenceList)}
-                                {if $FIELD_MODEL->getName() eq 'appointment_url'}
+                                {assign var="disableFields" value=array('appointment_url', '15min', '30min', '1hr')}
+                                {if in_array($FIELD_MODEL->getName(), $disableFields)}
                                 	{continue}
                             	{/if}
                                 {if $FIELD_MODEL->isEditable() eq true}
@@ -79,7 +80,32 @@
                 <br>
             {/if}
         {/foreach}
-         
+        <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Appointment Slots Text</h4>
+            <hr>
+             <table class="table table-borderless">
+                <tr>
+                    {assign var=COUNTER value=0}
+            		{assign var="slotFields" value=array('15min', '30min', '1hr')}
+            		{assign var=moduleInstance  value=Vtiger_Module::getInstance($MODULE)}
+            		{foreach item=FIELD from=$slotFields}
+            			{assign var=FIELD_MODEL  value=Vtiger_Field_Model::getInstance($FIELD, $moduleInstance)}
+            			{if $COUNTER eq 2}
+	                        </tr><tr>
+                            {assign var=COUNTER value=1}
+                        {else}
+                            {assign var=COUNTER value=$COUNTER+1}
+                        {/if}
+            			 <td class="fieldLabel alignMiddle">
+            			 	{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+            			 </td>
+            			 <td class="fieldValue" >
+            			 	<input id="Users_editView_fieldName_{$FIELD_MODEL->getFieldName()}" type="text" data-fieldname="{$FIELD_MODEL->getFieldName()}" data-fieldtype="string" class="inputElement " name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}">
+            			 </td>
+            		{/foreach}
+        		</tr>
+    		</table>
+        </div>
         <div class='fieldBlockContainer'>
             <h4 class='fieldBlockHeader' >Business Hours</h4>
             <hr>
