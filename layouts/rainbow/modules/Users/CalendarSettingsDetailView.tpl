@@ -39,6 +39,10 @@
                                     {if !$FIELD_MODEL->isViewableInDetailView()}
                                         {continue}
                                     {/if}
+                                    {assign var="disableFields" value=array('15min', '30min', '1hr')}
+	                                {if in_array($FIELD_MODEL->getName(), $disableFields)}
+	                                	{continue}
+	                            	{/if}
                                     {if $FIELD_MODEL->get('uitype') eq "83"}
                                         {foreach item=tax key=count from=$TAXCLASS_DETAILS}
                                             {if $COUNTER eq 1}
@@ -151,65 +155,32 @@
             </div>
             <br>
         {/foreach}
-        <div class="block block_MS_Exchange" data-block="MS Exchange">
-
-                <div class="row">
-                    <h4 class="col-xs-8">MS Exchange</h4>
-                    {if !empty($SYNCDATA)}
-	                    <div class="col-xs-4 marginTop5px">
-	                        <div class=" pull-right detailViewButtoncontainer">
-	                            <div class="btn-group  pull-right">
-	                                <button class="btn btn-default revokeMSAccount" >Revoke Access</button>
-	                            </div>  
-	                        </div>
-	                    </div>
-                    {/if}
-                </div>
-                <hr>
-                <div class="blockData row">
-                    <table class="table detailview-table no-border">
-                        <tbody>
-                            <tr>
-			                	<td class="fieldLabel alignMiddle">
-			                		User Principle Name 
-			                	</td>
-			                	<td class="fieldValue">
-			                		{if !empty($SYNCDATA)}{$SYNCDATA['impersonation_identifier']}{/if}
-			                	</td>
-			                </tr>
-			                <tr>
-			                	<td class="fieldLabel alignMiddle">
-			                		Sync Direction 
-			                	</td>
-			                	<td class="fieldValue">
-		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "11"}Sync Both Ways{/if}
-		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "10"}Sync from MS Exchange to CRM{/if}
-		                			{if !empty($SYNCDATA) && $SYNCDATA['direction'] == "01"}Sync from CRM to MS Exchange{/if}
-			                	</td>
-			                </tr>
-			                <tr>
-			                	<td class="fieldLabel alignMiddle">
-			                		Automatic Calendar Sync 
-			                	</td>
-			                	<td class="fieldValue">
-			                		<input name="automatic_calendar_sync" disabled {if !empty($SYNCDATA) && $SYNCDATA['enable_cron']}checked{/if} type="checkbox" />
-			                	</td>
-			                </tr>
-			                {if !empty($SYNCDATA)}
-			                	<tr>
-			                		<td colspan="2" class="text-center">
-			                			 <button type="button"  class="btn btn-success syncNow">
-			                			 	<i class="fa fa-refresh"></i> <span>Sync Now</span>
-		                			 	</button>
-			                		</tr>
-			                	</tr>
-			                {/if}
-                        </tbody>
-                    </table>
+        <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Appointment Slots Text</h4>
+            <hr>
+            <div class="blockData row">
+                <div class="">
+                    <div class="row">
+                    	{assign var="slotFields" value=array('15min', '30min', '1hr')}
+	            		{foreach item=FIELD from=$slotFields}
+	            			{assign var=moduleInstance  value=Vtiger_Module::getInstance($MODULE)}
+	            			{assign var=FIELD_MODEL  value=Vtiger_Field_Model::getInstance($FIELD, $moduleInstance)}
+            				<div class="col-lg-6 fieldLabel textOverflowEllipsis {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldLabel_{$FIELD_MODEL->getName()}" >
+            					<span class="muted">
+            						{vtranslate({$FIELD_MODEL->get('label')},{$MODULE_NAME})}
+        						</span>
+            				</div>
+            				<div class="col-lg-6 fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" >
+            					<span class="value textOverflowEllipsis" data-field-type="{$FIELD_MODEL->getFieldDataType()}" >
+                                    {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+                                </span>
+            				</div>
+            			{/foreach}
+                    </div>
                 </div>
             </div>
-            <br>
-            
+        </div>
+        <br>
         <div class='fieldBlockContainer'>
             <h4 class='fieldBlockHeader' >Business Hours</h4>
             <hr>

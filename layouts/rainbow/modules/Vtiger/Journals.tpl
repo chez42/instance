@@ -59,7 +59,7 @@
 								Type
 							</th>
 							<th class="nowrap">
-								Creator
+								Assigned To
 							</th>
 							<th class="nowrap">
 								Subject
@@ -169,11 +169,7 @@
 								</td>
 								<td class="relatedListEntryValues" nowrap>
 									<span class="value textOverflowEllipsis">
-										{if $RECENT_ACTIVITY->get('module') neq 'RingCentral' }
-											{wordwrap(html_entity_decode($RECENT_ACTIVITY->get('subject')),75,"<br>\n")}
-										{else}
-											N/A
-										{/if}
+										{wordwrap(html_entity_decode($RECENT_ACTIVITY->get('subject')),75,"<br>\n")}
 									</span>
 								</td>
 								<td class="relatedListEntryValues" nowrap>

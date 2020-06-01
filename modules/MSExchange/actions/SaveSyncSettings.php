@@ -19,18 +19,31 @@ class MSExchange_SaveSyncSettings_Action extends Vtiger_BasicAjax_Action {
         
         $contactsSettings = $request->get('Contacts');
         $calendarSettings = $request->get('Calendar');
+        $taskSettings = $request->get('Task');
+        
+        $impersonation_identifier = $request->get('impersonation_identifier');
+        
         $sourceModule = $request->get('sourceModule');
         
         if(!empty($contactsSettings)){
             $contactRequest = new Vtiger_Request($contactsSettings);
             $contactRequest->set('sourcemodule', 'Contacts');
+            $contactRequest->set('impersonation_identifier', $impersonation_identifier);
             MSExchange_Utils_Helper::saveSyncSettings($contactRequest);
         }
         
         if(!empty($calendarSettings)){
             $calendarRequest = new Vtiger_Request($calendarSettings);
             $calendarRequest->set('sourcemodule', 'Calendar');
+            $calendarRequest->set('impersonation_identifier', $impersonation_identifier);
             MSExchange_Utils_Helper::saveSyncSettings($calendarRequest);
+        }
+        
+        if(!empty($taskSettings)){
+            $taskRequest = new Vtiger_Request($taskSettings);
+            $taskRequest->set('sourcemodule', 'Task');
+            $taskRequest->set('impersonation_identifier', $impersonation_identifier);
+            MSExchange_Utils_Helper::saveSyncSettings($taskRequest);
         }
         
         $moduleModel = Vtiger_Module_Model::getInstance('MSExchange');

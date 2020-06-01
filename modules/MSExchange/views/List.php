@@ -7,6 +7,7 @@ class MSExchange_List_View extends Vtiger_PopupAjax_View {
     public function __construct() {
         $this->exposeMethod('Contacts');
         $this->exposeMethod('Calendar');
+        $this->exposeMethod('Task');
     }
     
     function checkPermission(Vtiger_Request $request) {
@@ -155,6 +156,38 @@ class MSExchange_List_View extends Vtiger_PopupAjax_View {
     
     public function validateRequest(Vtiger_Request $request) {
         //don't do validation because there is a redirection from google
+    }
+    
+    /**
+     * Sync Task Records
+     * @return <array> Count of Task Records
+     */
+    public function Task($userId = false) {
+        
+        $exchangeLicense = new MSExchange_License_Model();
+        
+        if ($exchangeLicense->validate()) {
+            
+            if(!$userId)
+                $user = Users_Record_Model::getCurrentUserModel();
+            else {
+                $user = new Users();
+                $user = $user->retrieve_entity_info($userId, 'Users');
+                $user = Users_Record_Model::getInstanceFromUserObject($user);
+            }
+            
+            $controller = new MSExchange_Task_Controller($user);
+            $syncDirection = MSExchange_Utils_Helper::getSyncDirectionForUser('Task');
+            $records = array();
+            $records = $controller->synchronize(true,$syncDirection[0],$syncDirection[1]);
+            $syncRecords = $this->getSyncRecordsCount($records);
+            $syncRecords['vtiger']['more'] = $controller->targetConnector->moreRecordsExits();
+            $syncRecords['msexchange']['more'] = $controller->sourceConnector->moreRecordsExits();
+           
+            return $syncRecords;
+        }
+        
+        return array();
     }
 }
 

@@ -180,7 +180,7 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	    
 	    $sourceModule = $request->getModule();
 	    
-	    if($sourceModule == 'Calendar'){
+	    //if($sourceModule == 'Calendar'){
 	        
 	        $syncStart = MSExchange_Utils_Helper::getCalendarSyncStartDate();
 	        
@@ -193,7 +193,23 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	            
 	        $viewer->assign("SYNC_START_FROM", $syncStart);
 	        $viewer->assign('AUTOMATIC_SYNC', MSExchange_Utils_Helper::checkCronEnabled('Calendar'));
-	    }
+	    //}
+	    
+	    //if($sourceModule == 'Task'){
+	        
+	        $syncStart = MSExchange_Utils_Helper::getTaskSyncStartDate();
+	        
+	        if(!$syncStart){
+	            $date = new DateTimeField(date("Y-m-d", strtotime("-1 month")));
+	            $syncStart = $date->getDisplayDate($user);
+	        } else{
+	            $syncStart = getValidDisplayDate($syncStart);
+	        }
+	        
+	        $viewer->assign("SYNC_TASK_START_FROM", $syncStart);
+	        $viewer->assign('TASK_AUTOMATIC_SYNC', MSExchange_Utils_Helper::checkCronEnabled('Task'));
+	        
+	    //}
 	    
 	    $viewer->assign('MODULE_MODEL', $moduleModel);
 	    $viewer->assign('MODULE', $moduleName);
@@ -201,6 +217,7 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	    $viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
 	    $viewer->assign('CONTACTS_SYNC_DIRECTION', MSExchange_Utils_Helper::getSyncDirectionForUser('Contacts'));
 	    $viewer->assign('CALENDAR_SYNC_DIRECTION', MSExchange_Utils_Helper::getSyncDirectionForUser('Calendar'));
+	    $viewer->assign('TASK_SYNC_DIRECTION', MSExchange_Utils_Helper::getSyncDirectionForUser('Task'));
 	    $viewer->assign("USER_IMPERSONATION", MSExchange_Utils_Helper::getCurrentUserImpersonation($sourceModule));
 	    $viewer->assign('GLOBAL_SETTINGS', $moduleModel->getExchangeGlobalSettings());
 	    $viewer->assign('PARENT', $request->get('parent'));

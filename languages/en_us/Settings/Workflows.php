@@ -151,6 +151,7 @@ $languageStrings = array(
     'LBL_VTPushNotificationTask' => 'Mobile Notification',
     'LBL_VTCreateEntityTask' => 'Create Record',
 	'LBL_MAX_SCHEDULED_WORKFLOWS_EXCEEDED' => 'Maximum number(%s) of scheduled workflows has been exceeded',
+    'LBL_VTCreateTask' => 'Task',
 );
 
 $jsLanguageStrings = array(

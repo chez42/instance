@@ -24,7 +24,10 @@ Vtiger_Field_Js('Calendar_Datetime_Field_Js',{},{
 		   valArr.push(strArr[i]);
 		
 		var dateVal = valArr[0];
-		var timeVal = valArr[1]+' '+valArr[2];
+		var timeVal = valArr[1];
+		
+		if(valArr[2])
+			timeVal += ' '+valArr[2];
 
 		if(this.getName() == 'date_start'){
 			

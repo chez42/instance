@@ -19,8 +19,10 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 		$response = new MailManager_Response();
 		$module = $request->getModule();
 		if ('edit' == $this->getOperationArg($request)) {
-
-			$model = $this->getMailBoxModel();
+            
+		    $accountId = $request->get('account_id');
+		    
+		    $model = $this->getMailBoxModel($accountId, 'edit');
             $connector = $this->getConnector();
 			$serverName = $model->serverName();
 
@@ -36,7 +38,8 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 
 		} else if ('save' == $this->getOperationArg($request)) {
 
-			$model = $this->getMailBoxModel();
+		    $model = $this->getMailBoxModel($request->get('account_id'), 'edit');
+		    
 			$model->setServer($request->get('_mbox_server'));
 			$model->setUsername($request->get('_mbox_user'));
             // MailManager_Request->get($key) is give urldecoded value which is replacing + with space
@@ -45,7 +48,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 			$model->setSSLType($request->get('_mbox_ssltype', 'ssl'));
 			$model->setCertValidate($request->get('_mbox_certvalidate', 'novalidate-cert'));
 			$model->setRefreshTimeOut($request->get('_mbox_refresh_timeout'));
-			$connector = $this->getConnector();
+			$connector = $this->getConnector('', $request->get('account_id'), 'edit');
             $sentFolder = $request->get('_mbox_sent_folder');
             if($connector->isConnected() && empty($sentFolder)) {
                 $folderInstaces = $connector->folders();
@@ -55,6 +58,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
                     }
                 }
             }
+            
             $model->setFolder($sentFolder);
 			if ($connector->isConnected()) {
 				$model->save();
@@ -67,8 +71,8 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 				$response->setError(101, $error);
 			}
 		} else if ('remove' == $this->getOperationArg($request)) {
-
-			$model = $this->getMailBoxModel();
+		    
+			$model = $this->getMailBoxModel($request->get('account_id'));
 			$model->delete();
 
 			$response->isJSON(true);

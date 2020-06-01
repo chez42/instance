@@ -11,6 +11,10 @@
 
 class PositionInformation_Detail_View extends Vtiger_Detail_View {
 
+    function __construct() {
+        parent::__construct();
+        $this->exposeMethod('showSecurities');
+    }
 	/**
 	 * Function to get activities
 	 * @param Vtiger_Request $request
@@ -108,5 +112,91 @@ class PositionInformation_Detail_View extends Vtiger_Detail_View {
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
 		$headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);*/
 		return $headerScriptInstances;
+    }
+    
+    
+    public function showSecurities(Vtiger_Request $request){
+        
+        $recordId = $request->get('record');
+        $moduleName = $request->getModule();
+        
+        $recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+        $symbol = $recordModel->get('security_symbol');
+        
+        global $adb;
+        
+        $viewer = $this->getViewer($request);
+        
+        $security = $adb->pquery("SELECT * FROM vtiger_modsecurities
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid =vtiger_modsecurities.modsecuritiesid
+        WHERE vtiger_crmentity.deleted = 0  AND vtiger_modsecurities.security_symbol = ?",
+            array($symbol));
+        
+        if($adb->num_rows($security)){
+            $calling_module = 'ModSecurities';
+            $calling_record = $adb->query_result($security, 0, 'modsecuritiesid');
+            
+            $width = $request->get('width') ? $request->get('width') : "640px";
+            $height = $request->get('height') ? $request->get('height') : "400px";
+            
+            $jsFileNames = array(
+                "~/libraries/amcharts/amcharts/amcharts.js",
+                "~/libraries/amcharts/amcharts/pie.js",
+                "~/libraries/amcharts/amcharts/serial.js",
+                "~/libraries/amcharts/amstockchart/amstock.js",
+                "modules.ModSecurities.resources.HistoricalDataChart",
+            );
+            $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
+            
+            $viewer->assign("SCRIPTS", $jsScriptInstances);
+            $viewer->assign("MODULE", $calling_module);
+            $viewer->assign("RECORD", $calling_record);
+            $viewer->assign("MODULE_TITLE", $calling_module);
+            $viewer->assign("WIDTH", $width);
+            $viewer->assign("HEIGHT", $height);
+            
+            if($calling_record) {
+                $record = Vtiger_Record_Model::getInstanceById($calling_record);
+                $data = $record->getData();
+                $symbol = $data['security_symbol'];
+                $security_type = $data['securitytype'];
+                
+                if(strtoupper($security_type) == "INDEX") {
+                    $prices = ModSecurities_HistoricalData_Model::GetHistoricalPricesForSymbol('0O7N', null, null, "vtiger_prices_index");
+                }
+                else {
+                    $prices = ModSecurities_HistoricalData_Model::GetHistoricalPricesForSymbol($symbol, null, null, "vtiger_prices");
+                }
+                $price_data = array();
+                
+                foreach ($prices AS $k => $v) {
+                    $price_data[] = array("date" => $v['date'] . "T10:00:01",
+                        "value" => $v['close'],
+                        "volume" => $v['volume']);
+                }
+            }
+            
+            $price_data = json_encode($price_data);
+            $viewer->assign("PRICE_DATA", $price_data);
+            
+            
+            $callingRecord = Vtiger_DetailView_Model::getInstance($calling_module, $calling_record);
+            
+            $recordModel = $callingRecord->getRecord();
+            $recordStrucure = Vtiger_RecordStructure_Model::getInstanceFromRecordModel($recordModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_SUMMARY);
+            
+            $moduleModel = $recordModel->getModule();
+            $viewer = $this->getViewer($request);
+            $viewer->assign('RECORD', $recordModel);
+            $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+            
+            $viewer->assign('MODULE_NAME', $calling_module);
+            $viewer->assign('SUMMARY_RECORD_STRUCTURE', $recordStrucure->getStructure());
+            
         }
+        
+        return $viewer->view('ModSecuritiesContent.tpl', $moduleName, true);
+        
+    }
+    
 }

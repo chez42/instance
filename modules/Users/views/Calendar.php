@@ -201,15 +201,9 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$viewer = $this->getViewer($request);
 		$this->initializeView($viewer,$request);
 		$module = $request->getModule();
+
 		global $adb;
-		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
-		    array($request->get('record')));
-		$syncData = array();
-		if($adb->num_rows($check)){
-		    $syncData = $adb->query_result_rowdata($check);
-		}
-		$viewer->assign('SYNCDATA', $syncData);
-		
+	
 		$u_module = Vtiger_Module_Model::getInstance($module);
 		$field = Vtiger_Field_Model::getInstance('start_hour', $u_module);
 		$PicklistValues = $field->getPicklistValues();
@@ -232,13 +226,6 @@ class Users_Calendar_View extends Vtiger_Detail_View {
 		$this->initializeView($viewer,$request);
 		
 		global $adb,$site_URL;
-		$check = $adb->pquery("SELECT * FROM vtiger_msexchange_sync_settings WHERE user = ?",
-		    array($request->get('record')));
-		$syncData = array();
-		if($adb->num_rows($check)){
-		    $syncData = $adb->query_result_rowdata($check);
-		}
-		$viewer->assign('SYNCDATA', $syncData);
 		
 		$bussiness_hours = '';
 		$time_val = $adb->pquery("SELECT vtiger_users.business_hours FROM vtiger_users WHERE id = ?",

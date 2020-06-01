@@ -26,6 +26,21 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 
 	saveMailBox: function (form) {
 		var params = form.serializeFormData();
+		
+		var errParams = {
+				position: {
+				'my' : 'bottom left',
+				'at' : 'top left',
+				'container' : jQuery('#mailBoxEditView')
+		}};
+		var errorMsg = app.vtranslate('JS_REQUIRED_FIELD');
+		if(form.find('#serverMailType').val() == "") {
+			vtUtils.showValidationMessage(form.find('#serverMailType'), errorMsg, errParams);
+			return false;
+		} else {
+			vtUtils.hideValidationMessage(form.find('#serverMailType'));
+		}
+
 		params.scannername = jQuery('input[name="scannername"]').val();
 		params.module = app.getModuleName();
 		params.parent = app.getParentModuleName();
@@ -45,18 +60,17 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 
 	secondStep: function (e) {
 		var form = jQuery('#mailBoxEditView');
+		vtUtils.applyFieldElementsView(form);
 		var params = {
 			submitHandler: function (form) {
 				var form = jQuery(form);
-				var checked = jQuery('input[type=checkbox][name=folders]:checked').length;
-				if (checked < 1) {
-					app.helper.showAlertNotification({'message': app.vtranslate('JS_SELECT_ONE_FOLDER')});
+				var selectedFolders = form.find('[name="folders[]"]').val();
+
+				if (selectedFolders.length < 1) {
+					app.helper.showAlertNotification({'message': app.vtranslate('You must select atleast one folder.')});
 					return false;
 				} else {
 					form.find('[name="saveButton"]').attr('disabled', 'disabled');
-					var selectedFolders = jQuery('input[name=folders]:checked').map(function () {
-						return jQuery(this).val();
-					}).get();
 					Settings_MailConverter_Edit_Js.saveFolders(selectedFolders);
 				}
 			}
@@ -106,7 +120,8 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 
 	saveRule: function (form) {
 		app.helper.showProgress();
-		var params = form.serializeFormData();
+		//var params = form.serializeFormData();
+		var params = form.serialize();
 		params.record = '';
 		app.request.post({'data': params}).then(function (err, data) {
 			app.helper.hideProgress();
@@ -128,9 +143,70 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 	}
 
 },{
+	
+	handleSettingsMailBoxEvents : function() {
+		var settingContainer = jQuery(document);
+		
+		settingContainer.on('change', '#serverMailType', function(e) {
+			var element = jQuery(e.currentTarget);
+			var serverType = element.val();
+			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
+			if(serverType == 'gmail' || serverType == 'yahoo') {
+				useServer = 'imap.gmail.com';
+				if(serverType == 'yahoo') {
+					useServer = 'imap.mail.yahoo.com';
+				}
+				useProtocol = 'IMAP4';
+				useSSLType = 'ssl';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+			} else if(serverType == 'fastmail') {
+				useServer = 'mail.messagingengine.com';
+				useProtocol = 'IMAP2';
+				useSSLType = 'tls';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+			} else if(serverType == 'other') {
+				useServer = '';
+				useProtocol = 'IMAP4';
+				useSSLType = 'ssl';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').removeClass('hide');
+			} else {
+				settingContainer.find('.settings_details').addClass('hide');
+			}
+
+			settingContainer.find('[name="username"]').val('');
+			settingContainer.find('[name="password"]').val('');
+			
+			if(useProtocol != '') {
+				settingContainer.find('[name="server"]').val(useServer);
+				settingContainer.find('[name="protocol"]').each(function(node) {
+					if(jQuery(node).val() == useProtocol) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="ssltype"]').each(function(node) {
+					if(jQuery(node).val() == useSSLType) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="sslmethod"]').each(function(node) {
+					if(jQuery(node).val() == useCert) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+			}
+		});
+	},
+	
 	registerEvents: function () {
 		this._super();
 		Settings_MailConverter_Edit_Js.firstStep();
 		Settings_MailConverter_Edit_Js.activateHeader();
+		this.handleSettingsMailBoxEvents();
 	}
 });

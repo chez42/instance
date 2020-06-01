@@ -40,6 +40,10 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	public function getViewer(Vtiger_Request $request) {
 		$viewer = parent::getViewer($request);
 		$viewer->assign('MAILBOX', $this->getMailboxModel());
+		
+		$allModels = MailManager_Mailbox_Model::getAllMailBoxes();
+		$viewer->assign('MAILMODELS', $allModels);
+		
 		$viewer->assign('QUALIFIED_MODULE', $request->get('module'));
 		return $viewer;
 	}
@@ -75,10 +79,14 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * Returns the active Instance of Current Users MailBox
 	 * @return MailManager_Mailbox_Model
 	 */
-	protected function getMailboxModel() {
-		if ($this->mMailboxModel === false) {
-			$this->mMailboxModel = MailManager_Mailbox_Model::activeInstance();
-		}
+	protected function getMailboxModel($accountId = false, $mode = false) {
+	    if($accountId){
+	        $this->mMailboxModel = MailManager_Mailbox_Model::activeInstance($accountId, $mode);
+	    }else{
+    	    if ($this->mMailboxModel === false) {
+    		    $this->mMailboxModel = MailManager_Mailbox_Model::activeInstance($accountId, $mode);
+    	    }
+	    }
 		return $this->mMailboxModel;
 	}
 
@@ -86,8 +94,8 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * Checks if the current users has provided Mail Server details
 	 * @return Boolean
 	 */
-	protected function hasMailboxModel() {
-		$model = $this->getMailboxModel();
+	protected function hasMailboxModel($accountId = false) {
+	    $model = $this->getMailboxModel($accountId);
 		return $model->exists();
 	}
 
@@ -96,7 +104,7 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * @param String $folder - Name of the folder
 	 * @return MailManager_Connector
 	 */
-	protected function getConnector($folder='') {
+	protected function getConnector($folder='', $accountId=false, $mode=false) {
 		if (!$this->mConnector || ($this->mFolder != $folder)) {
 			if($folder == "__vt_drafts") {
 				$draftController = new MailManager_Draft_View();
@@ -104,7 +112,7 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 			} else {
 				if ($this->mConnector) $this->mConnector->close();
 
-				$model = $this->getMailboxModel();
+				$model = $this->getMailboxModel($accountId, $mode);
 				$this->mConnector = MailManager_Connector_Connector::connectorWithModel($model, $folder);
 			}
 			$this->mFolder = $folder;

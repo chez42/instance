@@ -8,6 +8,8 @@ class MSExchange_Setting_View extends Vtiger_PopupAjax_View {
             break;
             case "Calendar" : $this->emitCalendarSyncSettingUI($request);
             break;
+            case "Task" : $this->emitTaskSyncSettingUI($request);
+            break;
         }
     }
     

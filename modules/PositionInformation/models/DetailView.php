@@ -95,4 +95,22 @@ class PositionInformation_DetailView_Model extends Vtiger_DetailView_Model {
 
 		return $linkModelList;
 	}
+	
+	/**
+	 * Function to get the detail view related links
+	 * @return <array> - list of links parameters
+	 */
+	public function getDetailViewRelatedLinks() {
+	    $relatedLinks = parent::getDetailViewRelatedLinks();
+	    $recordModel = $this->getRecord();
+	    $moduleName = $recordModel->getModuleName();
+	    $relatedLinks[] = array(
+	        'linktype' => 'DETAILVIEWTAB',
+	        'linklabel' => vtranslate('Securities', $moduleName),
+	        'linkurl' => $recordModel->getDetailViewUrl().'&mode=showSecurities',
+	        'linkicon' => ''
+	    );
+	    
+	    return $relatedLinks;
+	}
 }

@@ -262,7 +262,62 @@ Vtiger.Class("Vtiger_List_Js", {
 				jQuery('.filePreview .preview-area').height(jQuery(window).height() - 143);
 			});
 		}
-	}
+	},
+	
+	triggerReportPdf : function(url) {
+    	var listInstance = window.app.controller();
+		
+		//if(!app.getAdminUser()){
+			var selectedRecordCount = listInstance.getSelectedRecordCount();
+			if (selectedRecordCount > 5) {
+				app.helper.showErrorNotification({message: app.vtranslate('Please select Max 5 records')});
+				return;
+			}
+		//}
+		
+		var params = listInstance.getListSelectAllParams(true);
+		if (params) {
+			app.helper.showProgress();
+			app.request.get({url: url, data: params}).then(function (error, data) {
+				app.helper.hideProgress();
+				if (!error) {
+					app.helper.showModal(data, {
+                        'cb' : function(modalContainer) {
+                        	listInstance.registerChangeForReportSelect(modalContainer);
+                        	if(selectedRecordCount > 20){
+	                        	var chagneOwnerForm = jQuery('#massGeneratePdf');
+								chagneOwnerForm.vtValidate({
+									submitHandler: function (form) {
+										var listSelectParams = listInstance.getListSelectAllParams(false);
+										if (listSelectParams) {
+											var formData = jQuery(form).serializeFormData();
+											var data = jQuery.extend(formData, listSelectParams);
+											app.helper.showProgress();
+											app.request.post({'data': data}).then(function (err, data) {
+												if (err == null) {
+													app.helper.hideProgress();
+													app.helper.hideModal();
+													listInstance.loadListViewRecords().then(function (e) {
+														listInstance.clearList();
+														app.helper.showSuccessNotification({message: 'Report under progress will send through mail'});
+													});
+												}
+											});
+										}
+									}
+								});
+                        	}
+                        }
+                    });
+				}
+			});
+		}
+		else {
+			listInstance.noRecordSelectedAlert();
+		}
+        
+    },
+    
 }, {
 	//contains the List View element.
 	listViewContainer: false,
@@ -2828,6 +2883,77 @@ Vtiger.Class("Vtiger_List_Js", {
 		});
 		
 	},
+	
+	registerChangeForReportSelect: function(modalContainer){
+		var self = this;
+		
+		$(".select_start_date").datepicker({
+            format: 'yyyy-mm-dd',
+            onClose: function (selectedDate) {
+	        }
+	    });
+	
+	    $(".select_end_date").datepicker({
+	        format: 'yyyy-mm-dd',
+	        onClose: function (selectedDate) {
+	        }
+	    });
+	
+	    $(".report_date_selection").change(function(e){
+	        e.stopImmediatePropagation();
+	
+	        var selected = $(this).find(':selected');
+	        
+	        var start_date = selected.data('start_date');
+	        var end_date = selected.data('end_date');
+	        
+	        $(this).closest('div').find('.select_start_date').val(start_date);
+	        $(this).closest('div').find('.select_end_date').val(end_date);
+	    });
+		
+		modalContainer.find('[name="reportselect"]').on('change',function(){
+				
+			 if($(this).val() == 'OmniOverview'){
+				 
+				 jQuery('.omniOverview').show();
+				 jQuery('.assetClassReport').hide();
+				 jQuery('.gh2Report').hide();
+				 jQuery('.ghReport').hide();
+				 
+			 }else if($(this).val() == 'AssetClassReport'){
+				 
+				 jQuery('.omniOverview').hide();
+				 jQuery('.assetClassReport').show();
+				 jQuery('.gh2Report').hide();
+				 jQuery('.ghReport').hide();
+				 
+			 }else if($(this).val() == 'GH2Report'){
+				 
+				 jQuery('.omniOverview').hide();
+				 jQuery('.assetClassReport').hide();
+				 jQuery('.gh2Report').show();
+				 jQuery('.ghReport').hide();
+				 
+			 }else if($(this).val() == 'GHReport' || $(this).val() == 'GHReportActual' || $(this).val() == 'GHXReport'){
+				 
+				 jQuery('.omniOverview').hide();
+				 jQuery('.assetClassReport').hide();
+				 jQuery('.gh2Report').hide();
+				 jQuery('.ghReport').show();
+				 
+			 }else{
+					 
+				 jQuery('.omniOverview').hide();
+				 jQuery('.assetClassReport').hide();
+				 jQuery('.gh2Report').hide();
+				 jQuery('.ghReport').hide();
+					 
+			 }
+				
+		});
+    	
+    },
+    
 });
 
 

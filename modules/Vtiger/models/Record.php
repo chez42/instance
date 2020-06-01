@@ -676,7 +676,11 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 				'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'is_private', 'customer_email'));
 
 			$query = $queryGenerator->getQuery();
-
+			
+			if($modulename != 'HelpDesk'){
+			    $query .=  ' AND vtiger_modcomments.is_private != 1 ';
+			}
+			
 			$query .= " AND vtiger_modcomments.related_to IN (" . generateQuestionMarks($relatedModuleRecordIds)
 					. ") AND vtiger_modcomments.parent_comments=0 ORDER BY vtiger_crmentity.createdtime DESC LIMIT "
 					. " $startIndex,$pageLimit";

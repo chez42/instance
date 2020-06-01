@@ -236,8 +236,18 @@
 				$logo = ($portalLogo);
 				
 			} 
+			
+			$user_result = $adb->pquery("SELECT * FROM vtiger_users WHERE id = ?", array($user_id));
+			
+			if($adb->num_rows($user_result)){
+			    
+			    $min_15 = $adb->query_result($user_result, 0, '15min'); 
+			    $min_30 = $adb->query_result($user_result, 0, '30min'); 
+			    $hr_1 = $adb->query_result($user_result, 0, '1hr'); 
+			    
+			}
         
-			$result = array('success'=>true, 'logo' => $logo);
+			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1);
         
 		}
 		

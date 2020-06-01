@@ -26,7 +26,8 @@
                                 {assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
                                 {assign var="refrenceList" value=$FIELD_MODEL->getReferenceList()}
                                 {assign var="refrenceListCount" value=count($refrenceList)}
-                                {if $FIELD_MODEL->getName() eq 'appointment_url'}
+                                {assign var="disableFields" value=array('appointment_url', '15min', '30min', '1hr')}
+                                {if in_array($FIELD_MODEL->getName(), $disableFields)}
                                 	{continue}
                             	{/if}
                                 {if $FIELD_MODEL->isEditable() eq true}
@@ -79,43 +80,32 @@
                 <br>
             {/if}
         {/foreach}
-        
-         <div class='fieldBlockContainer'>
-            <h4 class='fieldBlockHeader' >MS Exchange</h4>
+        <div class='fieldBlockContainer'>
+            <h4 class='fieldBlockHeader' >Appointment Slots Text</h4>
             <hr>
-            <table class="table table-borderless">
+             <table class="table table-borderless">
                 <tr>
-                	<td class="fieldLabel alignMiddle">
-                		User Principle Name 
-                	</td>
-                	<td class="fieldValue">
-                		<input type="text" name="user_principal_name" class="form-control" value="{if !empty($SYNCDATA)}{$SYNCDATA['impersonation_identifier']}{/if}">
-                	</td>
-                </tr>
-                <tr>
-                	<td class="fieldLabel alignMiddle">
-                		Sync Direction 
-                	</td>
-                	<td class="fieldValue">
-                		<select name="sync_direction" class="form-control select2">
-                			<option value="" >Select an option</option>
-                			<option value="11" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "11"}selected{/if}> Sync Both Ways </option>
-                			<option value="10" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "10"}selected{/if}> Sync from MS Exchange to CRM </option>
-                			<option value="01" {if !empty($SYNCDATA) && $SYNCDATA['direction'] == "01"}selected{/if}> Sync from CRM to MS Exchange </option>
-                		</select>
-                	</td>
-                </tr>
-                <tr>
-                	<td class="fieldLabel alignMiddle">
-                		Automatic Calendar Sync 
-                	</td>
-                	<td class="fieldValue">
-                		<input name="automatic_calendar_sync" {if !empty($SYNCDATA) && $SYNCDATA['enable_cron']}checked{/if} type="checkbox" />
-                	</td>
-                </tr>
-            </table>
+                    {assign var=COUNTER value=0}
+            		{assign var="slotFields" value=array('15min', '30min', '1hr')}
+            		{assign var=moduleInstance  value=Vtiger_Module::getInstance($MODULE)}
+            		{foreach item=FIELD from=$slotFields}
+            			{assign var=FIELD_MODEL  value=Vtiger_Field_Model::getInstance($FIELD, $moduleInstance)}
+            			{if $COUNTER eq 2}
+	                        </tr><tr>
+                            {assign var=COUNTER value=1}
+                        {else}
+                            {assign var=COUNTER value=$COUNTER+1}
+                        {/if}
+            			 <td class="fieldLabel alignMiddle">
+            			 	{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
+            			 </td>
+            			 <td class="fieldValue" >
+            			 	<input id="Users_editView_fieldName_{$FIELD_MODEL->getFieldName()}" type="text" data-fieldname="{$FIELD_MODEL->getFieldName()}" data-fieldtype="string" class="inputElement " name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}">
+            			 </td>
+            		{/foreach}
+        		</tr>
+    		</table>
         </div>
-        <br>
         <div class='fieldBlockContainer'>
             <h4 class='fieldBlockHeader' >Business Hours</h4>
             <hr>

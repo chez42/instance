@@ -19,7 +19,16 @@ class MailManager_List_View extends MailManager_Abstract_View {
 			'settings'=>array('class' => 'MailManager_Settings_View'),
 			'search'  =>array('class' => 'MailManager_Search_View'),
 	);
-
+	
+	public function preProcess (Vtiger_Request $request, $display = true) {
+	    
+	    $viewer = $this->getViewer($request);
+	    $viewer->assign('MAILBOXES', Settings_MailConverter_Module_Model::getMailManagerMailboxes());
+        
+	    parent::preProcess($request, $display);
+        
+	}
+	
 	public function getHeaderScripts(Vtiger_Request $request) {
 		$headerScriptInstances = parent::getHeaderScripts($request);
 		$moduleName = $request->getModule();

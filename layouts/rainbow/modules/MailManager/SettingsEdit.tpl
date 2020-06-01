@@ -17,6 +17,7 @@
             {/if}
             {include file="ModalHeader.tpl"|vtemplate_path:$SOURCE_MODULE TITLE=$MODAL_TITLE}
             <form id="EditView" method="POST">
+            	<input type="hidden" name="account_id" value="{$MAILBOX->mId}" />
                 <div class="modal-body" id="mmSettingEditModal">
                     <table class="table table-borderless">
                         <tbody>
@@ -121,7 +122,7 @@
                 </div>
                 <div class="modal-footer">
                     {if $MAILBOX->exists()}
-                        <button class="btn btn-danger" id="deleteMailboxBtn"><strong>{vtranslate('LBL_DELETE_Mailbox',$MODULE)}</strong></button>
+                        <button class="btn btn-danger" data-boxid="{$MAILBOX->mId}" id="deleteMailboxBtn"><strong>{vtranslate('LBL_DELETE_Mailbox',$MODULE)}</strong></button>
                     {/if}
                     <button class="btn btn-success" id="saveMailboxBtn" type="submit" name="saveButton"><strong>{vtranslate('LBL_SAVE',$MODULE)}</strong></button>
                     <a href="#" class="cancelLink" type="reset" data-dismiss="modal">{vtranslate('LBL_CANCEL', $MODULE)}</a>
