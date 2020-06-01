@@ -14,7 +14,9 @@
 			<input type="hidden" name="parent" value="Settings" />
 			<input type="hidden" name="action" value="SaveRule" />
 			<input type="hidden" name="scannerId" value="{$SCANNER_ID}" />
-			<input type="hidden" name="record" value="{$RECORD_ID}" />
+			{if $CREATE neq 'new'}
+				<input type="hidden" name="record" value="{$RECORD_ID}" />
+			{/if}
 			<div class="addMailBoxStep">
 				<div class="row">
 					<table class="table editview-table no-border">

@@ -179,31 +179,19 @@ class PositionInformation_Detail_View extends Vtiger_Detail_View {
             $price_data = json_encode($price_data);
             $viewer->assign("PRICE_DATA", $price_data);
             
-            $recordId = $calling_record;
             
-            if(!$this->record){
-                $this->record = Vtiger_DetailView_Model::getInstance($calling_module, $recordId);
-            }
-            $recordModel = $this->record->getRecord();
+            $callingRecord = Vtiger_DetailView_Model::getInstance($calling_module, $calling_record);
+            
+            $recordModel = $callingRecord->getRecord();
             $recordStrucure = Vtiger_RecordStructure_Model::getInstanceFromRecordModel($recordModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_SUMMARY);
             
             $moduleModel = $recordModel->getModule();
             $viewer = $this->getViewer($request);
             $viewer->assign('RECORD', $recordModel);
-            $viewer->assign('BLOCK_LIST', $moduleModel->getBlocks());
             $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
             
             $viewer->assign('MODULE_NAME', $calling_module);
-            $viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
             $viewer->assign('SUMMARY_RECORD_STRUCTURE', $recordStrucure->getStructure());
-            $viewer->assign('RELATED_ACTIVITIES', $this->getActivities($request));
-            
-            $viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
-            $pagingModel = new Vtiger_Paging_Model();
-            $viewer->assign('PAGING_MODEL', $pagingModel);
-            
-            $picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($calling_module);
-            $viewer->assign('PICKIST_DEPENDENCY_DATASOURCE', Vtiger_Functions::jsonEncode($picklistDependencyDatasource));
             
         }
         

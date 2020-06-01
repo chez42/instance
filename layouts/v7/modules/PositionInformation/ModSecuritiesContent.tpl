@@ -8,9 +8,6 @@
 				</div>
 				<div class="summaryViewFields">
 					<div class="recordDetails">
-						{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
-						   <input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
-						{/if}
 						<table class="summary-table no-border">
 							<tbody>
 							{foreach item=FIELD_MODEL key=FIELD_NAME from=$SUMMARY_RECORD_STRUCTURE['SUMMARY_FIELDS']}
@@ -30,7 +27,7 @@
 											<div class="row">
 												{assign var=DISPLAY_VALUE value="{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get("fieldvalue"))}"}                  
 												
-												<span class="value textOverflowEllipsis" data-field-type="{$FIELD_MODEL->getFieldDataType()}" title="{strip_tags($DISPLAY_VALUE)}"  {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word;white-space: unset !important;"{/if}>
+												<span class="value textOverflowEllipsis col-md-12" data-field-type="{$FIELD_MODEL->getFieldDataType()}" title="{strip_tags($DISPLAY_VALUE)}"  style="word-wrap: break-word;white-space: unset !important;">
 													{include file=$FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName()|@vtemplate_path:$MODULE_NAME FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
 												</span>
 											   

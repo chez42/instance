@@ -2247,18 +2247,17 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	secondStep: function (e) {
 		var thisInstance = this;
 		var form = jQuery('#mailBoxEditView');
+		vtUtils.applyFieldElementsView(form);
 		var params = {
 			submitHandler: function (form) {
 				var form = jQuery(form);
-				var checked = jQuery('input[type=checkbox][name=folders]:checked').length;
-				if (checked < 1) {
+				var selectedFolders = form.find('[name="folders[]"]').val();
+
+				if (selectedFolders.length < 1) {
 					app.helper.showAlertNotification({'message': app.vtranslate('You must select atleast one folder.')});
 					return false;
 				} else {
 					form.find('[name="saveButton"]').attr('disabled', 'disabled');
-					var selectedFolders = jQuery('input[name=folders]:checked').map(function () {
-						return jQuery(this).val();
-					}).get();
 					thisInstance.saveFolders(selectedFolders);
 				}
 				return false;
