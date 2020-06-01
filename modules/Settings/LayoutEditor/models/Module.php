@@ -418,7 +418,7 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
 										'Quotes' => array('LBL_ITEM_DETAILS'),
 										'SalesOrder' => array('LBL_ITEM_DETAILS'),
 										'PurchaseOrder' => array('LBL_ITEM_DETAILS'),
-		                                'Events' => array('LBL_INVITE_USER_BLOCK')
+		                                'Events' => array('LBL_INVITE_USER_BLOCK', 'Recurrence Details')
 										//'Events' => array('LBL_EVENT_INFORMATION', 'LBL_REMINDER_INFORMATION', 'LBL_RECURRENCE_INFORMATION', 'LBL_RELATED_TO', 'LBL_DESCRIPTION_INFORMATION', 'LBL_INVITE_USER_BLOCK')
 									);
 		if (in_array($moduleName, array_merge(getInventoryModules(), array('Calendar', 'Events', 'HelpDesk', 'Faq')))) {
@@ -486,4 +486,27 @@ class Settings_LayoutEditor_Module_Model extends Vtiger_Module_Model {
 		return true;
 	}
 
+    public function updateFieldForRelatedTab($fieldIdsList) {
+        $db = PearDatabase::getInstance();
+        $tabId = $this->getId();
+        
+        if (!$fieldIdsList) {
+            $fieldIdsList = array(0);
+        }
+        
+        //Fields Info
+        if (count($fieldIdsList)) {
+            
+            $query = 'UPDATE vtiger_field SET related_tab_field_seq =?, relatedlistview=0 WHERE tabid=?';
+            $params = array(null,$tabId);
+            $db->pquery($query, $params);
+            
+            for ($i=1; $i<=count($fieldIdsList); $i++){
+                $query = 'UPDATE vtiger_field SET related_tab_field_seq =?, relatedlistview=1 WHERE fieldid =? and tabid=?';
+                $params = array($i,$fieldIdsList[$i-1],$tabId);
+                $db->pquery($query, $params);
+            }
+        }
+        return true;
+    }
 }

@@ -75,7 +75,7 @@ class Performance_Model extends Vtiger_Module {
     private $benchmark;
     private $estimated_income;
 
-    public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy){
+    public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy=false){
         global $adb;
         $passed_in_date = $start_date;
         $this->account_numbers = $account_numbers;
@@ -276,7 +276,7 @@ class Performance_Model extends Vtiger_Module {
                 $result = $adb->pquery($query, array());
 
                 foreach($this->individual_end_values AS $k => $v){
-                    $this->individual_performance_summed[$k] = '';
+                    $this->individual_performance_summed[$k] = array();
                 }
 
                 if($adb->num_rows($result) > 0){
@@ -290,7 +290,7 @@ class Performance_Model extends Vtiger_Module {
                         $tmp->buy_sell_indicator = $v['buy_sell_indicator'];
                         $tmp->disable_performance = $v['disable_performance'];
  #                       echo "SETTING: " . $v['account_number'] . '<br />';
-                        $this->individual_performance_summed[$v['account_number']][$v['transaction_type']] = $tmp;
+                                $this->individual_performance_summed[$v['account_number']][$v['transaction_type']] = $tmp;
                         $this->individual_performance_summed[$v['account_number']]['account_name'] = PortfolioInformation_Module_Model::GetAccountNameFromAccountNumber($v['account_number']);
                         $this->individual_performance_summed[$v['account_number']]['account_type'] = PortfolioInformation_Module_Model::GetAccountTypeFromAccountNumber($v['account_number']);
                     }

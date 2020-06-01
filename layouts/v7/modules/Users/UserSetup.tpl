@@ -49,7 +49,7 @@
 			</script>
 			<style type="text/css">
 				{literal}
-					body { background: #ffffff url('layouts/v7/skins/images/usersetupbg.png') no-repeat center top; background-size: 100%; font-size: 14px; }
+					body { background: #ffffff url('layouts/v7/skins/images/omniscient_enterprise_advisor.jpg') no-repeat center top; background-size: 100%; font-size: 14px; }
 					.modal-backdrop { opacity: 0.35; }
 					.tooltip { z-index: 1055; }
 					input, select, textarea { font-size: 14px; }

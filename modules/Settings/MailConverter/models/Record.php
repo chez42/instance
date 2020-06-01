@@ -361,7 +361,7 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 		$db = PearDatabase::getInstance();
 		$moduleModel = Settings_Vtiger_Module_Model::getInstance('Settings:MailConverter');
 
-		$result = $db->pquery('SELECT 1 FROM vtiger_mailscanner', array());
+		$result = $db->pquery('SELECT 1 FROM vtiger_mailscanner WHERE (userid = 0 OR userid IS NULL)', array());
 		$numOfRows = $db->num_rows($result);
 		return $numOfRows;
 	}

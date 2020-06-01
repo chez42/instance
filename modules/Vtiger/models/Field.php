@@ -1363,5 +1363,27 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	    return ($this->get('relatedlistview')) ? true : false;
 	}
 /****************************** 09-Aug-2018 Changes End *************************************/
-	
+    
+    public static function getAllForRelatedTab($moduleModel){
+        $fieldModelList = Vtiger_Cache::get('RelatedModuleFields',$moduleModel->id);
+        if(!$fieldModelList){
+            $fieldObjects = parent::getAllForRelatedTab($moduleModel);
+            
+            $fieldModelList = array();
+            //if module dont have any fields
+            if(!is_array($fieldObjects)){
+                $fieldObjects = array();
+            }
+            
+            foreach($fieldObjects as $fieldObject){
+                $fieldModelObject= self::getInstanceFromFieldObject($fieldObject);
+                $fieldModelList[] = $fieldModelObject;
+                Vtiger_Cache::set('field-'.$moduleModel->getId(),$fieldModelObject->getId(),$fieldModelObject);
+                Vtiger_Cache::set('field-'.$moduleModel->getId(),$fieldModelObject->getName(),$fieldModelObject);
+            }
+            
+            Vtiger_Cache::set('RelatedModuleFields',$moduleModel->id,$fieldModelList);
+        }
+        return $fieldModelList;
+    }
 }

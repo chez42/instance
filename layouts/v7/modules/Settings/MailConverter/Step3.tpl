@@ -14,7 +14,9 @@
 			<input type="hidden" name="parent" value="Settings" />
 			<input type="hidden" name="action" value="SaveRule" />
 			<input type="hidden" name="scannerId" value="{$SCANNER_ID}" />
-			<input type="hidden" name="record" value="{$RECORD_ID}" />
+			{if $CREATE neq 'new'}
+				<input type="hidden" name="record" value="{$RECORD_ID}" />
+			{/if}
 			<div class="addMailBoxStep">
 				<div class="row">
 					<table class="table editview-table no-border">
@@ -45,11 +47,16 @@
 												<br><br>
 												<textarea name="{$FIELD_MODEL->getName()}" class="boxSizingBorderBox fieldValue inputElement" style="width:416px;padding: 3px 8px;">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
 											{else}
-												<select id="actions" name="action1" class="select2 fieldValue inputElement" style="min-width:220px">
+												<select id="actionsClone" name="action2" class=" fieldValue inputElement hide">
+													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+														<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
+													{/foreach}
+												</select>
+												<select id="actions" name="action1[]" class="select2 fieldValue inputElement" style="min-width:220px">
 													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
 														<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get($FIELD_NAME) eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
 													{/foreach}
-												</select>
+												</select> <a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
 											{/if}
 										{elseif $FIELD_DATA_TYPE eq 'radio'}
 											{assign var=RADIO_OPTIONS value=$FIELD_MODEL->getRadioOptions()}

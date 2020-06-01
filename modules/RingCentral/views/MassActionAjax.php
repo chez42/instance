@@ -13,6 +13,7 @@ class RingCentral_MassActionAjax_View extends Vtiger_MassActionAjax_View {
 		parent::__construct();
 		$this->exposeMethod('showSendSMSForm');
 		$this->exposeMethod('showSendFaxForm');
+		$this->exposeMethod('showSendRingCentralSMSForm');
 	}
 
 	function process(Vtiger_Request $request) {
@@ -133,6 +134,52 @@ class RingCentral_MassActionAjax_View extends Vtiger_MassActionAjax_View {
 	    
 	    echo $viewer->view('RingCentralFaxForm.tpl', $moduleName, true);
 	    
+	}
+	
+	function showSendRingCentralSMSForm(Vtiger_Request $request) {
+	    
+	    $moduleName = $request->getModule();
+	    $srcModule = $request->get('src_module');
+	    $viewer = $this->getViewer($request);
+	    $record = $request->get('record');
+	    $user = Users_Record_Model::getCurrentUserModel();
+	    $moduleModel = Vtiger_Module_Model::getInstance($srcModule);
+	    $phoneFields = $moduleModel->getFieldsByType('phone');
+	    
+	    
+	    $selectedRecordModel = Vtiger_Record_Model::getInstanceById($record, $srcModule);
+	    $viewer->assign('SINGLE_RECORD', $selectedRecordModel);
+	    
+	    global $adb;
+	    
+	    $msgQuery = $adb->pquery("SELECT * FROM vtiger_ringcentral
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+        INNER JOIN vtiger_seringcentralrel ON vtiger_seringcentralrel.ringcentralid = vtiger_ringcentral.ringcentralid
+        WHERE vtiger_crmentity.deleted = 0 AND vtiger_seringcentralrel.crmid = ?
+        AND vtiger_ringcentral.ringcentral_type = 'SMS' ORDER BY vtiger_crmentity.createdtime ASC", array($record));
+	    
+	    $msgArray = array();
+	    if($adb->num_rows($msgQuery)){
+	        
+	        for($c=0;$c<$adb->num_rows($msgQuery);$c++){
+	            $msgArray[] = array(
+	                'direction' => $adb->query_result($msgQuery, $c, 'direction'),
+	                'createdtime' => $adb->query_result($msgQuery, $c, 'createdtime'),
+	                'message' => $adb->query_result($msgQuery, $c, 'description')
+	            );
+	        }
+	        
+	    }
+	    
+	    $viewer->assign('MESSAGES', $msgArray);
+	    $viewer->assign('MODULE', $moduleName);
+	    $viewer->assign('SOURCE_MODULE', $srcModule);
+	    $viewer->assign('USER_MODEL', $user);
+	    $viewer->assign('PHONE_FIELDS', $phoneFields);
+	    $viewer->assign('RECORD', $record);
+	    
+	    
+	    echo $viewer->view('SendRingCentralSMSForm.tpl', $moduleName, true);
 	}
 	
 }

@@ -12,6 +12,10 @@
 		.mCustomScrollBox {
 			max-height: 415px !important;
 		}
+		.quickCreateContent {
+		    overflow: unset;
+		    overflow-x: unset;
+		}
 	</style>
     {include file="QuickCreate.tpl"|vtemplate_path:"Calendar"}
 {/strip}

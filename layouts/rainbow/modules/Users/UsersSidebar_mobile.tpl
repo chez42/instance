@@ -35,6 +35,8 @@
 									{assign var=MENU_URL value=$USER_MODEL->getPreferenceDetailViewUrl()}
 								{elseif $MENU eq 'Calendar Settings'}
 									{assign var=MENU_URL value=$USER_MODEL->getCalendarSettingsDetailViewUrl()}
+								{elseif $MENU eq 'Ms Exchange Settings'} 
+									{assign var=MENU_URL value=$USER_MODEL->getMsSettingsDetailViewUrl()}
 								{elseif $MENU === $URL}
 									{if $SETTINGS_MENU_ITEMS[$MENU]}
 										{assign var=MENU_URL value=$SETTINGS_MENU_ITEMS[$MENU]->getURL()}

@@ -725,7 +725,7 @@ class Users extends CRMEntity {
 			$this->column_fields['currency_id'] = CurrencyField::getDBCurrencyId();
 		}
 		if(empty($this->column_fields['date_format'])) {
-			$this->column_fields['date_format'] = 'yyyy-mm-dd';
+			$this->column_fields['date_format'] = 'mm-dd-yyyy'; //'yyyy-mm-dd';
 		}
 
 		if(empty($this->column_fields['start_hour'])) {

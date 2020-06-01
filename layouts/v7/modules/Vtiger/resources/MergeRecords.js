@@ -123,17 +123,22 @@ Vtiger.Class('Vtiger_MergeRecords_Js',{},{
 
     showBillingUI : function(params) {
         var self = this;
+        
         var records = params.records;
-        if(typeof records == "object") {
+       
+        /* if(typeof records == "object") {
             records = records.join(',');
-        }
+        }*/
+        
         var defaultPrams = {
             'module' : app.module(),
             'view' : 'Billing',
             //'records' : records
         }
 		
-		defaultPrams = jQuery.extend(defaultPrams, params.params);
+		//defaultPrams = jQuery.extend(defaultPrams, params.params);
+        
+        defaultPrams = jQuery.extend(defaultPrams, records);
         
         app.helper.showProgress();
         app.request.get({'data':defaultPrams}).then(function(error,data){

@@ -507,6 +507,58 @@ Vtiger.Class("RingCentral_Js",{
 			);
 		}
 	},
+	
+	triggerSendRingCentralSms: function(detailActionUrl) {
+		var self = this;
+		self.sendRingCentralSMS(detailActionUrl);
+	},
+	
+	sendRingCentralSMS: function(detailActionUrl){
+		var self = this;
+		var cb = function(container) {
+			$('#phoneFormatWarningPop').popover();
+			self.registerChangePhoneField();
+			var ringcentralForm = jQuery('#massSaveRingCentral');
+			ringcentralForm.vtValidate({
+				submitHandler: function (form) {
+					RingCentral_Js.sendSmsSave(jQuery(form),true);
+					return false;
+				}
+			});
+		}
+		self.sendRingCentralSMSAction(detailActionUrl, cb);
+	},
+	
+	sendRingCentralSMSAction: function(detailActionUrl, callBackFunction) {
+		var self = this;
+		
+		var postData = {
+			"record": app.getRecordId()
+		};
+		app.request.post({url:detailActionUrl, data:postData, dataType:"html"}).then(
+			function(err, data) {
+				if (data) {
+					app.helper.showModal(data);
+					if (typeof callBackFunction == 'function') {
+						callBackFunction(data);
+					}
+				}
+			}
+		);
+	},
+	
+	registerChangePhoneField : function(){
+		jQuery(document).on('change', '.phoneField', function(){
+			
+			var selectedNo = $(this).children("option:selected").data('phoneno');
+			
+			var number = selectedNo + '';
+			
+			number = number.replace(/\D/g,'');
+			
+			jQuery(document).find('.ringcentral_phoneno').val(number);
+		});
+	},
 
 },{
 	
@@ -555,6 +607,20 @@ Vtiger.Class("RingCentral_Js",{
 						var recordId = app.getRecordId();
 					}
 					
+					if(jQuery(element).parents('.relatedContents').length){
+						var parentElem = jQuery(element).closest('td');
+						if($.trim($(this).text()) != ''){
+							var number = $.trim($(this).text());
+							var recordId = jQuery(element).closest('tr').data('id');
+						}
+					}
+				}
+				if(jQuery(element).parents('.searchResults').length){
+					var parentElem = jQuery(element).closest('td');
+					if($(this).attr("data-rawvalue") != ''){
+						var number = $(this).attr("data-rawvalue");
+						var recordId = jQuery(element).closest('tr').data('id');
+					}
 				}
 					
 				if (number !== '' && typeof number !== "undefined") {
@@ -619,8 +685,7 @@ Vtiger.Class("RingCentral_Js",{
 	
 		thisInstance.registerEventsForUserPrefrence();
 	
-		var view = app.getViewName();
-		if(view == 'List'){
+		//var view = app.getViewName();
 			
 			jQuery('#overlayPage').one('shown.bs.modal',function(){
 				thisInstance.registerEventForMouse();
@@ -630,7 +695,9 @@ Vtiger.Class("RingCentral_Js",{
 				thisInstance.registerEventForMouse();
 			});
 			
-		}
+		jQuery('#overlayPageContent').one('shown.bs.modal', function () {
+			thisInstance.registerEventForMouse();
+		});
 
 		
 		$(document).on('click','.closeOutgoing',function(){
@@ -746,8 +813,9 @@ Vtiger.Class("RingCentral_Js",{
 				'</div>'; 
 			}
 		}
-		
-		jQuery('.app-footer').append(html);
+		var dummy_html = '<div style = "display:none;" id = "dummy-div"></div>'
+		jQuery('.app-footer').append(dummy_html);
+		jQuery('#dummy-div').append(html);
 		
 		var caller_html = '<video id="remoteVideo" hidden="hidden"></video><video id="localVideo" hidden="hidden" muted="muted"></video><style>body.show_sidebar #push_sidebar{left:80%}#push_sidebarphone{-webkit-background-size:cover;-moz-background-size:cover;-o-background-size:cover;background-size:cover;background-color:#fff;border:1px solid;border-radius:5px;position:fixed;z-index:99999999;width:20%;right:0;bottom:-200%;text-align:center;-webkit-transition:all .5s ease;-moz-transition:all .5s ease;-ms-transition:all .5s ease;-o-transition:all .5s ease;transition:all .5s ease;font-size:16px!important}body.show_sidebar3 #push_sidebarphone{bottom:0}</style>';
 		

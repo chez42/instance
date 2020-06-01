@@ -40,7 +40,7 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
             PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);//Create combined gain loss table
 
             $categories = array("security_symbol");
-            $fields = array('account_number', 'description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
+            $fields = array('account_number', 'description', 'trade_date', 'security_price', 'transaction_activity', 'quantity', 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
             $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
             $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
             $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);
@@ -80,8 +80,8 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
             /* === END : Changes For Report Logo 2016-12-07 === */
 
             if($is_pdf) {
-                $pdf_content  = $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
+                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
 
                 /*                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
@@ -89,7 +89,7 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicPie.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicHoldings.tpl', $moduleName);*/
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
 
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }
@@ -107,11 +107,11 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
         if($logo)
             $pdf->logo = $logo;
 
-        $stylesheet  = file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-        $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GainLoss.css');
 
         $pdf->SetupFooter();

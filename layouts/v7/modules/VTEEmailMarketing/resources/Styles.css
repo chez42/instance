@@ -141,9 +141,9 @@ table#table-vtecampaign tr td:nth-child(2){
 /*-- End Step 2 --*/
 
 /*-- Step 3-- */
-.app-footer{
+/*.app-footer{
     display: none;
-}
+}*/
 
 #EmailMarketingStep3 #listViewContent{
     display: inline-block;

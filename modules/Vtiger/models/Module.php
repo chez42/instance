@@ -2098,7 +2098,8 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	public function getRelatedListViewFieldsList() {
 	    if (!$this->relatedListFields) {
 	        $relatedListFields = array();
-	        $fields = $this->getFields();
+            // 	        $fields = $this->getFields();
+            $fields = $this->getRelatedTabFields();
 	        foreach ($fields as $fieldName => $fieldModel) {
 	            if ($fieldModel->isRelateListViewEnabled() && $fieldModel->isActiveField()) {
 	                $relatedListFields[$fieldName] = $fieldModel;
@@ -2119,5 +2120,26 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	public function getRelatedExportUrl() {
 	    return 'index.php?module='.$this->get('name').'&view=RelatedExport';
 	}
-	
+    
+    public function getRelatedTabFields($blockInstance=false) {
+        if(empty($this->fields)){
+            if($this->getName() == 'Calendar'){
+                $model = Vtiger_Module_Model::getInstance('Events');
+                $moduleBlockFields = Vtiger_Field_Model::getAllForRelatedTab($model);
+            }else{
+                $moduleBlockFields = Vtiger_Field_Model::getAllForRelatedTab($this);
+            }
+            
+            $this->fields = array();
+            foreach($moduleBlockFields as $moduleField){
+                $block = $moduleField->get('block');
+                if(empty($block)) {
+                    continue;
+                }
+                $this->fields[$moduleField->get('name')] = $moduleField;
+            }
+        }
+        return $this->fields;
+    }
+    
 }

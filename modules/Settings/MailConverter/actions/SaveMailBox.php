@@ -10,6 +10,13 @@
 
 class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Action {
 
+    function checkPermission(Vtiger_Request $request) {
+        $currentUserModel = Users_Record_Model::getCurrentUserModel();
+        if(!$currentUserModel->isAdminUser() && $request->getModule() != 'MailConverter') {
+            throw new AppException(vtranslate('LBL_PERMISSION_DENIED', 'Vtiger'));
+        }
+    }
+    
 	public function process(Vtiger_Request $request) {
 		$recordId = $request->get('record');
 		$qualifiedModuleName = $request->getModule(false);
@@ -21,6 +28,8 @@ class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Ac
 		}
 
 		$recordModel->set('scannerOldName', $request->get('scannerOldName'));
+        $recordModel->set('userid', $request->get('userid'));
+		
 		$fieldsList = $recordModel->getModule()->getFields();
 		foreach ($fieldsList as $fieldName=>$fieldModel) {
 			$recordModel->set($fieldName, $request->get($fieldName));

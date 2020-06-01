@@ -33,9 +33,10 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 			$mode = "step1";
 		$qualifiedModuleName = $request->getModule(false);
 		$moduleName = $request->getModule();
-
+		$serverName = '';
 		if ($recordId) {
 			$recordModel = Settings_MailConverter_Record_Model::getInstanceById($recordId);
+			$serverName = Settings_MailConverter_Module_Model::setServerName($recordModel->get('server'));
 		} else {
 			$recordModel = Settings_MailConverter_Record_Model::getCleanInstance();
 		}
@@ -44,6 +45,8 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 		if ($recordId) {
 			$viewer->assign('RECORD_ID', $recordId);
 		}
+		
+		$viewer->assign('SERVERNAME', $serverName);
 		$viewer->assign('CREATE', $request->get('create'));
 		$viewer->assign('RECORD_MODEL', $recordModel);
 		$viewer->assign('MODULE_MODEL', $recordModel->getModule());

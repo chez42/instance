@@ -147,10 +147,12 @@ jQuery.Class("RingcentralCall_Js", {
 			number = '+' + number;
 		}
 		
-		thisInstance.Class.session = thisInstance.Class.webPhone.userAgent.invite(number, {
-			fromNumber: thisInstance.Class.from_no,
-			homeCountryId: 1
-		});
+		setTimeout(function(){ 
+			thisInstance.Class.session = thisInstance.Class.webPhone.userAgent.invite(number, {
+				fromNumber: thisInstance.Class.from_no,
+				homeCountryId: 1
+			}); 
+		}, 1000);
 		
 	},
 	

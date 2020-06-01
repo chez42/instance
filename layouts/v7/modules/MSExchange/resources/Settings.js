@@ -21,6 +21,7 @@ Vtiger.Class("MSExchange_Settings_Js", {
     	var thisInstance = this;
         app.event.on(MSExchange_Settings_Js.postSettingsLoad,function(){
             thisInstance.registerBasicEvents();
+            thisInstance.registerEventForSaveSettingsForSync();
         });
     },
     
@@ -124,6 +125,41 @@ Vtiger.Class("MSExchange_Settings_Js", {
 				});
 			}
 		});
+	},
+	
+	registerEventForSaveSettingsForSync : function(){
+		
+		$('#saveSettings').on('click', function(e){
+			e.preventDefault();
+			var fieldName = 'impersonation_identifier';
+			
+			if($("[name="+fieldName+"]").val()){
+				var params = {
+						'module': 'Users',
+						'action' : "CheckExchange",
+						'record' : app.getUserId(),
+						'user_principal_name' : $("[name="+fieldName+"]").val(),
+					}
+				app.helper.showProgress();
+				app.request.post({data:params}).then(
+					function(err,data) {
+						if(data){
+							if(data.success){
+								$('#saveSettings').submit();
+								app.helper.hideProgress();
+							}else{
+								app.helper.hideProgress();
+								app.helper.showErrorNotification({
+									title:app.vtranslate(data.message),
+									message :app.vtranslate(data.error)+' For MsExchange'
+								});
+							}
+						}
+					}
+				);
+			}
+		});
+		
 	},
 	
 });

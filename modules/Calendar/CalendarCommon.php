@@ -103,7 +103,7 @@ function addAcceptEventLink($body,$user_id,$recordModel) {
     }
     //$AcceptTrackingUrl not found in body of template
     $acceptLink = '<div class="invitationresponse"><a href="' . 
-            $acceptInvitationUrl. '" target="_blank">Accept - Add Event to Vtiger Calendar</a></div>';
+            $acceptInvitationUrl. '" target="_blank">Accept Event</a></div>';
     return substr_replace($body, $acceptLink, strpos($body, '</body>'), 0);
 }
 
@@ -129,9 +129,13 @@ function getActivityDetails($description,$user_id,$from='',$recordModel=false) {
 	$db = PearDatabase::getInstance();
 	$query='SELECT body FROM vtiger_emailtemplates WHERE subject=? AND systemtemplate=?';
 	$result = $db->pquery($query, array('Invitation', '1'));
+	
 	$body=decode_html($db->query_result($result,0,'body'));
-	$body=addAcceptEventLink($body,$user_id,$recordModel);
-    $list = $body;
+	
+	//Comment Accept Invitation Instead have added a notification
+	//$body = addAcceptEventLink($body,$user_id,$recordModel);
+    
+	$list = $body;
 	$list = str_replace('$invitee_name$', $name, $list);
 	$list = str_replace('$events-date_start$',$startDate->getDisplayDateTimeValue($inviteeUser) .' '.vtranslate($inviteeUser->time_zone, 'Users'),$list);
 	$list = str_replace('$events-due_date$',$endDate->getDisplayDateTimeValue($inviteeUser).' '.vtranslate($inviteeUser->time_zone, 'Users'),$list);
