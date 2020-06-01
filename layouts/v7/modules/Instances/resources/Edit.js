@@ -14,7 +14,7 @@ Vtiger_Edit_Js("Instances_Edit_Js",{
 	setDomainName: function(){
 		
 		$('[name="name"]').on("change", function(){
-			$('[name="domain"]').val( "https://" + $(this).val().replace(/[^A-Za-z]+/g, '').toLowerCase() + ".omnisrv.com" );
+			$('[name="domain"]').val( "https://" + $(this).val().replace(/[^A-Za-z]+/g, '').toLowerCase() + ".360vew.com" );
 		});
 		
 	},
