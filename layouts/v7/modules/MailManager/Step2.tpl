@@ -29,16 +29,13 @@
 		<br>
 		<div class="block">
 			<div class="addMailBoxStep row" style="margin: 10px;">
-				{foreach key=FOLDER item=SELECTED from=$FOLDERS}
-					<div class="col-lg-3">
-						<label>
-							<input type="checkbox" name="folders" value="{$FOLDER}" {if $SELECTED eq 'checked'}checked{/if}>
-							<span>&nbsp;&nbsp;{$FOLDER}</span>
-						</label>
-					</div>
-				{/foreach}
+				<select name= "folders[]" data-rule-required="true" class="inputElement select2" multiple style="width: 80%;">
+					<option value="">Select an option</option>
+					{foreach key=FOLDER item=SELECTED from=$FOLDERS}
+						<option value="{$FOLDER}" {if $SELECTED eq 'checked'} selected {/if}>{$FOLDER}</option>
+					{/foreach}
+				</select>
 			</div>
-			
 		</div>
 	</div>
 </div>
