@@ -47,7 +47,7 @@ class cTDPortfolios extends cCustodian {
      * @param string $table (REFERS TO BALANCE TABLE)
      */
     public function __construct(string $custodian_name, string $database, string $module,
-                                string $portfolio_table, string $balance_table, array $rep_codes, $columns='*'){
+                                string $portfolio_table, string $balance_table, array $rep_codes, $columns=array('*')){
         $this->name = $custodian_name;
         $this->database = $database;
         $this->module = $module;
@@ -234,6 +234,8 @@ class cTDPortfolios extends cCustodian {
             $this->FillEntityTable($crmid, $owner, $data);
             $this->FillPortfolioTable($crmid, $data);
             $this->FillPortfolioCFTable($crmid, $data);
+            if($this->DoesAccountNumberExistInCRM($data->account_number))//Confirm the account now exists in the CRM
+                $this->existing_accounts[] = $data->account_number;//Add the newly created account to existing accounts because it now exists
         }
     }
 
