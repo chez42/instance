@@ -26,7 +26,7 @@ class cTDPositions extends cCustodian {
     use tPositions;
     private $positions_data;//Holds both personal and balance information
     private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "TDCASH" => "Cash" will replace "TDCASH" from the CRM with "Cash" while checking if it exists or not
-
+    protected $columns;
     /**
      * cTDPortfolios constructor.
      * @param string $custodian_name
@@ -37,7 +37,8 @@ class cTDPositions extends cCustodian {
      * @param auto_setup is used to run the GetPositionsData and SetupPositionComparisons function
      */
     public function __construct(string $custodian_name, string $database, string $module,
-                                string $portfolio_table, string $positions_table, array $rep_codes, array $symbol_replacements, $auto_setup = true, $columns='*'){
+                                string $portfolio_table, string $positions_table, array $rep_codes, array $symbol_replacements,
+                                $auto_setup = true, $columns=array("*")){
         $this->name = $custodian_name;
         $this->database = $database;
         $this->module = $module;
@@ -78,9 +79,22 @@ class cTDPositions extends cCustodian {
 
         if($group_by_symbol)
             $group_by_symbol = " GROUP BY SYMBOL ";
-        $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
-                  WHERE account_number IN ({$questions}) AND date = ? {$group_by_symbol}";
-        $result = $adb->pquery($query, $params, true);
+
+        $query = "DROP TABLE IF EXISTS BeforeMapping";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE BeforeMapping
+                  SELECT {$fields} FROM {$this->database}.{$this->table}
+                  WHERE account_number IN ({$questions}) AND DATE = ? {$group_by_symbol}";
+        $adb->pquery($query, $params, true);
+
+        $query = "UPDATE BeforeMapping bm
+                  JOIN {$this->database}.td_remap_securities map ON bm.symbol = map.symbol AND bm.security_type = map.security_type 
+                  SET bm.symbol = map.new_symbol, bm.security_type = map.new_security_type";
+        $adb->pquery($query, array());
+
+        $query = "SELECT {$fields} FROM BeforeMapping";
+        $result = $adb->pquery($query, array(), true);
 
         if($adb->num_rows($result) > 0){
             while($r = $adb->fetchByAssoc($result)){
@@ -118,9 +132,9 @@ class cTDPositions extends cCustodian {
      * Auto creates the position's based on the data loaded into the $positions_data member.  If the position exists in this data, it will be created
      * @param array $account_numbers
      */
-    public function CreateNewPositionsFromPositionData(array $account_numbers){
-        if(!empty($account_numbers)) {
-            foreach ($account_numbers AS $k => $v) {
+    public function CreateNewPositionsFromPositionData(array $missing_account_data){
+        if(!empty($missing_account_data)) {
+            foreach ($missing_account_data AS $k => $v) {
                 foreach ($v AS $a => $position) {
                     $data = $this->positions_data[$k][$a];
                     if (!empty($data)) {
@@ -136,9 +150,10 @@ class cTDPositions extends cCustodian {
      * Auto updates the position's based on the data loaded into the $position_data member.
      * @param array $account_numbers
      */
-    public function UpdatePositionsFromPositionsData(array $account_numbers){
-        if(!empty($account_numbers)) {
-            foreach ($account_numbers AS $k => $v) {
+    public function UpdatePositionsFromPositionsData(array $position_account_data){
+        if(!empty($position_account_data)) {
+            foreach ($position_account_data AS $k => $v) {
+                $this->ResetAccountPositions($k);
                 foreach ($v AS $a => $position) {
                     $data = $this->positions_data[$k][$a];
                     if (!empty($data)) {
@@ -209,6 +224,18 @@ class cTDPositions extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
+    public function ResetAccountPositions($account_number){
+        global $adb;
+        $params = array();
+        $params[] = $account_number;
+
+        $query = "UPDATE vtiger_positioninformation p 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  SET p.quantity = 0, p.current_value = 0 
+                  WHERE account_number = ?";
+        $adb->pquery($query, $params, true);
+    }
+
     /**
      * Update the position in the CRM using the cTDPositionsData class
      * @param cTDPositionsData $data
@@ -223,18 +250,48 @@ class cTDPositions extends cCustodian {
         $params[] = $data->account_number;
         $params[] = $data->symbol;
 
+#        if($data->account_number == '943475910' AND $data->symbol == '83369EC81') {
+#            echo 'here';
+#            echo $data->account_number . '<br />';
+#            print_r($data);
+#            exit;
+
+
         $query = "UPDATE vtiger_positioninformation p 
-                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                  LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol 
-                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-                  SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment = 0 
-                                                                                 THEN 1 ELSE mcf.security_price_adjustment END 
-                                                                                    * CASE WHEN m.asset_backed_factor > 0 
-                                                                                    THEN m.asset_backed_factor ELSE 1 END,
-                  p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
-                  p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END,
-                  cf.last_update = ?, cf.custodian_source = ?
-                  WHERE account_number = ? AND p.security_symbol = ?";
+              JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+              LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol 
+              LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
+              SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment > 0 
+                                                                                THEN mcf.security_price_adjustment ELSE 1 END 
+                                                                                * CASE WHEN m.asset_backed_factor > 0 
+                                                                                THEN m.asset_backed_factor ELSE 1 END,
+              p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
+              p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
+              cf.last_update = ?, cf.custodian_source = ?
+              WHERE account_number = ? AND p.security_symbol = ?";
         $adb->pquery($query, $params, true);
+    }
+
+    /**
+     * This checks the symbols passed in against the mapping table.  If it finds a match, it adds the "new symbol" to the list as well.
+     * An example here is Cash to TDCASH.  Cash may very well be valid in itself, but it could also be TDCASH if it is of type MF.  This code
+     * will pull in both Cash the EQ AND Cash the MF so when we request data for the symbols from securities for example, it will pull both info
+     * in
+     * @param $symbols
+     * @return mixed
+     */
+    public function GetRemappedSymbols($symbols){
+        global $adb;
+        $query = "SELECT UPPER(symbol) AS symbol, UPPER(new_symbol) AS new_symbol FROM {$this->database}.td_remap_securities";
+        $result = $adb->pquery($query, array(), true);
+
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                if(!empty($symbols[$r['symbol']])){
+                    $symbols[$r['new_symbol']] = $r['new_symbol'];
+                }
+            }
+        }
+        return $symbols;
     }
 }

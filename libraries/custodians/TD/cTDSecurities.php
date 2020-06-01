@@ -14,7 +14,7 @@ class cTDSecuritiesData{
         $this->maturity = $data['maturity'];
         $this->annual_income_amount = $data['annual_income_amount'];
         $this->interest_rate = $data['interest_rate'];
-        $this->multiplier = $data['mutiplier'];
+        $this->multiplier = $data['multiplier'];
         $this->omni_base_asset_class = $data['omni_base_asset_class'];
         $this->first_coupon = $data['first_coupon'];
         $this->call_date = $data['call_date'];
@@ -73,7 +73,7 @@ class cTDSecurities extends cCustodian {
 
             $query = "SELECT {$fields} FROM {$this->database}.{$this->table} f
                       LEFT JOIN {$this->database}.custodian_prices_td pr ON pr.symbol = f.symbol AND pr.date = (SELECT MAX(date) FROM {$this->database}.custodian_prices_td WHERE symbol = f.symbol)
-                      LEFT JOIN securities_mapping_td acm ON acm.code = f.security_type
+                      LEFT JOIN {$this->database}.securities_mapping_td acm ON acm.code = f.security_type
                       {$where} ";
             $result = $adb->pquery($query, $params, true);
 
@@ -109,7 +109,7 @@ class cTDSecurities extends cCustodian {
     }
 
     public function UpdateSecuritiesUsingcTDSecuritiesData(cTDSecuritiesData $data){
-        echo 'updating - ' . $data->symbol . '<br />';
+#        echo 'updating - ' . $data->symbol . '<br />';
         if($this->DoesSecurityExistInCRM($data->symbol)) {
             global $adb;
             $params = array();
@@ -118,7 +118,7 @@ class cTDSecurities extends cCustodian {
             $params[] = $data->annual_income_amount;
             $params[] = $data->interest_rate;
             $params[] = $data->interest_rate;
-            $params[] = $data->multiplier;
+            $params[] = ($data->multiplier != 0) ? $data->multiplier : 1;
             $params[] = $data->omni_base_asset_class;
             $params[] = $data->factor;
             $params[] = $data->filename;
@@ -192,6 +192,7 @@ class cTDSecurities extends cCustodian {
                 $data = $this->securities_data[$v];
                 if (!empty($data)) {
                     $tmp = new cTDSecuritiesData($data);
+#                    echo '<br />';
                     $this->UpdateSecuritiesUsingcTDSecuritiesData($tmp);
                 }
             }
@@ -202,7 +203,7 @@ class cTDSecurities extends cCustodian {
      * Create the new entity in the crmentity table
      * @param $crmid
      * @param $owner
-     * @param cTDPositionsData $data
+     * @param cTDSecuritiesData $data
      */
     protected function FillEntityTable($crmid, cTDSecuritiesData $data){
         global $adb;
@@ -221,17 +222,19 @@ class cTDSecurities extends cCustodian {
     /**
      * Creates data in the vtiger_modsecurities table
      * @param $crmid
-     * @param cTDPositionsData $data
+     * @param cTDSecuritiesData $data
      */
     protected function FillSecuritiesTable($crmid, cTDSecuritiesData $data){
         global $adb;
         $params = array();
         $params[] = $crmid;
-        $swap = array_flip($this->symbol_replacements);//Flip the replacements because we want CRM symbols
-        if(array_key_exists($data->symbol, $swap))
+        //We need to make sure the keys are checking the same thing, so make them upper case
+        $swap = array_change_key_case(array_flip($this->symbol_replacements), CASE_UPPER);//Flip the replacements because we want CRM symbols
+        if(array_key_exists(strtoupper($data->symbol), $swap))//If we have a match, then we need to change the security symbol
             $params[] = $swap[$data->symbol];
         else
             $params[] = $data->symbol;
+
         $params[] = $data->description;
         $params[] = $data->security_type;
         $params[] = $data->price;
@@ -250,7 +253,7 @@ class cTDSecurities extends cCustodian {
     /**
      * Creates data in the vtiger_positioninformationcf table
      * @param $crmid
-     * @param cTDPositionsData $data
+     * @param cTDSecuritiesData $data
      */
     protected function FillSecuritiesCFTable($crmid, cTDSecuritiesData $data){
         global $adb;

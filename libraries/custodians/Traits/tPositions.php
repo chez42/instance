@@ -36,6 +36,8 @@ trait tPositions{
         $this->custodian_positions = $custodian_positions;
         $this->existing_positions = $existing_positions;
         foreach($tmp_accounts AS $k => $v){
+            if(empty($this->existing_positions[$v]))//If we don't do this, the array_diff below fails because positions[$x] doesn't exist, this creates it
+                $this->existing_positions[$v] = array();
             $tmp = array_diff($this->custodian_positions[$v], $this->existing_positions[$v]);
             if(!empty($tmp)) {
                 $this->missing_positions[$v] = $tmp;//Missing positions now holds any symbols we don't have that the custodian does
@@ -149,6 +151,8 @@ trait tPositions{
                 $symbols[strtoupper(TRIM($v['symbol']))] = $v['symbol'];
             }
         }
+
+        $symbols = $this->GetRemappedSymbols($symbols);
         return $symbols;
     }
 }
