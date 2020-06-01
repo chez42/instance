@@ -507,6 +507,58 @@ Vtiger.Class("RingCentral_Js",{
 			);
 		}
 	},
+	
+	triggerSendRingCentralSms: function(detailActionUrl) {
+		var self = this;
+		self.sendRingCentralSMS(detailActionUrl);
+	},
+	
+	sendRingCentralSMS: function(detailActionUrl){
+		var self = this;
+		var cb = function(container) {
+			$('#phoneFormatWarningPop').popover();
+			self.registerChangePhoneField();
+			var ringcentralForm = jQuery('#massSaveRingCentral');
+			ringcentralForm.vtValidate({
+				submitHandler: function (form) {
+					RingCentral_Js.sendSmsSave(jQuery(form),true);
+					return false;
+				}
+			});
+		}
+		self.sendRingCentralSMSAction(detailActionUrl, cb);
+	},
+	
+	sendRingCentralSMSAction: function(detailActionUrl, callBackFunction) {
+		var self = this;
+		
+		var postData = {
+			"record": app.getRecordId()
+		};
+		app.request.post({url:detailActionUrl, data:postData, dataType:"html"}).then(
+			function(err, data) {
+				if (data) {
+					app.helper.showModal(data);
+					if (typeof callBackFunction == 'function') {
+						callBackFunction(data);
+					}
+				}
+			}
+		);
+	},
+	
+	registerChangePhoneField : function(){
+		jQuery(document).on('change', '.phoneField', function(){
+			
+			var selectedNo = $(this).children("option:selected").data('phoneno');
+			
+			var number = selectedNo + '';
+			
+			number = number.replace(/\D/g,'');
+			
+			jQuery(document).find('.ringcentral_phoneno').val(number);
+		});
+	},
 
 },{
 	
