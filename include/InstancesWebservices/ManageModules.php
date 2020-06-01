@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************ */
 
-function vtws_getmoduleslist($element) {
+function vtws_managemodules($element) {
     
     global $adb;
     
@@ -17,12 +17,15 @@ function vtws_getmoduleslist($element) {
     if($element['mode'] == 'modulesList'){
         $Module_record = array();
         
-        $invisible_modules = array('ModTracker', 'Users', 'Mobile', 'Integration', 'WSAPP', 'ModComments', 'Dashboard', 'ConfigEditor', 'CronTasks',
-            'Import', 'Tooltip', 'CustomerPortal', 'Home', 'VtigerBackup', 'FieldFormulas', 'EmailTemplates', 'ExtensionStore');
-        
+        $invisible_modules = array('ModTracker', 'Users', 'Mobile', 'Integration', 'WSAPP', 'ModComments', 
+        'Dashboard', 'ConfigEditor', 'CronTasks',
+        'Import', 'Tooltip', 'CustomerPortal', 'Home', 'VtigerBackup', 'FieldFormulas', 'EmailTemplates', 
+        'ExtensionStore');
+    
         $Default_AllModule = array();
         
-        $allmodule_query = $adb->pquery("select * from `vtiger_tab` where name not in ('" . implode("','", $invisible_modules) . "')");
+        $allmodule_query = $adb->pquery("select * from `vtiger_tab` where 
+        name not in ('" . implode("','", $invisible_modules) . "')");
         
         if($adb->num_rows($allmodule_query)){
             for($am=0;$am<$adb->num_rows($allmodule_query);$am++){
@@ -33,10 +36,10 @@ function vtws_getmoduleslist($element) {
                 $allModules[] = $adb->query_result($allmodule_query,$am,'tabid');
                 
                 $Default_AllModule[$adb->query_result($allmodule_query,$am,'tabid')] = array(
-                            'name' => $adb->query_result($allmodule_query,$am,'name'),
-                            'id' => $adb->query_result($allmodule_query,$am,'tabid'),
-                            'ishide' => $adb->query_result($allmodule_query,$am,'ishide'),
-                        );
+                    'name' => $adb->query_result($allmodule_query,$am,'name'),
+                    'id' => $adb->query_result($allmodule_query,$am,'tabid'),
+                    'ishide' => $adb->query_result($allmodule_query,$am,'ishide'),
+                );
             }
         }
         $data['moduleList'] = $Default_AllModule;

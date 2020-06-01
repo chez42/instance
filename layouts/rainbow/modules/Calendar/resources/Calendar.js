@@ -1653,6 +1653,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			fixedWeekCount: false,
 			firstDay: thisInstance.daysOfWeek[thisInstance.getUserPrefered('start_day')],
 			scrollTime: thisInstance.getUserPrefered('start_hour'),
+			minTime:thisInstance.getUserPrefered('start_hour'),
 			editable: true,
 			eventLimit: true,
 			defaultView: userDefaultActivityView,
