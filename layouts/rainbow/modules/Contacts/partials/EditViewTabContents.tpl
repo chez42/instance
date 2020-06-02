@@ -79,7 +79,7 @@
 						{assign var=NUM_OF_COL value=$NUMOFCOLUMNS[$BLOCK_LABEL]}
 					    
 						<div class='fieldBlockContainer {if $TABBLOCKNAME eq $BLOCK_LABEL}active {/if}tab-pane' id="{$BLOCK_LABEL|replace:' ':'_'}"  data-block="{$BLOCK_LABEL}">
-							<table class="table table-borderless" style = "table-layout:fixed;">
+							<table class="table table-borderless">
 								<tr>
 									{assign var=COUNTER value=0}
 									{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS name=blockfields}
@@ -191,7 +191,7 @@
 								<div class='fieldBlockContainer' data-block="{$BLOCK_LABEL}">
 									<h4 class='fieldBlockHeader'>{vtranslate($BLOCK_LABEL, $MODULE)}</h4>
 									<hr>
-									<table class="table table-borderless" style = "table-layout:fixed;">
+									<table class="table table-borderless">
 										<tr>
 											{assign var=COUNTER value=0}
 											{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS name=blockfields}

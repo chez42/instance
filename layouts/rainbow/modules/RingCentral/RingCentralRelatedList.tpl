@@ -24,7 +24,7 @@
 		<input type='hidden' value="{$TAB_LABEL}" id='tab_label' name='tab_label'>
 		<input type='hidden' value="{$IS_RELATION_FIELD_ACTIVE}" id='isRelationFieldActive'>
 
-		{include file="partials/RelatedListHeader.tpl"|vtemplate_path:$RELATED_MODULE_NAME}
+		{include file="partials/RelatedListHeaderRingCentral.tpl"|vtemplate_path:$RELATED_MODULE_NAME}
 		{if $MODULE eq 'Products' && $RELATED_MODULE_NAME eq 'Products' && $TAB_LABEL === 'Product Bundles' && $RELATED_LIST_LINKS}
 			<div data-module="{$MODULE}" style = "margin-left:20px">
 				{assign var=IS_VIEWABLE value=$PARENT_RECORD->isBundleViewable()}
