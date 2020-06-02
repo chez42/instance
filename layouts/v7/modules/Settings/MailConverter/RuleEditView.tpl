@@ -51,11 +51,6 @@
 												<br><br>
 												<textarea name="{$FIELD_MODEL->getName()}" class="form-control col-sm-12" style="padding: 3px 8px;">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
 											{else}
-												<select id="actionsClone" name="action2" class=" fieldValue inputElement hide">
-													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
-													{/foreach}
-												</select>
 												{assign var=ACTIONS value=$RECORD_MODEL->get($FIELD_NAME)}
 												<select id="actions" name="action1[]" class="select2 fieldValue inputElement">
 													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
@@ -98,10 +93,26 @@
 													{/foreach}
 												</select>
 											</td>
+											<td class="col-lg-4">
+												<a class="btn btn-default removeRuleRow pull-right" title="Delete Rules"><i class="fa fa-trash"></i></a>
+											</td>
 										</tr>
 									{/if}
 								{/foreach}
 							{/if}
+							<tr class="row rowActionClone hide">
+								<td class="col-lg-2"></td>
+								<td class="col-lg-4">
+									<select id="actionsClone" name="action2" class=" fieldValue inputElement ">
+										{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+											<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
+										{/foreach}
+									</select>
+								</td>
+								<td class="col-lg-4">
+									<a class="btn btn-default removeRuleRow pull-right" title="Delete Rules"><i class="fa fa-trash"></i></a>
+								</td>
+							</tr>
 							<tr class="row" id="assignedToBlock">
 								<td class="col-lg-2 control-label"><label class="fieldLabel">{vtranslate('Assigned To')}</label></td>
 								<td class="col-lg-4">

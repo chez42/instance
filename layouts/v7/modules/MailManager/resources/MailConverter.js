@@ -176,31 +176,37 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 		this.disableFolderSelection();
 		this.registerEventForAddActions();
 		//jQuery('#actions').trigger('change');
+		this.registerEventForDeleteActions();
 	},
 	
 	registerEventForAddActions : function(){
 		jQuery(document).on('click', '.addMoreRules', function(){
 			
 			var row = $(this).closest("tr");
-			var ele = row.find('#actionsClone').clone(true);
-			if(row.hasClass('row')){
-				var newRow = $('<tr class="row">');
-				newRow.append($('<td class="col-lg-2 control-label">'));
-				var newCol = $('<td class="col-lg-4">');
-			}else{
-				var newRow = $('<tr>');
-				newRow.append($('<td class="fieldLabel control-label" style="width:25%; padding-right:20px;">'));
-				var newCol = $('<td style="word-wrap:break-word;">');
-			}
-			ele.removeClass('hide').addClass('select2');
+			var newRow = jQuery(document).find('.rowActionClone').clone(true);
+			var ele = newRow.find('#actionsClone');
+			
+			ele.addClass('select2');
 			ele.attr('id','actions');
 			ele.attr('name','action1[]');
-			newRow.append(newCol.append(ele));
+			newRow.removeClass('rowActionClone').removeClass('hide');
 			
 			newRow.insertAfter( row );
 			vtUtils.applyFieldElementsView(newRow);
 			
 		});
+	},
+	
+	registerEventForDeleteActions : function(){
+
+		jQuery(document).on('click', '.removeRuleRow', function(){
+			
+			var row = $(this).closest("tr");
+
+			row.remove();
+			
+		});
+		
 	},
 	
 });
