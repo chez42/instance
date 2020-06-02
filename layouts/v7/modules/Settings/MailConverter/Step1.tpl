@@ -51,7 +51,7 @@
 									<td style="word-wrap:break-word;">
 										{assign var=FIELD_DATA_TYPE value=$FIELD_MODEL->getFieldDataType()}
 										{if $FIELD_DATA_TYPE eq 'password'}
-											<input class="fieldValue inputElement" type="password" name="{$FIELD_MODEL->getName()}" {if $RECORD_EXISTS} value="{$RECORD_MODEL->get($FIELD_NAME)}" {/if}
+											<input class="fieldValue inputElement" type="password" name="{$FIELD_MODEL->getName()}" autocomplete="new-password" {if $RECORD_EXISTS} value="{$RECORD_MODEL->get($FIELD_NAME)}" {/if}
 												{if $FIELD_MODEL->isMandatory()}data-validation-engine="validate[required]"{/if} />
 										{elseif $FIELD_DATA_TYPE eq 'boolean'}
 											{assign var=RECORD_ID value=$RECORD_MODEL->getId()}
