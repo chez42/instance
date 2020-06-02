@@ -37,14 +37,7 @@
 							{/foreach}
 						</select>
 					</div>
-					{*foreach key=FOLDER item=SELECTED from=$FOLDERS}
-						<div class="col-lg-3">
-							<label>
-								<input type="checkbox" name="folders" value="{$FOLDER}" {if $SELECTED eq 'checked'}checked{/if}>
-								<span>&nbsp;&nbsp;{$FOLDER}</span>
-							</label>
-						</div>
-					{/foreach*}
+					
 				</div>
 				<div class="border1px modal-overlay-footer clearfix">
 					<div class="row clearfix">

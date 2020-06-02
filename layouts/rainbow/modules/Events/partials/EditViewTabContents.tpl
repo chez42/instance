@@ -10,10 +10,9 @@
 -->*}
 {literal}
 <style>
-.related-tabs li {float: left !important;}
-.select2-container { width:100% !important;}
-.fieldBlockContainer .inputElement:not([type='checkbox']) { width:100% !important;}
-.editViewContents .input-group { width: 100% !important; min-width:100% !important;}
+.select2-container:not(.recurring_select) { width:100% !important;}
+.fieldBlockContainer .inputElement:not([type='checkbox']):not(.recurring_date) { width:100% !important;}
+.editViewContents .input-group:not(.recurring_date) { width: 100% !important; min-width:100% !important;}
 .editViewContents .fieldValue .referencefield-wrapper { width: 100% !important;}
 .editViewContents .referencefield-wrapper .input-group { width: 80% !important;  min-width:80% !important;}
 </style>
@@ -53,6 +52,7 @@
 						 {$TABCOUNTER = $TABCOUNTER+1} 
 						{/if}
 					{/foreach}	
+					
 					{foreach item=COMBINE key=TABNAME from=$COMBINETABS}
 						{assign var=TABMODULE value=Settings_TabColumnView_Module_Model::getInstanceByName($MODULE_NAME)}
 						{assign var=TAB value=$TABMODULE->checkTabBlockAndFields($TABNAME)}
@@ -70,6 +70,15 @@
 					    	</a>
 						</li>
 					{/foreach}
+					<li class="tab-item " data-block="LBL_INVITE_USER_BLOCK" style="background: #ffff;">
+						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#LBL_INVITE_USER_BLOCK" role="tab">
+				    		<span class="tab-label">
+					    		<strong>
+									{vtranslate("LBL_INVITE_USER_BLOCK",{$MODULE})}
+								</strong>
+							</span>
+				    	</a>
+					</li>
 				</ul>
 			</div>	
 			<div class = "tab-content" style="margin-top:10px;">	
@@ -146,7 +155,7 @@
 												&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 											</td>
 											{if $FIELD_MODEL->get('uitype') neq '83'}
-												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'}  {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 													{if $NUM_OF_COL gt 2}
 														<div class="customtab-columns-{$NUM_OF_COL}">
 													{/if}
@@ -168,13 +177,14 @@
 										        {/if}
 										    {/if}    
 										{/if}
+										{if $MODULE eq 'Events' && $BLOCK_LABEL eq 'LBL_EVENT_INFORMATION' && $smarty.foreach.blockfields.last }
+							                {include file=vtemplate_path('uitypes/FollowUp.tpl',$MODULE) COUNTER=$COUNTER}
+							            {/if}
 									{/foreach}
 									{*If their are odd number of fields in edit then border top is missing so adding the check*}
 									{if $COUNTER is odd}
-										{if $NUM_OF_COL neq 3 && $NUM_OF_COL neq 5}
-											<td></td>
-											<td></td>
-										{/if}
+										<td class="empty_fields"></td>
+										<td class="empty_fields"></td>
 									{/if}
 								</tr>
 							</table>
@@ -190,6 +200,17 @@
 								
 								<div class='fieldBlockContainer' data-block="{$BLOCK_LABEL}">
 									<h4 class='fieldBlockHeader'>{vtranslate($BLOCK_LABEL, $MODULE)}</h4>
+									{if $BLOCK_LABEL eq 'LBL_EVENT_INFORMATION'}
+										<div class="pull-right" style="margin-top:-35px !important;margin-right:10px !important;">
+											{assign var=CALENDAR_TEMPLATES value=CalendarTemplate_Module_Model::getAllTemplates()}
+											<select class="select2 inputElement" name="template_id" >
+												<option value="">Select Template</option>
+												{foreach item=TEMPLATE_NAME key=TEMPLATE_VALUE from=$CALENDAR_TEMPLATES}
+													<option value="{$TEMPLATE_VALUE}">{$TEMPLATE_NAME}</option>
+												{/foreach}
+											</select>
+										</div>
+									{/if}
 									<hr>
 									<table class="table table-borderless">
 										<tr>
@@ -258,7 +279,7 @@
 														&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 													</td>
 													{if $FIELD_MODEL->get('uitype') neq '83'}
-														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 											                {if $NUM_OF_COL gt 2}
 											                	<div class="customtab-columns-{$NUM_OF_COL}">
 															{/if}	
@@ -280,13 +301,14 @@
 												        {/if}
 												    {/if}    
 												{/if}
+												{if $MODULE eq 'Events' && $BLOCK_LABEL eq 'LBL_EVENT_INFORMATION' && $smarty.foreach.blockfields.last }
+									                {include file=vtemplate_path('uitypes/FollowUp.tpl',$MODULE) COUNTER=$COUNTER}
+									            {/if}
 											{/foreach}
 											{*If their are odd number of fields in edit then border top is missing so adding the check*}
 											{if $COUNTER is odd}
-												{if $NUM_OF_COL neq 3 && $NUM_OF_COL neq 5}
-													<td></td>
-													<td></td>
-												{/if}
+												<td class="empty_fields"></td>
+												<td class="empty_fields"></td>
 											{/if}
 										</tr>
 									</table>
@@ -295,6 +317,62 @@
 						{/foreach}
 					</div>
 				{/foreach}
+				<div class='fieldBlockContainer tab-pane' id="LBL_INVITE_USER_BLOCK" data-block="LBL_INVITE_USER_BLOCK">
+					<table class="table table-borderless">
+						<tr>
+							<td class="fieldLabel alignMiddle">{vtranslate('LBL_INVITE_USERS', $MODULE)}</td>
+							<td class="fieldValue">
+								<select id="selectedUsers" class="select2 inputElement" multiple name="selectedusers[]">
+									{foreach key=USER_ID item=USER_NAME from=$ACCESSIBLE_USERS}
+										{if $USER_ID eq $CURRENT_USER->getId()}
+											{continue}
+										{/if}
+										<option value="{$USER_ID}" {if in_array($USER_ID,$INVITIES_SELECTED)}selected{/if}>
+											{$USER_NAME}
+										</option>
+									{/foreach}
+								</select>
+							</td>
+							<td></td><td></td>
+						</tr>
+					</table>
+					<input type="hidden" name="recurringEditMode" value="" />
+					<!--Confirmation modal for updating Recurring Events-->
+					{assign var=MODULE value="Calendar"}
+					<div class="modal-dialog modelContainer recurringEventsUpdation modal-content hide" style='min-width:350px;'>
+						{assign var=HEADER_TITLE value={vtranslate('LBL_EDIT_RECURRING_EVENT', $MODULE)}}
+						{include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
+						<div class="modal-body">
+							<div class="container-fluid">
+								<div class="row" style="padding: 1%;padding-left: 3%;">{vtranslate('LBL_EDIT_RECURRING_EVENTS_INFO', $MODULE)}</div>
+								<div class="row" style="padding: 1%;">
+									<span class="col-sm-12">
+										<span class="col-sm-4">
+											<button class="btn btn-default onlyThisEvent" style="width : 150px">{vtranslate('LBL_ONLY_THIS_EVENT', $MODULE)}</button>
+										</span>
+										<span class="col-sm-8">{vtranslate('LBL_ONLY_THIS_EVENT_EDIT_INFO', $MODULE)}</span>
+									</span>
+								</div>
+								<div class="row" style="padding: 1%;">
+									<span class="col-sm-12">
+										<span class="col-sm-4">
+											<button class="btn btn-default futureEvents" style="width : 150px">{vtranslate('LBL_FUTURE_EVENTS', $MODULE)}</button>
+										</span>
+										<span class="col-sm-8">{vtranslate('LBL_FUTURE_EVENTS_EDIT_INFO', $MODULE)}</span>
+									</span>
+								</div>
+								<div class="row" style="padding: 1%;">
+									<span class="col-sm-12">
+										<span class="col-sm-4">
+											<button class="btn btn-default allEvents" style="width : 150px">{vtranslate('LBL_ALL_EVENTS', $MODULE)}</button>
+										</span>
+										<span class="col-sm-8">{vtranslate('LBL_ALL_EVENTS_EDIT_INFO', $MODULE)}</span>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>	
 	</div>

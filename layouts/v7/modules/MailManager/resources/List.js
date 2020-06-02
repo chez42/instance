@@ -2283,6 +2283,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	thirdStep: function (e) {
 		var thisInstance = this;
 		var form = jQuery('#ruleSave');
+		vtUtils.applyFieldElementsView(form);
 		var params = {
 			submitHandler: function (form) {
 				var form = jQuery(form);
