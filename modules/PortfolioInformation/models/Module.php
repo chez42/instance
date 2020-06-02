@@ -2957,7 +2957,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             while($r = $adb->fetchByAssoc($result)){
                 $ids = explode(",", $r['advisor_control_number']);
                 foreach($ids AS $k => $v){
-                    $list[] = $v;
+                    $list[$v] = $v;//This ensures we don't get duplicates
                 }
             }
         }

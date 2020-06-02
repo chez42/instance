@@ -141,7 +141,9 @@
 				</li>
 			{/if}
 			<li>
-                {include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+				{if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
+					{include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+				{/if}
             </li>
 		</ul>
 	</div>
