@@ -8,6 +8,12 @@
 *************************************************************************************}
 
 {strip}
+	<style>
+	.fieldBlockContainer .inputElement {
+	    height: 30px;
+	    width: 200px;
+	}
+	</style>
 	<div class="block fieldBlockContainer">
 		<form class="form-horizontal" id="ruleSave" method="post" name="step3">
 			<input type="hidden" name="module" value="{$MODULE_NAME}" />
@@ -19,86 +25,103 @@
 			{/if}
 			<div class="addMailBoxStep">
 				<div class="row">
-					<table class="table editview-table no-border">
-						<tbody>
-							{assign var=FIELDS value=$MODULE_MODEL->getSetupRuleFields()}
-							{foreach key=FIELD_NAME item=FIELD_MODEL from=$FIELDS}
-								<tr>
-									<td class="fieldLabel control-label" style="width:25%; padding-right:20px;"><label>{vtranslate($FIELD_MODEL->get('label'), $QUALIFIED_MODULE)}</label>
-									<td style="word-wrap:break-word;">
-										{assign var=FIELD_DATA_TYPE value=$FIELD_MODEL->getFieldDataType()}
-										{if $FIELD_DATA_TYPE eq 'picklist'}
-											{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPickListValues()}
-											{if $FIELD_NAME eq 'subject'}
-												<select name="subjectop" class="select2 fieldValue inputElement">
-													<option value="">{vtranslate('LBL_SELECT_OPTION', $QUALIFIED_MODULE)}</option>
-													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get('subjectop') eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
-													{/foreach}
-												</select>&nbsp;&nbsp;
-												<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" style="margin-left: 10px;" />
-											{elseif $FIELD_NAME eq 'body'}
-												<select name="bodyop" class="select2 fieldValue inputElement">
-													<option value="" {if $RECORD_MODEL->get('bodyop') eq ""}selected{/if}>{vtranslate('LBL_SELECT_OPTION', $QUALIFIED_MODULE)}</option>
-													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get('bodyop') eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
-													{/foreach}
-												</select>
-												<br><br>
-												<textarea name="{$FIELD_MODEL->getName()}" class="boxSizingBorderBox fieldValue inputElement" style="width:416px;padding: 3px 8px;">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
+					<div class="col-md-12">
+						<table class="table editview-table no-border">
+							<tbody>
+								{assign var=FIELDS value=$MODULE_MODEL->getSetupRuleFields()}
+								{foreach key=FIELD_NAME item=FIELD_MODEL from=$FIELDS}
+									<tr>
+										<td class="fieldLabel control-label" style="width:25%; padding-right:20px;"><label>{vtranslate($FIELD_MODEL->get('label'), $QUALIFIED_MODULE)}</label>
+										<td style="word-wrap:break-word;">
+											{assign var=FIELD_DATA_TYPE value=$FIELD_MODEL->getFieldDataType()}
+											{if $FIELD_DATA_TYPE eq 'picklist'}
+												{assign var=PICKLIST_VALUES value=$FIELD_MODEL->getPickListValues()}
+												{if $FIELD_NAME eq 'subject'}
+													<select name="subjectop" class="select2 fieldValue inputElement">
+														<option value="">{vtranslate('LBL_SELECT_OPTION', $QUALIFIED_MODULE)}</option>
+														{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+															<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get('subjectop') eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
+														{/foreach}
+													</select>&nbsp;&nbsp;
+													<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" style="margin-left: 10px;" />
+												{elseif $FIELD_NAME eq 'body'}
+													<select name="bodyop" class="select2 fieldValue inputElement">
+														<option value="" {if $RECORD_MODEL->get('bodyop') eq ""}selected{/if}>{vtranslate('LBL_SELECT_OPTION', $QUALIFIED_MODULE)}</option>
+														{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+															<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get('bodyop') eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
+														{/foreach}
+													</select>
+													<br><br>
+													<textarea name="{$FIELD_MODEL->getName()}" class="boxSizingBorderBox fieldValue inputElement" style="width:416px;padding: 3px 8px;">{$RECORD_MODEL->get($FIELD_NAME)}</textarea>
+												{else}
+													<select id="actions" name="action1[]" class="select2 fieldValue inputElement" style="min-width:220px">
+														{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+															<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get($FIELD_NAME) eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
+														{/foreach}
+													</select> 
+												{/if}
+											{elseif $FIELD_DATA_TYPE eq 'radio'}
+												{assign var=RADIO_OPTIONS value=$FIELD_MODEL->getRadioOptions()}
+												{foreach key=RADIO_NAME item=RADIO_VALUE from=$RADIO_OPTIONS}
+													<label class="radioOption inline">
+														<input class="radioOption" type="radio" name="{$FIELD_MODEL->getName()}" value="{$RADIO_NAME}" {if $DEFAULT_MATCH eq $RADIO_NAME} checked {/if} />
+														{$RADIO_VALUE}
+													</label>&nbsp;&nbsp;&nbsp;&nbsp;
+												{/foreach}
+											{elseif $FIELD_DATA_TYPE eq 'email'}
+												<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" data-validation-engine="validate[funcCall[Vtiger_Email_Validator_Js.invokeValidation]]"/>
 											{else}
-												<select id="actionsClone" name="action2" class=" fieldValue inputElement hide">
-													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
-													{/foreach}
-												</select>
-												<select id="actions" name="action1[]" class="select2 fieldValue inputElement" style="min-width:220px">
-													{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
-														<option value="{$PICKLIST_KEY}" {if $RECORD_MODEL->get($FIELD_NAME) eq $PICKLIST_KEY} selected {/if} >{$PICKLIST_VALUE}</option>
-													{/foreach}
-												</select> <a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
+												<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}"/>
 											{/if}
-										{elseif $FIELD_DATA_TYPE eq 'radio'}
-											{assign var=RADIO_OPTIONS value=$FIELD_MODEL->getRadioOptions()}
-											{foreach key=RADIO_NAME item=RADIO_VALUE from=$RADIO_OPTIONS}
-												<label class="radioOption inline">
-													<input class="radioOption" type="radio" name="{$FIELD_MODEL->getName()}" value="{$RADIO_NAME}" {if $DEFAULT_MATCH eq $RADIO_NAME} checked {/if} />
-													{$RADIO_VALUE}
-												</label>&nbsp;&nbsp;&nbsp;&nbsp;
-											{/foreach}
-										{elseif $FIELD_DATA_TYPE eq 'email'}
-											<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" data-validation-engine="validate[funcCall[Vtiger_Email_Validator_Js.invokeValidation]]"/>
-										{else}
-											<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}"/>
+										</td>
+										{if $FIELD_NAME eq 'action'}
+											<td>
+												<a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
+											</td>
 										{/if}
+									</tr>
+								{/foreach}
+								
+								<tr class="rowActionClone hide">
+									<td class="fieldLabel control-label" style="width:25%; padding-right:20px;"></td>
+									<td>
+										<select id="actionsClone" name="action2" class=" fieldValue inputElement ">
+											{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}
+												<option value="{$PICKLIST_KEY}" >{$PICKLIST_VALUE}</option>
+											{/foreach}
+										</select>
+									</td>
+									<td>
+										<a class="btn btn-default removeRuleRow pull-right" title="Delete Rules"><i class="fa fa-trash"></i></a>
 									</td>
 								</tr>
-							{/foreach}
-							<tr id="assignedToBlock">
-								<td class="fieldLabel control-label" style="width:25%; padding-right:20px;"><label>{vtranslate('Assigned To')}</label></td>
-								<td style="word-wrap:break-word;">
-									<select class="select2 fieldValue inputElement" id="assignedTo" name="assignedTo">
-										<optgroup label="{vtranslate('LBL_USERS')}">
-											{assign var=USERS value=$USER_MODEL->getAccessibleUsersForModule($MODULE_NAME)}
-											{foreach key=OWNER_ID item=OWNER_NAME from=$USERS}
-												<option value="{$OWNER_ID}" data-picklistvalue= '{$OWNER_NAME}' {if $ASSIGNED_USER eq $OWNER_ID} selected {/if}>
-													{$OWNER_NAME}
-												</option>
-											{/foreach}
-										</optgroup>
-										<optgroup label="{vtranslate('LBL_GROUPS')}">
-											{assign var=GROUPS value=$USER_MODEL->getAccessibleGroups()}	
-											{foreach key=OWNER_ID item=OWNER_NAME from=$GROUPS}
-												<option value="{$OWNER_ID}" data-picklistvalue= '{$OWNER_NAME}' {if $ASSIGNED_USER eq $OWNER_ID} selected {/if}>
-													{$OWNER_NAME}
-												</option>
-											{/foreach}
-										</optgroup>
-									</select>
-								</td>
-							</tr>
-						</tbody>
-					</table>
+								
+								<tr id="assignedToBlock">
+									<td class="fieldLabel control-label" style="width:25%; padding-right:20px;"><label>{vtranslate('Assigned To')}</label></td>
+									<td style="word-wrap:break-word;">
+										<select class="select2 fieldValue inputElement" id="assignedTo" name="assignedTo">
+											<optgroup label="{vtranslate('LBL_USERS')}">
+												{assign var=USERS value=$USER_MODEL->getAccessibleUsersForModule($MODULE_NAME)}
+												{foreach key=OWNER_ID item=OWNER_NAME from=$USERS}
+													<option value="{$OWNER_ID}" data-picklistvalue= '{$OWNER_NAME}' {if $ASSIGNED_USER eq $OWNER_ID} selected {/if}>
+														{$OWNER_NAME}
+													</option>
+												{/foreach}
+											</optgroup>
+											<optgroup label="{vtranslate('LBL_GROUPS')}">
+												{assign var=GROUPS value=$USER_MODEL->getAccessibleGroups()}	
+												{foreach key=OWNER_ID item=OWNER_NAME from=$GROUPS}
+													<option value="{$OWNER_ID}" data-picklistvalue= '{$OWNER_NAME}' {if $ASSIGNED_USER eq $OWNER_ID} selected {/if}>
+														{$OWNER_NAME}
+													</option>
+												{/foreach}
+											</optgroup>
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 			<div class="border1px modal-overlay-footer clearfix">
