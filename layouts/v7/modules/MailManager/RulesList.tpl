@@ -99,7 +99,7 @@
 								{assign var=RULE_COUNT value=$RULE_COUNT+1}
 							{/foreach}
 						{else}
-							<div class="details border1px" style="text-align: center; min-height: 200px; padding-top: 100px;">
+							<div class="details noRules border1px" style="text-align: center; min-height: 200px; padding-top: 100px;">
 								{vtranslate('LBL_NO_RULES', $QUALIFIED_MODULE_NAME)}
 							</div>
 						{/if}
