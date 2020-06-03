@@ -72,10 +72,14 @@ Vtiger.Class("NotificationsJS", {}, {
 	    
         notificationList.on('click', '.notification_link .notification_full_name', function (event) {
             var currentTarget = jQuery(event.currentTarget);
-            $.when( clickToOk(this) ).done(function() {
-	            var notificationLink = currentTarget.closest('.notification_link');
-	            window.location.href = notificationLink.data('href');
-            })
+            var notificationLink = currentTarget.closest('.notification_link');
+            if(notificationLink.data('module') != 'Events'){
+	            $.when( clickToOk(this) ).done(function() {
+		            window.location.href = notificationLink.data('href');
+	            })
+            }else if(notificationLink.data('module') == 'Events'){
+            	window.location.href = notificationLink.data('href');
+            }
         });
 
     },
@@ -148,18 +152,21 @@ Vtiger.Class("NotificationsJS", {}, {
                         }else if(item['relatedModule'] == "Events"){
                         	moduleIcon = '<i class="vicon-calendar" title="Events"></i>';
                         	if(!item['accepted']){
-                        		reply = '<i title="Accept" data-event="accept" data-eventid="'+item['rel_id']+'" class="fa fa-check-circle pull-right eventAction" style="margin:0px 40px 0px 0px !important;color:green;"></i>';
-                        		reply += '<i title="Reject" data-event="reject" data-eventid="'+item['rel_id']+'" class="fa fa-times-circle pull-right eventAction" style="margin:0px 20px 0px 0px !important;color:red;"></i>';
+                        		reply = '<i title="Accept" data-event="accept" data-eventid="'+item['rel_id']+'" class="fa fa-check-circle pull-right eventAction" style="margin:0px 20px 0px 0px !important;color:green;"></i>';
+                        		reply += '<i title="Reject" data-event="reject" data-eventid="'+item['rel_id']+'" class="fa fa-times-circle pull-right eventAction" style="margin:0px 0px 0px 0px !important;color:red;"></i>';
                         	}
                         }
                         if(!$('[data-notify-id="'+ item['id']+'"]').length){
 	                        listItem =
 	                            '<li data-notify-id="'+ item['id'] +'">' +
-	                            '   <a class="notification_link" href="javascript:;" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
+	                            '   <a class="notification_link" href="javascript:;" data-module="'+item['relatedModule']+'" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
 	                            '       <div class="notification-container">' +
-	                            			reply +
-	                            '           <i class="fa fa-check markAsRead" onclick="return clickToOk(this);" title="Acknowledge"> </i>' +
-	                            '           <div class="notification_detail">' +
+	                            			reply ;
+	                        	if(item['relatedModule'] == "Events")
+	                        		listItem += '           <i class="fa fa-times-circle hide markAsRead" onclick="return clickToOk(this);" title="Acknowledge"> </i>' ;
+	                        	else
+	                        		listItem += '           <i class="fa fa-times-circle markAsRead" onclick="return clickToOk(this);" title="Acknowledge"> </i>' ;
+	                        	listItem += '           <div class="notification_detail">' +
 	                            				item['description'] + 
 	                            '              <span class="notification_createdtime pull-right" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
 	                            '           </div> </div>' +
