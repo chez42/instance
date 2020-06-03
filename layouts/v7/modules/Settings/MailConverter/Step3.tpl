@@ -76,7 +76,7 @@
 										</td>
 										{if $FIELD_NAME eq 'action'}
 											<td>
-												<a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
+												<a class="btn btn-default addActionMoreRules pull-right" title="Add More Rules" onclick="Settings_MailConverter_Index_Js.registerEventForAddNewActions(this)"><i class="fa fa-plus"></i></a>
 											</td>
 										{/if}
 									</tr>
