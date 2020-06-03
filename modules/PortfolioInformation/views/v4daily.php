@@ -24,8 +24,27 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
         echo "Script start: " . date("Y-m-d H:i:s") . '<br />';
 
-        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+#        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+
 #        foreach($rep_codes AS $k => $v){
+
+        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
+        $rep_codes = array("GH1");
+        //Pull portfolio and balance information for the specified rep codes
+        $fidelity = new cFidelityPortfolios("FIDELITY", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_fidelity", "custodian_balances_fidelity", $rep_codes);
+        $data = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $fidelity->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        $fidelity->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+        exit;
+
+#        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+#        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
+#        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        /*********END OF STEP 1********/
+
+
+/****TD**********************************/
             /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
             //Pull portfolio and balance information for the specified rep codes
             $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
@@ -75,6 +94,7 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
             $missing = $transactions->GetMissingCRMTransactions();
             $transactions->CreateNewTransactionsFromTransactionData($missing);
             /*********END OF STEP 3********/
+/****FIDELITY**********************************/
 #        }
         echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
         exit;

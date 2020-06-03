@@ -74,7 +74,7 @@ class cTDPortfolios extends cCustodian {
             $fields = implode ( ", ", $this->columns );
         }
 
-        $query = "SELECT {$fields} FROM {$this->database}.{$this->portfolio_table} WHERE account_number IN ({$questions})";
+        $query = "SELECT {$fields} FROM {$this->database}.{$this->portfolio_table} WHERE account_number IN ({$questions}) AND account_number != ''";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
@@ -102,7 +102,7 @@ class cTDPortfolios extends cCustodian {
 
         $params[] = $date;
         $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
-                  WHERE account_number IN ({$questions}) AND as_of_date = ?";
+                  WHERE account_number IN ({$questions}) AND as_of_date = ? AND account_number != ''";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
