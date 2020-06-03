@@ -76,7 +76,7 @@
 										{if $FIELD_NAME eq 'subject'}
 											<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" value="{$RECORD_MODEL->get($FIELD_NAME)}" />
 										{else if $FIELD_NAME eq 'action'}
-											<a class="btn btn-default addMoreRules pull-right" title="Add More Rules"><i class="fa fa-plus"></i></a>
+											<a class="btn btn-default addActionMoreRules pull-right" title="Add More Rules" onclick="Settings_MailConverter_Index_Js.registerEventForAddNewActions(this)"><i class="fa fa-plus"></i></a>
 										{/if}
 									</td>
 								</tr>

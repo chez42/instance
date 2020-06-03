@@ -43,7 +43,20 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 				}
 			});
 		});
-	}
+	},
+	
+	registerEventForAddNewActions : function(e){
+		var row = $(e).closest("tr");
+		var newRow = jQuery(document).find('.rowActionClone').clone(true);
+		var ele = newRow.find('#actionsClone');
+		ele.addClass('select2');
+		ele.attr('id','actions');
+		ele.attr('name','action1[]');
+		newRow.removeClass('rowActionClone').removeClass('hide');
+		newRow.insertAfter( row );
+		vtUtils.applyFieldElementsView(newRow);
+	},
+	
 }, {
 	registerSortableEvent: function () {
 		var thisInstance = this;
@@ -133,6 +146,7 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 				var lastBlockValue = jQuery('[data-blockid]').size();
 				jQuery('#rulesList').append('<div class="row-fluid padding-bottom1per" data-blockid="block_'+ruleId+'">'+data+'</div>');
 				jQuery('[data-blockid="block_'+ruleId+'"]').find('.sequenceNumber').text(parseInt(lastBlockValue)+1);
+				jQuery('.details.noRules').remove();
 			}
 		});
 	},
@@ -175,27 +189,8 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 		this.openMailBox();
 		//this.setAssignedTo();
 		this.disableFolderSelection();
-		this.registerEventForAddActions();
 		//jQuery('#actions').trigger('change');
 		this.registerEventForDeleteActions();
-	},
-	
-	registerEventForAddActions : function(){
-		jQuery(document).on('click', '.addMoreRules', function(){
-			
-			var row = $(this).closest("tr");
-			var newRow = jQuery(document).find('.rowActionClone').clone(true);
-			var ele = newRow.find('#actionsClone');
-			
-			ele.addClass('select2');
-			ele.attr('id','actions');
-			ele.attr('name','action1[]');
-			newRow.removeClass('rowActionClone').removeClass('hide');
-			
-			newRow.insertAfter( row );
-			vtUtils.applyFieldElementsView(newRow);
-			
-		});
 	},
 	
 	registerEventForDeleteActions : function(){

@@ -64,6 +64,54 @@ class Notifications_Record_Model extends Vtiger_Record_Model
         $result = $db->pquery($sql, $params);
         return $result ? true : false;
     }
+    
+    public function getTitle($fieldInstance) {
+        $fieldName = $fieldInstance->get('listViewRawFieldName');
+        
+        $fieldValue = $this->get($fieldName);
+        $rawData = $this->getRawData();
+        $rawValue = $rawData[$fieldName];
+        if ($fieldInstance) {
+            $dataType = $fieldInstance->getFieldDataType();
+            $uiType = $fieldInstance->get('uitype');
+            $nonRawValueDataTypes = array('date', 'datetime', 'time', 'currency', 'boolean', 'owner');
+            $nonRawValueUITypes = array(117);
+            
+            if (in_array($dataType, $nonRawValueDataTypes) || in_array($uiType, $nonRawValueUITypes)) {
+                return $fieldValue;
+            }
+            if (in_array($dataType, array('reference', 'multireference'))) {
+                $recordName = Vtiger_Util_Helper::getRecordName($rawValue);
+                if ($recordName) {
+                    return $recordName;
+                } else {
+                    return '';
+                }
+            }
+            if($dataType == 'multipicklist') {
+                $rawValue = $fieldInstance->getDisplayValue($rawValue);
+            }
+        }
+        
+        if($fieldName == 'description')
+            return strip_tags(decode_html($rawValue));
+        
+        return $rawValue;
+    }
+    
+    public function isEditable() {
+        return false;
+    }
+    
+    function get($key) {
+        $value = parent::get($key);
+        if ($key === 'description') {
+            return decode_html($value);
+        }
+        return $value;
+    }
+    
+    
 }
 
 ?>

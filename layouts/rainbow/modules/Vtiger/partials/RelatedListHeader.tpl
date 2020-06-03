@@ -62,7 +62,8 @@
 		</div>
 		<div class="clearfix" style="margin: 5px;"></div>
 		<div class = "row">
-			<div class="col-md-2">
+			{*2.6.20 chnged md-2 to md-3*}
+			<div class="col-md-3">
 				<div class="btn-group relatedlistViewActionsContainer" role="group" aria-label="...">
 					{if $editAction}
 	                    <button type="button" class="btn btn-default relatededit" id={$MODULE}_reletedlistView_massAction_{$editAction->getLabel()} 
@@ -97,16 +98,21 @@
 	                    </button>
 	                </div>    
                 {/if}
-			</div>	
-		 	<div class="col-md-6">
-			 	<div class="hide messageContainer" style = "height:30px;">
+                
+			</div>
+			{include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
+		</div>
+		
+		<div class = "row">
+			<div class="col-md-12">
+			 	<div class="hide alert alert-success messageContainer" style =  "margin-top:20px;">
 	                <center><a href="#" id="selectAllMsgDiv">{vtranslate('LBL_SELECT_ALL',$RELATED_MODULE_NAME)}&nbsp;Related&nbsp;{vtranslate($RELATED_MODULE_NAME ,$RELATED_MODULE_NAME)}&nbsp;<span id="totalRecordsCount" class="hide" value=""></span></a></center>
 	            </div>
-	            <div class="hide messageContainer" style = "height:30px;">
+	            <div class="hide alert alert-warning messageContainer" style="margin-top:20px; ">
 	                <center><a href="#" id="deSelectAllMsgDiv">{vtranslate('LBL_DESELECT_ALL_RECORDS',$RELATED_MODULE_NAME)}</a></center>
 	            </div> 
             </div>
-        {include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
-    </div>
+		</div>
+	
 </div>
 {/strip}
