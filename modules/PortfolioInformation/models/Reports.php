@@ -80,6 +80,8 @@ class PortfolioInformation_Reports_Model extends Vtiger_Module {
 	            $tmp['title'] = $v['title'];
 	            $tmp['value'] = $v['value'];
 	            $tmp['color'] = $v['color'];
+	            if(is_null($tmp['color']))
+	                $tmp['color'] = "#c27b0c";
 	            $pie[] = $tmp;
             }
             return $pie;
