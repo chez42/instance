@@ -348,8 +348,6 @@ class cFidelityPositions extends cCustodian {
         $params[] = $data->filename;
         $params[] = $data->symbol;
 
-        echo "Check: {$data->symbol}<br />";
-
         $query = "UPDATE vtiger_positioninformation p 
                   JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
                   JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol

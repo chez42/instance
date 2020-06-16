@@ -1,13 +1,92 @@
 <?php
 require_once("libraries/custodians/cCustodian.php");
 
+
+class cSchwabPositionsData{
+    public $symbol, $account_number, $account_type, $long_short, $quantity, $date, $filename, $original_symbol, $record_type, $custodian_id,
+           $master_account_number, $master_account_name, $business_date, $product_code, $product_category_code, $tax_code,
+           $legacy_security_type, $ticker_symbol, $industry_ticker_symbol, $cusip, $schwab_security_number, $item_issue_id,
+           $rule_set_suffix_id, $isin, $sedol, $options_display_symbol, $security_description_line1, $security_description_line2,
+           $security_description_line3, $security_description_line4, $underlying_ticker_symbol, $underlying_industry_ticker_symbol,
+           $underlying_cusip, $underlying_schwab_security, $underlying_item_issue_id, $underlying_rule_set_suffix_id, $underlying_isin,
+           $underlying_sedol, $money_market_code, $dividend_reinvest, $capital_gains_reinvest, $closing_price, $security_price_update_date,
+           $quantity_settled_and_unsettled, $long_short_indicator, $market_value_settled_and_unsettled, $accounting_rule_code,
+           $quantity_settled, $quantity_unsettled_long, $quantity_unsettled_short, $version_marker1, $tips_factor, $asset_backed_factor,
+           $version_marker2, $closing_price_unfactored, $factor, $factor_date, $file_date, $insert_date, $omni_base_asset_class;
+
+    public function __construct($data){
+        $this->symbol = $data['symbol'];
+        $this->account_number = $data['account_number'];
+        $this->account_type = $data['account_type'];
+        $this->long_short = $data['long_short'];
+        $this->quantity = $data['quantity'];
+        $this->date = $data['date'];
+        $this->filename = $data['filename'];
+        $this->original_symbol = $data['original_symbol'];
+        $this->record_type = $data['record_type'];
+        $this->custodian_id = $data['custodian_id'];
+        $this->master_account_number = $data['master_account_number'];
+        $this->master_account_name = $data['master_account_name'];
+        $this->business_date = $data['business_date'];
+        $this->product_code = $data['product_code'];
+        $this->product_category_code = $data['product_category_code'];
+        $this->tax_code = $data['tax_code'];
+        $this->legacy_security_type = $data['legacy_security_type'];
+        $this->ticker_symbol = $data['ticker_symbol'];
+        $this->industry_ticker_symbol = $data['industry_ticker_symbol'];
+        $this->cusip = $data['cusip'];
+        $this->schwab_security_number = $data['schwab_security_number'];
+        $this->item_issue_id = $data['item_issue_id'];
+        $this->rule_set_suffix_id = $data['rule_set_suffix_id'];
+        $this->isin = $data['isin'];
+        $this->sedol = $data['sedol'];
+        $this->options_display_symbol = $data['options_display_symbol'];
+        $this->security_description_line1 = $data['security_description_line1'];
+        $this->security_description_line2 = $data['security_description_line2'];
+        $this->security_description_line3 = $data['security_description_line3'];
+        $this->security_description_line4 = $data['security_description_line4'];
+        $this->underlying_ticker_symbol = $data['underlying_ticker_symbol'];
+        $this->underlying_industry_ticker_symbol = $data['underlying_industry_ticker_symbol'];
+        $this->underlying_cusip = $data['underlying_cusip'];
+        $this->underlying_schwab_security = $data['underlying_schwab_security'];
+        $this->underlying_item_issue_id = $data['underlying_item_issue_id'];
+        $this->underlying_rule_set_suffix_id = $data['underlying_rule_set_suffix_id'];
+        $this->underlying_isin = $data['underlying_isin'];
+        $this->underlying_sedol = $data['underlying_sedol'];
+        $this->money_market_code = $data['money_market_code'];
+        $this->dividend_reinvest = $data['dividend_reinvest'];
+        $this->capital_gains_reinvest = $data['capital_gains_reinvest'];
+        $this->closing_price = $data['closing_price'];
+        $this->security_price_update_date = $data['security_price_update_date'];
+        $this->quantity_settled_and_unsettled = $data['quantity_settled_and_unsettled'];
+        $this->long_short_indicator = $data['long_short_indicator'];
+        $this->market_value_settled_and_unsettled = $data['market_value_settled_and_unsettled'];
+        $this->accounting_rule_code = $data['accounting_rule_code'];
+        $this->quantity_settled = $data['quantity_settled'];
+        $this->quantity_unsettled_long = $data['quantity_unsettled_long'];
+        $this->quantity_unsettled_short = $data['quantity_unsettled_short'];
+        $this->version_marker1 = $data['version_marker1'];
+        $this->tips_factor = $data['tips_factor'];
+        $this->asset_backed_factor = $data['asset_backed_factor'];
+        $this->version_marker2 = $data['version_marker2'];
+        $this->closing_price_unfactored = $data['closing_price_unfactored'];
+        $this->factor = $data['factor'];
+        $this->factor_date = $data['factor_date'];
+        $this->file_date = $data['file_date'];
+        $this->insert_date = $data['insert_date'];
+        $tmp = $data['market_value_settled_and_unsettled'] / $data['quantity_settled_and_unsettled'];
+        $this->last_price = (is_nan($tmp)) ? 1 : $tmp;
+    }
+}
+
 /**
  * Class cSchwabPortfolios
  * This class allows the pulling of data from the custodian database
  */
 class cSchwabPositions extends cCustodian {
+    use tPositions;
     private $positions_data;//Holds both personal and balance information
-    private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "FIDELITYCASH" => "Cash" will replace "FIDELITYCASH" from the CRM with "Cash" while checking if it exists or not
+    private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "SCHWABCASH" => "Cash" will replace "SCHWABCASH" from the CRM with "Cash" while checking if it exists or not
     protected $columns;
 
     /**
@@ -56,7 +135,7 @@ class cSchwabPositions extends cCustodian {
         }
 
         if(!$date)
-            $date = $this->GetLatestPositionsDate("position_date");
+            $date = $this->GetLatestPositionsDate("date");
         $params[] = $date;
 
         if($group_by_symbol)
@@ -104,7 +183,7 @@ class cSchwabPositions extends cCustodian {
      */
     public function GetRemappedSymbols($symbols){
         global $adb;
-        $query = "SELECT UPPER(symbol) AS symbol, UPPER(new_symbol) AS new_symbol FROM {$this->database}.fidelity_remap_securities";
+        $query = "SELECT UPPER(symbol) AS symbol, UPPER(new_symbol) AS new_symbol FROM {$this->database}.schwab_remap_securities";
         $result = $adb->pquery($query, array(), true);
 
         if($adb->num_rows($result) > 0){
@@ -186,10 +265,14 @@ class cSchwabPositions extends cCustodian {
             $params[] = $swap[$data->symbol];
         else
             $params[] = $data->symbol;
-        $params[] = $data->account_number;
+        $params[] = $data->security_description_line1;
+        $params[] = $data->quantity_settled_and_unsettled;
+        $params[] = $data->market_value_settled_and_unsettled;
+        $params[] = $data->last_price;
 
         $questions = generateQuestionMarks($params);
-        $query = "INSERT INTO vtiger_positioninformation (positioninformationid, account_number, security_symbol, description)
+        $query = "INSERT INTO vtiger_positioninformation (positioninformationid, account_number, security_symbol, description, quantity,
+                                                          current_value, last_price)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
@@ -203,9 +286,15 @@ class cSchwabPositions extends cCustodian {
         global $adb;
         $params = array();
         $params[] = $crmid;
+        $params[] = $data->security_price_update_date;
+        $params[] = $data->filename;
+        $params[] = 'SCHWAB';
+        $params[] = $data->security_type;
+        $params[] = $data->omni_base_asset_class;
 
         $questions = generateQuestionMarks($params);
-        $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+        $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid, last_update, custodian_source, custodian, security_type,
+                                                            base_asset_class)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
@@ -223,38 +312,45 @@ class cSchwabPositions extends cCustodian {
     }
 
     /**
+     * Auto updates the position's based on the data loaded into the $position_data member.
+     * @param array $account_numbers
+     */
+    public function UpdatePositionsFromPositionsData(array $position_account_data){
+        if(!empty($position_account_data)) {
+            foreach ($position_account_data AS $k => $v) {
+                $this->ResetAccountPositions($k);
+                foreach ($v AS $a => $position) {
+                    $data = $this->positions_data[$k][$a];
+                    if (!empty($data)) {
+                        $tmp = new cSchwabPositionsData($data);
+                        $this->UpdatePositionsUsingcSchwabPositionsData($tmp);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Update the position in the CRM using the cSchwabPositionsData class
      * @param cSchwabPositionsData $data
      */
     public function UpdatePositionsUsingcSchwabPositionsData(cSchwabPositionsData $data){
         global $adb;
         $params = array();
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->insert_date;
-        $params[] = $data->filename;
+        $params[] = $data->quantity_settled_and_unsettled;
+        $params[] = $data->market_value_settled_and_unsettled;
+        $params[] = $data->last_price;
+        $params[] = "SCHWAB";
         $params[] = $data->account_number;
         $params[] = $data->symbol;
 
-#        if($data->account_number == '943475910' AND $data->symbol == '83369EC81') {
-#            echo 'here';
-#            echo $data->account_number . '<br />';
-#            print_r($data);
-#            exit;
-
-
         $query = "UPDATE vtiger_positioninformation p 
-              JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-              LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol 
-              LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-              SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment > 0 
-                                                                                THEN mcf.security_price_adjustment ELSE 1 END 
-                                                                                * CASE WHEN m.asset_backed_factor > 0 
-                                                                                THEN m.asset_backed_factor ELSE 1 END,
-              p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'Schwab',
-              p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
-              cf.last_update = ?, cf.custodian_source = ?
-              WHERE account_number = ? AND p.security_symbol = ?";
+                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                  LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol
+                  LEFT JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  SET p.quantity = ?, p.current_value = ?, p.last_price = ?,
+                      cf.last_update = NOW(), cf.custodian_source = ?, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass
+                  WHERE account_number = ? AND p.security_symbol = ?";
         $adb->pquery($query, $params, true);
     }
 

@@ -3014,4 +3014,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         return $list;
     }
 
+    //TODO Need this finished.. It is to figured out portfolios not linked to contact
+    static public function GetValidPortfoliosNotLinked(){
+        global $adb;
+        $query = "SELECT portfolioinformationid 
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  WHERE last_name IS NOT NULL AND last_name != '' AND last_name != 'System Generated'
+                  AND ";
+    }
 }
