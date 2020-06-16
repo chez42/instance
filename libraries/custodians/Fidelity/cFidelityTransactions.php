@@ -13,7 +13,7 @@ class cFidelityTransactionsData{
     public function __construct($data){
         $this->account_number = $data['account_number'];
         $this->symbol = $data['symbol'];
-        $this->operation = ($data['operation'] < 0) ? "-" : $data['operation'];
+        $this->operation = (is_null($data['operation'])) ? "" : $data['operation'];
         $this->amount = ($data['amount'] == 0) ? $data['quantity'] * $data['security_price_adjustment'] * $data['price'] : ABS($data['amount']);
         $this->production_number = $data['production_number'];
         $this->omniscient_negative_category = $data['omniscient_negative_category'];
