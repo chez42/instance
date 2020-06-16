@@ -1,1 +1,0 @@
-<p>Balance Update Finished.  Click the OMNI symbol at the top to navigate away from this page</p>

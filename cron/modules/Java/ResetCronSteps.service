@@ -1,7 +1,0 @@
-<?php
-
-include_once("libraries/javaBridge/JavaCloudToCRM.php");
-
-$steps = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.229", "custodian_omniscient");
-$steps->ResetCustodianCronStatus();
-$steps->ResetAllSteps();

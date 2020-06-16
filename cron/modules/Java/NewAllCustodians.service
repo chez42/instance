@@ -1,4 +1,0 @@
-<?php
-
-$cron = new PortfolioInformation_NewAllCustodians_Model();
-$cron->RunCron();

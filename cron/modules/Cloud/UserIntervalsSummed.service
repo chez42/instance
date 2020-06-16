@@ -1,3 +1,0 @@
-<?php
-
-PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsersIntervals(PortfolioInformation_TotalBalances_Model::GetOmniSettings("user_interval_days_to_calculate"));
