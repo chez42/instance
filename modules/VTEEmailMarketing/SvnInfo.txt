@@ -1,4 +1,0 @@
-Path: VTEEmailMarketing
-Last Changed Rev: 11435
-Last Changed Date: 2019-03-13 04:23:42 +0000 (Wed, 13 Mar 2019)
-extVersion: Alpha

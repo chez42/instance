@@ -1,3 +1,0 @@
-<?php
-
-ModSecurities_ConvertCustodian_Model::WriteAllEODBonds();
