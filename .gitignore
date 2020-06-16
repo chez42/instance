@@ -1,7 +1,0 @@
-config.inc.php
-test/templates_c/v7/*
-logs/*
-.idea/*
-vendor/*
-user_privileges/*
-storage/*
