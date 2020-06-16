@@ -62,7 +62,7 @@ class cFidelityTransactionsData{
 class cFidelityTransactions extends cCustodian
 {
     use tTransactions;
-    protected $transactions_data;//Holds the pricing information
+    protected $transactions_data, $columns;//Holds the pricing information
 
     /**
      * cFidelityPortfolios constructor.
@@ -203,16 +203,14 @@ class cFidelityTransactions extends cCustodian
      */
     public function CreateNewTransactionUsingcFidelityTransactionsData(cFidelityTransactionsData $data){
         if(!$this->DoesTransactionExistInCRM($data->transaction_id)) {//If the transaction doesn't exist yet, create it (uses custodian transaction ID)
-            $crmid = "73957144";
-#            $crmid = $this->UpdateEntitySequence();
-            echo "CRMID: {$crmid} <br />";
+#            $crmid = "73957144";
+           $crmid = $this->UpdateEntitySequence();
+#            echo "CRMID: {$crmid} <br />";
+            $owner = $this->GetAccountOwnerFromAccountNumber($data->account_number);
 
-#            $owner = $this->GetAccountOwnerFromAccountNumber($data->account_number);
-
-#            $this->FillEntityTable($crmid, $owner, $data);
-#            $this->FillTransactionTable($crmid, $data);
+            $this->FillEntityTable($crmid, $owner, $data);
+            $this->FillTransactionTable($crmid, $data);
             $this->FillTransactionCFTable($crmid, $data);
-            echo "CHECK NOW FOR {$crmid}";exit;
         }
     }
 

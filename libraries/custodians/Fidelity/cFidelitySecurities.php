@@ -123,7 +123,6 @@ class cFidelitySecurities extends cCustodian {
                 $this->securities_data[$r['symbol']] = $r;
             }
         }
-        print_r($this->securities_data);exit;
         return $this->securities_data;
     }
 
@@ -151,7 +150,6 @@ class cFidelitySecurities extends cCustodian {
     }
 
     public function UpdateSecuritiesUsingcFidelitySecuritiesData(cFidelitySecuritiesData $data){
-        echo 'updating - ' . $data->symbol . '<br />';
         if($this->DoesSecurityExistInCRM($data->symbol)) {
             global $adb;
             $params = array();
@@ -230,7 +228,7 @@ class cFidelitySecurities extends cCustodian {
                 }
             }
         }
-print_r($this->securities_data);exit;
+
         if(!empty($symbols)) {
             foreach ($symbols AS $k => $v) {
                 $data = $this->securities_data[$v];

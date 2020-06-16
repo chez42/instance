@@ -24,6 +24,108 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
         echo "Script start: " . date("Y-m-d H:i:s") . '<br />';
 
+        $rep_codes = array("08901624");
+
+
+
+        $transactions = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
+            "custodian_portfolios_schwab", "custodian_transactions_schwab", $rep_codes);
+//        $fidelity->SetColumns(array("transaction_id"));
+#        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        echo 'Memory Before: ' . memory_get_usage() . '<br />';
+        $data = $transactions->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
+        $missing = $transactions->GetMissingCRMTransactions();
+        $transactions->CreateNewTransactionsFromTransactionData($missing);
+#        echo count($data) . '<br />';
+#        print_r($data);
+        echo 'Memory After: ' . memory_get_usage() . '<br />';
+        echo date("Y-m-d H:i:s");
+        exit;
+
+
+
+
+
+
+/******SCHWAB POSITIONS******
+        $positions = new cSchwabPositions("SCHWAB", "custodian_omniscient", "positions",
+                                          "custodian_portfolios_schwab", "custodian_positions_schwab",
+                                           $rep_codes, array());
+
+        #        $positions->SetAccountNumbers(array("678105996"));
+        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+/*        $fields = array( "f.header", "f.custodian_id", "f.master_account_number", "f.master_account_name", "f.business_date", "f.prod_code", "f.prod_catg_code", "f.tax_code", "f.ly", "TRIM(f.symbol) AS symbol", "f.industry_ticker_symbol", "f.cusip", "f.sec_nbr", "f.reorg_sec_nbr", "f.item_issue_id", "f.rulst_sufid", "f.isin", "f.sedol", "f.options_display_symbol", "f.description1", "f.description2", "f.description3", "f.scrty_des", "f.underlying_ticker_symbol", "f.underlying_industry_ticker_symbol", "f.underlying_cusip", "f.underly_schwab", "f.underlying_itm_iss_id", "f.unrul_sufid", "f.underlying_isin", "f.underly_sedol", "f.mnymk_code", "f.last_update", "f.s_f", "f.closing_price", "f.secprice_lstupd", "f.security_valuation_unit", "f.optnrt_symbol", "f.opt_expr_date", "f.c_p", "f.strike_price", "f.interest_rate", "f.maturity_date", "f.tips_factor", "f.asset_backed_factor", "f.face_value_amt", "f.st_cd", "f.vers_mrkr_1", "f.p_i", "f.o_i", "f.vers_mrkr_2", "f.closing_price_unfactored", "f.factor", "f.factor_date", "f.product_code", "f.product_code_category", "f.legacy_security_type", "f.ticker_symbol", "f.schwab_security_number", "f.re_org_schwab_internal_security_number", "f.rule_set_suffix", "f.security_description_line1", "f.security_description_line2", "f.security_description_line3", "f.security_description_line4", "f.underlying_schwab_security_number", "f.underlying_item_issue_id", "f.underlying_rule_set_suffix_id", "f.underlying_sedol", "f.money_market_code", "f.last_update_date", "f.sweep_fund_indicator", "f.security_price_update_date", "f.option_root_symbol", "f.option_expiration_date", "f.option_call_or_put_code", "f.strike_price_amount", "f.face_value_amount", "f.issuer_state", "f.version_marker_number", "f.schwab_proprietary_indicator", "f.schwab_one_source_indicator", "f.version_marker2", "f.file_date", "f.filename", "f.insert_date",
+                         "map.multiplier", "map.omni_base_asset_class", "pr.price", "m.us_stock", "m.intl_stock", "m.us_bond", "m.intl_bond",
+                         "m.preferred_net", "m.convertible_net", "m.cash_net", "m.other_net", "m.unclassified_net",
+                         "m.security_price_adjustment", "map.security_type");
+
+        $securities = new cSchwabSecurities("SCHWAB", "custodian_omniscient", "securities",
+                                            "custodian_securities_schwab", $symbols, array(), $fields);
+        echo "3";
+        $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
+        echo "4";
+        if(!empty($missing_securities))
+            $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+        echo "5";
+        $securities->UpdateSecuritiesFromSecuritiesData($symbols);
+*/
+/*        $missing_positions = $positions->GetMissingCRMPositions();
+
+        if(!empty($missing_positions))
+            $positions->CreateNewPositionsFromPositionData($missing_positions);
+
+        $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+***********END SCHWAB POSITIONS*/
+
+        echo "6";
+#        $positions->ManualSetupPositionComparisons();
+        echo "7";
+#        $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+        echo 'done';exit;
+        #        $symbols = array("DBD");
+
+#        $positions->GetPositionsData();
+
+        echo "Step finished: " . date("Y-m-d H:i:s") . '<br />';
+        exit;
+
+        $rep_codes = array("08901624");
+        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
+        //Pull portfolio and balance information for the specified rep codes
+        $td = new cSchwabPortfolios("SCHWAB", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_schwab", "custodian_balances_schwab ", $rep_codes);
+#        $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
+        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        echo 'updated';
+        exit;
+#        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        /*********END OF STEP 1********/
+
+
+
+
+
+
+
+        echo "Step 1 finished: " . date("Y-m-d H:i:s") . '<br />';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ####        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes(array("GOX"), '2020-06-02', '2020-06-09');
 
 ####        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
