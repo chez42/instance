@@ -1,0 +1,131 @@
+:root {
+    --main-bg-color: white; 
+}
+
+
+@import url('https://fonts.googleapis.com/css?family=Lobster');
+
+*, body, html{
+	font-family: 'Lobster', cursive;
+}
+
+.app-fixed-navbar, .search-link .keyword-input{
+	background-color: var(--main-bg-color) !important;
+}
+
+a:hover{
+	color: var(--main-bg-color);
+}
+
+
+
+.modules-menu ul li:hover {
+  background: #e9edf2;
+  border-left: 3px solid var(--main-bg-color);
+  opacity: 1;
+}
+
+.modules-menu ul li.active {
+  background: #e9edf2;
+  border-left: 3px solid var(--main-bg-color);
+}
+
+.lists-menu > li:hover,
+.lists-menu > li.active {
+      background: #e9edf2;
+    color: var(--main-bg-color);
+}
+
+.numberCircle {
+  background: none repeat scroll 0 0 var(--main-bg-color);
+  border-radius: 50%;
+  color: white;
+  display: inline-block;
+  font-size: 10px;
+  min-height: 19px;
+  min-width: 19px;
+  padding: 2px;
+  text-align: center;
+  vertical-align: super;
+  margin-top: 2px;
+}
+
+#searchResults-container .searchModuleHeader {
+  color: var(--main-bg-color);
+}
+
+.modal-header {
+  padding: 5px 15px;
+  background: #fff;
+  color: var(--main-bg-color);
+}
+
+.crumbs li.active {
+  height: 0;
+  border-top: 20px solid var(--main-bg-color);
+  border-bottom: 20px solid var(--main-bg-color);
+}
+
+.crumbs li.active:after {
+  border-left: 20px solid var(--main-bg-color) !important;
+}
+
+.settingsgroup div.settingsgroup-accordion a:hover{color: var(--main-bg-color);}
+
+.row .nav>li>a:hover {
+  border-bottom-color: transparent;
+  background: none;color:var(--main-bg-color);
+}
+
+.contents.tabbable .nav-tabs>li.active:focus {
+  border: none;
+  border-bottom: 2px solid var(--main-bg-color);
+}
+
+.btn-themecolor, 
+.btn-themecolor.disabled {
+  background: var(--main-bg-color);
+  color: #ffffff;
+  border: 1px solid var(--main-bg-color); }
+  
+.btn-themecolor:hover,
+  .btn-themecolor.disabled:hover {
+    background: var(--main-bg-color);
+    opacity: 0.7;
+    border: 1px solid var(--main-bg-color); }
+    
+
+    
+.bepo {color:var(--main-bg-color);}
+.bepobg {background-color:var(--main-bg-color);color:#fff;}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+    color: var(--main-bg-color);}
+.lstick {
+    width: 2px;
+    background: var(--main-bg-color);
+    height: 30px;
+    margin-left: -6px;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.btn-bepo {color: #fff;background-color: var(--main-bg-color);border: 1px solid #337DDF;}
+
+
+.ribbon-corner:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    content: '';
+    border: 30px solid transparent;
+    border-top-color: var(--main-bg-color);
+    border-left-color: var(--main-bg-color);
+}
+
+
+html body .bg-theme {  background-color: var(--main-bg-color); }
+.fasksecond li.with-childs a {border-color: var(--main-bg-color);}
+.fasksecond li.with-childs a:hover, .faskfirst li a:hover{background:transparent;color:var(--main-bg-color);}

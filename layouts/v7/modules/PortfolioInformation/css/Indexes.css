@@ -1,0 +1,7 @@
+#indexes_wrapper p{}
+
+/*Details Table*/
+.index_list{float:left; display:block; width:45%; height:400px; overflow-y: auto; overflow-x: hidden; border:1px solid black; margin:5px; padding:5px;}
+.index_list thead tr td{font-weight:bold; }
+.index_list tbody tr td{}
+.preferred{background-color:green;}

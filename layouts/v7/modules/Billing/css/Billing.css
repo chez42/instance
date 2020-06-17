@@ -1,0 +1,20 @@
+#title{color:dodgerblue; font-size:20px; font-family:Arial;}
+
+.width10{width:10%;}
+.width20{width:20%;}
+.width30{width:30%;}
+.width40{width:40%;}
+.width50{width:50%;}
+.width60{width:60%;}
+.width70{width:70%;}
+.width80{width:80%;}
+.width90{width:90%;}
+.width100{width:100%; border:1px solid red;}
+.upper_line{border-top:1px solid black;}
+.padded_top5{padding-top:5px;}
+.padded_top10{padding-top:10px;}
+.strong{font-weight: bold;}
+
+.align_right{text-align:right;}
+.separator_green{border:1px solid green; padding:1px; background-color:green;}
+.separator_gray{border:1px solid gray; background-color:gray;}
