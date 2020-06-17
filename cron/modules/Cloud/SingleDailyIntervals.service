@@ -1,0 +1,10 @@
+<?php
+/********
+ * Calculate the daily intervals for just one day of open accounts
+ */
+
+$start = date('Y-m-d', strtotime('-2 days'));
+$end = date('Y-m-d', strtotime('-1 day'));
+$account_numbers = PortfolioInformation_Module_Model::GetAccountsThatDontHaveIntervalForDate($end);
+if(is_array($account_numbers))
+    PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, $start, $end);
