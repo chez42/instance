@@ -1,0 +1,17 @@
+<?php
+include_once("libraries/javaBridge/JavaCloudToCRM.php");
+
+global $adb;
+$query = "INSERT INTO vtiger_cloud_updates (note, time) VALUES (?, NOW())";
+
+$note = "Updating Weight";
+$adb->pquery($query, array($note));
+
+$tmp = new JavaCloudToCRM("omniscient", "syncuser", "Concert222", "192.168.100.229", "custodian_omniscient");
+$result = $tmp->CalculateWeight("live_omniscient");
+
+$note = "Finished Updating Weight";
+$adb->pquery($query, array($note));
+
+PortfolioInformation_ConvertCustodian_Model::UpdatePortfolioInception();
+PositionInformation_ConvertCustodian_Model::SetPositionOwnerShip();
