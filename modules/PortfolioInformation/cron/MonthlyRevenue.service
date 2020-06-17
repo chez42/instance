@@ -1,0 +1,11 @@
+<?php
+
+global $adb;
+$query = "INSERT INTO monthly_management_fees
+        (SELECT account_number, DATE_FORMAT(trade_date, '%Y-%m-01') AS trade_date, SUM(net_amount) AS amount
+        FROM vtiger_transactions t
+        JOIN vtiger_transactionscf cf USING (transactionsid)
+        WHERE transaction_activity = 'Management fee'
+        GROUP BY account_number, YEAR(trade_date), MONTH(trade_date))
+        ON DUPLICATE KEY UPDATE amount = VALUES(amount);";
+$adb->pquery($query, array());

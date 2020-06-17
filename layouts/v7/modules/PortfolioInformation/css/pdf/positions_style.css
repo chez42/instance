@@ -1,0 +1,75 @@
+
+.breakbefore{
+    page-break-before: always;
+}
+
+.breakafter {
+        page-break-after: always;
+}
+/*
+background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/ReportBKGIncome.jpg'); background-repeat:no-repeat
+*/
+
+body{
+	background:#FFFFFF;
+	width:100%;
+	}
+
+h1 {
+    font-size: 20px;
+	font-weight:bold;	
+}
+
+h2 {
+    font-size: 18px;
+	font-weight:bold;	
+}
+
+h3 {
+    font-size: 16px;
+	font-weight:bold;	
+}
+
+h4 {
+	font-weight:bold;	
+    font-size: 14px;
+}
+
+
+#lefttable{display:block; width:45%; float:left;}
+#righttable{display:block; width:45%; float:	right;}
+
+.left{float:left}
+.right{float:right}
+
+table{font-size:12px; display:block; width:100%;}
+table .symbol{font-size:12px; padding-top:10px; font-weight:bold;}
+table td{font-size:10px;}
+table tr:nth-child(odd){background-color:#FFF;}
+table tr:nth-child(even){background-color:#FFF;}
+table th{display: table-header-group;}
+
+
+#wrapper{display:block; width:100%; padding-top:20px;}
+/*#charts{width:600px; height:600px; display:block; float:left; background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/reportHoldingsBG.png'); 
+        background-position:left; background-repeat:no-repeat; margin-left:20px;}
+*/
+
+#charts{width:49%; display:block; float:left; background-image:url('https://www.omnisrv.com/layout/vlayout/images/reportGraphBkgLarge.png'); background-position:left; background-repeat:no-repeat; padding:9px; margin-right:4px;}
+#investments{width:46%; display:block; float:right;}
+#investments table{font-family:Arial, Helvetica, sans-serif; font-size:11px; float:left;}
+#investments table tr:nth-child(odd){background-color:#FFF;}
+#investments table tr:nth-child(even){background-color:#FFF;}
+
+.top_spacing{padding-top:50px;}
+
+.graph_table{width:98%; float:right;}
+.graph_table .table_title{font-size:16px; font-family:Arial, Helvetica, sans-serif; color:#FFF; text-align:right; padding-bottom:30px}
+.graph_table th{font-size:11px; padding-top:50px;}
+.graph_table .symbol{font-size:11px; padding-top:10px;}
+.graph_table .regular{font-size:10px}
+.graph_table .graph_bg{padding:60px;}
+.graph_image{width:1900px;}
+
+.graph_table tr:nth-child(odd){background-color:#FFF;}
+.graph_table tr:nth-child(even){background-color:#FFF;}

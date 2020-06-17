@@ -1,0 +1,13 @@
+#balances_wrapper{display:block; width:100%; float:left; padding-bottom:20px;}
+#balances_table_holder{display:block; width:100%; float:left;}
+#balances_table{width:60%; padding-bottom:20px; border-spacing:0px; display:block; float:left; }
+#balances_table tr{margin:0; padding:0;}
+#balances_table tr td{padding-left:10px; padding-right:10px;}
+#balances_table .align_left{text-align:left;}
+#balances_table .align_center{text-align:center;}
+#balances_table .align_right{text-align:right;}
+
+.make_dotted td{border-bottom:1px dotted black;}
+.upper_line {border-top:1px dotted black;}
+.strong {font-weight:bold;}
+.tright {text-align:right;}

@@ -1,0 +1,28 @@
+/* 
+    Document   : monthly_style
+    Created on : 15-May-2013, 11:16:59 AM
+    Author     : theshado
+    Description:
+        Purpose of the stylesheet follows.
+*/
+.breakbefore{
+    page-break-before: always;
+}
+
+.breakafter {
+        page-break-after: always;
+}
+/*
+background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/ReportBKGIncome.jpg'); background-repeat:no-repeat
+*/
+h2{font-size:14px}
+body{background-image:url('https://www.advisorviewdev.com/vcrm/themes/images/ReportBKGPurpleGradient.jpg'); background-repeat:no-repeat;}
+
+table{width:600px;}
+
+th{font-size:14px;}
+td{font-size:12px;}
+tr:nth-child(odd){background-color:#CCC;}
+tr:nth-child(even){background-color:#FFF;}
+
+.transparent{background-color:none;}
