@@ -1,0 +1,14 @@
+<?php
+/********
+ * Older accounts have transactions from PC that need to come in for historical purposes.  This hits all accounts that have yet to be pulled in
+ * and brings them into Omniscient
+ */
+
+$account_numbers = PortfolioInformation_Module_Model::GetAccountsPCHasNotTransferred(50);
+if(is_array($account_numbers))
+    foreach($account_numbers AS $k => $v) {
+        if (PortfolioInformation_Module_Model::HavePCTransactionsBeenTransferred($v) != 1) {
+            $custodian = PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v);
+            PortfolioInformation_Module_Model::CreateTransactionsFromPCCloud($custodian, $v);
+        }
+    }

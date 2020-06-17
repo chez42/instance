@@ -1,0 +1,21 @@
+<?php
+
+global $adb;
+
+$getReport = $adb->pquery("SELECT * FROM vtiger_scheduled_portfolio_reports");
+
+if($adb->num_rows($getReport)){
+    
+    for($u=0;$u<$adb->num_rows($getReport);$u++){
+        
+        $userEmail = $adb->query_result($getReport, $u, 'user_email');
+        $params = json_decode(html_entity_decode($adb->query_result($getReport, $u, 'params')), true);
+        
+        $params['sendEmail'] = true;
+        $params['userEmail'] = $userEmail;
+        
+        $view = new Vtiger_ReportPdf_Action();
+        $view->process(new Vtiger_Request($params, $params));
+        
+    }
+}

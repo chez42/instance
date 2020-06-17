@@ -1,0 +1,188 @@
+<?php
+
+set_time_limit(0);
+$adb = PearDatabase::getInstance();
+
+// create table for yahoo finance mutual funds symbols
+if(!Vtiger_Utils::CheckTable("vtiger_yahoo_finanace_modsecurities_symbol")) {
+	Vtiger_Utils::CreateTable('vtiger_yahoo_finanace_modsecurities_symbol',
+	'(id INTEGER NOT NULL AUTO_INCREMENT, 
+	symbol VARCHAR(100) NULL DEFAULT NULL, 
+	ytd_return DECIMAL(7,2) NULL DEFAULT NULL,
+	category VARCHAR(150) NULL DEFAULT NULL,
+	beta_3y DECIMAL(7,2) NULL DEFAULT NULL,
+	yield DECIMAL(7,2) NULL DEFAULT NULL,
+	cash DECIMAL(7,2) NULL DEFAULT NULL,
+	stock DECIMAL(7,2) NULL DEFAULT NULL,
+	bonds DECIMAL(7,2) NULL DEFAULT NULL,
+	others DECIMAL(7,2) NULL DEFAULT NULL,
+	preferred DECIMAL(7,2) NULL DEFAULT NULL,
+	convertable DECIMAL(7,2) NULL DEFAULT NULL,
+	5y_avg_return DECIMAL(7,2) NULL DEFAULT NULL,
+	fund_summary TEXT NULL DEFAULT NULL,
+	yahoo_finance_modifiedtime DATETIME NULL DEFAULT NULL,
+	modifiedtime DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (id),
+	UNIQUE KEY `vtiger_yahoo_finanace_modsecurities_symbol` (symbol)
+	)',
+	true);
+}
+
+$db_col_mapping = array(
+	"Symbol"		=> "symbol",
+	"Cash"			=> "cash",
+	"Stocks"		=> "stock",
+	"Bonds" 		=> "bonds",
+	"Others"		=> "others",
+	"Preferred"		=> "preferred",
+	"Convertable"	=> "convertable",
+	"YTD Return"	=> "ytd_return",
+	"Category"		=> "category",
+	"Beta (3y)"		=> "beta_3y",
+	"Yield"			=> "yield",
+	"Fund Summary"	=> "fund_summary",
+	"5y Average Return" => "5y_avg_return"
+);
+
+/* ===  Mapping CRM ModSecurity Symbols to Yahoo finanace symbol table. === */
+
+$security_symbols = array();
+
+$result = $adb->pquery("SELECT vtiger_modsecurities.security_symbol FROM vtiger_modsecurities 
+INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modsecurities.modsecuritiesid
+WHERE vtiger_crmentity.deleted = 0 AND vtiger_modsecurities.securitytype = 'Mutual Fund' AND 
+vtiger_modsecurities.security_symbol IS NOT NULL AND vtiger_modsecurities.security_symbol <> '' ",array());
+
+if($adb->num_rows($result)){
+	while($row = $adb->fetchByAssoc($result)){
+		$security_symbols[] = trim($row['security_symbol']);
+	}
+}
+
+$finance_result = $adb->pquery("SELECT symbol FROM vtiger_yahoo_finanace_modsecurities_symbol",array());
+
+$finanace_symbols = array();
+
+if($adb->num_rows($finance_result)){
+	while($row = $adb->fetchByAssoc($finance_result)){
+		$finanace_symbols[] = $row['symbol'];
+	}
+}
+
+if(!empty($security_symbols)){
+	
+	if(empty($finanace_symbols)){
+		
+		$newSymbols = $security_symbols;
+		
+	} else {
+		
+		$newSymbols = array_diff($security_symbols, $finanace_symbols);
+	}
+	
+	if(!empty($newSymbols)){
+		
+		$newSymbols = array_chunk($newSymbols, 200);
+		
+		foreach($newSymbols as $symbols){
+			
+			$symbols = "('".implode("'), ('", $symbols)."')";
+			
+			$adb->pquery("insert into vtiger_yahoo_finanace_modsecurities_symbol(symbol) values $symbols",array());
+		}
+	}
+}
+
+/* ===  Finish Import CRM ModSecurity Symbols to Yahoo finanace symbol table. === */
+
+
+/* === Update those Symbols which are not updated till previous month.  === */
+
+$modSecRecordModel = Vtiger_Record_Model::getCleanInstance('ModSecurities');
+
+$symbol_result = $adb->pquery("select vtiger_yahoo_finanace_modsecurities_symbol.*, vtiger_modsecurities.modsecuritiesid 
+from vtiger_yahoo_finanace_modsecurities_symbol 
+inner join vtiger_modsecurities on vtiger_modsecurities.security_symbol = vtiger_yahoo_finanace_modsecurities_symbol.symbol
+where (modifiedtime IS NULL OR modifiedtime = '' OR MONTH(modifiedtime) < MONTH(NOW())) LIMIT 50",array());
+
+if($adb->num_rows($symbol_result)){
+	
+	while($security_symbol = $adb->fetchByAssoc($symbol_result)){
+		
+		$symbol = $security_symbol['symbol'];
+		
+		$modsecurityid = $security_symbol['modsecuritiesid'];
+		
+		$symbol_data = $modSecRecordModel->getYahooFinanceSymbolDetail($symbol);
+		
+		$date_var = date("Y-m-d H:i:s");
+		
+		if(empty($symbol_data)){
+		
+			$adb->pquery("update vtiger_yahoo_finanace_modsecurities_symbol 
+			set modifiedtime = ? where symbol = ?",array($adb->formatDate($date_var, true),$symbol));
+		
+		} else {
+		
+			$prev_data = $security_symbol;
+			
+			$prev_data['fund_summary'] = decode_html($prev_data['fund_summary']);
+			
+			unset($prev_data['id']);
+			unset($prev_data['yahoo_finance_modifiedtime']);
+			unset($prev_data['modifiedtime']);
+			unset($prev_data['modsecuritiesid']);
+		
+			$new_data = $match_data = array();
+			
+			foreach($symbol_data as $FieldLabel => $fvalue){
+				
+				$new_data[$db_col_mapping[$FieldLabel]] = rtrim($fvalue, "%");
+				
+				$prev_field_value = $prev_data[$db_col_mapping[$FieldLabel]];
+				
+				if($fvalue == 'N/A' && is_numeric( $prev_field_value ))
+					$match_data[$db_col_mapping[$FieldLabel]] = $prev_field_value;
+				else
+					$match_data[$db_col_mapping[$FieldLabel]] = rtrim($fvalue, "%");
+			}
+		
+			$changedValues = array_diff_assoc($match_data, $prev_data);
+			
+			if(!empty($changedValues)){
+				
+				$new_data['modifiedtime'] = $adb->formatDate($date_var, true);
+				$new_data['yahoo_finance_modifiedtime'] = $adb->formatDate($date_var, true);
+				
+				$updatedCols = implode(" = ?,",array_keys($new_data));
+				$updatedCols .= " = ? ";
+			
+				$new_data['symbol'] = $symbol;
+				
+				$adb->pquery("update vtiger_yahoo_finanace_modsecurities_symbol set $updatedCols where symbol = ?",array_values($new_data),true);
+				
+				if($new_data['fund_summary'] != ''){
+					
+					$query = "UPDATE vtiger_modsecurities m 
+					JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+					SET cf_2515 = ?, cf_2517 = ?, summary = ?, cash_net = ?, 
+					us_stock = ?, us_bond = ?, other_net = ?, preferred_net = ?, 
+					convertible_net = ?, cf_2519 = ?, cf_2521 = ?, dividend_yield = ?,
+					yahoo_finance_last_update = ? WHERE m.security_symbol = ?";
+					
+					$adb->pquery($query, array($new_data['ytd_return'], $new_data['5y_avg_return'], $new_data['fund_summary'],
+					$new_data['cash'],$new_data['stock'], $new_data['bonds'], $new_data['others'], $new_data['preferred'], 
+					$new_data['convertable'], $new_data['category'], $new_data['beta_3y'], $new_data['yield'], 
+					$new_data['yahoo_finance_modifiedtime'], $new_data['symbol']));
+					
+					$adb->pquery("update vtiger_crmentity set modifiedtime =? where crmid = ?",array($new_data['yahoo_finance_modifiedtime'], $modsecurityid));
+				}
+			} else {
+				$adb->pquery("update vtiger_yahoo_finanace_modsecurities_symbol set modifiedtime = ? where symbol = ?",array($adb->formatDate($date_var, true),$symbol));
+			}
+		}
+		sleep(5);
+	}
+	
+	//$adb->pquery("CALL UPDATE_XIGNITE_ALLOCATIONS()",array());
+}
