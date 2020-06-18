@@ -84,6 +84,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			
 			$viewer->assign('TYPE', $type);
 			$viewer->assign('QUERY', $request->get('q'));
+			$viewer->assign('DATE', $request->get('date'));
 			$viewer->assign('FOLDER', $folder);
 			$viewer->assign('FOLDERLIST',  $folderList);
 			$viewer->assign('SEARCHOPTIONS' ,self::getSearchOptions());
