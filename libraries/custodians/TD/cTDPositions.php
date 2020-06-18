@@ -78,7 +78,7 @@ class cTDPositions extends cCustodian {
         $params[] = $date;
 
         if($group_by_symbol)
-            $group_by_symbol = " GROUP BY SYMBOL ";
+            $group_by_symbol = " GROUP BY account_number, symbol";
 
         $query = "DROP TABLE IF EXISTS BeforeMapping";
         $adb->pquery($query, array());
