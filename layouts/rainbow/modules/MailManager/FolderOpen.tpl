@@ -96,7 +96,7 @@
             <div style="padding-top: 10px;">
             	<div class="input-group col-lg-11" >
 					<input type="text" class="form-control dateField"
-					data-date-format="dd-mm-yyyy" data-calendar-type="range" name="date" value="" /> 
+					data-date-format="dd-mm-yyyy" data-calendar-type="range" name="date" value="{$DATE}" /> 
 					<span class="input-group-addon"><i class="fa fa-calendar "></i></span>
 				</div>
             </div>
