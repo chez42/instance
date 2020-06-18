@@ -26,8 +26,9 @@
                         
                     <div class="form-group">
                        <label class="control-label fieldLabel col-sm-5">{vtranslate('Transfer records to user', $MODULE)}</label>
-                       <div class="controls fieldValue col-xs-6">
-                           <select class="select2 {if $OCCUPY_COMPLETE_WIDTH} row-fluid {/if}" name="tranfer_owner_id" data-validation-engine="validate[ required]" >
+                       <div class="controls fieldValue col-xs-6" style = "padding-top:5px;">
+                       {* 12.6.20*}
+                           <select class="select2 {if $OCCUPY_COMPLETE_WIDTH} row-fluid {/if}" name="tranfer_owner_id" data-validation-engine="validate[ required]" style="width: 100%" >
                                {foreach item=USER_MODEL key=USER_ID from=$USER_LIST}
                                    <option value="{$USER_ID}" >{$USER_MODEL->getName()}</option>
                                {/foreach}

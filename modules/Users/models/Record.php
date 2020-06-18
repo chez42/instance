@@ -9,7 +9,35 @@
  *************************************************************************************/
 
 class Users_Record_Model extends Vtiger_Record_Model {
-	
+    public function hasModulePermission($module_name){
+        $allModules = Settings_ModuleManager_Module_Model::getAll();
+        foreach($allModules AS $module_id => $v){
+            if(strtolower($module_name) == strtolower($v->get('name'))){
+                if($v->isActive() == 1)
+                    return 1;
+            }
+        }
+        return 0;
+    }
+
+	public function getInstanceSetting($setting_name, $match_check=null){
+        global $adb;
+	    $params = array();
+	    $params[] = $setting_name;
+
+	    if($match_check != null) {
+            $and = " AND match_check = ?";
+            $params[] = $match_check;
+        }
+        $query = "SELECT match_result
+                  FROM vtiger_instance_settings 
+                  WHERE setting_name = ? {$and}";
+	    $result = $adb->pquery($query, $params);
+	    if($adb->num_rows($result) > 0)
+	        return $adb->query_result($result, 0, 'match_result');
+	    return 0;
+    }
+
 	/**
 	 * Checks if the key is in property or data.
 	 */

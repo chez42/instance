@@ -66,7 +66,7 @@
 					<option></option>
                      {foreach from=$RECORD_STRUCTURE  item=FIELDS}
                         {foreach from=$FIELDS item=FIELD_MODEL}
-                            {if (!($FIELD_MODEL->get('workflow_fieldEditable') eq true))  or ($MODULE_MODEL->get('name')=="Documents" and in_array($FIELD_MODEL->get('name'),$RESTRICTFIELDS))}
+                            {if (!($FIELD_MODEL->get('workflow_fieldEditable') eq true) && ($MODULE_MODEL->get('name') eq "Events" && $FIELD_MODEL->getName() neq 'trigger_reminder'))  or ($MODULE_MODEL->get('name')=="Documents" and in_array($FIELD_MODEL->get('name'),$RESTRICTFIELDS))}
                                 {continue}
                             {/if}
 						{assign var=FIELD_INFO value=$FIELD_MODEL->getFieldInfo()}

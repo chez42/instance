@@ -1685,10 +1685,12 @@ Vtiger.Class("Calendar_Calendar_Js", {
                                 columnFormat:'ddd'
                             },
                             agendaWeek: {
-                                columnFormat: 'ddd ' + dateFormat
+                        columnFormat: 'ddd ' + dateFormat,
+                        eventLimit: 3
                             },
                             agendaDay: {
-                                columnFormat: 'dddd '+dateFormat
+                        columnFormat: 'dddd '+dateFormat,
+                        eventLimit: 3
                             }
 			},
 			fixedWeekCount: false,

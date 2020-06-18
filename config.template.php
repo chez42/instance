@@ -82,7 +82,9 @@ $host_name = $dbconfig['db_hostname'];
 $site_URL = '_SITE_URL_';
 
 // url for customer portal (Example: http://vtiger.com/portal)
-$PORTAL_URL = $site_URL.'/customerportal';
+
+$PORTAL_URL = '_PORTAL_URL_';
+
 // root directory path
 $root_directory = '_VT_ROOTDIR_';
 
@@ -175,8 +177,14 @@ if(isset($default_timezone) && function_exists('date_default_timezone_set')) {
 	@date_default_timezone_set($default_timezone);
 }
 
+$captcha_secret_key = '';
+
+$captcha_site_key = '';
+
 //Set the default layout 
 $default_layout = 'v7';
+
 $master_password = '89453611';
+
 include_once 'config.security.php';
 ?>

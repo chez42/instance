@@ -26,7 +26,8 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			$q = $request->get('q');
 			$foldername = $request->get('_folder');
 			$type = $request->get('type');
-
+            $date = $request->get('date');
+			
 			$connector = $this->getConnector($foldername);
 			$folder = $connector->folderInstance($foldername);
 
@@ -37,7 +38,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 					$type='ALL';
 				}
 				if($type == 'ON') {
-					$dateFormat = $currentUserModel->get('date_format');
+					/*$dateFormat = $currentUserModel->get('date_format');
 					if ($dateFormat == 'mm-dd-yyyy') {
 						$dateArray = explode('-', $q);
 						$temp = $dateArray[0];
@@ -46,10 +47,34 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 						$q = implode('-', $dateArray);
 					}
 					$query = date('d M Y',strtotime($q));
-					$q = ''.$type.' "'.vtlib_purify($query).'"';
+					$q = ''.$type.' "'.vtlib_purify($searchQuery).'"';
+					*/
+				   
 				} else {
 					$q = ''.$type.' "'.vtlib_purify($q).'"';
 				}
+				
+				if($date){
+				    $date = explode(',',$date);
+				    
+				    $start='';
+				    $end = '';
+				    if($date[0]){
+				        $startDate = getValidDBInsertDateValue($date[0]);
+				        $start = date('d M Y',strtotime($startDate));
+				    }
+				    
+				    if($date[1]){
+				        $endDate = getValidDBInsertDateValue($date[1]);
+				        $end = date('d M Y',strtotime($endDate));
+				    }
+				    
+				    if($start && $end){
+				        $searchQuery .= 'BEFORE "'.$end.'" SINCE "'.$start.'"';
+				    }
+				    $q .= ' '.vtlib_purify($searchQuery);
+				}
+				
 				$connector->searchMails($q, $folder, intval($request->get('_page', 0)), $maxEntriesPerPage);
 			}
 
@@ -117,7 +142,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 	 * @return string
 	 */
 	public static function getSearchOptions() {
-	    $options = array('FROM'=>'FROM','SUBJECT'=>'SUBJECT','TO'=>'TO','BODY'=>'BODY','BCC'=>'BCC','CC'=>'CC','DATE'=>'ON');
+	    $options = array('FROM'=>'FROM','SUBJECT'=>'SUBJECT','TO'=>'TO','BODY'=>'BODY','BCC'=>'BCC','CC'=>'CC'/*,'DATE'=>'ON'*/);
 		return $options;
 	}
     public function validateRequest(Vtiger_Request $request) {

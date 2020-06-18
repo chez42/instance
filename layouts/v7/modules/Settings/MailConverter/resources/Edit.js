@@ -151,10 +151,13 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_Edit_Js', {
 			var element = jQuery(e.currentTarget);
 			var serverType = element.val();
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
-			if(serverType == 'gmail' || serverType == 'yahoo') {
+			if(serverType == 'gmail' || serverType == 'yahoo' || serverType == 'office365') {
 				useServer = 'imap.gmail.com';
 				if(serverType == 'yahoo') {
 					useServer = 'imap.mail.yahoo.com';
+				}
+				if(serverType == 'office365'){
+					useServer = 'imap-mail.outlook.com';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';

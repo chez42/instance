@@ -47,12 +47,13 @@ class cTDPortfolios extends cCustodian {
      * @param string $table (REFERS TO BALANCE TABLE)
      */
     public function __construct(string $custodian_name, string $database, string $module,
-                                string $portfolio_table, string $balance_table, array $rep_codes){
+                                string $portfolio_table, string $balance_table, array $rep_codes, $columns=array('*')){
         $this->name = $custodian_name;
         $this->database = $database;
         $this->module = $module;
         $this->portfolio_table = $portfolio_table;
         $this->table = $balance_table;
+        $this->columns = $columns;
         if(!empty($rep_codes)) {
             $this->SetRepCodes($rep_codes);
             $this->GetPortfolioPersonalData();
@@ -73,7 +74,7 @@ class cTDPortfolios extends cCustodian {
             $fields = implode ( ", ", $this->columns );
         }
 
-        $query = "SELECT {$fields} FROM {$this->database}.{$this->portfolio_table} WHERE account_number IN ({$questions})";
+        $query = "SELECT {$fields} FROM {$this->database}.{$this->portfolio_table} WHERE account_number IN ({$questions}) AND account_number != ''";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
@@ -101,7 +102,7 @@ class cTDPortfolios extends cCustodian {
 
         $params[] = $date;
         $query = "SELECT {$fields} FROM {$this->database}.{$this->table} 
-                  WHERE account_number IN ({$questions}) AND as_of_date = ?";
+                  WHERE account_number IN ({$questions}) AND as_of_date = ? AND account_number != ''";
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
@@ -233,6 +234,8 @@ class cTDPortfolios extends cCustodian {
             $this->FillEntityTable($crmid, $owner, $data);
             $this->FillPortfolioTable($crmid, $data);
             $this->FillPortfolioCFTable($crmid, $data);
+            if($this->DoesAccountNumberExistInCRM($data->account_number))//Confirm the account now exists in the CRM
+                $this->existing_accounts[] = $data->account_number;//Add the newly created account to existing accounts because it now exists
         }
     }
 

@@ -59,6 +59,11 @@ class Settings_MailConverter_Edit_View extends Settings_Vtiger_Index_View {
 	public function step1(Vtiger_Request $request) {
 		$qualifiedModuleName = $request->getModule(false);
 		$viewer = $this->getViewer($request);
+		
+		$viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+		$timeZones = Settings_MailConverter_Module_Model::getTimeZoneMapping();
+		$viewer->assign('TIMEZONEMAP', $timeZones);
+		
 		$viewer->view('Step1.tpl', $qualifiedModuleName);
 	}
 

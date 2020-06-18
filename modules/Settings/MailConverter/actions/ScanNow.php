@@ -29,7 +29,7 @@ class Settings_MailConverter_ScanNow_Action extends Settings_Vtiger_Index_Action
 		$qualifiedModuleName = $request->getModule(false);
 
 		$recordModel = Settings_MailConverter_Record_Model::getInstanceById($recordId);
-		$status = $recordModel->scanNow();
+		$status = $recordModel->scanNow($request);
 
 		$response = new Vtiger_Response();
 		if (is_bool($status) && $status) {

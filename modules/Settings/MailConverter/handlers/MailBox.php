@@ -152,21 +152,44 @@ class Vtiger_MailBox {
 	 * @param $searchQuery IMAP query, (default false: fetches mails newer from lastscan)
 	 * @return imap_search records or false
 	 */
-	function search($folder, $searchQuery=false) {
+	function search($folder, $searchQuery=false, $request=false) {
+	   
 		if(!$searchQuery) {
-			$lastscanOn = $this->_scannerinfo->getLastscan($folder);
+			
 			$searchfor = $this->_scannerinfo->searchfor;
-
-			if($searchfor && $lastscanOn) {
-				if($searchfor == 'ALL') {
-					$searchQuery = "SINCE $lastscanOn";
-				} else {
-					$searchQuery = "$searchfor SINCE $lastscanOn";
-				}
+			
+			if($searchfor == 'ALL') {
+				$searchQuery = "";
 			} else {
-				$searchQuery = $lastscanOn? "SINCE $lastscanOn" : "BEFORE ". $this->_scannerinfo->dateBasedOnMailServerTimezone('d-M-Y');
+				$searchQuery = "$searchfor ";
 			}
+			
 		}
+		
+		$date = explode(',',$request->get('date'));
+		
+		$start='';
+		$end = '';
+		if($date[0]){
+		  $startDate = getValidDBInsertDateValue($date[0]);
+		  $start = date('d M Y',strtotime($startDate));
+		}
+		
+		if($date[1]){
+	       $endDate = getValidDBInsertDateValue($date[1]);
+	       $end = date('d M Y',strtotime($endDate));
+		}
+		
+		if($start && $end){
+		    $searchQuery .= 'BEFORE "'.$end.'" SINCE "'.$start.'"';   
+		}
+		
+		$subject = $request->get('subject');
+
+		if($subject)
+		    $searchQuery .= ' SUBJECT "'.$subject.'"'; 
+		
+	   
 		if($this->open($folder)) {
 			$this->log("Searching mailbox[$folder] using query: $searchQuery");
 			return imap_search($this->_imap, $searchQuery);

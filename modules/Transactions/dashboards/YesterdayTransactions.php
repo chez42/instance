@@ -86,7 +86,7 @@ class Transactions_YesterdayTransactions_Dashboard extends Vtiger_IndexAjax_View
 		
 		$transaction_activity = $request->get('transaction_activity');
 		if(!$transaction_activity)
-			$transaction_activity[] = "Deposit of funds";
+            $transaction_activity = array("Deposit of funds");
 		
 		$tradeDates = array();
 		

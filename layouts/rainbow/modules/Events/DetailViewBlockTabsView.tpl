@@ -395,7 +395,7 @@
 													{assign var=COUNTER value=$COUNTER+1}
 												{else}
 													{if $FIELD_MODEL->get('uitype') eq "20" or $FIELD_MODEL->get('uitype') eq "19" or $fieldDataType eq 'reminder' or $fieldDataType eq 'recurrence'}
-														{if $COUNTER eq '1'}
+														{if $COUNTER gte '3'}
 															<td class="fieldLabel {$WIDTHTYPE}"></td><td class="{$WIDTHTYPE}"></td></tr><tr>
 															{assign var=COUNTER value=0}
 														{/if}

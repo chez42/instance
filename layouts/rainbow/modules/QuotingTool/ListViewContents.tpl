@@ -8,7 +8,8 @@
  * ****************************************************************************** */
 -->*}
 {strip}
-  
+    	</div>
+    </div>
     <div class="listViewContentDiv" id="listViewContents">
         <div class="listViewEntriesDiv contents-bottomscroll" style="overflow-x: unset !important;">
             <div class="bottomscroll-div">

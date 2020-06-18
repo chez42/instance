@@ -93,6 +93,13 @@
                     </select>
                 </div>
             </div>
+            <div style="padding-top: 10px;">
+            	<div class="input-group col-lg-11" >
+					<input type="text" class="form-control dateField"
+					data-date-format="dd-mm-yyyy" data-calendar-type="range" name="date" value="" /> 
+					<span class="input-group-addon"><i class="fa fa-calendar "></i></span>
+				</div>
+            </div>
         </div>
         <div class='col-lg-2 col-md-6 col-sm-6 col-xs-12' id="mmSearchButtonContainer">
             <button id='mm_searchButton' class="pull-right">{vtranslate('LBL_Search', $MODULE)}</button>

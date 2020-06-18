@@ -254,6 +254,8 @@ class Users_MsExchangeSettings_View extends Vtiger_Detail_View {
         
         $jsFileNames = array(
             'modules.'.$moduleName.'.resources.MsExchange',
+            'modules.Vtiger.resources.List',
+            'modules.Vtiger.resources.Popup',
         );
         
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

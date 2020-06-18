@@ -267,6 +267,10 @@ function __vt_power($elements) {
 	return 0;
 }
 
+function current_date_time(){
+    return date('Y-m-d H:i:s');
+}
+
 /** END * */
 class VTFieldExpressionEvaluater{
 	function __construct($expr){
@@ -291,7 +295,8 @@ class VTFieldExpressionEvaluater{
 				'get_date' => '__vt_get_date',
 				'add_time' => '__vt_add_time',
 				'sub_time' => '__vt_sub_time',
-				'power'	   => '__vt_power'
+				'power'	   => '__vt_power',
+		        'current_datetime' => 'current_date_time'
 		);
 
 		$this->operations = array_merge($this->functions, $this->operators);

@@ -32,7 +32,7 @@
 			</div>
         	<div class="col-md-6">
         		<div class="ext-actions pull-right">
-        			<button type="button" data-url="{$MODULE_MODEL->getExtensionSettingsUrl($SOURCE_MODULE)|cat:'&returnToLogs=true'}" class="settingsPage btn btn-default">
+        			<button type="button" data-url="index.php?module=Users&parent=Settings&view=MsExchangeSettings&record={$CURRENT_USER_MODEL->id}" class="settingsPage btn btn-default">
                    		{vtranslate('LBL_SYNC_SETTINGS', $MODULE)}
                    	</button>
 					<button type="button" class="revokeMSAccount btn btn-default">

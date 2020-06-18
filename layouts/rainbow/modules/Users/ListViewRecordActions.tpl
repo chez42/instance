@@ -18,7 +18,8 @@
 	    {/if}
 		<span class="more dropdown action">
 			<span href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
-				<i title="{vtranslate("LBL_MORE_OPTIONS",$MODULE)}" class="ti-info-alt icon"></i>
+			{* chnged class name and added info_outline 12.6.20*}
+				<i title="{vtranslate("LBL_MORE_OPTIONS",$MODULE)}" class="material-icons icon">info_outline</i>
 			</span>
 			<ul class="dropdown-menu">
 				{if $LISTVIEW_ENTRY->get('status') eq 'Active'}

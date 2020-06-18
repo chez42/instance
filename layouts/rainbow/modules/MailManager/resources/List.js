@@ -145,10 +145,13 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var element = jQuery(e.currentTarget);
 			var serverType = element.val();
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
-			if(serverType == 'gmail' || serverType == 'yahoo') {
+			if(serverType == 'gmail' || serverType == 'yahoo' || serverType == 'office365') {
 				useServer = 'imap.gmail.com';
 				if(serverType == 'yahoo') {
 					useServer = 'imap.mail.yahoo.com';
+				}
+				if(serverType == 'office365'){
+					useServer = 'imap-mail.outlook.com';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
@@ -282,7 +285,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		}
 	},
 
-	openFolder : function(folderName, page, query, type) {
+	openFolder : function(folderName, page, query, type, date) {
 		var self = this;
 		app.helper.showProgress(app.vtranslate("JSLBL_Loading_Please_Wait")+"...");
 		if(!page) {
@@ -303,6 +306,9 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		}
 		if(type) {
 			params['type'] = type;
+		}
+		if(date){
+			params['date'] = date;
 		}
 		app.request.post({"data" : params}).then(function(error, responseData) {
 			container.find('#mails_container').removeClass('col-lg-12');
@@ -562,7 +568,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			}
 			var folder = container.find('#mailManagerSearchbox').data('foldername');
 			var type = container.find('#searchType').val();
-			self.openFolder(folder, 0, query, type);
+			var date = container.find('[name="date"]').val();
+			self.openFolder(folder, 0, query, type, date);
 		});
 	},
 
@@ -699,7 +706,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var element = jQuery(e.currentTarget);
 			var folder = element.data('folder');
 			var page = element.data('page');
-			self.openFolder(folder, page, jQuery('#mailManagerSearchbox').val(), jQuery('#searchType').val());
+			self.openFolder(folder, page, jQuery('#mailManagerSearchbox').val(), jQuery('#searchType').val(), jQuery('[name="date"]').val());
 		});
 	},
 
@@ -710,7 +717,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var element = jQuery(e.currentTarget);
 			var folder = element.data('folder');
 			var page = element.data('page');
-			self.openFolder(folder, page, jQuery('#mailManagerSearchbox').val(), jQuery('#searchType').val());
+			self.openFolder(folder, page, jQuery('#mailManagerSearchbox').val(), jQuery('#searchType').val(), jQuery('[name="date"]').val());
 		});
 	},
 
@@ -1560,6 +1567,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var searchBox = jQuery('#mailManagerSearchbox');
 			if(element.val() == 'ON'){
 				searchBox.addClass('dateField');
+				searchBox.attr("data-date-format", "dd-mm-yyyy");
+				searchBox.attr("data-calendar-type", "range");
 				searchBox.parent().append('<span class="date-addon input-group-addon"><i class="fa fa-calendar"></i></span>');
 				vtUtils.registerEventForDateFields(searchBox);
 			} else {
@@ -1567,7 +1576,9 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				searchBox.removeClass('dateField');
 				searchBox.parent().find('.date-addon').remove();
 			}
+			vtUtils.registerEventForDateFields(jQuery('[name="date"]'));
 		});
+		
 	},
 
 	registerPostMailSentEvent: function () {
@@ -2132,6 +2143,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				app.helper.showModal(data, {cb : function() {
 					thisInstance.firstStep();
 					thisInstance.handleSettingsMailBoxEvents();
+					thisInstance.registerExistingMailBox();
 					thisInstance.activateHeader();
 					app.helper.hideProgress();
 					
@@ -2373,9 +2385,21 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		var thisInstance = this;
 		
 		jQuery(document).on('click', '.scanMailBox', function(){
-			
+			var params = {};
+			params['module'] = 'MailConverter';
+			params['parent'] = 'Settings';
+			params['view'] = 'ScanNowAjax';
+			params['scannerid'] = $(this).data('scannerid');
+			app.helper.showProgress();
+			app.request.post({'data': params}).then(function (err, data) {
+				app.helper.showModal(data, {cb : function() {
+					app.helper.hideProgress();
+				}});
+			});
+		});
+		
+		/*jQuery(document).on('click', '.scanMailBox', function(){
 			var scannerId = $(this).data('scannerid');
-			
 			var url = "index.php?module=MailConverter&parent=Settings&record="+scannerId+"&action=ScanNow";
 			app.helper.showProgress();
 			app.request.post({'url': url}).then(function (err, data) {
@@ -2386,8 +2410,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					app.helper.showErrorNotification({'message': err['message']});
 				}
 			});
-			
-		});
+		});*/
 	},
 
 	deleteMailBox: function (url) {
@@ -2430,10 +2453,13 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var element = jQuery(e.currentTarget);
 			var serverType = element.val();
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
-			if(serverType == 'gmail' || serverType == 'yahoo') {
+			if(serverType == 'gmail' || serverType == 'yahoo' || serverType == 'office365') {
 				useServer = 'imap.gmail.com';
 				if(serverType == 'yahoo') {
 					useServer = 'imap.mail.yahoo.com';
+				}
+				if(serverType == 'office365'){
+					useServer = 'imap-mail.outlook.com';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
@@ -2481,5 +2507,53 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			}
 		});
 	},
+	
+	registerExistingMailBox : function(){
+		
+		var settingContainer = jQuery(document);
+		settingContainer.on('change', '#selectExistingMailBox', function(){
+			
+			var params = {};
+			params['module'] = app.getModuleName();
+			params['view'] = 'MailBoxEdit';
+			params['mode'] = 'getMailBoxData';
+			params['accountid'] = $(this).val();
+			
+			app.request.post({data : params}).then(function(err,data) {
+				
+				var server     = data.server;
+				var serverName = data.serverName;
+				var userName   = data.userName;
+				var password   = data.password;
+				var protocol   = data.protocol;
+				var sslType    = data.sslType;
+				var sslMethod  = data.sslMethod;
+				
+				settingContainer.find('#serverMailType').val(server).trigger('change');
+				settingContainer.find('[name="server"]').val(serverName);
+				settingContainer.find('[name="username"]').val(userName);
+				settingContainer.find('[name="password"]').val(password);
+				settingContainer.find('[name="protocol"]').each(function(i, node) {
+					if(jQuery(node).val() == protocol) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="ssltype"]').each(function(i, node) {
+					if(jQuery(node).val() == sslType) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				settingContainer.find('[name="sslmethod"]').each(function(i, node) {
+					if(jQuery(node).val() == sslMethod) {
+						jQuery(node).attr('checked', true);
+					}
+				});
+				
+			});
+			
+		});
+		
+	},
+	
 	
 });

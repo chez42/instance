@@ -236,7 +236,7 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 	 * Function to scan this record
 	 * @return <Boolean> true/false (Scaned/Not)
 	 */
-	public function scanNow() {
+	public function scanNow($request) {
 		$isValid = $this->get('isvalid');
 		if ($isValid) {
 			vimport('~~modules/Settings/MailConverter/handlers/MailScannerInfo.php');
@@ -244,7 +244,7 @@ class Settings_MailConverter_Record_Model extends Settings_Vtiger_Record_Model {
 			$scannerInfo = new Vtiger_MailScannerInfo($this->getName());
 			/** Start the scanning. */
 			$scanner = new Vtiger_MailScanner($scannerInfo);
-			$status = $scanner->performScanNow();
+			$status = $scanner->performScanNow($request);
 			return $status;
 		}
 		return false;

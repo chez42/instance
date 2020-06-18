@@ -53,10 +53,12 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	    $logData = MSExchange_Utils_Helper::getSyncCounts($pagingModel, $moduleName, $forModule);
 	    $logsCount = count($logData);
 	    
+	    $currentUser = Users_Record_Model::getCurrentUserModel();
+	    
 	    // if user has not authenticated the extension redirect to settings page
 	    if(!$syncReady && $viewType != 'modal' && $logsCount == 0) {
 	        if(!$request->isAjax()){
-	            $settingsUrl = $moduleModel->getExtensionSettingsUrl($sourceModule);
+	            $settingsUrl = "index.php?module=Users&parent=Settings&view=MsExchangeSettings&mode=Edit&record=".$currentUser->id;
 	            header("Location: $settingsUrl");
 	        }
 	    }
@@ -87,7 +89,7 @@ class MSExchange_Index_View extends Vtiger_ExtensionViews_View {
 	    $viewer->assign('MODULE_MODEL', $moduleModel);
 	    $viewer->assign('MODULE', $moduleName);
 	    $viewer->assign('SOURCE_MODULE', $sourceModule);
-	    $viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
+	    $viewer->assign('CURRENT_USER_MODEL', $currentUser);
 	    $viewer->assign('DATA', $data);
 	    $viewer->assign('PAGING_MODEL', $pagingModel);
 	    

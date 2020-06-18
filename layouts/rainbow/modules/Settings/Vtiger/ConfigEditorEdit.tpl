@@ -58,7 +58,9 @@
 										</div>
 									{else}
 										<div class=" input-group inputElement"> 
-											<input type="text" class="inputElement "  name="{$FIELD_NAME}" data-rule-required="true" {if $FIELD_VALIDATION[$FIELD_NAME]} {$FIELD_VALIDATION[$FIELD_NAME]} {/if} value="{$FIELD_DATA[$FIELD_NAME]}" />
+										{* 10.6.2020 added fieldname check *}
+											<input type="text" class="inputElement "  name="{$FIELD_NAME}" {if $FIELD_NAME neq 'captcha_secret_key'and $FIELD_NAME neq 'captcha_site_key'}data-rule-required="true"{/if} {if $FIELD_VALIDATION[$FIELD_NAME]} {$FIELD_VALIDATION[$FIELD_NAME]} {/if} value="{$FIELD_DATA[$FIELD_NAME]}" />
+											
 											{if $FIELD_NAME == 'upload_maxsize'}
 												<div class="input-group-addon">{vtranslate('LBL_MB', $QUALIFIED_MODULE)}</div>
 											{/if}

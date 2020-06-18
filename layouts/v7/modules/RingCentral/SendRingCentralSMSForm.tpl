@@ -18,8 +18,8 @@
     }
     .chatbox {
         width: 100%;
-        height: 400px;
-        max-height: 400px;
+        height: 300px;
+        max-height: 300px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -27,7 +27,7 @@
     .chat-window {
         flex: auto;
         max-height: calc(100% - 60px);
-         overflow: hidden;
+        overflow: hidden;
     }
     .chat-window:hover {
     	overflow: auto;

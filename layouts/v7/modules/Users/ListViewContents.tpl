@@ -52,12 +52,9 @@
 							{/if}
 						</th>
 						{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-							{if $LISTVIEW_HEADER->getName() neq 'last_name' and $LISTVIEW_HEADER->getName() neq 'email1' and $LISTVIEW_HEADER->getName() neq 'status'}
-								{if $LISTVIEW_HEADER->getName() eq 'first_name'}
-									{assign var=HEADER_LABEL value='LBL_NAME_EMAIL'}
-								{else}
+							
 									{assign var=HEADER_LABEL value=$LISTVIEW_HEADER->get('label')}
-								{/if}
+							
 								<th {if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')} nowrap="nowrap" {/if} >
 									<a href="#" class="listViewContentHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER->get('name')}">
 										{if $COLUMN_NAME eq $LISTVIEW_HEADER->get('name')}
@@ -71,7 +68,7 @@
 										<a href="#" class="removeSorting"><i class="fa fa-remove"></i></a>
 									{/if}
 								</th>
-							{/if}
+							
 						{/foreach}
 					</tr>
 				</thead>
@@ -84,9 +81,7 @@
 								</div>
 							</th>
 							{foreach item=LISTVIEW_HEADER from=$LISTVIEW_HEADERS}
-								{if $LISTVIEW_HEADER->getName() eq 'last_name' or $LISTVIEW_HEADER->getName() eq 'email1' or $LISTVIEW_HEADER->getName() eq 'status' }
-									{continue}
-								{/if}
+							
 								{if $LISTVIEW_HEADER->getName() eq 'imagename' or $LISTVIEW_HEADER->getName() eq 'user_logo'}
 									<th>&nbsp;</th>
 								{else}
@@ -108,23 +103,8 @@
 								{assign var=LISTVIEW_HEADERNAME value=$LISTVIEW_HEADER->get('name')}
 								{assign var=LISTVIEW_ENTRY_RAWVALUE value=$LISTVIEW_ENTRY->getRaw($LISTVIEW_HEADER->get('column'))}
 								{assign var=LISTVIEW_ENTRY_VALUE value=$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
-								{if $LISTVIEW_HEADER->getName() eq 'first_name'}
-									<td data-name="{$LISTVIEW_HEADER->get('name')}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" data-type="{$LISTVIEW_HEADER->getFieldDataType()}">
-										<span class="fieldValue">
-											<span class="value textOverflowEllipsis">
-												<div style="margin-left: -13px;">
-													
-													<div class="usersinfo col-lg-9 textOverflowEllipsis" title="{$LISTVIEW_ENTRY->get('last_name')}">
-														<a href="{$LISTVIEW_ENTRY->getDetailViewUrl()}">{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)} {$LISTVIEW_ENTRY->get('last_name')}</a>
-													</div>
-													<div class="usersinfo col-lg-9 textOverflowEllipsis">
-														{$LISTVIEW_ENTRY->get('email1')}
-													</div>
-												</div>
-											</span>
-										</span>
-									</td>
-								{elseif $LISTVIEW_HEADER->getName() eq 'imagename' }
+								
+								{if $LISTVIEW_HEADER->getName() eq 'imagename' }
 									<td class="{$WIDTHTYPE}" nowrap>
 										<span class="fieldValue">
 											<span class="value textOverflowEllipsis">
@@ -156,7 +136,7 @@
 											</span>
 										</span>
 									</td>
-								{elseif $LISTVIEW_HEADER->getName() neq 'last_name' and $LISTVIEW_HEADER->getName() neq 'email1' and $LISTVIEW_HEADER->getName() neq 'status'}
+								{else}
 									<td class="{$WIDTHTYPE}" nowrap>
 										<span class="fieldValue">
 											<span class="value textOverflowEllipsis">

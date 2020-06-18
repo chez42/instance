@@ -42,6 +42,7 @@
 	                                        <option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('Gmail',$MODULE)}</option>
 	                                        <option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('Yahoo',$MODULE)}</option>
 	                                        <option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('Fastmail',$MODULE)}</option>
+	                                        <option value='office365' {if $SERVERNAME eq 'office365'} selected {/if}>{vtranslate('Office 365',$MODULE)}</option>
 	                                        <option value='other' {if $SERVERNAME eq 'other'} selected {/if}>{vtranslate('Other',$MODULE)}</option>
 	                                    </select>
 	                                </td>
@@ -79,7 +80,7 @@
 													{if $FIELD_MODEL->getName() eq 'time_zone'}
 														{* since in time zone its array of value and key, since there will mutiple areas with same time_zone *}
 														{foreach item=PICKLIST_VALUE key=PICKLIST_KEY from=$PICKLIST_VALUES}
-															<option value="{$PICKLIST_KEY}" {if $FIELD_VALUE eq $PICKLIST_KEY} selected {/if} >{vtranslate($PICKLIST_VALUE, $QUALIFIED_MODULE)}</option>
+															<option value="{$PICKLIST_KEY}" {if $FIELD_VALUE eq $PICKLIST_KEY} selected {else if $TIMEZONEMAP[$USER_MODEL->time_zone] eq $PICKLIST_KEY} selected {/if} >{vtranslate($PICKLIST_VALUE, $QUALIFIED_MODULE)}</option>
 														{/foreach}
 													{else}
 														{foreach key=PICKLIST_KEY item=PICKLIST_VALUE from=$PICKLIST_VALUES}

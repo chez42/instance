@@ -66,6 +66,9 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
             $entries[$j]["totaltime"] = $db->query_result($result, $j, "totaltime");
             $entries[$j]["parent_id"] = Vtiger_Functions::getCRMRecordLabel($db->query_result($result, $j, "parent_id"));
             
+            $entries[$j]["cf_3643"] = $db->query_result($result, $j, "cf_3643");
+            $entries[$j]["cf_3652"] = $db->query_result($result, $j, "cf_3652");
+            
         }
         
         $this->output($request, $translatedHeaders, $entries);
@@ -73,7 +76,7 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
     
     public function getHeaders() {
         //'Related Record',
-        $relatedColumnFields = array('Ticket Number', 'Category', 'Description', 'Assigned To', 'Status', 'QA by', 'Timer - Start Time', 'Timer - End Time', 'Total Time', 'Client');
+        $relatedColumnFields = array('Ticket Number', 'Category', 'Description', 'Assigned To', 'Status', 'QA by', 'Timer - Start Time', 'Timer - End Time', 'Total Time', 'Client', 'Subcategory', 'Rating');
         $translatedHeaders = array_map('decode_html', $relatedColumnFields);
         return $translatedHeaders;
     }
@@ -96,11 +99,14 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
             concat(vtiger_timecontrol.date_start, ' ',vtiger_timecontrol.time_start) as timestart,
             concat(vtiger_timecontrol.date_end,' ',vtiger_timecontrol.time_end) as timeend,
             vtiger_timecontrol.totaltime,
-            vtiger_troubletickets.parent_id
+            vtiger_troubletickets.parent_id,
+			vtiger_ticketcf.cf_3643,
+            vtiger_ticketcf.cf_3652
         FROM vtiger_timecontrol
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_timecontrol.timecontrolid
         AND vtiger_crmentity.deleted = 0
         INNER JOIN vtiger_troubletickets ON vtiger_troubletickets.ticketid = vtiger_timecontrol.relatedto
+		INNER JOIN vtiger_ticketcf ON vtiger_ticketcf.ticketid = vtiger_troubletickets.ticketid
         INNER JOIN vtiger_crmentity as ticcrm ON ticcrm.crmid = vtiger_troubletickets.ticketid
         AND ticcrm.deleted = 0
         WHERE vtiger_timecontrol.relatedto IN (".generateQuestionMarks($records).")";

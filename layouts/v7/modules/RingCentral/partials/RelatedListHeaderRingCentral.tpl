@@ -9,15 +9,18 @@
 
 {strip}
 
-    
+    {foreach item=RELATED_LIST_MASSACTION from=$RELATED_LIST_MASSACTIONS name=massActions}
+        
+        {if $RELATED_LIST_MASSACTION->getLabel() eq 'LBL_EXPORT'}
+            {assign var=exportAction value=$RELATED_LIST_MASSACTION}
+            {* $a is added as its print the index of the array, need to find a way around it *}
+        {/if}
+        
+    {/foreach}
 	<div class="relatedHeader">
 		<div class="btn-toolbar row">
 			<div class="col-lg-12 col-md-12 col-sm-12 btn-toolbar">
-				{if $MODULE eq 'Contacts' || $MODULE eq 'Leads'}
-					<div class="btn-group">
-						<button class="btn btn-primary" id="LBL_SEND_SMS" onclick="javascript:RingCentral_Js.triggerSendRingCentralSms('index.php?module=RingCentral&src_module={$MODULE}&view=MassActionAjax&mode=showSendRingCentralSMSForm&record={$PARENT_RECORD->getId()}');">Send SMS</button>
-					</div>
-				{/if}
+				
 			</div>
 			{assign var=CLASS_VIEW_ACTION value='relatedViewActions'}
 			{assign var=CLASS_VIEW_PAGING_INPUT value='relatedViewPagingInput'}
@@ -31,7 +34,19 @@
 		<div class="clearfix" style="margin: 5px;"></div>
 		<div class = "row">
 			<div class="col-md-2">
-				
+				{if $MODULE eq 'Contacts' || $MODULE eq 'Leads'}
+					<div class="btn-group">
+						<button class="btn btn-default" id="LBL_SEND_SMS" onclick="javascript:RingCentral_Js.triggerSendRingCentralSms('index.php?module=RingCentral&src_module={$MODULE}&view=MassActionAjax&mode=showSendRingCentralSMSForm&record={$PARENT_RECORD->getId()}');">Send SMS</button>
+					</div>
+				{/if}
+			 	{if $exportAction}
+	                <div class="btn-group relatedlistViewMassActions" role="group">
+	                	<button type="button" class="btn btn-default relatedexport export" id={$MODULE}_reletedlistView_massAction_{$exportAction->getLabel()} 
+	                            {if stripos($exportAction->getUrl(), 'javascript:')===0} href="javascript:void(0);" url='{$exportAction->getUrl()|substr:strlen("javascript:")}'{else} href='{$exportAction->getUrl()}' {/if} title="{vtranslate('LBL_EXPORT', $MODULE)}" >
+	                        Export
+	                    </button>
+	                </div>    
+                {/if}
 			</div>	
 		 	<div class="col-md-6">
 			 	

@@ -16,6 +16,7 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
         $this->exposeMethod('step2');
         $this->exposeMethod('step3');
         $this->exposeMethod('mailBoxList');
+        $this->exposeMethod('getMailBoxData');
     }
     
     public function process(Vtiger_Request $request) {
@@ -67,6 +68,13 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
         $viewer = $this->getViewer($request);
         $viewer->assign('QUALIFIED_MODULE_NAME', $qualifiedModuleName);
         $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        
+        $allModels = MailManager_Mailbox_Model::getAllMailBoxes();
+        $viewer->assign('MAILMODELS', $allModels);
+        
+        $timeZones = Settings_MailConverter_Module_Model::getTimeZoneMapping();
+        $viewer->assign('TIMEZONEMAP', $timeZones);
+        
         $viewer->view('Step1.tpl', $moduleName);
     }
     
@@ -156,6 +164,28 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
         return $headerScriptInstances;
+    }
+    
+    public function getMailBoxData(Vtiger_Request $request){
+        
+        $accountId = $request->get('accountid');
+        $model = MailManager_Mailbox_Model::activeInstance($accountId, 'edit');
+        $serverName = $model->serverName();
+        
+        $mailContents = array(
+            'server' => $serverName,
+            'serverName' => $model->server(),
+            'userName' => $model->username(),
+            'password' => $model->password(),
+            'protocol' => $model->protocol(),
+            'sslType'  => $model->ssltype(),
+            'sslMethod'=> $model->certvalidate()
+        );
+        
+        $response = new Vtiger_Response();
+        $response->setResult($mailContents);
+        $response->emit();
+        
     }
     
 }

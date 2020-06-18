@@ -76,7 +76,12 @@ class VTSimpleTemplate{
 						}
 
 						if ($referenceField === 'contact_id') {
+						    
+						    if($this->parent->moduleName == 'Events'){
+						        $referenceId = $this->getEventContacts();						        
+						    }
 							$referenceIdsList = explode(',', $referenceId);
+							
 							$parts = array();
 							foreach ($referenceIdsList as $referenceId) {
 								$entity = $this->cache->forId($referenceId);
@@ -426,5 +431,26 @@ class VTSimpleTemplate{
 
 		return $ownerId;
 	}
+	
+	function getEventContacts(){
+	    global $adb;
+	    $referenceId = $this->parent->getId();
+
+	    $contactsId = array();
+	    if ($referenceId) {
+	        list($entityId, $eventId) = vtws_getIdComponents($referenceId);
+	        $eventQuery = $adb->pquery("SELECT * FROM vtiger_cntactivityrel 
+            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_cntactivityrel.contactid
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_cntactivityrel.activityid = ?",array($eventId));
+	        if($adb->num_rows($eventQuery)){
+	            for($e=0;$e<$adb->num_rows($eventQuery);$e++){
+	                $contactsId[] = vtws_getWebserviceEntityId('Contacts',$adb->query_result($eventQuery, $e, 'contactid'));
+	            }
+	        }
+	    }
+	    
+	    return implode(',',$contactsId);
+	}
+	
 }
 ?>

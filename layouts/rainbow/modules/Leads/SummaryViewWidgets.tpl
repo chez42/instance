@@ -73,9 +73,27 @@
     {* Summary View Documents Widget Ends Here*}
 </div>
 
-<div class="middle-block col-lg-8">
+<div class="middle-block col-lg-4">
     
-    {if $RECORD->getField('lane')->get('fieldvalue') neq '' or $RECORD->getField('city')->get('fieldvalue') neq ''}
+   
+    
+    {* Summary View Comments Widget*}
+    {if $COMMENTS_WIDGET_MODEL}
+        <div class="summaryWidgetContainer">
+            <div class="widgetContainer_comments" data-url="{$COMMENTS_WIDGET_MODEL->getUrl()}" data-name="{$COMMENTS_WIDGET_MODEL->getLabel()}">
+                <div class="widget_header">
+                    <input type="hidden" name="relatedModule" value="{$COMMENTS_WIDGET_MODEL->get('linkName')}" />
+                    <h4 class="display-inline-block">{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
+                </div>
+                <div class="widget_contents">
+                </div>
+            </div>
+        </div>
+    {/if}
+    {* Summary View Comments Widget Ends Here*}
+</div>
+<div class="right-block col-lg-4">
+ {if $RECORD->getField('lane')->get('fieldvalue') neq '' or $RECORD->getField('city')->get('fieldvalue') neq ''}
     <div class="summaryWidgetContainer">
 	<iframe width="100%" height="200" class="mapIframe" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAnSgEdBwrlr3f1rJtXLa7iSiMrgVjeSGY&q=
 	{if $RECORD->getField('lane')->get('fieldvalue') neq ''}
@@ -107,30 +125,15 @@
 	
 	</div>
 	{/if}
-	{* Summary View Task Widget*}
-		<div id="relatedTasks">
-			{$RELATED_TASKS}
-		</div>
-	{* Summary View Task Widget Ends Here*}
     {* Summary View Related Activities Widget*}
         <div id="relatedActivities">
             {$RELATED_ACTIVITIES}
         </div>
+        {* Summary View Task Widget*}
+		<div id="relatedTasks">
+			{$RELATED_TASKS}
+		</div>
+	{* Summary View Task Widget Ends Here*}
     {* Summary View Related Activities Widget Ends Here*}
-    
-    {* Summary View Comments Widget*}
-    {if $COMMENTS_WIDGET_MODEL}
-        <div class="summaryWidgetContainer">
-            <div class="widgetContainer_comments" data-url="{$COMMENTS_WIDGET_MODEL->getUrl()}" data-name="{$COMMENTS_WIDGET_MODEL->getLabel()}">
-                <div class="widget_header">
-                    <input type="hidden" name="relatedModule" value="{$COMMENTS_WIDGET_MODEL->get('linkName')}" />
-                    <h4 class="display-inline-block">{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-                </div>
-                <div class="widget_contents">
-                </div>
-            </div>
-        </div>
-    {/if}
-    {* Summary View Comments Widget Ends Here*}
-</div>
+    </div>
 {/strip}

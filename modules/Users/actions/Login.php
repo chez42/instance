@@ -42,6 +42,12 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 			$_SESSION['KCFINDER']['disabled'] = false; 
 			$_SESSION['KCFINDER']['uploadURL'] = "test/upload"; 
 			$_SESSION['KCFINDER']['uploadDir'] = "../test/upload";
+			
+			global $root_directory, $site_URL;
+			$_SESSION['CKFINDER']['uploadDir'] = $root_directory;
+			$_SESSION['CKFINDER']['baseUrl'] = $site_URL;
+			
+			
 			$deniedExts = implode(" ", vglobal('upload_badext'));
 			$_SESSION['KCFINDER']['deniedExts'] = $deniedExts;
 			// End

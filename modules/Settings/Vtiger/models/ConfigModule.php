@@ -129,8 +129,8 @@ class Settings_Vtiger_ConfigModule_Model extends Settings_Vtiger_Module_Model {
 		    'master_password'               => array('label' => 'LBL_MASTER_PASSWORD',					'fieldType' => 'input'),
 		    'PORTAL_URL'                    => array('label' => 'Portal Url',					        'fieldType' => 'input'),
 		    
-		    'captcha_secret_key'               => array('label' => 'Captcha Secret Key',					'fieldType' => 'input'),
-		    'captcha_site_key'               => array('label' => 'Captcha Site Key',					'fieldType' => 'input'),
+		    'captcha_secret_key'            => array('label' => 'Captcha Secret Key',					'fieldType' => 'input'),
+		    'captcha_site_key'              => array('label' => 'Captcha Site Key',					'fieldType' => 'input'),
 		    
 		    
 		);
