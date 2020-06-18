@@ -48,7 +48,7 @@ class Settings_Workflows_RecordStructure_Model extends Vtiger_RecordStructure_Mo
 				$values[$blockLabel] = array();
 				foreach($fieldModelList as $fieldName=>$fieldModel) {
 					if($fieldModel->isViewable()) {
-						if (in_array($moduleModel->getName(), array('Calendar', 'Events'))&& $fieldName != 'modifiedby'  && $fieldModel->getDisplayType() == 3) {
+					    if (in_array($moduleModel->getName(), array('Calendar', 'Events'))&& $fieldName != 'modifiedby' && $fieldName != 'trigger_reminder' && $fieldModel->getDisplayType() == 3) {
 							/* Restricting the following fields(Event module fields) for "Calendar" module
 							 * time_start, time_end, eventstatus, activitytype,	visibility, duration_hours,
 							 * duration_minutes, reminder_time, recurringtype, notime

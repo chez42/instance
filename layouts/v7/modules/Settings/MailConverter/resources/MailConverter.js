@@ -57,6 +57,29 @@ jQuery.Class('Settings_MailConverter_Index_Js', {
 		vtUtils.applyFieldElementsView(newRow);
 	},
 	
+	scanMails: function(){
+		var form = jQuery('#scanRules');
+		var params = form.serialize();
+		
+		var date = form.find('[name="date"]').val();
+		var subject = form.find('[name="subject"]').val();
+		
+		if(date || subject){
+			app.helper.showProgress();
+			app.request.post({'data': params}).then(function (err, data) {
+				app.helper.hideProgress();
+				if (typeof data != 'undefined') {
+					app.helper.hideModal();
+					app.helper.showSuccessNotification({'message': data.message});
+				} else {
+					app.helper.showErrorNotification({'message': err['message']});
+				}
+			});
+		}else{
+			app.helper.showErrorNotification({'message': 'Atleast one field is required.'});
+		}
+	},
+	
 }, {
 	registerSortableEvent: function () {
 		var thisInstance = this;

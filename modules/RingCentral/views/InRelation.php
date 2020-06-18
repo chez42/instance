@@ -132,6 +132,15 @@ class RingCentral_InRelation_View extends Vtiger_RelatedList_View {
             $viewer->assign('SEARCH_DETAILS', $searchParams);
             $viewer->assign('TAB_LABEL', $request->get('tab_label'));
             
+            $massactions = $relationListView->getRelatedListViewMassActions();
+           
+            $viewer->assign('RELATED_LIST_MASSACTIONS', $massactions['RELATEDLISTVIEWMASSACTION']);
+            
+            $customView = new CustomView();
+            $cvId = $customView->getViewIdByName('All',$relatedModuleName);
+            
+            $viewer->assign('CVID', $cvId);
+            
             return $viewer->view('RingCentralRelatedList.tpl', $relatedModuleName, 'true');
     }
     

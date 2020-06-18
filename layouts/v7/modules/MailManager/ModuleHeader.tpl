@@ -140,7 +140,7 @@
 						{/if}
 						<li>
 							<button href="javascript:void(0);" data-toggle="dropdown" class="btn btn-default" style="margin-left: 4px;margin-top: 5px;">
-								{vtranslate('Configure Mailbox', $QUALIFIED_MODULE_NAME)}&nbsp;<i class="caret"></i>
+								{vtranslate('Configure Mail Converter', $QUALIFIED_MODULE_NAME)}&nbsp;<i class="caret"></i>
 							</button>
 							<ul class="dropdown-menu pull-right mailBoxDropDown">
 								<li>

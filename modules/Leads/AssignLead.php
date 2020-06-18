@@ -40,9 +40,11 @@ function AssignLead($entityData){
                 $user_list[] = $adb->query_result($userQuery, $u, 'id');
             }
         }
-    } else {
-        $allUsers = getAllUserName();
-	$user_list = array_keys($allUsers);
+    }
+    
+    if(empty($user_list)){
+       $allUsers = getAllUserName();
+	   $user_list = array_keys($allUsers);
     }
 
     $result = $adb->pquery("SELECT * FROM `workflow_roundrobin_logic`");

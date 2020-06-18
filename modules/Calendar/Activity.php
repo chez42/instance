@@ -172,9 +172,14 @@ class Activity extends CRMEntity {
 						$this->insertIntoRecurringTable($recur_data);
 			}
 		}
+		
 		//Insert into vtiger_activity_remainder table
-
-			$this->insertIntoReminderTable('vtiger_activity_reminder',$module,"");
+		if($_REQUEST['action'] != 'InvoiceAjax' && $_REQUEST['ajxaction'] != 'DETAILVIEW'
+		    && $_REQUEST['action'] != 'MassEditSave' && $_REQUEST['action'] != 'ProcessDuplicates'
+		    && ($_REQUEST['action'] != 'SaveAjax' || isset($_REQUEST['remdays']) || 
+		        $_REQUEST['field'] == 'reminder_time') && $_REQUEST['action'] != 'FROM_WS') {
+		        $this->insertIntoReminderTable('vtiger_activity_reminder',$module,"");
+	    }
 
 		//Handling for invitees
 			$selected_users_string =  $_REQUEST['inviteesid'];
@@ -202,6 +207,18 @@ class Activity extends CRMEntity {
 		$minutes = (int)(($time % 3600) / 60);
 		$updateQuery = "UPDATE vtiger_activity SET duration_hours = ?, duration_minutes = ? WHERE activityid = ?";
 		$adb->pquery($updateQuery, array($hours, $minutes, $this->id));
+		
+		$reminderTime = $adb->pquery("SELECT * FROM vtiger_activity_reminder WHERE activity_id = ?",
+		    array($this->id));
+		
+		if($adb->num_rows($reminderTime)){
+		    $activityReminderTime = $adb->query_result($reminderTime, 0, 'reminder_time');
+		    $reminderDatetime = date("Y-m-d H:i:s", strtotime("-".$activityReminderTime." minutes", strtotime($startDateTime)));
+		
+		    $updateQuery = "UPDATE vtiger_activity SET activity_reminder_time = ? WHERE activityid = ?";
+		    $adb->pquery($updateQuery, array($reminderDatetime, $this->id));
+		}
+		
 	}
 
 	/** Function to insert values in vtiger_activity_reminder_popup table for the specified module
@@ -273,6 +290,7 @@ class Activity extends CRMEntity {
 			$log->debug("rem_minutes is ".$rem_min);
 			$reminder_time = $rem_days * 24 * 60 + $rem_hrs * 60 + $rem_min;
 			$log->debug("reminder_time is ".$reminder_time);
+			
 			if ($recurid == "")
 			{
 				if($_REQUEST['mode'] == 'edit')

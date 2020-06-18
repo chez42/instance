@@ -208,6 +208,8 @@ class MailManager_Mailbox_Model {
 			$mServerName = 'yahoo';
 		} else if($mServer == 'mail.messagingengine.com') {
 			$mServerName = 'fastmail';
+		} else if($mServer == 'imap-mail.outlook.com'){
+		    $mServerName = 'office365';
 		} else {
 			$mServerName = 'other';
 		}

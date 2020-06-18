@@ -54,7 +54,7 @@ class Vtiger_MailScanner {
 	/**
 	 * Start Scanning.
 	 */
-	function performScanNow() {
+	function performScanNow($request) {
 		// Check if rules exists to proceed
 		$rules = $this->_scannerinfo->rules;
 
@@ -98,7 +98,7 @@ class Vtiger_MailScanner {
 			}
 
 			// Search for mail in the folder
-			$mailsearch = $mailbox->search($lookAtFolder);
+			$mailsearch = $mailbox->search($lookAtFolder, false, $request);
 			$this->log($mailsearch? "Total Mails Found in [$lookAtFolder]: " . count($mailsearch) : "No Mails Found in [$lookAtFolder]");
 
 			// No emails? Continue with next folder

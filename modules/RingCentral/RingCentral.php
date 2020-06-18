@@ -63,6 +63,7 @@ class RingCentral extends Vtiger_CRMEntity {
 	
 	var $default_sort_order = 'ASC';
 	
+	
     /**
      * Invoked when special actions are performed on the module.
      * @param String Module name
@@ -79,24 +80,34 @@ class RingCentral extends Vtiger_CRMEntity {
 			$this->addLinks($adb,$displayLabel);
             
 			$this->ringCentralTables($adb);
+			
+			self::installWorkflows($moduleName);
         
 		} else if($eventType == 'module.disabled') {
             
 			$adb->pquery("DELETE FROM vtiger_settings_field WHERE name=?", array($displayLabel));
             
 			$this->removeLinks($adb);
+			
+			self::removeWorkflows($moduleName);
         
 		} else if($eventType == 'module.enabled') {
             
 			$this->addLinks($adb,$displayLabel);
             
 			$this->ringCentralTables($adb);
+			
+			self::installWorkflows($moduleName);
         
 		} else if($eventType == 'module.preuninstall') {
 			
+		    self::removeWorkflows($moduleName);
+		    
 		} else if($eventType == 'module.preupdate') {
         
-		} else if($eventType == 'module.postupdate') {}
+		} else if($eventType == 'module.postupdate') {
+		    self::installWorkflows($moduleName);
+		}
     }
     
     function removeLinks($adb) {
@@ -279,6 +290,77 @@ class RingCentral extends Vtiger_CRMEntity {
         clientid VARCHAR(250) NOT NULL ,
         clientsecret VARCHAR(500) NOT NULL ) ;");
 	    */
+	}
+	
+	public $workflows = array("RingcentralSmsTask" => "Send Sms with Ringcentral");
+	
+	public function installWorkflows($moduleName)
+	{
+	    require_once "modules/com_vtiger_workflow/include.inc";
+	    global $adb;
+	    global $vtiger_current_version;
+	    if (version_compare($vtiger_current_version, "7.0.0", "<")) {
+	        $template_folder = "layouts/vlayout";
+	    } else {
+	        $template_folder = "layouts/v7";
+	    }
+	    foreach ($this->workflows as $name => $label) {
+	        
+	        $dest1 = "modules/com_vtiger_workflow/tasks/" . $name . ".inc";
+	        $source1 = "modules/" . $moduleName . "/workflow/" . $name . ".inc";
+	        @shell_exec("rm -f modules/com_vtiger_workflow/tasks/" . $name . ".inc");
+	        @shell_exec("rm -f " . $template_folder . "/modules/Settings/Workflows/Tasks/" . $name . ".tpl");
+	        $file_exist1 = false;
+	        $file_exist2 = false;
+	        if (file_exists($dest1)) {
+	            $file_exist1 = true;
+	        } else {
+	            if (copy($source1, $dest1)) {
+	                $file_exist1 = true;
+	            }
+	        }
+	        $dest2 = (string) $template_folder . "/modules/Settings/Workflows/Tasks/" . $name . ".tpl";
+	        $source2 = (string) $template_folder . "/modules/" . $moduleName . "/task/" . $name . ".tpl";
+	        $templatepath = "modules/" . $moduleName . "/task/" . $name . ".tpl";
+	        if (file_exists($dest2)) {
+	            $file_exist2 = true;
+	        } else {
+	            if (copy($source2, $dest2)) {
+	                $file_exist2 = true;
+	            }
+	        }
+	        if ($file_exist1 && $file_exist2) {
+	            $sql1 = "SELECT * FROM com_vtiger_workflow_tasktypes WHERE tasktypename = ?";
+	            $result1 = $adb->pquery($sql1, array($name));
+	            if ($adb->num_rows($result1) == 0) {
+	                $taskType = array("name" => $name, "label" => $label, "classname" => $name, "classpath" => $source1, "templatepath" => $templatepath, "modules" => array("include" => array(), "exclude" => array()), "sourcemodule" => $moduleName);
+	                VTTaskType::registerTaskType($taskType);
+	            }
+	        }
+	    }
+	}
+	
+	private function removeWorkflows($moduleName)
+	{
+	   
+	    global $adb;
+	    global $vtiger_current_version;
+	    if (version_compare($vtiger_current_version, "7.0.0", "<")) {
+	        $template_folder = "layouts/vlayout";
+	    } else {
+	        $template_folder = "layouts/v7";
+	    }
+	    
+	    $sql1 = "DELETE FROM com_vtiger_workflow_tasktypes WHERE sourcemodule = ?";
+	    $adb->pquery($sql1, array($moduleName)); 
+	    foreach ($this->workflows as $name => $label) {
+	        $likeTasks = "%:\"" . $name . "\":%";
+	        $sql2 = "DELETE FROM com_vtiger_workflowtasks WHERE task LIKE ?";
+	        $adb->pquery($sql2, array($likeTasks));
+	        @shell_exec("rm -f modules/com_vtiger_workflow/tasks/" . $name . ".inc");
+	        @shell_exec("rm -f " . $template_folder . "/modules/Settings/Workflows/Tasks/" . $name . ".tpl");
+	    }
+	    
 	}
     
 }

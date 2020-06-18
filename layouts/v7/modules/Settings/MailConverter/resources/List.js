@@ -20,17 +20,31 @@ Settings_Vtiger_Index_Js('Settings_MailConverter_List_Js', {
 	},
 
 	triggerScan: function (url) {
+	
+		var urlParams = app.convertUrlToDataParams(url);
+		
+		var params = {};
+		params['module'] = 'MailConverter';
+		params['parent'] = 'Settings';
+		params['view'] = 'ScanNowAjax';
+		params['scannerid'] = urlParams['record'];
 		app.helper.showProgress();
-		app.request.post({'url': url}).then(function (err, data) {
+			
+		app.request.post({'data': params}).then(function (err, data) {
+			app.helper.showModal(data, {cb : function() {
+				app.helper.hideProgress();
+			}});
+		});
+		/*app.request.post({'url': url}).then(function (err, data) {
 			app.helper.hideProgress();
 			if (typeof data != 'undefined') {
 				app.helper.showSuccessNotification({'message': data.message});
 			} else {
 				app.helper.showErrorNotification({'message': err['message']});
 			}
-		});
+		});*/
 	},
-
+	
 	triggerDelete: function (url) {
 		app.helper.showConfirmationBox({'message': app.vtranslate('LBL_DELETE_CONFIRMATION')}).then(function () {
 			app.helper.showProgress();

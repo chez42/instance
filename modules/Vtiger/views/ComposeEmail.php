@@ -114,6 +114,10 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
     		    
     		    $fileName = $baseFileName . '.csv';
     		    $filePath = 'storage/Reports';
+    		    
+    		    if(!is_dir($filePath))
+    		        mkdir($filePath);
+    		    
     		    $oReportRun->writeReportToCSVFile($filePath.'/'.$fileName);
     		    
     		    $attachmentDetails = array(array(

@@ -1543,6 +1543,22 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
         }
     }
 
+    static public function UpdateIndexSymbolsEOD(array $symbol, $sdate, $edate){
+        $token_date = $sdate;
+        while(strtotime($token_date) <= strtotime($edate)){
+            $tmp_end = date("Y-m-t", strtotime($token_date));
+            if($token_date > $edate)
+                return;
+            if($tmp_end > $edate)
+                $tmp_end = $edate;
+
+            foreach($symbol AS $k => $v){
+                ModSecurities_ConvertCustodian_Model::UpdateIndexEOD($v, $token_date, $tmp_end);
+            }
+            $token_date = date("Y-m-01", (strtotime('+1 month', strtotime($token_date) ) ));
+        }
+    }
+
     static public function UpdateAllIndexesEOD($sdate, $edate){
 	    $token_date = $sdate;
         $indexes = ModSecurities_Module_Model::GetAllIndexes();

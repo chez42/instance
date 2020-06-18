@@ -76,6 +76,16 @@ jQuery.Class("Settings_Users_MsExchange_Js",{},{
 						}
 					}
 				);
+			}else{
+				var params = {
+					position: {
+						'my' : 'bottom left',
+						'at' : 'top left',
+						'container' : jQuery('#EditView')
+				}};
+				var errorMsg = app.vtranslate('JS_REQUIRED_FIELD');
+				vtUtils.showValidationMessage(jQuery('[name="user_principal_name"]'), errorMsg, params);
+				return false;
 			}
 		});
 		

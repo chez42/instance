@@ -9,7 +9,7 @@
 
 Vtiger_List_Js("EmailTemplates_List_Js", {
     massDeleteRecords: function (url, instance) {
-        var listInstance = Vtiger_List_Js.getInstance();
+    	var listInstance = app.controller();
         if (typeof instance != "undefined") {
             listInstance = instance;
         }
@@ -330,7 +330,7 @@ Vtiger_List_Js("EmailTemplates_List_Js", {
         this.registerAccordionClickEvent();
         this.registerViewType();
         this.registerThumbnailHoverActionEvent();
-        this.registerPromptTemplateDeleteEvent();
+        //this.registerPromptTemplateDeleteEvent();
         this.registerTemplateDuplicationEvent();
         this.registerTemplateEditEvent();
         this.registerPreviewTemplateEvent();

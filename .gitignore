@@ -1,7 +1,9 @@
 config.inc.php
-test/templates_c/v7/*
+test/*
 logs/*
 .idea/*
 vendor/*
 user_privileges/*
 storage/*
+cp/files/*
+cache/*

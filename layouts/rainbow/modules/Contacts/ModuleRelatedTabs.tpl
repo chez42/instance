@@ -6,7 +6,6 @@
 * Portions created by vtiger are Copyright (C) vtiger.
 * All Rights Reserved.
 *************************************************************************************}
-
 {strip}
 	<div class='related-tabs row visible-lg sh-effect1'>
 		<ul class="nav nav-tabs">
@@ -141,7 +140,9 @@
 				</li>
 			{/if}
 			<li>
-                {include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+				{if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
+                	{include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+				{/if}
             </li>
 		</ul>
 	</div>

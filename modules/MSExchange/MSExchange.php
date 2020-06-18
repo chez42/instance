@@ -13,7 +13,7 @@ class MSExchange {
      */
     function vtlib_handler($moduleName, $eventType) {
         $adb = PearDatabase::getInstance();
-        $syncModules = array('Contacts' => 'MSExchange Contacts', 'Calendar' => 'MSExchange Calendar');
+        $syncModules = array('Contacts' => 'MSExchange Contacts', 'Calendar' => 'MSExchange Calendar', 'Task' => 'MSExchange');
         if ($eventType == 'module.postinstall') {
             $linkName =  'MSExchange';
             $linkurl = 'index.php?module=MSExchange&parent=Settings&view=Extension&extensionModule=MSExchange&extensionView=Index&mode=GlobalSettings';

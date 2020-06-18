@@ -1,4 +1,5 @@
-<div class="modal-dialog modal-lg" style="width: 100%;height: 100%">
+<!--12.6.20 removed style width and modified class name  -->
+<div class="modal-dialog modal-md" >
     <div id="popup_settings_createnewrecord" class="modal-settings modal-content" style="width: 400px">
         <form class="form-horizontal" action="#">
             <div class="modal-header">
@@ -39,6 +40,8 @@
                 <center>
                     <button type="button" class="btn btn-primary btn-submit"
                             ng-click="changeSetting($event)">{{ 'OK' | translate }}</button>
+                            
+                    <button onclick="window.onbeforeunload = null;location.href='index.php?module=QuotingTool&view=List'" class="btn btn-primary" >{{ 'Cancel' | translate }}</a>
                 </center>
             </div>
         </form>
