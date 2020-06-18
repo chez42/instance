@@ -34,7 +34,7 @@ class Documents_ExportZip_Action extends Vtiger_Mass_Action {
         INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
         WHERE vtiger_crmentity.deleted = 0 AND vtiger_notes.notesid IN (".implode(',',$documentIdsList).")");
         
-        $files = '';
+        $files = array();
         
         if($adb->num_rows($notes)){
             for($i=0;$i<$adb->num_rows($notes);$i++){
