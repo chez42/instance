@@ -133,3 +133,5 @@ if($adb->num_rows($field_result)){
 
 $adb->pquery("update vtiger_field set summaryfield = '1' where fieldname = 'faq_no' 
 and tabid = ?", array( getTabid('Faq') ) );
+
+$adb->pquery("ALTER TABLE vtiger_mail_accounts ADD smtp_servername VARCHAR(250) NULL");
