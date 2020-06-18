@@ -970,4 +970,23 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
         $adb->pquery($query, array());
     }
 
+    /**
+     * Returns the security price adjustment if one is available, if not it returns 1 by default
+     * @param $symbol
+     * @return int|string|string[]|null
+     * @throws Exception
+     */
+    static public function GetSecurityPriceAdjustment($symbol){
+        global $adb;
+        $query = "SELECT security_price_adjustment 
+                  FROM vtiger_modsecurities m
+                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  WHERE security_symbol = ?";
+        $result = $adb->pquery($query, array($symbol));
+
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'security_price_adjustment');
+        return 1;
+    }
+
 }
