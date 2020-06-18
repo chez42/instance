@@ -293,6 +293,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		}
 		var container = self.getContainer();
 		vtUtils.hideValidationMessage(container.find('#mailManagerSearchbox'));
+		vtUtils.hideValidationMessage(container.find('[name="date"]'));
 		var params = {
 			'module' : 'MailManager',
 			'view' : 'Index',
@@ -560,15 +561,20 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		});
 		container.find('#mm_searchButton').click(function() {
 			var query = container.find('#mailManagerSearchbox').val();
-			if(query.trim() == '') {
-				vtUtils.showValidationMessage(container.find('#mailManagerSearchbox'), app.vtranslate('JSLBL_ENTER_SOME_VALUE'));
+			var date = container.find('[name="date"]').val();
+			
+			if(query.trim() == '' && date == '') {
+				vtUtils.showValidationMessage(container.find('#mailManagerSearchbox'));
+				vtUtils.showValidationMessage(container.find('[name="date"]'));
+				app.helper.showErrorNotification({'message': 'Atleast one field is required.'});
 				return false;
 			} else {
 				vtUtils.hideValidationMessage(container.find('#mailManagerSearchbox'));
+				vtUtils.hideValidationMessage(container.find('[name="date"]'));
 			}
 			var folder = container.find('#mailManagerSearchbox').data('foldername');
 			var type = container.find('#searchType').val();
-			var date = container.find('[name="date"]').val();
+			
 			self.openFolder(folder, 0, query, type, date);
 		});
 	},
