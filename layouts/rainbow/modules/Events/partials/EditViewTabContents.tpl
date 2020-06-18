@@ -97,7 +97,7 @@
 										{assign var="refrenceListCount" value=count($refrenceList)}
 										{if $FIELD_MODEL->isEditable() eq true}
 											{if $FIELD_MODEL->get('uitype') eq "19"}
-												{if $COUNTER eq '1'}
+												{if $COUNTER gte '3'}
 													<td></td><td></td></tr><tr>
 													{assign var=COUNTER value=0}
 												{/if}
@@ -221,7 +221,7 @@
 												{assign var="refrenceListCount" value=count($refrenceList)}
 												{if $FIELD_MODEL->isEditable() eq true}
 													{if $FIELD_MODEL->get('uitype') eq "19"}
-														{if $COUNTER eq '1'}
+														{if $COUNTER gte '3'}
 															<td></td><td></td></tr><tr>
 															{assign var=COUNTER value=0}
 														{/if}
