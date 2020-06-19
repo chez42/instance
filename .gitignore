@@ -7,4 +7,4 @@ user_privileges/*
 storage/*
 cp/files/*
 cache/*
-.ckfinder/*
+.ckfinder
