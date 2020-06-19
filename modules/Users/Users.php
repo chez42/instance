@@ -397,7 +397,7 @@ class Users extends CRMEntity {
 				$query = "SELECT 1 from $this->table_name where user_name=? AND user_password=? AND status = ?";
 				$result = $this->db->requirePsSingleResult($query, array($usr_name, $encrypted_password, 'Active'), false);
 				if (empty($result)) {
-					return true;
+					return false;
 				} else {
 					return true;
 				}
