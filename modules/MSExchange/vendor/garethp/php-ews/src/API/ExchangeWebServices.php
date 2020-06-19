@@ -377,7 +377,6 @@ class ExchangeWebServices
         try{
 			$items = $this->getItemsFromResponse($response);
 		} catch (Exception $e){
-			echo $e->getMessage();
 		    if($e->getMessage() == 'Occurrence index is out of recurrence range.'){
 		        throw New Exception($e->getMessage());
 		    } else {
