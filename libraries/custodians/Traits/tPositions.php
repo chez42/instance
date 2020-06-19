@@ -141,14 +141,14 @@ trait tPositions{
     public function GetAllOldAndNewPositionSymbols(array $account_numbers){
         global $adb;
         $questions = generateQuestionMarks($account_numbers);
-        $query = "SELECT symbol FROM {$this->database}.{$this->table} 
+        $query = "SELECT TRIM(symbol) AS symbol FROM {$this->database}.{$this->table} 
                   WHERE account_number IN ({$questions}) 
                   GROUP BY symbol";
         $result = $adb->pquery($query, array($account_numbers));
         $symbols = array();
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                $symbols[strtoupper(TRIM($v['symbol']))] = $v['symbol'];
+                $symbols[strtoupper(TRIM($v['symbol']))] = TRIM($v['symbol']);
             }
         }
 

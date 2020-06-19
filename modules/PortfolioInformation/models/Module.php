@@ -2875,11 +2875,61 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
 
-        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, {$db_name})";
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, ?)";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
-            $adb->pquery($query, array($account_number, $d));
+            $adb->pquery($query, array($account_number, $d, $db_name), true);
+#            echo "Check for {$account_number}, {$d} -- {$db_name}<br />";
         }
+    }
+
+    static public function TDBalanceCalculationsMultiple(array $account_number, $sdate, $edate){
+        global $adb, $dbconfig;
+        $db_name = $dbconfig['db_name'];
+
+        $begin = new DateTime($sdate);
+        $end = new DateTime($edate);
+
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
+
+        $questions = generateQuestionMarks($account_number);
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE(\"{$questions}\", ?, ?)";
+
+        foreach ($period as $dt) {
+            $d = $dt->format("Y-m-d");
+            $adb->pquery($query, array($account_number, $d, $db_name), true);
+        }
+    }
+
+    static public function TDBalanceCalculationsRepCodes(array $rep_codes, $sdate, $edate){
+        $accounts = self::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
+
+#        foreach($accounts AS $k => $v){
+#            echo "Trying {$v} using {$sdate}, {$edate}<br />";
+            self::TDBalanceCalculationsMultiple($accounts, $sdate, $edate);
+            echo 'check now for ';
+            print_r($accounts);exit;
+#            echo "Done {$v}<br />";exit;
+#        }
+    }
+
+    protected function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
+        global $adb;
+        $params = array();
+        $questions = generateQuestionMarks($rep_codes);
+        $params[] = $rep_codes;
+        $account_numbers = array();
+
+        $query = "SELECT account_number 
+                  FROM custodian_omniscient.custodian_portfolios_{$custodian} 
+                  WHERE rep_code IN ({$questions})";
+        $result = $adb->pquery($query, $params, true);
+        if($adb->num_rows($result) > 0)
+            while($r = $adb->fetchByAssoc($result)){
+                $account_numbers[] = $r['account_number'];
+            }
+        return $account_numbers;
     }
 
     static public function GetDateFieldForCustodianBalance($custodian){
@@ -2964,4 +3014,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         return $list;
     }
 
+    //TODO Need this finished.. It is to figured out portfolios not linked to contact
+    static public function GetValidPortfoliosNotLinked(){
+        global $adb;
+        $query = "SELECT portfolioinformationid 
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  WHERE last_name IS NOT NULL AND last_name != '' AND last_name != 'System Generated'
+                  AND ";
+    }
 }
