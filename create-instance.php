@@ -1,24 +1,25 @@
 <?php
 	error_reporting(E_ALL);
+	
 	ini_set('display_errors',1);
 
-$mysql_host = "192.168.102.224";
+	$mysql_host = "192.168.102.224";
 
-$mysql_user_name = "syncuser";
+	$mysql_user_name = "syncuser";
 
-$mysql_password = "Concert222";
+	$mysql_password = "Concert222";
 
-$default_db_name = 'instance_clone';
+	$default_db_name = 'instance_clone';
 
-$base_path = "/var/www/sites";
+	$base_path = "/var/www/sites";
 
-$_REQUEST['instance_name']  = str_replace(" ", "_", strtolower($_REQUEST['instance_name']));
+	$_REQUEST['instance_name']  = str_replace(" ", "_", strtolower($_REQUEST['instance_name']));
 
-$instance_name = $_REQUEST['instance_name'];
+	$instance_name = $_REQUEST['instance_name'];
 
-$response = array();
+	$response = array();
 
-if($instance_name != ''){
+	if($instance_name != ''){
 
         if(file_exists($base_path . "/" . $instance_name)){
 
@@ -28,57 +29,60 @@ if($instance_name != ''){
 
         //      system("mkdir ". $base_path . "/" . $instance_name);
         //      system("sudo chown syncuser:apache ". $base_path . "/" . $instance_name);
-                $result = system("sudo /usr/bin/git clone https://gituser:Concert222@dev.omnisrv.com:3443/git/Omniver4hq.git $base_path" . "/" . $instance_name . ' 2>&1', $err);
-echo 'r - ' . $result . '<br />';
-print_r($err);
-echo "Cloning finished<br />";
+            $result = system("sudo /usr/bin/git clone https://gituser:Concert222@lab.omnisrv.com/omniscient/instance.git $base_path" . "/" . $instance_name . ' 2>&1', $err);
+			echo 'r - ' . $result . '<br />';
+			print_r($err);
+			echo "Cloning finished<br />";
 
-#$command = "sudo chown -R syncuser:apache ". $base_path . "/" . $instance_name;
-#echo $command . '<br />';
-#$result = system($command, $err);
-$result = system("sudo chown -R syncuser:apache ". $base_path . "/" . $instance_name, $err);
-#echo "ownership result: {$result}";
-#print_r($err);
-echo "ownership changed<br />";
+			#$command = "sudo chown -R syncuser:apache ". $base_path . "/" . $instance_name;
+			#echo $command . '<br />';
+			#$result = system($command, $err);
+			
+			$result = system("sudo chown -R syncuser:apache ". $base_path . "/" . $instance_name, $err);
 
-system("sudo chmod 770 " . $base_path . "/" . $instance_name);
-echo "chmod changed<br />";
+			#echo "ownership result: {$result}";
+			#print_r($err);
+			echo "ownership changed<br />";
 
-                $db_name = '360vew_'.$instance_name;
+			system("sudo chmod 770 " . $base_path . "/" . $instance_name);
+			
+			echo "chmod changed<br />";
 
-                $con = mysqli_connect($mysql_host,$mysql_user_name, $mysql_password) or die(mysqli_error());
+			$db_name = '360vew_'.$instance_name;
 
-                mysqli_query($con, "create database $db_name CHARACTER SET utf8 COLLATE utf8_general_ci") or die(mysqli_error());
+			$con = mysqli_connect($mysql_host,$mysql_user_name, $mysql_password) or die(mysqli_error());
 
-                //exec("mysqldump -h crmdbsrv -u $mysql_user_name -p'$mysql_password' --routines $default_db_name > backup.sql");
-                exec("mysql -h crmdbsrv -u $mysql_user_name -p'$mysql_password' $db_name < /home/syncuser/instance_clone.sql");
-                //unlink("backup.sql");
+			mysqli_query($con, "create database $db_name CHARACTER SET utf8 COLLATE utf8_general_ci") or die(mysqli_error());
 
-                $newInstanceInfo = array();
+			//exec("mysqldump -h crmdbsrv -u $mysql_user_name -p'$mysql_password' --routines $default_db_name > backup.sql");
+			exec("mysql -h crmdbsrv -u $mysql_user_name -p'$mysql_password' $db_name < /home/syncuser/instance_clone.sql");
+			//unlink("backup.sql");
 
-                $newInstanceInfo['db_name'] = $db_name;
+			$newInstanceInfo = array();
 
-                $newInstanceInfo['site_url'] = "https://$instance_name.360vew.com/";
+			$newInstanceInfo['db_name'] = $db_name;
 
-                $newInstanceInfo['root_directory'] = $base_path . "/" . $instance_name . "/";
+			$newInstanceInfo['site_url'] = "https://$instance_name.360vew.com/";
 
-system("/usr/bin/bash /var/www/sites/360vew/fixperms.sh " . $instance_name);
-echo "Permissions run<br />";
+			$newInstanceInfo['root_directory'] = $base_path . "/" . $instance_name . "/";
+
+			system("/usr/bin/bash /var/www/sites/360vew/fixperms.sh " . $instance_name);
+			
+			echo "Permissions run<br />";
 
 
-// Copy the 'clean' storage and user_privileges directories.
-#system("/usr/bin/bash /var/www/sites/360vew/copydirs.sh " . $instance_name);
-#echo "Directories copied<br />";
-create_directory($instance_name);
-copy_files("/var/www/sites/user_privileges/user_privileges_1.php","/var/www/sites/{$instance_name}/user_privileges/user_privileges_1.php");
-copy_files("/var/www/sites/user_privileges/sharing_privileges_1.php","/var/www/sites/{$instance_name}/user_privileges/sharing_privileges_1.php");
-copy_files("/var/www/sites/user_privileges/index.html","/var/www/sites/{$instance_name}/user_privileges/index.html");
-
-copy_files("/var/www/sites/storage/.htaccess","/var/www/sites/{$instance_name}/storage/.htaccess");
-
-                createConfigurationFiles($newInstanceInfo);
-
-                $response = array("SUCCESS" => "Instance Set UP Successfully " . $newInstanceInfo['site_url']);
+			// Copy the 'clean' storage and user_privileges directories.
+			#system("/usr/bin/bash /var/www/sites/360vew/copydirs.sh " . $instance_name);
+			#echo "Directories copied<br />";
+			//create_directory($instance_name);
+			//copy_files("/var/www/sites/user_privileges/user_privileges_1.php","/var/www/sites/{$instance_name}/user_privileges/user_privileges_1.php");
+			//copy_files("/var/www/sites/user_privileges/sharing_privileges_1.php","/var/www/sites/{$instance_name}/user_privileges/sharing_privileges_1.php");
+			//copy_files("/var/www/sites/user_privileges/index.html","/var/www/sites/{$instance_name}/user_privileges/index.html");
+			//copy_files("/var/www/sites/storage/.htaccess","/var/www/sites/{$instance_name}/storage/.htaccess");
+			
+			createConfigurationFiles($newInstanceInfo);
+			
+			$response = array("SUCCESS" => "Instance Set UP Successfully " . $newInstanceInfo['site_url']);
 
         }
 
