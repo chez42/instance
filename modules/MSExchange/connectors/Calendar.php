@@ -298,15 +298,18 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                     
                     $eventAttendees = $this->emailLookUp($attendees);
                     
-                    if(!empty($eventAttendees)){
-                        $entity['contactidlist'] = implode(';', $eventAttendees);
+                        if(!empty($eventAttendees['Contacts'])){
+                            $entity['contactidlist'] = implode(';', $eventAttendees['Contacts']);
+                        }
+                        
+                        if($eventAttendees['Leads'][0] != '')
+                            $entity['parent_id'] = vtws_getWebserviceEntityId('Leads', $eventAttendees['Leads'][0]);
                     }
-                }
-                
-                $seriesMasterId = $exchangeRecord->getSeriesMasterId();
-                
-                if($seriesMasterId != '')
-                    $entity['parent_id'] = $seriesMasterId;
+                    
+                    //                 $seriesMasterId = $exchangeRecord->getSeriesMasterId();
+                    
+                    //                 if($seriesMasterId != '')
+                        //                     $entity['parent_id'] = $seriesMasterId;
             }
             
             $calendar = $this->getSynchronizeController()->getSourceRecordModel($entity);
@@ -324,11 +327,11 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
 
     public function emailLookUp($emailIds) {
         $db = PearDatabase::getInstance();
-        $sql = 'SELECT DISTINCT crmid FROM vtiger_emailslookup WHERE setype = "Contacts" AND value IN (' .  generateQuestionMarks($emailIds) . ')';
+        $sql = 'SELECT DISTINCT crmid, setype FROM vtiger_emailslookup WHERE setype IN ("Contacts", "Leads") AND value IN (' .  generateQuestionMarks($emailIds) . ')';
         $result = $db->pquery($sql,$emailIds);
         $crmIds = array();
         for($i=0;$i<$db->num_rows($result);$i++) {
-            $crmIds[] = $db->query_result($result,$i,'crmid');
+            $crmIds[$db->query_result($result,$i,'setype')][] = $db->query_result($result,$i,'crmid');
         }
         return $crmIds;
     }
@@ -403,11 +406,13 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                         
                         foreach($updateResponse as $updateItemResponse){
                             
-                            $calendarItem = $updateItemResponse->getItems()->getCalendarItem();
-                            
-                            $itemId = $calendarItem->getItemId();
-                            
-                            $records[$itemId->getId()]->set("entity", $itemId)->set("exchangeResponse", true);
+                            if(!empty($updateItemResponse)){
+                                $calendarItem = $updateItemResponse->getItems()->getCalendarItem();
+                                
+                                $itemId = $calendarItem->getItemId();
+                                
+                                $records[$itemId->getId()]->set("entity", $itemId)->set("exchangeResponse", true);
+                            }
                         }
                         
                         $VTERecords = $VTERecords + $records;
@@ -528,7 +533,7 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                 $attendeeEmails = array();
                 
                 foreach($eventAttendees as $attendee){
-                    $attendeeRecordModel = Vtiger_Record_Model::getInstanceById($attendee, 'Contacts');
+                        $attendeeRecordModel = Vtiger_Record_Model::getInstanceById($attendee, getSalesEntityType($attendee));
                     $attendeeRecordData = $attendeeRecordModel->getData();
                     if(isset($attendeeRecordData['email']) && !empty($attendeeRecordData['email']))$attendeeEmails[] = $attendeeRecordData['email'];
                 }
@@ -610,7 +615,7 @@ class MSExchange_Calendar_Connector extends MSExchange_Base_Connector{
                         $attendeeEmails = array();
                         
                         foreach($eventAttendees as $attendee){
-                            $attendeeRecordModel = Vtiger_Record_Model::getInstanceById($attendee, 'Contacts');
+                                $attendeeRecordModel = Vtiger_Record_Model::getInstanceById($attendee, getSalesEntityType($attendee));
                             $attendeeRecordData = $attendeeRecordModel->getData();
                             if(isset($attendeeRecordData['email']) && !empty($attendeeRecordData['email']))$attendeeEmails[] = $attendeeRecordData['email'];
                         }

@@ -16,8 +16,14 @@ class MSExchange_Calendar_Model extends MSExchange_SyncRecord_Model {
     function getId() {
         if($this->get("exchangeResponse") == true)
             return $this->data['entity']->getId();
-        else
-            return $this->data['entity']->getItemId()->getId();
+        else{
+            
+            if(is_object($this->data['entity']))
+                return $this->data['entity']->getItemId()->getId();
+            else {
+                return '';
+            }
+        }
     }
 
     /**
