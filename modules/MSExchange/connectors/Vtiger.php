@@ -370,6 +370,7 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 			
 			$cntactivityids = array();
 			
+            $parentCalId = array();
 			$forModule = $moduleMeta->getTabName();
 			
 			$activityids = array();
@@ -378,14 +379,13 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 				
 				$key = $arre[$moduleMeta->getIdColumn()];
 				
-				if($forModule == 'Calendar' && $arre['contactid'] > 0){
+                if($forModule == 'Calendar' && ($arre['contactid'] > 0 || $arre['crmid'] > 0)){
 					if(!isset($cntactivityids[$key])) $cntactivityids[$key] = array("data" => DataTransform::sanitizeDataWithColumn($arre,$moduleMeta), "related_contacts" => array());
 				    
 					
 					//if(!in_array($arre['contactid'], $cntactivityids[$key]['related_contacts'])) $cntactivityids[$key]['related_contacts'][] = $arre['contactid'];
 					
 					$contact_result = $adb->pquery("select crmid from vtiger_crmentity where deleted = 0 and crmid = ?", array($arre['contactid']));
-					
 					if($adb->num_rows($contact_result)){
 					    $cntactivityids[$key]['related_contacts'][] = $arre['contactid'];
 					}
@@ -404,7 +404,7 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 					}
 					try{
 					    if($forModule == 'Calendar'){
-					        if(in_array($arre['contactid'], $cntactivityids[$key]['related_contacts'])) continue;   	
+					        if(in_array($arre['contactid'], $cntactivityids[$key]['related_contacts']) || $arre['crmid']) continue;   	
 							$activityids[] = $key;
 						}
 						$output["updated"][] = DataTransform::sanitizeDataWithColumn($arre,$moduleMeta);
@@ -418,10 +418,15 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 		if(!empty($cntactivityids)){
 		    
 		    foreach($cntactivityids as $activityid => $eventInfo){
-		        
+		       
 		        $updatedEventData = $eventInfo['data'];
 		        
-		        $updatedEventData['event_attendees'] = implode("##", $eventInfo['related_contacts']);
+                $parent = vtws_getIdComponents($updatedEventData['parent_id']);
+                $lead = '';
+                if(getSalesEntityType($parent[1]) == 'Leads')
+                    $lead = !empty($eventInfo['related_contacts']) ? '##'.$parent[1] : $parent[1];
+                    
+                $updatedEventData['event_attendees'] = implode("##", $eventInfo['related_contacts']).$lead;
 		        
 		        $output["updated"][] = $updatedEventData;
 		    }
@@ -856,7 +861,10 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 	            				
 	            				if( $fieldname == 'assigned_user_id' ){
 	            					$focus->column_fields[$fieldname] = $oldval;
-	            				} else {
+                                } else if($fieldname == 'parent_id'){
+                                    $parentIds = vtws_getIdComponents($record[$fieldname]);
+                                    $focus->column_fields[$fieldname] = $parentIds[1];
+                                }else {
 	            					$focus->column_fields[$fieldname] = $record[$fieldname];
 	            				}
 	            			}
@@ -1384,13 +1392,13 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 				$mapFormatedRecords['delete'][] = $destinationRecord->getEntityData()['id'];
 			
 			} else {
-				
+                if($destinationRecord->getId()){
 				$mapFormatedRecords['update'][$destinationRecord->getId()] = array('serverid' => $sourceRecord->getId(),
 					'modifiedtime' => $destinationRecord->getModifiedTime(),
 					'_modifiedtime' => $sourceRecord->getModifiedTime());
 			}			
 		}
-				
+        }
 		/* now save mapping in exchange_recordmapping table */
        
 	    $createDetails = $mapFormatedRecords["create"];
