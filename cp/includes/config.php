@@ -25,7 +25,7 @@ if(!$_SESSION['api_url']){
      $params = array();
      
      $request_URL = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on')? 'https': 'http')."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-     $request_URL = str_replace(array('http', 'https', "://", '/login.php', '/index.php'), '', $request_URL);
+     $request_URL = str_replace(array('http://', 'https://', "www.", '/login.php', '/index.php'), '', $request_URL);
      $params['portalurl'] = rtrim($request_URL, " /");
      
      $postParams = array(
