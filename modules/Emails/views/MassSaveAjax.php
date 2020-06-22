@@ -355,7 +355,11 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
     	    $recordModel->set('assigned_user_id', $currentUserModel->getId());
     	    $recordModel->set('email_flag', $flag);
     	    $recordModel->set('documentids', $documentIds);
-    	   
+    	    
+    	    if($request->get("from_serveremailid")){
+    	        $recordModel->set('from_serveremailid', $request->get("from_serveremailid"));
+    	    }
+    	    
     	    $success = false;
     	   
     	    if ($recordModel->checkUploadSize($documentIds)) {

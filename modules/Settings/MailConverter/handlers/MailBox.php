@@ -154,10 +154,26 @@ class Vtiger_MailBox {
 	 */
 	function search($folder, $searchQuery=false, $request=false) {
 	   
-		if(!$searchQuery) {
-			
-			$searchfor = $this->_scannerinfo->searchfor;
-			
+        if(is_array($request) && $request['cron']){
+            if(!$searchQuery) {
+                $lastscanOn = $this->_scannerinfo->getLastscan($folder);
+                $searchfor = $this->_scannerinfo->searchfor;
+                
+                if($searchfor && $lastscanOn) {
+                    if($searchfor == 'ALL') {
+                        $searchQuery = "SINCE $lastscanOn";
+                    } else {
+                        $searchQuery = "$searchfor SINCE $lastscanOn";
+                    }
+                } else {
+                    $searchQuery = $lastscanOn? "SINCE $lastscanOn" : "BEFORE ". $this->_scannerinfo->dateBasedOnMailServerTimezone('d-M-Y');
+                }
+            }
+        }else{
+            if(!$searchQuery) {
+                
+                $searchfor = $this->_scannerinfo->searchfor;
+                
 			if($searchfor == 'ALL') {
 				$searchQuery = "";
 			} else {
@@ -188,7 +204,7 @@ class Vtiger_MailBox {
 
 		if($subject)
 		    $searchQuery .= ' SUBJECT "'.$subject.'"'; 
-		
+        }
 	   
 		if($this->open($folder)) {
 			$this->log("Searching mailbox[$folder] using query: $searchQuery");
