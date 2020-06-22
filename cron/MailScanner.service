@@ -36,7 +36,9 @@ function service_MailScanner_performScanNow($scannerinfo, $debug) {
 		/** Start the scanning. */
 		$scanner = new Vtiger_MailScanner($scannerinfo);
 		$scanner->debug = $debug;
-		$status = $scanner->performScanNow();
+		
+		$_REQUEST['cron'] = true;
+		$status = $scanner->performScanNow($_REQUEST);
 		
                 if($status && is_bool($status))
                     echo "\nScanning " . $scannerinfo->server . " completed\n";
