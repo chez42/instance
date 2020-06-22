@@ -388,7 +388,7 @@ class Vtiger_MailScannerInfo {
 		if($this->scannerid) {
 			$tables = Array(
 				'vtiger_mailscanner',
-				'vtiger_mailscanner_ids',
+				//'vtiger_mailscanner_ids',
 				'vtiger_mailscanner_folders'
 			);
 			foreach($tables as $table) {
