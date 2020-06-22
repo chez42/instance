@@ -52,6 +52,7 @@ class Vtiger_ModuleBasic {
 	var $allowDuplicates = false;
 	var $isSyncable = 0;
 	var $syncActionForDuplicate = 1;
+	var $ishide = false;
 
 
 	const EVENT_MODULE_ENABLED     = 'module.enabled';
@@ -94,6 +95,7 @@ class Vtiger_ModuleBasic {
 		$this->isSyncable = $valuemap['issyncable'];
 		$this->allowDuplicates = $valuemap['allowduplicates'];
 		$this->syncActionForDuplicate = $valuemap['sync_action_for_duplicates'];
+		$this->ishide = $valuemap['ishide'];
 	}
 
 	/**

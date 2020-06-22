@@ -15,34 +15,28 @@ function vtws_managemodules($element) {
     $data = array();
     
     if($element['mode'] == 'modulesList'){
-        $Module_record = array();
         
-        $invisible_modules = array('ModTracker', 'Users', 'Mobile', 'Integration', 'WSAPP', 'ModComments', 
-        'Dashboard', 'ConfigEditor', 'CronTasks',
-        'Import', 'Tooltip', 'CustomerPortal', 'Home', 'VtigerBackup', 'FieldFormulas', 'EmailTemplates', 
-        'ExtensionStore');
-    
-        $Default_AllModule = array();
+        $modules = Settings_ModuleManager_Module_Model::getAll();
         
-        $allmodule_query = $adb->pquery("select * from `vtiger_tab` where 
-        name not in ('" . implode("','", $invisible_modules) . "')");
+        $allModules = array();
+        $activeModules = array();
+        $defaultAllModule = array();
         
-        if($adb->num_rows($allmodule_query)){
-            for($am=0;$am<$adb->num_rows($allmodule_query);$am++){
-                
-                if($adb->query_result($allmodule_query,$am,'ishide') != 1)
-                    $activeModules[] = $adb->query_result($allmodule_query,$am,'tabid');
-                
-                $allModules[] = $adb->query_result($allmodule_query,$am,'tabid');
-                
-                $Default_AllModule[$adb->query_result($allmodule_query,$am,'tabid')] = array(
-                    'name' => $adb->query_result($allmodule_query,$am,'name'),
-                    'id' => $adb->query_result($allmodule_query,$am,'tabid'),
-                    'ishide' => $adb->query_result($allmodule_query,$am,'ishide'),
-                );
+        foreach($modules as $tabid=>$module){
+            
+            $allModules[] = $module->id;
+            if(!$module->ishide){
+                $activeModules[] = $module->id;
             }
+            
+            $defaultAllModule[$module->id] = array(
+                'name' => $module->name,
+                'id' => $module->id,
+                'ishide' => $module->ishide,
+            );
         }
-        $data['moduleList'] = $Default_AllModule;
+        
+        $data['moduleList'] = $defaultAllModule;
         $data['activeModules'] = $activeModules;
         $data['allModules'] = $allModules;
         
@@ -51,7 +45,7 @@ function vtws_managemodules($element) {
         $moduleManagerModel = new Settings_ModuleManager_Module_Model();
         
         if(!empty($element['enable'])) {
-           
+            
             foreach ($element['enable'] as $enable){
                 
                 $moduleName = getTabModuleName($enable);
@@ -59,7 +53,7 @@ function vtws_managemodules($element) {
                 $moduleManagerModel->enableModule($moduleName);
                 $adb->pquery("UPDATE vtiger_tab SET ishide = ? WHERE tabid = ?",array(0,$enable));
             }
-       
+            
         }
         if(!empty($element['disable'])){
             
@@ -69,13 +63,13 @@ function vtws_managemodules($element) {
                 
                 $moduleManagerModel->disableModule($moduleName);
                 $adb->pquery("UPDATE vtiger_tab SET ishide = ? WHERE tabid = ?",array(1,$disable));
-            
+                
             }
             
         }
         
         $data = array('success'=>true);
-                
+        
     }
     
     return $data;

@@ -137,3 +137,5 @@ and tabid = ?", array( getTabid('Faq') ) );
 $adb->pquery("ALTER TABLE vtiger_mail_accounts ADD smtp_servername VARCHAR(250) NULL");
 
 Vtiger_Cron::register("Auto MSExchange Sync Task", "cron/MSExchangeTaskSync.service", 900, "MSExchange", 1, 0, "Recommended frequency for MSExchange Task Sync is 15 mins");
+
+$adb->pquery("ALTER TABLE vtiger_tab ADD ishide INT(3) NULL DEFAULT '0' ");
