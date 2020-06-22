@@ -54,15 +54,25 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$rootDirectory = vglobal('root_directory');
 
 		$mailer = Emails_Mailer_Model::getInstance();
+		
 		$mailer->IsHTML(true);
 
-		$fromEmail = $this->getFromEmailAddress();
-		$replyTo = $this->getReplyToEmail();
+		if($this->get("from_serveremailid")){
+		   $fromEmail = $mailer->From;
+		   $replyTo = $mailer->From;
+		} else {
+		   $fromEmail = $this->getFromEmailAddress();
+		   $replyTo = $this->getReplyToEmail();
+		}
+		
 		$userName = $currentUserModel->getName();
 
 		// To eliminate the empty value of an array
+		
 		$toEmailInfo = array_filter($this->get('toemailinfo'));
+		
 		$emailsInfo = array();
+		
 		foreach ($toEmailInfo as $id => $emails) {
 			foreach($emails as $key => $value){
 				array_push($emailsInfo, $value);
@@ -83,10 +93,20 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 		$mergedDescription = getMergedDescription($this->get('description'), $currentUserModel->getId(), 'Users');
 		$mergedSubject = getMergedDescription($this->get('subject'),$currentUserModel->getId(), 'Users');
 		foreach($toEmailInfo as $id => $emails) {
-			$inReplyToMessageId = ''; 
+			
+		    $inReplyToMessageId = ''; 
+			
 			$generatedMessageId = '';
+			
+			
+			if($this->get("from_serveremailid")){
+			    $mailer->initializeCustomSMTP($this->get("from_serveremailid"));
+			}
+			
 			$mailer->reinitialize();
+			
 			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+			
 			$old_mod_strings = vglobal('mod_strings');
 			$description = $this->get('description');
 			$subject = $this->get('subject');

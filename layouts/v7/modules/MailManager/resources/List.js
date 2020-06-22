@@ -125,11 +125,14 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
 			if(serverType == 'gmail' || serverType == 'yahoo' || serverType == 'office365') {
 				useServer = 'imap.gmail.com';
+				useSmtp = 'ssl://smtp.gmail.com:465';
 				if(serverType == 'yahoo') {
 					useServer = 'imap.mail.yahoo.com';
+					useSmtp = 'smtp.mail.yahoo.com';
 				}
 				if(serverType == 'office365'){
 					useServer = 'imap-mail.outlook.com';
+					useSmtp = 'smtp-mail.outlook.com';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
@@ -138,6 +141,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				settingContainer.find('.additional_settings').addClass('hide');
 			} else if(serverType == 'fastmail') {
 				useServer = 'mail.messagingengine.com';
+				useSmtp = 'smtp.fastmail.com';
 				useProtocol = 'IMAP2';
 				useSSLType = 'tls';
 				useCert = 'novalidate-cert';
@@ -145,6 +149,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				settingContainer.find('.additional_settings').addClass('hide');
 			} else if(serverType == 'other') {
 				useServer = '';
+				useSmtp = '';
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
 				useCert = 'novalidate-cert';
@@ -162,6 +167,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			settingContainer.find('.selectFolderDesc').removeClass('hide');
 			if(useProtocol != '') {
 				settingContainer.find('#_mbox_server').val(useServer);
+				settingContainer.find('#_mbox_smtp_server').val(useSmtp);
 				settingContainer.find('.mbox_protocol').each(function(i, node) {
 					if(jQuery(node).val() == useProtocol) {
 						jQuery(node).attr('checked', true);

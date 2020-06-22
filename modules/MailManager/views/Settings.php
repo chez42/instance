@@ -41,6 +41,7 @@ class MailManager_Settings_View extends MailManager_MainUI_View {
 		    $model = $this->getMailBoxModel($request->get('account_id'), 'edit');
 		    
 			$model->setServer($request->get('_mbox_server'));
+			$model->setSmtpServer($request->get('_mbox_smtp_server'));
 			$model->setUsername($request->get('_mbox_user'));
             // MailManager_Request->get($key) is give urldecoded value which is replacing + with space
 			$model->setPassword($request->getRaw('_mbox_pwd'));
