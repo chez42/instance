@@ -40,6 +40,25 @@
                     <input type="hidden" name="search_value" value="{$ALPHABET_VALUE}" />
                     <input type="hidden" name="search_params" value='{ZEND_JSON::encode($SEARCH_PARAMS)}' />
                     <input type="hidden" id="insertlinkids" name="insertlinkids" value=""/>
+                     <div class="row">
+		                <div class="col-lg-12">
+		                    <div class="col-lg-2">
+		                        <span class="pull-right">From<span class="redColor">*</span>
+		                    </div>
+		                    <div class="col-lg-6">
+		                    	{if !empty($LIST_SERVERS)}
+			                        <select class="from_field select2" name="from_serveremailid" style="width:100%;">
+			                            {foreach from=$LIST_SERVERS item=serverinfo}
+			                                <option value="{$serverinfo["account_id"]}" {if $serverinfo["default"] == 0}  selected {/if} > {$serverinfo["account_name"]} </option>
+			                            {/foreach}
+			                        </select>
+		                        {else}
+		                        	<a href="index.php?module=MailManager&view=List" style="color:#15c;" target = "_blank">Click here </a> to configure your SMTP Details 
+		                        {/if}
+		                    </div>
+		                </div>
+		                <div class="col-lg-4"></div>
+		            </div>
                     <div class="row toEmailField">
                         <div class="col-lg-12">
                             <div class="col-lg-2">
