@@ -105,7 +105,9 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			
 			$mailer->reinitialize();
 			
-			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+			if(!$this->get("from_serveremailid")){
+			     $mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+			}
 			
 			$old_mod_strings = vglobal('mod_strings');
 			$description = $this->get('description');
@@ -205,6 +207,7 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			$mailer->Body = Emails_Mailer_Model::convertCssToInline($mailer->Body);	
 			//To convert image url to valid
 			$mailer->Body = Emails_Mailer_Model::makeImageURLValid($mailer->Body);
+			
 			if ($addToQueue) {
 				$status = $mailer->Send(false, $this->get('parent_id'));
 			} else {

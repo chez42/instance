@@ -43,18 +43,18 @@
                      <div class="row">
 		                <div class="col-lg-12">
 		                    <div class="col-lg-2">
-		                        <span class="pull-right">From<span class="redColor">*</span>
+		                        <span class="pull-right">From
 		                    </div>
 		                    <div class="col-lg-6">
-		                    	{if !empty($LIST_SERVERS)}
-			                        <select class="from_field select2" name="from_serveremailid" style="width:100%;">
-			                            {foreach from=$LIST_SERVERS item=serverinfo}
-			                                <option value="{$serverinfo["account_id"]}" {if $serverinfo["default"] == 0}  selected {/if} > {$serverinfo["account_name"]} </option>
-			                            {/foreach}
-			                        </select>
-		                        {else}
-		                        	<a href="index.php?module=MailManager&view=List" style="color:#15c;" target = "_blank">Click here </a> to configure your SMTP Details 
-		                        {/if}
+		                        <select class="from_field select2" name="from_serveremailid" style="width:100%;">
+			                        <option value="" >System Mail</option>
+		                            {foreach from=$LIST_SERVERS item=serverinfo}
+		                                <option value="{$serverinfo["account_id"]}" {if $serverinfo["default"] == 0}  selected {/if} > {$serverinfo["account_name"]} </option>
+		                            {/foreach}
+		                            {if empty($LIST_SERVERS)}
+		                            	<option value="clickHereToConfigureMail">Click Here To Configure Mail </option>
+		                            {/if}
+		                        </select>
 		                    </div>
 		                </div>
 		                <div class="col-lg-4"></div>

@@ -923,6 +923,10 @@ Settings_Vtiger_Edit_Js("Settings_Workflows_Edit_Js", {
       var row = fieldSelect.closest('div.conditionRow');
       var fieldUiHolder = row.find('.fieldUiHolder');
       var fieldInfo = selectedOption.data('fieldinfo');
+      
+      if(typeof fieldInfo == 'undefined')
+    	  return;
+      
       var fieldValueMapping = this.getFieldValueMapping();
       var fieldValueMappingKey = fieldInfo.name;
       var taskType = jQuery('#taskType').val();
