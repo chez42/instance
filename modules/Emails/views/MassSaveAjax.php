@@ -155,6 +155,10 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 		//save_module still depends on the $_REQUEST, need to clean it up
 		$_REQUEST['parent_id'] = $parentIds;
 
+		if($request->get("from_serveremailid")){
+		    $recordModel->set('from_serveremailid', $request->get("from_serveremailid"));
+		}
+		
 		$success = false;
 		$viewer = $this->getViewer($request);
 		if ($recordModel->checkUploadSize($documentIds)) {

@@ -11,7 +11,7 @@
 -->*}
 {strip}
     <div class="recordDetails">
-{15.6.20 added template path}
+{*15.6.20 added template path*}
         {include file='SummaryViewContents.tpl'|@vtemplate_path:$MODULE_NAME}
     </div>
 {/strip}

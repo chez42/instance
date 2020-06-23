@@ -250,6 +250,24 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			} else {
 				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_server'));
 			}
+			if(data['_mbox_smtp_server'] == "") {
+				vtUtils.showValidationMessage(settingContainer.find('#_mbox_smtp_server'), errorMsg, params);
+				return false;
+			} else {
+				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_smtp_server'));
+			}
+			if(data['_mbox_from_email'] == "") {
+				vtUtils.showValidationMessage(settingContainer.find('#_mbox_from_email'), errorMsg, params);
+				return false;
+			} else {
+				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_from_email'));
+			}
+			if(data['_mbox_from_name'] == "") {
+				vtUtils.showValidationMessage(settingContainer.find('#_mbox_from_name'), errorMsg, params);
+				return false;
+			} else {
+				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_from_name'));
+			}
 			if(data['_mbox_user'] == "") {
 				vtUtils.showValidationMessage(settingContainer.find('#_mbox_user'), errorMsg, params);
 				return false;
