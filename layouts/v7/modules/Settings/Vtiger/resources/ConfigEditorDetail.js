@@ -126,6 +126,32 @@ Vtiger.Class("Settings_Vtiger_ConfigEditorDetail_Js", {}, {
 		} else {
 			this.registerEditViewEvents();
 		}
+		
+		this.registerRegenerateFiles()
+	},
+	
+	registerRegenerateFiles : function(){
+		jQuery('.recalculatePermissions').on('click', function(){
+			app.helper.showProgress();
+			var params = {
+				'module': app.getModuleName(),
+				'parent': app.getParentModuleName(),
+				'action': 'RecalculatePermissions',
+			};
+
+			app.request.post({"data": params}).then(
+				function (err, data) {
+					if (err === null) {
+						app.helper.showSuccessNotification({'message': 'Success!'});
+						app.helper.hideProgress();
+					}
+				},
+				function (error, err) {
+					app.helper.hideProgress();
+				}
+			);
+			
+		});
 	}
 
 });

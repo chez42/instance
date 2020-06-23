@@ -980,6 +980,8 @@ jQuery.Class("Emails_MassEdit_Js",{
 			}
 			
 		});
+		
+		this.registerEventsForChangeFromEmail();
 	},
 	
 	registerInsertLinkEvent : function(){
@@ -1004,6 +1006,15 @@ jQuery.Class("Emails_MassEdit_Js",{
 			});
 		});
 	},
+	
+	registerEventsForChangeFromEmail : function(){
+		var thisInstance = this;
+		jQuery('[name="from_serveremailid"]').on('change',function(e){
+			if($(this).val() == 'clickHereToConfigureMail')
+				window.location.href = "index.php?module=MailManager&view=List";
+		});
+	},
+	
 });
 
 
