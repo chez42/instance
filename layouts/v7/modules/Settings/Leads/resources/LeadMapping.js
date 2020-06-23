@@ -14,8 +14,8 @@ jQuery.Class("Settings_LeadMapping_Js",{
 	 */
 	triggerEdit : function(editUrl){
 		app.helper.showProgress();
-
-		app.request.post({'url' : editUrl}).then(
+		window.location.href = editUrl;
+		/*app.request.post({'url' : editUrl}).then(
 			function(err, data) {
 				app.helper.hideProgress();
 				if(err === null) {
@@ -24,7 +24,8 @@ jQuery.Class("Settings_LeadMapping_Js",{
 					var leadMappingInstance = new Settings_LeadMapping_Js();
 					leadMappingInstance.registerEventsForEditView();
 				}
-			});
+			}
+		);*/
 	},
 	
 	/**
@@ -55,7 +56,7 @@ jQuery.Class("Settings_LeadMapping_Js",{
 	registerEventsForEditView : function(){
 		var form = jQuery('#leadsMapping');
 		var select2Elements = form.find('.select2');
-		vtUtils.showSelect2ElementView(select2Elements);
+		//vtUtils.showSelect2ElementView(select2Elements);
 		this.registerEventForAddingNewMapping();
 		this.registerOnChangeEventForSourceModule();
 		this.registerEventToDeleteMapping();
@@ -267,6 +268,13 @@ jQuery.Class("Settings_LeadMapping_Js",{
 				selectElement.attr('selectedId',selectedOptionId);
 			}
 		})
+	}
+});
+
+jQuery(document).ready(function(){
+	if(app.getViewName() =='MappingEdit'){
+		var instance = new Settings_LeadMapping_Js();
+		instance.registerEventsForEditView();
 	}
 });
 

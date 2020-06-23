@@ -5,19 +5,20 @@
 	
 	$adb = PearDatabase::getInstance();
 	
-	$exchange_users_query = $adb->pquery("select vtiger_msexchange_sync_settings.* from vtiger_msexchange_sync_settings 
+	
+	$task_exchange_users_query = $adb->pquery("select vtiger_msexchange_sync_settings.* from vtiger_msexchange_sync_settings 
 	inner join vtiger_users on vtiger_users.id = vtiger_msexchange_sync_settings.user
 	where vtiger_users.status = 'Active' AND vtiger_msexchange_sync_settings.enable_cron = 1 
-	AND vtiger_msexchange_sync_settings.module = 'Calendar'",array());
+	AND vtiger_msexchange_sync_settings.module = 'Task'",array());
 	
-	$total_oauth_results = $adb->num_rows($exchange_users_query);
-	
+	$total_oauth_results = $adb->num_rows($task_exchange_users_query);
+		
 	if ($total_oauth_results > 0) {
 		
 		for($i=0; $i< $total_oauth_results; $i++){
 			
 			try{
-				$userid = $adb->query_result($exchange_users_query, $i, 'user');
+				$userid = $adb->query_result($task_exchange_users_query, $i, 'user');
 				
 				$user_obj = CRMEntity::getInstance("Users");			
 				$user_obj->id = $userid;			
@@ -27,17 +28,14 @@
 			
 				$user = Users_Record_Model::getInstanceFromUserObject($user_obj);
 	    		
-	    		$request = new Vtiger_Request(array("module" => "MSExchange", "view" => "Sync", "source_module" => "Calendar"));
+	    		$request = new Vtiger_Request(array("module" => "MSExchange", "view" => "Sync", "source_module" => "Task"));
 	    		
 	    		$syncInstance = new MSExchange_Sync_View($request);
-	    		$syncInstance->sync($request, 'Calendar');
+	    		$syncInstance->sync($request, 'Task');
     		} catch(Exception $e) {}
     		
 		}
 	}
-	
-	
-	
 	
 	
 ?>

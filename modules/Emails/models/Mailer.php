@@ -26,7 +26,39 @@ class Emails_Mailer_Model extends Vtiger_Mailer {
 	function getError() {
 		return $this->ErrorInfo;
 	}
+	
+	function initializeCustomSMTP($account_id){
+	    
+	    $this->IsSMTP();
+	    
+	    global $adb;
+	    
+	    $result = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE
+            account_id = ?", array($account_id));
+	    
+	    if ($adb->num_rows($result)) {
+	        $this->Host = $adb->query_result($result, 0, "smtp_servername");
+	        $this->Username = trim($adb->query_result($result, 0, "mail_username"));
+	        require_once('include/utils/encryption.php');
+	        $e = new Encryption();
+	        $this->Password = $e->decrypt(trim($adb->query_result($result, 0, 'mail_password')));
+	        $this->SMTPAuth = 1;
+	        $hostinfo = explode("://", $this->Host);
+	        $smtpsecure = $hostinfo[0];
+	        if ($smtpsecure == "tls") {
+	            $this->SMTPSecure = $smtpsecure;
+	            $this->Host = $hostinfo[1];
+	        }
+	        if (empty($this->SMTPAuth)) {
+	            $this->SMTPAuth = false;
+	        }
+	        $this->ConfigSenderInfo($adb->query_result($result, 0, "from_email"), $adb->query_result($result, 0, "from_name"), $adb->query_result($result, 0, "from_email"));
+	        $this->_serverConfigured = true;
+	    }
+	    
+	}
 
+	
 	/**
 	 * Function to replace space with %20 to make image url as valid
 	 * @param type $htmlContent

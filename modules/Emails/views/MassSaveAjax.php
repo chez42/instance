@@ -43,6 +43,8 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		$recordIds = $this->getRecordsListFromRequest($request);
 		$documentIds = $request->get('documentids');
+        if(!$documentIds)
+            $documentIds = array();
 		$signature = $request->get('signature');
 		// This is either SENT or SAVED
 		$flag = $request->get('flag');
@@ -153,6 +155,10 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 		//save_module still depends on the $_REQUEST, need to clean it up
 		$_REQUEST['parent_id'] = $parentIds;
 
+		if($request->get("from_serveremailid")){
+		    $recordModel->set('from_serveremailid', $request->get("from_serveremailid"));
+		}
+		
 		$success = false;
 		$viewer = $this->getViewer($request);
 		if ($recordModel->checkUploadSize($documentIds)) {
@@ -353,7 +359,11 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
     	    $recordModel->set('assigned_user_id', $currentUserModel->getId());
     	    $recordModel->set('email_flag', $flag);
     	    $recordModel->set('documentids', $documentIds);
-    	   
+    	    
+    	    if($request->get("from_serveremailid")){
+    	        $recordModel->set('from_serveremailid', $request->get("from_serveremailid"));
+    	    }
+    	    
     	    $success = false;
     	   
     	    if ($recordModel->checkUploadSize($documentIds)) {

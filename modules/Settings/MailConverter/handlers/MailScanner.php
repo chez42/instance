@@ -104,8 +104,11 @@ class Vtiger_MailScanner {
 			// No emails? Continue with next folder
 			if(empty($mailsearch)) continue;
 
+                $counter = 0;
 			// Loop through each of the email searched
 			foreach($mailsearch as $messageid) {
+                    if($counter >= 40)
+                        break;
 				// Fetch only header part first, based on account lookup fetch the body.
 				$mailrecord = $mailbox->getMessage($messageid, false);
 				$mailrecord->debug = $mailbox->debug;
@@ -140,7 +143,7 @@ class Vtiger_MailScanner {
 				// Mark the email message as scanned
 				$this->markMessageScanned($mailrecord, $crmid);
 				$mailbox->markMessage($messageid);
-
+                    $counter++;
 				/** Free the resources consumed. */
 				unset($mailrecord);
 			}
@@ -189,8 +192,8 @@ class Vtiger_MailScanner {
 		global $adb;
 		if($crmid === false) $crmid = null;
 		// TODO Make sure we have unique entry
-		$adb->pquery("INSERT INTO vtiger_mailscanner_ids(scannerid, messageid, crmid) VALUES(?,?,?)",
-			Array($this->_scannerinfo->scannerid, $mailrecord->_uniqueid, $crmid));
+        $adb->pquery("INSERT INTO vtiger_mailscanner_ids(scannerid, messageid, crmid, user_name) VALUES(?,?,?,?)",
+            Array($this->_scannerinfo->scannerid, $mailrecord->_uniqueid, $crmid, $this->_scannerinfo->username));
 	}
 
 	/**
@@ -198,8 +201,8 @@ class Vtiger_MailScanner {
 	 */
 	function isMessageScanned($mailrecord, $lookAtFolder) {
 		global $adb;
-		$messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE scannerid=? AND messageid=?",
-			Array($this->_scannerinfo->scannerid, $mailrecord->_uniqueid));
+        $messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?",
+            Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
 
 		$folderRescan = $this->_scannerinfo->needRescan($lookAtFolder);
 		$isScanned = false;
@@ -613,7 +616,6 @@ class Vtiger_MailScanner {
                     }
                 }
             }
-            
         }
     }
     
