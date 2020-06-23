@@ -844,7 +844,7 @@ Vtiger.Class("RingCentral_Js",{
 					if(data.success){
 						var buttonContainer = jQuery('.detailViewContainer');
                         var btnToolBar = buttonContainer.find('.btn-group');
-                        var outGoingServerBtn = jQuery('<button type="button" class="btn btn-default btndisconnect">Disconnect</button>');
+                        var outGoingServerBtn = jQuery('<button type="button" class="btn btn-danger btndisconnect">RingCentral Disconnect</button>');
                         btnToolBar.find('.btn:first').before(outGoingServerBtn);
                         self.registerEventForDisconnectButton();
 					}

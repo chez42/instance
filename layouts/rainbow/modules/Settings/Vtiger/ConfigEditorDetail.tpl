@@ -17,6 +17,7 @@
                 <div class="clearfix">
                     <h4 class="pull-left">{vtranslate('LBL_CONFIG_EDITOR', $QUALIFIED_MODULE)}</h4>
                     <div class="btn-group pull-right">
+                    	<button class="btn btn-default recalculatePermissions" type="button" title="{vtranslate('Recalculate Permissions', $QUALIFIED_MODULE)}"><strong>{vtranslate('Recalculate Permissions', $QUALIFIED_MODULE)}</strong></button>
                         <button class="btn btn-default editButton" data-url='{$MODEL->getEditViewUrl()}' type="button" title="{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}"><strong>{vtranslate('LBL_EDIT', $QUALIFIED_MODULE)}</strong></button>
                     </div>
                 </div>
