@@ -13,11 +13,14 @@ class Instances_SaveModulesList_Action extends Vtiger_Action_Controller {
         $recordId = $request->get('record');
         
         $activeModules = $request->get('activemodules');
+		
         $allModules = $request->get('allmodules');
-        $selectedModules = $request->get('select_modules');
+        
+		$selectedModules = $request->get('select_modules');
         
         $disableModules = array_diff($activeModules, $selectedModules);
-        $enableModules = array_diff($selectedModules, $activeModules);
+        
+		$enableModules = array_diff($selectedModules, $activeModules);
        
         $parentRecordModel = Vtiger_Record_Model::getInstanceById($recordId);
         
@@ -25,21 +28,12 @@ class Instances_SaveModulesList_Action extends Vtiger_Action_Controller {
         
         $httpc = new Vtiger_Net_Client($domain);
         
-        $params = array();
-        $params['operation'] = 'getchallenge';
-        $params['username'] = 'admin';
-        
-        $response = $httpc->doGet($params);
-        
-        $jsonResponse = json_decode($response, true);
-        
-        if($jsonResponse['success']==false)
-            die('getchallenge failed:'.$jsonResponse['error']['errorMsg']);
-            
         $element = array('mode'=>'enableDisableModule', 'enable' => $enableModules, 'disable' => $disableModules);
-        
-        $single_params = array( "operation" => 'getmoduleslist',
-            "element" => json_encode($element));
+       
+        $single_params = array( 
+			"operation" => 'managemodules',
+            "element" => json_encode($element)
+		);
         
         $single_response = $httpc->doPost($single_params);
 

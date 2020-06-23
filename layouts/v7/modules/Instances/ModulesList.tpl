@@ -19,7 +19,7 @@
                     <table class="table table-borderless">
                         <tbody>
                             <tr>
-                                <td class="fieldLabel width40per">
+                                <td class="fieldLabel width40per" style = "width:20%;">
                                     <label class="pull-right detailViewButtoncontainer">{vtranslate('Select Modules',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue selectModule">
