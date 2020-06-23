@@ -91,7 +91,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 
 	public function MailBoxExists() {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery("SELECT COUNT(*) AS count FROM vtiger_mailscanner", array());
+		$result = $db->pquery("SELECT COUNT(*) AS count FROM vtiger_mailscanner WHERE (userid = 0 OR userid IS NULL)", array());
 		$response = $db->query_result($result, 0, 'count');
 		if ($response == 0)
 			return false;
@@ -100,7 +100,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 
 	public function getDefaultId() {
 		$db = PearDatabase::getInstance();
-		$result = $db->pquery("SELECT MIN(scannerid) AS id FROM vtiger_mailscanner", array());
+		$result = $db->pquery("SELECT MIN(scannerid) AS id FROM vtiger_mailscanner WHERE (userid = 0 OR userid IS NULL)", array());
 		$id = $db->query_result($result, 0, 'id');
 		return $id;
 	}
