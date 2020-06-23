@@ -52,7 +52,7 @@ class Emails_Mailer_Model extends Vtiger_Mailer {
 	        if (empty($this->SMTPAuth)) {
 	            $this->SMTPAuth = false;
 	        }
-	        $this->ConfigSenderInfo($adb->query_result($result, 0, "account_name"));
+	        $this->ConfigSenderInfo($adb->query_result($result, 0, "from_email"), $adb->query_result($result, 0, "from_name"), $adb->query_result($result, 0, "from_email"));
 	        $this->_serverConfigured = true;
 	    }
 	    
