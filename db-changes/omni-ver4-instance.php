@@ -140,6 +140,10 @@ Vtiger_Cron::register("Auto MSExchange Sync Task", "cron/MSExchangeTaskSync.serv
 
 $adb->pquery("ALTER TABLE vtiger_mailscanner_ids ADD user_name VARCHAR(250) NULL");
 
+$adb->pquery("ALTER TABLE vtiger_mail_accounts ADD from_name VARCHAR(250) NULL");
+
+$adb->pquery("ALTER TABLE vtiger_mail_accounts ADD from_email VARCHAR(250) NULL");
+
 $adb->pquery("ALTER TABLE vtiger_tab ADD ishide INT(3) NULL DEFAULT '0' ");
 
 $operation = array(
