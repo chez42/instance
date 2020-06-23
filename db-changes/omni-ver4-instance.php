@@ -142,15 +142,16 @@ $adb->pquery("ALTER TABLE vtiger_mailscanner_ids ADD user_name VARCHAR(250) NULL
 
 $adb->pquery("ALTER TABLE vtiger_tab ADD ishide INT(3) NULL DEFAULT '0' ");
 
-$operation = array('name'=>'getmoduleslist',
-    'path'=>'include/InstancesWebservices/GetModulesList.php',
-    'method'=>'vtws_getmoduleslist',
+$operation = array(
+	'name'=>'managemodules',
+    'path'=>'include/InstancesWebservices/ManageModules.php',
+    'method'=>'vtws_managemodules',
     'type'=>'POST',
     'params'=>array(array('name'=>'element','type'=>'encoded'))
 );
 
 
-$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name = ?', array($operation['name']));
 if (!$adb->num_rows($rs)) {
     $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
     $sequence = 1;
