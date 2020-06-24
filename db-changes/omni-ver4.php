@@ -143,3 +143,10 @@ $adb->pquery("ALTER TABLE vtiger_mail_accounts ADD from_email VARCHAR(250) NULL"
 Vtiger_Cron::register("Auto MSExchange Sync Task", "cron/MSExchangeTaskSync.service", 900, "MSExchange", 1, 0, "Recommended frequency for MSExchange Task Sync is 15 mins");
 
 $adb->pquery("ALTER TABLE vtiger_mailscanner_ids ADD user_name VARCHAR(250) NULL");
+
+$module = Vtiger_Module::getInstance("Transactions");
+$fieldmodel = Vtiger_Field_Model::getInstance('description', $module);
+if($fieldmodel){
+   $adb->pquery("update vtiger_field set uitype = ?
+   where fieldid = ?", array(19, $fieldmodel->getId()));
+}
