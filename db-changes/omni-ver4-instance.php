@@ -163,3 +163,10 @@ if (!$adb->num_rows($rs)) {
         vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
     }
 }
+
+$module = Vtiger_Module::getInstance("Transactions");
+$fieldmodel = Vtiger_Field_Model::getInstance('description', $module);
+if($fieldmodel){
+   $adb->pquery("update vtiger_field set uitype = ?
+   where fieldid = ?", array(19, $fieldmodel->getId()));
+}
