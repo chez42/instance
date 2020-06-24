@@ -400,8 +400,8 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 	},
 	
 	registerScrollForRollupComments : function() {
-        jQuery(document).scroll(function() {
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 30
+        jQuery('div#page').scroll(function() {
+            if ($('div#page').scrollTop() + $(window).height() >= $(document).height() - 30
                 && jQuery('div.commentContainer').length > 0 
                 && jQuery('.widgetContainer_comments').length === 0
                 && jQuery('#rollupcomments').attr('rollup-status') > 0) {
