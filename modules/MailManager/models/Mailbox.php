@@ -240,8 +240,10 @@ class MailManager_Mailbox_Model {
 			$mServerName = 'yahoo';
 		} else if($mServer == 'mail.messagingengine.com') {
 			$mServerName = 'fastmail';
-		} else if($mServer == 'imap-mail.outlook.com'){
+		} else if($mServer == 'outlook.office365.com'){
 		    $mServerName = 'office365';
+		} else if($mServer == 'mail.omnisrv.com'){
+		    $mServerName = 'omniExchange';
 		} else {
 			$mServerName = 'other';
 		}
@@ -259,7 +261,7 @@ class MailManager_Mailbox_Model {
         if ($db->num_rows($result)) {
             for($u=0;$u<$db->num_rows($result);$u++){
                 $mailBox[$u]['account_id'] = $db->query_result($result, $u, 'account_id');
-                $mailBox[$u]['account_name'] = $db->query_result($result, $u, 'account_name');
+                $mailBox[$u]['account_name'] = $db->query_result($result, $u, 'mail_username');
             }
         }
         
