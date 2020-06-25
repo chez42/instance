@@ -3060,11 +3060,10 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					var pageNumber = jQuery('[name="currentPageNum"]').val();
 					window.app.controller().loadRelatedListRecords({page: pageNumber});
 				} else {
-					app.helper.showModal(data,{cb:function(){
-						setTimeout(function(){
-						  $('.myModal').modal('hide')
-						}, 1500);
-					}});
+					app.helper.showModal(data);
+					setTimeout(function(){
+					  $('.myModal').modal('hide')
+					}, 2000);
 				}
 			}
 		});

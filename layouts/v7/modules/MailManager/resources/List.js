@@ -113,6 +113,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				self.handleSettingsEvents(data);
 				//self.registerDeleteMailboxEvent(data);
 				self.registerSaveMailboxEvent(data);
+				self.registerPortChangeEvent(data);
 			});
 		});
 	},
@@ -128,25 +129,27 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				useSmtp = 'ssl://smtp.gmail.com:465';
 				if(serverType == 'yahoo') {
 					useServer = 'imap.mail.yahoo.com';
-					useSmtp = 'smtp.mail.yahoo.com';
+					useSmtp = 'ssl://smtp.mail.yahoo.com:465';
 				}
 				if(serverType == 'office365'){
-					useServer = 'imap-mail.outlook.com';
-					useSmtp = 'smtp-mail.outlook.com';
+					useServer = 'outlook.office365.com';
+					useSmtp = 'tls://smtp.office365.com:587';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
 				useCert = 'novalidate-cert';
 				settingContainer.find('.settings_details').removeClass('hide');
 				settingContainer.find('.additional_settings').addClass('hide');
+				settingContainer.find('.smtpPort').hide();
 			} else if(serverType == 'fastmail') {
 				useServer = 'mail.messagingengine.com';
-				useSmtp = 'smtp.fastmail.com';
+				useSmtp = 'ssl://smtp.fastmail.com:465';
 				useProtocol = 'IMAP2';
 				useSSLType = 'tls';
 				useCert = 'novalidate-cert';
 				settingContainer.find('.settings_details').removeClass('hide');
 				settingContainer.find('.additional_settings').addClass('hide');
+				settingContainer.find('.smtpPort').hide();
 			} else if(serverType == 'other') {
 				useServer = '';
 				useSmtp = '';
@@ -155,13 +158,27 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				useCert = 'novalidate-cert';
 				settingContainer.find('.settings_details').removeClass('hide');
 				settingContainer.find('.additional_settings').removeClass('hide');
-			} else {
+				settingContainer.find('.smtpPort').show();
+				console.log(settingContainer.find('.smtpPort'))
+			}else if(serverType == 'omniExchange') {
+				useServer = 'mail.omnisrv.com';
+				useSmtp = 'tls://mail.omnisrv.com:587';
+				useProtocol = 'IMAP4';
+				useSSLType = 'ssl';
+				useCert = 'novalidate-cert';
+				settingContainer.find('.settings_details').removeClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+				settingContainer.find('.smtpPort').hide();
+			}  else {
 				settingContainer.find('.settings_details').addClass('hide');
+				settingContainer.find('.smtpPort').hide();
 			}
 
 			settingContainer.find('.refresh_settings').show();
 			settingContainer.find('#_mbox_user').val('');
 			settingContainer.find('#_mbox_pwd').val('');
+			settingContainer.find('#_mbox_from_name').val('');
+			settingContainer.find('#_mbox_from_email').val('');
 			settingContainer.find('[name="_mbox_sent_folder"]').val('');
 			settingContainer.find('.selectFolderValue').addClass('hide');
 			settingContainer.find('.selectFolderDesc').removeClass('hide');
@@ -222,6 +239,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					'container' : jQuery('#EditView')
 			}};
 			var errorMsg = app.vtranslate('JS_REQUIRED_FIELD');
+			var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 			if(data['_mbox_server'] == "") {
 				vtUtils.showValidationMessage(settingContainer.find('#_mbox_server'), errorMsg, params);
 				return false;
@@ -238,6 +256,10 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				vtUtils.showValidationMessage(settingContainer.find('#_mbox_from_email'), errorMsg, params);
 				return false;
 			} else {
+				if(!regex.test(data['_mbox_from_email'])){
+					vtUtils.showValidationMessage(settingContainer.find('#_mbox_from_email'), 'Please enter a valid email address', params);
+					return false;
+				}
 				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_from_email'));
 			}
 			if(data['_mbox_from_name'] == "") {
@@ -257,6 +279,12 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				return false;
 			} else {
 				vtUtils.hideValidationMessage(settingContainer.find('#_mbox_pwd'));
+			}
+			if(form.find('#serverType').val() == 'other' && data['smtpPort'] == ""){
+				vtUtils.showValidationMessage(settingContainer.find('#smtpPort'), errorMsg, params);
+				return false;
+			} else {
+				vtUtils.hideValidationMessage(settingContainer.find('#smtpPort'));
 			}
 			app.helper.showProgress(app.vtranslate("JSLBL_Saving_And_Verifying")+"...");
 			var params = {
@@ -1580,11 +1608,10 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var resultEle = jQuery(data);
 			var success = resultEle.find('.mailSentSuccessfully');
 			if (success.length > 0) {
-				app.helper.showModal(data,{cb:function(){
-					setTimeout(function(){
-					  $('.myModal').modal('hide')
-					}, 1500);
-				}});
+				app.helper.showModal(data);
+				setTimeout(function(){
+				  $('.myModal').modal('hide')
+				}, 2000);
 			}
 		});
 	},
@@ -2457,7 +2484,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					useServer = 'imap.mail.yahoo.com';
 				}
 				if(serverType == 'office365'){
-					useServer = 'imap-mail.outlook.com';
+					useServer = 'outlook.office365.com';
 				}
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
@@ -2551,6 +2578,24 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			
 		});
 		
+	},
+	
+
+	registerPortChangeEvent : function(data){
+		var settingContainer = jQuery(data);
+		settingContainer.find('#smtpPort').on('change', function(e) {
+			var element = jQuery(e.currentTarget);
+			var portType = element.val();
+			var value = element.closest('td').find('#_mbox_smtp_server').val().replace('ssl://','').replace('tls://','');
+			value = value.replace(':465','').replace(':587','');
+			if(portType == 'plain'){
+				element.closest('td').find('#_mbox_smtp_server').val(value);
+			}else if(portType == 'tls'){
+				element.closest('td').find('#_mbox_smtp_server').val('tls://'+value+':587');
+			}else if(portType == 'ssl'){
+				element.closest('td').find('#_mbox_smtp_server').val('ssl://'+value+':465');
+			}
+		});
 	},
 	
 });

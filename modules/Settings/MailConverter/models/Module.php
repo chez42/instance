@@ -206,7 +206,7 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 	        $mServerName = 'yahoo';
 	    } else if($mServer == 'mail.messagingengine.com') {
 	        $mServerName = 'fastmail';
-	    } else if($mServer == 'imap-mail.outlook.com'){
+	    } else if($mServer == 'outlook.office365.com'){
 	        $mServerName = 'office365';
 	    } else {
 	        $mServerName = 'other';
