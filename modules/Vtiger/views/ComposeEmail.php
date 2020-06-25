@@ -303,7 +303,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		if ($adb->num_rows($result)) {
 		    for($u=0;$u<$adb->num_rows($result);$u++){
 		        $list_servers[$u]['account_id'] = $adb->query_result($result, $u, 'account_id');
-		        $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'account_name');
+		        $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'from_email');
 		        $list_servers[$u]['default'] = $adb->query_result($result, $u, 'set_default');
 		    }
 		}
