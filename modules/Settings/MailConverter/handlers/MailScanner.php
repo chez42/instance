@@ -55,6 +55,7 @@ class Vtiger_MailScanner {
 	 * Start Scanning.
 	 */
 	function performScanNow($request) {
+	    
 		// Check if rules exists to proceed
 		$rules = $this->_scannerinfo->rules;
 
