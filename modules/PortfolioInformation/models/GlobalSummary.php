@@ -630,7 +630,7 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
                   JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
                   LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
                   WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                  AND e.deleted = 0
+                  AND e.deleted = 0 AND cf.position_closed != 1
                   GROUP BY base_asset_class, account_number
                   ON DUPLICATE KEY UPDATE value=VALUES(value)";
         $adb->pquery($query, array());
