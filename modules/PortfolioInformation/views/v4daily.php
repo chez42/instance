@@ -22,9 +22,97 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         require_once('modules/ModSecurities/actions/ConvertCustodian.php');
         include_once("include/utils/omniscientCustom.php");
 
+        global $adb, $dbconfig;
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $start = date('Y-m-d', strtotime('-7 days'));
+        $start = "2019-01-01";
+        $finish = date('Y-m-d');
+        $questions = generateQuestionMarks($accounts);
+        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+
+        //Write to the users table from consolidated balances for grand total of all accounts
+        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+
+        echo 'done';exit;
         echo "Script start: " . date("Y-m-d H:i:s") . '<br />';
+        PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
+        echo 'now look';exit;
 
 
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
+            "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
+        $missing_positions = $positions->GetMissingCRMPositions();
+        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+
+        if(!empty($missing_positions))
+            $positions->CreateNewPositionsFromPositionData($missing_positions);
+
+        //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
+        $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
+            "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+            "f.issue_date", "f.share_per_contact", "pr.factor");
+        //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
+        $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
+            "custodian_securities_td", $symbols, array(), $fields);
+        $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
+        if(!empty($missing_securities))
+            $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+        $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
+        $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+        echo 'done';exit;
+
+
+
+
+
+
+
+
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAllForUser(1);//Update user balances history
+        exit;
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $valid_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $invalid_accounts = PortfolioInformation_Module_Model::GetAccountNumbersNotBelongingToRepcodes($rep_codes);
+
+        PortfolioInformation_Module_Model::RemoveConsolidatedBalancesBelongingToAccounts($invalid_accounts);
+        PortfolioInformation_Module_Model::RemoveIntervalsBelongingToAccounts($invalid_accounts);
+        PortfolioInformation_Module_Model::RemovePortfoliosBelongingToAccounts($invalid_accounts);
+
+
+        $all_position_accounts = PositionInformation_Module_Model::GetDistinctAccountNumbers();
+        $merged = array_merge($valid_accounts, $all_position_accounts);
+        $delete_position_accounts = array_keys(array_intersect(array_count_values($merged),[1]));
+        PositionInformation_Module_Model::RemovePositionsBelongingToAccounts($delete_position_accounts);
+        echo 'check positions now';exit;
+
+        $all_transaction_accounts = Transactions_Module_Model::GetDistinctAccountNumbers();
+        $merged = array_merge($valid_accounts, $all_transaction_accounts);
+        $delete_transaction_accounts = array_keys(array_intersect(array_count_values($merged),[1]));
+        Transactions_Module_Model::RemoveTransactionsBelongingToAccounts($delete_transaction_accounts);
+        echo 'now check';exit;
+
+        ini_set('memory_limit', -1);
+            PortfolioInformation_TotalBalances_Model::WriteAndUpdateAllForUser(1);//Update user balances history
+        echo "Script finished: " . date("Y-m-d H:i:s") . '<br />';
+exit;
+        $omniSecurities = new cOmniscientSecurities("Omniscient", "live_omniscient", "securities", "vtiger_modsecurities", array(), array(), array());
+        $intersect = $omniSecurities->GetTableIntersection("live_omniscient", "vtiger_modsecurities",
+                                                           "360vew_synctest", "vtiger_modsecurities", "m.");
+
+        $intersect = array_merge($intersect, $omniSecurities->GetTableIntersection("live_omniscient", "vtiger_modsecuritiescf",
+                                                                                   "360vew_synctest", "vtiger_modsecuritiescf", "mcf."));
+        $omniSecurities->UpdateSecuritiesDirectJoin($intersect);
+
+#        $omniSecurities->GetAllSecuritiesByAssetClass(array("Stock", "Stocks", "Cash"));
+#        $missing = $omniSecurities->GetMissingCRMSecurities();
+#        $omniSecurities->CreateNewSecuritiesFromSecurityData();
+        echo 'dun';
+        exit;
 
 
 

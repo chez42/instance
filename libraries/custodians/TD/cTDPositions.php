@@ -267,7 +267,7 @@ class cTDPositions extends cCustodian {
                                                                                 THEN m.asset_backed_factor ELSE 1 END,
               p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
               p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
-              cf.last_update = ?, cf.custodian_source = ?
+              cf.last_update = ?, cf.custodian_source = ?, cf.position_closed = 0
               WHERE account_number = ? AND p.security_symbol = ?";
         $adb->pquery($query, $params, true);
     }
