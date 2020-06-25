@@ -15,7 +15,7 @@
 	<div class="detailViewContainer">
 		<div class="detailViewTitle" id="prefPageHeader">
 			<div class="row">
-				<div class="col-lg-7 col-xs-12">
+				<div class="col-lg-6 col-xs-12">
 					{assign var=IMAGE_DETAILS value=$RECORD->getImageDetails()}
 					{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
 						{if !empty($IMAGE_INFO.path) && !empty($IMAGE_INFO.orgname)}
@@ -38,7 +38,7 @@
 						</span>
 					</span>
 				</div>
-				<div class="col-lg-4 col-xs-12">
+				<div class="col-lg-5 col-xs-12">
 					<div class="detailViewButtoncontainer">
 						<div class="btn-group pull-right">
 							{foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWPREFERENCE']}

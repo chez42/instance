@@ -213,11 +213,10 @@ jQuery.Class("Emails_MassEdit_Js",{
 						var ele = jQuery(data);
 						var success = ele.find('.mailSentSuccessfully');
 						if(success.length <= 0){
-							app.helper.showModal(data,{cb:function(){
-								setTimeout(function(){
-								  $('.myModal').modal('hide')
-								}, 1500);
-							}});
+							app.helper.showModal(data);
+							setTimeout(function(){
+							  $('.myModal').modal('hide')
+							}, 2000);
 						} else {
 							app.event.trigger('post.mail.sent',data);
 						}

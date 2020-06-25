@@ -30,8 +30,9 @@
                                         <option></option>
                                         <option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('JSLBL_Gmail',$MODULE)}</option>
                                         <option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('JSLBL_Yahoo',$MODULE)}</option>
-                                        <option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('JSLBL_Fastmail',$MODULE)}</option>
+                                        {*<option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('JSLBL_Fastmail',$MODULE)}</option>*}
                                         <option value='office365' {if $SERVERNAME eq 'office365'} selected {/if}>{vtranslate('Office 365',$MODULE)}</option>
+                                        <option value='omniExchange' {if $SERVERNAME eq 'omniExchange'} selected {/if}>{vtranslate('Omni Mail',$MODULE)}</option>
                                         <option value='other' {if $SERVERNAME eq 'other'} selected {/if}>{vtranslate('JSLBL_Other',$MODULE)}</option>
                                     </select>
                                 </td>
@@ -50,6 +51,12 @@
                                 </td>
                                 <td class="fieldValue">
                                     <input name="_mbox_smtp_server" id="_mbox_smtp_server" class="inputElement width75per" value="{$MAILBOX->smtpServer()}" type="text" placeholder="mail.company.com or 192.168.X.X">
+                               		<select id="smtpPort" class="select2 inputElement smtpPort" name="smtpPort" style="display:none;width:23%;margin-left:5px;">
+                                        <option></option>
+                                        <option value='plain'>{vtranslate('Plain',$MODULE)}</option>
+                                        <option value='tls'>{vtranslate('TLS',$MODULE)}</option>
+                                        <option value='ssl'>{vtranslate('SSL',$MODULE)}</option>
+                                    </select>
                                 </td>
                             </tr>
                             <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
