@@ -661,6 +661,36 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
+
+
+    /**
+     * Get a list of account numbers whether or not they have been marked closed/deleted
+     * @param $ccn
+     * @param null $limit
+     * @return array|int
+     */
+    static public function GetAccountNumbersFromRepCodeOpenAndClosed($ccn, $limit = null)
+    {
+        global $adb;
+        if (strlen($limit) > 0)
+            $limit = " LIMIT {$limit} ";
+        $questions = generateQuestionMarks($ccn);
+
+        $query = "SELECT account_number FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
+                  WHERE production_number IN ({$questions})";
+        $result = $adb->pquery($query, array($ccn));
+
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $t[] = $v['account_number'];
+            }
+            return $t;
+        }
+        return 0;
+    }
+
     static public function GetAccountNumbersFromRepCode($ccn, $limit = null)
     {
         global $adb;
@@ -671,8 +701,9 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $query = "SELECT account_number FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
                   JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
-                  WHERE production_number IN ({$questions}) AND e.deleted = 0 AND p.accountclosed = 0 {limit} ";//AND stated_value_date >= '2019-10-01' {$limit}";
+                  WHERE production_number IN ({$questions}) AND e.deleted = 0 AND p.accountclosed = 0 {$limit} ";//AND stated_value_date >= '2019-10-01' {$limit}";
         $result = $adb->pquery($query, array($ccn));
+
         if ($adb->num_rows($result) > 0) {
             foreach ($result AS $k => $v) {
                 $t[] = $v['account_number'];
@@ -3000,7 +3031,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     static public function GetRepCodeListFromUsersTable(){
         global $adb;
         $query = "SELECT advisor_control_number
-                  FROM vtiger_users";
+                  FROM vtiger_users WHERE advisor_control_number != ''";
         $result = $adb->pquery($query, array());
         $list = array();
         if($adb->num_rows($result) > 0){
@@ -3012,6 +3043,80 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             }
         }
         return $list;
+    }
+
+    /**
+     * Return a list of account numbers that don't have the provided production number(s)
+     * @param array $rep_codes
+     * @return array|void
+     */
+    static public function GetAccountNumbersNotBelongingToRepcodes(array $rep_codes){
+        global $adb;
+        if(sizeof($rep_codes) < 1)
+            return;
+        $questions = generateQuestionMarks($rep_codes);
+        $query = "SELECT account_number 
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid) 
+                  WHERE production_number NOT IN ({$questions}) OR production_number IS NULL";
+        $result = $adb->pquery($query, array($rep_codes));
+
+        $accounts = array();
+        if($adb->num_rows($result) > 0){
+            while ($v = $adb->fetchByAssoc($result)) {
+                $accounts[] = $v['account_number'];
+            }
+        }
+        return $accounts;
+    }
+
+    /**
+     * Delete everything from the portfolioinformation module, including the vtiger_crmentity table
+     * @param array $account_numbers
+     */
+    static public function RemovePortfoliosBelongingToAccounts(array $account_numbers){
+        global $adb;
+        if(sizeof($account_numbers) < 1)
+            return;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "DELETE vtiger_portfolioinformation, vtiger_portfolioinformationcf, vtiger_crmentity 
+                  FROM vtiger_portfolioinformation 
+                  JOIN vtiger_portfolioinformationcf ON vtiger_portfolioinformation.portfolioinformationid = vtiger_portfolioinformationcf.portfolioinformationid
+                  JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
+                  WHERE account_number IN({$questions})";
+        $adb->pquery($query, array($account_numbers));
+    }
+
+    /**
+     * Delete everything from consolidated balances where the provided account number(s) exist
+     * @param array $account_numbers
+     */
+    static public function RemoveConsolidatedBalancesBelongingToAccounts(array $account_numbers){
+        global $adb;
+        if(sizeof($account_numbers) < 1)
+            return;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "DELETE FROM consolidated_balances WHERE account_number IN({$questions})";
+        $adb->pquery($query, array($account_numbers));
+    }
+
+    /**
+     * Delete everything from intervals where the provided account number(s) exist
+     * @param array $account_numbers
+     */
+    static public function RemoveIntervalsBelongingToAccounts(array $account_numbers){
+        global $adb;
+        if(sizeof($account_numbers) < 1)
+            return;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "DELETE FROM intervals_daily WHERE accountnumber IN ({$questions})";
+        $adb->pquery($query, array($account_numbers), true);
+
+        $query = "DELETE FROM vtiger_interval_calculations WHERE account_number IN ({$questions})";
+        $adb->pquery($query, array($account_numbers), true);
+
+        $query = "DELETE FROM vtiger_asset_class_history WHERE account_number IN ({$questions})";
+        $adb->pquery($query, array($account_numbers), true);
     }
 
     //TODO Need this finished.. It is to figured out portfolios not linked to contact

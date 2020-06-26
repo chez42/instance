@@ -247,8 +247,32 @@ class cOmniscientSecurities extends cCustodian {
         $this->table = $securities_table;
         $this->symbol_replacements = $symbol_replacements;
         $this->columns = $columns;
-        $this->RetrieveSecuritiesData($symbols);
-        $this->SetupSecuritiesComparisons();
+        if(!empty($symbols)) {
+            $this->RetrieveSecuritiesData($symbols);
+            $this->SetupSecuritiesComparisons();
+        }
+    }
+
+    public function GetAllSecuritiesByAssetClass(array $aclass){
+        global $adb;
+        if(empty($aclass))
+            return;
+
+        $questions = generateQuestionMarks($aclass);
+        $query = "SELECT security_symbol 
+                  FROM {$this->database}.vtiger_modsecurities m 
+                  JOIN {$this->database}.vtiger_modsecuritiescf cf USING (modsecuritiesid) 
+                  WHERE aclass IN ({$questions})";
+
+        $result = $adb->pquery($query, array($aclass));
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $symbols[] = $r['security_symbol'];
+            }
+
+            $this->RetrieveSecuritiesData($symbols);
+            $this->SetupSecuritiesComparisons();
+        }
     }
 
     /**
@@ -310,6 +334,22 @@ class cOmniscientSecurities extends cCustodian {
         }
     }
 
+    public function UpdateSecuritiesDirectJoin($fields){
+        global $adb;
+        $set = "";
+
+        foreach($fields AS $k => $v){
+            $set .= $v . " = ?, ";
+        }
+        $set = rtrim($set, ', ');
+
+        $query = "UPDATE vtiger_modsecurities m 
+                  JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  SET {$set}
+                  WHERE m.modsecuritiesid = ?";
+        $adb->pquery($query, array($fields, $fields['m.modsecuritiesid']), true);
+    }
+
     public function UpdateSecuritiesUsingcOmniscientSecuritiesData(cOmniscientSecuritiesData $data){
 #        echo 'updating - ' . $data->security_symbol . '<br />';
         if($this->DoesSecurityExistInCRM($data->security_symbol)) {
@@ -321,9 +361,8 @@ class cOmniscientSecurities extends cCustodian {
 
             $query = "UPDATE vtiger_modsecurities m 
                       JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
-                      JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid                      
                       SET cf.aclass = ?, security_price_adjustment = ?
-                      WHERE m.security_symbol = ?";
+                      WHERE m.modsecurities = ?";
             $adb->pquery($query, $params, true);
         }
     }
@@ -376,7 +415,7 @@ class cOmniscientSecurities extends cCustodian {
 
         if(!empty($symbols)) {
             foreach ($symbols AS $k => $v) {
-                $data = $this->securities_data[$v];
+                $data = $this->securities_data[strtoupper($v)];
                 if (!empty($data)) {
                     $tmp = new cOmniscientSecuritiesData($data);
 #                    echo '<br />';
