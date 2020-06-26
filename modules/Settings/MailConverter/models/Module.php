@@ -208,6 +208,8 @@ class Settings_MailConverter_Module_Model extends Settings_Vtiger_Module_Model {
 	        $mServerName = 'fastmail';
 	    } else if($mServer == 'outlook.office365.com'){
 	        $mServerName = 'office365';
+	    } else if($mServer == 'mail.omnisrv.com'){
+	        $mServerName = 'omniExchange';
 	    } else {
 	        $mServerName = 'other';
 	    }
