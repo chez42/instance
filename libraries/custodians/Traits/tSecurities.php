@@ -91,4 +91,26 @@ trait tSecurities{
         return $crm_securities;
     }
 
+    public function GetTableIntersection($db1, $table1, $db2, $table2, $prefix){
+        global $adb;
+        $fields1 = $fields2 = array();
+
+        $query = "SELECT COLUMN_NAME AS field
+                  FROM INFORMATION_SCHEMA.COLUMNS
+                  WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
+
+        $result = $adb->pquery($query, array($db1, $table1));
+        while($r = $adb->fetchByAssoc($result)){
+            $fields1[$prefix . $r["field"]] = $prefix . $r["field"];
+        }
+
+        $result = $adb->pquery($query, array($db2, $table2));
+        while($r = $adb->fetchByAssoc($result)){
+            $fields2[$prefix . $r["field"]] = $r[$prefix . "field"];
+        }
+
+        $valid = array_intersect_key($fields1, $fields2);
+        return $valid;
+    }
+
 }

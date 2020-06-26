@@ -351,4 +351,34 @@ class Transactions_Module_Model extends Vtiger_Module_Model {
         echo json_encode($created);
         return;
     }
+
+    static public function GetDistinctAccountNumbers(){
+        global $adb;
+        $query = "SELECT DISTINCT account_number FROM vtiger_transactions";
+        $result = $adb->pquery($query, array());
+        $account_numbers = array();
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetch_array($result)) {
+                $account_numbers[] = $x['account_number'];
+            }
+        }
+        return $account_numbers;
+    }
+
+    /**
+     * Delete everything from the transactions module, including the vtiger_crmentity table
+     * @param array $account_numbers
+     */
+    static public function RemoveTransactionsBelongingToAccounts(array $account_numbers){
+        global $adb;
+        if(sizeof($account_numbers) < 1)
+            return;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "DELETE vtiger_transactions, vtiger_transactionscf, vtiger_crmentity 
+                  FROM vtiger_transactions 
+                  JOIN vtiger_transactionscf ON vtiger_transactions.transactionsid = vtiger_transactionscf.transactionsid
+                  JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
+                  WHERE account_number IN({$questions})";
+        $adb->pquery($query, array($account_numbers));
+    }
 }

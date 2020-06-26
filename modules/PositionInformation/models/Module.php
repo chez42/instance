@@ -381,6 +381,36 @@ class PositionInformation_Module_Model extends Vtiger_Module_Model {
                   WHERE p.accountclosed = 1 {$and}";
         $adb->pquery($query, $params);
     }
+
+    static public function GetDistinctAccountNumbers(){
+        global $adb;
+        $query = "SELECT DISTINCT account_number FROM vtiger_positioninformation";
+        $result = $adb->pquery($query, array());
+        $account_numbers = array();
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetch_array($result)) {
+                $account_numbers[] = $x['account_number'];
+            }
+        }
+        return $account_numbers;
+    }
+
+    /**
+     * Delete everything from the positions module, including the vtiger_crmentity table
+     * @param array $account_numbers
+     */
+    static public function RemovePositionsBelongingToAccounts(array $account_numbers){
+        global $adb;
+        if(sizeof($account_numbers) < 1)
+            return;
+        $questions = generateQuestionMarks($account_numbers);
+        $query = "DELETE vtiger_positioninformation, vtiger_positioninformationcf, vtiger_crmentity 
+                  FROM vtiger_positioninformation 
+                  JOIN vtiger_positioninformationcf ON vtiger_positioninformation.positioninformationid = vtiger_positioninformationcf.positioninformationid
+                  JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_positioninformation.positioninformationid
+                  WHERE account_number IN({$questions})";
+        $adb->pquery($query, array($account_numbers));
+    }
 }
 
 ?>

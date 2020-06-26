@@ -110,6 +110,7 @@ class cTDSecurities extends cCustodian {
 
     public function UpdateSecuritiesUsingcTDSecuritiesData(cTDSecuritiesData $data){
 #        echo 'updating - ' . $data->symbol . '<br />';
+#        print_r($data);//Enable this for showing the symbol data (goes with the previous step showing the symbol name to keep them together
         if($this->DoesSecurityExistInCRM($data->symbol)) {
             global $adb;
             $params = array();
@@ -189,10 +190,10 @@ class cTDSecurities extends cCustodian {
 
         if(!empty($symbols)) {
             foreach ($symbols AS $k => $v) {
-                $data = $this->securities_data[$v];
+                $data = $this->securities_data[strtoupper($v)];
                 if (!empty($data)) {
+#                    echo $v . '<br />';//Enable this for showing the symbol name
                     $tmp = new cTDSecuritiesData($data);
-#                    echo '<br />';
                     $this->UpdateSecuritiesUsingcTDSecuritiesData($tmp);
                 }
             }

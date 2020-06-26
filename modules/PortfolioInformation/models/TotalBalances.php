@@ -49,13 +49,13 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         global $adb;
         $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($user_id, false);
         $questions = generateQuestionMarks($account_numbers);
-        $query = "INSERT INTO daily_user_total_balances
-                      SELECT {$user_id}, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date
+        $query = "INSERT INTO daily_user_total_balances (user_id, total_balance, num_accounts, balance_date, last_update)
+                      SELECT {$user_id}, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW()
                       FROM consolidated_balances
                       WHERE account_number IN({$questions})
                       GROUP BY as_of_date
                   ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
-        $adb->pquery($query, array($account_numbers));
+        $adb->pquery($query, array($account_numbers), true);
     }
 
     /**
@@ -130,6 +130,7 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         $ids = GetAllActiveUserIDs();
         if($date == null)
             $date = date('Y-m-d');
+
 #        set_error_handler("exception_error_handler");
         foreach($ids AS $k => $v){
             try {
@@ -149,5 +150,17 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
                 $adb->pquery($query, array($e->getMessage(), $note));
             }
         }
+    }
+
+    static public function ClosePositionsBasedOnTheirPortfolio(){
+        global $adb;
+        $query = "UPDATE vtiger_positioninformation pos
+                  JOIN vtiger_positioninformationcf poscf USING (positioninformationid)
+                  JOIN vtiger_portfolioinformation p ON p.account_number = pos.account_number
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  SET poscf.position_closed = 1
+                  WHERE (p.accountclosed = 1 OR e.deleted = 1)";
+        $adb->pquery($query, array());
     }
 }

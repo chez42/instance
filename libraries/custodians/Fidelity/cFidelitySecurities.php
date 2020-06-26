@@ -231,7 +231,7 @@ class cFidelitySecurities extends cCustodian {
 
         if(!empty($symbols)) {
             foreach ($symbols AS $k => $v) {
-                $data = $this->securities_data[$v];
+                $data = $this->securities_data[strtoupper($v)];
                 if (!empty($data)) {
                     $tmp = new cFidelitySecuritiesData($data);
 #                    echo '<br />';
