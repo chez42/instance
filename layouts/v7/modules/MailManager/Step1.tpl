@@ -48,15 +48,16 @@
 								</tr>
 								<tr>
 	                                <td class="fieldLabel width40per">
-	                                    <label class="pull-right detailViewButtoncontainer">{vtranslate('Select Account',$MODULE)}</label>
+	                                    <label class="pull-right detailViewButtoncontainer">{vtranslate('Select Account',$MODULE)} <span class="redColor">*</span></label>
 	                                </td>
 	                                <td class="fieldValue">
-	                                    <select id="serverMailType" class="select2 col-lg-9 col-xs-9">
+	                                    <select id="serverMailType" class="select2 col-lg-9 col-xs-9" data-rule-required="true" name="serverMailType">
 	                                        <option></option>
 	                                        <option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('Gmail',$MODULE)}</option>
 	                                        <option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('Yahoo',$MODULE)}</option>
-	                                        <option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('Fastmail',$MODULE)}</option>
+	                                        {*<option value='fastmail' {if $SERVERNAME eq 'fastmail'} selected {/if}>{vtranslate('Fastmail',$MODULE)}</option>*}
 	                                        <option value='office365' {if $SERVERNAME eq 'office365'} selected {/if}>{vtranslate('Office 365',$MODULE)}</option>
+	                                        <option value='omniExchange' {if $SERVERNAME eq 'omniExchange'} selected {/if}>{vtranslate('Omni Mail',$MODULE)}</option>
 	                                        <option value='other' {if $SERVERNAME eq 'other'} selected {/if}>{vtranslate('Other',$MODULE)}</option>
 	                                    </select>
 	                                </td>
@@ -74,7 +75,7 @@
 											{assign var=FIELD_DATA_TYPE value=$FIELD_MODEL->getFieldDataType()}
 											{if $FIELD_DATA_TYPE eq 'password'}
 												<input class="fieldValue inputElement" type="password" autocomplete="new-password" name="{$FIELD_MODEL->getName()}" {if $RECORD_EXISTS} value="{$RECORD_MODEL->get($FIELD_NAME)}" {/if}
-													{if $FIELD_MODEL->isMandatory()}data-validation-engine="validate[required]"{/if} />
+													{if $FIELD_MODEL->isMandatory()}data-rule-required="true"{/if} />
 											{elseif $FIELD_DATA_TYPE eq 'boolean'}
 												{assign var=RECORD_ID value=$RECORD_MODEL->getId()}
 												<input type="hidden" name="{$FIELD_MODEL->getName()}" value="0" />
@@ -116,7 +117,7 @@
 													</label>&nbsp;&nbsp;&nbsp;&nbsp;
 												{/foreach}
 											{else}
-												<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->isMandatory()}data-validation-engine="validate[required]"{/if} value="{$RECORD_MODEL->get($FIELD_NAME)}"/>
+												<input type="text" class="fieldValue inputElement" name="{$FIELD_MODEL->getName()}" {if $FIELD_MODEL->isMandatory()}data-rule-required="true"{/if} value="{$RECORD_MODEL->get($FIELD_NAME)}"/>
 											{/if}
 										</td>
 									</tr>

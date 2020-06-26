@@ -23,10 +23,10 @@
                         <tbody>
                             <tr>
                                 <td class="fieldLabel width40per">
-                                    <label class="pull-right detailViewButtoncontainer">{vtranslate('LBL_SELECT_ACCOUNT',$MODULE)}</label>
+                                    <label class="pull-right detailViewButtoncontainer"><font color="red">*</font>{vtranslate('LBL_SELECT_ACCOUNT',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <select id="serverType" class="select2 col-lg-9">
+                                    <select id="serverType" class="select2 col-lg-9" data-rule-required="true" name="serverType">
                                         <option></option>
                                         <option value='gmail' {if $SERVERNAME eq 'gmail'} selected {/if}>{vtranslate('JSLBL_Gmail',$MODULE)}</option>
                                         <option value='yahoo' {if $SERVERNAME eq 'yahoo'} selected {/if}>{vtranslate('JSLBL_Yahoo',$MODULE)}</option>
@@ -42,7 +42,7 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('IMAP',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_server" id="_mbox_server" class="inputElement width75per" value="{$MAILBOX->server()}" type="text" placeholder="mail.company.com or 192.168.X.X">
+                                    <input name="_mbox_server" id="_mbox_server" data-rule-required="true" class="inputElement width75per" value="{$MAILBOX->server()}" type="text" placeholder="mail.company.com or 192.168.X.X">
                                 </td>
                             </tr>
                             <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
@@ -50,8 +50,8 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('SMTP',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_smtp_server" id="_mbox_smtp_server" class="inputElement width75per" value="{$MAILBOX->smtpServer()}" type="text" placeholder="mail.company.com or 192.168.X.X">
-                               		<select id="smtpPort" class="select2 inputElement smtpPort" name="smtpPort" style="display:none;width:23%;margin-left:5px;">
+                                    <input name="_mbox_smtp_server" id="_mbox_smtp_server" data-rule-required="true" class="inputElement width75per" value="{$MAILBOX->smtpServer()}" type="text" placeholder="mail.company.com or 192.168.X.X">
+                               		<select id="smtpPort" class="select2 inputElement smtpPort" data-rule-required="true" name="smtpPort" style="display:none;width:23%;margin-left:5px;">
                                         <option></option>
                                         <option value='plain'>{vtranslate('Plain',$MODULE)}</option>
                                         <option value='tls'>{vtranslate('TLS',$MODULE)}</option>
@@ -64,7 +64,7 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('From Email',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_from_email" id="_mbox_from_email" class="inputElement width75per" value="{$MAILBOX->fromEmail()}" type="text" placeholder="from email">
+                                    <input name="_mbox_from_email" id="_mbox_from_email" data-rule-required="true" data-rule-email="true" class="inputElement width75per" value="{$MAILBOX->fromEmail()}" type="text" placeholder="from email">
                                 </td>
                             </tr>
                             <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
@@ -72,7 +72,7 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('From Name',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_from_name" id="_mbox_from_name" class="inputElement width75per" value="{$MAILBOX->fromName()}" type="text" placeholder="from name">
+                                    <input name="_mbox_from_name" id="_mbox_from_name" data-rule-required="true" class="inputElement width75per" value="{$MAILBOX->fromName()}" type="text" placeholder="from name">
                                 </td>
                             </tr>
                             <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
@@ -80,7 +80,7 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('LBL_Username',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_user" class="inputElement width75per" id="_mbox_user" value="{$MAILBOX->username()}" type="text" placeholder="{vtranslate('LBL_Your_Mailbox_Account',$MODULE)}">
+                                    <input name="_mbox_user" class="inputElement width75per" data-rule-required="true" id="_mbox_user" value="{$MAILBOX->username()}" type="text" placeholder="{vtranslate('LBL_Your_Mailbox_Account',$MODULE)}">
                                 </td>
                             </tr>
                             <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
@@ -88,7 +88,7 @@
                                     <label class="pull-right detailViewButtoncontainer"><font color="red">*</font> {vtranslate('LBL_Password',$MODULE)}</label>
                                 </td>
                                 <td class="fieldValue">
-                                    <input name="_mbox_pwd" class="inputElement width75per" id="_mbox_pwd" value="{$MAILBOX->password()}" type="password" placeholder="{vtranslate('LBL_Account_Password',$MODULE)}">
+                                    <input name="_mbox_pwd" class="inputElement width75per" data-rule-required="true" id="_mbox_pwd" value="{$MAILBOX->password()}" type="password" placeholder="{vtranslate('LBL_Account_Password',$MODULE)}">
                                 </td>
                             </tr>
                             <tr class="additional_settings {if $SERVERNAME neq 'other'}hide{/if}">

@@ -108,9 +108,11 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 			params['mode'] = "folderViewForDocs";
 		}
 		
-		params['tab_label'] = this.selectedRelatedTabElement.data('label-key');
+		
         var detailInstance = Vtiger_Detail_Js.getInstance();
         var searchParams = JSON.stringify(detailInstance.getRelatedListSearchParams());
+        this.selectedRelatedTabElement = detailInstance.getSelectedTab();
+        params['tab_label'] = this.selectedRelatedTabElement.data('label-key');
         params['search_params'] = searchParams;
         params['nolistcache'] = (jQuery('#noFilterCache').val() == 1) ? 1 : 0;
 		return params;
@@ -436,6 +438,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
         var thisInstance = this;
         var detailInstance = Vtiger_Detail_Js.getInstance();
         var searchParams = JSON.stringify(detailInstance.getRelatedListSearchParams());
+        thisInstance.selectedRelatedTabElement = detailInstance.getSelectedTab();
         var params = {
 			'type' : 'POST',
 			'data' : {
@@ -1311,6 +1314,7 @@ createTreeFolderPopup : function() {
 							return;
 						}
 						listInstance.clearList();
+						
 						var params = listInstance.getPageJumpParams();
 						app.request.post(params).then(function(err, data) {
 							
@@ -1318,8 +1322,10 @@ createTreeFolderPopup : function() {
 							var container =  listInstance.detailViewContainer;
 							var currentPageElement = container.find('#pageNumber');
 							var currentPageNumber = parseInt(currentPageElement.val());
-							var params = {};
+							var params = {"page" : currentPageNumber};
+							listInstance.relatedModulename = listSelectParams['module'];
 							listInstance.loadRelatedList(params);
+							
 						});
 					}
 				);

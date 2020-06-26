@@ -32,20 +32,20 @@
 
 
 
-
-<div id="sidebar-essentials" class="sidebar-essentials {if $LEFTPANELHIDE eq '1'} hide {/if}">
+{if !empty($MAILMODELS)}
+	<div id="sidebar-essentials" class="sidebar-essentials {if $LEFTPANELHIDE eq '1'} hide {/if}">
                 <!--svv-->{include file="partials/FoldersSidebar.tpl"|vtemplate_path:$MODULE}
 
 
     <!--svv-->
         </div>
-
-<div class="listViewPageDiv content-area {if $LEFTPANELHIDE eq '1'} full-width {/if}" id="listViewContent">
+{/if}
+<div class="listViewPageDiv content-area {if $LEFTPANELHIDE eq '1' || empty($MAILMODELS)} full-width {/if}" id="listViewContent">
 
 {if $MODULE neq 'EmailTemplates' && $SEARCH_MODE_RESULTS neq true}
         {assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
-        <div class="essentials-toggle" style="    left: 230px;
+        {*<div class="essentials-toggle" style="    left: 230px;
     z-index: 999;" title="{vtranslate('LBL_LEFT_PANEL_SHOW_HIDE', 'Vtiger')}">
             <span class="essentials-toggle-marker fa {if $LEFTPANELHIDE eq '1'}fa-chevron-right{else}fa-chevron-left{/if} cursorPointer"></span>
-        </div>
+        </div>*}
     {/if}
