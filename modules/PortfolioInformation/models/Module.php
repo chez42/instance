@@ -79,8 +79,9 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         }
         return $rep_codes;
     }
-
-    static public function AssignPortfolioBasedOnRepCodes($account_number)
+    
+    // Have to Give Default Argument as per php version 7.2
+    static public function AssignPortfolioBasedOnRepCodes($account_number = array())
     {
         global $adb;
         $questions = generateQuestionMarks($account_number);
