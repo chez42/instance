@@ -3213,8 +3213,9 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var addCommentBlock = self.getCommentBlock();
 			/*commentInfoBlock.find('.commentActionsContainer').hide();*/
 			addCommentBlock.appendTo(commentInfoBlock).show();
-
-			var params = {
+			
+			//Seems like a Buggy Code Commented
+			/*var params = {
 				'module': app.getModuleName(),
 				'action': 'MentionedUsers',
 				'message':message,
@@ -3230,7 +3231,8 @@ Vtiger.Class("Vtiger_Detail_Js",{
 						var strLength= commentArea.val().length * 2;
 						commentArea[0].setSelectionRange(strLength, strLength);
 					}
-				});
+				}
+			);*/
 		});
 
 		detailContentsHolder.on('click','.moreRecentComments', function(){
