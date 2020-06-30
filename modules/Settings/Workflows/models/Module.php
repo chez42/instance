@@ -145,4 +145,41 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
 	public function getModuleBasicLinks(){
 	   return array();
 	}
+	
+	/**
+	 * Function retrives all company details merge tags and add to field array
+	 * @return string
+	 */
+	function getCompanyMergeTagsInfo(){
+	    global $site_URL;
+	    $companyModuleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
+	    $basicFields = $companyModuleModel->companyBasicFields;
+	    $socialFields = $companyModuleModel->companySocialLinks;
+	    $qualifiedModule = "Settings:Vtiger";
+	    $moduleName = vtranslate("LBL_COMPANY_DETAILS", $qualifiedModule);
+	    $allFields = array();
+	    $logoPath = $site_URL . '/' . $companyModuleModel->getLogoPath();
+	    foreach ($basicFields as $columnName => $value) {
+	        //For column logo we need place logo in content
+	        if($columnName == 'logo'){
+	            $allFields[] = array($moduleName.':'. vtranslate($columnName, $qualifiedModule),"$$columnName$");
+	        } else {
+	            $allFields[] = array($moduleName.':'. vtranslate($columnName, $qualifiedModule),"$".strtolower("companydetails")."-".$columnName."$");
+	        }
+	    }
+	    // Social links will be having hyperlink redirected to URL mentioned
+	    foreach($socialFields as $columnName => $value){
+	        $url = $companyModuleModel->get($columnName);
+	        if($columnName == 'website'){
+	            $websiteURL = $url;
+	            if(empty($url)){
+	                $websiteURL = $columnName;
+	            }
+	            $allFields[] = array($moduleName.':'. vtranslate($columnName, $qualifiedModule),"<a target='_blank' href='".$url."'>$websiteURL</a>");
+	        } else {
+	            $allFields[] = array($moduleName.':'. vtranslate($columnName, $qualifiedModule),"<a target='_blank' href='".$url."'>$columnName</a>");
+	        }
+	    }
+	    return $allFields;
+	} 
 }

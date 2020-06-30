@@ -27,14 +27,21 @@ class Vtiger_ExternalDownloadLink_Action extends Vtiger_Action_Controller {
 				INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
 				WHERE crmid = ? ";
         $params = array($attachmentId);
-       
         $result = $db->pquery($query, $params);
+        
+        if(!$db->num_rows($result)){
+            $query = "SELECT * FROM vtiger_attachments
+				WHERE attachmentsid = ? ";
+            $params = array($attachmentId);
+            $result = $db->pquery($query, $params);
+        }
         
         while($row = $db->fetch_array($result)){
             if(!empty($row)){
                 $fileDetails[] = $row;
             }
         }
+       
         return $fileDetails;
     }
     

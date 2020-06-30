@@ -1806,11 +1806,13 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 							thisInstance.updateUnreadCount("-"+thisInstance.getUnreadCountByMsgNos(msgNos), folder);
 							thisInstance.updatePagingCount(msgNos.length);
 							for(var i = 0; i < msgNos.length; i++) {
+								var nextDiv = container.find('#mmMailEntry_'+msgNos[i]).next("div");
 								container.find('#mmMailEntry_'+msgNos[i]).remove();
 							}
 							var openedMsgNo = container.find('#mmMsgNo').val();
 							if(jQuery.inArray(openedMsgNo, msgNos) !== -1) {
-								thisInstance.clearPreviewContainer();
+								nextDiv.find('.mmfolderMails').trigger('click');
+								//thisInstance.clearPreviewContainer();
 							}
 						}
 					});

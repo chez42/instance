@@ -182,7 +182,6 @@ if($fieldmodel){
    where fieldid = ?", array(19, $fieldmodel->getId()));
 }
 
-
 $moduleInstance = Vtiger_Module::getInstance('Users');
 $blockInstance = Vtiger_Block::getInstance('User Brochure', $moduleInstance);
 if (!$blockInstance) {

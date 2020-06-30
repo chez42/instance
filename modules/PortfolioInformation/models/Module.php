@@ -81,11 +81,11 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
     }
     
     // Have to Give Default Argument as per php version 7.2
-    static public function AssignPortfolioBasedOnRepCodes($account_number = array())
+    static public function AssignPortfolioBasedOnRepCodes($account_number = null)
     {
         global $adb;
-        $questions = generateQuestionMarks($account_number);
-        $params = array();
+#        $questions = generateQuestionMarks($account_number);
+#        $params = array();
 
 
         $query = "DROP TABLE IF EXISTS UpdatePortfolios";

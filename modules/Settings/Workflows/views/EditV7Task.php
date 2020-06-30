@@ -215,6 +215,8 @@ class Settings_Workflows_EditV7Task_View extends Settings_Vtiger_Index_View {
 			if(!empty($emailTemplates)) {
 				$viewer->assign('EMAIL_TEMPLATES',$emailTemplates);
 			}
+			$companyFields = Settings_Workflows_Module_Model::getCompanyMergeTagsInfo();
+			$viewer->assign('COMPANY_FIELDS',$companyFields);
 		}
         
 		$assigned_user_filed = $recordStructureInstance->getAllOwnerFields();

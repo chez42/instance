@@ -40,7 +40,7 @@
 							{if $TABCOUNTER eq 1}
 								{$TABBLOCKNAME = $BLOCK_LABEL}
 							{/if}
-							<li class="tab-item {if $TABBLOCKNAME eq $BLOCK_LABEL}active{/if}" data-block="{$BLOCK_LABEL}" 	 style="background: #ffff;" >
+							<li class="tab-item {if $TABBLOCKNAME eq $BLOCK_LABEL}active{/if}" data-block="{$BLOCK_LABEL}" 	 >
 								<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#{$BLOCK_LABEL|replace:' ':'_'}" role="tab">
 						    		<span class="tab-label">
 							    		<strong>
@@ -60,7 +60,7 @@
 						{if $TABBLOCKNAME eq ''}
 							{$TABBLOCKNAME = $TABNAME}
 						{/if}
-						 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if}" style="background: #ffff;" >
+						 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if}"  >
 							<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#{$TABNAME|replace:' ':'_'}" role="tab">
 					    		<span class="tab-label">
 						    		<strong>
@@ -70,7 +70,7 @@
 					    	</a>
 						</li>
 					{/foreach}
-					<li class="tab-item " data-block="LBL_INVITE_USER_BLOCK" style="background: #ffff;">
+					<li class="tab-item " data-block="LBL_INVITE_USER_BLOCK" >
 						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#LBL_INVITE_USER_BLOCK" role="tab">
 				    		<span class="tab-label">
 					    		<strong>

@@ -10,7 +10,7 @@
 {strip}
 	<style>
 		.mCustomScrollBox {
-			max-height: 415px !important;
+			max-height: 400px !important;
 		}
 		.quickCreateContent {
 		    overflow: unset;

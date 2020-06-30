@@ -179,12 +179,13 @@ class Activity extends CRMEntity {
 		    && ($_REQUEST['action'] != 'SaveAjax' || isset($_REQUEST['remdays']) || 
 		        $_REQUEST['field'] == 'reminder_time') && $_REQUEST['action'] != 'FROM_WS') {
 		        $this->insertIntoReminderTable('vtiger_activity_reminder',$module,"");
+		        
+		        //Handling for invitees
+		        $selected_users_string =  $_REQUEST['inviteesid'];
+		        $invitees_array = explode(';',$selected_users_string);
+		        $this->insertIntoInviteeTable($module,$invitees_array);
+		        
 	    }
-
-		//Handling for invitees
-			$selected_users_string =  $_REQUEST['inviteesid'];
-			$invitees_array = explode(';',$selected_users_string);
-			$this->insertIntoInviteeTable($module,$invitees_array);
 
 		//Inserting into sales man activity rel
 		$this->insertIntoSmActivityRel($module);
