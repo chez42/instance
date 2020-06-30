@@ -23,13 +23,21 @@ class Instances_DetailView_Model extends Vtiger_DetailView_Model {
         $linkModelList = parent::getDetailViewLinks($linkParams);
 
         $basicActionLink = array(
-            'linktype' => 'DETAILVIEWBASIC',
+            'linktype' => 'DETAILVIEW',
             'linklabel' => 'Instance Modules List',
             'linkurl' => 'javascript:Instances_Detail_Js.triggerGetAllModules();',
             'linkicon' => ''
         );
-        $linkModelList['DETAILVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+        $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
 
+        $basicActionLink = array(
+            'linktype' => 'DETAILVIEW',
+            'linklabel' => 'Manage Rep Codes',
+            'linkurl' => 'javascript:Instances_Detail_Js.triggerGetAllUsers();',
+            'linkicon' => ''
+        );
+        $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+        
         return $linkModelList;
     }
 }

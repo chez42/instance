@@ -150,3 +150,38 @@ if($fieldmodel){
    $adb->pquery("update vtiger_field set uitype = ?
    where fieldid = ?", array(19, $fieldmodel->getId()));
 }
+
+
+$moduleInstance = Vtiger_Module::getInstance('Users');
+$blockInstance = Vtiger_Block::getInstance('User Brochure', $moduleInstance);
+if (!$blockInstance) {
+    $blockInstance = new Vtiger_Block();
+    $blockInstance->label = 'User Brochure';
+    $moduleInstance->addBlock($blockInstance);
+}
+$fieldInstance = Vtiger_Field::getInstance('brochure_file', $module);
+if (!$fieldInstance) {
+    $field  = new Vtiger_Field();
+    $field->name = 'brochure_file';
+    $field->label= 'Brochure File';
+    $field->uitype= 28;
+    $field->column = $field->name;
+    $field->columntype = 'VARCHAR(255)';
+    $field->typeofdata = 'V~O';
+    $blockInstance->addField($field);
+}
+
+$fieldInstance = Vtiger_Field::getInstance('brochure_shorturl', $module);
+if (!$fieldInstance) {
+    $field  = new Vtiger_Field();
+    $field->name = 'brochure_shorturl';
+    $field->label= 'Brochure Short Url';
+    $field->uitype= 17;
+    $field->column = $field->name;
+    $field->columntype = 'VARCHAR(255)';
+    $field->typeofdata = 'V~O';
+    $field->displaytype = 2;
+    $blockInstance->addField($field);
+    
+}
+

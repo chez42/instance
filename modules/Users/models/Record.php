@@ -487,7 +487,7 @@ class Users_Record_Model extends Vtiger_Record_Model {
         					'name' => $imageName
             			 );
             			
-			        } else {
+					} else if($setype == 'Users Image') {
 			            $imageDetails['imagename'][] = array(
 			                'id' => $imageId,
 			                'orgname' => $imageOriginalName,
