@@ -87,13 +87,28 @@ class Users_Save_Action extends Vtiger_Save_Action {
 	}
 
 	public function process(Vtiger_Request $request) {
-		
+	    global $adb;
+	    $recordId = $request->get('record');
 		//$result = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
 		//$_FILES = $result['imagename'];
-
+	    if($request->get('fileDeleted')){
+	        
+	        $checkResult = $adb->pquery('SELECT * FROM vtiger_crmentity 
+            INNER JOIN vtiger_salesmanattachmentsrel ON vtiger_salesmanattachmentsrel.attachmentsid = vtiger_crmentity.crmid
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.setype = "User Attachment" 
+            AND vtiger_salesmanattachmentsrel.smid = ?', array($recordId));
+	        
+	        if ($adb->num_rows($checkResult)) {
+	            $fileId = intval($adb->query_result($checkResult, 0, 'attachmentsid'));
+	            $adb->pquery('DELETE FROM vtiger_salesmanattachmentsrel WHERE smid = ? AND attachmentsid = ?', array($recordId,$fileId));
+	            $adb->pquery('DELETE FROM vtiger_attachments WHERE attachmentsid = ?', array($fileId));
+	            $adb->pquery('DELETE FROM vtiger_crmentity WHERE crmid = ?',array($fileId));
+	            $adb->pquery('UPDATE vtiger_users SET brochure_file = ?, brochure_shorturl=? WHERE id = ?',array('','',$recordId));
+	        }
+	    }
+       
 		$_FILES = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
 		
-		$recordId = $request->get('record');
 		if (!$recordId) {
 			$module = $request->getModule();
 			$userName = $request->get('user_name');
@@ -119,8 +134,6 @@ class Users_Save_Action extends Vtiger_Save_Action {
 		}else {
 			$loadUrl = $recordModel->getDetailViewUrl();
 		}
-		
-		global $adb;
 		
 		if(!empty($request->get('time'))){
             

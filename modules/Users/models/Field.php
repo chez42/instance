@@ -19,7 +19,7 @@ class Users_Field_Model extends Vtiger_Field_Model {
 	 */
 	public function isReadOnly() {
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
-		if(($currentUserModel->isAdminUser() == false && $this->get('uitype') == 98) || $this->get('uitype') == 106 || $this->get('uitype') == 156 || $this->get('uitype') == 115) {
+		if(($currentUserModel->isAdminUser() == false && $this->get('uitype') == 98) || ($currentUserModel->isAdminUser() == false && $this->get('uitype') == 28) || $this->get('uitype') == 106 || $this->get('uitype') == 156 || $this->get('uitype') == 115) {
 			return true;
 		}
 	}
@@ -73,7 +73,7 @@ class Users_Field_Model extends Vtiger_Field_Model {
 	 */
 	public function isAjaxEditable() {
 	    if(!$this->isEditable() || $this->get('uitype') == 105 || $this->get('uitype') == 106 || $this->get('uitype') == 98 || $this->get('uitype') == 101 || $this->getName() == 'appointment_url'
-	        || $this->get('uitype') == 29001 || $this->get('uitype') == 901 ) {
+	        || $this->get('uitype') == 29001 || $this->get('uitype') == 901 || $this->get('uitype') == 28) {
 			return false;
 		}
 		return true;

@@ -260,7 +260,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 			}
 
 			//To merge date and time fields
-			if ($this->meta->getEntityName() == 'Calendar' && ($field == 'date_start' || $field == 'due_date' || $field == 'taskstatus' || $field == 'eventstatus')) {
+			if ($this->meta->getEntityName() == 'Calendar' && ($field == 'date_start' || $field == 'due_date' || $field == 'taskstatus' /*|| $field == 'eventstatus'*/)) {
 				if ($field == 'date_start') {
 					$timeField = 'time_start';
 					$sql = $this->getSQLColumn($timeField);
