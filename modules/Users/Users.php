@@ -993,6 +993,8 @@ class Users extends CRMEntity {
 		
 		$user_logo = $_FILES['user_logo'];
 		
+		$fileDetail = $_FILES['brochure_file'];
+		
 		foreach($imageFile as $fileindex => $files) {
 			if($files['name'] != '' && $files['size'] > 0) {
 				$files['original_name'] = vtlib_purify($_REQUEST[$fileindex.'_hidden']);
@@ -1002,6 +1004,9 @@ class Users extends CRMEntity {
 		
 		if(!empty($user_logo))
 		    $this->saveUserLogo($id,$module,$user_logo);
+		
+	    if(!empty($fileDetail))
+	        $this->saveUserDocument($id,$module,$fileDetail);
 
 		$log->debug("Exiting from insertIntoAttachment($id,$module) method.");
 	}
@@ -2129,6 +2134,139 @@ class Users extends CRMEntity {
 	    imagecopyresampled($dst, $src, 0, 0, 0, 0, $w, $h, $width, $height);
 	    return $dst;
 	    
+	}
+	
+	function saveUserDocument($id,$module,$files){
+	    
+	    $adb = PearDatabase::getInstance();
+	    
+	    $old_attachmentid = $adb->query_result($adb->pquery("select vtiger_crmentity.crmid from vtiger_salesmanattachmentsrel
+		inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_salesmanattachmentsrel.attachmentsid where
+		vtiger_salesmanattachmentsrel.smid=? and vtiger_crmentity.setype = ?", array($this->id, "User Attachment")),0,'crmid');
+	    
+	    $file_saved = false;
+	   
+        
+        if($files['name'] != '' && $files['size'] > 0){
+            $files['original_name'] = vtlib_purify($files['name']);
+            $file_saved = $this->uploadAndSaveUserDocument($id,$module,$files);
+        }
+	    
+	    $imageNameSql = 'SELECT vtiger_attachments.name, vtiger_salesmanattachmentsrel.attachmentsid FROM vtiger_salesmanattachmentsrel
+		INNER JOIN vtiger_attachments ON vtiger_salesmanattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+		INNER JOIN vtiger_users ON vtiger_users.id = vtiger_salesmanattachmentsrel.smid
+		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_salesmanattachmentsrel.attachmentsid
+		WHERE vtiger_salesmanattachmentsrel.smid = ? and vtiger_crmentity.setype = ?';
+	    $imageNameResult = $adb->pquery($imageNameSql,array($this->id, "User Attachment"));
+	    $imageName = decode_html($adb->query_result($imageNameResult, 0, "name"));
+	    $attachmentId = decode_html($adb->query_result($imageNameResult, 0, "attachmentsid"));
+	    
+	    $options = array(
+	        'handler_path' => 'modules/Documents/handlers/DocumentViewer.php',
+	        'handler_class' => 'Documents_DocumentViewer_Handler',
+	        'handler_function' => 'documentview',
+	        'handler_data' => array(
+	            'documentId' => $attachmentId,
+	        )
+	    );
+	    
+	    $trackURL = Vtiger_ShortURL_Helper::generateURL($options);
+	    
+	    //Inserting image information of record into base table
+	    $adb->pquery('UPDATE vtiger_users SET brochure_file = ?, brochure_shorturl=? WHERE id = ?',array($imageName,$trackURL,$this->id));
+	    
+	    if($old_attachmentid != '' && $file_saved){
+	        $attchment_result= $adb->pquery("select * from vtiger_attachments where attachmentsid = ?", array($old_attachmentid));
+	        if($adb->num_rows($attchment_result)){
+	            $attachmentPath = $adb->query_result($attchment_result, "0", "path");
+	            $attachmentPath .= $adb->query_result($attchment_result, "0", "attachmentsid");
+	            $attachmentPath .= "_".$adb->query_result($attchment_result, "0", "name");
+	            unlink($attachmentPath);
+	            $del_res1 = $adb->pquery("delete from vtiger_attachments where attachmentsid=?", array($old_attachmentid));
+	            $del_res2 = $adb->pquery("delete from vtiger_salesmanattachmentsrel where attachmentsid=?", array($old_attachmentid));
+	            $adb->pquery("update vtiger_crmentity set deleted = 1 where crmid=?", array($old_attachmentid));
+	        }
+	    }
+	}
+	
+	function uploadAndSaveUserDocument($id,$module,$file_details) {
+	    global $adb, $current_user;
+	    global $upload_badext;
+	    
+	    $date_var = date("Y-m-d H:i:s");
+	    
+	    $id = $this->id;
+	    //to get the owner id
+	    $ownerid = $this->column_fields['assigned_user_id'];
+	    if (!isset($ownerid) || $ownerid == '')
+	        $ownerid = $current_user->id;
+        
+        if (isset($file_details['original_name']) && $file_details['original_name'] != null) {
+            $file_name = $file_details['original_name'];
+        } else {
+            $file_name = $file_details['name'];
+        }
+        
+        $save_file = 'true';
+        
+        $upload_status = false;
+        
+        $binFile = sanitizeUploadFileName($file_name, $upload_badext);
+        
+        $current_id = $adb->getUniqueID("vtiger_crmentity");
+        
+        $filename = ltrim(basename(" " . $binFile)); //allowed filename like UTF-8 characters
+        $filetype = $file_details['type'];
+        $filesize = $file_details['size'];
+        $filetmp_name = $file_details['tmp_name'];
+        
+        list($width, $height) = getimagesize($filetmp_name);
+        
+        //get the file path inwhich folder we want to upload the file
+        $upload_file_path = decideFilePath();
+        
+        $upload_status = move_uploaded_file($filetmp_name, $upload_file_path . $current_id . "_" . $binFile);
+        
+        if ($save_file == 'true' && $upload_status == 'true') {
+            //This is only to update the attached filename in the vtiger_notes vtiger_table for the Notes module
+            
+            $sql1 = "insert into vtiger_crmentity (crmid,smcreatorid,smownerid,setype,createdtime,modifiedtime) values(?, ?, ?, ?, ?, ?)";
+            $params1 = array($current_id, $current_user->id, $ownerid, "User Attachment", $adb->formatDate($date_var, true), $adb->formatDate($date_var, true));
+            
+            $adb->pquery($sql1, $params1);
+            
+            $sql2 = "insert into vtiger_attachments(attachmentsid, name, type, path) values(?, ?, ?, ?)";
+            $params2 = array($current_id, $filename, $filetype, $upload_file_path);
+            $result = $adb->pquery($sql2, $params2);
+            
+            $att_sql = "SELECT vtiger_attachments.* FROM vtiger_salesmanattachmentsrel
+    		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_salesmanattachmentsrel.attachmentsid
+    		INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_salesmanattachmentsrel.attachmentsid
+    		WHERE vtiger_crmentity.setype =  'User Attachment' AND vtiger_salesmanattachmentsrel.smid =?";
+	            
+            $res = $adb->pquery($att_sql, array($id));
+            $attachmentsid = $adb->query_result($res, 0, 'attachmentsid');
+            
+            if ($attachmentsid != '' && $attachmentsid > 0) {
+                $attachmentPath = $adb->query_result($res, "0", "path");
+                $attachmentPath .= $adb->query_result($res, "0", "attachmentsid");
+                $attachmentPath .= "_".$adb->query_result($res, "0", "name");
+                unlink($attachmentPath);
+                $delquery = 'delete from vtiger_salesmanattachmentsrel where smid=? and attachmentsid=?';
+                $adb->pquery($delquery, array($id, $attachmentsid));
+                $crm_delquery = "delete from vtiger_crmentity where crmid=?";
+                $adb->pquery($crm_delquery, array($attachmentsid));
+                $sql5 = 'insert into vtiger_salesmanattachmentsrel(smid, attachmentsid) values(?,?)';
+                $adb->pquery($sql5, array($id, $current_id));
+            } else {
+                
+                $sql3 = 'insert into vtiger_salesmanattachmentsrel(smid, attachmentsid) values(?,?)';
+                $adb->pquery($sql3, array($id, $current_id));
+            }
+            return true;
+        } else {
+            return false;
+        }
 	}
 	
 	

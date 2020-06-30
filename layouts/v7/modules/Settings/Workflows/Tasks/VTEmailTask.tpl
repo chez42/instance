@@ -136,10 +136,17 @@
 							<div style="margin-top: 7px" class="col-sm-3 col-xs-3">{vtranslate('LBL_GENERAL_FIELDS',$QUALIFIED_MODULE)}</div>&nbsp;&nbsp;
 							<div class="col-sm-8 col-xs-8">
 								<select style="width: 205px" id="task_timefields" class="select2" data-placeholder={vtranslate('LBL_SELECT_OPTIONS',$QUALIFIED_MODULE)}>
-									<option></option>
-									{foreach from=$META_VARIABLES item=META_VARIABLE_KEY key=META_VARIABLE_VALUE}
-										<option value="{if strpos(strtolower($META_VARIABLE_VALUE), 'url') === false}${/if}{$META_VARIABLE_KEY}">{vtranslate($META_VARIABLE_VALUE,$QUALIFIED_MODULE)}</option>
-									{/foreach}	
+									<option></option> 
+									<optgroup label="{vtranslate('LBL_COMPANY_DETAILS','Settings:Vtiger')}">
+										{foreach key=index item=COMPANY_FIELD from=$COMPANY_FIELDS}
+	                                        <option value="{{$COMPANY_FIELD[1]}}">{$COMPANY_FIELD[0]}</option>
+	                                    {/foreach}
+                                    </optgroup>
+                                    <optgroup label="{vtranslate('LBL_GENERAL_FIELDS', $MODULE)}">
+										{foreach from=$META_VARIABLES item=META_VARIABLE_KEY key=META_VARIABLE_VALUE}
+											<option value="{if strpos(strtolower($META_VARIABLE_VALUE), 'url') === false}${/if}{$META_VARIABLE_KEY}">{vtranslate($META_VARIABLE_VALUE,$QUALIFIED_MODULE)}</option>
+										{/foreach}	
+									</optgroup>
 								</select>
 							</div>	
 						</div>

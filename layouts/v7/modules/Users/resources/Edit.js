@@ -121,6 +121,8 @@ Vtiger_Edit_Js("Users_Edit_Js",{},{
         
         this.registerLogoChangeEvent();
         this.registerLogoElementChangeEvent(form);
+        this.registerDocumentFileElementChangeEvent(form);
+        this.registerEventForDocumentDelete();
 	},
 	
 	registerLogoChangeEvent : function() {
@@ -164,6 +166,83 @@ Vtiger_Edit_Js("Users_Edit_Js",{},{
 			
 			//jQuery(e.currentTarget).addClass('ignore-validation');
         });
+	},
+	
+	registerDocumentFileElementChangeEvent : function(container) {
+		var thisInstance = this;
+		container.on('change', 'input[name="brochure_file"]', function(e){
+            vtUtils.hideValidationMessage(container.find('input[name="brochure_file"]'));
+            if(e.target.type == "text") return false;
+            Vtiger_Index_Js.file = e.target.files[0];
+            var element = container.find('[name="brochure_file"]');
+			//ignore all other types than file 
+			if(element.attr('type') != 'file'){
+				return ;
+			}
+			var uploadFileSizeHolder = element.closest('.fileUploadContainer').find('.uploadedFileSize');
+			var fileSize = e.target.files[0].size;
+            var fileName = e.target.files[0].name;
+			var maxFileSize = thisInstance.getMaxiumFileUploadingSize(container);
+			if(fileSize > maxFileSize) {
+				alert(app.vtranslate('JS_EXCEEDS_MAX_UPLOAD_SIZE'));
+				element.val('');
+				uploadFileSizeHolder.text('');
+			}else{
+                if(container.length > 1){
+                    jQuery('div.fieldsContainer').find('form#I_form').find('input[name="brochure_file"]').css('width','80px');
+                    jQuery('div.fieldsContainer').find('form#W_form').find('input[name="brochure_file"]').css('width','80px');
+                } else {
+                    container.find('input[name="brochure_file"]').css('width','80px');
+                }
+				uploadFileSizeHolder.text(fileName+' '+thisInstance.convertFileSizeInToDisplayFormat(fileSize));
+			}
+
+		});
+	},
+	
+	/**
+	 * Function to register event for image delete
+	 */
+	registerEventForImageDelete : function(){
+		var formElement = this.getForm();
+		formElement.find('.imageDelete').on('click',function(e){
+			var element = jQuery(e.currentTarget);
+			var imageId = element.closest('div').find('img').data().imageId;
+			var parentTd = element.closest('td');
+			var imageUploadElement = parentTd.find('[type="file"]');
+			element.closest('div').remove();
+            
+			if(formElement.find('[name=imageid]').length !== 0) {
+				var imageIdValue = JSON.parse(formElement.find('[name=imageid]').val());
+				imageIdValue.push(imageId);
+				formElement.find('[name=imageid]').val(JSON.stringify(imageIdValue));
+			} else {
+				var imageIdJson = [];
+				imageIdJson.push(imageId);
+				formElement.append('<input type="hidden" name="imgDeleted" value="true" />');
+				formElement.append('<input type="hidden" name="imageid" value="'+JSON.stringify(imageIdJson)+'" />');
+			}
+			
+			if(formElement.find('.imageDelete').length === 0 && imageUploadElement.attr('data-rule-required') == 'true'){
+				imageUploadElement.removeClass('ignore-validation')
+			}
+		});
+	},
+	
+	/**
+	 * Function to register event for Document delete
+	 */
+	registerEventForDocumentDelete : function(){
+		var formElement = this.getForm();
+		formElement.find('.fileDelete').on('click',function(e){
+			var element = jQuery(e.currentTarget);
+			var parentTd = element.closest('td');
+			var imageUploadElement = parentTd.find('[type="file"]');
+			element.closest('div').remove();
+			
+			formElement.append('<input type="hidden" name="fileDeleted" value="true" />');
+			
+		});
 	},
 
 });
