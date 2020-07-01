@@ -151,14 +151,24 @@ class Timecontrol extends Vtiger_CRMEntity {
         \TimeControl\ImageGeneration::generateImage($this->column_fields['assigned_user_id']);
 
 		if (!empty($this->column_fields['relatedto'])) {
-			$relmod=getSalesEntityType($this->column_fields['relatedto']);
+			
+		    $relmod=getSalesEntityType($this->column_fields['relatedto']);
+			
 			$seqfld=$this->getModuleSequenceField($relmod);
+			
 			$relm = CRMEntity::getInstance($relmod);
+			
 			$relm->retrieve_entity_info($this->column_fields['relatedto'], $relmod);
+			
 			$enum=$relm->column_fields[$seqfld['column']];
+			
 			$ename=getEntityName($relmod, array($this->column_fields['relatedto']));
+			
 			$ename=decode_html($ename[$this->column_fields['relatedto']]);
-			$this->db->query("update vtiger_timecontrol set relatednum='$enum', relatedname='$ename' where timecontrolid=".$this->id);
+			
+			$this->db->pquery("update vtiger_timecontrol set relatednum = ?, 
+            relatedname = ? where timecontrolid= ?", array($enum, $ename, $this->id));
+			
 
 		}
 	}

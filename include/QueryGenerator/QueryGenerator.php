@@ -345,7 +345,7 @@ class QueryGenerator {
 		return $this->getQuery();
 	}
 
-	public function getQuery() {
+	public function getQuery($accessControlQuery = true) {
 		if(empty($this->query)) {
 			$conditionedReferenceFields = array();
 			$allFields = array_merge($this->fields, (array)$this->whereFields);
@@ -365,7 +365,7 @@ class QueryGenerator {
 
 			$query = "SELECT ";
 			$query .= $this->getSelectClauseColumnSQL();
-			$query .= $this->getFromClause();
+			$query .= $this->getFromClause($accessControlQuery);
 			$query .= $this->getWhereClause();
 			$this->query = $query;
 			return $query;
@@ -425,7 +425,7 @@ class QueryGenerator {
 		return $this->columns;
 	}
 
-	public function getFromClause() {
+	public function getFromClause($accessControlQuery = true) {
 		global $current_user;
 		if(!empty($this->query) || !empty($this->fromClause)) {
 			return $this->fromClause;
@@ -664,8 +664,11 @@ class QueryGenerator {
 				}
 			}
 		}
-
-		$sql .= $this->meta->getEntityAccessControlQuery();
+		
+		if($accessControlQuery){
+		  $sql .= $this->meta->getEntityAccessControlQuery();
+		}
+		
 		$this->fromClause = $sql;
 		return $sql;
 	}
