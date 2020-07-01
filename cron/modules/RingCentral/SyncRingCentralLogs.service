@@ -316,16 +316,26 @@ if(RingCentral_Config_Connector::$server == 'Sandbox')
                             
                             $crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
                             
-                            $relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
-			WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
-			AND vtiger_seringcentralrel.to_number = ? ",
-                                array($crmId['id'],$obj->id, $toNums['phoneNumber']));
+							if(isset($crmId['id'])){
                             
-                            if(!$adb->num_rows($relIds)){
-                                $adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
-                                    array($crmId['id'],$obj->id,$toNums['phoneNumber']));
-                            }
-                        }
+								
+								$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
+				WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
+				AND vtiger_seringcentralrel.to_number = ? ", array($crmId['id'],$obj->id, $toNums['phoneNumber']));
+								
+								
+								if(!$adb->num_rows($relIds)){
+									
+									$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
+									array($crmId['id'],$obj->id,$toNums['phoneNumber']));
+								
+								}
+								
+								
+							
+							}
+                        
+						}
             }
         }
         
@@ -382,14 +392,22 @@ if(RingCentral_Config_Connector::$server == 'Sandbox')
                                 foreach($record['to'] as $toNums){
                                     $toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
                                     $crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
-                                    $relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
-				WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
-				AND vtiger_seringcentralrel.to_number = ? ",
-                                        array($crmId['id'],$obj->id, $toNums['phoneNumber']));
-                                    if(!$adb->num_rows($relIds)){
-                                        $adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
-                                            array($crmId['id'],$obj->id,$toNums['phoneNumber']));
-                                    }
+									
+									if(isset($crmId['id'])){
+										
+										$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
+					WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
+					AND vtiger_seringcentralrel.to_number = ? ",
+											array($crmId['id'],$obj->id, $toNums['phoneNumber']));
+										
+										if(!$adb->num_rows($relIds)){
+											$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
+												array($crmId['id'],$obj->id,$toNums['phoneNumber']));
+										}
+										
+									
+									}
+									
                                 }
                         }
                         
