@@ -58,7 +58,7 @@ if($adb->num_rows($users)){
                 $token['token_type'] = $refreshTokenData[0]['token_type'];
                 $token['expires_in'] = $refreshTokenData[0]['expires_in'];
                 
-                saveToken($refreshTokenData,$current_user->id);
+                saveDocuSignToken($refreshTokenData,$current_user->id);
                 
 				$userDetail = $api_client->getUserInfo($token['access_token']);
             
@@ -219,7 +219,7 @@ if($adb->num_rows($users)){
 	}
 }
 
-function saveToken($token_data, $user_id){
+function saveDocuSignToken($token_data, $user_id){
     
     global $adb, $current_user;
     
