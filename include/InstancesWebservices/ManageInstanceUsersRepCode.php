@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************ */
 
-function vtws_getinstanceusers($element) {
+function vtws_manageinstanceusersrepcode($element) {
     
     global $adb;
     

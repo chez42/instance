@@ -214,3 +214,20 @@ if (!$fieldInstance) {
     $blockInstance->addField($field);
     
 }
+
+$operation = array('name'=>'manageinstanceusersrepcode',
+    'path'=>'include/InstancesWebservices/ManageInstanceUsersRepCode.php',
+    'method'=>'vtws_manageinstanceusersrepcode',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+
+
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
