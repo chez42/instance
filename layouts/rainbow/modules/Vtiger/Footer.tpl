@@ -208,12 +208,7 @@
 </div>
 
 <footer class="app-footer">
-	<div class="vtFooter">
-		<p>
-			Powered by Omniscient CRM v4.0 &nbsp;&copy; 2004 - 2020&nbsp&nbsp;
-			<a href="//www.omnisrv.com" target="_blank">Omnisrv.com/</a>&nbsp;|&nbsp;<a href="#" onclick="window.open('../copyright.html','copyright', 'height=115,width=575').moveTo(210,620)">Read License</a>&nbsp;|&nbsp;<a href="https://omnisrv.com/privacy-policy/" target="_blank">Privacy Policy</a>
-		</p>
-	</div>
+	
 </footer>
 
 <div id='overlayPage'>
