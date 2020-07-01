@@ -283,7 +283,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 		return $this->columns;
 	}
 
-	public function getFromClause() {
+	public function getFromClause($accessControlQuery = true) {
 		global $current_user;
 		if ($this->query || $this->fromClause) {
 			return $this->fromClause;
@@ -616,8 +616,11 @@ class EnhancedQueryGenerator extends QueryGenerator {
 				}
 			}
 		}
-
-		$sql .= $this->meta->getEntityAccessControlQuery();
+		
+		if($accessControlQuery){
+		  $sql .= $this->meta->getEntityAccessControlQuery();
+		}
+		
 		$this->fromClause = $sql;
 
 		return $sql;

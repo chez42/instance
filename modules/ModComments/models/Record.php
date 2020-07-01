@@ -236,18 +236,21 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		$queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'assigned_user_id',
 			'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'from_mailroom', 'is_private', 'customer_email', 'related_email_id', 'filename'));
 
-		$query = $queryGenerator->getQuery();
+		$recordModel = Vtiger_Record_Model::getInstanceById($parentRecordId);
 	    
-	    $recordModel = Vtiger_Record_Model::getInstanceById($parentRecordId);
+		//If Module is HelpDesk then anyone can see any Comment
 	    if($recordModel->getModuleName() == 'HelpDesk'){
 	        
-	        global $current_user;
+	        $query = $queryGenerator->getQuery(false);
+	        
+	        /*global $current_user;
 	        $tabId = getTabid('ModComments');
 	        $creatorId = $recordModel->get('creator');
 	        $ownerId = $recordModel->get('assigned_user_id');
 	        $financialAdvisor = $recordModel->get('financial_advisor');
 	        
 	        $permission_result = $db->pquery("select * from vtiger_ticket_view_permission where ticketid = ?",array($parentRecordId));
+	        
 	        $viewUsers = array();
 	        if($db->num_rows($permission_result)){
 	            for($h=0;$h<$db->num_rows($permission_result);$h++){
@@ -256,19 +259,13 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	        }
 	        
 	        if( $creatorId == $current_user->id || $financialAdvisor == $current_user->id || $ownerId == $current_user->id || in_array($current_user->id, $viewUsers)){
-	            $tableName = 'vt_tmp_u' . $current_user->id . '_t' . $tabId;
-	            
-	            if(strpos($query,$tableName) !== FALSE){
-	                $tableName = $tableName;
-	            }else{
-	                $tableName = 'vt_tmp_u' . $current_user->id;
-	            }
-	            
-	            $db->pquery("delete from $tableName");
-	            $db->pquery("insert into $tableName select id from vtiger_users");
-	            
-	        }
+	            $query = $queryGenerator->getQuery(false);
+	        } else {
+	            $query = $queryGenerator->getQuery();
+	        }*/
 	        
+	    } else {
+	        $query = $queryGenerator->getQuery();
 	    }
 	    
 		$query = $query ." AND related_to = ? ORDER BY vtiger_crmentity.createdtime DESC";
