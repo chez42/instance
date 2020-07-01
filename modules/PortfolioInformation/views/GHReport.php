@@ -4,6 +4,7 @@ require_once("libraries/Reporting/ReportPerformance.php");
 require_once("libraries/Reporting/ReportHistorical.php");
 require_once("libraries/reports/pdf/cMpdf7.php");
 require_once("libraries/reports/new//holdings_report.php");
+require_once("modules/PortfolioInformation/models/NameMapper.php");
 
 class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 
@@ -49,6 +50,9 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
             $accounts = explode(",", $request->get("account_number"));
             $accounts = array_unique($accounts);
+
+            $map = new NameMapper();
+            $map->RenamePortfoliosBasedOnLinkedContact($accounts);
 
             if(strlen($request->get('report_start_date')) > 1) {
                 $start_date = $request->get("report_start_date");

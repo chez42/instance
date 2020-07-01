@@ -4,6 +4,7 @@ require_once("libraries/Reporting/ReportPerformance.php");
 require_once("libraries/Reporting/ReportHistorical.php");
 require_once("libraries/reports/pdf/cMpdf7.php");
 require_once("libraries/reports/new/holdings_report.php");
+require_once("modules/PortfolioInformation/models/NameMapper.php");
 
 class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
 
@@ -27,6 +28,10 @@ class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
 
             $accounts = explode(",", $request->get("account_number"));
             $accounts = array_unique($accounts);
+
+            $map = new NameMapper();
+            $map->RenamePortfoliosBasedOnLinkedContact($accounts);
+
 //            $start = date('Y-m-d', strtotime('-7 days'));//No longer used, originally it was just for calculating intervals
             $end = date('Y-m-d');
 #####            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
