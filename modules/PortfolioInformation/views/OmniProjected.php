@@ -62,6 +62,9 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
             $ispdf = $request->get('pdf');
 
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+            $viewer->assign("LOGO", $logo);
+
             if($ispdf) {
                 if (strlen($request->get('pie_image')) > 0) {
                     $pie_image = cNewPDFGenerator::TextToImage($request->get('pie_image'));
@@ -97,9 +100,6 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
                 $toc[] = array("title" => "#1", "name" => "Accounts Overview");
                 $toc[] = array("title" => "#2", "name" => "Income");
                 $viewer->assign("TOC", $toc);
-
-                $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-                $viewer->assign("LOGO", $logo);
 
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);

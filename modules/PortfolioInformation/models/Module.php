@@ -3136,7 +3136,9 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $logo = $current_user->getImageDetails();
 
         if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+            echo '1';
             if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+                echo '2';
                 $logo = $logo['user_logo'][0];
                 $logo = $logo['path']."_".$logo['name'];
             } else
@@ -3144,8 +3146,9 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         } else
             $logo = "";
 
-        if($logo == "_" || $logo == "")
-            $logo = $companyDetails->getLogo();
+        if($logo == "_" || $logo == "") {
+            $logo = $companyDetails->getLogo()->getImagePath();
+        }
 
         if($logo == "")
             $logo = "test/logo/Omniscient Logo small.png";

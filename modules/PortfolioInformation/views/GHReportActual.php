@@ -259,7 +259,7 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
         $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css');
 
 #        $pdf->SetupHeader();
-#        $pdf->SetupFooter();
+        $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
         $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH(Actual).pdf");
