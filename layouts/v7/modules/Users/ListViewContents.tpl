@@ -137,12 +137,16 @@
 										</span>
 									</td>
 								{else}
-									<td class="{$WIDTHTYPE}" nowrap>
+									<td class="listViewEntryValue" data-name="{$LISTVIEW_HEADER->get('name')}" title="{$LISTVIEW_ENTRY->getTitle($LISTVIEW_HEADER)}" data-rawvalue="{$LISTVIEW_ENTRY_RAWVALUE}" {if $LISTVIEW_HEADER->get('name') neq 'is_admin'}data-field-type="{$LISTVIEW_HEADER->getFieldDataType()}"{/if} nowrap>
 										<span class="fieldValue">
 											<span class="value textOverflowEllipsis">
 												{$LISTVIEW_ENTRY->get($LISTVIEW_HEADERNAME)}
 											</span>
 										</span>
+										{if $LISTVIEW_HEADER->isEditable() eq 'true' && $LISTVIEW_HEADER->isAjaxEditable() eq 'true'}
+											<span class="hide edit">
+											</span>
+										{/if}
 									</td>
 								{/if}
 							{/foreach}

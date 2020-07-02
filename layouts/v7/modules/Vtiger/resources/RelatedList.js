@@ -723,11 +723,16 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 		var recordSelectTrackerObj = thisInstance.getRecordSelectTrackerInstance();
         recordSelectTrackerObj.registerEvents();
          
-        app.event.on('post.relatedlistViewMassEditSave', function () {
-       	  var urlParams = {};
-       	  thisInstance.loadRelatedList(urlParams);
-       	  thisInstance.clearList();
-        });
+        app.event.on('post.relatedlistViewMassEditSave', function (e, form) {
+          var module = form.find('[name="module"]').val();
+     	  if(module == 'Events')
+     		  module = 'Calendar';
+     	  if(thisInstance.relatedModulename == module){
+	          var urlParams = {};
+	       	  thisInstance.loadRelatedList(urlParams);
+	       	  thisInstance.clearList();
+     	  }
+	    });
 		
     },
 	    
