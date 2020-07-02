@@ -160,6 +160,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             $viewer->assign("PREPARE_DATE", $prepare_date);
             $viewer->assign("ACCOUNTS", $accounts);
 
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+            $viewer->assign("LOGO", $logo);
 
             if($calling_record) {
                 $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
@@ -194,9 +196,6 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                         }
                     }
                 }
-
-                $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-                $viewer->assign("LOGO", $logo);
 
                 if (strlen($request->get('pie_image')) > 0) {
                     $pie_image = cMpdf7::TextToImage($request->get('pie_image'));
@@ -246,8 +245,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GHReportPDF.css');
 
-#        $pdf->SetupHeader();
-#        $pdf->SetupFooter();
+//        $pdf->SetupHeader();
+        $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
         $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH(Estimated).pdf");
