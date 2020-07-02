@@ -46,5 +46,9 @@
 				{/if}
 			</ul>
 		</span>
+		<div class="btn-group inline-save hide">
+	        <button class="button btn-success btn-small save" type="button" name="save"><i class="fa fa-check"></i></button>
+	        <button class="button btn-danger btn-small cancel" type="button" name="Cancel"><i class="fa fa-close"></i></button>
+	    </div>
 	</div>
 {/strip}

@@ -60,7 +60,7 @@
 <div id="GHReport_wrapper" class="GHReport_UI_Wrapper">
     <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
         <tr>
-            <td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}</td>
+            {*<td style="width:70%; vertical-align: top;">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}</td>
             {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 <div class="btn-toolbar" style="float:right;">

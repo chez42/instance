@@ -73,7 +73,10 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 		$cvId = $request->get('cvid');
 		$cvModel = CustomView_Record_Model::getInstanceById($cvId);
 
-		$moduleModel = Vtiger_Module_Model::getInstance($request->get('source_module'));
+		$module = $request->get('source_module');
+		if($module == 'Calendar')
+		    $module = 'Events';
+		$moduleModel = Vtiger_Module_Model::getInstance($module);
 		$recordStructureModel = Vtiger_RecordStructure_Model::getInstanceForModule($moduleModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_FILTER);
 		$recordStructure = $recordStructureModel->getStructure();
 
