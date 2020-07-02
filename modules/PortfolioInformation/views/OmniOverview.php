@@ -186,15 +186,13 @@ class PortfolioInformation_OmniOverview_View extends Vtiger_Index_View{
 </div>';
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/IndividualPerformance.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
 $pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display:block; margin-left:auto; margin-right:auto;">
-    <p>Asset Allocation</p>
+<br />
     ' . $pie_image . '
 </div>';
-
 //                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/DynamicHoldings.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer_landscape.tpl', $moduleName);
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }else {
 #                $viewer->view('OmniOverview.tpl', "PortfolioInformation");
@@ -209,7 +207,7 @@ $pdf_content .= '<div class="pie_image" style="width:120mm; height:80mm; display
 
     public function GeneratePDF($content, $logo = false, $calling_record){
 #        $pdf = new cNewPDFGenerator('c','LETTER-L','8','Arial');
-        $pdf = new cMpdf7();
+        $pdf = new cMpdf7(array('orientation' => 'L'));
 
         if($logo)
             $pdf->logo = $logo;

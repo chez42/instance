@@ -6,7 +6,7 @@
 	</div>
 	<div style="float:left;">
 		<div style="float:right;">
-			<img class="pdf_crm_logo" src="{if $LOGO neq ''}{$LOGO}{else}test/logo/Omniscient Logo small.png{/if}" style="float:right;" height="60" />
+			{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="float:right; width:60%;" />{/if}
 		</div>
 	</div>
 </div>
