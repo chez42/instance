@@ -98,18 +98,7 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
                 $toc[] = array("title" => "#2", "name" => "Income");
                 $viewer->assign("TOC", $toc);
 
-                $logo = $current_user->getImageDetails();
-                if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-                    if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                        $logo = $logo['user_logo'][0];
-                        $logo = $logo['path']."_".$logo['name'];
-                    } else
-                        $logo = 0;
-                } else
-                    $logo = "";
-
-                if($logo == "_")
-                    $logo = "test/logo/Omniscient Logo small.png";
+                $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
                 $viewer->assign("LOGO", $logo);
 
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
