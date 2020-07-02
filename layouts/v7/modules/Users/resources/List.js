@@ -767,5 +767,44 @@ Vtiger_List_Js("Settings_Users_List_Js",{
 
 /*************************  16-Aug-2018 Change for filter End  **************************/		
 	
+	/**
+	 * Function to get value from Edited field 
+	 * @param {type} fieldElement
+	 * @param {type} inputElement
+	 * @return value
+	 */
+	getInlineEditedFieldValue: function (fieldElement, inputElement) {
+		var value = null;
+		var fieldType = fieldElement.data('field-type');
+		
+		var picklistTypes = ['owner', 'picklist', 'ownergroup', 'currencyList', 'DocFolderPicklist','theme'];
+		
+		if (jQuery.inArray(fieldType, picklistTypes) !== -1) {
+			value = jQuery(".inputElement.select2", fieldElement).find(":selected").val();
+		} else if (fieldType === "reference") {
+			//value = inputElement.attr("value");
+			if(fieldElement.find(".inputElement").length)
+				var value = $($.parseHTML(fieldElement.find(".inputElement")[0].outerHTML)).filter('input').attr("value");
+			else
+				value = inputElement.data('value');
+		} else if (fieldType === "multipicklist") {
+			var selectedOptions = jQuery(".inputElement.select2", fieldElement).find(":selected");
+			value = [];
+			for (var i = 0; i < selectedOptions.length; i++) {
+				var option = jQuery(selectedOptions.get(i));
+				value.push(option.val());
+			}
+		} else if (fieldType == 'boolean') {
+			if (fieldElement.find('input:checkbox').is(':checked')) {
+				value = 1;
+			} else {
+				value = 0;
+			}
+		} else {
+			value = inputElement.val();
+		}
+		
+		return value;
+	},
 	
 });
