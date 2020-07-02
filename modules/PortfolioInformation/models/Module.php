@@ -3129,4 +3129,27 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                   WHERE last_name IS NOT NULL AND last_name != '' AND last_name != 'System Generated'
                   AND ";
     }
+
+    static public function GetLogo(){
+        $current_user = Users_Record_Model::getCurrentUserModel();
+        $companyDetails = Vtiger_CompanyDetails_Model::getInstanceById();
+        $logo = $current_user->getImageDetails();
+
+        if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+            if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+                $logo = $logo['user_logo'][0];
+                $logo = $logo['path']."_".$logo['name'];
+            } else
+                $logo = 0;
+        } else
+            $logo = "";
+
+        if($logo == "_" || $logo == "")
+            $logo = $companyDetails->getLogo();
+
+        if($logo == "")
+            $logo = "test/logo/Omniscient Logo small.png";
+
+        return $logo;
+    }
 }

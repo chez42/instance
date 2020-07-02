@@ -63,19 +63,10 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
             $viewer->assign("CALLING_RECORD", $calling_record);
 
             $current_user = Users_Record_Model::getCurrentUserModel();
-            $logo = $current_user->getImageDetails();
-            if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-                if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                    $logo = $logo['user_logo'][0];
-                    $logo = $logo['path']."_".$logo['name'];
-                } else
-                    $logo = 0;
-            } else
-                $logo = "";
 
-            if($logo == "_")
-                $logo = "test/logo/Omniscient Logo small.png";
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
             $viewer->assign("LOGO", $logo);
+
 
             /* === END : Changes For Report Logo 2016-12-07 === */
 
