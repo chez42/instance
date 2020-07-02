@@ -46,8 +46,18 @@ class ModSecurities_PriceInteraction_Action extends Vtiger_BasicAjax_Action{
                     "symbol" => $v['symbol'],
                     "open" => $v['open'],
                     "value" => $v['close']);
-                $data[] = $tmp;
+                $data[$v['formatted_date']] = $tmp;
             }
+        }
+/*This section auto fills in days that don't exist with the previous day's information*/
+        $previous = reset($data);
+        while (strtotime($sdate) <= strtotime($edate)) {
+            if(empty($data[$sdate])) {
+                $previous['date'] = $sdate;
+                $data[$sdate] = $previous;
+            }
+            $previous = $data[$sdate];
+            $sdate = date ("Y-m-d", strtotime("+1 day", strtotime($sdate)));
         }
         return $data;
     }

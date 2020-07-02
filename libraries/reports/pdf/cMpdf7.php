@@ -128,5 +128,3 @@ class cMpdf7 extends \Mpdf\Mpdf{
         }
     }
 }
-
-?>
