@@ -172,21 +172,6 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             }
 
             $ispdf = $request->get('pdf');
-            $logo = $current_user->getImageDetails();
-
-            if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-                if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                    $logo = $logo['user_logo'][0];
-                    $logo = $logo['path']."_".$logo['name'];
-                } else
-                    $logo = 0;
-            } else
-                $logo = "";
-
-            if($logo == "_" || $logo == "")
-                $logo = "test/logo/Omniscient Logo small.png";
-
-            $viewer->assign("LOGO", $logo);
 
             if($ispdf) {
                 $personal_notes = $request->get('personal_notes');
@@ -206,6 +191,9 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                     }
                 }
 
+                $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+                $viewer->assign("LOGO", $logo);
+
                 if (strlen($request->get('pie_image')) > 0) {
                     $pie_image = cMpdf7::TextToImage($request->get('pie_image'));
                     $pie_image = '<img style="display:block; width:45%; height:30%" src=data:image/jpg;base64,' . base64_encode($pie_image) . ' />';
@@ -220,21 +208,6 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $toc[] = array("title" => "#1", "name" => "Accounts Overview");
                 $toc[] = array("title" => "#2", "name" => "Portfolio Performance");
                 $viewer->assign("TOC", $toc);
-
-/*                $logo = $current_user->getImageDetails();
-
-                if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-                    if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                        $logo = $logo['user_logo'][0];
-                        $logo = $logo['path']."_".$logo['name'];
-                    } else
-                        $logo = 0;
-                } else
-                    $logo = "";
-
-                if($logo == "_")
-                    $logo = "test/logo/Omniscient Logo small.png";
-                $viewer->assign("LOGO", $logo);*/
 
                 /*                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
