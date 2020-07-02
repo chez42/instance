@@ -3,7 +3,7 @@ require_once("libraries/Reporting/ReportCommonFunctions.php");
 require_once("libraries/Reporting/ReportPerformance.php");
 require_once("libraries/Reporting/ReportHistorical.php");
 require_once("libraries/reports/pdf/cMpdf7.php");
-require_once("libraries/reports/new//holdings_report.php");
+require_once("libraries/reports/new/holdings_report.php");
 require_once("modules/PortfolioInformation/models/NameMapper.php");
 
 class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
@@ -224,8 +224,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
                 $this->GeneratePDF($pdf_content, $logo, $orientation, $calling_record);
             }else {
                 $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
-                if($current_user->isAdminUser())
-                    $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/Administration.tpl', "PortfolioInformation");
+/*                if($current_user->isAdminUser())
+                    $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/Administration.tpl', "PortfolioInformation");*/
                 $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GHReportNew.tpl', "PortfolioInformation");
                 echo $screen_content;
             }
@@ -246,8 +246,8 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/GHReportPDF.css');
 
-        $pdf->SetupHeader();
-        $pdf->SetupFooter();
+#        $pdf->SetupHeader();
+#        $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
         $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH(Estimated).pdf");
