@@ -702,10 +702,15 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 		var recordSelectTrackerObj = thisInstance.getRecordSelectTrackerInstance();
         recordSelectTrackerObj.registerEvents();
          
-        app.event.on('post.relatedlistViewMassEditSave', function () {
-       	  var urlParams = {};
-       	  thisInstance.loadRelatedList(urlParams);
-       	  thisInstance.clearList();
+        app.event.on('post.relatedlistViewMassEditSave', function (e, form) {
+          var module = form.find('[name="module"]').val();
+       	  if(module == 'Events')
+       		  module = 'Calendar';
+       	  if(thisInstance.relatedModulename == module){
+	          var urlParams = {};
+	       	  thisInstance.loadRelatedList(urlParams);
+	       	  thisInstance.clearList();
+       	  }
         });
 		
     },
@@ -1406,7 +1411,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
     								app.helper.showSuccessNotification({'title': status, 'message': msg});
     							}
     						}
-    						app.event.trigger('post.relatedlistViewMassEditSave');
+    						app.event.trigger('post.relatedlistViewMassEditSave',domForm);
     						if (err) {
     							return;
     						}
@@ -1449,7 +1454,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
     					jQuery('.vt-notification').remove();
     					app.helper.hidePageContentOverlay();
     					window.onbeforeunload = null;
-    					app.event.trigger('post.relatedlistViewMassEditSave');
+    					app.event.trigger('post.relatedlistViewMassEditSave',form);
     				} else {
     					app.event.trigger('post.save.failed', err);
     				}
