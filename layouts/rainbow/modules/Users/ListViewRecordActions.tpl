@@ -47,5 +47,9 @@
 				{/if}
 			</ul>
 		</span>
+		<div class="btn-group inline-save hide">
+	        <button class="button btn-success save" type="button" name="save"><i class="ti-check"></i></button>
+	        <button class="button btn-danger cancel" type="button" name="Cancel"><i class="ti-close"></i></button>
+	    </div>
 	</div>
 {/strip}

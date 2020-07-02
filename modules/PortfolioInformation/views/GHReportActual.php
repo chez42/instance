@@ -236,8 +236,8 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
                 $this->GeneratePDF($pdf_content, $logo, $orientation, $calling_record);
             }else {
                 $screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/DateSelection.tpl', "PortfolioInformation");
-                if($current_user->isAdminUser())
-                    $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/Administration.tpl', "PortfolioInformation");
+/*                if($current_user->isAdminUser())
+                    $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/Administration.tpl', "PortfolioInformation");*/
                 $screen_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GHReportNewActual.tpl', "PortfolioInformation");
                 echo $screen_content;
             }
@@ -258,8 +258,8 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
         $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
         $stylesheet .= file_get_contents('layouts/vlayout/modules/PortfolioInformation/css/GHReportPDF.css');
 
-        $pdf->SetupHeader();
-        $pdf->SetupFooter();
+#        $pdf->SetupHeader();
+#        $pdf->SetupFooter();
         $pdf->WritePDF($stylesheet, $content);
         $printed_date = date("mdY");
         $pdf->DownloadPDF( GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH(Actual).pdf");
