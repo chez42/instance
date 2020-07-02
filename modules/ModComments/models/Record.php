@@ -382,16 +382,21 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		$queryGenerator = $listView->get('query_generator');
 		$queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'id', 'assigned_user_id',
 			'commentcontent', 'creator', 'reasontoedit', 'userid', 'from_mailconverter', 'from_mailroom','is_private', 'customer_email'));
-		$query = $queryGenerator->getQuery();
+		
+		
+		//$query = $queryGenerator->getQuery();
 
 		//Condition are directly added as query_generator transforms the
 		//reference field and searches their entity names
-		$query = $query. ' AND parent_comments = ? AND related_to = ?';
-
+		
+		
 		$recordModel = Vtiger_Record_Model::getInstanceById($parentRecordId);
+		
 		if($recordModel->getModuleName() == 'HelpDesk'){
+			
+		    $query = $queryGenerator->getQuery(false);
 		    
-		    global $current_user;
+			/*global $current_user;
 		    $tabId = getTabid('ModComments');
 		    $creatorId = $recordModel->get('creator');
 		    $ownerId = $recordModel->get('assigned_user_id');
@@ -416,13 +421,20 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		        
 		        $db->pquery("delete from $tableName");
 		        $db->pquery("insert into $tableName select id from vtiger_users");
-		    }
+		    }*/
+			
+		} else {
+			$query = $queryGenerator->getQuery();	
 		}
 		
+		$query = $query. ' AND parent_comments = ? AND related_to = ?';
 		
 		$recordInstances = array();
+		
 		$result = $db->pquery($query, array($parentCommentId, $parentRecordId));
+		
 		$rows = $db->num_rows($result);
+		
 		for ($i=0; $i<$rows; $i++) {
 			$row = $db->query_result_rowdata($result, $i);
 			$recordInstance = new self();

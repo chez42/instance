@@ -39,6 +39,8 @@ class Vtiger_RelatedMassActionAjax_View extends Vtiger_IndexAjax_View {
     function initMassEditViewContents(Vtiger_Request $request) {
         
         $moduleName = $request->getModule();
+        if($moduleName == 'Calendar')
+            $moduleName = 'Events';
         $cvId = $request->get('viewname');
         $selectedIds = $request->get('selected_ids');
         $excludedIds = $request->get('excluded_ids');
