@@ -153,16 +153,12 @@ class HelpDesk_Record_Model extends Vtiger_Record_Model {
 	        $queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'assigned_user_id',
 	            'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'is_private', 'customer_email'));
 	        
-	        $query = $queryGenerator->getQuery();
-	        
-	        $query .= " AND vtiger_modcomments.related_to IN (" . generateQuestionMarks($relatedModuleRecordIds)
-	        . ") AND vtiger_modcomments.parent_comments=0 ORDER BY vtiger_crmentity.createdtime DESC LIMIT "
-	            . " $startIndex,$pageLimit";
-	            
-            $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
+	        $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
+            
+            
             if($recordModel->getModuleName() == 'HelpDesk'){
-                
-                global $current_user;
+                $query = $queryGenerator->getQuery(false);
+                /*global $current_user;
                 $tabId = getTabid('ModComments');
                 $creatorId = $recordModel->get('creator');
                 $ownerId = $recordModel->get('assigned_user_id');
@@ -186,9 +182,14 @@ class HelpDesk_Record_Model extends Vtiger_Record_Model {
                     }
                     $db->pquery("delete from $tableName");
                     $db->pquery("insert into $tableName select id from vtiger_users");
-                }
+                }*/
+            } else {
+                $query = $queryGenerator->getQuery();
             }
-	            
+            
+            $query .= " AND vtiger_modcomments.related_to IN (" . generateQuestionMarks($relatedModuleRecordIds)
+            . ") AND vtiger_modcomments.parent_comments=0 ORDER BY vtiger_crmentity.createdtime DESC LIMIT "
+                . " $startIndex,$pageLimit";
             
             $result = $db->pquery($query, $relatedModuleRecordIds);
             if ($db->num_fields($result)) {
