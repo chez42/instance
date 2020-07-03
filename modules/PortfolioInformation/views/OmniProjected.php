@@ -1,7 +1,11 @@
 <?php
 require_once("libraries/Reporting/ReportCommonFunctions.php");
+require_once("libraries/Reporting/ReportPerformance.php");
 require_once("libraries/Reporting/ProjectedIncomeModel.php");
-require_once("libraries/reports/pdf/cNewPDFGenerator.php");
+require_once("modules/PortfolioInformation/models/NameMapper.php");
+require_once("libraries/reports/pdf/cMpdf7.php");
+
+#require_once("libraries/reports/pdf/cNewPDFGenerator.php");
 
 class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
@@ -67,12 +71,14 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
             if($ispdf) {
                 if (strlen($request->get('pie_image')) > 0) {
-                    $pie_image = cNewPDFGenerator::TextToImage($request->get('pie_image'));
+#                    $pie_image = cNewPDFGenerator::TextToImage($request->get('pie_image'));
+                    $pie_image = cMpdf7::TextToImage($request->get('pie_image'));
                     $pie_image = '<img src="data:image/jpg;base64,' . base64_encode($pie_image) . '" />';
                     $viewer->assign("PIE_IMAGE", $pie_image);
                 }
                 if (strlen($request->get('graph_image')) > 0) {
-                    $graph_image = cNewPDFGenerator::TextToImage($request->get('graph_image'));
+#                    $graph_image = cNewPDFGenerator::TextToImage($request->get('graph_image'));
+                    $graph_image = cMpdf7::TextToImage($request->get('graph_image'));
                     $graph_image = '<img src="data:image/jpg;base64,' . base64_encode($graph_image) . '" />';
                     $viewer->assign("GRAPH_IMAGE", $graph_image);
                 }
@@ -103,14 +109,14 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-                $pdf_content .= '<div class="graph_image" style="width:220mm; height:80mm; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
+                $pdf_content .= '<div class="graph_image" style="width:100%; display:block; margin-left:auto; margin-right:auto; margin-top:10mm;">
     ' . $graph_image . '
 </div>';
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/OmniProjectedPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
-                $this->GeneratePDF($pdf_content, $logo, $calling_record);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer_landscape.tpl', $moduleName);
+                $this->GeneratePDF($pdf_content, $logo, "LETTER", $calling_record);
             }else {
 #                $viewer->view('OmniOverview.tpl', "PortfolioInformation");
                 $viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
@@ -121,9 +127,9 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
             return "<div class='ReportBottom'></div>";
 }
 
-    public function GeneratePDF($content, $logo = false, $calling_record){
-        $pdf = new cNewPDFGenerator('c','LETTER-L','8','Arial');
-
+    public function GeneratePDF($content, $logo = false, $orientation = 'LETTER', $calling_record){
+//        $pdf = new cNewPDFGenerator('c','LETTER-L','8','Arial');
+        $pdf = new cMpdf7(array('orientation' => 'L'));
         if($logo)
             $pdf->logo = $logo;
 
