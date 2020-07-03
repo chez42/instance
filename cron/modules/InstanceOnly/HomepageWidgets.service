@@ -6,7 +6,16 @@ require_once("libraries/Reporting/ReportCommonFunctions.php");
  * One simple call to write the daily balances for all active users using the past 7 days (allows for mistakes and missing data to catch up)
  */
 
-global $dbconfig;
+global $dbconfig, $adb;
+
+$query = "INSERT IGNORE INTO vtiger_prices
+          SELECT * FROM live_omniscient.vtiger_prices WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)
+          AND symbol IN (SELECT security_symbol FROM vtiger_modsecurities)";
+$adb->pquery($query, array());
+
+$query = "INSERT IGNORE INTO vtiger_prices_index
+          SELECT * FROM live_omniscient.vtiger_prices_index WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)";
+$adb->pquery($query, array());
 
 /*Positions asset allocation widget calculations*/
 PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
