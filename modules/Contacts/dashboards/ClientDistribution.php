@@ -26,6 +26,8 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
         if($request->get('trade_date')){
         
             $trade_date = $request->get('trade_date');
+            $trade_date['start'] = date('Y-m-d', strtotime($trade_date['start']));
+            $trade_date['end'] = date('Y-m-d', strtotime($trade_date['end']));
             $_SESSION['distributionWidgetId'] =$trade_date;
         
         }else if($_SESSION['distributionWidgetId']){
