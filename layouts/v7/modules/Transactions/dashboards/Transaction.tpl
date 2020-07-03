@@ -41,8 +41,8 @@
 						{vtranslate('Expected Date', $MODULE_NAME)} 
 					</div>
 				</div>
-				{assign var=start_date value=date('m-d-Y',strtotime($TRADE_DATE['start_date']))}
-				{assign var=end_date value=date('m-d-Y',strtotime($TRADE_DATE['end_date']))}
+				{assign var=start_date value=Vtiger_Date_UIType::getDisplayDateValue($TRADE_DATE['start_date'])}
+				{assign var=end_date value=Vtiger_Date_UIType::getDisplayDateValue($TRADE_DATE['end_date'])}
 				<div class="col-lg-8">
 	                <div class="input-daterange input-group dateRange widgetFilter" id="datepicker" name="trade_date">
 	                    <input type="text" class="input-sm form-control" name="start" value="{$start_date}" style="height:30px;"/>
