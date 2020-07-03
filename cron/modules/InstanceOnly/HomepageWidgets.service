@@ -13,6 +13,7 @@ PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
 PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
 PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
 
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 /*Fill in the consolidated balances table*/
 $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
 $start = date('Y-m-d', strtotime('-7 days'));
