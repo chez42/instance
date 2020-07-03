@@ -145,6 +145,18 @@ class Users_ListView_Model extends Vtiger_ListView_Model {
 		$moduleModel = $this->getModule();
 		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'EditView');
 		$advancedLinks = array();
+		
+		$currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+		$emailModuleModel = Vtiger_Module_Model::getInstance('Emails');
+		if($currentUserModel->hasModulePermission($emailModuleModel->getId())) {
+		    $advancedLinks[] = array(
+		        'linktype' => 'LISTVIEW',
+		        'linklabel' => 'LBL_SEND_EMAIL',
+		        'linkurl' => 'javascript:Vtiger_List_Js.triggerSendEmail("index.php?module='.$moduleModel->getName().'&view=MassActionAjax&mode=showComposeEmailForm&step=step1","Emails");',
+		        'linkicon' => ''
+		    );
+		}
+		
 		$importPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'Import');
 		if($importPermission && $createPermission) {
 			$advancedLinks[] = array(
