@@ -1943,10 +1943,12 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var module = self.getModuleName();
 			var quickCreateNode = jQuery('#quickCreateModules').find('[data-name="'+ referenceModuleName +'"]');
 			var fieldName = self.referenceFieldNames[module];
-
+			if(referenceModuleName == 'HelpDesk' && fieldName == 'projectid'){
+				fieldName = 'project_id';
+			}
 			var customParams = {};
 			customParams[fieldName] = recordId;
-
+			
 			if(quickCreateNode.length <= 0) {
 				app.helper.showErrorMessage(app.vtranslate('JS_NO_CREATE_OR_NOT_QUICK_CREATE_ENABLED'));
 			}

@@ -213,4 +213,13 @@ class Users_Field_Model extends Vtiger_Field_Model {
 	    return $this->fieldInfo;
 	}
 	
+	public function isMassEditable() {
+	    if($this->getName() == 'brochure_file' || $this->getName() == 'user_logo'){
+	        return false;
+	    }else{
+	        return $this->masseditable == 1 ? true : false;
+	    }
+	}
+	
+	
 }

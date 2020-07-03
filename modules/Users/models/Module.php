@@ -389,4 +389,8 @@ class Users_Module_Model extends Vtiger_Module_Model {
 		}
 		return $importableFieldModels;
 	}
+	
+	public function getDetailViewUrl($id) {
+	    return 'index.php?module='. $this->get('name').'&parent=Settings&view='.$this->getDetailViewName().'&record='.$id;
+	}
 }

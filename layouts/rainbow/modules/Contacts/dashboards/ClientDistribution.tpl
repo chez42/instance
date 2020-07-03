@@ -15,8 +15,8 @@
 	{assign var="dateFormat" value=$CURRENTUSER->get('date_format')}
 	<div class="title clearfix">
         <div class="dashboardTitle pull-left" title="{vtranslate('Client Distribution', $MODULE_NAME)}" style="width: 8em;"><b>{vtranslate('Client Distribution')}</b></div>
-		{assign var=start_date value=date('m-d-Y',strtotime($TRADE_DATE['start_date']))}
-		{assign var=end_date value=date('m-d-Y',strtotime($TRADE_DATE['end_date']))}
+		{assign var=start_date value=Vtiger_Date_UIType::getDisplayDateValue($TRADE_DATE['start_date'])}
+		{assign var=end_date value=Vtiger_Date_UIType::getDisplayDateValue($TRADE_DATE['end_date'])}
         <div class="input-daterange input-group dateRange widgetFilter" id="datepicker" name="trade_date" style="margin-bottom: 0px; width: 30%;">
             <input type="text" class="input-sm form-control" name="start" value="{$start_date}" style="height:30px;"/>
             <span class="input-group-addon">to</span>
