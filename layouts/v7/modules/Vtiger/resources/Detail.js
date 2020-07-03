@@ -1930,7 +1930,9 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var module = self.getModuleName();
 			var quickCreateNode = jQuery('#quickCreateModules').find('[data-name="'+ referenceModuleName +'"]');
 			var fieldName = self.referenceFieldNames[module];
-
+			if(referenceModuleName == 'HelpDesk' && fieldName == 'projectid'){
+				fieldName = 'project_id';
+			}
 			var customParams = {};
 			customParams[fieldName] = recordId;
 

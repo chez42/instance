@@ -60,8 +60,8 @@
 		                
 					</div>	
 					<div class="col-lg-3 col-md-3 col-xs-12">
-						{assign var=RECORD_COUNT value=$LISTVIEW_ENTIRES_COUNT}
-						{include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
+						 {assign var=RECORD_COUNT value=$LISTVIEW_ENTRIES_COUNT}
+            			 {include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
 					</div>
 				</div>
 				<div class="list-content">

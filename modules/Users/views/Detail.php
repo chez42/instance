@@ -12,6 +12,47 @@ class Users_Detail_View extends Users_PreferenceDetail_View {
 
 	public function preProcess(Vtiger_Request $request) {
 		parent::preProcess($request, false);
+		
+		$recordId = $request->get('record');
+		$moduleName = $request->getModule();
+		
+		$navigationInfo = ListViewSession::getListViewNavigation($recordId);
+		
+		$viewer = $this->getViewer($request);
+		
+		$prevRecordId = null;
+		$nextRecordId = null;
+		$found = false;
+		if ($navigationInfo) {
+		    foreach($navigationInfo as $page=>$pageInfo) {
+		        foreach($pageInfo as $index=>$record) {
+		            if($found) {
+		                $nextRecordId = $record;
+		                break;
+		            }
+		            if($record == $recordId) {
+		                $found = true;
+		            }
+		            if(!$found) {
+		                $prevRecordId = $record;
+		            }
+		        }
+		        if($found && !empty($nextRecordId)) {
+		            break;
+		        }
+		    }
+		}
+		
+		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+		if(!empty($prevRecordId)) {
+		    $viewer->assign('PREVIOUS_RECORD_URL', $moduleModel->getDetailViewUrl($prevRecordId));
+		}
+		if(!empty($nextRecordId)) {
+		    $viewer->assign('NEXT_RECORD_URL', $moduleModel->getDetailViewUrl($nextRecordId));
+		}
+		
+		$viewer->assign('NO_PAGINATION', false);
+		
 		$this->preProcessSettings($request);
 	}
 
