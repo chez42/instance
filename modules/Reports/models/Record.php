@@ -1333,11 +1333,12 @@ class Reports_Record_Model extends Vtiger_Record_Model {
 
 	function isEditableBySharing() {
 		$db = PearDatabase::getInstance();
-		$currentUserId = Users_Record_Model::getCurrentUserModel()->getId();
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$currentUserId = $currentUser->getId();
 		$ownerResult = $db->pquery("SELECT owner FROM vtiger_report WHERE reportid = ?", array($this->getId()));
 		$reportOnwer = $db->query_result($ownerResult, 0, 'owner');
 
-		if($currentUserId == $reportOnwer) {
+		if($currentUserId == $reportOnwer || $currentUser->isAdminUser()) {
 			return true;
 		} else {
 			$reportId = $this->getId();
