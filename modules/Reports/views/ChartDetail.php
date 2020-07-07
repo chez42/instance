@@ -22,7 +22,7 @@ class Reports_ChartDetail_View extends Vtiger_Index_View {
 		$sharingType = $reportModel->get('sharingtype');
 
 		$isRecordShared = true;
-		if(($currentUserPriviligesModel->id != $owner) && $sharingType == "Private"){
+		if(($currentUserPriviligesModel->id != $owner) && $sharingType == "Private" && $currentUserPriviligesModel->is_admin !== 'on'){
 			$isRecordShared = $reportModel->isRecordHasViewAccess($sharingType);
 		}
 		if(!$isRecordShared || !$currentUserPriviligesModel->hasModulePermission($moduleModel->getId())) {

@@ -2192,8 +2192,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
                 var form = jQuery(form);
                 var params = form.serializeFormData();
         		
-    			
-        		params.scannername = jQuery('input[name="scannername"]').val();
+    			var scannerName = jQuery('input[name="scannername"]').val();
+        		params.scannername = scannerName;
         		params.module = 'MailConverter';
         		params.parent = 'Settings';
         		params.action = 'SaveMailBox';
