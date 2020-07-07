@@ -296,57 +296,55 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	 * @return ModComments_Record_Model(s)
 	 */
 	public static function getAllParentComments($parentId) {
-			$db = PearDatabase::getInstance();
-			$focus = CRMEntity::getInstance('ModComments');
-			$query = $focus->get_comments();
-			if($query) {
-				$query .= " AND related_to = ? AND parent_comments = ? ORDER BY vtiger_crmentity.createdtime DESC";
-				
-				$recordModel = Vtiger_Record_Model::getInstanceById($parentId);
-				if($recordModel->getModuleName() == 'HelpDesk'){
-				    
-				    global $current_user;
-				    $tabId = getTabid('ModComments');
-				    $creatorId = $recordModel->get('creator');
-				    $ownerId = $recordModel->get('assigned_user_id');
-				    $financialAdvisor = $recordModel->get('financial_advisor');
-				    
-				    $permission_result = $db->pquery("select * from vtiger_ticket_view_permission where ticketid = ?",array($parentRecordId));
-				    $viewUsers = array();
-				    if($db->num_rows($permission_result)){
-				        for($h=0;$h<$db->num_rows($permission_result);$h++){
-				            $viewUsers[] = $db->query_result($permission_result, $h, 'view_permission_id');
-				        }
-				    }
-				    
-				    
-				    if( $creatorId == $current_user->id || $financialAdvisor == $current_user->id || $ownerId == $current_user->id || in_array($current_user->id, $viewUsers)){
-				        
-				        $tableName = 'vt_tmp_u' . $current_user->id . '_t' . $tabId;
-				        if(strpos($query,$tableName) !== FALSE){
-				            $tableName = $tableName;
-				        }else{
-				            $tableName = 'vt_tmp_u' . $current_user->id;
-				        }
-				        
-				        $db->pquery("delete from $tableName");
-				        $db->pquery("insert into $tableName select id from vtiger_users");
-				    }
-				}
-				
-				$result = $db->pquery($query, array($parentId, ''));
-				$count = $db->num_rows($result);
-				for($i = 0; $i < $count; $i++) {
-					$rowData = $db->query_result_rowdata($result, $i);
-					$recordInstance = new self();
-					$recordInstance->setData($rowData);
-					$recordInstances[] = $recordInstance;
-				}
-
-				return $recordInstances;
-			} else {
-				return array();
+	        
+        $db = PearDatabase::getInstance();
+    
+        $current_user = vglobal('current_user');
+        
+        $queryGenerator = new EnhancedQueryGenerator('ModComments', $current_user);
+        
+        $modcomment_obj = CRMEntity::getInstance("ModComments");
+        
+        if(is_object($modcomment_obj->column_fields)) {
+            $fields = $modcomment_obj->column_fields->getColumnFieldNames();
+        } else if(is_array($modcomment_obj->column_fields)) {
+            $fields = array_keys($modcomment_obj->column_fields);
+        }
+        
+        array_push($fields, 'id');
+        
+        $queryGenerator->setFields($fields);
+        
+        if($parentId){
+            $recordModel = Vtiger_Record_Model::getInstanceById($parentId);
+            
+            if($recordModel->getModuleName() == 'HelpDesk'){
+                $query = $queryGenerator->getQuery(false);
+            }
+        } else {
+            $query = $queryGenerator->getQuery();
+        }
+		
+		
+		if($query) {
+			
+		    $query .= " AND related_to = ? AND parent_comments = ? ORDER BY vtiger_crmentity.createdtime DESC";
+			
+			$result = $db->pquery($query, array($parentId, ''));
+			
+			$count = $db->num_rows($result);
+			
+			for($i = 0; $i < $count; $i++) {
+				$rowData = $db->query_result_rowdata($result, $i);
+				$recordInstance = new self();
+				$recordInstance->setData($rowData);
+				$recordInstances[] = $recordInstance;
 			}
+
+			return $recordInstances;
+		} else {
+			return array();
+		}
 	}
 
 	/**
