@@ -138,8 +138,10 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 					 var parentIdElement  = form.find('[name="parent_id"]');
 					 if(parentIdElement.length > 0 && parentIdElement.val().length > 0) {
 						var closestContainer = parentIdElement.closest('td');
-						data['parent_id'] = parentIdElement.val();
-						data['parent_module'] = closestContainer.find('[name="popupReferenceModule"]').val();
+						if(closestContainer.find('[name="popupReferenceModule"]').val() == 'Accounts'){
+							data['parent_id'] = parentIdElement.val();
+							data['parent_module'] = closestContainer.find('[name="popupReferenceModule"]').val();
+						}
 					 }
 					 return data;
 				},
@@ -212,9 +214,11 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			var parentIdElement  = form.find('[name="parent_id"]');
 			var closestContainer = parentIdElement.closest('td');
 			var referenceModule = closestContainer.find('[name="popupReferenceModule"]');
-			if(parentIdElement.length > 0 && parentIdElement.val().length > 0 && referenceModule.length >0) {
-				params['related_parent_id'] = parentIdElement.val();
-				params['related_parent_module'] = referenceModule.val();
+			if(referenceModule.val() == 'Accounts'){
+				if(parentIdElement.length > 0 && parentIdElement.val().length > 0 && referenceModule.length >0) {
+					params['related_parent_id'] = parentIdElement.val();
+					params['related_parent_module'] = referenceModule.val();
+				}
 			}
 		}
 		return params;
