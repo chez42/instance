@@ -231,3 +231,83 @@ if (!$adb->num_rows($rs)) {
         vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
     }
 }
+
+$moduleInstance = Vtiger_Module::getInstance('Contacts');
+$blockInstance = Vtiger_Block::getInstance('Contact Info', $moduleInstance);
+if ($blockInstance) {
+    $fieldInstance = Vtiger_Field::getInstance('twr_30', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_30';
+        $field->label = '30 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+
+    $fieldInstance = Vtiger_Field::getInstance('twr_90', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_90';
+        $field->label = '90 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+
+    $fieldInstance = Vtiger_Field::getInstance('twr_365', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_365';
+        $field->label = '365 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+}
+
+$moduleInstance = Vtiger_Module::getInstance('Accounts');
+$blockInstance = Vtiger_Block::getInstance('Investing and Financial Information', $moduleInstance);
+if ($blockInstance) {
+    $fieldInstance = Vtiger_Field::getInstance('twr_30', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_30';
+        $field->label = '30 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+
+    $fieldInstance = Vtiger_Field::getInstance('twr_90', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_90';
+        $field->label = '90 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+
+    $fieldInstance = Vtiger_Field::getInstance('twr_365', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'twr_365';
+        $field->label = '365 Day TWR';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+}
