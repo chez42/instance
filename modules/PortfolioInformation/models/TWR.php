@@ -28,6 +28,12 @@ class TWR{
         return $final_twr;
     }
 
+    /**
+     * Update the portfolio TWR
+     * @param $account_number
+     * @param $field
+     * @param $value
+     */
     public function UpdatePortfolioTWR($account_number, $field, $value){
         global $adb;
 
@@ -37,6 +43,12 @@ class TWR{
         $adb->pquery($query, array($value, $account_number));
     }
 
+    /**
+     * Update the contacts TWR
+     * @param $contactid
+     * @param $field
+     * @param $value
+     */
     public function UpdateContactTWR($contactid, $field, $value){
         global $adb;
 
@@ -45,6 +57,12 @@ class TWR{
         $adb->pquery($query, array($value, $contactid), true);
     }
 
+    /**
+     * Update the households TWR
+     * @param $accountid
+     * @param $field
+     * @param $value
+     */
     public function UpdateHouseholdTWR($accountid, $field, $value){
         global $adb;
 
