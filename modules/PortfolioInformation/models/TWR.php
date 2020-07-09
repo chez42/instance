@@ -37,22 +37,19 @@ class TWR{
         $adb->pquery($query, array($value, $account_number));
     }
 
-    public function UpdateContactTWR($account_number, $field, $value){
+    public function UpdateContactTWR($contactid, $field, $value){
         global $adb;
 
-        $query = "UPDATE vtiger_portfolioinformation p 
-                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
-                  JOIN vtiger_contactdetails c
-                  SET {$field} = ? WHERE account_number = ?";
-        $adb->pquery($query, array($value, $account_number));
+        $query = "UPDATE vtiger_contactdetails cd
+                  SET {$field} = ? WHERE contactid = ?";
+        $adb->pquery($query, array($value, $contactid), true);
     }
 
-    public function UpdateHouseholdTWR($account_number, $field, $value){
+    public function UpdateHouseholdTWR($accountid, $field, $value){
         global $adb;
 
-        $query = "UPDATE vtiger_portfolioinformation p 
-                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
-                  SET {$field} = ? WHERE account_number = ?";
-        $adb->pquery($query, array($value, $account_number));
+        $query = "UPDATE vtiger_account acc
+                  SET {$field} = ? WHERE accountid = ?";
+        $adb->pquery($query, array($value, $accountid), true);
     }
 }
