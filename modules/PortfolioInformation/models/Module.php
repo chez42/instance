@@ -437,10 +437,11 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
     static public function GetAllActiveAccountNumbers($manual_only = true)
     {
         global $adb;
-        if ($manual_only)
+        $and = "";
+        if ($manual_only == true)
             $and = "AND p.account_number LIKE ('M%')";
-        else
-            $and = "AND origination NOT IN ('fidelity', 'schwab', 'pershing', 'td', 'tdameritrade', 'tda')";
+#        else
+#            $and = "AND origination NOT IN ('fidelity', 'schwab', 'pershing', 'td', 'tdameritrade', 'tda')";
 
         $query = "SELECT account_number FROM vtiger_portfolioinformation p
                   JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
@@ -454,6 +455,68 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             }
         }
         return $accounts;
+    }
+
+    static public function GetAccountNumbersFromContactID($contact_id){
+        global $adb;
+        $query = "SELECT account_number 
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf ON (p.portfolioinformationid = cf.portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  WHERE contact_link = ? AND p.accountclosed = 0 AND e.deleted = 0";
+        $result = $adb->pquery($query, array($contact_id));
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetch_array($result))
+                $accounts[] = $v['account_number'];
+        }
+        return $accounts;
+    }
+
+    static public function GetAccountNumbersFromHouseholdID($contact_id){
+        global $adb;
+        $query = "SELECT account_number 
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf ON (p.portfolioinformationid = cf.portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  WHERE household_account = ? AND p.accountclosed = 0 AND e.deleted = 0";
+        $result = $adb->pquery($query, array($contact_id));
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetch_array($result))
+                $accounts[] = $v['account_number'];
+        }
+        return $accounts;
+    }
+
+    static public function GetUniqueContactIDsFromPortfolioModule(){
+        global $adb;
+
+        $query = "SELECT DISTINCT(contact_link) AS contact_id 
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  WHERE e.deleted = 0 AND p.accountclosed = 0 AND contact_link IS NOT NULL";
+        $result = $adb->pquery($query, array());
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $contacts[] = $v['contact_id'];
+            }
+        }
+        return $contacts;
+    }
+
+    static public function GetUniqueHouseholdIDsFromPortfolioModule(){
+        global $adb;
+
+        $query = "SELECT DISTINCT(household_account) AS household_account 
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  WHERE e.deleted = 0 AND p.accountclosed = 0 AND household_account IS NOT NULL";
+        $result = $adb->pquery($query, array());
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $households[] = $v['household_account'];
+            }
+        }
+        return $households;
     }
 
     static public function GetAccountsWithoutLastMonthIntervalCalculated(){
@@ -1426,6 +1489,22 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                   FROM intervals_daily WHERE AccountNumber = ?
                   ON DUPLICATE KEY UPDATE last_calculated = VALUES(last_calculated)";
         $adb->pquery($query, array($account_number));
+    }
+
+    /**
+     * Returns the number of intervals an account has calculated
+     * @param $account_number
+     * @return int|string|string[]|null
+     * @throws Exception
+     */
+    static public function GetNumberOfAccountIntervals($account_number){
+        global $adb;
+        $query = "SELECT COUNT(*) as count FROM intervals_daily WHERE accountnumber = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "count");
+        }
+        return 0;
     }
 
     /**

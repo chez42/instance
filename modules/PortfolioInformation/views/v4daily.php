@@ -18,11 +18,120 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        require_once("modules/PortfolioInformation/models/TWR.php");
+        require_once("libraries/Reporting/ReportCommonFunctions.php");
+        $twr = new TWR();
+        $end_date = date('Y-m-d');
+
+        $accounts = PortfolioInformation_Module_Model::GetAllActiveAccountNumbers(false);//We don't want manual only
+        $contacts = PortfolioInformation_Module_Model::GetUniqueContactIDsFromPortfolioModule();
+        $households = PortfolioInformation_Module_Model::GetUniqueHouseholdIDsFromPortfolioModule();
+
+        $t30 = GetDateMinusMonths(TRAILING_1, $end_date);
+        $t90 = GetDateStartOfYear(TRAILING_3, $end_date);
+        $t365 = GetDateMinusMonths(TRAILING_12, $end_date);
+
+
+/******CALCULATE INDIVIDUAL TWR**********/
+
+#$accounts = array("922070712");
+        $date = date("Y-m-d");
+#$counter = 0;
+        foreach($accounts AS $k => $v){
+#            if($counter >= 25){
+#                echo "COUNT DONE";return;
+#            }
+            $count = PortfolioInformation_Module_Model::GetNumberOfAccountIntervals($v);
+#            echo $v . ' has ' . $count . '<br />';
+            if($count == 0){
+                echo "Calculating for " . $v . '<br />';
+                PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts(array($v), null, null, true);
+            }
+
+            $t30_result = $twr->CalculateTWRCumulative(array($v), $t30, $end_date);
+            $t90_result = $twr->CalculateTWRCumulative(array($v), $t90, $end_date);
+            $t365_result = $twr->CalculateTWRCumulative(array($v), $t365, $end_date);
+
+            $twr->UpdatePortfolioTWR($v, "previous_month_percentage", $t30_result);
+            $twr->UpdatePortfolioTWR($v, "trailing_3_month_percentage", $t90_result);
+            $twr->UpdatePortfolioTWR($v, "trailing_6_month_percentage", $t365_result);
+#            $t12_result = $twr->CalculateTWRCumulative(array($v), $t12, $end_date);
+            echo $v . ' T30: ' . $t30_result . ', T90: ' . $t90_result . ', T365: ' . $t365_result . '<br /><br />';
+#            $counter++;
+        }
+
+        foreach($contacts AS $k => $v){
+            $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromContactID($v);
+            $t30_result = $twr->CalculateTWRCumulative($accounts, $t30, $end_date);
+            $t90_result = $twr->CalculateTWRCumulative($accounts, $t90, $end_date);
+            $t365_result = $twr->CalculateTWRCumulative($accounts, $t365, $end_date);
+
+            $twr->UpdateContactTWR($v, "twr_30", $t30_result);
+            $twr->UpdateContactTWR($v, "twr_90", $t90_result);
+            $twr->UpdateContactTWR($v, "twr_365", $t365_result);
+
+            echo "Contact ID: " . $v . ' T30: ' . $t30_result . ', T90: ' . $t90_result . ', T365: ' . $t365_result . '<br />';
+            echo "<br />";
+        }
+
+        foreach($households AS $k => $v){
+            $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromHouseholdID($v);
+            $t30_result = $twr->CalculateTWRCumulative($accounts, $t30, $end_date);
+            $t90_result = $twr->CalculateTWRCumulative($accounts, $t90, $end_date);
+            $t365_result = $twr->CalculateTWRCumulative($accounts, $t365, $end_date);
+
+            $twr->UpdateHouseholdTWR($v, "twr_30", $t30_result);
+            $twr->UpdateHouseholdTWR($v, "twr_90", $t90_result);
+            $twr->UpdateHouseholdTWR($v, "twr_365", $t365_result);
+
+            echo "Household ID: " . $v . ' T30: ' . $t30_result . ', T90: ' . $t90_result . ', T365: ' . $t365_result . '<br />';
+            echo "<br />";
+        }
+        echo 'done';
+exit;
+
+
+/*        foreach($accounts AS $k => $v) {
+            $tmp = $twr->CalculateIndividualTWRCumulative(array($v), '2020-01-01', '2020-07-07');
+            echo $v . ' -- ' . $tmp . '<br />';
+        }*/
+
+
+echo 'done';exit;
+
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily($date);
+echo 'test it now';exit;
         require_once("libraries/custodians/cCustodian.php");
         require_once('modules/ModSecurities/actions/ConvertCustodian.php');
         include_once("include/utils/omniscientCustom.php");
 
         global $adb, $dbconfig;
+
+        global $dbconfig;
+        $date = date("Y-m-d");
+
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily($date);
+
+        /*Positions asset allocation widget calculations*/
+        PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        /*Fill in the consolidated balances table*/
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $start = date('Y-m-d', strtotime('-7 days'));
+        $finish = date('Y-m-d');
+        $questions = generateQuestionMarks($accounts);
+        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+//Write to the users table from consolidated balances for grand total of all accounts
+        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
+
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+
+        echo 'done';exit;
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
         $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
         $start = date('Y-m-d', strtotime('-7 days'));
