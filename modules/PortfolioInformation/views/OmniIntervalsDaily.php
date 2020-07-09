@@ -102,7 +102,7 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
                 $start_date = $tmp_date;
         }
         $current_user = Users_Record_Model::getCurrentUserModel();
-print_r($selected_indexes);
+//print_r($selected_indexes);
         $viewer = $this->getViewer($request);
         $viewer->assign("CURRENT_USER", $current_user);
         $viewer->assign('INTERVALS', $intervals);
