@@ -64,14 +64,16 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
      * @param null $end
      */
     static public function ConsolidateBalances($start = null, $end = null){
-        global $adb;
+        global $adb, $dbconfig;
+
+        $db_name = $dbconfig['db_name'];
         if($start == null)
             $start = date('Y-m-d', strtotime('-7 days'));
         if($end == null)
             $end = date('Y-m-d');
 
-        $query = "CALL CONSOLIDATE_BALANCES(?, ?)";
-        $adb->pquery($query, array($start, $end));
+        $query = "CALL CONSOLIDATE_BALANCES(?, ?, ?)";
+        $adb->pquery($query, array($db_name, $start, $end));
     }
 
     /**
