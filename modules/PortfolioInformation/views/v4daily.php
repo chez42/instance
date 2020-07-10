@@ -28,13 +28,14 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         $households = PortfolioInformation_Module_Model::GetUniqueHouseholdIDsFromPortfolioModule();
 
         $t30 = GetDateMinusMonths(TRAILING_1, $end_date);
-        $t90 = GetDateStartOfYear(TRAILING_3, $end_date);
+        $t90 = GetDateMinusMonths(TRAILING_3, $end_date);
         $t365 = GetDateMinusMonths(TRAILING_12, $end_date);
 
+#        PortfolioInformation_TotalBalances_Model::ConsolidateBalances();
 
-/******CALCULATE INDIVIDUAL TWR**********/
+        /******CALCULATE INDIVIDUAL TWR**********/
 
-#$accounts = array("922070712");
+
         $date = date("Y-m-d");
 #$counter = 0;
         foreach($accounts AS $k => $v){
@@ -88,20 +89,20 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
             echo "<br />";
         }
         echo 'done';
-exit;
+        exit;
 
 
-/*        foreach($accounts AS $k => $v) {
-            $tmp = $twr->CalculateIndividualTWRCumulative(array($v), '2020-01-01', '2020-07-07');
-            echo $v . ' -- ' . $tmp . '<br />';
-        }*/
+        /*        foreach($accounts AS $k => $v) {
+                    $tmp = $twr->CalculateIndividualTWRCumulative(array($v), '2020-01-01', '2020-07-07');
+                    echo $v . ' -- ' . $tmp . '<br />';
+                }*/
 
 
-echo 'done';exit;
+        echo 'done';exit;
 
         PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily($date);
-echo 'test it now';exit;
+        echo 'test it now';exit;
         require_once("libraries/custodians/cCustodian.php");
         require_once('modules/ModSecurities/actions/ConvertCustodian.php');
         include_once("include/utils/omniscientCustom.php");
@@ -206,15 +207,15 @@ echo 'test it now';exit;
         echo 'now check';exit;
 
         ini_set('memory_limit', -1);
-            PortfolioInformation_TotalBalances_Model::WriteAndUpdateAllForUser(1);//Update user balances history
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAllForUser(1);//Update user balances history
         echo "Script finished: " . date("Y-m-d H:i:s") . '<br />';
-exit;
+        exit;
         $omniSecurities = new cOmniscientSecurities("Omniscient", "live_omniscient", "securities", "vtiger_modsecurities", array(), array(), array());
         $intersect = $omniSecurities->GetTableIntersection("live_omniscient", "vtiger_modsecurities",
-                                                           "360vew_synctest", "vtiger_modsecurities", "m.");
+            "360vew_synctest", "vtiger_modsecurities", "m.");
 
         $intersect = array_merge($intersect, $omniSecurities->GetTableIntersection("live_omniscient", "vtiger_modsecuritiescf",
-                                                                                   "360vew_synctest", "vtiger_modsecuritiescf", "mcf."));
+            "360vew_synctest", "vtiger_modsecuritiescf", "mcf."));
         $omniSecurities->UpdateSecuritiesDirectJoin($intersect);
 
 #        $omniSecurities->GetAllSecuritiesByAssetClass(array("Stock", "Stocks", "Cash"));
@@ -360,35 +361,35 @@ exit;
 
 
 
-/******SCHWAB POSITIONS******
+        /******SCHWAB POSITIONS******
         $positions = new cSchwabPositions("SCHWAB", "custodian_omniscient", "positions",
-                                          "custodian_portfolios_schwab", "custodian_positions_schwab",
-                                           $rep_codes, array());
+        "custodian_portfolios_schwab", "custodian_positions_schwab",
+        $rep_codes, array());
 
         #        $positions->SetAccountNumbers(array("678105996"));
         $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
-/*        $fields = array( "f.header", "f.custodian_id", "f.master_account_number", "f.master_account_name", "f.business_date", "f.prod_code", "f.prod_catg_code", "f.tax_code", "f.ly", "TRIM(f.symbol) AS symbol", "f.industry_ticker_symbol", "f.cusip", "f.sec_nbr", "f.reorg_sec_nbr", "f.item_issue_id", "f.rulst_sufid", "f.isin", "f.sedol", "f.options_display_symbol", "f.description1", "f.description2", "f.description3", "f.scrty_des", "f.underlying_ticker_symbol", "f.underlying_industry_ticker_symbol", "f.underlying_cusip", "f.underly_schwab", "f.underlying_itm_iss_id", "f.unrul_sufid", "f.underlying_isin", "f.underly_sedol", "f.mnymk_code", "f.last_update", "f.s_f", "f.closing_price", "f.secprice_lstupd", "f.security_valuation_unit", "f.optnrt_symbol", "f.opt_expr_date", "f.c_p", "f.strike_price", "f.interest_rate", "f.maturity_date", "f.tips_factor", "f.asset_backed_factor", "f.face_value_amt", "f.st_cd", "f.vers_mrkr_1", "f.p_i", "f.o_i", "f.vers_mrkr_2", "f.closing_price_unfactored", "f.factor", "f.factor_date", "f.product_code", "f.product_code_category", "f.legacy_security_type", "f.ticker_symbol", "f.schwab_security_number", "f.re_org_schwab_internal_security_number", "f.rule_set_suffix", "f.security_description_line1", "f.security_description_line2", "f.security_description_line3", "f.security_description_line4", "f.underlying_schwab_security_number", "f.underlying_item_issue_id", "f.underlying_rule_set_suffix_id", "f.underlying_sedol", "f.money_market_code", "f.last_update_date", "f.sweep_fund_indicator", "f.security_price_update_date", "f.option_root_symbol", "f.option_expiration_date", "f.option_call_or_put_code", "f.strike_price_amount", "f.face_value_amount", "f.issuer_state", "f.version_marker_number", "f.schwab_proprietary_indicator", "f.schwab_one_source_indicator", "f.version_marker2", "f.file_date", "f.filename", "f.insert_date",
-                         "map.multiplier", "map.omni_base_asset_class", "pr.price", "m.us_stock", "m.intl_stock", "m.us_bond", "m.intl_bond",
-                         "m.preferred_net", "m.convertible_net", "m.cash_net", "m.other_net", "m.unclassified_net",
-                         "m.security_price_adjustment", "map.security_type");
+        /*        $fields = array( "f.header", "f.custodian_id", "f.master_account_number", "f.master_account_name", "f.business_date", "f.prod_code", "f.prod_catg_code", "f.tax_code", "f.ly", "TRIM(f.symbol) AS symbol", "f.industry_ticker_symbol", "f.cusip", "f.sec_nbr", "f.reorg_sec_nbr", "f.item_issue_id", "f.rulst_sufid", "f.isin", "f.sedol", "f.options_display_symbol", "f.description1", "f.description2", "f.description3", "f.scrty_des", "f.underlying_ticker_symbol", "f.underlying_industry_ticker_symbol", "f.underlying_cusip", "f.underly_schwab", "f.underlying_itm_iss_id", "f.unrul_sufid", "f.underlying_isin", "f.underly_sedol", "f.mnymk_code", "f.last_update", "f.s_f", "f.closing_price", "f.secprice_lstupd", "f.security_valuation_unit", "f.optnrt_symbol", "f.opt_expr_date", "f.c_p", "f.strike_price", "f.interest_rate", "f.maturity_date", "f.tips_factor", "f.asset_backed_factor", "f.face_value_amt", "f.st_cd", "f.vers_mrkr_1", "f.p_i", "f.o_i", "f.vers_mrkr_2", "f.closing_price_unfactored", "f.factor", "f.factor_date", "f.product_code", "f.product_code_category", "f.legacy_security_type", "f.ticker_symbol", "f.schwab_security_number", "f.re_org_schwab_internal_security_number", "f.rule_set_suffix", "f.security_description_line1", "f.security_description_line2", "f.security_description_line3", "f.security_description_line4", "f.underlying_schwab_security_number", "f.underlying_item_issue_id", "f.underlying_rule_set_suffix_id", "f.underlying_sedol", "f.money_market_code", "f.last_update_date", "f.sweep_fund_indicator", "f.security_price_update_date", "f.option_root_symbol", "f.option_expiration_date", "f.option_call_or_put_code", "f.strike_price_amount", "f.face_value_amount", "f.issuer_state", "f.version_marker_number", "f.schwab_proprietary_indicator", "f.schwab_one_source_indicator", "f.version_marker2", "f.file_date", "f.filename", "f.insert_date",
+        "map.multiplier", "map.omni_base_asset_class", "pr.price", "m.us_stock", "m.intl_stock", "m.us_bond", "m.intl_bond",
+        "m.preferred_net", "m.convertible_net", "m.cash_net", "m.other_net", "m.unclassified_net",
+        "m.security_price_adjustment", "map.security_type");
 
         $securities = new cSchwabSecurities("SCHWAB", "custodian_omniscient", "securities",
-                                            "custodian_securities_schwab", $symbols, array(), $fields);
+        "custodian_securities_schwab", $symbols, array(), $fields);
         echo "3";
         $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
         echo "4";
         if(!empty($missing_securities))
-            $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+        $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
         echo "5";
         $securities->UpdateSecuritiesFromSecuritiesData($symbols);
-*/
-/*        $missing_positions = $positions->GetMissingCRMPositions();
+         */
+        /*        $missing_positions = $positions->GetMissingCRMPositions();
 
-        if(!empty($missing_positions))
-            $positions->CreateNewPositionsFromPositionData($missing_positions);
+                if(!empty($missing_positions))
+                    $positions->CreateNewPositionsFromPositionData($missing_positions);
 
-        $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
-***********END SCHWAB POSITIONS*/
+                $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+        ***********END SCHWAB POSITIONS*/
 
         echo "6";
 #        $positions->ManualSetupPositionComparisons();
@@ -454,7 +455,7 @@ exit;
         $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
         $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
         /*********END OF STEP 1********/
-echo "Step 1 finished: " . date("Y-m-d H:i:s") . '<br />';
+        echo "Step 1 finished: " . date("Y-m-d H:i:s") . '<br />';
 
         /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
         //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
@@ -500,7 +501,7 @@ echo "Step 1 finished: " . date("Y-m-d H:i:s") . '<br />';
 
 
         echo "Script end: " . date("Y-m-d H:i:s") . '<br />';
-exit;
+        exit;
 
 
 
@@ -512,14 +513,14 @@ exit;
 
 
         $fields = array("f.transaction_id", "f.account_number", "f.symbol", "f.cusip", "m.operation", "amount", "production_number", "omniscient_negative_category", "omniscient_category", "buy_sell_indicator",
-                        "omniscient_negative_activity", "omniscient_activity", "m.description AS description", "commission", "key_code_description", "service_charge_misc_fee",
-                        "option_symbol", "account_type_description", "f.comment", "comment2", "div_payable_date", "div_record_date", "fund_load_override",
-                        "fund_load_percent", "interest_amount", "postage_fee", "reg_rep1", "reg_rep2", "service_fee", "short_term_redemption_fee",
-                        "state_tax_amount", "transaction_code_description", "transaction_key_mnemonic", "f.price AS price", "security_price_adjustment", "quantity");
+            "omniscient_negative_activity", "omniscient_activity", "m.description AS description", "commission", "key_code_description", "service_charge_misc_fee",
+            "option_symbol", "account_type_description", "f.comment", "comment2", "div_payable_date", "div_record_date", "fund_load_override",
+            "fund_load_percent", "interest_amount", "postage_fee", "reg_rep1", "reg_rep2", "service_fee", "short_term_redemption_fee",
+            "state_tax_amount", "transaction_code_description", "transaction_key_mnemonic", "f.price AS price", "security_price_adjustment", "quantity");
 
         $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions",
-                                              "custodian_portfolios_fidelity", "custodian_transactions_fidelity",
-                                               array('GH1'), $fields);
+            "custodian_portfolios_fidelity", "custodian_transactions_fidelity",
+            array('GH1'), $fields);
 //        $fidelity->SetColumns(array("transaction_id"));
 #        $data = $td->GetTransactionsDataForDate('2020-04-01');
         echo 'Memory Before: ' . memory_get_usage() . '<br />';
@@ -531,12 +532,12 @@ exit;
         echo date("Y-m-d H:i:s");
         exit;
 
-/*
-        $symbols = array("DBD");
-        $securities = new cOmniscientSecurities("Omniscient", "live_omniscient", "securities",
-                                                "vtiger_modsecurities", $symbols, array(), array());
-        $securities->UpdateSecuritiesFromSecuritiesData($symbols);
-*/
+        /*
+                $symbols = array("DBD");
+                $securities = new cOmniscientSecurities("Omniscient", "live_omniscient", "securities",
+                                                        "vtiger_modsecurities", $symbols, array(), array());
+                $securities->UpdateSecuritiesFromSecuritiesData($symbols);
+        */
         /*
                 $rep_codes = array("GH1");
                 $positions = new cFidelityPositions("FIDELITY", "custodian_omniscient", "positions",
@@ -558,16 +559,16 @@ exit;
         $symbols = array("DBD");
         //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
         $security_fields = array("f.symbol", "f.type", "f.description", "f.cusip", "f.dividend_yield", "f.option_expiration_date", "f.strike_price",
-                        "f.option_symbol", "f.interest_rate", "f.maturity_date", "f.issue_date", "f.first_coupon_date",
-                        "f.zero_coupon_indicator", "f.abbreviated_fund_name", "f.accrual_method", "f.as_of_date", "f.asset_class_code",
-                        "f.asset_class_type_code", "f.bond_class", "f.close_price", "f.close_price_unfactored",
-                        "f.current_factor_inflation_factor", "f.current_factor_date", "f.dividend_rate", "f.exchange", "f.expiration_date",
-                        "f.fixed_income_call_put_date", "f.fixed_income_call_put_price", "f.floor_symbol", "f.foreign_security", "f.fund_family",
-                        "f.fund_family_id", "f.fund_number", "f.host_type_code", "f.interest_frequency", "f.issue_state", "f.margin",
-                        "f.mmkt_fund_designation", "f.operation_code", "f.options_symbol_underlying_security", "f.pricing_factor",
-                        "f.security_group", "f.security_id", "f.security_type_description", "f.sic_code", "f.tradable", "f.yield_to_maturity",
-                        "f.file_date", "f.filename", "f.insert_date", "pr.price AS latest_price", "map.multiplier", "map.omni_base_asset_class",
-                        "map.security_type");
+            "f.option_symbol", "f.interest_rate", "f.maturity_date", "f.issue_date", "f.first_coupon_date",
+            "f.zero_coupon_indicator", "f.abbreviated_fund_name", "f.accrual_method", "f.as_of_date", "f.asset_class_code",
+            "f.asset_class_type_code", "f.bond_class", "f.close_price", "f.close_price_unfactored",
+            "f.current_factor_inflation_factor", "f.current_factor_date", "f.dividend_rate", "f.exchange", "f.expiration_date",
+            "f.fixed_income_call_put_date", "f.fixed_income_call_put_price", "f.floor_symbol", "f.foreign_security", "f.fund_family",
+            "f.fund_family_id", "f.fund_number", "f.host_type_code", "f.interest_frequency", "f.issue_state", "f.margin",
+            "f.mmkt_fund_designation", "f.operation_code", "f.options_symbol_underlying_security", "f.pricing_factor",
+            "f.security_group", "f.security_id", "f.security_type_description", "f.sic_code", "f.tradable", "f.yield_to_maturity",
+            "f.file_date", "f.filename", "f.insert_date", "pr.price AS latest_price", "map.multiplier", "map.omni_base_asset_class",
+            "map.security_type");
 
 #$symbols = array("FDRXX");
         //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
@@ -585,7 +586,7 @@ exit;
         echo "7";
         $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
         echo 'done';exit;
-exit;
+        exit;
 #        $sec_data = $securities->GetSecuritiesData();
 #        print_r($missing_securities);exit;
 #        print_r($missing_securities);exit;
@@ -596,19 +597,19 @@ exit;
 #        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 
 #        foreach($rep_codes AS $k => $v){
-/****FIDELITY**********************************/
+        /****FIDELITY**********************************/
         /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
-/*        $rep_codes = array("GH1");
-        //Pull portfolio and balance information for the specified rep codes
-        $fidelity = new cFidelityPortfolios("FIDELITY", "custodian_omniscient", "portfolios",
-            "custodian_portfolios_fidelity", "custodian_balances_fidelity", $rep_codes);
-        $data = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
-        $missing = $fidelity->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
-        $fidelity->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
-        $existing = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
-        $fidelity->UpdatePortfoliosFromPortfolioData($existing);
-        exit;
-        /*********END OF STEP 1********/
+        /*        $rep_codes = array("GH1");
+                //Pull portfolio and balance information for the specified rep codes
+                $fidelity = new cFidelityPortfolios("FIDELITY", "custodian_omniscient", "portfolios",
+                    "custodian_portfolios_fidelity", "custodian_balances_fidelity", $rep_codes);
+                $data = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
+                $missing = $fidelity->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+                $fidelity->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+                $existing = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
+                $fidelity->UpdatePortfoliosFromPortfolioData($existing);
+                exit;
+                /*********END OF STEP 1********/
 
         /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
         //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
@@ -635,7 +636,46 @@ exit;
             $positions->CreateNewPositionsFromPositionData($missing_positions);
         echo 'check positions';exit;
 #        print_r($missing_positions);exit;
-/*        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+        /*        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+                if(!empty($missing_positions))
+                    $positions->CreateNewPositionsFromPositionData($missing_positions);
+
+                //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
+                $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
+                    "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+                    "f.issue_date", "f.share_per_contact", "pr.factor");
+                //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
+                $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
+                    "custodian_securities_td", $symbols, array(), $fields);
+                $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
+                if(!empty($missing_securities))
+                    $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+                $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
+                $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+                /*********END OF STEP 2********/
+
+        /****FIDELITY**********************************/
+
+        /****TD**********************************/
+        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
+        //Pull portfolio and balance information for the specified rep codes
+        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_td", "custodian_balances_td", $rep_codes);
+        $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
+        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        /*********END OF STEP 1********/
+
+        /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
+        //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
+        //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
+        //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
+        $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
+            "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
+        $missing_positions = $positions->GetMissingCRMPositions();
+        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
         if(!empty($missing_positions))
             $positions->CreateNewPositionsFromPositionData($missing_positions);
 
@@ -653,60 +693,21 @@ exit;
         $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
         /*********END OF STEP 2********/
 
-/****FIDELITY**********************************/
+        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+        $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+            "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+            "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+            "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity");
 
-/****TD**********************************/
-            /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
-            //Pull portfolio and balance information for the specified rep codes
-            $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
-                "custodian_portfolios_td", "custodian_balances_td", $rep_codes);
-            $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
-            $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
-            $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
-            $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
-            $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
-            /*********END OF STEP 1********/
-
-            /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
-            //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
-            //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
-            //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
-            $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
-                "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
-            $missing_positions = $positions->GetMissingCRMPositions();
-            $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
-            if(!empty($missing_positions))
-                $positions->CreateNewPositionsFromPositionData($missing_positions);
-
-            //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
-            $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
-                "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
-                "f.issue_date", "f.share_per_contact", "pr.factor");
-            //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
-            $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
-                "custodian_securities_td", $symbols, array(), $fields);
-            $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
-            if(!empty($missing_securities))
-                $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
-            $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
-            $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
-            /*********END OF STEP 2********/
-
-            /***STEP 3 - CREATE TRANSACTIONS WORKING***/
-            $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
-                "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
-                "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
-                "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity");
-
-            $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
-                "custodian_portfolios_td", "custodian_transactions_td",
-                $rep_codes, $fields);
-            $transactions->GetTransactionsDataBetweenDates('2019-01-01', date("Y-m-d"));
-            $missing = $transactions->GetMissingCRMTransactions();
-            echo sizeof($missing);exit;
+        $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+            "custodian_portfolios_td", "custodian_transactions_td",
+            $rep_codes, $fields);
+        $transactions->GetTransactionsDataBetweenDates('2019-01-01', date("Y-m-d"));
+        $missing = $transactions->GetMissingCRMTransactions();
+        echo sizeof($missing);exit;
 #            $transactions->CreateNewTransactionsFromTransactionData($missing);
-            /*********END OF STEP 3********/
-/****TD**********************************/
+        /*********END OF STEP 3********/
+        /****TD**********************************/
 #        }
         echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
         exit;
@@ -730,49 +731,49 @@ exit;
         ModSecurities_ConvertCustodian_Model::UpdateIndexSymbolsEOD(array("MSCIEAFE", "DVG", "GSPC", "SP500BDT", "IDCOTCTR"), $start, $end);
         ModSecurities_Module_Model::UpdateIndexPricesWithLatest();
 
-echo 'check now!';exit;
+        echo 'check now!';exit;
         /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
 
-         //Pull portfolio and balance information for the specified rep codes
-       $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
-                             "custodian_portfolios_td", "custodian_balances_td",
-                                array('A7KK'));//, 'AMSZ', 'AKXQ'));
-       $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
-       $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
-       $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
-       $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
-       $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        //Pull portfolio and balance information for the specified rep codes
+        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_td", "custodian_balances_td",
+            array('A7KK'));//, 'AMSZ', 'AKXQ'));
+        $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
+        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
 
         echo 'step 1 done';exit;
-/*********END OF STEP 1********/
+        /*********END OF STEP 1********/
 
-/***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
-/*
-        //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
-        //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
-        //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
-        $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
-            "custodian_portfolios_td", "custodian_positions_td", array('A7KK'), array());
-        $missing_positions = $positions->GetMissingCRMPositions();
-        $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
-        if(!empty($missing_positions))
-            $positions->CreateNewPositionsFromPositionData($missing_positions);
+        /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
+        /*
+                //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
+                //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
+                //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
+                $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
+                    "custodian_portfolios_td", "custodian_positions_td", array('A7KK'), array());
+                $missing_positions = $positions->GetMissingCRMPositions();
+                $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+                if(!empty($missing_positions))
+                    $positions->CreateNewPositionsFromPositionData($missing_positions);
 
-        //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
-        $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
-            "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
-            "f.issue_date", "f.share_per_contact", "pr.factor");
-        //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
-        $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
-            "custodian_securities_td", $symbols, array(), $fields);
-        $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
-        if(!empty($missing_securities))
-            $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
-        $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
-        $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
-        exit;
-*/
-/***STEP 3 - CREATE TRANSACTIONS WORKING***/
+                //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
+                $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
+                    "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+                    "f.issue_date", "f.share_per_contact", "pr.factor");
+                //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
+                $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
+                    "custodian_securities_td", $symbols, array(), $fields);
+                $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
+                if(!empty($missing_securities))
+                    $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+                $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
+                $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+                exit;
+        */
+        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
         $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
             "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
             "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
@@ -794,42 +795,42 @@ echo 'check now!';exit;
         echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
         echo 'done';exit;
 
-/*
-        $pershing = new cPershingSecurities("Pershing", "custodian_omniscient", "securities",
-            "custodian_securities_pershing");
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        $data = $pershing->GetSecuritiesData(array("AAPL", "MSFT"));
-        print_r($data);
-        exit;
-*/
-/*
-        $schwab = new cTDSecurities("Schwab", "custodian_omniscient", "securities",
-                                "custodian_securities_schwab");
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        $data = $schwab->GetSecuritiesData(array("AAPL", "MSFT"));
-        print_r($data);
-        exit;
-*/
-/*        global $adb;
-        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode(array('A81E', 'A7OY', 'A7P4'));
-        $questions = generateQuestionMarks($accounts);
-        $query = "SELECT symbol FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}) GROUP BY symbol";
-        $result = $adb->pquery($query, array($accounts));
-        if($adb->num_rows($result) > 0){
-            while($v = $adb->fetchByAssoc($result)){
-                echo $v['symbol'] . '<br />';
-            }
-        }
-        exit;
-*/
+        /*
+                $pershing = new cPershingSecurities("Pershing", "custodian_omniscient", "securities",
+                    "custodian_securities_pershing");
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                $data = $pershing->GetSecuritiesData(array("AAPL", "MSFT"));
+                print_r($data);
+                exit;
+        */
+        /*
+                $schwab = new cTDSecurities("Schwab", "custodian_omniscient", "securities",
+                                        "custodian_securities_schwab");
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                $data = $schwab->GetSecuritiesData(array("AAPL", "MSFT"));
+                print_r($data);
+                exit;
+        */
+        /*        global $adb;
+                $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode(array('A81E', 'A7OY', 'A7P4'));
+                $questions = generateQuestionMarks($accounts);
+                $query = "SELECT symbol FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}) GROUP BY symbol";
+                $result = $adb->pquery($query, array($accounts));
+                if($adb->num_rows($result) > 0){
+                    while($v = $adb->fetchByAssoc($result)){
+                        echo $v['symbol'] . '<br />';
+                    }
+                }
+                exit;
+        */
         $td = new cTDPositions("TD", "custodian_omniscient", "positions",
             "custodian_portfolios_td", "custodian_positions_td",
             array('A7KK', 'AMSZ', 'AKXQ'), array(), false);//Get positions, but don't auto load or anything (accounts still get set)
         $symbols = $td->GetAllOldAndNewPositionSymbols($td->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
 
         $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
-                        "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
-                        "f.issue_date", "f.share_per_contact", "pr.factor");
+            "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+            "f.issue_date", "f.share_per_contact", "pr.factor");
         $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
             "custodian_securities_td", $symbols, array("TDCASH" => "Cash"), $fields);
 #        $crm_symbols = $td->GetExistingCRMSecurities();
@@ -860,182 +861,182 @@ echo 'check now!';exit;
         $missing = $td->GetMissingCRMPositions(array());
 
         $td = new cTDSecurities("TD", "custodian_omniscient", "securities",
-                                "custodian_securities_td");
+            "custodian_securities_td");
 #        $data = $td->GetTransactionsDataForDate('2020-04-01');
         $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
         print_r($data);
         exit;
 
-/*
-        $td = new cFidelitySecurities("Fidelity", "custodian_omniscient", "securities",
-            "custodian_securities_fidelity");
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
-        print_r($data);
-        exit;
-*/
+        /*
+                $td = new cFidelitySecurities("Fidelity", "custodian_omniscient", "securities",
+                    "custodian_securities_fidelity");
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                $data = $td->GetSecuritiesData(array("AAPL", "MSFT"));
+                print_r($data);
+                exit;
+        */
 
-/*
-        $pershing = new cPershingTransactions("Pershing", "custodian_omniscient", "transactions",
-            "custodian_portfolios_pershing", "custodian_transactions_pershing",
-            array('60E'));
-//        $fidelity->SetColumns(array("transaction_id"));
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        echo 'Memory Before: ' . memory_get_usage() . '<br />';
-        $data = $pershing->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
-        echo count($data) . '<br />';
-        echo 'Memory After: ' . memory_get_usage() . '<br />';
-        echo date("Y-m-d H:i:s");
-        exit;
-*/
-/*
-        $schwab = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
-            "custodian_portfolios_schwab", "custodian_transactions_schwab",
-            array('08134583'));
-//        $fidelity->SetColumns(array("transaction_id"));
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        echo 'Memory Before: ' . memory_get_usage() . '<br />';
-        $data = $schwab->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
-        echo count($data) . '<br />';
-        echo 'Memory After: ' . memory_get_usage() . '<br />';
-        echo date("Y-m-d H:i:s");
-        exit;
-*/
-/*
-        $td = new cTDTransactions("TD", "custodian_omniscient", "transactions",
-                                  "custodian_portfolios_td", "custodian_transactions_td",
-                                   array('A7KK', 'AMSZ'));
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        $data = $td->GetTransactionsDataBetweenDates('2019-01-01', '2020-05-01', array(), array());
-        print_r($data);
-        exit;
-*/
-/*
-        $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions",
-            "custodian_portfolios_fidelity", "custodian_transactions_fidelity",
-            array('GH1', 'GH2'));
-//        $fidelity->SetColumns(array("transaction_id"));
-#        $data = $td->GetTransactionsDataForDate('2020-04-01');
-        echo 'Memory Before: ' . memory_get_usage() . '<br />';
-            $data = $fidelity->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01', array(), array());
-//        echo count($data) . '<br />';
-        echo 'Memory After: ' . memory_get_usage() . '<br />';
-        echo date("Y-m-d H:i:s");
-        exit;
-*/
-/*
-        $td = new cPershingPrices("Pershing", "custodian_omniscient", "prices",
-                             "custodian_portfolios_pershing", "custodian_prices_pershing",
-                                           array());
-        #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
-        $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
-        print_r($data);
-        exit;
-*/
-/*
-        $td = new cSchwabPrices("Schwab", "custodian_omniscient", "prices",
-                             "custodian_portfolios_schwab", "custodian_prices_schwab",
-                                           array());
-        #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
-        $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
-        print_r($data);
-        exit;
-*/
-/*
-        $td = new cTDPrices("TD", "custodian_omniscient", "prices",
-                             "custodian_portfolios_td", "custodian_prices_td",
-                                           array());
-        #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
-        $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
-        print_r($data);
-        exit;
-*/
-/*
-        $fidelity = new cFidelityPrices("Fidelity", "custodian_omniscient", "prices",
-                             "custodian_prices_fidelity", "custodian_prices_fidelity",
-                                           array());
-        $data = $fidelity->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
-        $data = $fidelity->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
-        print_r($data);
-        exit;
-*/
+        /*
+                $pershing = new cPershingTransactions("Pershing", "custodian_omniscient", "transactions",
+                    "custodian_portfolios_pershing", "custodian_transactions_pershing",
+                    array('60E'));
+        //        $fidelity->SetColumns(array("transaction_id"));
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                echo 'Memory Before: ' . memory_get_usage() . '<br />';
+                $data = $pershing->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
+                echo count($data) . '<br />';
+                echo 'Memory After: ' . memory_get_usage() . '<br />';
+                echo date("Y-m-d H:i:s");
+                exit;
+        */
+        /*
+                $schwab = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
+                    "custodian_portfolios_schwab", "custodian_transactions_schwab",
+                    array('08134583'));
+        //        $fidelity->SetColumns(array("transaction_id"));
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                echo 'Memory Before: ' . memory_get_usage() . '<br />';
+                $data = $schwab->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01');
+                echo count($data) . '<br />';
+                echo 'Memory After: ' . memory_get_usage() . '<br />';
+                echo date("Y-m-d H:i:s");
+                exit;
+        */
+        /*
+                $td = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+                                          "custodian_portfolios_td", "custodian_transactions_td",
+                                           array('A7KK', 'AMSZ'));
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                $data = $td->GetTransactionsDataBetweenDates('2019-01-01', '2020-05-01', array(), array());
+                print_r($data);
+                exit;
+        */
+        /*
+                $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions",
+                    "custodian_portfolios_fidelity", "custodian_transactions_fidelity",
+                    array('GH1', 'GH2'));
+        //        $fidelity->SetColumns(array("transaction_id"));
+        #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+                echo 'Memory Before: ' . memory_get_usage() . '<br />';
+                    $data = $fidelity->GetTransactionsDataBetweenDates('2020-01-01', '2020-05-01', array(), array());
+        //        echo count($data) . '<br />';
+                echo 'Memory After: ' . memory_get_usage() . '<br />';
+                echo date("Y-m-d H:i:s");
+                exit;
+        */
+        /*
+                $td = new cPershingPrices("Pershing", "custodian_omniscient", "prices",
+                                     "custodian_portfolios_pershing", "custodian_prices_pershing",
+                                                   array());
+                #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+                $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+                print_r($data);
+                exit;
+        */
+        /*
+                $td = new cSchwabPrices("Schwab", "custodian_omniscient", "prices",
+                                     "custodian_portfolios_schwab", "custodian_prices_schwab",
+                                                   array());
+                #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+                $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+                print_r($data);
+                exit;
+        */
+        /*
+                $td = new cTDPrices("TD", "custodian_omniscient", "prices",
+                                     "custodian_portfolios_td", "custodian_prices_td",
+                                                   array());
+                #$data = $td->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+                $data = $td->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+                print_r($data);
+                exit;
+        */
+        /*
+                $fidelity = new cFidelityPrices("Fidelity", "custodian_omniscient", "prices",
+                                     "custodian_prices_fidelity", "custodian_prices_fidelity",
+                                                   array());
+                $data = $fidelity->GetPricesDataForDate("2020-01-16", array("AAPL", "MSFT"));
+                $data = $fidelity->GetPricesDataBetweenDates(array("AAPL", "MSFT"), "2020-01-16", "2020-01-24");
+                print_r($data);
+                exit;
+        */
 
-/*
-        $pershing = new cSchwabPositions("Pershing", "custodian_omniscient", "positions",
-                                "custodian_portfolios_pershing", "custodian_positions_pershing",
-                                              array('60E'));
-        $pershing->SetColumns(array("account_number", "symbol"));
-        $data = $pershing->GetPositionsData();
-        echo count($data);
-        print_r($data);
-*/
-/*
-        $td = new cTDPositions("TD", "custodian_omniscient", "positions",
-                                "custodian_portfolios_td", "custodian_positions_td",
-                                              array('A7KK', 'AMSZ', 'AKXQ'), array("TDCASH" => "Cash"));
-        $missing = $td->GetMissingCRMPositions(array());
+        /*
+                $pershing = new cSchwabPositions("Pershing", "custodian_omniscient", "positions",
+                                        "custodian_portfolios_pershing", "custodian_positions_pershing",
+                                                      array('60E'));
+                $pershing->SetColumns(array("account_number", "symbol"));
+                $data = $pershing->GetPositionsData();
+                echo count($data);
+                print_r($data);
+        */
+        /*
+                $td = new cTDPositions("TD", "custodian_omniscient", "positions",
+                                        "custodian_portfolios_td", "custodian_positions_td",
+                                                      array('A7KK', 'AMSZ', 'AKXQ'), array("TDCASH" => "Cash"));
+                $missing = $td->GetMissingCRMPositions(array());
 
-        if(!empty($missing))
-            $td->CreateNewPositionsFromPositionData($missing);
-        if(!empty($td->GetCustodianPositions()))
-            $td->UpdatePositionsFromPositionsData($td->GetCustodianPositions());
-#        $data = $td->GetPositionsData();
-#        echo count($data);exit;
-        echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
-        echo 'done';
-        exit;
-*/
+                if(!empty($missing))
+                    $td->CreateNewPositionsFromPositionData($missing);
+                if(!empty($td->GetCustodianPositions()))
+                    $td->UpdatePositionsFromPositionsData($td->GetCustodianPositions());
+        #        $data = $td->GetPositionsData();
+        #        echo count($data);exit;
+                echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
+                echo 'done';
+                exit;
+        */
 #Array ( [943401100] => Array ( [3] => DGRO )
 #        [941110632] => Array ( [8] => IBB )
 #        [941107909] => Array ( [4] => IBB )
 #        [941795346] => Array ( [0] => LUV ) )
-/*
-        $fidelity = new cFidelityPositions("Fidelity", "custodian_omniscient", "positions",
-                                "custodian_portfolios_fidelity", "custodian_positions_fidelity",
-                                              array('GH1', 'GH2'));
-        echo date("Y-m-d H:i:s");
-        $data = $fidelity->GetPositionsData();
-        echo count($data);
-        echo date("Y-m-d H:i:s");
-#        print_r($data);
-        exit;
-*/
-/*
-        $fidelity = new cSchwabPositions("Schwab", "custodian_omniscient", "positions",
-                                "custodian_portfolios_schwab", "custodian_positions_schwab",
-                                              array('08901624', '08781415'));
-        $fidelity->SetColumns(array("account_number", "symbol"));
-        $data = $fidelity->GetPositionsData();
-        echo count($data);
-        print_r($data);
-*/
+        /*
+                $fidelity = new cFidelityPositions("Fidelity", "custodian_omniscient", "positions",
+                                        "custodian_portfolios_fidelity", "custodian_positions_fidelity",
+                                                      array('GH1', 'GH2'));
+                echo date("Y-m-d H:i:s");
+                $data = $fidelity->GetPositionsData();
+                echo count($data);
+                echo date("Y-m-d H:i:s");
+        #        print_r($data);
+                exit;
+        */
+        /*
+                $fidelity = new cSchwabPositions("Schwab", "custodian_omniscient", "positions",
+                                        "custodian_portfolios_schwab", "custodian_positions_schwab",
+                                                      array('08901624', '08781415'));
+                $fidelity->SetColumns(array("account_number", "symbol"));
+                $data = $fidelity->GetPositionsData();
+                echo count($data);
+                print_r($data);
+        */
 
-/*
-        $pershing = new cPershingPortfolios("Pershing", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_pershing", "custodian_balances_pershing",
-                                    array('60E'));
-        $data = $pershing->GetPortfolioData();
-        print_r($data);
-        echo 'done';exit;
-*/
-/*
-        $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_fidelity", "custodian_balances_fidelity",
-                                    array('GH1'));
-        $data = $fidelity->GetPortfolioData();
-        print_r($data);
-        echo 'done';exit;
-*/
+        /*
+                $pershing = new cPershingPortfolios("Pershing", "custodian_omniscient", "portfolios",
+                                         "custodian_portfolios_pershing", "custodian_balances_pershing",
+                                            array('60E'));
+                $data = $pershing->GetPortfolioData();
+                print_r($data);
+                echo 'done';exit;
+        */
+        /*
+                $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
+                                         "custodian_portfolios_fidelity", "custodian_balances_fidelity",
+                                            array('GH1'));
+                $data = $fidelity->GetPortfolioData();
+                print_r($data);
+                echo 'done';exit;
+        */
 
 
-/*        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_td", "custodian_balances_td",
-                                    array('A7KK', 'AMSZ', 'AKXQ'));
-        $data = $td->GetExistingCRMAccounts();
+        /*        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+                                         "custodian_portfolios_td", "custodian_balances_td",
+                                            array('A7KK', 'AMSZ', 'AKXQ'));
+                $data = $td->GetExistingCRMAccounts();
 
-        $existing = $td->GetExistingCRMAccounts();
-        $td->UpdatePortfoliosFromPortfolioData($existing);
-*/
+                $existing = $td->GetExistingCRMAccounts();
+                $td->UpdatePortfoliosFromPortfolioData($existing);
+        */
 #        print_r($data);exit;
 #        $data = $td->GetCustodianAccounts();
 #        print_r($data);exit;
@@ -1049,27 +1050,27 @@ echo 'check now!';exit;
         echo 'done';exit;
 
         $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_fidelity", "custodian_balances_fidelity",
-                                    array('GH1'));
+            "custodian_portfolios_fidelity", "custodian_balances_fidelity",
+            array('GH1'));
         $data = $fidelity->GetPortfolioData();
         print_r($data);
         echo 'done';exit;
 
-/*
-        $schwab = new cSchwabPortfolios("Schwab", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_schwab", "custodian_balances_schwab",
-                                    array('08901624', '08781415'));
-        $data = $schwab->GetPortfolioData();
-        echo count($data) . '<br />';
-*/
-/*
-        $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
-                                 "custodian_portfolios_fidelity", "custodian_balances_fidelity",
-                                    array('GH1'));
-        $data = $fidelity->GetPortfolioData();
-        print_r($data);
-        echo 'done';exit;
-*/
+        /*
+                $schwab = new cSchwabPortfolios("Schwab", "custodian_omniscient", "portfolios",
+                                         "custodian_portfolios_schwab", "custodian_balances_schwab",
+                                            array('08901624', '08781415'));
+                $data = $schwab->GetPortfolioData();
+                echo count($data) . '<br />';
+        */
+        /*
+                $fidelity = new cFidelityPortfolios("Fidelity", "custodian_omniscient", "portfolios",
+                                         "custodian_portfolios_fidelity", "custodian_balances_fidelity",
+                                            array('GH1'));
+                $data = $fidelity->GetPortfolioData();
+                print_r($data);
+                echo 'done';exit;
+        */
         echo "Script End: " . date("Y-m-d H:i:s") . '<br />';
         echo 'done';exit;
         /**NOTE TO SELF... First auto create companies... Then auto create advisors**/
@@ -1094,11 +1095,11 @@ echo 'check now!';exit;
             }
         }
 
-if(!copy("/var/www/sites/360vew/user_privileges/user_privileges_1.php","/var/www/sites/jimd/user_privileges/user_privileges_1.php")){
-    echo "failed to copy file...";
-}else{
-echo "It claims to have worked";
-}
+        if(!copy("/var/www/sites/360vew/user_privileges/user_privileges_1.php","/var/www/sites/jimd/user_privileges/user_privileges_1.php")){
+            echo "failed to copy file...";
+        }else{
+            echo "It claims to have worked";
+        }
         foreach($list AS $k => $v){
             $query = "INSERT IGNORE INTO users_to_repcode (username, first_name, last_name, rep_code) VALUES (?, ?, ?, ?)";
             $adb->pquery($query, array($v['user_name'], $v['first_name'], $v['last_name'], $v['advisor_control_number']), true);
