@@ -33,13 +33,11 @@
 
 
 {if !empty($MAILMODELS)}
-	<div id="sidebar-essentials" class="sidebar-essentials {if $LEFTPANELHIDE eq '1'} hide {/if}">
-                <!--svv-->{include file="partials/FoldersSidebar.tpl"|vtemplate_path:$MODULE}
-
-
-    <!--svv-->
-        </div>
+	<div id="sidebar-essentials" class="sidebar-essentials">
+    	{include file="partials/FoldersSidebar.tpl"|vtemplate_path:$MODULE}
+	</div>
 {/if}
+
 <div class="listViewPageDiv content-area {if $LEFTPANELHIDE eq '1' || empty($MAILMODELS)} full-width {/if}" id="listViewContent">
 
 {if $MODULE neq 'EmailTemplates' && $SEARCH_MODE_RESULTS neq true}

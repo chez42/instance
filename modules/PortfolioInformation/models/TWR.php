@@ -1,8 +1,23 @@
 <?php
 class TWR{
+    public function DoesAccountExistAsOfDate($account_number, $date){
+        global $adb;
+
+        $query = "SELECT COUNT(*) AS count FROM intervals_daily WHERE accountnumber = ? AND intervalenddate <= ?";
+        $result = $adb->pquery($query, array($account_number, $date));
+        if($adb->num_rows($result) > 0)
+            if($adb->query_result($result, 0, 'count') == 0)
+                return false;
+        return true;
+    }
+
     public function CalculateTWRCumulative(array $accounts, $start_date, $end_date){
         global $adb;
 
+        if(sizeof($accounts) <= 1) {
+            if($this->DoesAccountExistAsOfDate($accounts[0], $start_date) == false)
+                return 0;
+        }
         $twr = 1;
         $questions = generateQuestionMarks($accounts);
 #        print_r($accounts);exit;
