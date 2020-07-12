@@ -264,3 +264,5 @@ if ($blockInstance) {
         $blockInstance->addField($field);
     }
 }
+
+$adb->pquery("ALTER TABLE `vtiger_emailslookup`  ADD `opt_out` TINYINT(3) NULL DEFAULT NULL  AFTER `fieldid`;");
