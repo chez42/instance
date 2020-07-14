@@ -228,6 +228,14 @@ class MailManager_Mailbox_Model {
 			$instance->mSmtpServer = trim($db->query_result($result, 0, 'smtp_servername'));
 			$instance->mFromEmail = trim($db->query_result($result, 0, 'from_email'));
 			$instance->mFromName = trim($db->query_result($result, 0, 'from_name'));
+			
+			if($instance->mServer == 'Office365'){
+			    
+			    $instance->mRefreshToken = trim($db->query_result($result, 0, 'refresh_token'));
+			    
+			    $instance->mAcccessToken =  trim($db->query_result($result, 0, 'access_token'));
+			    
+			}
 		}
 	
 		return $instance;
@@ -240,7 +248,7 @@ class MailManager_Mailbox_Model {
 			$mServerName = 'yahoo';
 		} else if($mServer == 'mail.messagingengine.com') {
 			$mServerName = 'fastmail';
-		} else if($mServer == 'outlook.office365.com'){
+		} else if($mServer == 'Office365'){
 		    $mServerName = 'office365';
 		} else if($mServer == 'mail.omnisrv.com'){
 		    $mServerName = 'omniExchange';
