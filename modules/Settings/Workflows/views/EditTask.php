@@ -96,7 +96,7 @@ class Settings_Workflows_EditTask_View extends Settings_Vtiger_Index_View {
         
         foreach($metaVariables as $variableName => $variableValue) {
             if(strpos(strtolower($variableName), 'url') !== false) {
-                $metaVariables[$variableName] = "<a href='$".$variableValue."'>".vtranslate($variableName, $qualifiedModuleName).'</a>';
+                $metaVariables[$variableName] = "<a rel='noreferrer' href='$".$variableValue."'>".vtranslate($variableName, $qualifiedModuleName).'</a>';
             }
         }
         // Adding option Line Item block for Individual tax mode

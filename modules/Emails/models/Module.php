@@ -92,11 +92,15 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 						  vtiger_emailslookup.setype in (".implode(',', $activeModules).") 
                           and (vtiger_emailslookup.value LIKE ? OR vtiger_crmentity.label LIKE ?)";
 
-			$emailOptOutIds = $this->getEmailOptOutRecordIds();
+			/*$emailOptOutIds = $this->getEmailOptOutRecordIds();
 			if (!empty($emailOptOutIds)) {
 				$query .= " AND vtiger_emailslookup.crmid NOT IN (".implode(',', $emailOptOutIds).")";
 			}
-
+            */
+            
+            // added check so Opt Out Guys won't get Email
+            $query .= " AND vtiger_emailslookup.opt_out != 1 ";
+            
 			$result = $db->pquery($query, array('%'.$searchValue.'%', '%'.$searchValue.'%'));
             $isAdmin = is_admin($current_user);
 			while ($row = $db->fetchByAssoc($result)) {
@@ -106,7 +110,7 @@ class Emails_Module_Model extends Vtiger_Module_Model{
 						continue;
 					}
 				}
-			$emailsResult[vtranslate($row['setype'], $row['setype'])][$row['crmid']][] = array('value' => $row['value'],
+			    $emailsResult[vtranslate($row['setype'], $row['setype'])][$row['crmid']][] = array('value' => $row['value'],
 																								'label' => decode_html($row['label']).' <b>('.$row['value'].')</b>',
 																								'name' => decode_html($row['label']),);
             }

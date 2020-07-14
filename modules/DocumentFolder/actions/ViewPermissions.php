@@ -38,6 +38,11 @@ class DocumentFolder_ViewPermissions_Action extends Vtiger_Action_Controller {
                 $user_name = '';
                 $adb->pquery("DELETE FROM vtiger_documentfolder_view_permissions WHERE documentfolderid = ?",array($record));
                 
+                //If View Permission is Empty or not Array initialize it as Array
+                if(!is_array($view_permission) || empty($view_permission)){
+                    $view_permission = array();
+                }
+                
                 if(!in_array($current_user->id, $view_permission))
                     $view_permission[] = $current_user->id;
                 

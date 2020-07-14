@@ -35,20 +35,41 @@ class Emails_TrackAccess_Action extends Vtiger_Action_Controller {
 			exit;
 		}
 
-		global $current_user;
+		global $adb, $current_user;
 		$current_user = Users::getActiveAdminUser();
 		
-		if($request->get('method') == 'click') {
-			$this->clickHandler($request);
-		}else{
-			$parentId = $request->get('parentId');
-			$recordId = $request->get('record');
-
-			if ($parentId && $recordId) {
-				$recordModel = Emails_Record_Model::getInstanceById($recordId);
-				$recordModel->updateTrackDetails($parentId);
-				Vtiger_ShortURL_Helper::sendTrackerImage();
-			}
+		//Error Handling
+		$recordId = $request->get('record');
+		
+		$entity_result = $adb->pquery("select * from vtiger_crmentity
+        where crmid = ? and deleted = 0", array($recordId));
+		
+		if(!$adb->num_rows($entity_result)){
+		    
+		    if($request->get('method') == 'click') {
+    	        $redirectUrl = $request->get('redirectUrl');
+    	        if(!empty($redirectUrl)) {
+    	            return Vtiger_Functions::redirectUrl(rawurldecode($redirectUrl));
+    	        }
+		    } else {
+		        Vtiger_ShortURL_Helper::sendTrackerImage();
+		    }
+		    
+		} else {
+		    
+		    if($request->get('method') == 'click') {
+    			$this->clickHandler($request);
+    		} else{
+    			$parentId = $request->get('parentId');
+    			$recordId = $request->get('record');
+    
+    			if ($parentId && $recordId) {
+    				$recordModel = Emails_Record_Model::getInstanceById($recordId);
+    				$recordModel->updateTrackDetails($parentId);
+    				Vtiger_ShortURL_Helper::sendTrackerImage();
+    			}
+    		}
+    		
 		}
 	}
 	
