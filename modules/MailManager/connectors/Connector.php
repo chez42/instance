@@ -55,6 +55,11 @@ class MailManager_Connector_Connector {
 	 * @returns MailManager_Connector Object
 	 */
 	public static function connectorWithModel($model, $folder='') {
+	    
+	    if($model->serverName() == 'office365'){
+	        return new MailManager_Office365_Connector($model->mId, $model->mAcccessToken, $model->mRefreshToken, $model->username());
+	    }
+	    
 		$port = 143; // IMAP
 		if (strcasecmp($model->protocol(), 'pop') === 0) $port = 110; // NOT IMPLEMENTED
 		else if (strcasecmp($model->ssltype(), 'ssl') === 0) $port = 993; // IMAP SSL
@@ -63,6 +68,7 @@ class MailManager_Connector_Connector {
 				$model->ssltype(), $model->certvalidate(), $folder);
 		$baseUrl = sprintf('{%s:%s/%s/%s/%s}', $model->server(), $port, $model->protocol(),
 				$model->ssltype(), $model->certvalidate());
+		
 		return new self($url, $model->username(), $model->password(), $baseUrl, $model->serverName());
 	}
 
@@ -221,7 +227,8 @@ class MailManager_Connector_Connector {
 	 * @param Integer $maxLimit - Number of mails
 	 */
 	public function folderMails($folder, $start, $maxLimit) {
-		$folderCheck = @imap_check($this->mBox);
+		
+	    $folderCheck = @imap_check($this->mBox);
 		if ($folderCheck->Nmsgs) {
 
 			$reverse_start = $folderCheck->Nmsgs - ($start*$maxLimit);
