@@ -15,6 +15,11 @@ include_once 'include/database/PearDatabase.php';
 
 class Emails_Mailer_Model extends Vtiger_Mailer {
 
+    public $accountId = '';
+    public $type      = '';
+    public $accessToken = '';
+    public $refreshToken = '';
+    
 	public static function getInstance() {
 		return new self();
 	}
@@ -37,6 +42,10 @@ class Emails_Mailer_Model extends Vtiger_Mailer {
             account_id = ?", array($account_id));
 	    
 	    if ($adb->num_rows($result)) {
+	        
+	        $this->accountId = $account_id;
+	        $this->type = $adb->query_result($result, 0, "mail_servername");
+	        
 	        $this->Host = $adb->query_result($result, 0, "smtp_servername");
 	        $this->Username = trim($adb->query_result($result, 0, "mail_username"));
 	        require_once('include/utils/encryption.php');
@@ -52,6 +61,12 @@ class Emails_Mailer_Model extends Vtiger_Mailer {
 	        if (empty($this->SMTPAuth)) {
 	            $this->SMTPAuth = false;
 	        }
+	        
+	        if($this->type == 'Office365'){
+	            $this->accessToken = $adb->query_result($result, 0, "access_token");
+	            $this->refreshToken = $adb->query_result($result, 0, "refresh_token");
+	        }
+	        
 	        $this->ConfigSenderInfo($adb->query_result($result, 0, "from_email"), $adb->query_result($result, 0, "from_name"), $adb->query_result($result, 0, "from_email"));
 	        $this->_serverConfigured = true;
 	    }
