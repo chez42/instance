@@ -9,17 +9,6 @@ class MailManager_Office365_Connector {
     
     static $DB_CACHE_CLEAR_INTERVAL = "-1 day";
     
-    static $office_user_context = 'me';
-    
-    static $office_folder_url = "/MailFolders";
-    
-    static $office_baseurl = 'https://graph.microsoft.com/API_VERSION/USER_CONTEXT';
-    
-    static $office_message_url = '/messages';
-    
-    static $office_folder_message_url = '/MailFolders/FOLDER/messages';
-    
-    
     public $mBoxUrl;
     
     public $mBox;
