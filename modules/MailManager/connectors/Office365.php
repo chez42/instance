@@ -9,6 +9,17 @@ class MailManager_Office365_Connector {
     
     static $DB_CACHE_CLEAR_INTERVAL = "-1 day";
     
+    static $office_user_context = 'me';
+    
+    static $office_folder_url = "/MailFolders";
+    
+    static $office_baseurl = 'https://graph.microsoft.com/API_VERSION/USER_CONTEXT';
+    
+    static $office_message_url = '/messages';
+    
+    static $office_folder_message_url = '/MailFolders/FOLDER/messages';
+    
+    
     public $mBoxUrl;
     
     public $mBox;
@@ -43,9 +54,9 @@ class MailManager_Office365_Connector {
             
         } catch(Exception $e){
             
-            $clientId = '32679be5-4aeb-4cda-9193-fcfe74dbfdce';
+            $clientId = MailManager_Office365Config_Connector::$clientId;
             
-            $clientSecret = '1y5HHz~5-pW.gSmLs2C7GoVuaKS-o4se4c';
+            $clientSecret = MailManager_Office365Config_Connector::$clientSecret;
             
             $token_request_data = array(
                 "grant_type" => "refresh_token",

@@ -15,11 +15,11 @@ require_once('includes/main/WebUI.php');
 
 $tenantId = '5fb735c9-4413-4ee6-902b-9bdf92480ca2';
 
-$clientId = '32679be5-4aeb-4cda-9193-fcfe74dbfdce';
+$clientId = MailManager_Office365Config_Connector::$clientId;
 
-$clientSecret = '1y5HHz~5-pW.gSmLs2C7GoVuaKS-o4se4c';
+$clientSecret = MailManager_Office365Config_Connector::$clientSecret;
 
-$redriectUri = rtrim($site_URL, '/').'/modules/MailManager/OutlookConnect.php';
+$redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
 
 $params = array(
     'response_type=' . urlencode('code'),
