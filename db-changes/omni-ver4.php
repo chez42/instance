@@ -271,3 +271,5 @@ $adb->pquery("ALTER TABLE vtiger_mailmanager_mailattachments CHANGE muid muid VA
 $adb->pquery("ALTER TABLE vtiger_mailmanager_mailrecord CHANGE muid muid VARCHAR(500) NULL DEFAULT NULL;");
 $adb->pquery("ALTER TABLE vtiger_mail_accounts ADD access_token TEXT NULL, ADD refresh_token TEXT NULL;");
 
+$EventManager = new VTEventsManager($adb);
+$EventManager->registerHandler('vtiger.entity.aftersave', 'modules/Vtiger/handlers/CustomHandler.php', 'CustomHandler');

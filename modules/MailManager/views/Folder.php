@@ -30,8 +30,8 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			
 			$connector = $this->getConnector($foldername);
 			$folder = $connector->folderInstance($foldername);
-
-			if (empty($q)) {
+			
+			if (empty($q) && empty($date)) {
 				$connector->folderMails($folder, intval($request->get('_page', 0)), $maxEntriesPerPage);
 			} else {
 				if(empty($type)) {
@@ -51,7 +51,13 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 					*/
 				   
 				} else {
-					$q = ''.$type.' "'.vtlib_purify($q).'"';
+				    if($q){
+    				    if($connector->serverType == 'Office365'){
+    				        $q = ''.strtolower($type).':'.vtlib_purify($q);
+    				    }else{
+    					   $q = ''.$type.' "'.vtlib_purify($q).'"';
+    				    }
+				    }
 				}
 				
 				if($date){
@@ -62,15 +68,21 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 				    if($date[0]){
 				        $startDate = getValidDBInsertDateValue($date[0]);
 				        $start = date('d M Y',strtotime($startDate));
+				        $officeStarrt = date('m-d-Y',strtotime($startDate));
 				    }
 				    
 				    if($date[1]){
 				        $endDate = getValidDBInsertDateValue($date[1]);
 				        $end = date('d M Y',strtotime($endDate));
+				        $officeEnd = date('m-d-Y',strtotime($endDate));
 				    }
 				    
 				    if($start && $end){
-				        $searchQuery .= 'BEFORE "'.$end.'" SINCE "'.$start.'"';
+				        if($connector->serverType == 'Office365'){
+				            $searchQuery .= 'received:'.$officeStarrt.'..'.$officeEnd;
+				        }else{
+				            $searchQuery .= 'BEFORE "'.$end.'" SINCE "'.$start.'"';
+				        }
 				    }
 				    $q .= ' '.vtlib_purify($searchQuery);
 				}
