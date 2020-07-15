@@ -1,9 +1,7 @@
 <?php
-ini_set('display_errors','off'); 
-require_once 'modules/MailManager/outlook/autoload.php';
-use Microsoft\Graph\Graph;
-use Microsoft\Graph\Model;
+require_once 'libraries/Office365/autoload.php';
 
+use Microsoft\Graph\Model;
 
 class MailManager_Office365_Connector {
     
