@@ -156,7 +156,7 @@ function vtws_portallogin($element,$user){
                             // 							$logo = "images/logo1.png";
                         
                     } else {
-                        $logo = "images/logo1.png";
+                        $logo = "";
                     }
                     
                     $resultData["portal_logo"] = $logo;

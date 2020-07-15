@@ -9,17 +9,64 @@ include_once('includes/functions.php');
 
 include_once('includes/function.php');
 
-$api_url = 'https://hq.omnisrv.com/';
+if(!$_SESSION['api_url']){
+    
+     $master_api_url = 'https://hq.omnisrv.com';
+    
+     $master_api_username = 'felipeluna';
+     $master_api_accesskey = 'vW6MiyBQVSfQjt3o';
+     
+     $master_ws_url =  $master_api_url . '/webservice.php';
+     
+     $loginObj = login($master_ws_url, $master_api_username, $master_api_accesskey);
+     
+     $session_id = $loginObj->sessionName;
+     
+     $params = array();
+     
+     $request_URL = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on')? 'https': 'http')."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+     $request_URL = str_replace(array('http://', 'https://', "www.", '/login.php', '/index.php'), '', $request_URL);
+     $params['portalurl'] = rtrim($request_URL, " /");
+     
+     $postParams = array(
+         'operation'=>'portalconfiguration',
+         'sessionName'=>$session_id,
+         'element'=>json_encode($params)
+     );
+     
+     $response = postHttpRequest($master_ws_url, $postParams);
+     
+     $response = json_decode($response,true);
+     
+     $results = $response['result'];
+     
+     if(!empty($results)){
+         $_SESSION['api_url'] = $results['url'];
+         $_SESSION['portal_user'] = $results['user'];
+         $_SESSION['portal_logo'] = $results['image'];
+         $_SESSION['portal_name'] = $results['name'];
+         $_SESSION['portal_accesskey'] = $results['accesskey'];
+     }
+     
+}
 
-$api_username = 'felipeluna';
+$api_url = $_SESSION['api_url'];
+ 
+$api_username =  $_SESSION['portal_user'];
+ 
+$api_accesskey = $_SESSION['portal_accesskey'];
+ 
+$websocketUrl = '';
 
-$api_accesskey = 'vW6MiyBQVSfQjt3o';
+if($_SESSION['portal_logo'])
+    $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
+else 
+    $GLOBALS['portal_logo'] = 'images/logo1.png';
 
-$websocketUrl = 'wss://hq.omnisrv.com:3000';
-
-$GLOBALS['portal_logo'] = 'images/logo1.png';
-
-$GLOBALS['portal_title'] = 'OMNI Client Portal';
+if($_SESSION['portal_name'])
+    $GLOBALS['portal_title'] = $_SESSION['portal_name'];
+else
+    $GLOBALS['portal_title'] = 'OMNI Client Portal';
 
 if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
