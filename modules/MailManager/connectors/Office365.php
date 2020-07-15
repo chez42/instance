@@ -699,8 +699,8 @@ class MailManager_Office365_Connector {
                 }
             }
         }
-        
-        $message->setCcRecipients($recipients);
+        if(!empty($recipients))
+            $message->setCcRecipients($recipients);
         
         $emails = $mailer->bcc;
         
@@ -717,9 +717,8 @@ class MailManager_Office365_Connector {
                 }
             }
         }
-        
-        $message->setBccRecipients($recipients);
-        
+        if(!empty($recipients))
+            $message->setBccRecipients($recipients);
         
         $emails = $mailer->ReplyTo;
         
@@ -734,30 +733,32 @@ class MailManager_Office365_Connector {
         }
         if(!empty($recipients))
             $message->setReplyTo($recipient);
-            
-            foreach($mailer->attachment as $attachmentData){
-                $attachment = new Model\FileAttachment();
-                $attachment->setName($attachmentData[2]);
-                $attachment->setContentBytes(base64_encode(file_get_contents($attachmentData[0])));
-                $attachment->setODataType("#microsoft.graph.fileAttachment");
-                $attachments[]=$attachment;
-            }
+        
+        foreach($mailer->attachment as $attachmentData){
+            $attachment = new Model\FileAttachment();
+            $attachment->setName($attachmentData[2]);
+            $attachment->setContentBytes(base64_encode(file_get_contents($attachmentData[0])));
+            $attachment->setODataType("#microsoft.graph.fileAttachment");
+            $attachments[]=$attachment;
+        }
+        if(!empty($attachments))
             $message->setAttachments($attachments);
-            $body = array("message" => $message);
+       
+        $body = array("message" => $message);
+       
+        try{
+            $response = 	$graph->createRequest("POST", "/me/sendmail")
+            ->attachBody($body)
+            ->execute();
             
-            try{
-                $response = 	$graph->createRequest("POST", "/me/sendmail")
-                ->attachBody($body)
-                ->execute();
-                
-                return true;
-                
-            } catch(Exception $e){
-                return $e->getMessage();
-            }
+            return true;
             
-            exit;
-            
+        } catch(Exception $e){
+            return $e->getMessage();
+        }
+        
+        exit;
+        
     }
     
    
