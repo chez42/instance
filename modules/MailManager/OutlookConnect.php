@@ -7,7 +7,7 @@ if(!isset($_SESSION['authenticated_user_id'])){
 }
 chdir(__DIR__.'/../../');
 
-require_once 'modules/MailManager/outlook/autoload.php';
+require_once 'libraries/Office365/autoload.php';
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
 
