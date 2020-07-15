@@ -270,6 +270,7 @@ class MailManager_Mailbox_Model {
             for($u=0;$u<$db->num_rows($result);$u++){
                 $mailBox[$u]['account_id'] = $db->query_result($result, $u, 'account_id');
                 $mailBox[$u]['account_name'] = $db->query_result($result, $u, 'mail_username');
+                $mailBox[$u]['server'] = $db->query_result($result, $u, 'mail_servername');
             }
         }
         

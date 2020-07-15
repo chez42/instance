@@ -37,7 +37,6 @@
 					<table class="table table-bordered modulesTable">
 						<tr>
 							{foreach item=MODULE_MODEL key=MODULE_ID from=$ALL_MODULES}
-								{if !$MODULE_MODEL->ishide}
 								{assign var=MODULE_NAME value=$MODULE_MODEL->get('name')}
 								{assign var=MODULE_ACTIVE value=$MODULE_MODEL->isActive()}
 								{assign var=MODULE_LABEL value=vtranslate($MODULE_MODEL->get('label'), $MODULE_MODEL->get('name'))}
@@ -110,7 +109,6 @@
 									</div>
 									{assign var=COUNTER value=$COUNTER+1}
 								</td>
-								{/if}
 							{/foreach}
 						</tr>
 					</table>

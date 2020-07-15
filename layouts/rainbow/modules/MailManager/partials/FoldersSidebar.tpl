@@ -14,7 +14,9 @@
 						<a href="#" class="openMailId" data-boxid="{$MAILMODEL['account_id']}" style="text-transform:unset;color:black!important;font-weight:bold!important;"> 
 							{$MAILMODEL['account_name']}
 							<i class="fa fa-trash pull-right deleteMailManager" id="deleteMailboxBtn" title="Delete MailBox" data-boxid="{$MAILMODEL['account_id']}"></i>&nbsp;
-							<i class="fa fa-pencil pull-right mailbox_setting" title="Edit MailBox" data-boxid="{$MAILMODEL['account_id']}"></i>&nbsp;
+							{if $MAILMODEL['server'] neq 'Office365'}
+								<i class="fa fa-pencil pull-right mailbox_setting" title="Edit MailBox" data-boxid="{$MAILMODEL['account_id']}"></i>&nbsp;
+							{/if}
 						</a>
 					</li>
 				{/foreach}
