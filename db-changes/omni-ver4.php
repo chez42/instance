@@ -159,7 +159,7 @@ if (!$blockInstance) {
     $blockInstance->label = 'User Brochure';
     $moduleInstance->addBlock($blockInstance);
 }
-$fieldInstance = Vtiger_Field::getInstance('brochure_file', $module);
+$fieldInstance = Vtiger_Field::getInstance('brochure_file', $moduleInstance);
 if (!$fieldInstance) {
     $field  = new Vtiger_Field();
     $field->name = 'brochure_file';
@@ -171,7 +171,7 @@ if (!$fieldInstance) {
     $blockInstance->addField($field);
 }
 
-$fieldInstance = Vtiger_Field::getInstance('brochure_shorturl', $module);
+$fieldInstance = Vtiger_Field::getInstance('brochure_shorturl', $moduleInstance);
 if (!$fieldInstance) {
     $field  = new Vtiger_Field();
     $field->name = 'brochure_shorturl';
