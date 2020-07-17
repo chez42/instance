@@ -14,6 +14,6 @@ Class MailManager_Office365Config_Connector {
 
 	static function getRedirectUrl() {
 		global $site_URL;
-		return rtrim($site_URL, '/').'/modules/MailManager/OutlookConnect.php';
+		return rtrim($site_URL, '/').'/oauth_redirect.php';
 	}
 }
