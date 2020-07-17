@@ -38,8 +38,8 @@ class MailManager_GoogleConnector_Connector {
         if($graph->isAccessTokenExpired()){
             
             $config = array();
-            $config['client_id'] = MailManager_GmailConfig_Connector::$clientId;
-            $config['client_secret'] = MailManager_GmailConfig_Connector::$clientSecret;
+            $config['client_id'] = Google_Config_Connector::$clientId;
+            $config['client_secret'] = Google_Config_Connector::$clientSecret;
             $graph->setAuthConfig($config);
             $response = $graph->fetchAccessTokenWithRefreshToken($refreshToken);
     
