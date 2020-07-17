@@ -1,7 +1,6 @@
 <?php
-//ini_set('display_errors','off');
-require_once 'modules/MailManager/google/autoload.php';
 
+require_once 'libraries/Google/autoload.php';
 
 class MailManager_GoogleConnector_Connector {
     
