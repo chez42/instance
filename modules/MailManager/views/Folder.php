@@ -52,7 +52,7 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 				   
 				} else {
 				    if($q){
-    				    if($connector->serverType == 'Office365'){
+				        if($connector->serverType == 'Office365' || $connector->serverType == 'Google'){
     				        $q = ''.strtolower($type).':'.vtlib_purify($q);
     				    }else{
     					   $q = ''.$type.' "'.vtlib_purify($q).'"';
@@ -80,6 +80,8 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 				    if($start && $end){
 				        if($connector->serverType == 'Office365'){
 				            $searchQuery .= 'received:'.$officeStarrt.'..'.$officeEnd;
+				        }else if($connector->serverType == 'Google'){
+				            $searchQuery .= 'before:'.strtotime($end).' after:'.strtotime($start);
 				        }else{
 				            $searchQuery .= 'BEFORE "'.$end.'" SINCE "'.$start.'"';
 				        }
