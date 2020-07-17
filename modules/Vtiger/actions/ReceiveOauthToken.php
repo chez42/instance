@@ -12,9 +12,12 @@ chdir(dirname(__FILE__). '/../../../');
 include_once 'includes/main/WebUI.php';
 
 require_once 'libraries/Office365/autoload.php';
+
 require_once 'libraries/Google/autoload.php';
+
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
+
 
 class Vtiger_ReceiveOauthToken_Action {
     
@@ -23,7 +26,7 @@ class Vtiger_ReceiveOauthToken_Action {
         $db = PearDatabase::getInstance();
         
         $error = false;
-     
+        
         if($data["source"] == 'Office365'){
             $clientId = MailManager_Office365Config_Connector::$clientId;
             $clientSecret = MailManager_Office365Config_Connector::$clientSecret;
@@ -34,9 +37,9 @@ class Vtiger_ReceiveOauthToken_Action {
             if($token['success']){
                 $accessToken = $token["access_token"];
                 $refreshToken = $token["refresh_token"];
-               
+                
                 try{
-                   
+                    
                     $graph = new Graph();
                     $graph->setAccessToken($accessToken);
                     $user = $graph->createRequest("GET", "/me")->setReturnType(Model\User::class)->execute();
@@ -49,10 +52,10 @@ class Vtiger_ReceiveOauthToken_Action {
                 }
                 
             } else {
-		        $error = true;
+                $error = true;
             }
-        }else if($data["source"] == 'Google'){
-           
+        } else if($data["source"] == 'Google'){
+            
             $client = new Google_Client();
             $config = array();
             $config['client_id'] = Google_Config_Connector::$clientId;
@@ -67,7 +70,7 @@ class Vtiger_ReceiveOauthToken_Action {
             
             $client = new Google_Client();
             $client->setAuthConfig($config);
-         
+            
             $response = $client->fetchAccessTokenWithAuthCode($data['code']);
             
             if($response['access_token']){
@@ -87,15 +90,15 @@ class Vtiger_ReceiveOauthToken_Action {
                 }catch(Exception $e){
                     $error = true;
                 }
-            
+                
+            }
         }
-		
         
         if($data["source_module"] == 'MailManager' && !$error){
             
             
             try {
-              
+                
                 $current_user_id = $data["userid"];
                 
                 $account_id = 1;
@@ -128,22 +131,22 @@ class Vtiger_ReceiveOauthToken_Action {
             }
             
         }
-		
-		if($error){
-			echo json_encode(array("success" => false));
-		} else {
-			echo json_encode(array("success" => true));
-		}
-		exit;
+        
+        if($error){
+            echo json_encode(array("success" => false));
+        } else {
+            echo json_encode(array("success" => true));
+        }
+        exit;
     }
     
     
     public function getOfficeToken($code){
         
-		$clientId = MailManager_Office365Config_Connector::$clientId;
-		$clientSecret = MailManager_Office365Config_Connector::$clientSecret;
-		$redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
-		
+        $clientId = MailManager_Office365Config_Connector::$clientId;
+        $clientSecret = MailManager_Office365Config_Connector::$clientSecret;
+        $redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
+        
         $token_request_data = array(
             "grant_type" => "authorization_code",
             "code" => $code,
@@ -162,7 +165,7 @@ class Vtiger_ReceiveOauthToken_Action {
         $response = curl_exec($curl);
         
         $response = json_decode($response, true);
-
+        
         if(isset($response['access_token'])){
             
             $accessToken = $response['access_token'];
@@ -170,7 +173,7 @@ class Vtiger_ReceiveOauthToken_Action {
             $refreshToken = $response['refresh_token'];
             
             return array("success" => true, "access_token" => $accessToken, "refresh_token" => $refreshToken);
-			
+            
         } else {
             return array("success" => false);
         }
