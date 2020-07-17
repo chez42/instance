@@ -12,6 +12,7 @@ chdir(dirname(__FILE__). '/../../../');
 include_once 'includes/main/WebUI.php';
 
 require_once 'libraries/Office365/autoload.php';
+require_once 'libraries/Google/autoload.php';
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
 
@@ -33,17 +34,60 @@ class Vtiger_ReceiveOauthToken_Action {
             if($token['success']){
                 $accessToken = $token["access_token"];
                 $refreshToken = $token["refresh_token"];
-                
-                $graph = new Graph();
-                $graph->setAccessToken($accessToken);
-                $user = $graph->createRequest("GET", "/me")->setReturnType(Model\User::class)->execute();
-                
-                $displayName = $user->getDisplayName();
-                $userPrincipal = $user->getUserPrincipalName();
+               
+                try{
+                   
+                    $graph = new Graph();
+                    $graph->setAccessToken($accessToken);
+                    $user = $graph->createRequest("GET", "/me")->setReturnType(Model\User::class)->execute();
+                    $displayName = $user->getDisplayName();
+                    $userPrincipal = $user->getUserPrincipalName();
+                    $type = 'Office365';
+                    
+                }catch(Exception $e){
+                    $error = true;
+                }
                 
             } else {
 		        $error = true;
             }
+        }else if($data["source"] == 'Google'){
+           
+            $client = new Google_Client();
+            $config = array();
+            $config['client_id'] = Google_Config_Connector::$clientId;
+            $config['client_secret'] = Google_Config_Connector::$clientSecret;
+            
+            global $site_URL;
+            $redirectUri = rtrim($site_URL, "/") . "oauth_redirect.php";
+            
+            //$config['redirect_uris'] = array(Google_Config_Connector::getRedirectUrl());
+            
+            $config['redirect_uris'] = array($redirectUri);
+            
+            $client = new Google_Client();
+            $client->setAuthConfig($config);
+         
+            $response = $client->fetchAccessTokenWithAuthCode($data['code']);
+            
+            if($response['access_token']){
+                
+                $accessToken = $response['access_token'];
+                $refreshToken = $response['refresh_token'];
+                
+                try{
+                    
+                    $client->setAccessToken($accessToken);
+                    $service = new Google_Service_Gmail($client);
+                    $results = $service->users->getProfile('me');
+                    $displayName = $results->getEmailAddress();
+                    $userPrincipal = $results->getEmailAddress();
+                    $type = 'Google';
+                    
+                }catch(Exception $e){
+                    $error = true;
+                }
+            
         }
 		
         
@@ -52,7 +96,6 @@ class Vtiger_ReceiveOauthToken_Action {
             
             try {
               
-                
                 $current_user_id = $data["userid"];
                 
                 $account_id = 1;
@@ -70,14 +113,14 @@ class Vtiger_ReceiveOauthToken_Action {
                     
                     $db->pquery("UPDATE vtiger_mail_accounts SET display_name=?, account_name=?, mail_username=?,
 					mail_servername=?,set_default=?,from_name=?,from_email=?,access_token=?, refresh_token=?, user_id=?,
-					status=? WHERE account_name=? AND user_id=?",array($displayName,$userPrincipal,$userPrincipal,'Office365',0,$displayName,$userPrincipal,
+					status=? WHERE account_name=? AND user_id=?",array($displayName,$userPrincipal,$userPrincipal,$type,0,$displayName,$userPrincipal,
 					    $accessToken,$refreshToken,$current_user_id,1,$userPrincipal,$current_user_id));
                     
                 } else {
                     $db->pquery("INSERT INTO vtiger_mail_accounts(account_id,display_name, account_name, mail_username,
 					mail_servername, set_default, from_name, from_email, access_token, refresh_token, user_id, status)
 					VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-                        array($account_id,$displayName,$userPrincipal,$userPrincipal,'Office365',0,$displayName,$userPrincipal,
+                        array($account_id,$displayName,$userPrincipal,$userPrincipal,$type,0,$displayName,$userPrincipal,
                             $accessToken,$refreshToken,$current_user_id,1));
                 }
             } catch(Exception $e){
