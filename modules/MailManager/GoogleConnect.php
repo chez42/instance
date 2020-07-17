@@ -14,7 +14,7 @@ $redirectUri = Google_Config_Connector::getRedirectUrl();
 
 global $site_URL;
 //HardCode URI for Now
-$redirectUri = rtrim($site_URL, "/") . "oauth_redirect.php";
+$redirectUri = rtrim($site_URL, "/") . "/oauth_redirect.php";
 
 $auth_url = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline";
 $auth_url .= "&client_id=".urlencode($clientId);

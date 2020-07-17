@@ -59,7 +59,7 @@ class Vtiger_ReceiveOauthToken_Action {
             $config['client_secret'] = Google_Config_Connector::$clientSecret;
             
             global $site_URL;
-            $redirectUri = rtrim($site_URL, "/") . "oauth_redirect.php";
+            $redirectUri = rtrim($site_URL, "/") . "/oauth_redirect.php";
             
             //$config['redirect_uris'] = array(Google_Config_Connector::getRedirectUrl());
             
