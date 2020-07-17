@@ -211,9 +211,11 @@ class Emails_Record_Model extends Vtiger_Record_Model {
 			if ($addToQueue) {
 				$status = $mailer->Send(false, $this->get('parent_id'));
 			} else {
-			    
 			    if($mailer->type == 'Office365'){
 			        $connector = new MailManager_Office365_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
+			        $status = $connector->SendMail($mailer);
+			    }else if($mailer->type == 'Google'){
+			        $connector = new MailManager_GoogleConnector_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
 			        $status = $connector->SendMail($mailer);
 			    }else{
 				    $status = $mailer->Send(true);

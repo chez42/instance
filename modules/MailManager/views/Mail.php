@@ -104,8 +104,11 @@ class MailManager_Mail_View extends MailManager_Abstract_View {
 
 			$moveToFolder = $request->get('_moveFolder');
 			$connector = $this->getConnector($foldername);
-			$connector->moveMail($msg_no, $moveToFolder);
-
+			if($connector->serverType == 'Google')
+			    $connector->moveMail($msg_no, $moveToFolder, $foldername);
+            		else 
+                             $connector->moveMail($msg_no, $moveToFolder);
+            
 			$response->isJson(true);
 			$response->setResult(array('folder' => $foldername,'status'=>true));
 

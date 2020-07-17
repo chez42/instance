@@ -33,6 +33,14 @@ class Vtiger_ReceiveOauthToken_Action {
             if($token['success']){
                 $accessToken = $token["access_token"];
                 $refreshToken = $token["refresh_token"];
+                
+                $graph = new Graph();
+                $graph->setAccessToken($accessToken);
+                $user = $graph->createRequest("GET", "/me")->setReturnType(Model\User::class)->execute();
+                
+                $displayName = $user->getDisplayName();
+                $userPrincipal = $user->getUserPrincipalName();
+                
             } else {
 		        $error = true;
             }
@@ -43,12 +51,7 @@ class Vtiger_ReceiveOauthToken_Action {
             
             
             try {
-                $graph = new Graph();
-                $graph->setAccessToken($accessToken);
-                $user = $graph->createRequest("GET", "/me")->setReturnType(Model\User::class)->execute();
-                
-                $displayName = $user->getDisplayName();
-                $userPrincipal = $user->getUserPrincipalName();
+              
                 
                 $current_user_id = $data["userid"];
                 

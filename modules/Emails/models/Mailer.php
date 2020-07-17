@@ -62,7 +62,7 @@ class Emails_Mailer_Model extends Vtiger_Mailer {
 	            $this->SMTPAuth = false;
 	        }
 	        
-	        if($this->type == 'Office365'){
+	        if($this->type == 'Office365' || $this->type == 'Google'){
 	            $this->accessToken = $adb->query_result($result, 0, "access_token");
 	            $this->refreshToken = $adb->query_result($result, 0, "refresh_token");
 	        }

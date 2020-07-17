@@ -124,13 +124,11 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var element = jQuery(e.currentTarget);
 			var serverType = element.val();
 			var useServer = '', useProtocol = '', useSSLType = '', useCert = '';
-			if(serverType == 'gmail' || serverType == 'yahoo' ) {
-				useServer = 'imap.gmail.com';
-				useSmtp = 'ssl://smtp.gmail.com:465';
-				if(serverType == 'yahoo') {
-					useServer = 'imap.mail.yahoo.com';
-					useSmtp = 'ssl://smtp.mail.yahoo.com:465';
-				}
+			if(serverType == 'yahoo' ) {
+				
+				useServer = 'imap.mail.yahoo.com';
+				useSmtp = 'ssl://smtp.mail.yahoo.com:465';
+				
 				useProtocol = 'IMAP4';
 				useSSLType = 'ssl';
 				useCert = 'novalidate-cert';
@@ -178,7 +176,20 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					location.reload();
 				}
 				
-			} else {
+			}  else if(serverType == 'gmail'){
+				
+				settingContainer.find('.settings_details').addClass('hide');
+				settingContainer.find('.additional_settings').addClass('hide');
+				settingContainer.find('.smtpPort').hide();
+				
+				var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/GoogleConnect.php');
+				var win= window.open(url,'','height=600,width=600,channelmode=1');
+				
+				window.RefreshPage = function() {
+					location.reload();
+				}
+				
+			}else {
 				settingContainer.find('.settings_details').addClass('hide');
 				settingContainer.find('.smtpPort').hide();
 			}
