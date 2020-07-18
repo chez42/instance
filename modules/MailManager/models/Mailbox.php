@@ -144,6 +144,17 @@ class MailManager_Mailbox_Model {
 		
 		$currentUserModel = Users_Record_Model::getCurrentUserModel();
 		
+		if($this->mServerName == 'Google'){
+		    try{
+    		    require_once 'libraries/Google/autoload.php';
+        		$client = new Google_Client();
+        		$client->setAccessToken($this->mAcccessToken);
+        		$client->revokeToken();
+		    } catch(Exception $e){
+		         $e->getMessage();
+		    }
+		}
+		
 		$db->pquery("DELETE FROM vtiger_mail_accounts WHERE user_id = ? AND account_id = ?", array($currentUserModel->getId(), $this->mId));
         
 		$mail = $db->pquery("SELECT * FROM vtiger_mail_accounts WHERE 
