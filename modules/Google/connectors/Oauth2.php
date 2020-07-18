@@ -137,7 +137,7 @@ class Google_Oauth2_Connector {
         header('Location: ' . $this->getAuthUrl());
     }
     
-    protected function fireRequest($url,$headers,$params=array(),$method='POST') {
+    public function fireRequest($url,$headers,$params=array(),$method='POST') {
         $httpClient = new Vtiger_Net_Client($url);
         if(count($headers)) $httpClient->setHeaders($headers);
         switch ($method) {
