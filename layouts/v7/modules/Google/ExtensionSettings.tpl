@@ -29,7 +29,7 @@
 				<table class="listview-table table-bordered" align="center">
 					<thead>
 					<th> {vtranslate($MODULE, $MODULE)} {vtranslate('LBL_DATA', $MODULE)} </th>
-					<th> {vtranslate('APPTITLE', $MODULE)} {vtranslate('LBL_DATA', $MODULE)} </th>
+					<th> {vtranslate('CRM', $MODULE)} {vtranslate('LBL_DATA', $MODULE)} </th>
 					<th> {vtranslate('LBL_FIELD_MAPPING', $MODULE)} </th> 
 					<th> {vtranslate('LBL_ENABLE_SYNC', $MODULE)} </th>
 					<th> {vtranslate('LBL_SYNC_DIRECTION', $MODULE)} </th>
@@ -92,24 +92,14 @@
 		</div>
 		<br>
 		{if !$IS_SYNC_READY}
-			<div class="row">
-				<div class="col-sm-12 col-xs-12">
-					<h3 class="module-title pull-left"> {vtranslate('LBL_GOOGLE_CONNECT_MSG', $MODULE)} </h3>
-				</div>
-			</div>
-			<br>
+			
 			<div class="row">
 				<div class="col-sm-3 col-xs-3">
-					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" data-url='index.php?module={$MODULE}&view=List&operation=sync&sourcemodule={$SOURCEMODULE}'><i class="fa fa-google-plus"></i>{vtranslate('LBL_SIGN_IN_WITH_GOOGLE', $MODULE)}</a>
+					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style = "padding-left:59px;" data-url='index.php?module={$MODULE}&view=List&operation=sync&sourcemodule={$SOURCEMODULE}'><i style = "padding-top:5px;width:51px;" class="fa fa-google-plus"></i>{vtranslate('LBL_SIGN_IN_WITH_GOOGLE', $MODULE)}</a>
 				</div>
 			</div>
 		{else}
-			<div class="row">
-				<div class="col-sm-12 col-xs-12">
-					<h3 class="module-title pull-left"> {vtranslate('LBL_GOOGLE_ACCOUNT_DETAILS', $MODULE)} </h3>
-				</div>
-			</div>
-			<br>
+			
 			{if $USER_EMAIL}
 				<div class="row">
 					<div class="col-sm-3 col-xs-3">
@@ -122,31 +112,18 @@
 			{/if}
 			<div class="row">
 				<div class="col-sm-3 col-xs-3">
-					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'><i class="fa fa-google-plus"></i> {vtranslate('LBL_CHANGE_USER', $MODULE)} </a>
+					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style = "padding-left:59px;" data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'><i style = "padding-top:5px;width:51px;" class="fa fa-google-plus"></i> {vtranslate('LBL_CHANGE_USER', $MODULE)} </a>
 				</div>
 			</div>
 		{/if}
-		<br>
-		<div class="row">
-			<div class="col-sm-12 col-xs-12">
-				<div class="vt-default-callout vt-info-callout"> 
-					<h4 class="vt-callout-header"><span class="fa fa-info-circle"></span>&nbsp; Info </h4><br>
-					<div>
-						{vtranslate('LBL_REDIRECT_URL_MESSAGE', $MODULE)}<br><br>
-						{vtranslate('LBL_REDIRECT_URL', $MODULE)} : <span style="color: #15c !important">{Google_Config_Connector::$redirect_url}</span>
-					</div>
-					<br>
-					<img src="modules/Google/images/redirect_uri.png" />
-				</div>
-			</div>
-		</div>
+		
 		<div style="margin-top: 8%;">
 			<div>
 				<button id="saveSettings" type="submit" class="btn btn-success saveButton">{vtranslate('LBL_SAVE_SETTINGS', $MODULENAME)}</button>
-				{if $PARENT neq 'Settings'}
+					{if $PARENT neq 'Settings'}
 					<a type="reset" data-url="{$MODULE_MODEL->getBaseExtensionUrl($SOURCEMODULE)}" class="cancelLink navigationLink">{vtranslate('LBL_CANCEL', $MODULENAME)}</a>
-				{/if}
+					{/if}
 			</div>
-		</div>
+		</div>		
 	</form>
 </div>
