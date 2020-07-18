@@ -211,7 +211,9 @@ class MailManager_GoogleConnector_Connector {
             $this->mBox->setUseBatch(true);
             
             $batch = new Google_Http_Batch($this->mBox);
-           
+            
+            $batch->batch_scope = '/gmail/v1';
+            
             $params = array(
                 'labelIds' => $folderid,
                 'maxResults' => $maxLimit,
@@ -244,7 +246,7 @@ class MailManager_GoogleConnector_Connector {
             $batch->add($request, 'folder');
             
             $results = $batch->execute();
-            
+        
             if(($results['response-messages'] instanceof Google_Service_Exception)){
                 $this->mError = 'Invalid Token';
                 return false;
@@ -280,6 +282,8 @@ class MailManager_GoogleConnector_Connector {
                 $this->mBox->setUseBatch(true);
                 
                 $batch = new Google_Http_Batch($this->mBox);
+                
+                $batch->batch_scope = '/gmail/v1';
                 
                 $service = new Google_Service_Gmail($this->mBox);
                 
@@ -331,29 +335,36 @@ class MailManager_GoogleConnector_Connector {
                 }
                 
                 // Sync Attachments
-                $this->mBox->setUseBatch(true);
-                
-                $batch = new Google_Http_Batch($this->mBox);
-                
-                $service = new Google_Service_Gmail($this->mBox);
-                
-                foreach($attachments as $attachment_id => $attachment_info){
+                if(!empty($attachments)){
+                    $this->mBox->setUseBatch(true);
                     
-                    $request = $service->users_messages_attachments->get('me', $attachment_info['messageid'],
-                        $attachment_id);
+                    $batch = new Google_Http_Batch($this->mBox);
                     
-                    $batch->add($request, "attachment_".$attachment_id);
-                }
+                    $batch->batch_scope = '/gmail/v1';
+                    
+                    $service = new Google_Service_Gmail($this->mBox);
+                  
+                    foreach($attachments as $attachment_id => $attachment_info){
+                        
+                        $request = $service->users_messages_attachments->get('me', 
+                        $attachment_info['messageid'], $attachment_id);
+                        
+                        $batch->add($request, "attachment_".$attachment_id);
+                    
+                    }
                 
-                $results = $batch->execute();
+                    $results = $batch->execute();
+                    
+                    foreach($attachments as $attachment_id => $attachment_info){
+                        $data = strtr($results['response-attachment_'. $attachment_id]->getData(), array('-' => '+', '_' => '/'));
+                        $sanitizedData = strtr($data,'-_', '+/');
+                        $attachment_info['data'] = base64_decode($sanitizedData);
+                        $messageModel->__saveAttachment($attachment_info);
+                    }
+                    
+                    $this->mBox->setUseBatch(false);
                 
-                foreach($attachments as $attachment_id => $attachment_info){
-                    $data = strtr($results['response-attachment_'. $attachment_id]->getData(), array('-' => '+', '_' => '/'));
-                    $sanitizedData = strtr($data,'-_', '+/');
-                    $attachment_info['data'] = base64_decode($sanitizedData);
-                    $messageModel->__saveAttachment($attachment_info);
                 }
-                $this->mBox->setUseBatch(false);
                 // Sync Attachments End
                 
                 if($page_token){
@@ -802,6 +813,8 @@ class MailManager_GoogleConnector_Connector {
             
             $batch = new Google_Http_Batch($this->mBox);
             
+            $batch->batch_scope = '/gmail/v1';
+            
             $params = array(
                 'labelIds' => $folderId,
                 'maxResults' => $maxLimit,
@@ -857,7 +870,11 @@ class MailManager_GoogleConnector_Connector {
             $this->mBox->setUseBatch(true);
             
             $batch = new Google_Http_Batch($this->mBox);
+            
+            $batch->batch_scope = '/gmail/v1';
+            
             $service = new Google_Service_Gmail($this->mBox);
+            
             foreach($records as $result) {
                 $request = $service->users_messages->get('me', $result['id']);
                 $batch->add($request, $result['id']);
@@ -907,6 +924,9 @@ class MailManager_GoogleConnector_Connector {
             $this->mBox->setUseBatch(true);
             
             $batch = new Google_Http_Batch($this->mBox);
+            
+            $batch->batch_scope = '/gmail/v1';
+            
             $service = new Google_Service_Gmail($this->mBox);
             
             foreach($attachments as $attachment_id => $attachment_info){
