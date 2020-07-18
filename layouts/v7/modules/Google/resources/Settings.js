@@ -27,28 +27,43 @@ Vtiger.Class("Google_Settings_Js", {
                 var element = jQuery(e.currentTarget);
                 var url = element.data('url');
                 if(url){
-                    var win=window.open(url,'','height=600,width=600,channelmode=1');
-                    //http://stackoverflow.com/questions/1777864/how-to-run-function-of-parent-window-when-child-window-closes 
-                    window.sync = function() {
-                        var settingsUrl = jQuery('[name=settingsPage]').val();
-                        var params = {
-                            url : settingsUrl
-                        }
-                        app.helper.showProgress();
-                        app.request.pjax(params).then(function(error, data){
-                            app.helper.hideProgress();
-                            if(data) {
-                                container.html(data);
-                                app.event.trigger(Google_Settings_Js.postSettingsLoad, container);
-                            }
-                        });
-                     }
-                     
-                     window.startSync = function() {
-                     }
-                     
-                     win.onunload = function() {
-                     }
+                	var params = app.convertUrlToDataParams(url);
+                	
+                	if(params['operation'] == 'sync'){
+                	
+	                    var win=window.open(url,'','height=600,width=600,channelmode=1');
+	                    //http://stackoverflow.com/questions/1777864/how-to-run-function-of-parent-window-when-child-window-closes 
+	                    window.sync = function() {
+	                        var settingsUrl = jQuery('[name=settingsPage]').val();
+	                        var params = {
+	                            url : settingsUrl
+	                        }
+	                        app.helper.showProgress();
+	                        app.request.pjax(params).then(function(error, data){
+	                            app.helper.hideProgress();
+	                            if(data) {
+	                                container.html(data);
+	                                app.event.trigger(Google_Settings_Js.postSettingsLoad, container);
+	                            }
+	                        });
+	                     }
+	                     
+	                     window.startSync = function() {
+	                     }
+	                     
+	                     win.onunload = function() {
+	                     }
+	                     
+                	}else if(params['operation'] == 'changeUser'){
+                		
+                		app.helper.showProgress();
+		                app.request.post({data: params}).then(function(error, data) {
+		                    app.helper.hideProgress();
+		                    location.reload();
+		                });
+                		
+                	}
+                	
                 }
         });
     },

@@ -25,12 +25,13 @@ class Google_List_View extends Vtiger_PopupAjax_View {
 									$this->deleteSync($request);
 								}
 				break;
-			case "changeUser" :     $request->set('sourcemodule', 'Contacts');
+			case "changeUser" :     
+                    			    $this->revokeToken($request);
+			                        $request->set('sourcemodule', 'Contacts');
 									$this->deleteSync($request);
 									$request->set('sourcemodule', 'Calendar');
 									$this->deleteSync($request);
-									$this->renderSyncUI($request);
-
+									
 									break;
 			default: $this->renderWidgetUI($request);
 				break;
@@ -58,6 +59,7 @@ class Google_List_View extends Vtiger_PopupAjax_View {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
 		$oauth2 = new Google_Oauth2_Connector($sourceModule);
+		
 		if ($request->has('oauth_verifier')) {
 			try {
 				$oauth2->getHttpClient($sourceModule);
@@ -229,6 +231,27 @@ class Google_List_View extends Vtiger_PopupAjax_View {
 
 	public function validateRequest(Vtiger_Request $request) {
 		//don't do validation because there is a redirection from google
+	}
+	
+	public function revokeToken($request){
+	    
+	    $revokeUrl = Google_Oauth2_Connector::OAUTH2_REVOKE_URI;
+	    
+	    $sourceModule = $request->get('sourcemodule');
+	    $oauth2 = new Google_Oauth2_Connector($sourceModule);
+	    
+	    global $adb, $current_user;
+	    
+	    $access = $adb->pquery("SELECT * FROM vtiger_google_oauth2 WHERE userid=?",array($current_user->id)); 
+	    $accessToken = array();
+	    if($adb->num_rows($access)){
+	       $accessToken = json_decode(html_entity_decode($adb->query_result($access, 0, 'access_token')), true);
+	    }
+	    
+	    $params = array(
+	    );
+	    $response = $oauth2->fireRequest($revokeUrl.'?token='.$accessToken['access_token'], array(), $params);
+	    
 	}
 }
 
