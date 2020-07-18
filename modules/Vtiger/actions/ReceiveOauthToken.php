@@ -30,7 +30,7 @@ class Vtiger_ReceiveOauthToken_Action {
         if($data["source"] == 'Office365'){
             $clientId = MailManager_Office365Config_Connector::$clientId;
             $clientSecret = MailManager_Office365Config_Connector::$clientSecret;
-            $redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
+            $redriectUri = MailManager_Office365Config_Connector::$redirect_url;
             
             $token = $this->getOfficeToken($data['code']);
             
@@ -60,13 +60,7 @@ class Vtiger_ReceiveOauthToken_Action {
             $config = array();
             $config['client_id'] = Google_Config_Connector::$clientId;
             $config['client_secret'] = Google_Config_Connector::$clientSecret;
-            
-            global $site_URL;
-            $redirectUri = rtrim($site_URL, "/") . "/oauth_redirect.php";
-            
-            //$config['redirect_uris'] = array(Google_Config_Connector::getRedirectUrl());
-            
-            $config['redirect_uris'] = array($redirectUri);
+            $config['redirect_uris'] = array(Google_Config_Connector::$redirect_url);
             
             $client = new Google_Client();
             $client->setAuthConfig($config);
@@ -145,7 +139,7 @@ class Vtiger_ReceiveOauthToken_Action {
         
         $clientId = MailManager_Office365Config_Connector::$clientId;
         $clientSecret = MailManager_Office365Config_Connector::$clientSecret;
-        $redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
+        $redriectUri = MailManager_Office365Config_Connector::$redirect_url;
         
         $token_request_data = array(
             "grant_type" => "authorization_code",

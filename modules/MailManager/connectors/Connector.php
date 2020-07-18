@@ -60,6 +60,10 @@ class MailManager_Connector_Connector {
 	        return new MailManager_Office365_Connector($model->mId, $model->mAcccessToken, $model->mRefreshToken, $model->username());
 	    }
 	    
+	    if($model->serverName() == 'Google'){
+	        return new MailManager_GoogleConnector_Connector($model->mId, $model->mAcccessToken, $model->mRefreshToken, $model->username());
+	    }
+	    
 		$port = 143; // IMAP
 		if (strcasecmp($model->protocol(), 'pop') === 0) $port = 110; // NOT IMPLEMENTED
 		else if (strcasecmp($model->ssltype(), 'ssl') === 0) $port = 993; // IMAP SSL

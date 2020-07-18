@@ -11,7 +11,7 @@ require_once('includes/main/WebUI.php');
 
 $clientId = MailManager_Office365Config_Connector::$clientId;
 
-$redriectUri = MailManager_Office365Config_Connector::getRedirectUrl();
+$redriectUri = MailManager_Office365Config_Connector::$redirect_url;
 
 global $site_URL;
 
