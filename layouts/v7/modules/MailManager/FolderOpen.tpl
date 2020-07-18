@@ -104,7 +104,7 @@
                 {else}
                     {assign var=IS_READ value=0}
                 {/if}
-                <div class="col-lg-12 cursorPointer mailEntry {if $IS_READ}mmReadEmail{/if}" id='mmMailEntry_{$MAIL->msgNo()}' data-folder="{$FOLDER->name()}" data-read='{$IS_READ}'>
+                <div class="col-lg-12 cursorPointer mailEntry {if $IS_READ}mmReadEmail{/if}" data-messageid="{$MAIL->msgNo()}" id='mmMailEntry_{$MAIL->msgNo()}' data-folder="{$FOLDER->name()}" data-read='{$IS_READ}'>
                     <span class="col-lg-1 paddingLeft5px">
                         <input type='checkbox' class='mailCheckBox' class="pull-left">
                     </span>

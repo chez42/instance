@@ -54,7 +54,7 @@ class Vtiger_ReceiveOauthToken_Action {
             } else {
                 $error = true;
             }
-        } else if($data["source"] == 'Google'){
+        }else if($data["source"] == 'Google'){
             
             $client = new Google_Client();
             $config = array();
@@ -86,6 +86,32 @@ class Vtiger_ReceiveOauthToken_Action {
                 }
                 
             }
+        }else if($data["source"] == 'GoogleCalendar'){
+            
+            $token = $this->getGoogleCalendarToken($data['code']);
+            
+            $decodedToken = json_decode($token['access_token'],true);
+            
+            $refresh_token = $decodedToken['refresh_token'];
+            unset($decodedToken['refresh_token']);
+            $decodedToken['created'] = time();
+            $accessToken = json_encode($decodedToken);
+            $modulesSupported = array('Contacts', 'Calendar');
+            
+            foreach($modulesSupported as $moduleName) {
+                $authQuery = $db->pquery("SELECT * FROM vtiger_google_oauth2 WHERE service = ? AND userid = ?",
+                    array('Google'.$moduleName, $data['userid']));
+                if(!$db->num_rows($authQuery)){
+                    $params = array('Google'.$moduleName,$accessToken,$refresh_token,$data["userid"]);
+                    $sql = 'INSERT INTO vtiger_google_oauth2 VALUES (' . generateQuestionMarks($params) . ')';
+                    $db->pquery($sql,$params);
+                }else{
+                    $params = array($accessToken,$refresh_token,'Google'.$moduleName,$data["userid"]);
+                    $sql = 'UPDATE vtiger_google_oauth2 SET access_token=?, refresh_token=? WHERE service=? AND userid=?';
+                    $db->pquery($sql,$params);
+                }
+            }
+            
         }
         
         if($data["source_module"] == 'MailManager' && !$error){
@@ -172,6 +198,46 @@ class Vtiger_ReceiveOauthToken_Action {
             return array("success" => false);
         }
     }
+    
+    
+    public function getGoogleCalendarToken($code){
+        
+        $client_id = Google_Config_Connector::$clientId;
+        $client_secret = Google_Config_Connector::$clientSecret;
+        $redirect_uri = Google_Config_Connector::$redirect_url;
+        
+        $params = array(
+            'grant_type' => 'authorization_code',
+            'code' => $code,
+            'client_id' => $client_id,
+            'client_secret' => $client_secret,
+            'redirect_uri' => $redirect_uri
+        );
+        
+        $curl = curl_init('https://accounts.google.com/o/oauth2/token');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        $response = curl_exec($curl);
+        
+        $response = json_decode($response, true);
+        
+        if(isset($response['access_token'])){
+            
+            $accessToken = $response['access_token'];
+            
+            $refreshToken = $response['refresh_token'];
+            
+            return array("success" => true, "access_token" => json_encode($response));
+            
+        } else {
+            return array("success" => false);
+        }
+        
+    }
+    
 }
 
 $receive_oauth_token = new Vtiger_ReceiveOauthToken_Action();

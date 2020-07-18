@@ -60,7 +60,7 @@ class Google_Oauth2_Connector {
 		$this->service_name = $this->service_provider . $module;
 		$this->client_id = Google_Config_Connector::$clientId;
 		$this->client_secret = Google_Config_Connector::$clientSecret;
-		$this->redirect_uri = Google_Config_Connector::getRedirectUrl();
+		$this->redirect_uri = Google_Config_Connector::$redirect_url;
 		$this->scope = implode(' ', array_values($this->scopes));
     }
     
@@ -93,6 +93,7 @@ class Google_Oauth2_Connector {
     }
     
     protected function getAuthUrl() {
+        global $site_URL;
         $params = array(
             'response_type='.  urlencode($this->response_type),
             'redirect_uri=' . urlencode($this->redirect_uri),
@@ -100,6 +101,7 @@ class Google_Oauth2_Connector {
             'scope=' . urlencode($this->scope),
             'access_type=' . urlencode($this->access_type),
             'approval_prompt=' . urlencode($this->approval_prompt),
+            'state=' .base64_encode(implode('||', array($site_URL, $_SESSION['authenticated_user_id'], "GoogleCalendar", "Calendar")))
         );
         $queryString = implode('&', $params);
         return self::OAUTH2_AUTH_URL . "?$queryString";
