@@ -41,7 +41,9 @@ class Google_Http_Batch
 
   /** @var Google_Client */
   private $client;
-
+  
+  public $batch_scope;
+  
   public function __construct(Google_Client $client)
   {
     $this->client = $client;
@@ -104,7 +106,13 @@ EOF;
 
     $body .= "--{$this->boundary}--";
     $body = trim($body);
-    $url = Google_Client::API_BASE_PATH . '/' . self::BATCH_PATH;
+    
+    if($this->batch_scope != ''){
+        $url = Google_Client::API_BASE_PATH . '/' . self::BATCH_PATH . $this->batch_scope;
+    } else {
+        $url = Google_Client::API_BASE_PATH . '/' . self::BATCH_PATH;
+    }
+    
     $headers = array(
       'Content-Type' => sprintf('multipart/mixed; boundary=%s', $this->boundary),
       'Content-Length' => strlen($body),
