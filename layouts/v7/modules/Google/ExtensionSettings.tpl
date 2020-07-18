@@ -133,7 +133,7 @@
 					<h4 class="vt-callout-header"><span class="fa fa-info-circle"></span>&nbsp; Info </h4><br>
 					<div>
 						{vtranslate('LBL_REDIRECT_URL_MESSAGE', $MODULE)}<br><br>
-						{vtranslate('LBL_REDIRECT_URL', $MODULE)} : <span style="color: #15c !important">{Google_Config_Connector::getRedirectUrl()}</span>
+						{vtranslate('LBL_REDIRECT_URL', $MODULE)} : <span style="color: #15c !important">{Google_Config_Connector::$redirect_url}</span>
 					</div>
 					<br>
 					<img src="modules/Google/images/redirect_uri.png" />
