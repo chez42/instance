@@ -229,7 +229,7 @@ class MailManager_Mailbox_Model {
 			$instance->mFromEmail = trim($db->query_result($result, 0, 'from_email'));
 			$instance->mFromName = trim($db->query_result($result, 0, 'from_name'));
 			
-			if($instance->mServer == 'Office365'){
+			if($instance->mServer == 'Office365' || $instance->mServer == 'Google'){
 			    
 			    $instance->mRefreshToken = trim($db->query_result($result, 0, 'refresh_token'));
 			    
@@ -252,6 +252,8 @@ class MailManager_Mailbox_Model {
 		    $mServerName = 'office365';
 		} else if($mServer == 'mail.omnisrv.com'){
 		    $mServerName = 'omniExchange';
+		} else if($mServer == 'Google'){
+		    $mServerName = 'Google';
 		} else {
 			$mServerName = 'other';
 		}

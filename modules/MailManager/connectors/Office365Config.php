@@ -9,11 +9,24 @@
  * ***********************************************************************************/
 
 Class MailManager_Office365Config_Connector {
-	static $clientId = '32679be5-4aeb-4cda-9193-fcfe74dbfdce';
-	static $clientSecret = '1y5HHz~5-pW.gSmLs2C7GoVuaKS-o4se4c';
-
-	static function getRedirectUrl() {
-		global $site_URL;
-		return rtrim($site_URL, '/').'/oauth_redirect.php';
-	}
+    
+    static $clientId = null;
+	
+    static $clientSecret = null;
+    
+    static $redirect_url = null;
+    
+    public static function init(){
+        global $adb;
+        
+        $result = $adb->pquery("SELECT * FROM vtiger_oauth_configuration WHERE type = 'Office365'" , array());
+        
+        if($adb->num_rows($result)){
+            self::$clientId = $adb->query_result($result, 0, 'client_id');
+            self::$clientSecret = $adb->query_result($result, 0, 'client_secret');
+            self::$redirect_url = $adb->query_result($result, 0, 'redirect_url');
+        }
+    }
 }
+MailManager_Office365Config_Connector::init();
+

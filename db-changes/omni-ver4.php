@@ -272,4 +272,28 @@ $adb->pquery("ALTER TABLE vtiger_mailmanager_mailrecord CHANGE muid muid VARCHAR
 $adb->pquery("ALTER TABLE vtiger_mail_accounts ADD access_token TEXT NULL, ADD refresh_token TEXT NULL;");
 
 $EventManager = new VTEventsManager($adb);
+
 $EventManager->registerHandler('vtiger.entity.aftersave', 'modules/Vtiger/handlers/CustomHandler.php', 'CustomHandler');
+
+$adb->pquery("
+    CREATE TABLE `vtiger_oauth_configuration` (
+ `id` int(19) NOT NULL AUTO_INCREMENT,
+ `client_id` text,
+ `client_secret` text,
+ `redirect_url` varchar(500) DEFAULT NULL,
+ `type` varchar(250) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+");
+
+$checkField = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name ='Oauth Configuration'");
+
+if(!$adb->num_rows($checkField)){
+    $blockid = $adb->query_result(
+        $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_OTHER_SETTINGS'",array()),0, 'blockid');
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    	 as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),0, 'sequence') + 1;
+    $fieldid = $adb->getUniqueId('vtiger_settings_field');
+    $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+    	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Oauth Configuration','','', 'index.php?parent=Settings&module=Vtiger&view=OauthConfiguration'));
+}

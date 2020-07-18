@@ -9,11 +9,26 @@
  * ***********************************************************************************/
 
 Class Google_Config_Connector {
-	static $clientId = '351655144405-57ht69f7s00p1llkmio1g0hmpj90s93v.apps.googleusercontent.com';
-	static $clientSecret = 'O3zkjOncVkypopLQiFoz31f7';
-
-	static function getRedirectUrl() {
-		global $site_URL;
-		return $site_URL.'index.php?module=Google&view=Authenticate&service=Google';
+	
+    static $clientId = null;
+	
+	static $clientSecret = null;
+	
+	static $redirect_url = null;
+	
+	public static function init(){
+	    
+	    global $adb;
+	    
+	    $query = "SELECT * FROM vtiger_oauth_configuration WHERE type = 'Google'";
+	    
+	    $result = $adb->pquery($query , array());
+	    
+	    if($adb->num_rows($result)){
+	        self::$clientId = $adb->query_result($result, 0, 'client_id');
+	        self::$clientSecret = $adb->query_result($result, 0, 'client_secret');
+	        self::$redirect_url = $adb->query_result($result, 0, 'redirect_url');
+	    }
 	}
 }
+Google_Config_Connector::init();
