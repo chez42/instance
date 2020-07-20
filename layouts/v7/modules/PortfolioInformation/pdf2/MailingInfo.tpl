@@ -3,7 +3,7 @@
 {/foreach}
 <div id="mailinginfo">
     <div class="leftside" style="float:left; width:48%;">
-        <img src="{if $LOGO neq ''}{$LOGO}{else}test/logo/Omni-CRM-LOGO-SMALL.png{/if}" />
+        <img src="{if $LOGO neq ''}{$LOGO}{else}test/logo/Omni-CRM-LOGO-SMALL.png{/if}" width="100%"/>
     </div>
     <div class="rightside" style="float:right; width:48%;font-family:Arial,Sans-Serif;font-size:16px;">
         <p style="width:60%; display:block; border-bottom:1px solid black;font-family:Arial,Sans-Serif;font-size:16px;">Prepared for</p>
