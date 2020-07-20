@@ -54,13 +54,13 @@
 					    </select>
 				    </div>
                 </div>
-                <div class="row" style="margin-top:5px;">
+				<div class="row" style="margin-top:5px;">
                 	<div class="col-md-12">
 				        <table class="dateselectiontable omniOverview" style="display:none;">
 				            <tr>
 				            	<td><label>Selected Date : </label></td>
 				                <td>
-				                    <input type="text" class="select_end_date" id="select_end_date" name="select_end_date" value="{date('Y-m-d')}" style="display:block; margin-left:5px; margin-right:5px;" />
+				                    <input type="text" class="select_end_date" id="select_end_date" name="omni_select_end_date" value="{date('Y-m-d')}" style="display:block; margin-left:5px; margin-right:5px;" />
 				                </td>
 				            </tr>
 				        </table>
@@ -76,7 +76,7 @@
 				                    </select>
 				                </td>
 			                    <td>
-			                        <input type="text" class="select_end_date" id="select_end_date" name="select_end_date" value="{$ASSET_END_DATE}" style="display:block; margin-left:5px; margin-right:5px;" />
+			                        <input type="text" class="select_end_date" id="select_end_date" name="asset_select_end_date" value="{$ASSET_END_DATE}" style="display:block; margin-left:5px; margin-right:5px;" />
 			                    </td>
 				            </tr>
 				        </table>
@@ -92,10 +92,10 @@
 				                    </select>
 				                </td>
 			                    <td>
-			                        <input type="text" class="select_start_date" name="select_start_date" id="select_start_date" value="{$START_DATE}" style="display:block; margin-right:5px;" />
+			                        <input type="text" class="select_start_date" name="gh2_select_start_date" id="select_start_date" value="{$START_DATE}" style="display:block; margin-right:5px;" />
 			                    </td>
 			                    <td>
-			                        <input type="text" class="select_end_date" name="select_end_date" id="select_end_date" value="{$END_DATE}" style="display:block; margin-left:5px; margin-right:5px;" />
+			                        <input type="text" class="select_end_date" name="gh2_select_end_date" id="select_end_date" value="{$END_DATE}" style="display:block; margin-left:5px; margin-right:5px;" />
 			                    </td>
 				            </tr>
 				        </table>

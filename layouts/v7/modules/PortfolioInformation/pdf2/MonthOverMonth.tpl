@@ -1,7 +1,7 @@
 <div id="GHReport_wrapper">
-    <table id="mom_header">
+    <table id="mom_header" style="height:100px;">
         <tr>
-            <td style="width:30%">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" />{/if}</td>
+            <td style="width:30%">{if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" width="100%"/>{/if}</td>
             <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>
             <td style="width:20%; font-size: 18px; font-weight:bold;">
                 Prepared By: {$PREPARED_BY}<br />
