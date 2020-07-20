@@ -11,7 +11,7 @@ if(!empty($_REQUEST)) {
     
     $session_id = $loginObj->sessionName;
     
-    if($_REQUEST['email']){
+    if($_REQUEST['email'] && $_REQUEST['password']){
         $element = array(
             'email' => $_REQUEST['email'],
             'pass' => $_REQUEST['password']
@@ -43,7 +43,10 @@ if(!empty($_REQUEST)) {
         $_SESSION['user_email'] = $data['user_email'];
         $_SESSION['ownerId'] = $data['ownerId'];
         $_SESSION['data'] = $data['data'];
-        $_SESSION['portal_logo'] = $data['portal_logo'];
+        
+        if($data['portal_logo'])
+            $_SESSION['portal_logo'] = $data['portal_logo'];
+        
         $_SESSION['portal_profile_image'] = $data['portal_profile_image'];
         
         $_SESSION['topbar'] = true;
