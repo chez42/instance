@@ -265,6 +265,22 @@ if ($blockInstance) {
     }
 }
 
+$moduleInstance = Vtiger_Module::getInstance('Transactions');
+$blockInstance = Vtiger_Block::getInstance('Transaction Information', $moduleInstance);
+if ($blockInstance) {
+    $fieldInstance = Vtiger_Field::getInstance('net', $moduleInstance);
+    if (!$fieldInstance) {
+        $field = new Vtiger_Field();
+        $field->name = 'net';
+        $field->label = 'Net';
+        $field->uitype = 28;
+        $field->column = $field->name;
+        $field->columntype = 'Decimal(5,2)';
+        $field->typeofdata = 'N~O~2~2';
+        $blockInstance->addField($field);
+    }
+}
+
 $adb->pquery("ALTER TABLE `vtiger_emailslookup`  ADD `opt_out` TINYINT(3) NULL DEFAULT NULL  AFTER `fieldid`");
 
 $adb->pquery("ALTER TABLE vtiger_mailmanager_mailattachments CHANGE muid muid VARCHAR(500) NULL DEFAULT NULL;");

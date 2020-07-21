@@ -47,6 +47,23 @@ class PositionInformation_List_View extends Vtiger_List_View {
 		parent::postProcess($request);
 
 	}
-  
+
+    /**
+     * Function to get the list of Script models to be included
+     * @param Vtiger_Request $request
+     * @return <Array> - List of Vtiger_JsScript_Model instances
+     */
+    function getHeaderScripts(Vtiger_Request $request) {
+        $headerScriptInstances = parent::getHeaderScripts($request);
+        $moduleName = $request->getModule();
+
+        $jsFileNames = array(
+            "~layouts/v7/modules/ModSecurities/resources/ListViewRightClickPricing.js"
+        );
+
+        $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
+        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
+        return $headerScriptInstances;
+    }
 }
 ?>

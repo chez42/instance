@@ -309,10 +309,11 @@ class cTDTransactions extends cCustodian
         $params[] = $data->trade_date;
         $params[] = 'TD';
         $params[] = $data->transaction_id;//cloud transaction id
+        $params[] = $data->operation;
 
         $questions = generateQuestionMarks($params);
         $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, 
-                              origination, cloud_transaction_id)
+                              origination, cloud_transaction_id, operation)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
@@ -334,12 +335,13 @@ class cTDTransactions extends cCustodian
         $params[] = $data->principal;
         $params[] = $data->broker_fee;
         $params[] = $data->other_fee;
+        $params[] = $data->transaction_code;
         $params[] = $data->comment;
         $params[] = $data->filename;
 
         $questions = generateQuestionMarks($params);
         $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, rep_code, transaction_activity, net_amount, 
-                                                     principal, broker_fee, other_fee, description, filename)
+                                                     principal, broker_fee, other_fee, key_mnemonic_description, description, filename)
                   VALUES ({$questions})";
         $adb->pquery($query, $params, true);
     }
