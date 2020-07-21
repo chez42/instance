@@ -93,7 +93,7 @@
 		<script src="{vresource_url('libraries/amcharts4_9/core.js')}"></script>
 		<script src="{vresource_url('libraries/amcharts4_9/charts.js')}"></script>
 		<script src="{vresource_url('libraries/amcharts4_9/themes/animated.js')}"></script>
-
+		<script src="{vresource_url('libraries/amcharts4_9/maps.js')}"></script> 
 		<script type="text/javascript">
 			var _META = { 'module': "{$MODULE}", view: "{$VIEW}", 'parent': "{$PARENT_MODULE}", 'notifier':"{$NOTIFIER_URL}", 'app':"{$SELECTED_MENU_CATEGORY}" };
             {if $EXTENSION_MODULE}
