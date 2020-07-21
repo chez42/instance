@@ -146,7 +146,7 @@ class Emails_Module_Model extends Vtiger_Module_Model{
                         for($i=0; $i<$numOfRows; $i++) {
                             $row = $db->query_result_rowdata($result, $i);
                             
-                            $recordLabel = $row['first_name'] . ' ' . row['last_name'];
+                            $recordLabel = $row['first_name'] . ' ' . $row['last_name'];
                             
                             foreach ($emailFields as $emailField) {
                                 $emailFieldValue = $row[$emailField];
