@@ -22,7 +22,7 @@
             </tr>
             {foreach from=$PORTFOLIO_DATA key=k item=v}
                 <tr>
-                    <td>{$v.account_number}
+                    <td>{$v.account_number}</td>
                     <td class="center">{$v.first_name} {$v.last_name}</td>
                     <td class="center">{$v.account_type}</td>
                     <td class="right">${$v.total_value|number_format:2:".":","}</td>
