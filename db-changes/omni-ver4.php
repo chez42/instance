@@ -297,3 +297,11 @@ if(!$adb->num_rows($checkField)){
     $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
     	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Oauth Configuration','','', 'index.php?parent=Settings&module=Vtiger&view=OauthConfiguration'));
 }
+
+$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_scheduled_portfolio_reports (
+    id INT(11) NOT NULL AUTO_INCREMENT ,
+    user_id INT(11) NULL ,
+    user_email VARCHAR(255) NULL ,
+    params TEXT NULL , PRIMARY KEY (id));");
+
+Vtiger_Cron::register('SendPortfolioReportsPdf', 'cron/modules/PortfolioInformation/SendPortfolioReportsPdf.service', 0);
