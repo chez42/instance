@@ -1,5 +1,15 @@
 <?php
-if($_REQUEST['code']){
+if($_REQUEST['source'] == 'MailManager'){
+	echo '<script>window.opener.RefreshPage();window.close();</script>';
+} else if($_REQUEST['source']  == 'Calendar'){
+	echo '<script>window.opener.sync();window.close();</script>'; 
+} else {
+	echo '<script>window.close();</script>'; 
+}
+
+exit;
+
+/*if($_REQUEST['code']){
 	$decoded_state = base64_decode($_REQUEST['state']);
 	
 	$state_params = explode("||",$decoded_state);
@@ -32,13 +42,11 @@ if($_REQUEST['code']){
 	if(!$response['success']){
 		echo '<script>window.close();</script>';
 	} else {
-        if($state_params[3] == 'MailManager'){
-            echo '<script>window.opener.RefreshPage();window.close();</script>';
-        }else if($state_params[3] == 'Calendar'){
-            echo '<script>window.opener.sync();window.close();</script>'; 
-        }
+       $url = $state_params[0].'oauth_redirect.php?source='.$state_params[3];
+	   header("Location://".$url);
+	   exit;
 	}
 } else {
    echo '<script>window.close();</script>';
-}
+}*/
 ?>
