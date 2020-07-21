@@ -308,12 +308,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/OmniOverviewPDF.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= '<div id="dynamic_chart_holder" class="dynamic_chart_holder" style = "width:1000px;height:300px;margin-top:20px;"></div>';
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/IndividualPerformance.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= '<div class="pie_image" style="width:1000px;height:500px;">
-					<p style="font-size:18px; font-family:Arial, Sans-Serif;">Asset Allocation</p>
 					<div id="dynamic_pie_holder" class="dynamic_pie_holder" style = "width:800px;height:400px;margin-top:20mm;"></div>
 				</div>';
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
@@ -452,8 +451,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right; width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -780,8 +779,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right;width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -933,8 +932,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right;width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -1254,8 +1253,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right;width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -1570,8 +1569,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right;width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -1934,8 +1933,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right;width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'  width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -2233,8 +2232,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right; width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -2467,8 +2466,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right; width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -2709,8 +2708,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right; width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -2941,8 +2940,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
+							<div style='float:right; width:60%;'>
+								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
 							</div>
 						</div>
 					</body>
@@ -3053,181 +3052,181 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             if(is_array($assigned_to))
                 $assigned_to = $assigned_to[0];
-                
-                $ispdf = $request->get('pdf');
-                
-                $viewer = $this->getViewer($request);
-                //$moduleName = $request->getModule();
-                $account_number = $accountNumbers;
-                
-                $total_weight = 0;
-                if(!is_array($account_number))
-                    $accounts = explode(",", $accountNumbers);
-                    else {
-                        $accounts = $account_number;
-                    }
-                    $accounts = array_unique($accounts);
-                    if (sizeof($accounts) > 0) {
-                        $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
-                        $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
-                        $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
-                    };
-                    
-                    $contact_instance = null;
-                    if(is_array($accounts)){
-                        $portfolios = array();
-                        $unsettled_cash = 0;
-                        foreach($accounts AS $k => $v) {
-                            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                            if($crmid) {
-                                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                                $contact_id = $p->get('contact_link');
-                                if ($contact_id)
-                                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                                    
-                                    $portfolios[] = $p->getData();
-                                    $unsettled_cash += $p->get('unsettled_cash');
-                                    if (!$advisor_instance) {
-                                        echo "NO INSTANCE!";
-                                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                                    }
+            
+            $ispdf = $request->get('pdf');
+            
+            $viewer = $this->getViewer($request);
+            //$moduleName = $request->getModule();
+            $account_number = $accountNumbers;
+            
+            $total_weight = 0;
+            if(!is_array($account_number))
+                $accounts = explode(",", $accountNumbers);
+            else {
+                $accounts = $account_number;
+            }
+            $accounts = array_unique($accounts);
+            if (sizeof($accounts) > 0) {
+                $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
+                $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
+                $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
+            };
+            
+            $contact_instance = null;
+            if(is_array($accounts)){
+                $portfolios = array();
+                $unsettled_cash = 0;
+                foreach($accounts AS $k => $v) {
+                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+                    if($crmid) {
+                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                        $contact_id = $p->get('contact_link');
+                        if ($contact_id)
+                            $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                            
+                            $portfolios[] = $p->getData();
+                            $unsettled_cash += $p->get('unsettled_cash');
+                            if (!$advisor_instance) {
+                                echo "NO INSTANCE!";
+                                $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
                             }
-                        }
                     }
+                }
+            }
+            
+            if($contact_instance) {
+                if(!$advisor_instance)
+                    $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
                     
-                    if($contact_instance) {
-                        if(!$advisor_instance)
-                            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                            
-                            $household_instance = null;
-                            if (reset($contact_instance)->get('account_id'))
-                                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-                    }
-                    
-                    
-                    $current_user = Users_Record_Model::getCurrentUserModel();
-                    
-                    $data = $advisor_instance->getData();
-                    $has_advisor = 0;
-                    if(strlen($data['user_name']) > 0)
-                        $has_advisor = 1;
+                    $household_instance = null;
+                    if (reset($contact_instance)->get('account_id'))
+                        $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+            }
+            
+            
+            $current_user = Users_Record_Model::getCurrentUserModel();
+            
+            $data = $advisor_instance->getData();
+            $has_advisor = 0;
+            if(strlen($data['user_name']) > 0)
+                $has_advisor = 1;
+                
+            $toc = array();
+            $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+            $toc[] = array("title" => "#2", "name" => "Month Over Month");
+            
+            $viewer->assign("DATE", date("F d, Y"));
+            $viewer->assign("ASSIGNED_TO", $assigned_to);
+            $viewer->assign("HAS_ADVISOR", $has_advisor);
+            $viewer->assign("CONTACTS", $contact_instance);
+            $viewer->assign("REPORT_TYPE", "Client Statement");
+            $viewer->assign("CURRENT_USER", $current_user);
+            $viewer->assign("ADVISOR", $advisor_instance);
+            $viewer->assign("HOUSEHOLD", $household_instance);
+            $viewer->assign("USER_DATA", $current_user->getData());
+            $viewer->assign("MAILING_INFO", $mailing_info);
+            $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
+            $viewer->assign("PORTFOLIO_DATA", $portfolios);
+            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+            $viewer->assign("PIE_IMAGE", $pie_image);
+            $viewer->assign("DYNAMIC_PIE_FILE", $pie_file);
+            $viewer->assign("COLORS", $colors);
+            $viewer->assign("TOTAL_WEIGHT", $total_weight);
+            $viewer->assign("CALLING_RECORD", $calling_record);
+            $viewer->assign("TOC", $toc);
+            $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
+            $viewer->assign("MOM_TABLE", $mom_table);
+            $viewer->assign("DOW_PRICES", $dow_prices);
+            $viewer->assign("YEARS", $years);
+            $viewer->assign("PREPARED_FOR", $prepared_for);
+            $viewer->assign("PREPARED_BY", $prepared_by);
+            $viewer->assign("MODULE", "PortfolioInformation");
+            $viewer->assign("SITEURL", $site_URL);
+            
+            $viewer->assign("RANDOM", rand(1,100000));
+            
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+            $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
+            
+            $personal_notes = $request->get('personal_notes');
+            $viewer->assign("PERSONAL_NOTES", $personal_notes);
+            
+            $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MonthOverMonth.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+            
+            $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/MonthOverMonth.css');
+            
+            if (!is_dir($fileDir)) {
+                mkdir($fileDir);
+            }
+            
+            $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_MonthOverMonth";
+            
+            $bodyFileName = $fileDir.'/body_'.$name.'.html';
+            $fb = fopen($bodyFileName, 'w');
+            $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+            fwrite($fb, $b);
+            fclose($fb);
                         
-                        $toc = array();
-                        $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-                        $toc[] = array("title" => "#2", "name" => "Month Over Month");
+            $footer ="<!doctype html>
+			<html>
+				<head>
+					<meta charset='utf-8'>
+					<script>
+						function substitutePdfVariables() {
                         
-                        $viewer->assign("DATE", date("F d, Y"));
-                        $viewer->assign("ASSIGNED_TO", $assigned_to);
-                        $viewer->assign("HAS_ADVISOR", $has_advisor);
-                        $viewer->assign("CONTACTS", $contact_instance);
-                        $viewer->assign("REPORT_TYPE", "Client Statement");
-                        $viewer->assign("CURRENT_USER", $current_user);
-                        $viewer->assign("ADVISOR", $advisor_instance);
-                        $viewer->assign("HOUSEHOLD", $household_instance);
-                        $viewer->assign("USER_DATA", $current_user->getData());
-                        $viewer->assign("MAILING_INFO", $mailing_info);
-                        $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
-                        $viewer->assign("PORTFOLIO_DATA", $portfolios);
-                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-                        $viewer->assign("PIE_IMAGE", $pie_image);
-                        $viewer->assign("DYNAMIC_PIE_FILE", $pie_file);
-                        $viewer->assign("COLORS", $colors);
-                        $viewer->assign("TOTAL_WEIGHT", $total_weight);
-                        $viewer->assign("CALLING_RECORD", $calling_record);
-                        $viewer->assign("TOC", $toc);
-                        $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
-                        $viewer->assign("MOM_TABLE", $mom_table);
-                        $viewer->assign("DOW_PRICES", $dow_prices);
-                        $viewer->assign("YEARS", $years);
-                        $viewer->assign("PREPARED_FOR", $prepared_for);
-                        $viewer->assign("PREPARED_BY", $prepared_by);
-                        $viewer->assign("MODULE", "PortfolioInformation");
-                        $viewer->assign("SITEURL", $site_URL);
-                        
-                        $viewer->assign("RANDOM", rand(1,100000));
-                        
-                        $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-                        $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
-                        
-                        $personal_notes = $request->get('personal_notes');
-                        $viewer->assign("PERSONAL_NOTES", $personal_notes);
-                        
-                        $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MonthOverMonth.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
-                        
-                        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/MonthOverMonth.css');
-                        
-                        if (!is_dir($fileDir)) {
-                            mkdir($fileDir);
-                        }
-                        
-                        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_MonthOverMonth";
-                        
-                        $bodyFileName = $fileDir.'/body_'.$name.'.html';
-                        $fb = fopen($bodyFileName, 'w');
-                        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-                        fwrite($fb, $b);
-                        fclose($fb);
-                        
-                        $footer ="<!doctype html>
-				<html>
-					<head>
-						<meta charset='utf-8'>
-						<script>
-							function substitutePdfVariables() {
-                            
-								function getParameterByName(name) {
-									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-								}
-                            
-								function substitute(name) {
-									var value = getParameterByName(name);
-									var elements = document.getElementsByClassName(name);
-                            
-									for (var i = 0; elements && i < elements.length; i++) {
-										elements[i].textContent = value;
-									}
-								}
-                            
-								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
-									.forEach(function(param) {
-										substitute(param);
-									});
+							function getParameterByName(name) {
+								var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+								return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 							}
-						</script>
-					</head>
-					<body onload='substitutePdfVariables()'>
-						<div style='width:100%;'>
-							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
-								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
-									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
-								</p>
-							</div>
-							<div style='float:right;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'/>
-							</div>
+                        
+							function substitute(name) {
+								var value = getParameterByName(name);
+								var elements = document.getElementsByClassName(name);
+                        
+								for (var i = 0; elements && i < elements.length; i++) {
+									elements[i].textContent = value;
+								}
+							}
+                        
+							['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+								.forEach(function(param) {
+									substitute(param);
+								});
+						}
+					</script>
+				</head>
+				<body onload='substitutePdfVariables()'>
+					<div style='width:100%;'>
+						<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+							<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+								Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+							</p>
 						</div>
-					</body>
-				</html>";
-                        $footerFileName = $fileDir.'/footer_'.$name.'.html';
-                        $ff = fopen($footerFileName, 'w');
-                        $f = $footer;
-                        fwrite($ff, $f);
-                        fclose($ff);
-                        
-                        $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-                        
-                        $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-                        
-                        unlink($bodyFileName);
-                        unlink($footerFileName);
-                        
-                        $filePath[] = $whtmltopdfPath;
+						<div style='float:right; width:60%;'>
+							<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'  width='40%'/>
+						</div>
+					</div>
+				</body>
+			</html>";
+            $footerFileName = $fileDir.'/footer_'.$name.'.html';
+            $ff = fopen($footerFileName, 'w');
+            $f = $footer;
+            fwrite($ff, $f);
+            fclose($ff);
+            
+            $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+            
+            $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+            
+            unlink($bodyFileName);
+            unlink($footerFileName);
+            
+            $filePath[] = $whtmltopdfPath;
                         
         }
         

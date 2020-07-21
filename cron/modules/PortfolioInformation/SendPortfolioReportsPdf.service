@@ -16,6 +16,10 @@ if($adb->num_rows($getReport)){
         
         $view = new Vtiger_ReportPdf_Action();
         $view->process(new Vtiger_Request($params, $params));
+		
+		$reportId = $adb->query_result($getReport, $u, 'id');
+		
+		$adb->pquery("DELETE FROM vtiger_scheduled_portfolio_reports WHERE id = ?",array($reportId));
         
     }
 }

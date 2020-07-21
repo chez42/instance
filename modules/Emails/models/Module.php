@@ -140,23 +140,26 @@ class Emails_Module_Model extends Vtiger_Module_Model{
                     }
 
 				if ($emailFields) {
-					$userQuery = 'SELECT '.$moduleInstance->table_index.', '.implode(',',$searchFields).' FROM vtiger_users WHERE deleted=0';
+					    $userQuery = 'SELECT '.$moduleInstance->table_index.', '.implode(',',$searchFields).' FROM vtiger_users WHERE deleted=0';
                         $result = $db->pquery($userQuery, array());
                         $numOfRows = $db->num_rows($result);
                         for($i=0; $i<$numOfRows; $i++) {
                             $row = $db->query_result_rowdata($result, $i);
+                            
+                            $recordLabel = $row['first_name'] . ' ' . $row['last_name'];
+                            
                             foreach ($emailFields as $emailField) {
-                                    $emailFieldValue = $row[$emailField];
-                                    if ($emailFieldValue) {
-                                            $recordLabel = getEntityFieldNameDisplay($moduleName, $nameFields, $row);
-                                            if (strpos($emailFieldValue, $searchValue) !== false || strpos($recordLabel, $searchValue) !== false) {
-                                                    $emailsResult[vtranslate($moduleName, $moduleName)][$row[$moduleInstance->table_index]][]
-                                                                            = array('value'	=> $emailFieldValue,
-																					'name'	=> $recordLabel,
-																					'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>');
+                                $emailFieldValue = $row[$emailField];
+                                if ($emailFieldValue) {
+                                    //$recordLabel = getEntityFieldNameDisplay($moduleName, $nameFields, $row);
+                                    if (strpos($emailFieldValue, $searchValue) !== false || strpos($recordLabel, $searchValue) !== false) {
+                                            $emailsResult[vtranslate($moduleName, $moduleName)][$row[$moduleInstance->table_index]][]
+                                                                    = array('value'	=> $emailFieldValue,
+																			'name'	=> $recordLabel,
+																			'label'	=> $recordLabel . ' <b>('.$emailFieldValue.')</b>');
 
-                                            }
                                     }
+                                }
                             }
                         }
                     }
