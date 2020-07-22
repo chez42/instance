@@ -61,38 +61,83 @@ class cEodGuzzle{
         $options['api_token'] = $this->api_token;
         $options['fmt'] = 'json';
 
-        $res = $this->guz->get(URI_REALTIME . "/{$symbol}.{$exchange}", ['query' => $options]);
+        try {
+            $res = $this->guz->get(URI_REALTIME . "/{$symbol}.{$exchange}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
         return $res->getBody()->getContents();
     }
 
     public function getFundamentals($symbol, $exchange = 'US'){
         $options['api_token'] = $this->api_token;
         $options['fmt'] = 'json';
+        try {
+            $res = $this->guz->get(URI_FUNDAMENTALS . "/{$symbol}.{$exchange}", ['query' => $options]);
+        }catch(Exception $e){//Symbol not found (404 error causes an exception)
+            return null;
+        }
+        return $res->getBody()->getContents();
+    }
 
-        $res = $this->guz->get(URI_FUNDAMENTALS . "/{$symbol}.{$exchange}", ['query' => $options]);
+    public function getCorporateBond($symbol){
+        $options['api_token'] = $this->api_token;
+        $options['fmt'] = 'json';
+        try {
+            $res = $this->guz->get(URI_BONDS . "/{$symbol}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
         return $res->getBody()->getContents();
     }
 
     public function getBonds($symbol){
         $options['api_token'] = $this->api_token;
         $options['fmt'] = 'json';
-        $res = $this->guz->get(URI_BONDS . "/{$symbol}", ['query' => $options]);
+        try {
+            $res = $this->guz->get(URI_BONDS . "/{$symbol}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
         return $res->getBody()->getContents();
     }
 
     public function getOptions($symbol, $exchange = 'US'){
         $options['api_token'] = $this->api_token;
         $options['fmt'] = 'json';
-        $res = $this->guz->get(URI_OPTIONS . "/{$symbol}.{$exchange}", ['query' => $options]);
+        try {
+            $res = $this->guz->get(URI_OPTIONS . "/{$symbol}.{$exchange}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
         return $res->getBody()->getContents();
     }
+
+    public function getOptionContract($option, $exchange = 'US'){
+        $options['api_token'] = $this->api_token;
+        $options['from'] = "2000-01-01";
+        $options['contract_name'] = str_replace(" ", "", $option);//Remove spaces for EOD purposes
+        $options['fmt'] = 'json';
+        $symbol = OptionsMapping::GetSymbolFromStandardizedOption($option);
+        try {
+            $res = $this->guz->get(URI_OPTIONS . "/{$symbol}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
+        return $res->getBody()->getContents();
+    }
+
 
     public function getDividends($symbol, $exchange = 'US', $from, $to){
         $options['api_token'] = $this->api_token;
         $options['fmt'] = 'json';
         $options['from'] = $from;
         $options['to'] = $to;
-        $res = $this->guz->get(URI_DIVIDENDS . "/{$symbol}.{$exchange}", ['query' => $options]);
+        try {
+            $res = $this->guz->get(URI_DIVIDENDS . "/{$symbol}.{$exchange}", ['query' => $options]);
+        }catch(Exception $e){
+            return null;
+        }
         return $res->getBody()->getContents();
     }
 
