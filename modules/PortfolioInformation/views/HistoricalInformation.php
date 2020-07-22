@@ -79,6 +79,7 @@ class PortfolioInformation_HistoricalInformation_View extends Vtiger_Detail_View
 		$viewer = $this->getViewer($request);
 		$viewer->assign("CURRENT_USER", Users_Record_Model::getCurrentUserModel());
 		$viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
+        $viewer->assign('CSS', $this->getHeaderCss($request));
 		$viewer->assign("RECORD", $calling_record);
 		$viewer->assign("ASSET_PIE", json_encode($pie));
 //		$viewer->assign("TRAILING_12_REVENUE", json_encode($trailing_12_revenue));
@@ -103,16 +104,30 @@ class PortfolioInformation_HistoricalInformation_View extends Vtiger_Detail_View
 //			"~/libraries/amcharts/amcharts_3.20.9/amcharts/plugins/export/export.min.js",
 #			"modules.PortfolioInformation.resources.HoldingsReport",
 
-			"~/libraries/amcharts/amcharts/amcharts.js",
-			"~/libraries/amcharts/amcharts/pie.js",
-			"~/libraries/amcharts/amcharts/serial.js",
-			"~/libraries/amcharts/amcharts/plugins/export/export.min.js",
+#			"~/libraries/amcharts/amcharts/amcharts.js",
+#			"~/libraries/amcharts/amcharts/pie.js",
+#			"~/libraries/amcharts/amcharts/serial.js",
+#			"~/libraries/amcharts/amcharts/plugins/export/export.min.js",
+            "~/libraries/amcharts4_9/themes/dark.js",
             "modules.PortfolioInformation.resources.PortfolioList", // . = delimiter
-			"modules.PortfolioInformation.resources.HistoricalCharts", // . = delimiter
+			"modules.PortfolioInformation.resources.HistoricalInformation", // . = delimiter
 		);
 		if($moduleName == "PortfolioInformation")
             $jsFileNames[] = "modules.PortfolioInformation.resources.PositionsWidget";
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
 		return $jsScriptInstances;
 	}
+
+    public function getHeaderCss(Vtiger_Request $request) {
+        $headerCssInstances = parent::getHeaderCss($request);
+        $cssFileNames = array(
+            "~/libraries/amcharts/amstockchart/plugins/export/export.css",
+            '~/layouts/v7/modules/PortfolioInformation/css/HistoricalInformation.css',
+        );
+        $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
+        $headerCssInstances = array_merge($headerCssInstances, $cssInstances);
+
+        return $headerCssInstances;
+    }
+
 }
