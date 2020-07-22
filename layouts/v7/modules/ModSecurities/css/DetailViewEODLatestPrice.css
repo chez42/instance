@@ -1,4 +1,4 @@
-#price_wrapper{display:block; border-radius: 5px; padding:15px; width:350px; margin-left:auto; margin-right:auto; float:left;}
+#price_wrapper{display:block; border-radius: 5px; padding:15px; width:650px; margin-left:auto; margin-right:auto; float:left;}
 #price_wrapper p{font-size:14px;}
 #delayed_pricing_lower{display:block; float:left; width:100%;}
 #delayed_pricing{display:block; float:right; width:69%;}
