@@ -3,6 +3,8 @@ if($_REQUEST['source'] == 'MailManager'){
 	echo '<script>window.opener.RefreshPage();window.close();</script>';
 } else if($_REQUEST['source']  == 'Calendar'){
 	echo '<script>window.opener.sync();window.close();</script>'; 
+} else if($_REQUEST['source'] == 'ValidateLogin'){
+    echo '<script>window.opener.RefreshPage("'.$_REQUEST['code'].'");window.close();</script>';
 } else {
 	echo '<script>window.close();</script>'; 
 }

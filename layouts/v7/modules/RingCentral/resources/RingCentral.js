@@ -806,10 +806,15 @@ Vtiger.Class("RingCentral_Js",{
 				'<button title="Fax" type="button" style="display:none;border-radius: 5px !important;"class="btn btn-success" id="fax" onclick="RingCentral_Js.clickToFax(this)"><i class="fa fa-fax" aria-hidden="true"></i></button>&nbsp;'+
 				'</div>'; 
 			}else{
-				var html = '<div id="phone_panel_call" class="phoneCallContainer">'+
+				/*var html = '<div id="phone_panel_call" class="phoneCallContainer">'+
 				'<button title="Call" type="button" style="padding: 6px 6px 6px 3px !important;border-radius: 5px !important;font-size: 1rem !important;width: 30% !important;"class="btn btn-success" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone" aria-hidden="true"></i></button>&nbsp;'+
 				'<button title="SMS" type="button" style="padding: 6px 6px 6px 3px !important;border-radius: 5px !important;font-size: 1rem !important;width: 30% !important;"class="btn btn-success" id="sms" onclick="RingCentral_Js.clickToSms(this)"><i class="fa fa-envelope" aria-hidden="true"></i></button>&nbsp;'+
 				'<button title="Fax" type="button" style="display:none;padding: 6px 6px 6px 3px !important;border-radius: 5px !important;font-size: 1rem !important;width: 30% !important;"class="btn btn-success" id="fax" onclick="RingCentral_Js.clickToFax(this)"><i class="fa fa-fax" aria-hidden="true"></i></button>'+
+				'</div>';*/
+				var html = '<div id="phone_panel_call" class="phoneCallContainer">'+
+				'<button title="Call" type="button" style="padding: 6px 6px 6px 6px !important;border-radius: 5px !important;font-size: 1rem !importantt;"class="btn btn-success" id="call" onclick="RingCentral_Js.clickToCall(this)"><i class="fa fa-phone" aria-hidden="true"></i></button>&nbsp;'+
+				'<button title="SMS" type="button" style="padding: 6px 6px 6px 6px !important;border-radius: 5px !important;font-size: 1rem !important;"class="btn btn-success" id="sms" onclick="RingCentral_Js.clickToSms(this)"><i class="fa fa-envelope" aria-hidden="true"></i></button>&nbsp;'+
+				'<button title="Fax" type="button" style="display:none;padding: 6px 6px 6px 6px !important;border-radius: 5px !important;font-size: 1rem !important;"class="btn btn-success" id="fax" onclick="RingCentral_Js.clickToFax(this)"><i class="fa fa-fax" aria-hidden="true"></i></button>'+
 				'</div>'; 
 			}
 		}
