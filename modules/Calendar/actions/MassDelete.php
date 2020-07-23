@@ -34,4 +34,45 @@ class Calendar_MassDelete_Action extends Vtiger_MassDelete_Action {
 		$response->setResult(array('viewname'=>$cvId, 'module'=>$moduleName));
 		$response->emit();
 	}
+	
+	protected function getRecordsListFromRequest(Vtiger_Request $request) {
+	    $cvId = $request->get('viewname');
+	    $module = $request->get('module');
+	    if(!empty($cvId) && $cvId=="undefined"){
+	        $sourceModule = $request->get('sourceModule');
+	        $cvId = CustomView_Record_Model::getAllFilterByModule($sourceModule)->getId();
+	    }
+	    $selectedIds = $request->get('selected_ids');
+	    $excludedIds = $request->get('excluded_ids');
+	    
+	    if(!empty($selectedIds) && $selectedIds != 'all') {
+	        if(!empty($selectedIds) && count($selectedIds) > 0) {
+	            return $selectedIds;
+	        }
+	    }
+	    
+	    $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+	    if($customViewModel) {
+	        $searchKey = $request->get('search_key');
+	        $searchValue = $request->get('search_value');
+	        $operator = $request->get('operator');
+	        if(!empty($operator)) {
+	            $customViewModel->set('operator', $operator);
+	            $customViewModel->set('search_key', $searchKey);
+	            $customViewModel->set('search_value', $searchValue);
+	        }
+	        
+	        /**
+	         *  Mass action on Documents if we select particular folder is applying on all records irrespective of
+	         *  seleted folder
+	         */
+	        if ($module == 'Documents') {
+	            $customViewModel->set('folder_id', $request->get('folder_id'));
+	            $customViewModel->set('folder_value', $request->get('folder_value'));
+	        }
+	        
+	        $customViewModel->set('search_params',$request->get('search_params'));
+	        return $customViewModel->getEventsRecordIds($excludedIds,$module);
+	    }
+	}
 }

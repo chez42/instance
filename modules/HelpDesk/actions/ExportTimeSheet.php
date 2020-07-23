@@ -43,11 +43,15 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
         $query = $this->getExportQuery($records);
         
         $result = $db->pquery($query, array($records));
+       
+        $comments = $this->getTicketsComment($records);
         
         $translatedHeaders = $this->getHeaders();
         
         $entries = array();
         for ($j = 0; $j < $db->num_rows($result); $j++) {
+            
+            $ticketId = $db->query_result($result, $j, "ticketid");
             $entries[$j]["ticket_no"] =  $db->query_result($result, $j, "ticket_no");
             $entries[$j]["category"] = $db->query_result($result, $j, "category");
             
@@ -68,6 +72,7 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
             
             $entries[$j]["cf_3643"] = $db->query_result($result, $j, "cf_3643");
             $entries[$j]["cf_3652"] = $db->query_result($result, $j, "cf_3652");
+            $entries[$j]["comments"] = implode('; ', $comments[$ticketId]);
             
         }
         
@@ -76,7 +81,7 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
     
     public function getHeaders() {
         //'Related Record',
-        $relatedColumnFields = array('Ticket Number', 'Category', 'Description', 'Assigned To', 'Status', 'QA by', 'Timer - Start Time', 'Timer - End Time', 'Total Time', 'Client', 'Subcategory', 'Rating');
+        $relatedColumnFields = array('Ticket Number', 'Category', 'Description', 'Assigned To', 'Status', 'QA by', 'Timer - Start Time', 'Timer - End Time', 'Total Time', 'Client', 'Subcategory', 'Rating', 'Comments');
         $translatedHeaders = array_map('decode_html', $relatedColumnFields);
         return $translatedHeaders;
     }
@@ -90,6 +95,7 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
     function getExportQuery($records) {
         
         $listQuery = "SELECT 
+            vtiger_troubletickets.ticketid,
         	vtiger_troubletickets.ticket_no, 
             vtiger_troubletickets.category,
             ticcrm.description,
@@ -194,6 +200,28 @@ class HelpDesk_ExportTimeSheet_Action extends Vtiger_Action_Controller {
             $customViewModel->set('search_params',$request->get('search_params'));
             return $customViewModel->getRecordIds($excludedIds,$module);
         }
+    }
+    
+    function getTicketsComment($records){
+        
+        global $adb;
+        
+        $ticketQuery = $adb->pquery("SELECT * FROM vtiger_modcomments
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
+        WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to IN (".generateQuestionMarks($records).")",
+            array($records));
+        
+        $comments = array();
+        if($adb->num_rows($ticketQuery)){
+            for($i=0;$i<$adb->num_rows($ticketQuery);$i++){
+                $relatedId = $adb->query_result($ticketQuery, $i, 'related_to');
+                $content = $adb->query_result($ticketQuery, $i, 'commentcontent');
+                $comments[$relatedId][] = $content;
+            }
+        }
+        
+        return $comments;
+        
     }
     
 }
