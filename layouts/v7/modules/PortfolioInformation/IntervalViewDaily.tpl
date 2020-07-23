@@ -1,6 +1,12 @@
-<form id="IntervalForm" method="post" action="index.php?module=PortfolioInformation&view=IntervalReport">
+<div class="btn-toolbar" style="display:block;">
+    <span class="btn-group">
+        <button class="btn ExportReport" style="display:block;"><strong>Generate PDF</strong></button>
+    </span>
+</div>
+
+<form id="IntervalForm" method="post" action="index.php?module=PortfolioInformation&view=OmniIntervalsDaily">
     <input type="hidden" name="module" value="PortfolioInformation" />
-    <input type="hidden" name="view" value="IntervalReport" />
+    <input type="hidden" name="view" value="OmniIntervalsDaily" />
     <input type="hidden" name="source_module" id="source_module" value="{$SOURCE_MODULE}" />
     <input type="hidden" name="source_record" id="source_record" value="{$SOURCE_RECORD}" />
     <input type="hidden" name="account_numbers" id="account_numbers" value="{$ACCOUNT_NUMBERS}" />
@@ -8,6 +14,9 @@
     <input type="hidden" id="end_date" name="end_date" value="{$END_DATE}" />
     <input type="hidden" id="report_type" name="report_type" value="daily" />
     <input type="hidden" id="calculated_return" name="calculated_return" value="" />
+    <input type="hidden" value="" name="line_image" id="line_image" />
+    <input type="hidden" value="1" name="ispdf" id="ispdf" />
+    <input type="hidden" value='{$SELECTED_INDEXES_ENCODED}' id="selected_indexes" />
 </form>
 
 <div id="interval_page_wrapper">
@@ -62,7 +71,7 @@
                             {*                                <td style="padding:2px;">{$v.account_number}</td>
                                                     <td style="padding:2px;">{$v.begin_date}</td>*}
                             <td class="left_text padding2 data_end_date" data-date="{$v.end_date}">{$v.end_date}</td>
-                            <td class="right_text padding2 data_begin_value" data-begin_value="{$v.begin_value}">${$v.begin_value|number_format:2:".":","}</td>
+                            <td class="right_text padding2 data_begin_value" data-begin_value='{$v.begin_value}'>${$v.begin_value|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_net_flow {if $v.net_flow lt 0} red {/if} {if $v.net_flow gt 0} green {/if}" data-net_flow="{$v.net_flow}">${$v.net_flow|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_incomeamount {if $v.incomeamount lt 0} red {/if} {if $v.incomeamount gt 0} green {/if}" data-incomeamount="{$v.incomeamount}">${$v.incomeamount|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_expense_amount {if $v.expense_amount lt 0} red {/if}" data-expense_amount="{$v.expense_amount}">${$v.expense_amount|number_format:2:".":","}</td>
@@ -88,9 +97,11 @@
                         <div class="td aright">
                             <h2>Portfolio</h2>
                         </div>
-                        <div class="td aright">
-                            <h2>S&P 500</h2>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <h2>{$v.symbol}</h2>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -99,9 +110,11 @@
                         <div class="td aright">
                             <span class="begin_value"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_begin_value"></span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="begin_value_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -110,9 +123,11 @@
                         <div class="td aright">
                             <span class="selected_flows"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_selected_flows">N/A</span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="selected_flows_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -121,9 +136,11 @@
                         <div class="td aright">
                             <span class="selected_income"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_selected_income">N/A</span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="selected_income_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -132,9 +149,11 @@
                         <div class="td aright">
                             <span class="selected_expenses"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_selected_expenses">N/A</span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="selected_expenses_{$v.symbol_id}">N/A</span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -143,9 +162,11 @@
                         <div class="td aright">
                             <span class="selected_twr"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_twr"></span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="twr_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -154,9 +175,11 @@
                         <div class="td aright">
                             <span class="average_return"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_average_return"></span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="average_return_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
                     <div class="tr">
                         <div class="td">
@@ -165,11 +188,12 @@
                         <div class="td aright">
                             <span class="end_value"></span>
                         </div>
-                        <div class="td aright">
-                            <span class="sp_end_value"></span>
-                        </div>
+                        {foreach item=v from=$SELECTED_INDEXES}
+                            <div class="td aright">
+                                <span class="end_value_{$v.symbol_id}"></span>
+                            </div>
+                        {/foreach}
                     </div>
-
                 </div>
             </div>
         </div>
