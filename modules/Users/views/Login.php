@@ -88,6 +88,18 @@ class Users_Login_View extends Vtiger_View_Controller {
 		$viewer->assign('ERROR', $error);
 		$viewer->assign('MESSAGE', $message);
 		$viewer->assign('MAIL_STATUS', $mailStatus);
+		
+		$clientId = MailManager_Office365Config_Connector::$clientId;
+		$redriectUri = MailManager_Office365Config_Connector::$redirect_url;
+		
+		global $site_URL;
+		
+		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
+		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Login", "ValidateLogin")));
+		$auth_url .= '&scope=' . urlencode('User.Read Mail.ReadWrite Mail.Send offline_access');
+
+		$viewer->assign('AUTH_URL', $auth_url);
+		
 		$viewer->view('Login.tpl', 'Users');
 	}
 

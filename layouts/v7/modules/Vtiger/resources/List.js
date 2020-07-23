@@ -267,8 +267,8 @@ Vtiger.Class("Vtiger_List_Js", {
 		
 		//if(!app.getAdminUser()){
 			var selectedRecordCount = listInstance.getSelectedRecordCount();
-			if (selectedRecordCount > 5) {
-				app.helper.showErrorNotification({message: app.vtranslate('Please select Max 5 records')});
+			if (selectedRecordCount > 500) {
+				app.helper.showErrorNotification({message: app.vtranslate('Please select Max 500 records')});
 				return;
 			}
 		//}
