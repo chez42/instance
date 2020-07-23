@@ -240,6 +240,7 @@ jQuery.Class("IntervalsDaily_Js",{
         //TODO:  sdate and edate need to be dynamic, not this hardcoded nonsense
         $.post("index.php", {module:'ModSecurities', action:'PriceInteraction', todo:'getprice', symbol:symbols, sdate:start_date, edate:end_date}, function(response) {
             symbol_info = $.parseJSON(response);//Get index information
+            console.log(symbol_info);
             var count = 0;
             var tmpSymbols = {};
             $.each(symbol_info, function(a, symbol){
@@ -538,11 +539,23 @@ jQuery.Class("IntervalsDaily_Js",{
     },
 
     ClickEvents : function(){
+        var self = this;
         $("#ResetIntervals").click(function(){
             var account_numbers = $("#account_numbers").val();
                 $.post("index.php", {module:'PortfolioInformation', action:'Tools', todo:'remove_intervals', account_numbers:account_numbers}, function(response) {
                     console.log(response);
                 });
+        });
+
+        $(".ExportReport").click(function(e){
+            e.stopImmediatePropagation();
+            $("#start_date").val($("#fromfield").val());
+            $("#end_date").val($("#tofield").val());
+
+            self.chart.exporting.getImage("jpg").then(function(imgData){
+                $("#line_image").val(encodeURIComponent(imgData));
+                $("#IntervalForm").submit();
+            });
         });
     },
 

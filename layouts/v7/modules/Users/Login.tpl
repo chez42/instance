@@ -88,6 +88,8 @@
                                         <a style = "color:white;margin-right:10px;"" class="loginIssues"  href="https://ompw.omnisrv.com/pm/" class="forget-password" target="_blank">Login Issues?</a>
                                     </div>
                                     <button class="btn green auto_submit" type="submit" style = "background:#0098CF;border-color:#0098CF;">Sign In</button>
+                                    &nbsp;&nbsp;
+                                    <button class="btn green officeLogin" data-url="{$AUTH_URL}" type="button" style = "background:#0098CF;border-color:#0098CF;">Sign In With Office365</button>
                                 </div>
                             </div>
                         </form>

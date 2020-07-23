@@ -173,6 +173,34 @@ var Login = function() {
 				});
 			});
             $('.forget-form1').hide();
+            
+            $('.officeLogin').on('click', function(){
+            	
+            	var url = $(this).data('url');
+            	
+            	var win= window.open(url,'','height=600,width=600,channelmode=1');
+				
+				window.RefreshPage = function(code) {
+					
+					var data = [];
+					$.each($('.login-form').serializeArray(), function(i, field){
+					    data[field.name] = field.value;
+					});
+					data['code'] = code;
+					
+					$.ajax({
+		    			type: "POST",
+		    			url:'index.php?'+$('.login-form').serialize()+'&code='+code,
+		    			error: function(errorThrown) {
+		    				console.log(errorThrown)
+		    			},
+		    			success: function(url) {
+		    				window.location = url;
+		    			}
+		    		});
+				}
+            	
+            });
 
         }
 

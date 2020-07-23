@@ -1304,4 +1304,70 @@ class CustomView_Record_Model extends Vtiger_Base_Model {
 	    }
 	    return $selectedFields;
 	}
+	
+	
+	/**
+	 * Function which provides the records for the current view
+	 * @param <Boolean> $skipRecords - List of the RecordIds to be skipped
+	 * @return <Array> List of RecordsIds
+	 */
+	public function getEventsRecordIds($skipRecords=false, $module= false) {
+	    $db = PearDatabase::getInstance();
+	    $cvId = $this->getId();
+	    $moduleModel = $this->getModule();
+	    $moduleName = $moduleModel->get('name');
+	    $baseTableName = $moduleModel->get('basetable');
+	    $baseTableId = $moduleModel->get('basetableid');
+	    
+	    $listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId);
+	    $queryGenerator = $listViewModel->get('query_generator');
+	    
+	    $searchKey = $this->get('search_key');
+	    $searchValue = $this->get('search_value');
+	    $operator = $this->get('operator');
+	    if(!empty($searchValue)) {
+	        $queryGenerator->addUserSearchConditions(array('search_field' => $searchKey, 'search_text' => $searchValue, 'operator' => $operator));
+	    }
+	    
+	    /**
+	     *  For Documents if we select any document folder and mass deleted it should delete documents related to that
+	     *  particular folder only
+	     */
+	    if ($moduleName == 'Documents') {
+	        $folderValue = $this->get('folder_value');
+	        if (!empty($folderValue)) {
+	            $queryGenerator->addCondition($this->get('folder_id'), $folderValue, 'e');
+	        }
+	    }
+	    
+	    $searchParams = $this->get('search_params');
+	    if(empty($searchParams)) {
+	        $searchParams = array();
+	    }
+	    $transformedSearchParams = Vtiger_Util_Helper::transferListSearchParamsToFilterCondition($searchParams, $moduleModel);
+	    $glue = "";
+	    if(count($queryGenerator->getWhereFields()) > 0 && (count($transformedSearchParams)) > 0) {
+	        $glue = QueryGenerator::$AND;
+	    }
+	    $queryGenerator->parseAdvFilterList($transformedSearchParams, $glue);
+	    
+	    $listQuery = $queryGenerator->getQuery();
+	    if($module == 'RecycleBin'){
+	        $listQuery = preg_replace("/vtiger_crmentity.deleted\s*=\s*0/i", 'vtiger_crmentity.deleted = 1', $listQuery);
+	    }
+	    
+	    if($skipRecords && !empty($skipRecords) && is_array($skipRecords) && count($skipRecords) > 0) {
+	        $listQuery .= ' AND '.$baseTableName.'.'.$baseTableId.' NOT IN ('. implode(',', $skipRecords) .')';
+	    }
+	    
+	    $listQuery .= ' AND vtiger_activity.activitytype <> "Emails" GROUP BY vtiger_activity.activityid';
+	    $result = $db->query($listQuery);
+	   
+	    $noOfRecords = $db->num_rows($result);
+	    $recordIds = array();
+	    for($i=0; $i<$noOfRecords; ++$i) {
+	        $recordIds[] = $db->query_result($result, $i, $baseTableId);
+	    }
+	    return $recordIds;
+	}
 }
