@@ -38,8 +38,8 @@ class Transactions_YesterdayTransactions_Dashboard extends Vtiger_IndexAjax_View
 	   $trade_date= '';
 	   if($request->get('trade_date')){
 		  $trade_date = $request->get('trade_date');
-		  $trade_date['start'] = date('Y-m-d', strtotime($trade_date['start']));
-		  $trade_date['end'] = date('Y-m-d', strtotime($trade_date['end']));
+		  $trade_date['start'] = getValidDBInsertDateValue($trade_date['start']);
+		  $trade_date['end'] = getValidDBInsertDateValue($trade_date['end']);
 		  $_SESSION['transactionWidgetId'] =$trade_date; 
 	   }else if($_SESSION['transactionWidgetId']){
 		    $trade_date = $_SESSION['transactionWidgetId'];
