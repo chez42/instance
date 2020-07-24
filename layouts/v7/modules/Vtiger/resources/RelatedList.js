@@ -1309,6 +1309,8 @@ createTreeFolderPopup : function() {
 			var message = app.vtranslate('Are You Sure Want to delete the selected records!');
 			app.helper.showPromptBox({'message': message}).then(function (e) {
 				listSelectParams['action'] = 'RelatedMassDelete';
+				listSelectParams['parent_module'] = listSelectParams['parentModule'];
+				listSelectParams['parent_record'] = listSelectParams['parentRecord'];
 				
 				app.helper.showProgress();
 				app.request.post({data: listSelectParams}).then(
