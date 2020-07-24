@@ -325,3 +325,25 @@ Vtiger_Cron::register('SendPortfolioReportsPdf', 'cron/modules/PortfolioInformat
 $adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`id`, `client_id`, `client_secret`, `redirect_url`, `type`) VALUES
 (1, '32679be5-4aeb-4cda-9193-fcfe74dbfdce', 'Ls51Tkjeo~-R.6Fkr_dyyD8pD6.Vvg9Bz1', 'https://oauth.omnisrv.com', 'Office365'),
 (2, '351655144405-57ht69f7s00p1llkmio1g0hmpj90s93v.apps.googleusercontent.com', 'O3zkjOncVkypopLQiFoz31f7', 'https://oauth.omnisrv.com', 'Google')");
+
+
+$adb->pquery("ALTER TABLE `vtiger_inventorytaxinfo` ADD `method` VARCHAR(10) CHARACTER SET utf8 
+COLLATE utf8_general_ci NULL AFTER `deleted`, ADD `type` INT(10) NULL AFTER `method`, ADD `compoundon` 
+VARCHAR(400) CHARACTER SET utf8 COLLATE utf8_general_ci NULL AFTER `type`, ADD `region` TEXT CHARACTER SET utf8 
+COLLATE utf8_general_ci NULL AFTER `compoundon`");
+
+
+$adb->pquery("CREATE TABLE `vtiger_inventorycharges` ( `chargeid` INT(5) NOT NULL AUTO_INCREMENT , 
+`name` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL , `format` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL , `type` VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL , `value` DECIMAL(12,5) NULL DEFAULT NULL , `regions` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL , `istaxable` INT(1) NOT NULL DEFAULT '1' , `taxes` VARCHAR(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL , `deleted` INT(1) NOT NULL DEFAULT '0' , PRIMARY KEY (`chargeid`)) ENGINE = InnoDB");
+
+$adb->pquery("CREATE TABLE `vtiger_inventorychargesrel` ( `recordid` INT(19) NOT NULL , `charges` TEXT CHARACTER SET utf8 
+COLLATE utf8_general_ci NULL DEFAULT NULL ) ENGINE = InnoDB");
+
+$adb->pquery("CREATE TABLE `vtiger_taxregions` ( `regionid` INT(10) NOT NULL AUTO_INCREMENT , `name` VARCHAR(100) NOT NULL , PRIMARY KEY (`regionid`)) ENGINE = InnoDB");
+
+
+
+
+
+
+
