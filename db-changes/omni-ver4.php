@@ -322,9 +322,22 @@ $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_scheduled_portfolio_reports (
 
 Vtiger_Cron::register('SendPortfolioReportsPdf', 'cron/modules/PortfolioInformation/SendPortfolioReportsPdf.service', 0);
 
-$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`id`, `client_id`, `client_secret`, `redirect_url`, `type`) VALUES
-(1, '32679be5-4aeb-4cda-9193-fcfe74dbfdce', 'Ls51Tkjeo~-R.6Fkr_dyyD8pD6.Vvg9Bz1', 'https://oauth.omnisrv.com', 'Office365'),
-(2, '351655144405-57ht69f7s00p1llkmio1g0hmpj90s93v.apps.googleusercontent.com', 'O3zkjOncVkypopLQiFoz31f7', 'https://oauth.omnisrv.com', 'Google')");
+$office365_oauth_config = $adb->pquery("select * from vtiger_oauth_configuration where `type` = 'Office365'");
+
+if(!$adb->num_rows($office365_oauth_config)){
+
+	$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`client_id`, `client_secret`, `redirect_url`, `type`) VALUES
+	('32679be5-4aeb-4cda-9193-fcfe74dbfdce', 'Ls51Tkjeo~-R.6Fkr_dyyD8pD6.Vvg9Bz1', 'https://oauth.omnisrv.com', 'Office365')");
+
+}
+
+$google_oauth_config = $adb->pquery("select * from vtiger_oauth_configuration where `type` = 'Google'");
+
+if(!$adb->num_rows($office365_oauth_config)){
+	$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`client_id`, `client_secret`, `redirect_url`, `type`) VALUES
+	('351655144405-57ht69f7s00p1llkmio1g0hmpj90s93v.apps.googleusercontent.com', 'O3zkjOncVkypopLQiFoz31f7', 'https://oauth.omnisrv.com', 'Google')");
+}
+
 
 
 $adb->pquery("ALTER TABLE `vtiger_inventorytaxinfo` ADD `method` VARCHAR(10) CHARACTER SET utf8 
