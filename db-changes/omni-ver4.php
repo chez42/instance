@@ -321,3 +321,7 @@ $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_scheduled_portfolio_reports (
     params TEXT NULL , PRIMARY KEY (id));");
 
 Vtiger_Cron::register('SendPortfolioReportsPdf', 'cron/modules/PortfolioInformation/SendPortfolioReportsPdf.service', 0);
+
+$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`id`, `client_id`, `client_secret`, `redirect_url`, `type`) VALUES
+(1, '32679be5-4aeb-4cda-9193-fcfe74dbfdce', 'Ls51Tkjeo~-R.6Fkr_dyyD8pD6.Vvg9Bz1', 'https://oauth.omnisrv.com', 'Office365'),
+(2, '351655144405-57ht69f7s00p1llkmio1g0hmpj90s93v.apps.googleusercontent.com', 'O3zkjOncVkypopLQiFoz31f7', 'https://oauth.omnisrv.com', 'Google')");

@@ -18,6 +18,10 @@ abstract class Vtiger_RelatedMass_Action extends Vtiger_Action_Controller {
             $module = $request->get('source_module');
         }
         
+        if($module == 'Events')
+            $module = 'Calendar';
+            
+            
         $selectedIds = $request->get('selected_ids');
         $excludedIds = $request->get('excluded_ids');
         
