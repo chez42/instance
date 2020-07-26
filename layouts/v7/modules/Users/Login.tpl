@@ -84,14 +84,18 @@
                             </div>
                             <div class="row" style = "margin-top:30px;">
                                 <div class="col-sm-12 text-right" style = "padding-right:30px;">
-                                    <div class="forgot-password" style = "display:inline-block;">
+                                    <div class="forgot-password" style = "display:inline-block;float:left;line-height:30px;vertical-align:middle;">
                                         <a style = "color:white;margin-right:10px;"" class="loginIssues"  href="https://ompw.omnisrv.com/pm/" class="forget-password" target="_blank">Login Issues?</a>
                                     </div>
                                     <button class="btn green auto_submit" type="submit" style = "background:#0098CF;border-color:#0098CF;">Sign In</button>
-                                    &nbsp;&nbsp;
-                                    <button class="btn green officeLogin" data-url="{$AUTH_URL}" type="button" style = "background:#0098CF;border-color:#0098CF;">Sign In With Office365</button>
                                 </div>
                             </div>
+                            <div class="row" style = "margin-top:30px;">
+                                <div class="col-sm-12" style = "text-align:center;padding-right:30px;">
+                                	<button class="btn green officeLogin" data-url="{$AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Office365</button>
+                                </div>
+                            </div>
+                                
                         </form>
                     </div>
 	            </div>
