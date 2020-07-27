@@ -161,6 +161,9 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
 	    $logoPath = $site_URL . '/' . $companyModuleModel->getLogoPath();
 	    foreach ($basicFields as $columnName => $value) {
 	        //For column logo we need place logo in content
+	        if($columnName == 'brochure')
+	            continue;
+	        
 	        if($columnName == 'logo'){
 	            $allFields[] = array($moduleName.':'. vtranslate($columnName, $qualifiedModule),"$$columnName$");
 	        } else {
@@ -182,4 +185,31 @@ class Settings_Workflows_Module_Model extends Settings_Vtiger_Module_Model {
 	    }
 	    return $allFields;
 	} 
+	
+	function getCompanyBrochure(){
+	    
+	    global $adb;
+	    
+	    $query = $adb->pquery("SELECT * FROM vtiger_attachments 
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_attachments.attachmentsid
+        INNER JOIN vtiger_organization_attachmentsrel ON 
+        vtiger_organization_attachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+        WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.setype = 'Company Brochure'");
+	    
+	    $allFiles = array();
+	    
+	    if($adb->num_rows($query)){
+	        
+	        for($i=0;$i<$adb->num_rows($query);$i++){
+	            
+	            $fileData = $adb->query_result_rowdata($query, $i);
+	            $allFiles[] = array('Company Files:'.substr($fileData['name'], 0, strpos($fileData['name'], ".")), "<a target='_blank' href='".$fileData['short_url']."'>".$fileData['name']."</a>");
+	            
+	        }
+	        
+	    }
+	   
+	    return $allFiles;
+	    
+	}
 }

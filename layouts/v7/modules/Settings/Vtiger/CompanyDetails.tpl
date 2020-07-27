@@ -62,9 +62,22 @@
 								{if $FIELD neq 'logoname' && $FIELD neq 'logo' }
 									<tr>
 										<td class="{$WIDTHTYPE} fieldLabel" style="width:25%"><label >{vtranslate($FIELD,$QUALIFIED_MODULE)}</label></td>
-										<td class="{$WIDTHTYPE}" style="word-wrap:break-word;">
-											{if $FIELD eq 'address'} {decode_html($MODULE_MODEL->get($FIELD))|nl2br} {else} {decode_html($MODULE_MODEL->get($FIELD))} {/if}
-										</td>
+										{if $FIELD eq 'brochure'}
+											<td class="{$WIDTHTYPE}" style="word-wrap:break-word;">
+												<table class="table">
+													{foreach key=ITER item=BRO_INFO from=$MODULE_MODEL->getCompanyBrochures()}
+														<tr>
+															<td>{$BRO_INFO['name']}</td>
+															<td><input type="button" id="{$BRO_INFO['attachmentsid']}" value="{vtranslate('LBL_DELETE','Vtiger')}" class="brochureDelete"></td>
+														</tr>
+													{/foreach}
+												</table>
+											</td>
+										{else}
+											<td class="{$WIDTHTYPE}" style="word-wrap:break-word;">
+												{if $FIELD eq 'address'} {decode_html($MODULE_MODEL->get($FIELD))|nl2br} {else} {decode_html($MODULE_MODEL->get($FIELD))} {/if}
+											</td>
+										{/if}
 									</tr>
 								{/if}
 							{/foreach}
@@ -106,6 +119,30 @@
 									<textarea class="form-control col-sm-6 resize-vertical" rows="2" name="{$FIELD}">{$MODULE_MODEL->get($FIELD)}</textarea>
 								{else if $FIELD eq 'website'}
 									<input type="text" class="inputElement" data-rule-url="true" name="{$FIELD}" value="{$MODULE_MODEL->get($FIELD)}"/>
+								{else if $FIELD eq 'brochure'}
+									
+									<div class="blockData">
+							            <table class="table table-bordered">
+							            	{foreach key=ITER item=BRO_INFO from=$MODULE_MODEL->getCompanyBrochures()}
+												<tr class="saved_files">
+													<td style="border-right-style: none;">{$BRO_INFO['name']}</td>
+													<td style="border-left-style: none;"><input type="button" id="{$BRO_INFO['attachmentsid']}" value="{vtranslate('LBL_DELETE','Vtiger')}" class="brochureDelete"></td>
+												</tr>
+											{/foreach}
+								            <tr id="row_bro" class="CloneCopy hide" data-row-num="0">
+												<td colspan='2'> <input type ="file" name="multiuploadFile" id="documents"/></td>
+											</tr>
+											<tr id="row_bro" class="multiFiles" data-row-num="0">
+												<td colspan='2'> <input type ="file" name="multiupload[]" id="documents"/></td>
+											</tr>
+										</table>
+										<div class="btn-toolbar">
+			                                 <span class="btn-group">
+												<button type="button" class="btn btn-default" id="addDocuments"  >
+													<i class="fa fa-plus"></i>&nbsp;&nbsp;<strong>{vtranslate('Add Document',$MODULE)}</strong>
+												</button>
+											</span>
+					                    </div>
 								{else}
 									<input type="text" {if $FIELD eq 'organizationname'} data-rule-required="true" {/if} class="inputElement" name="{$FIELD}" value="{$MODULE_MODEL->get($FIELD)}"/>
 								{/if}

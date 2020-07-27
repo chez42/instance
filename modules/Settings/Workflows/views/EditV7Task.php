@@ -217,6 +217,10 @@ class Settings_Workflows_EditV7Task_View extends Settings_Vtiger_Index_View {
 			}
 			$companyFields = Settings_Workflows_Module_Model::getCompanyMergeTagsInfo();
 			$viewer->assign('COMPANY_FIELDS',$companyFields);
+			
+			$companyBrochure = Settings_Workflows_Module_Model::getCompanyBrochure();
+			$viewer->assign('BROCHURES', $companyBrochure);
+			
 		}
         
 		$assigned_user_filed = $recordStructureInstance->getAllOwnerFields();

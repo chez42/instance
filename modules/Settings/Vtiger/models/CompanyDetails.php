@@ -30,7 +30,8 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'phone' => 'text',
 		'fax' => 'text',
 		'website' => 'text',
-		'vatid' => 'text' 
+		'vatid' => 'text',
+	    'brochure' => 'flie'
 	);
 
 	var $companyBasicFields = array(
@@ -44,7 +45,8 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'country' => 'text',
 		'phone' => 'text',
 		'fax' => 'text',
-		'vatid' => 'text'
+		'vatid' => 'text',
+	    'brochure' => 'flie'
 	);
 
 	var $companySocialLinks = array(
@@ -166,4 +168,85 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		$moduleModel->getFields();
 		return $moduleModel;
 	}
+	
+	public static function saveBrochure() {
+	    global $adb;
+	    foreach ($_FILES['multiupload'] as $key => $file){
+	       
+	        if($file['name'] != ''){
+	            
+	           $filename = $file['name'];
+	            
+	           $filetype = $file['type'];
+	           
+	           $filesize = $file['size'];
+	           
+	           $filetmp_name = $file['tmp_name'];
+	           
+	           $fileError = $file['error'];
+	           
+	           if($filesize > 0 && $fileError == 0){
+	               
+	               $save_doc = true;
+	               
+	               $upload_filepath = decideFilePath();
+	               
+	               $attachmentid = $adb->getUniqueID("vtiger_crmentity");
+	               
+	               $filename = sanitizeUploadFileName($filename, $upload_badext);
+	               $new_filename = $attachmentid.'_'.$filename;
+	               
+	               $upload_status = move_uploaded_file($filetmp_name,$upload_filepath.$new_filename);
+	               
+	               if($upload_status == 'true'){
+	                   
+    	               $date_var = $adb->formatDate(date('Y-m-d H:i:s'), true);
+    	               
+    	               $crmquery = "insert into vtiger_crmentity (crmid,setype,description,createdtime) values(?,?,?,?)";
+    	               $crmresult = $adb->pquery($crmquery, array($attachmentid, 'Company Brochure', $description, $date_var));
+    	               
+    	               $attachmentquery = "insert into vtiger_attachments(attachmentsid,name,description,type,path) values(?,?,?,?,?)";
+    	               $attachmentreulst = $adb->pquery($attachmentquery, array($attachmentid, $filename, $description, $filetype, $upload_filepath));
+	               
+    	               $options = array(
+    	                   'handler_path' => 'modules/Documents/handlers/DocumentViewer.php',
+    	                   'handler_class' => 'Documents_DocumentViewer_Handler',
+    	                   'handler_function' => 'documentview',
+    	                   'handler_data' => array(
+    	                       'documentId' => $attachmentid,
+    	                   )
+    	               );
+    	               
+    	               $trackURL = Vtiger_ShortURL_Helper::generateURL($options);
+    	               
+    	               $related_doc = 'INSERT INTO vtiger_organization_attachmentsrel(id, attachmentsid, short_url) 
+                        VALUES (?,?,?)';
+    	               $res = $adb->pquery($related_doc,array(1, $attachmentid, $trackURL));
+	               
+	               }
+	           }
+	        }
+	    }
+	}
+	
+	public static function getCompanyBrochures() {
+	
+	    $db = PearDatabase::getInstance();
+	    $fileDetails = array();
+	    
+	    $result = $db->pquery("SELECT * FROM vtiger_attachments
+		INNER JOIN vtiger_organization_attachmentsrel ON vtiger_organization_attachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+		WHERE id = ?", array(1));
+	    
+	    if($db->num_rows($result)) {
+	        for($f=0;$f<$db->num_rows($result);$f++){
+	           $fileDetails[] = $db->query_result_rowdata($result, $f);
+	        }
+	    }
+	    
+	    return $fileDetails;
+	
+	}
+	
+	
 }
