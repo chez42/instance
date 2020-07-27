@@ -109,12 +109,41 @@ Vtiger.Class("Settings_Vtiger_CompanyDetails_Js",{},{
             }
         });
     },
-	
+    
+	registercloneEvent : function() {
+		jQuery('#addDocuments').on('click',function() {
+		   jQuery(".CloneCopy").clone().appendTo(".table-bordered").removeClass('CloneCopy').
+		   removeClass('hide').addClass('multiFiles');
+		   jQuery('.multiFiles').find('[name="multiuploadFile"]').attr('name', 'multiupload[]');
+		});
+		
+		jQuery('.brochureDelete').on('click',function(){
+			app.helper.showProgress();
+			var id = $(this).attr('id');
+			var ele = $(this);
+			var params = {
+				'module' : app.getModuleName(),
+				'parent' : 'Settings',
+				'action': 'CompanyDetailsSave',
+				'attachmentid' : id,
+				'mode' : 'DeleteBrochure'
+			};
+			app.request.post({'data' : params}).then(
+				function(err, data) {
+	               if(data){
+	            	   ele.closest('tr').remove();
+	            	   app.helper.hideProgress();
+	               }
+				}
+			);
+		});
+	},
 	registerEvents: function() {
 		this.registerUpdateDetailsClickEvent();
 		this.registerSaveCompanyDetailsEvent();
 		this.registerCancelClickEvent();
 		this.registerCompanyLogoDimensionsValidation();
+		this.registercloneEvent();
 	}
 
 });

@@ -356,7 +356,10 @@ $adb->pquery("CREATE TABLE `vtiger_taxregions` ( `regionid` INT(10) NOT NULL AUT
 
 
 
-
+$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_organization_attachmentsrel (
+    id INT(19) NOT NULL , 
+    attachmentsid INT(19) NOT NULL,
+    short_url VARCHAR(255) NULL );");
 
 
 

@@ -141,6 +141,9 @@
 										{foreach key=index item=COMPANY_FIELD from=$COMPANY_FIELDS}
 	                                        <option value="{{$COMPANY_FIELD[1]}}">{$COMPANY_FIELD[0]}</option>
 	                                    {/foreach}
+	                                    {foreach key=index item=BROCHURE from=$BROCHURES}
+	                                        <option value="{{$BROCHURE[1]}}">{$BROCHURE[0]}</option>
+	                                    {/foreach}
                                     </optgroup>
                                     <optgroup label="{vtranslate('LBL_GENERAL_FIELDS', $MODULE)}">
 										{foreach from=$META_VARIABLES item=META_VARIABLE_KEY key=META_VARIABLE_VALUE}

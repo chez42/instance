@@ -11,7 +11,19 @@
 
 class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Action {
 
+    function __construct() {
+        parent::__construct();
+        $this->exposeMethod('DeleteBrochure');
+    }
+    
 	public function process(Vtiger_Request $request) {
+	    
+	    $mode = $request->getMode();
+	    if(!empty($mode)) {
+	        echo $this->invokeExposedMethod($mode, $request);
+	        return;
+	    }
+	    
 		$moduleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
 		$reloadUrl = $moduleModel->getIndexViewUrl();
 
@@ -30,6 +42,7 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
 	public function Save(Vtiger_Request $request) {
 		$moduleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
 		$status = false;
+		
 		if ($request->get('organizationname')) {
 			$saveLogo = $status = true;
 			if(!empty($_FILES['logo']['name'])) {
@@ -77,6 +90,12 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
 			$moduleModel->save();
 		}
 		if ($saveLogo && $status) {
+		   
+		    $_FILES = Vtiger_Util_Helper::transformUploadedFiles($_FILES, true);
+		    if(count($_FILES['multiupload'])){
+		        $moduleModel->saveBrochure();
+		    }
+		    
 			return ;
 		} else if (!$saveLogo) {
 			throw new Exception('LBL_INVALID_IMAGE',103);
@@ -91,4 +110,32 @@ class Settings_Vtiger_CompanyDetailsSave_Action extends Settings_Vtiger_Basic_Ac
 	public function validateRequest(Vtiger_Request $request) {
 		$request->validateWriteAccess();
 	}
+	
+	public function DeleteBrochure(Vtiger_Request $request){
+	    global $adb;
+	    
+	    $success = false;
+	    
+	    $attachId = $request->get('attachmentid');
+	    
+	    $adb->pquery("DELETE FROM vtiger_crmentity WHERE vtiger_crmentity.crmid = ?
+            AND vtiger_crmentity.setype = ?",array($attachId, 'Company Brochure'));
+	    
+	    $adb->pquery('DELETE FROM vtiger_attachments WHERE attachmentsid = ?', array($attachId));
+	    
+	    $delete = $adb->pquery("DELETE FROM vtiger_organization_attachmentsrel WHERE attachmentsid = ?",
+	        array($attachId));
+	    
+	    if(!$delete){
+	        $success = true;
+	    }
+	    
+	    
+	    $response = new Vtiger_Response();
+	    $response->setResult($success);
+	    $response->emit();
+	    
+	    
+	}
+	
 }

@@ -282,6 +282,7 @@ $languageStrings = array(
 	'facebook' => 'Facebook',
     'twitter' => 'Twitter',
     'linkedin' => 'LinkedIn',
+    'brochure' => 'Company Brochure',
 	'LBL_IMAGE_CORRUPTED' => 'Virus detected or Uploaded image corrupted',
 	'LBL_LOGO_RECOMMENDED_MESSAGE' => 'Allowed size 150X40 pixels( .jpeg , .jpg , .png , .gif , .pjpeg , .x-png format ).',
 	'LBL_COMPANY_INFORMATION' => 'Company Information',
