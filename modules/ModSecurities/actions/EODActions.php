@@ -15,6 +15,11 @@ spl_autoload_register(function ($className) {
 });
 
 class ModSecurities_EODActions_Action extends Vtiger_BasicAjax_Action {
+    static public function WriteEODToCRM($symbol){
+        $recordID = ModSecurities_Module_Model::GetSecurityIdBySymbol($symbol);
+        $record = ModSecurities_Record_Model::getInstanceById($recordID);
+
+    }
 
     public function process(Vtiger_Request $request) {
         $record = $request->get('record');

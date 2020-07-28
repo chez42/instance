@@ -989,4 +989,24 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
         return 1;
     }
 
+    /**
+     * Update the securitytype field based on the EOD full security list
+     * @param null $symbol
+     */
+    static public function UpdateSecurityTypesFromEODTable($symbol = null){
+        global $adb;
+        $where = "";
+        $params = array();
+
+        if(!is_null($symbol)){
+            $where = " WHERE m.security_symbol = ?";
+            $params[] = $symbol;
+        }
+        $query = "UPDATE vtiger_modsecurities m
+                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  JOIN custodian_omniscient.eod_securities eods ON eods.code = m.security_symbol
+                  JOIN custodian_omniscient.eod_type_mapping map ON map.eod_type = eods.type
+                  SET m.securitytype = map.omni_type {$where}";
+        $adb->pquery($query, $params);
+    }
 }
