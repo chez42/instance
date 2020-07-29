@@ -553,6 +553,21 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
         return 0;
     }
 
+    static public function GetAllSecuritySymbols()
+    {
+        global $adb;
+        $symbols = array();
+
+        $query = "SELECT security_symbol FROM vtiger_modsecurities";
+        $result = $adb->pquery($query, array(), true);
+        if($adb->num_rows($result) > 0) {
+            while ($v = $adb->fetchByAssoc($result)) {
+                $symbols[] = $v['security_symbol'];
+            }
+        }
+        return $symbols;
+    }
+
     static public function GetAllSecuritiesFromType(array $security_type){
         global $adb;
         $questions = generateQuestionMarks($security_type);

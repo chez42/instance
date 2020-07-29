@@ -1,10 +1,25 @@
 <?php
 
+class SplitsDividends{
+    public $ForwardAnnualDividendRate, $ForwardAnnualDividendYield, $PayoutRatio, $DividendDate, $ExDividendDate,
+           $LastSplitFactor, $LastSplitDate;
+
+    public function __construct($data){
+        $this->ForwardAnnualDividendRate = $data->ForwardAnnualDividendRate;
+        $this->ForwardAnnualDividendYield = $data->ForwardAnnualDividendYield;
+        $this->PayoutRatio = $data->PayoutRatio;
+        $this->DividendDate = $data->DividendDate;
+        $this->ExDividendDate = $data->ExDividendDate;
+        $this->LastSplitFactor = $data->LastSplitFactor;
+        $this->LastSplitDate = $data->LastSplitDate;
+    }
+}
+
 class Highlights{
-public $MarketCapitalization, $MarketCapitalizationMln, $EBITDA, $PERatio, $PEGRatio, $WallStreetTargetPrice, $BookValue, $DividendShare,
-       $DividendYield, $EarningsShare, $EPSEstimateCurrentYear, $EPSEstimateNextYear, $EPSEstimateNextQuarter, $EPSEstimateCurrentQuarter,
-       $MostRecentQuarter, $ProfitMargin, $OperatingMarginTTM, $ReturnOnAssetsTTM, $ReturnOnEquityTTM, $RevenueTTM, $RevenuePerShareTTM,
-       $QuarterlyRevenueGrowthYOY, $GrossProfitTTM, $DilutedEpsTTM, $QuarterlyEarningsGrowthYOY;
+    public $MarketCapitalization, $MarketCapitalizationMln, $EBITDA, $PERatio, $PEGRatio, $WallStreetTargetPrice, $BookValue, $DividendShare,
+           $DividendYield, $EarningsShare, $EPSEstimateCurrentYear, $EPSEstimateNextYear, $EPSEstimateNextQuarter, $EPSEstimateCurrentQuarter,
+           $MostRecentQuarter, $ProfitMargin, $OperatingMarginTTM, $ReturnOnAssetsTTM, $ReturnOnEquityTTM, $RevenueTTM, $RevenuePerShareTTM,
+           $QuarterlyRevenueGrowthYOY, $GrossProfitTTM, $DilutedEpsTTM, $QuarterlyEarningsGrowthYOY;
 
     public function __construct($data){
         $this->MarketCapitalization = $data->MarketCapitalization;
@@ -42,7 +57,7 @@ class TypeStock{
            $GicSubIndustry, $HomeCategory, $IsDelisted, $Description, $Address, $Officers, $Phone, $WebURL, $LogoURL, $FullTimeEmployees,
            $UpdatedAt, $asset_class;
 
-    public $highlights;
+    public $highlights, $SplitsDividends;
 
     public function __construct($stock_data){
         $this->Code = $stock_data->General->Code;
@@ -77,9 +92,57 @@ class TypeStock{
         $this->FullTimeEmployees = $stock_data->General->FullTimeEmployees;
         $this->UpdatedAt = $stock_data->General->UpdatedAt;
 
-        foreach($stock_data->Highlights AS $k => $v){//Fill in the highlights section
-            $this->highlights->$k = $stock_data->Highlights->$k;
-        }
+        $this->highlights = new Highlights($stock_data->Highlights);
+        $this->SplitsDividends = new SplitsDividends($stock_data->SplitsDividends);
+    }
 
+    public function UpdateIntoOmni(){
+        global $adb;
+        $query = "UPDATE vtiger_modsecurities m 
+                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid  
+                  SET  securitytype = ?, stock_exchange = ?, currency_code = ?, country = ?, isin = ?, cusip = ?, security_sector = ?, industrypl = ?, summary = ?, 
+                       market_capitalization = ?, ebitda = ?, peratio = ?, pegratio = ?, one_year_target_price = ?, book_value = ?, dividend_share = ?, 
+                       dividend_yield = ?, earnings_share = ?, eps_estimate_current_year = ?, eps_estimate_next_year = ?, eps_estimate_next_quarter = ?";
+/*
+                  SET securitytype = ?, security_name = ?, stock_exchange = ?, country = ?, summary = ?, Morning_Star_Category = ?, isin = ?, 
+                      dividend_yield = ?, pay_frequency = ?, us_stock = ?, intl_stock = ?, us_bond = ?, unclassified_net = ?, cash_net = ?, other_net = ?, 
+                      us_equity = ?, canada_equity = ?, Latin_America_equity = ?, UK_equity = ?, Europe_ex_euro_equity = ?, 
+                      Europe_Emerging_equity = ?, Africa_equity = ?, Middle_East_equity = ?, Japan_equity = ?, Australasia_equity = ?, 
+                      Asia_Developed_equity = ?, Asia_Emerging_equity = ?, Basic_Materials_Weight = ?, Consumer_Cyclical_Weight = ?, 
+                      Financial_Services_Weight = ?, Real_Estate_Weight = ?, Consumer_Defensive_Weight = ?, Healthcare_Weight = ?, 
+                      Utilities_Weight = ?, Energy_Weight = ?, Industrials_Weight = ?, Communication_Services_Weight = ?, technology_weight = ?,
+                      aclass = ?";
+        $set .= " securitytype = ?, stock_exchange = ?, currency_code = ?, country = ?, isin = ?, cusip = ?, security_sector = ?, industrypl = ?, summary = ?,
+                              market_capitalization = ?, ebitda = ?, peratio = ?, pegratio = ?, one_year_target_price = ?, book_value = ?, dividend_share = ?,
+                              dividend_yield = ?, earnings_share = ?, eps_estimate_current_year = ?, eps_estimate_next_year = ?, eps_estimate_next_quarter = ? ";
+*/
+        $params[] = $this->Type;
+        $params[] = $this->Name;
+        $params[] = $this->Exchange;
+        $params[] = $this->CurrencyCode;
+        $params[] = $this->CountryName;
+        $params[] = $this->ISIN;
+        $params[] = $this->CUSIP;
+        $params[] = $this->Sector;
+        $params[] = $this->Industry;
+        $params[] = $this->Description;
+
+        $params[] = $this->highlights->MarketCapitalization;
+        $params[] = $this->highlights->EBITDA;
+        $params[] = $this->highlights->PERatio;
+        $params[] = $this->highlights->PEGRatio;
+        $params[] = $this->highlights->WallStreetTargetPrice;
+        $params[] = $this->highlights->BookValue;
+        $params[] = $this->highlights->DividendShare;
+        $params[] = $this->Highlights->DividendYield;
+        $params[] = $this->Highlights->EarningsShare;
+        $params[] = $this->Highlights->EPSEstimateCurrentYear;
+        $params[] = $this->Highlights->EPSEstimateNextYear;
+        $params[] = $this->Highlights->EPSEstimateNextQuarter;
+
+        $set .= " securitytype = ?, stock_exchange = ?, currency_code = ?, country = ?, isin = ?, cusip = ?, security_sector = ?, industrypl = ?, summary = ?, 
+                              market_capitalization = ?, ebitda = ?, peratio = ?, pegratio = ?, one_year_target_price = ?, book_value = ?, dividend_share = ?, 
+                              dividend_yield = ?, earnings_share = ?, eps_estimate_current_year = ?, eps_estimate_next_year = ?, eps_estimate_next_quarter = ? ";
     }
 }
