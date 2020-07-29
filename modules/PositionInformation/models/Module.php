@@ -419,6 +419,6 @@ class PositionInformation_Module_Model extends Vtiger_Module_Model {
                   JOIN vtiger_modsecurities ms ON ms.security_symbol = posi.security_symbol
                   JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
                   SET cf.base_asset_class = mcf.aclass";
-        $adb->pquery($query, array());
+        $adb->pquery($query, array(), true);
     }
 }
