@@ -411,6 +411,14 @@ class PositionInformation_Module_Model extends Vtiger_Module_Model {
                   WHERE account_number IN({$questions})";
         $adb->pquery($query, array($account_numbers));
     }
-}
 
-?>
+    static public function UpdatePositionSecurityAttributes(){
+        global $adb;
+        $query = "UPDATE vtiger_positioninformation posi
+                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                  JOIN vtiger_modsecurities ms ON ms.security_symbol = posi.security_symbol
+                  JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  SET cf.base_asset_class = mcf.aclass";
+        $adb->pquery($query, array());
+    }
+}
