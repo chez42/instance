@@ -18,6 +18,8 @@ DEFINE("URI_FUNDAMENTALS","https://eodhistoricaldata.com/api/fundamentals");
 DEFINE("URI_DIVIDENDS", "https://eodhistoricaldata.com/api/div");
 DEFINE("URI_OPTIONS","https://eodhistoricaldata.com/api/options");
 DEFINE("URI_LOGOS","https://eodhistoricaldata.com");
+DEFINE("URI_TICKER","https://eodhistoricaldata.com/api/exchange-symbol-list");
+DEFINE("URI_EXCHANGES","https://eodhistoricaldata.com/api/exchanges-list");
 
 class cEodGuzzle{
     public $api_token, $uri_symbol;
@@ -141,5 +143,45 @@ class cEodGuzzle{
         return $res->getBody()->getContents();
     }
 
+    public function getTickers($exchange_code = "US"){
+        $options['api_token'] = $this->api_token;
+        try {
+            $res = $this->guz->get(URI_TICKER . "/{$exchange_code}", ['query' => $options]);
+        }catch(Exception $e){
+            echo 'no result';
+            return null;
+        }
+        return $res->getBody()->getContents();
+    }
 
+    /**
+     * Writes the getTickers result into the database
+     * @param $tickers
+     */
+    public function writeTickers($tickers){
+        global $adb;
+        $separator = "\r\n";
+        $line = strtok($tickers, $separator);//Separate the string into lines
+
+        while ($line !== false) {
+            $line = strtok( $separator );//Get the line
+            $params = str_getcsv($line);//Separate the line's CSV into an array
+            $questions = generateQuestionMarks($params);
+            $query = "INSERT INTO custodian_omniscient.eod_securities (code, name, country, exchange, currency, type)
+                      VALUES ({$questions})
+                      ON DUPLICATE KEY UPDATE type = VALUES(type)";
+            $adb->pquery($query, $params);
+        }
+    }
+
+    public function GetExchanges(){
+        $options['api_token'] = $this->api_token;
+        try {
+            $res = $this->guz->get(URI_EXCHANGES . "/", ['query' => $options]);
+        }catch(Exception $e){
+            echo 'no result';
+            return null;
+        }
+        return $res->getBody()->getContents();
+    }
 }
