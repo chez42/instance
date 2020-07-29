@@ -13,11 +13,155 @@ include_once("include/utils/cron/cTransactionsAccess.php");
 require_once("include/utils/cron/cPortfolioAccess.php");
 require_once("include/utils/cron/cPricingAccess.php");
 include_once("libraries/Stratifi/StratifiAPI.php");
+require_once("libraries/EODHistoricalData/EODGuzzle.php");
+
+spl_autoload_register(function ($className) {
+    if (file_exists("libraries/EODHistoricalData/$className.php")) {
+        include_once "libraries/EODHistoricalData/$className.php";
+    }
+});
 
 class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+#        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes(array("GOX"), '2016-01-01', '2020-07-27');
+echo "Start: " . Date("Y-m-d H:i:s") . '<br />';
+ob_flush();
+flush();
+
+        $writer = new OmniscientWriter();
+        $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
+        $etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
+
+        $limit = 50;
+        $count = 0;
+        foreach($etfs AS $k => $v){
+            if($count >= $limit)
+                continue;
+            $writer->WriteEodToOmni($v);
+            echo "Wrote " . $v . '<br />';
+            ob_flush();
+            flush();
+            $count++;
+        }
+
+echo "End: " . Date("Y-m-d H:i:s") . '<br />';
+ob_flush();
+flush();
+        echo 'done';exit;
+
+
+        $guz = new cEodGuzzle();
+        $writer = new OmnisolWriter();
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("AGG");
+
+#        $exchanges = $writer->GetAndWriteExchangeData();
+#        foreach($exchanges AS $k => $v) {
+#            print_r($v);
+#            echo '<br /><br />';
+#            $writer->GetAndWriteTickers('US');
+#        }
+        echo 'done';
+exit;
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("AGG");
+echo $type . '<br />';
+#        echo $type;exit;
+        $data = $guz->getFundamentals("AGG");
+        print_r($data);exit;
+/*        foreach($data->Highlights AS $k => $v){
+#            echo "$" . $k . ",";
+            echo '$this->' . $k . ' = $data->' . $k . ';';
+            echo "<br />";
+        }*/
+        $stock = new TypeStock($data);
+        $writer = new OmnisolWriter();
+#        print_r($data);
+        $writer->WriteNewStockData($stock);
+        print_r($stock);
+        echo 'check now';exit;
+
+
+        /**
+         * This section gets all of the different exchanges and a list of symbols within them.   With that list, it inserts them into
+         * the database.  We may be able to speed this up if we can import the CSV rather than loop through the individual lines
+         */
+        $writer = new OmnisolWriter();
+        $exchanges = $writer->GetAndWriteExchangeData();
+        foreach($exchanges AS $k => $v) {
+            $writer->GetAndWriteTickers($v->Code);
+        }
+        echo 'done';
+        exit;
+        /******************************************/
+
+        echo 'done';exit;
+
+
+        include_once("libraries/custodians/OptionsMapping.php");
+        $guz = new cEodGuzzle();
+#        $data = json_decode($guz->getFundamentals("AAPL"));
+#        print_r($data);exit;
+        exit;
+        $exchanges = json_decode($guz->GetExchanges());
+        foreach($exchanges AS $k => $v){
+            $res = $guz->getTickers($v->Code);
+            $guz->writeTickers($res);
+            echo $v->Code . ' Finished...<br />';
+        }
+        exit;
+
+        $guz->writeTicker($res);
+        echo 'check now';exit;
+##        print_r($res);exit;
+##        echo 'done';exit;
+
+        $data = json_decode($guz->getFundamentals("AAPL"));
+        foreach($data->Highlights AS $k => $v){
+#            echo "$" . $k . ",";
+            echo '$this->' . $k . ' = $data->' . $k . ';';
+            echo "<br />";
+        }
+
+        $stock = new TypeStock($data);
+
+        print_r($stock);exit;
+
+        $data = json_decode($guz->getFundamentals("AAPL"));
+        $fund = new TypeFund($data);
+        print_r($fund);exit;
+        foreach($data->MutualFund_Data AS $k => $v){
+            echo '$this->' . $k . ' = $fund_data->MutualFund_Data->' . $k . ';';
+            echo "<br />";
+        }
+#        $stock = new TypeStock($data);
+        exit;
+        foreach($data->MutualFund_Data->Asset_Allocation AS $k => $v){
+            foreach($v AS $a => $b){
+
+#                echo "$" . $a . ", ";
+/*                echo "$" . $k . ", ";
+                print_r($v);
+                echo $v->'Net_%' . '<br />';*/
+                echo "<br />";
+            }
+        }
+        echo ";";
+        exit;
+
+        $eod = json_decode($guz->getFundamentals("AGG"));
+        print_r($eod);exit;
+        /*
+        $price = json_decode($guz->getSymbolRealTimePricing("XOM"));
+print_r($price);exit;*/
+        #$option = OptionsMapping::MapToStandards("AAPL", 13, 11, 01, "C", 470*1000);
+        $option = OptionsMapping::MapTDToStandard("XOM AUG 18 2017 82.5 CALL");
+        $symbol = OptionsMapping::GetSymbolFromStandardizedOption($option);//Now XOM
+//        $eod = json_decode($guz->getOptions($symbol));
+
+        $op_data = json_decode($guz->getOptionContract($option));//This is the individual contract, but takes much longer
+
+print_r($op_data);exit;
         require_once("modules/PortfolioInformation/models/TWR.php");
         require_once("libraries/Reporting/ReportCommonFunctions.php");
         $twr = new TWR();
