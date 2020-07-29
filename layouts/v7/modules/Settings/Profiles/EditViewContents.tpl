@@ -130,7 +130,7 @@
 								</td>
 							{/foreach}
 							<td class="textAlignCenter">
-								{if ($PROFILE_MODULE->getFields() && $PROFILE_MODULE->isEntityModule() && $PROFILE_MODULE->isProfileLevelUtilityAllowed()) || $PROFILE_MODULE->isUtilityActionEnabled()}
+								{if ($PROFILE_MODULE->getFields() && ($PROFILE_MODULE->isEntityModule() || $PROFILE_MODULE->getName() eq 'EmailTemplates') && $PROFILE_MODULE->isProfileLevelUtilityAllowed()) || $PROFILE_MODULE->isUtilityActionEnabled()}
 									<button type="button" data-handlerfor="fields" data-togglehandler="{$TABID}-fields" class="btn btn-default btn-sm" style="padding-right: 20px; padding-left: 20px;">
 										<i class="fa fa-chevron-down"></i>
 									</button>
@@ -140,7 +140,7 @@
 						<tr class="hide">
 							<td colspan="6" class="row" style="padding-left: 5%;padding-right: 5%">
 								<div class="row" data-togglecontent="{$TABID}-fields" style="display: none">
-									{if $PROFILE_MODULE->getFields() && $PROFILE_MODULE->isEntityModule() }
+									{if $PROFILE_MODULE->getFields() && ($PROFILE_MODULE->isEntityModule() || $PROFILE_MODULE->getName() eq 'EmailTemplates')}
 										<div class="col-sm-12">
 											<label class="pull-left"><strong>{vtranslate('LBL_FIELDS',$QUALIFIED_MODULE)}{if $MODULE_NAME eq 'Calendar'} {vtranslate('LBL_OF', $MODULE_NAME)} {vtranslate('LBL_TASKS', $MODULE_NAME)}{/if}</strong></label>
 											<div class="pull-right">
