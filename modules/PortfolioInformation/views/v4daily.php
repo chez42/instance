@@ -1,5 +1,7 @@
 <?php
 if (ob_get_level() == 0) ob_start();
+ob_implicit_flush(true);
+ob_end_flush();
 
 /**
  * Created by PhpStorm.
@@ -34,7 +36,7 @@ flush();
         $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
         $etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
 
-        $limit = 50;
+        $limit = 500000;
         $count = 0;
         foreach($etfs AS $k => $v){
             if($count >= $limit)
@@ -45,6 +47,8 @@ flush();
             flush();
             $count++;
         }
+
+        PositionInformation_Module_Model::UpdatePositionSecurityAttributes();
 
 echo "End: " . Date("Y-m-d H:i:s") . '<br />';
 ob_flush();
