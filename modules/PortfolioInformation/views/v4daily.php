@@ -25,8 +25,50 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+#        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes(array("GOX"), '2016-01-01', '2020-07-27');
+echo "Start: " . Date("Y-m-d H:i:s") . '<br />';
+ob_flush();
+flush();
+
+        $writer = new OmniscientWriter();
+        $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
+        $etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
+
+        $limit = 50;
+        $count = 0;
+        foreach($etfs AS $k => $v){
+            if($count >= $limit)
+                continue;
+            $writer->WriteEodToOmni($v);
+            echo "Wrote " . $v . '<br />';
+            ob_flush();
+            flush();
+            $count++;
+        }
+
+echo "End: " . Date("Y-m-d H:i:s") . '<br />';
+ob_flush();
+flush();
+        echo 'done';exit;
+
+
         $guz = new cEodGuzzle();
-        $data = json_decode($guz->getFundamentals("AAPL"));
+        $writer = new OmnisolWriter();
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("AGG");
+
+#        $exchanges = $writer->GetAndWriteExchangeData();
+#        foreach($exchanges AS $k => $v) {
+#            print_r($v);
+#            echo '<br /><br />';
+#            $writer->GetAndWriteTickers('US');
+#        }
+        echo 'done';
+exit;
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("AGG");
+echo $type . '<br />';
+#        echo $type;exit;
+        $data = $guz->getFundamentals("AGG");
+        print_r($data);exit;
 /*        foreach($data->Highlights AS $k => $v){
 #            echo "$" . $k . ",";
             echo '$this->' . $k . ' = $data->' . $k . ';';
