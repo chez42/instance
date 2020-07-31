@@ -117,6 +117,7 @@ class TypeETF{
         $this->cash = $this->ETFData->asset_allocation["Cash"]->net_assets;
         $this->unclass = $this->ETFData->asset_allocation["NotClassified"]->net_assets;
         $this->other = $this->ETFData->asset_allocation["Other"]->net_assets;
+        //Take the asset allocations and put them in an array, then determine which the biggest is to define the asset class
         $combined = array("Stocks" => $this->stock,
                           "Bonds" => $this->bond,
                           "Cash" => $this->cash,
@@ -179,13 +180,13 @@ class TypeETF{
         $params[] = $this->ETFData->sector_weights['Consumer Cyclicals']->equity;
         $params[] = $this->ETFData->sector_weights['Financial Services']->equity;
         $params[] = $this->ETFData->sector_weights['Real Estate']->equity;
-        $params[] = $this->ETFData->sector_weights['Communication Services']->equity;
-        $params[] = $this->ETFData->sector_weights['Energy']->equity;
-        $params[] = $this->ETFData->sector_weights['Industrials']->equity;
-        $params[] = $this->ETFData->sector_weights['Technology']->equity;
         $params[] = $this->ETFData->sector_weights['Consumer Defensive']->equity;
         $params[] = $this->ETFData->sector_weights['Healthcare']->equity;
         $params[] = $this->ETFData->sector_weights['Utilities']->equity;
+        $params[] = $this->ETFData->sector_weights['Energy']->equity;
+        $params[] = $this->ETFData->sector_weights['Industrials']->equity;
+        $params[] = $this->ETFData->sector_weights['Communication Services']->equity;
+        $params[] = $this->ETFData->sector_weights['Technology']->equity;
 
         $params[] = $this->asset_class;
         $params[] = $this->frequency;

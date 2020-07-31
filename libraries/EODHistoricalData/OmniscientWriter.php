@@ -11,12 +11,22 @@ class OmniscientWriter{
     public function WriteEodToOmni($symbol){
        $last_year_start = date("Y-01-01", strtotime("-1 years"));
        $last_year_end = date("Y-12-31", strtotime("-1 years"));
-       $type = OmnisolReader::DetermineSecurityTypeGivenByEOD($symbol);
+       $type = OmnisolReader::DetermineSecurityTypeGivenByEOD($symbol, "USA");
+       if(!$type){
+           $tmp = json_decode($this->guz->getFundamentals($symbol));
+           $type = $tmp->General->Type;
+       }
        switch(strtolower($type)){
            case "etf":
-               $etf = json_decode($this->guz->getFundamentals($symbol));
+               $etf = $this->guz->getFundamentals($symbol);
                $div = json_decode($this->guz->getDividends($symbol, "US", $last_year_start, $last_year_end));
                $data = new TypeETF($etf, $div);
+               $data->UpdateIntoOmni();
+               break;
+           case "fund":
+               $fund = json_decode($this->guz->getFundamentals($symbol));
+               $div = json_decode($this->guz->getDividends($symbol, "US", $last_year_start, $last_year_end));
+               $data = new TypeFund($fund, $div);
                $data->UpdateIntoOmni();
                break;
            case "stock":
@@ -28,7 +38,8 @@ class OmniscientWriter{
                print_r($data);exit;
 #               $data->UpdateIntoOmni();
 
-           echo 'here';exit;
+            default:
+
                break;
        }
     }
