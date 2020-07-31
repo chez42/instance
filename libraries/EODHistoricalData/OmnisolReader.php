@@ -17,13 +17,20 @@ class OmnisolReader{
      * @return string|string[]|null
      * @throws Exception
      */
-    static public function DetermineSecurityTypeGivenByEOD($symbol){
+    static public function DetermineSecurityTypeGivenByEOD($symbol, $country=null){
         global $adb;
+        $params = array();
+        $params[] = $symbol;
+        if($country){
+            $country = " AND country_name = ? ";
+            $params[] = $country;
+        }
         $query = "SELECT st.type AS type
                   FROM omnisol.securities s
                   JOIN omnisol.security_type st ON s.security_type_id = st.id
-                  WHERE s.symbol = ?";
-        $result = $adb->pquery($query, array($symbol));
+                  JOIN omnisol.security_country sc ON sc.id = s.country_id
+                  WHERE s.symbol = ? {$country}";
+        $result = $adb->pquery($query, $params);
         if($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'type');
         return null;
