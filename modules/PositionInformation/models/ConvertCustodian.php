@@ -461,7 +461,7 @@ class PositionInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 			$params[] = $acc;
 		}
 		$datefield = "as_of_date";
-		switch($custodian){
+		switch(strtolower($custodian)){
 			case "fidelity":
 				$datefield = "as_of_date";
 				break;
