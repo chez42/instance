@@ -120,7 +120,7 @@ class cTDSecurities extends cCustodian {
             $params[] = $data->interest_rate;
             $params[] = $data->interest_rate;
             $params[] = ($data->multiplier != 0) ? $data->multiplier : 1;
-            $params[] = $data->omni_base_asset_class;
+//            $params[] = $data->omni_base_asset_class;  -- Removed due to EOD having better data than the files
             $params[] = $data->factor;
             $params[] = $data->filename;
             $params[] = $this->ConvertMDYtoYMD($data->first_coupon);
@@ -134,7 +134,7 @@ class cTDSecurities extends cCustodian {
                       JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
                       JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid
                       SET m.security_price = ?, m.last_update = NOW(), m.maturity_date = ?, 
-                          cf.dividend_share = ?, cf.interest_rate = ?, m.interest_rate = ?, cf.security_price_adjustment = ?, cf.aclass = ?, 
+                          cf.dividend_share = ?, cf.interest_rate = ?, m.interest_rate = ?, cf.security_price_adjustment = ?,
                           m.asset_backed_factor = ?, m.source = ?, 
                           cf.first_coupon_date = ?, cf.call_date = ?, cf.call_price = ?, cf.issue_date = ?, cf.share_per_contract = ?
                       WHERE m.security_symbol = ?";

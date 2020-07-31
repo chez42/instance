@@ -31,7 +31,7 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'fax' => 'text',
 		'website' => 'text',
 		'vatid' => 'text',
-	    'brochure' => 'flie'
+	    'brochure' => 'file'
 	);
 
 	var $companyBasicFields = array(
@@ -46,7 +46,7 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'phone' => 'text',
 		'fax' => 'text',
 		'vatid' => 'text',
-	    'brochure' => 'flie'
+	    'brochure' => 'file'
 	);
 
 	var $companySocialLinks = array(
@@ -131,8 +131,10 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 
 			$query = "UPDATE $tableName SET ";
 			foreach ($fieldsList as $fieldName => $fieldType) {
-				$query .= " $fieldName = ?, ";
-				array_push($params, $this->get($fieldName));
+			    if($fieldName != 'brochure'){
+				    $query .= " $fieldName = ?, ";
+				    array_push($params, $this->get($fieldName));
+			    }
 			}
 			$query .= " logo = NULL WHERE organization_id = ?";
 
@@ -142,7 +144,9 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 
 			$query = "INSERT INTO $tableName (";
 			foreach ($fieldsList as $fieldName => $fieldType) {
-				$query .= " $fieldName,";
+			    if($fieldName != 'brochure'){
+				    $query .= " $fieldName,";
+			    }
 			}
 			$query .= " organization_id) VALUES (". generateQuestionMarks($params). ", ?)";
 
