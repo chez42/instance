@@ -1,0 +1,35 @@
+<?php
+require_once("libraries/EODHistoricalData/EODGuzzle.php");
+
+spl_autoload_register(function ($className) {
+    if (file_exists("libraries/EODHistoricalData/$className.php")) {
+        include_once "libraries/EODHistoricalData/$className.php";
+    }
+});
+
+$writer = new OmniscientWriter();
+$symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
+$limit = 500000;
+$count = 0;
+$etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
+$count = 0;//Reset the counter
+foreach($etfs AS $k => $v){
+    if($count >= $limit)
+        continue;
+    $writer->WriteEodToOmni($v);
+    echo "Wrote " . $v . '<br />';
+    $count++;
+}
+
+$funds = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "fund");
+$count = 0;//Reset the counter
+foreach($funds AS $k => $v){
+    if($count >= $limit)
+        continue;
+    $writer->WriteEodToOmni($v);
+    echo "Wrote " . $v . '<br />';
+    $count++;
+}
+
+PositionInformation_Module_Model::UpdatePositionSecurityAttributes();
+echo 'All Done';exit;
