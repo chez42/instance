@@ -418,7 +418,9 @@ class PositionInformation_Module_Model extends Vtiger_Module_Model {
                   JOIN vtiger_positioninformationcf cf USING (positioninformationid)
                   JOIN vtiger_modsecurities ms ON ms.security_symbol = posi.security_symbol
                   JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
-                  SET cf.base_asset_class = mcf.aclass";
+                  JOIN vtiger_portfolioinformation p ON p.account_number = posi.account_number
+                  JOIN vtiger_portfolioinformationcf pcf USING (portfolioinformationid)
+                  SET cf.base_asset_class = mcf.aclass, posi.contact_link = p.contact_link, posi.household_account = p.household_account";
         $adb->pquery($query, array(), true);
     }
 }
