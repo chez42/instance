@@ -192,6 +192,9 @@ class TypeETF{
         $params[] = $this->frequency;
         $params[] = $this->Code;
 
-        $adb->pquery($query, $params, true);
+/*foreach($params AS $k => $v){
+    echo "'" . $v . "'" . '<br />';
+
+exit;*/        $adb->pquery($query, $params, true);
     }
 }
