@@ -1,0 +1,4 @@
+<?php
+
+$symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
+ModSecurities_OmniToOmniTransfer_Model::CopyFromInstance("live_omniscient", $symbols);
