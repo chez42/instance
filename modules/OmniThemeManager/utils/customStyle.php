@@ -256,7 +256,7 @@ tbody .ps__thumb-y{
 	color: black;
 }
 
-#navbar li a:hover, #navbar li a:hover i, #navbar li a:hover span, #navbar li a:hover, #navbar li .col-lg-4:hover i, #navbar li .col-lg-4:hover .quick-create-module, #navbar li a:hover, #navbar li .col-lg-4:hover i, #navbar li .col-lg-4:hover .quick-create-module{
+#navbar li a:not(.notification_link):hover, #navbar li a:not(.notification_link):hover i, #navbar li a:not(.notification_link):hover span, #navbar li a:not(.notification_link):hover, #navbar li .col-lg-4:hover i, #navbar li .col-lg-4:hover .quick-create-module, #navbar li a:not(.notification_link):hover, #navbar li .col-lg-4:hover i, #navbar li .col-lg-4:hover .quick-create-module{
 	color: <?= $text_contrast ?> !important;
 }
 
