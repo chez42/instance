@@ -103,6 +103,9 @@ class ModSecurities_EODActions_Action extends Vtiger_BasicAjax_Action {
                         $this->ShowBondData($symbol);
                         return;
                     break;
+                    case "etf":
+                        $this->ShowETFData($symbol);
+                        return;
                     default:
                         $this->ShowOmniData($symbol);
                         return;
@@ -168,6 +171,27 @@ class ModSecurities_EODActions_Action extends Vtiger_BasicAjax_Action {
         $output = $viewer->view('StockPopup.tpl', "ModSecurities", true);
         echo $output;
         return;
+    }
+
+    public function ShowETFData($symbol){
+        $viewer = new Vtiger_Viewer();
+        $guz = new cEodGuzzle();
+        $data = json_decode($guz->getFundamentals($symbol));
+        $price = json_decode($guz->getSymbolRealTimePricing($symbol));
+        $fund = new TypeETF($data);
+        $fund->as_of = date("m/d/Y H:i:s", $price->timestamp);
+        $fund->price = $price->close;
+        $fund->change = $price->change;
+        $fund->change_percent = $price->change_p;
+
+        if(!isset($data)){
+            $this->ShowOmniData($symbol);
+            return;
+        }
+
+        $viewer->assign("ETF", $fund);
+        $output = $viewer->view('ETFPopup.tpl', "ModSecurities", true);
+        echo $output;
     }
 
     public function ShowBondData($symbol){

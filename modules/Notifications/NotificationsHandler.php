@@ -94,7 +94,7 @@ function createNotificationForPortalComments($entityData){
                 <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
             }
         }else{
-            $fullName = getUserFullName($current_user->id);
+            $fullName = getUserFullName($ownerId);
             if(getSalesEntityType($parentRecord) == 'Contacts'){
                 $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. ' send a new message.&nbsp;</span>
                 <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
@@ -153,7 +153,7 @@ function createNotificationForPortalDocuments($entityData){
                 <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;
             }
         }else{
-            $fullName = getUserFullName($current_user->id);
+            $fullName = getUserFullName($ownerId);
             if(getSalesEntityType($parentRecord) == 'Contacts'){
                 $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. ' added new document.&nbsp;</span>
                 <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;

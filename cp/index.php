@@ -310,7 +310,7 @@
                     		</div>
                 		<?php }?>
                 		<?php if(in_array('HelpDesk', $avmod)){
-                		    if(!empty($ticketStatus)){
+                		    //if(!empty($ticketStatus)){
                 		?>
                 			<div data-gs-id="ticketbystatus" id="ticketbystatus" 
                     			data-gs-x=<?php echo $widgetsPosition['ticketbystatus']['row'] ? $widgetsPosition['ticketbystatus']['row'] : 0;?> 
@@ -347,8 +347,8 @@
                         		
                         		</div>
                         	</div>    
-                    	<?php }?>  
-                    	<?php if(!empty($ticketTime)){?>
+                    	<?php //}?>  
+                    	<?php //if(!empty($ticketTime)){?>
                         	<div data-gs-id="ticketbytimespent" id="ticketbytimespent" 
                     			data-gs-x=<?php echo $widgetsPosition['ticketbytimespent']['row'] ? $widgetsPosition['ticketbytimespent']['row'] : 0;?> 
                     			data-gs-y=<?php echo $widgetsPosition['ticketbytimespent']['col'] ? $widgetsPosition['ticketbytimespent']['col'] : 0;?> 
@@ -383,7 +383,7 @@
                         			</div>
                         		</div>
                         	</div> 
-                    	<?php }?>
+                    	<?php //}?>
                     	<?php if(!empty($ticketProgress)){?>
                         	<div data-gs-id="ticketbyprogress" id="ticketbyprogress" 
                     			data-gs-x=<?php echo $widgetsPosition['ticketbyprogress']['row'] ? $widgetsPosition['ticketbyprogress']['row'] : 0;?> 
@@ -410,7 +410,7 @@
                         		</div>
                         	</div>    
                     	<?php }?>
-                    	<?php if(!empty($ticketType)){?>
+                    	<?php //if(!empty($ticketType)){?>
                         	<div data-gs-id="ticketbytype" id="ticketbytype" 
                     			data-gs-x=<?php echo $widgetsPosition['ticketbytype']['row'] ? $widgetsPosition['ticketbytype']['row'] : 0;?> 
                     			data-gs-y=<?php echo $widgetsPosition['ticketbytype']['col'] ? $widgetsPosition['ticketbytype']['col'] : 0;?> 
@@ -445,7 +445,7 @@
                         			</div>
                         		</div>
                         	</div>    
-                    	<?php }
+                    	<?php //}
                 		}
             		      ?>  
                 		</div>

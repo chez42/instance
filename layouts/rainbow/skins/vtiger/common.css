@@ -8907,7 +8907,7 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 	min-height: 38px;
 }
 
-#navbar li a:hover, #navbar li .col-lg-4:hover i,  #navbar li .col-lg-4:hover .quick-create-module {
+#navbar li a:not(.notification_link):hover, #navbar li .col-lg-4:hover i,  #navbar li .col-lg-4:hover .quick-create-module {
 	background: transparent;
 	color: white !important;
 }

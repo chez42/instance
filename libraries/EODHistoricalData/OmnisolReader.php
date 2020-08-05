@@ -22,15 +22,15 @@ class OmnisolReader{
         $params = array();
         $params[] = $symbol;
         if($country){
-            $country = " AND country_name = ? ";
+            $and = " AND country_name = ? ";
             $params[] = $country;
         }
         $query = "SELECT st.type AS type
                   FROM omnisol.securities s
                   JOIN omnisol.security_type st ON s.security_type_id = st.id
                   JOIN omnisol.security_country sc ON sc.id = s.country_id
-                  WHERE s.symbol = ? {$country}";
-        $result = $adb->pquery($query, $params);
+                  WHERE s.symbol = ? {$and}";
+        $result = $adb->pquery($query, $params, true);
         if($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'type');
         return null;
@@ -42,7 +42,7 @@ class OmnisolReader{
      * @param $input_symbols
      * @param $type
      */
-    static public function MatchSymbolsOfSecurityType(array $input_symbols, $type, $exchange=null){
+    static public function MatchSymbolsOfSecurityType(array $input_symbols, $type, $exchange=null, $country=null){
         global $adb;
         $questions = generateQuestionMarks($input_symbols);
 
@@ -50,12 +50,20 @@ class OmnisolReader{
         $params[] = $type;
 
         $join_q = $exchange_q = "";
+        $and = "";
 
         if($exchange) {
             $params[] = $exchange;
             $join_q .= " JOIN omnisol.security_exchange se ON se.id = s.exchange_id ";
-            $exchange = " AND se.code = ?";
+            $and .= " AND se.code = ? ";
         }
+
+        if($country) {
+            $params[] = $country;
+            $join_q .= " JOIN omnisol.security_country co ON co.id = s.country_id ";
+            $and .= " AND se.code = ? ";
+        }
+
         $params[] = $input_symbols;
 
         $query = "SELECT symbol 
