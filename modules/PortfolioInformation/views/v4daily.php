@@ -27,6 +27,57 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+/*        $guz = new cEodGuzzle();
+        $data = json_decode($guz->getFundamentals("HYG"));
+        $div = json_decode($guz->getDividends("HYG", "US", '2019-01-01', '2019-12-31'));
+
+        $fund = new TypeETF($data, $div);
+        print_r($fund);
+        $fund->UpdateIntoOmni();
+echo 'done';
+        exit;
+
+echo 'test';exit;*/
+
+        $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
+        ModSecurities_OmniToOmniTransfer_Model::CopyFromInstance("live_omniscient", $symbols);
+        echo 'now check';exit;
+        $limit = 50000;
+        $count = 0;
+        $etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
+        $count = 0;//Reset the counter
+/*        foreach($etfs AS $k => $v){
+            if($count >= $limit)
+                continue;
+            $writer->WriteEodToOmni($v);
+            echo "Wrote " . $v . '<br />';
+            $count++;
+        }*/
+
+        echo "Start Funds: " . Date("Y-m-d H:i:s") . '<br />';
+        $funds = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "fund");
+        $count = 0;//Reset the counter
+        foreach($funds AS $k => $v){
+            if($count >= $limit)
+                continue;
+            $writer->WriteEodToOmni($v);
+            echo "Wrote " . $v . '<br />';
+            $count++;
+        }
+        echo "Finished Funds: " . Date("Y-m-d H:i:s") . '<br />';
+        echo "Start Update Attributes: " . Date("Y-m-d H:i:s") . '<br />';
+        PositionInformation_Module_Model::UpdatePositionSecurityAttributes();
+        echo "Finished Update Attributes: " . Date("Y-m-d H:i:s") . '<br />';
+        echo 'All Done';exit;
+
+        $guz = new cEodGuzzle();
+        $data = json_decode($guz->getFundamentals("VTSAX"));
+        $div = json_decode($guz->getDividends("VTSAX", "US", '2019-01-01', '2019-12-31'));
+        $fund = new TypeFund($data, $div);
+        $fund->UpdateIntoOmni();
+        print_r($fund);exit;
+
+
 #        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes(array("GOX"), '2016-01-01', '2020-07-27');
 echo "Start: " . Date("Y-m-d H:i:s") . '<br />';
 ob_flush();
