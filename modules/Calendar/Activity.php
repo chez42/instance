@@ -419,17 +419,17 @@ function insertIntoRecurringTable(& $recurObj)
 			        $query="INSERT INTO vtiger_invitees VALUES (?,?,?)";
     				$adb->pquery($query, array($this->id, $inviteeid, 'sent'));
     				
-    				$title = '<div class="pull-left" style="margin: 7px 5px 0px 0px !important;">
-                        <i class="vicon-calendar" title="Events" style="font-size: 1.5rem !important;"></i>
-                    </div>
-                    <div>
-                          <span class="notification_full_name" title="New Event Invitation"> New Event Invitation.&nbsp;</span>
-                          <span class="notification_description" title="'.getUserFullName($current_user->id).'  has sent you invitation for '. $this->column_fields['subject'] .'">' .substr('<b>'.getUserFullName($current_user->id).'</b>  has sent you invitation for <b>'. $this->column_fields['subject'].'</b>',0,35). '...&nbsp;</span>' ;
+    				$title = 'New Event Invitation.';
+                    $description = '<b>'.getUserFullName($current_user->id).'</b>  has sent you invitation for <b>'. $this->column_fields['subject'].'</b>' ;
     				
     				$notification = CRMEntity::getInstance('Notifications');
     				$notification->column_fields['related_to'] = $this->id;
     				$notification->column_fields['assigned_user_id'] = $inviteeid;
-    				$notification->column_fields['description'] = $title;
+    				$notification->column_fields['description'] = $description;
+    				
+    				$notification->column_fields['title'] = $title;
+    				$notification->column_fields['notification_type'] = 'Event Invitation';
+    				
     				$notification->column_fields['source'] = 'PORTAL'; 
     				$notification->save('Notifications');
     				

@@ -16,6 +16,7 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         $this->exposeMethod("replyForComment");
         $this->exposeMethod("discardAllNotifications");
         $this->exposeMethod("eventInvitations");
+        $this->exposeMethod('getEventData');
     }
     
     
@@ -96,7 +97,7 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
                 "description" => html_entity_decode($n->get("description")), "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
                 "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, 
                 "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$n->get('related_record'), 
-                "relatedToModule" => $relatedToModule, "accepted" => $accepted);
+                "relatedToModule" => $relatedToModule, "accepted" => $accepted, "title"=>$n->get('title'));
         }
         
         $data["items"] = $items;
@@ -170,6 +171,55 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         }
         
         $response->setResult(array('success'=>true));
+        $response->emit();
+        
+    }
+    
+    public function getEventData(Vtiger_Request $request){
+        
+        $record = $request->get('record');
+        $sourceModule = $request->get('source_module');
+        $response = new Vtiger_Response();
+        
+      
+        $recordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
+        $data = $recordModel->getData();
+        
+        $contactLink = '';
+        foreach($recordModel->getRelatedToContactIdList($data['id']) as $key => $contacts){
+            
+            $cntModel = Vtiger_Record_Model::getInstanceById($contacts);
+            if($key)
+                $contactLink .= ', ';
+            $permitted = Users_Privileges_Model::isPermitted("Contacts", 'DetailView', $contacts);
+            if($permitted) {
+                $contactLink .= '<a target="_blank" style="color:#3b78d4" href="'.$cntModel->getDetailViewUrl().'" title="Contacts">'.$cntModel->get('firstname').' '.$cntModel->get('lastname').'</a>';
+            }else{
+                $contactLink .= $cntModel->get('firstname').' '.$cntModel->get('lastname');
+            }
+        }
+        
+        $parentLink = '';
+        if($data['parent_id']){
+            $parentModel = Vtiger_Record_Model::getInstanceById($data['parent_id']);
+            $permitted = Users_Privileges_Model::isPermitted(getSalesEntityType($data['parent_id']), 'DetailView', $data['parent_id']);
+            if($permitted) {
+                $parentLink = '<a target="_blank" style="color:#3b78d4" href="'.$parentModel->getDetailViewUrl().'" title="'.getSalesEntityType($data['parent_id']).'">'.Vtiger_Functions::getCRMRecordLabel($data['parent_id']).'</a>';
+            }else{
+                $parentLink = Vtiger_Functions::getCRMRecordLabel($data['parent_id']);
+            }
+        }
+        $data['contactsLink'] = $contactLink;
+        $data['parentLink'] = $parentLink;
+        
+        $data['startDate'] = Vtiger_Datetime_UIType::getDisplayValue($data['date_start'].' '.$data['time_start']);
+        $data['endDate'] = Vtiger_Datetime_UIType::getDisplayValue($data['due_date'].' '.$data['time_end']);
+        
+        if(!empty($data)){
+            $response->setResult(array('success'=>true, 'data'=>array_map('decode_html',$data)));
+        } else {
+            $response->setResult(array('success'=>false, 'message'=>vtranslate('LBL_PERMISSION_DENIED')));
+        }
         $response->emit();
         
     }
