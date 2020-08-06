@@ -85,23 +85,27 @@ function createNotificationForPortalComments($entityData){
             
             if(getSalesEntityType($parentRecord) == 'Contacts'){
                 $fullName = Vtiger_Functions::getCRMRecordLabel($parentRecord);
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. ' send a new message.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
+                $title = $fullName. ' send a new message.';
+                $description = $entityData->get('commentcontent') ;
+                $type = 'Message Recieved';
             }else if(getSalesEntityType($parentRecord) == 'HelpDesk'){
                 $fullName = Vtiger_Functions::getCRMRecordLabel($entityData->get('customer'));
                 $ticketName = Vtiger_Functions::getCRMRecordLabel($parentRecord);
-                $title = '<div class="pull-left"  style="margin: 7px 0px 0px 0px !important;"><i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$ticketName.'"> ' .$fullName. ' commented on ticket '.$ticketName.'.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
+                $title = $fullName. ' commented on ticket '.$ticketName.'.';
+                $description = $entityData->get('commentcontent');
+                $type = 'New Comment Added';
             }
         }else{
             $fullName = getUserFullName($ownerId);
             if(getSalesEntityType($parentRecord) == 'Contacts'){
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. ' send a new message.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
+                $title = $fullName. ' send a new message.';
+                $description = $entityData->get('commentcontent');
+                $type = 'Message Recieved';
             }else if(getSalesEntityType($parentRecord) == 'HelpDesk'){
                 $ticketName = Vtiger_Functions::getCRMRecordLabel($parentRecord);
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$ticketName.'"> ' .$fullName. ' commented on ticket '.$ticketName.'.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('commentcontent') .'">' .$entityData->get('commentcontent'). '&nbsp;</span>' ;
+                $title = $fullName. ' commented on ticket '.$ticketName.'.';
+                $description = $entityData->get('commentcontent') ;
+                $type = 'New Comment Added';
             }
         }
         
@@ -110,7 +114,10 @@ function createNotificationForPortalComments($entityData){
         $notifications->column_fields['assigned_user_id'] = $ownerId;
         $notifications->column_fields['related_to'] = $parentRecord;
         
-        $notifications->column_fields['description'] = $title;
+        $notifications->column_fields['title'] = $title;
+        $notifications->column_fields['notification_type'] = $type;
+        
+        $notifications->column_fields['description'] = $description;
         if($entityData->get('customer'))
             $notifications->column_fields['source'] = 'PORTAL';
         $notifications->column_fields['related_record'] = $entityId;
@@ -142,32 +149,36 @@ function createNotificationForPortalDocuments($entityData){
         if($entityData->get('from_portal')){
             
             if(getSalesEntityType($parentRecord) == 'Contacts'){
-                $fullName = Vtiger_Functions::getCRMRecordLabel($parentRecord).' added new document ';
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. '.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;
+                $fullName = Vtiger_Functions::getCRMRecordLabel($parentRecord).' added new document.';
+                $title = $fullName;
+                $description = $entityData->get('filename') ;
             }else if(getSalesEntityType($parentRecord) == 'HelpDesk'){
                 $conIdParts = explode('x', $entityData->get('contactid'));
                 $fullName = Vtiger_Functions::getCRMRecordLabel($conIdParts[1]);
                 $ticketName = Vtiger_Functions::getCRMRecordLabel($parentRecord);
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$ticketName.'"> ' .$fullName. ' added new document for '.$ticketName.'.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;
+                $title = $fullName. ' added new document for '.$ticketName.'.';
+                $description = $entityData->get('filename') ;
             }
         }else{
             $fullName = getUserFullName($ownerId);
             if(getSalesEntityType($parentRecord) == 'Contacts'){
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$fullName.'"> ' .$fullName. ' added new document.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;
+                $title = $fullName. ' added new document.';
+                $description = $entityData->get('filename');
             }else if(getSalesEntityType($parentRecord) == 'HelpDesk'){
                 $ticketName = Vtiger_Functions::getCRMRecordLabel($parentRecord);
-                $title = '<div class="pull-left" style="margin: 7px 0px 0px 0px !important;"><i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i></div><div><span class="notification_full_name" title="'.$ticketName.'"> ' .$fullName. ' added new document for '.$ticketName.'.&nbsp;</span>
-                <span class="notification_description" title="'. $entityData->get('notes_title') .'">' .$entityData->get('filename'). '&nbsp;</span>' ;
+                $title = $fullName. ' added new document for '.$ticketName.'.';
+                $description = $entityData->get('filename');
             }
         }
        
         $notifications = CRMEntity::getInstance('Notifications');
         $notifications->column_fields['assigned_user_id'] = $ownerId;
         $notifications->column_fields['related_to'] = $parentRecord;
-        $notifications->column_fields['description'] = $title;
+        $notifications->column_fields['description'] = $description;
+        
+        $notifications->column_fields['title'] = $title;
+        $notifications->column_fields['notification_type'] = 'Upload New Document';
+        
         if($entityData->get('from_portal'))
             $notifications->column_fields['source'] = 'PORTAL';
         $notifications->column_fields['related_record'] = $entityId;
