@@ -43,5 +43,22 @@ class Notifications_Module_Model extends Vtiger_Module_Model{
 	    return false;
 	}
 	
+	function getAcceptedValue($eventId){
+	    
+	    global $adb;
+	   
+	    $currentUser = Users_Record_Model::getCurrentUserModel();
+	    
+	    $accepted = false;
+	    $eventQuery = $adb->pquery("SELECT * FROM vtiger_invitees WHERE activityid = ? AND inviteeid = ? AND  (status != 'accepted' AND status != 'rejected' )",
+	        array($eventId, $currentUser->id));
+	    
+	    if(!$adb->num_rows($eventQuery)){
+	        $accepted = true;
+	    }
+	    
+	    return $accepted;
+	}
+	
 }
 ?>

@@ -145,12 +145,12 @@ Vtiger.Class("NotificationsJS", {}, {
                         var title = '';
                         var description = '';
                         if(item['relatedModule'] == "ModComments"){
-                        	moduleIcon = '<i class="vicon-chat"></i>';
+                        	moduleIcon = '<i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i>';
                         	reply = '<i title="reply" data-commentid="'+item['relatedRecord']+'" class="vicon-replytoall pull-right replyComment" style="margin:0px 20px 0px 0px !important;font-size: 1rem !important;"></i>';
                         }else if(item['relatedModule'] == "Documents"){
-                        	moduleIcon = '<i class="vicon-documents" title="Documents"></i>';
+                        	moduleIcon = '<i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i>';
                         }else if(item['relatedModule'] == "Events"){
-                        	moduleIcon = '<i class="vicon-calendar" title="Events"></i>';
+                        	moduleIcon = '<i class="vicon-calendar" title="Events" style="font-size: 1.5rem !important;"></i>';
                         	if(!item['accepted']){
                         		reply = '<i title="Accept" data-event="accept" data-eventid="'+item['rel_id']+'" class="fa fa-check-circle pull-right eventAction" style="margin:0px 20px 0px 0px !important;color:green;"></i>';
                         		reply += '<i title="Reject" data-event="reject" data-eventid="'+item['rel_id']+'" class="fa fa-times-circle pull-right eventAction" style="margin:0px 0px 0px 0px !important;color:red;"></i>';
@@ -167,7 +167,9 @@ Vtiger.Class("NotificationsJS", {}, {
 	                        	else
 	                        		listItem += '           <i class="fa fa-times-circle markAsRead" onclick="return clickToOk(this);" title="Acknowledge"> </i>' ;
 	                        	listItem += '           <div class="notification_detail">' +
-	                            				item['description'] + 
+	                        	'<div class="pull-left" style="margin: 7px 4px 0px 2px !important;">'+
+	                        		moduleIcon+'</div><div><span class="notification_full_name" title="'+item['title']+'"> ' +item['title']+ '&nbsp;</span>'+
+	                        	' <span class="notification_description" title="'+item['description']+'">' +item['description'].substring(0, 25)+ '...&nbsp;</span>'+			
 	                            '              <span class="notification_createdtime pull-right" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
 	                            '           </div> </div>' +
 	                            '       </div>' +
@@ -177,7 +179,7 @@ Vtiger.Class("NotificationsJS", {}, {
 	                        jQuery('#notificationsBody').prepend(listItem);
                         }
                     }
-                    
+                    thisInstance.registerEventForMouse();
                 }else{
                 	app.helper.showErrorNotification({title: 'Error', message: err.message});
                 }
@@ -333,6 +335,14 @@ Vtiger.Class("NotificationsJS", {}, {
     		var eventId = $(this).data('eventid');
     		var notify_id = ele.data('id');
     		var eventStatus = $(this).data('event');
+
+    		if($(this).hasClass('noificationlist')){
+    			var eventId = $(this).data('eventid');
+        		var notify_id = $(this).data('notifyid');
+        		var eventStatus = $(this).data('event');
+        		var ele = $('.notification_link[data-id="'+notify_id+'"]');
+    		}
+    		
     		var params = {
 	    		'module': 'Notifications',
 	            'action': 'ActionAjax',
@@ -348,12 +358,80 @@ Vtiger.Class("NotificationsJS", {}, {
     				app.helper.hideProgress();
     				if(data.success)
     					ele.find('.markAsRead').trigger('click');
+    				if(app.getModuleName() == 'Notifications' && app.getViewName() == 'List')
+    					location.reload();
     			}
     		);
     		
     		
     	});
     },
+    
+    registerEventForMouse :function(){
+		
+		var thisInstance = this;
+		
+		$('#notificationsBody [data-module="Events"]').each(function(){
+			
+			var element = $(this);
+			element.popover('destroy');
+			
+			var value = element.data('module');
+			var recordId = element.data('rel_id');
+			
+			if (value !== '' && typeof value !== "undefined" && value == "Events") {
+				var params= {
+					'source_module': value,
+					'record':recordId
+				};
+				thisInstance.getListRecordDetails(params).then(
+					function(response){
+						var data = response['data'];
+						
+    					var template = jQuery('<div class="popover" role="tooltip" style = "position:fixed;"><div class="arrow"></div><div class="popover-content" style="padding: 0px 2px;"></div></div>');
+    					var container = '<div class="row"><h5 class="col-md-12"> <strong>Event Details :</strong> </h5>';
+    					
+    					container += '</div><div class="row"><div class="col-md-12"><table class="table table-striped" style="margin-bottom:0px;font-size: 0.7rem;"><tr><td><strong>Subject</strong></td><td>'+data.subject+'</td></tr>'+
+    					'<tr><td><strong>Contact Name</strong></td><td>'+data.contactsLink+'</td></tr><tr><td><strong>Related To</strong></td><td>'+data.parentLink+'</td></tr>'+
+    					'<tr><td><strong>Start Date & Time</strong></td><td>'+data.startDate+'</td></tr><tr><td><strong>End Date & Time</strong></td><td>'+data.endDate+'</td></tr></table></div></div>';
+						element.popover({
+							'content' : container,
+							'width'	:'80',
+							'html' : true,
+							'placement' : 'left',
+							'trigger' : 'hover',
+							'template' : template,
+							'container' : element,
+						});
+						
+					},
+					function(error, err){
+
+					}
+				);
+			}   
+		});
+		
+	},
+        	
+	getListRecordDetails : function(params) {
+		var aDeferred = jQuery.Deferred();
+		
+		var url = "index.php?module=Notifications&action=ActionAjax&record="+params['record']+"&source_module="+params['source_module']+"&mode=getEventData";
+		app.request.get({'url':url}).then(
+			function(error, data){
+				if(error == null) {
+					aDeferred.resolve(data);
+				} else {
+					//aDeferred.reject(data['message']);
+				}
+			},
+			function(error){
+				aDeferred.reject();
+			}
+			)
+		return aDeferred.promise();
+	}
     
 });
 
