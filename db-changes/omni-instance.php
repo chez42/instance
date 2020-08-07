@@ -406,7 +406,43 @@ $adb->pquery("CREATE TABLE `vtiger_taxregions` ( `regionid` INT(10) NOT NULL AUT
 $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_organization_attachmentsrel (
     id INT(19) NOT NULL , 
     attachmentsid INT(19) NOT NULL,
-    short_url VARCHAR(255) NULL );");
+    short_url VARCHAR(255) NULL )");
 
+
+
+$module = Vtiger_Module::getInstance("Notifications");
+$blockInstance = Vtiger_Block::getInstance('LBL_NOTIFICATIONS_INFORMATION',$module);
+
+$fieldInstance = Vtiger_Field::getInstance('title', $module);
+if (!$fieldInstance) {
+    
+    $field  = new Vtiger_Field();
+    $field->name = 'title';
+    $field->label= 'Title';
+    $field->uitype= 2;
+    $field->column = $field->name;
+    $field->columntype = 'VARCHAR(255)';
+    $field->typeofdata = 'V~O';
+    $blockInstance->addField($field);
+
+}
+
+$fieldInstance = Vtiger_Field::getInstance('notification_type', $module);
+if (!$fieldInstance) {
+    
+    $field  = new Vtiger_Field();
+    $field->name = 'notification_type';
+    $field->label= 'Notification Type';
+    $field->uitype= 15;
+    $field->column = $field->name;
+    $field->columntype = 'VARCHAR(255)';
+    $field->typeofdata = 'V~O';
+    $blockInstance->addField($field);
+    if( !Vtiger_Utils::CheckTable('vtiger_'.$field->name) ) {
+        $picklist_values = array("Event Invitation","New Comment Added", "Follow Record", "Upload New Document", "Message Recieved");
+        $field->setPicklistValues($picklist_values);
+    }
+    
+}
 
 
