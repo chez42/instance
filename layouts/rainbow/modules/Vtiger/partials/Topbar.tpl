@@ -94,7 +94,7 @@
 		
   <div class="container-fluid global-nav">
 		<div class="row">
-			<div class="col-lg-3 col-md-5 col-sm-4 col-xs-8 paddingRight0 app-navigator-container">
+			<div class="col-lg-3 col-md-3 col-sm-4 col-xs-8 paddingRight0 app-navigator-container">
 			
 				<div class="row">
 					<div id="appnavigator" class="col-lg-2 col-md-2 col-sm-2 col-xs-2 cursorPointer app-switcher-container hidden-lg hidden-md" data-app-class="{if $MODULE eq 'Home' || !$MODULE}ti-dashboard{else}{$APP_IMAGE_MAP[$SELECTED_MENU_CATEGORY]}{/if}">
@@ -103,7 +103,7 @@
 						</div>
 					</div>
 					
-					<div class="dropdown col-lg-2 hidden-sm hidden-xs">
+					<div class="dropdown col-lg-2 col-md-2 hidden-sm hidden-xs">
 						
 						<button class="btn btn-fask btn-lg" type="button" id="dropdownMenuButtonDesk" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<i class="material-icons">menu</i>
@@ -292,7 +292,7 @@
 					</div>
 				</div>
 		
-				<div id="navbar" class="col-sm-6 col-md-3 col-lg-3 collapse navbar-collapse navbar-right global-actions">
+				<div id="navbar" class="col-sm-6 col-md-9 col-lg-3 collapse navbar-collapse navbar-right global-actions">
 					<ul class="nav navbar-nav">
 						<li>
 							<div class="search-links-container hidden-sm">
