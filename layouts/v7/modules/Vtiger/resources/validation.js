@@ -592,6 +592,9 @@ jQuery.validator.addMethod("futureEventCannotBeHeld", function(value, element, p
 					if(dependentFieldInContext.length > 0){
 						var todayDateInstance = new Date();
 						var dateFormat = dependentFieldInContext.data('date-format');
+						if (typeof dateFormat === 'undefined') {
+							continue;
+						}
 						var time = jQuery('input[name=time_start]',formElem);
 						var fieldValue = dependentFieldInContext.val()+" "+time.val();
 						var dependentFieldDateInstance = app.helper.getDateInstance(fieldValue,dateFormat);
