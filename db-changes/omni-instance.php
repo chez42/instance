@@ -412,10 +412,8 @@ $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_organization_attachmentsrel (
 
 $module = Vtiger_Module::getInstance("Notifications");
 $blockInstance = Vtiger_Block::getInstance('LBL_NOTIFICATIONS_INFORMATION',$module);
-
 $fieldInstance = Vtiger_Field::getInstance('title', $module);
 if (!$fieldInstance) {
-    
     $field  = new Vtiger_Field();
     $field->name = 'title';
     $field->label= 'Title';
@@ -424,12 +422,10 @@ if (!$fieldInstance) {
     $field->columntype = 'VARCHAR(255)';
     $field->typeofdata = 'V~O';
     $blockInstance->addField($field);
-
 }
 
 $fieldInstance = Vtiger_Field::getInstance('notification_type', $module);
 if (!$fieldInstance) {
-    
     $field  = new Vtiger_Field();
     $field->name = 'notification_type';
     $field->label= 'Notification Type';
@@ -442,7 +438,6 @@ if (!$fieldInstance) {
         $picklist_values = array("Event Invitation","New Comment Added", "Follow Record", "Upload New Document", "Message Recieved");
         $field->setPicklistValues($picklist_values);
     }
-    
 }
 
 
