@@ -851,7 +851,7 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
     	        $viewer->assign('WATCH_DISPLAY', '00:00');
     	        $viewer->assign('SHOW_WATCH', 'halted');
     	    }
-    	    $viewer->assign('TIMECONTROL_ENABLE', true);
+    	    $viewer->assign('TIMECONTROL_ENABLE', Users_Privileges_Model::isPermitted('Timecontrol', 'EditView'));
 	    }
 	    
 	}

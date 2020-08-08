@@ -41,7 +41,7 @@
                     }
                 }
             }
-            $contact_ids[] = 71414083;
+     
             $sql = "SELECT DISTINCT vtiger_troubletickets.*, vtiger_crmentity.*, vtiger_ticketcf.*,
             vtiger_troubletickets.status as ticket_status
             FROM vtiger_troubletickets
@@ -63,7 +63,7 @@
             $notifySql = "SELECT DISTINCT * FROM vtiger_notifications
             INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notifications.notificationsid
             WHERE (notification_status <> 'OK' || notification_status IS NULL) AND vtiger_crmentity.deleted = 0 AND vtiger_notifications.related_to IN 
-            ('" . implode("','", $ticketIds) . "','".$id."') ORDER BY vtiger_crmentity.createdtime DESC";
+            ('" . implode("','", $ticketIds) . "','".$id."') AND vtiger_crmentity.source <> 'PORTAL' ORDER BY vtiger_crmentity.createdtime DESC";
             
             $notifyResult = $adb->pquery($notifySql);
             $html = ''; 
@@ -85,7 +85,11 @@
                     $html .= '</div>
                         <div class="kt-notification__item-details">
                             <div class="kt-notification__item-title" title="'.getSalesEntityType($notifyData['related_to']).' : '.Vtiger_Functions::getCRMRecordLabel($notifyData['related_to']).'">
-                                '.html_entity_decode($notifyData['description']).'
+                                <div class="pull-left" style="margin: 7px 0px 0px 0px !important;">
+                                </div>
+                                <div>
+                                    <span class="notification_full_name" title="'.$notifyData['title'].'"> ' .$notifyData['title']. ' &nbsp;</span>
+                                    <span class="notification_description" title="'. html_entity_decode($notifyData['description']) .'">' .html_entity_decode($notifyData['description']). '&nbsp;</span>
                             </div></div>
                             <div class="kt-notification__item-time" title="'.$titleTime.'">
                                 '.$showTime.'
