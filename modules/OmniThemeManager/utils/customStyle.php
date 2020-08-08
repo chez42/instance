@@ -429,7 +429,7 @@ tbody .ps__thumb-y{
 
 .main-container, .content-area, #page{
 	background-color: <?= $container_color ?> !important;
-	color: <?= $text_contrast_container ?>;
+	//color: <?= $text_contrast_container ?>;
 	
 }
 .settingsPageDiv{
