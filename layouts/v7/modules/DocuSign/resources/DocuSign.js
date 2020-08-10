@@ -62,6 +62,12 @@ Vtiger.Class("DocuSign_Js",{
 			
 			var listSelectParams = listInstance.getListSelectAllParams(true);
 			
+			var selectedRecordCount = listInstance.getSelectedRecordCount();
+			
+			if (selectedRecordCount > 15) {
+				app.helper.showErrorNotification({message: app.vtranslate('Only 15 Records Selected at a time.')});
+				return;
+			}
 			if (listSelectParams) {
 				
 				var postData = listInstance.getDefaultParams();
@@ -86,9 +92,19 @@ Vtiger.Class("DocuSign_Js",{
 						
 						if (data) {
 							
-							app.helper.showModal(data, {'cb': function (modal) {
+							var overlayParams = {'backdrop': 'static', 'keyboard': false};
+							app.helper.loadPageContentOverlay(data, overlayParams).then(function (modal) {
 								var docusignForm = jQuery('#massSaveSendEnvelope');
-								if(docusignForm.length)
+								if(docusignForm.length){
+									var noteContentElement = docusignForm.find('[name="envelope_content"]');
+									if(noteContentElement.length > 0){
+										noteContentElement.addClass('ckEditorSource');
+										var ckEditorInstance = new Vtiger_CkEditor_Js();
+										ckEditorInstance.loadCkEditor(noteContentElement);
+									}
+									thisInstance.registerTemplateChangeEvent(docusignForm);	
+									thisInstance.registerFillMailContentEvent(docusignForm);
+									thisInstance.registerModeChangeEvent(docusignForm);
 									docusignForm.vtValidate({
 										submitHandler: function (form) {
 											thisInstance.sendEmailSave(jQuery(form));
@@ -146,9 +162,19 @@ Vtiger.Class("DocuSign_Js",{
 					app.helper.hideProgress();
 					if (data) {
 						
-						app.helper.showModal(data, {'cb': function (modal) {
-							var docusignForm = jQuery('#massSaveDocuSign');
-							if(docusignForm.length)
+						var overlayParams = {'backdrop': 'static', 'keyboard': false};
+						app.helper.loadPageContentOverlay(data, overlayParams).then(function (modal) {
+							var docusignForm = jQuery('#massSaveSendEnvelope');
+							if(docusignForm.length){
+								var noteContentElement = docusignForm.find('[name="envelope_content"]');
+								if(noteContentElement.length > 0){
+									noteContentElement.addClass('ckEditorSource');
+									var ckEditorInstance = new Vtiger_CkEditor_Js();
+									ckEditorInstance.loadCkEditor(noteContentElement);
+								}
+								thisInstance.registerTemplateChangeEvent(docusignForm);	
+								thisInstance.registerFillMailContentEvent(docusignForm);
+								thisInstance.registerModeChangeEvent(docusignForm);
 								docusignForm.vtValidate({
 									submitHandler: function (form) {
 										thisInstance.sendEmailToSigner(jQuery(form));
@@ -161,6 +187,63 @@ Vtiger.Class("DocuSign_Js",{
 				}
 			);
 		}
+	},
+	registerFillMailContentEvent: function (docusignForm) {
+		docusignForm.on('change', '#selected_contacts', function (e) {
+			var textarea = CKEDITOR.instances.envelope_content;
+			var value = jQuery(e.currentTarget).val();
+			if (textarea != undefined) {
+				textarea.insertHtml(value);
+			} else if (jQuery('textarea[name="envelope_content"]')) {
+				var textArea = jQuery('textarea[name="envelope_content"]');
+				textArea.insertAtCaret(value);
+			}
+		});
+	},
+	
+	registerTemplateChangeEvent : function(docusignForm){
+		
+		docusignForm.on('change', '#templateid', function(){
+			app.helper.showProgress();
+			var data = new FormData(docusignForm[0]);
+			
+			jQuery.each(data, function (key, value) {
+				data.append(key, value);
+			});
+			data.append('mode', 'getEmailContent');
+			
+			var postData = { 
+				'url': 'index.php', 
+				'type': 'POST', 
+				'data': data, 
+				processData: false, 
+				contentType: false 
+			};
+			app.request.post(postData).then(function(err, data){
+				if (err == null) {
+					CKEDITOR.instances.envelope_content.setData(data);
+				}
+				app.helper.hideProgress();
+			});
+		});
+		
+	},
+	
+	registerModeChangeEvent :function(docusignForm){
+		
+		docusignForm.on('change', '[name="receiver_mode"]', function(){
+			if($(this).val() == 'single') {
+				docusignForm.find('.multiple_con').attr('style','display:none');
+				docusignForm.find('.single_con').attr('style','display:block');
+				
+			}
+			else if($(this).val() == 'multiple') {
+				docusignForm.find('.single_con').attr('style','display:none');
+				docusignForm.find('.multiple_con').attr('style','display:block');
+				
+			}
+		});
+		
 	},
 	
 	sendEmailToSigner: function (form) {
@@ -178,7 +261,7 @@ Vtiger.Class("DocuSign_Js",{
 		jQuery.each(data, function (key, value) {
 			data.append(key, value);
 		});
-		
+		data.append('envelope_content', CKEDITOR.instances.envelope_content.getData());
 		var postData = { 
 			'url': 'index.php', 
 			'type': 'POST', 
@@ -195,7 +278,7 @@ Vtiger.Class("DocuSign_Js",{
 			if (err == null) {
 				
 				if(data.success){
-					app.helper.hideModal();
+					app.helper.hidePageContentOverlay();
 					app.helper.showSuccessNotification({message: 'Message Sent Successfully'});
 				} else {
 					app.helper.showErrorNotification({message: app.vtranslate(data.message)})
@@ -223,7 +306,7 @@ Vtiger.Class("DocuSign_Js",{
 			jQuery.each(data, function (key, value) {
 				data.append(key, value);
 			});
-			
+			data.append('envelope_content', CKEDITOR.instances.envelope_content.getData());
 			var postData = { 
 				'url': 'index.php', 
 				'type': 'POST', 
@@ -240,7 +323,7 @@ Vtiger.Class("DocuSign_Js",{
 				if (err == null) {
 					
 					if(data.success){
-						app.helper.hideModal();
+						app.helper.hidePageContentOverlay();
 						listInstance.loadListViewRecords().then(function (e) {
 							listInstance.clearList();
 							app.helper.showSuccessNotification({message: 'Message Sent Successfully'});

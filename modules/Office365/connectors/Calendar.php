@@ -63,7 +63,7 @@ class Office365_Calendar_Connector extends Office365_Base_Connector{
                     $deleted = true;
                 }
                 
-                $type = $office365Calendar->getType()->value();
+                $type = $office365Calendar->getType() ? $office365Calendar->getType()->value() : '';
                 if($type == 'occurrence')
                    continue;
                 
@@ -79,7 +79,7 @@ class Office365_Calendar_Connector extends Office365_Base_Connector{
                 
                 // Fetch Recurring Events and Sync Them Too
                
-                if (!$deleted && $office365Calendar->getType()->value() == 'seriesMaster') {
+                if (!$deleted && $type == 'seriesMaster') {
                     
                     $masterId = $office365Calendar->getId();
                    
