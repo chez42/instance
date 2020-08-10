@@ -152,6 +152,34 @@ class Vtiger_ReceiveOauthToken_Action {
             
         }
         
+        
+        
+        if($data["source_module"] == 'Office365Calendar' && !$error){
+            
+            try {
+                $accessibleModules = array('Calendar', 'Contacts');
+				
+                $current_user_id = $data["userid"];
+                
+				foreach($accessibleModules as $module){
+                    
+                    $syncModules = $db->pquery("SELECT * FROM vtiger_office365_sync_settings WHERE user =? AND module =?",array($current_user_id, $module));
+                    if($db->num_rows($syncModules)){
+                        
+                        $db->pquery("UPDATE vtiger_office365_sync_settings SET access_token = ?, refresh_token = ? WHERE user = ? AND module = ?",
+                            array($accessToken, $refreshToken, $current_user_id, $module));
+                        
+                    } else {
+                        $db->pquery("INSERT INTO vtiger_office365_sync_settings(user, module, access_token, refresh_token) VALUES (?,?,?,?)",
+                            array($current_user_id, $module, $accessToken, $refreshToken));
+                    }
+                }
+            } catch(Exception $e){
+                $error = true;
+            }
+            
+        }
+        
         if($error){
             echo json_encode(array("success" => false));
         } else {

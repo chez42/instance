@@ -1688,8 +1688,8 @@ createTreeFolderPopup : function() {
     			return;
     		}
 
-			if (selectedRecordCount > 500) {
-    			app.helper.showErrorNotification({message: app.vtranslate('JS_MASS_EDIT_LIMIT')});
+			if (selectedRecordCount > 15) {
+    			app.helper.showErrorNotification({message: app.vtranslate('Only 15 Records Selected at a time.')});
     			return;
     		}
 			
@@ -1706,7 +1706,7 @@ createTreeFolderPopup : function() {
 					app.helper.hideProgress();
 					if (data) {
 						app.helper.showModal(data, {'cb': function (modal) {
-							var docusignForm = jQuery('#sendEnvelope');
+							var docusignForm = jQuery('#massSaveSendEnvelope');
 							if(docusignForm.length){
 								 
 								var noteContentElement = docusignForm.find('[name="envelope_content"]');
@@ -1717,6 +1717,7 @@ createTreeFolderPopup : function() {
 								}
 								thisInstance.registerTemplateChangeEvent(docusignForm);	
 								thisInstance.registerFillMailContentEvent(docusignForm);
+								thisInstance.registerModeChangeEvent(docusignForm);
 								docusignForm.vtValidate({
 									submitHandler: function (form) {
 										thisInstance.sendEmailToRecords(jQuery(form));
@@ -1773,17 +1774,34 @@ createTreeFolderPopup : function() {
 		
 	},
 	
+	registerModeChangeEvent :function(docusignForm){
+		
+		docusignForm.on('change', '[name="receiver_mode"]', function(){
+			if($(this).val() == 'single') {
+				docusignForm.find('.multiple_con').attr('style','display:none');
+				docusignForm.find('.single_con').attr('style','display:block');
+				
+			}
+			else if($(this).val() == 'multiple') {
+				docusignForm.find('.single_con').attr('style','display:none');
+				docusignForm.find('.multiple_con').attr('style','display:block');
+				
+			}
+		});
+		
+	},
+	
 	sendEmailToRecords :function(form){
 		var thisInstance = this;
 		var formData = form.serializeFormData();
-		formData['mode'] = 'SendEmail';
+		//formData['mode'] = 'SendEmail';
 		
 		var data = new FormData(form[0]);
 		
 		jQuery.each(data, function (key, value) {
 			data.append(key, value);
 		});
-		data.append('mode', 'SendEmail');
+		//data.append('mode', 'SendEmail');
 		data.append('envelope_content', CKEDITOR.instances.envelope_content.getData());
 		
 		var postData = { 
@@ -1802,7 +1820,7 @@ createTreeFolderPopup : function() {
 			if (err == null) {
 				
 				if(data.success){
-					app.helper.hideModal();
+					app.helper.hidePageContentOverlay();
 					var urlParams = {};
 	            	thisInstance.loadRelatedList(urlParams);
 	            	thisInstance.clearList();
