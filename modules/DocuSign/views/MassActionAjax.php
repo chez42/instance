@@ -10,138 +10,28 @@
 
 class DocuSign_MassActionAjax_View extends Vtiger_IndexAjax_View {
     
-	function __construct() {
-		parent::__construct();
-		$this->exposeMethod('showSendEmailForm');
-		$this->exposeMethod('showSendEmailFormList');
-		$this->exposeMethod('showSendEmailFromRelated');
-	}
-
+	
 	function process(Vtiger_Request $request) {
 		$mode = $request->get('mode');
-		if(!empty($mode)) {
-			$this->invokeExposedMethod($mode, $request);
-			return;
-		}
-	}
-
-	function showSendEmailForm(Vtiger_Request $request) {
-	    
-	    $moduleName = $request->getModule();
-	    $sourceModule = $request->get('srcmodule');
-	    
-	    $data = array();
-	    $quotingToolRecordModel = new QuotingTool_Record_Model();
-	    $templates = $quotingToolRecordModel->findByModule($sourceModule);
-	    foreach ($templates as $template) {
-	        $templateModule = vtranslate($template->get("module"), $template->get("module"));
-	        $childModule = "";
-	        if ($template->get("createnewrecords") == 1 && $templateModule != $relModule) {
-	            $childModule = " <i>(" . $templateModule . ")</i> ";
-	        }
-	        $data[] = array("id" => $template->getId(), "filename" => $fileName = $template->get("filename") . $childModule, "description" => $template->get("description"), "createnewrecords" => $template->get("createnewrecords"), "modulename" => $template->get("module"));
-	    }
-
-	    $viewer = $this->getViewer($request);
-	    
-	    $user = Users_Record_Model::getCurrentUserModel();
-	    $moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
-	    $emailFields = $moduleModel->getFieldsByType('email');
-	    
-        $recordId =  $request->get('record');
-        $selectedRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
-        $viewer->assign('SINGLE_RECORD', $selectedRecordModel);
-	    
-        $viewer->assign('TEMPLATES', $data);
-	    $viewer->assign('MODULE', $moduleName);
-	    $viewer->assign('SOURCE_MODULE', $sourceModule);
-	    $viewer->assign('USER_MODEL', $user);
-	    $viewer->assign('EMAIL_FIELDS', $emailFields);
-	   
-	    $viewer->assign('RECORD', $recordId);
-	    
-	    echo $viewer->view('DocuSignEmailForm.tpl', $moduleName, true);
-	}
 	
-	
-	function showSendEmailFormList(Vtiger_Request $request){
+		$moduleName = $request->getModule();
 	    
-	    $moduleName = $request->getModule();
-	    $sourceModule = $request->get('srcmodule');
-	    
-	    $data = array();
-	    $quotingToolRecordModel = new QuotingTool_Record_Model();
-	    $templates = $quotingToolRecordModel->findByModule($sourceModule);
-	    foreach ($templates as $template) {
-	        $templateModule = vtranslate($template->get("module"), $template->get("module"));
-	        $childModule = "";
-	        if ($template->get("createnewrecords") == 1 && $templateModule != $relModule) {
-	            $childModule = " <i>(" . $templateModule . ")</i> ";
-	        }
-	        $data[] = array("id" => $template->getId(), "filename" => $fileName = $template->get("filename") . $childModule, "description" => $template->get("description"), "createnewrecords" => $template->get("createnewrecords"), "modulename" => $template->get("module"));
-	    }
-	    
-	    $viewer = $this->getViewer($request);
-	    $selectedIds = $this->getRecordsListFromRequest($request);
-	    $excludedIds = $request->get('excluded_ids');
-	    $cvId = $request->get('viewname');
-	    
-	    $user = Users_Record_Model::getCurrentUserModel();
-	    $moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
-	    $emailFields = $moduleModel->getFieldsByType('email');
-	    
-	    if(count($selectedIds) == 1){
-	        $recordId = $selectedIds[0];
-	        $selectedRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
-	        $viewer->assign('SINGLE_RECORD', $selectedRecordModel);
-	    }
-	    
-	    $viewer->assign('VIEWNAME', $cvId);
-	    $viewer->assign('TEMPLATES', $data);
-	    $viewer->assign('MODULE', $moduleName);
-	    $viewer->assign('SOURCE_MODULE', $sourceModule);
-	    $viewer->assign('SELECTED_IDS', $selectedIds);
-	    $viewer->assign('EXCLUDED_IDS', $excludedIds);
-	    $viewer->assign('USER_MODEL', $user);
-	    $viewer->assign('EMAIL_FIELDS', $emailFields);
-	    
-	    $searchKey = $request->get('search_key');
-	    
-	    $searchValue = $request->get('search_value');
-	    
-	    $operator = $request->get('operator');
-	    
-	    if(!empty($operator)) {
-	        $viewer->assign('OPERATOR',$operator);
-	        $viewer->assign('ALPHABET_VALUE',$searchValue);
-	        $viewer->assign('SEARCH_KEY',$searchKey);
-	    }
-	    
-	    $searchParams = $request->get('search_params');
-	    
-	    if(!empty($searchParams)) {
-	        $viewer->assign('SEARCH_PARAMS',$searchParams);
-	    }
-	    
-	    
-	    echo $viewer->view('DocuSignEmailFormList.tpl', $moduleName, true);
-	    
-	}
-	
-	function showSendEmailFromRelated(Vtiger_Request $request){
-	    
-	    $moduleName = $request->getModule();
-	    
-	    $recordIds = Vtiger_RelatedMass_Action::getRecordsListFromRequest($request);
+	    if($mode == 'showSendEmailFromRelated')
+	       $recordIds = Vtiger_RelatedMass_Action::getRecordsListFromRequest($request);
+	    if($mode == 'showSendEmailForm')
+	        $recordIds = array($request->get('record'));
+	    if($mode == 'showSendEmailFormList')
+	        $recordIds = $this->getRecordsListFromRequest($request);
+	        
 	    
 	    $cvId = $request->get('viewname');
-	    $selectedIds = $request->get('selected_ids');
+	    $selectedIds = $recordIds;
 	    $excludedIds = $request->get('excluded_ids');
 	    
 	    $parentRecord = $request->get('parentRecord');
 	    $parentModule = $request->get('parentModule');
 	    
-	    $sourceModule = $request->get('src_module');
+	    $sourceModule = $request->get('srcmodule');
 	    
 	    $viewer = $this->getViewer($request);
 	    
@@ -154,7 +44,7 @@ class DocuSign_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	    $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
 	    $viewer->assign('PARENT_MODULE', $parentModule);
 	    $viewer->assign('PARENT_RECORD', $parentRecord);
-	   
+	    
 	    $searchKey = $request->get('search_key');
 	    $searchValue = $request->get('search_value');
 	    $operator = $request->get('operator');
@@ -167,7 +57,7 @@ class DocuSign_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	    if(!empty($searchParams)) {
 	        $viewer->assign('SEARCH_PARAMS',$searchParams);
 	    }
-	    
+	   
 	    $data = array();
 	    $quotingToolRecordModel = new QuotingTool_Record_Model();
 	    $templates = $quotingToolRecordModel->findByModule($sourceModule);
@@ -185,7 +75,7 @@ class DocuSign_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	    
 	    $moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
 	    $emailFields = $moduleModel->getFieldsByType('email');
-	    
+	   
 	    foreach($recordIds as $recordId) {
 	        $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
 	        $fullName= '';
@@ -205,11 +95,47 @@ class DocuSign_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	        }
 	        $contactName[$recordId] = $fullName;
 	    }
-	    
+	   
 	    $viewer->assign('CONTACTS', $contactName);
 	    $viewer->assign('EMAIL_FIELDS', $emailFields);
 	    
-	    echo $viewer->view('SendEmailFromRelated.tpl', $moduleName, true);
+	    if(count($recordIds) == 1){
+	        $recordId = $recordIds[0];
+	        $selectedRecordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
+	        $viewer->assign('SINGLE_RECORD', $selectedRecordModel);
+	    }
+	    
+	    $viewer->assign('MODE', $mode);
+	    
+	    echo $viewer->view('DocuSignEmailForm.tpl', $moduleName, true);
+	    
+	}
+
+	
+	function getRecordsListFromRequest(Vtiger_Request $request) {
+	    $cvId = $request->get('viewname');
+	    
+	    $selectedIds = $request->get('selected_ids');
+	    $excludedIds = $request->get('excluded_ids');
+	    
+	    if(!empty($selectedIds) && $selectedIds != 'all') {
+	        if(!empty($selectedIds) && count($selectedIds) > 0) {
+	            return $selectedIds;
+	        }
+	    }
+	    
+	    $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+	    if($customViewModel) {
+	        $searchKey = $request->get('search_key');
+	        $searchValue = $request->get('search_value');
+	        $operator = $request->get('operator');
+	        if(!empty($operator)) {
+	            $customViewModel->set('operator', $operator);
+	            $customViewModel->set('search_key', $searchKey);
+	            $customViewModel->set('search_value', $searchValue);
+	        }
+	        return $customViewModel->getRecordIds($excludedIds);
+	    }
 	}
 	
 }
