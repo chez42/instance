@@ -1,7 +1,7 @@
 <?php
 if($_REQUEST['source'] == 'MailManager'){
 	echo '<script>window.opener.RefreshPage();window.close();</script>';
-} else if($_REQUEST['source']  == 'Calendar'){
+} else if($_REQUEST['source']  == 'Calendar' || $_REQUEST['source']  == 'Office365Calendar'){
 	echo '<script>window.opener.sync();window.close();</script>'; 
 } else if($_REQUEST['source'] == 'ValidateLogin'){
     echo '<script>window.opener.RefreshPage("'.$_REQUEST['code'].'");window.close();</script>';
