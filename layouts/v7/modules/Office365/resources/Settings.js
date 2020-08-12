@@ -27,8 +27,6 @@ Vtiger.Class("Office365_Settings_Js", {
     		var element = jQuery(e.currentTarget);
             var url = element.data('url');
             
-            console.log(url)
-            
             if(url){
             	var params = app.convertUrlToDataParams(url);
             	
@@ -41,7 +39,7 @@ Vtiger.Class("Office365_Settings_Js", {
                         var params = {
                             url : settingsUrl
                         }
-                        console.log(params)
+                        
                         app.helper.showProgress();
                         app.request.pjax(params).then(function(error, data){
                             app.helper.hideProgress();
@@ -60,6 +58,7 @@ Vtiger.Class("Office365_Settings_Js", {
                      
             	}else if(params['operation'] == 'changeUser'){
             		
+            		params['operation'] = 'deleteSync';
             		app.helper.showProgress();
 	                app.request.post({data: params}).then(function(error, data) {
 	                    app.helper.hideProgress();
@@ -360,6 +359,23 @@ Vtiger.Class("Office365_Settings_Js", {
     registerBasicEvents : function() {
         this.registerFieldMappingClickEvent();
         vtUtils.applyFieldElementsView(this.getListContainer());
+        
+        var element = jQuery('.startDateField:not(ignore-ui-registration)', this.getListContainer());
+        if(element.length){
+	        var elementDateFormat = element.data('dateFormat');
+	        if(typeof elementDateFormat !== 'undefined') {
+	            userDateFormat = elementDateFormat;
+	        }
+			var defaultPickerParams = {
+	            autoclose: true,
+	            todayBtn: "linked",
+	            format: userDateFormat,
+	            todayHighlight: true,
+				clearBtn : true,
+				startDate: '-2d',
+	        };
+	        element.datepicker(defaultPickerParams);
+        }
     },
     
     registerEvents : function() {
