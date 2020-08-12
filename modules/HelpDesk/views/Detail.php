@@ -118,7 +118,7 @@ class HelpDesk_Detail_View extends Vtiger_Detail_View {
 	    return $viewer->view('ModuleSummaryView.tpl', $moduleName, true);
 	}
 	
-	function preProcess(Vtiger_Request $request, $display=true) {
+	/*function preProcess(Vtiger_Request $request, $display=true) {
 	    $this->getTimecontrolWidgetData($request);
 	    parent::preProcess($request);
 	}
@@ -171,7 +171,7 @@ class HelpDesk_Detail_View extends Vtiger_Detail_View {
             $viewer->assign('SHOW_WATCH', 'halted');
 	    }
 	    
-	}
+	}*/
 	
 	/*function showRecentTasks(Vtiger_Request $request){
 	    $moduleName = 'Task';
