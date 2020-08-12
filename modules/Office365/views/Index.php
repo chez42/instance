@@ -109,7 +109,7 @@ class Office365_Index_View extends Vtiger_ExtensionViews_View {
         global $site_URL;
         
         $auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
-        $auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, $user->id, "Office365", "OfficeCalendar")));
+        $auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, $user->id, "Office365", "Office365Calendar")));
         $auth_url .= '&scope=' . urlencode('Contacts.ReadWrite Calendars.ReadWrite offline_access User.Read.All');
         
         $viewer->assign('AUTH_URL', $auth_url);
