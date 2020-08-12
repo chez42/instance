@@ -55,7 +55,7 @@ Vtiger_ExtensionCommon_Js("Office365_Index_Js", {}, {
 					setTimeout(3000);
 				}
 				
-				//window.location.reload();
+				window.location.reload();
             });
         });
     },

@@ -393,4 +393,5 @@ if (!$fieldInstance) {
     }
 }
 
+$adb->pquery("ALTER TABLE vtiger_document_designer_auth_settings ADD redirect_url VARCHAR(500) NULL ");
 

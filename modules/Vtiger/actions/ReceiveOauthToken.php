@@ -129,7 +129,7 @@ class Vtiger_ReceiveOauthToken_Action {
                 if(DocuSign_Config_Connector::$server == 'Production')
                     $api_client = new \DocuSign\eSign\Client\ApiClient($config);
                     
-                $token = $api_client->generateAccessToken(DocuSign_Config_Connector::$client_id, DocuSign_Config_Connector::$client_secret, $data['code']);
+                    $token = $api_client->generateAccessToken(DocuSign_Config_Connector::$clientId, DocuSign_Config_Connector::$clientSecret, $data['code']);
                 
                 $access_token = $token[0]['access_token'];
                 $refresh_token = $token[0]['refresh_token'];
