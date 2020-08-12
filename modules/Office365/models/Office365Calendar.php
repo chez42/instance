@@ -6,6 +6,8 @@ class Office365_Office365Calendar_Model extends Office365_Office365_Model{
         
         $graph = $this->ews;
         
+        $graph->setApiVersion('beta');
+        
         $events = array();
         
         $date = new DateTime($lastUpdatedTime);
@@ -17,17 +19,22 @@ class Office365_Office365Calendar_Model extends Office365_Office365_Model{
         if($deltaToken){
             $url = $deltaToken;
         }else{
-            $url = '/me/calendarView/delta?startdatetime='.$lastUpdatedTime.'&enddatetime='.$endDateTime;
+            $url = '/me/events/delta?startdatetime='.$lastUpdatedTime/*.'&enddatetime='.$endDateTime*/;
         }
         
 		try{
 		   
-		    $all_calendar = $graph->createCollectionRequest("GET", $url)->addHeaders(array("Prefer" => "odata.track-changes"))
-		    ->setReturnType(Model\Event::class);
+		    $all_calendar = $graph->createCollectionRequest("GET", $url)->setReturnType(Model\Event::class);
 		    
 		    while (!$all_calendar->isEnd()){
 		        foreach($all_calendar->getPage() as $calEvent){
-		            $events[] = $calEvent;
+		            if($calEvent->getProperties()['@removed']){
+		                $events[] = $calEvent;
+		            }else{
+    		            $eventData = $graph->createCollectionRequest("GET", '/me/events/'.$calEvent->getId())
+    		            ->setReturnType(Model\Event::class);
+    		            $events[] = $eventData->getPage();
+		            }
 		        }
 		    }
 		    

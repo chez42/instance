@@ -87,7 +87,7 @@ class Leads_DetailView_Model extends Accounts_DetailView_Model {
 			$basicActionLink = array(
 				'linktype' => 'DETAILVIEW',
 				'linklabel' => 'LBL_CONVERT_LEAD',
-				'linkurl' => 'javascript:Leads_Detail_Js.convertLead("'.$recordModel->getConvertLeadUrl().'",this);',
+				'linkurl' => 'Javascript:Leads_Detail_Js.convertLead("'.$recordModel->getConvertLeadUrl().'",this);',
 				'linkicon' => ''
 			);
 			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);

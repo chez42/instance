@@ -61,6 +61,15 @@
 											<option value='Production' {if $SERVER eq 'Production'}Selected{/if}>Production</option>
 										</select>
 									</tr>
+									<tr>
+										<td class="{$WIDTHTYPE} fieldLabel"><label>{vtranslate('Redirect Url', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span></td>
+										<td>
+											<div class=" col-lg-6 col-md-6 col-sm-12">
+												<input type="text" class="inputElement" name="redirect_url" data-rule-required="true" value="{$REDIRECT_URL}" >
+											</div>
+										</td>
+									</tr>
+									
 								</tbody>
 							</table>
 						{else if $mode eq 'detail'}
@@ -79,6 +88,11 @@
 									<tr>
 										<td class="{$WIDTHTYPE} fieldLabel"style="width:25%" ><label>{vtranslate('server', $QUALIFIED_MODULE)}</label></td>
 										<td class="{$WIDTHTYPE} fieldValue"><span>{$SERVER}</span></td>
+									</tr>
+									
+									<tr>
+										<td class="{$WIDTHTYPE} fieldLabel"style="width:25%" ><label>{vtranslate('Redirect Url', $QUALIFIED_MODULE)}</label></td>
+										<td class="{$WIDTHTYPE} fieldValue"><span>{$REDIRECT_URL}</span></td>
 									</tr>
 								</tbody>
 							</table>

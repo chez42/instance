@@ -8,40 +8,32 @@
  * All Rights Reserved.
  * ***********************************************************************************/
 
-global $adb;
-
-$client_id = '';
-
-$client_secret = '';
-
-$query = "SELECT * FROM vtiger_document_designer_auth_settings";
-
-$result = $adb->pquery($query , array());
-
-if($adb->num_rows($result)){
-    $client_id = $adb->query_result($result, 0, 'clientid');
-    $client_secret = $adb->query_result($result, 0, 'clientsecret');
-    $server = $adb->query_result($result, 0, 'server');
-}
-
-define("CLIENT_ID",$client_id);
-
-define("CLIENT_SECRET",$client_secret);
-
-define("SERVER", $server);
-
 Class DocuSign_Config_Connector {
     
-    static $client_id = CLIENT_ID;
+    static $clientId = null;
     
-    static $client_secret = CLIENT_SECRET;
+    static $clientSecret = null;
     
-    static $server = SERVER;
+    static $redirect_url = null;
     
-    static function getCallBackUrl() {
-        global $site_URL;
-        return $site_URL.'modules/DocuSign/connect.php';
+    static $server = null;
+    
+    public static function init(){
+        global $adb;
+        
+        $result = $adb->pquery("SELECT * FROM vtiger_document_designer_auth_settings" , array());
+        
+        if($adb->num_rows($result)){
+            self::$clientId = $adb->query_result($result, 0, 'clientid');
+            self::$clientSecret = $adb->query_result($result, 0, 'clientsecret');
+            self::$server = $adb->query_result($result, 0, 'server');
+            self::$redirect_url = $adb->query_result($result, 0, 'redirect_url');
+        }
     }
-	
-    
 }
+
+DocuSign_Config_Connector::init();
+
+
+
+
