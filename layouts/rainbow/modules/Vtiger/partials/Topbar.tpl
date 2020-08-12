@@ -378,7 +378,20 @@
 																		<li id="createDocument"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
 																	</ul>
 																</div>
+																
+															{else if $singularLabel eq 'SINGLE_Task'}
+																	<div class="{if $hideDiv} create_restricted_{$moduleModel->getName()} hide {else} col-lg-4 {/if} {if $moduleModel->getName() eq 'Campaigns' || $moduleModel->getName() eq 'ProjectTask' || $moduleModel->getName() eq 'ProjectMilestone'} hide {/if}">
 																	
+																	<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
+																	data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
+																		
+																		
+																		<i class="fa fa-tasks" aria-hidden="true"></i>
+																		<span class="quick-create-module">{vtranslate($singularLabel,$moduleName)}</span>
+																	
+																	</a>
+																	
+																</div>
 															{else}
 															
 																<div class="{if $hideDiv} create_restricted_{$moduleModel->getName()} hide {else} col-lg-4 {/if} {if $moduleModel->getName() eq 'Campaigns' || $moduleModel->getName() eq 'ProjectTask' || $moduleModel->getName() eq 'ProjectMilestone'} hide {/if}">
