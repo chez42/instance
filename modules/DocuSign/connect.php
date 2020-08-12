@@ -24,6 +24,6 @@ if(DocuSign_Config_Connector::$server == 'Production')
     $api_client = new \DocuSign\eSign\Client\ApiClient($config);
 
 $state = base64_encode(implode('||', array($site_URL, $_SESSION['authenticated_user_id'], "Docusign", "Signature")));
-$auth_url = $api_client->getAuthorizationURI(DocuSign_Config_Connector::$client_id, 'signature', DocuSign_Config_Connector::getCallBackUrl(), 'code', $state);
+$auth_url = $api_client->getAuthorizationURI(DocuSign_Config_Connector::$clientId, 'signature', DocuSign_Config_Connector::$redirect_url, 'code', $state);
 header("Location:$auth_url");
 exit;
