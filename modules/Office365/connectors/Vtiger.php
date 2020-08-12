@@ -420,15 +420,16 @@ Class Office365_Vtiger_Connector extends Office365_Base_Connector{
 		    foreach($cntactivityids as $activityid => $eventInfo){
 		       
 		        $updatedEventData = $eventInfo['data'];
-		        
-                $parent = vtws_getIdComponents($updatedEventData['parent_id']);
-                $lead = '';
-                if(getSalesEntityType($parent[1]) == 'Leads')
-                    $lead = !empty($eventInfo['related_contacts']) ? '##'.$parent[1] : $parent[1];
-                    
-                $updatedEventData['event_attendees'] = implode("##", $eventInfo['related_contacts']).$lead;
-		        
-		        $output["updated"][] = $updatedEventData;
+		        if(!in_array($updatedEventData['id'], $output['deleted'])){
+                    $parent = vtws_getIdComponents($updatedEventData['parent_id']);
+                    $lead = '';
+                    if(getSalesEntityType($parent[1]) == 'Leads')
+                        $lead = !empty($eventInfo['related_contacts']) ? '##'.$parent[1] : $parent[1];
+                        
+                    $updatedEventData['event_attendees'] = implode("##", $eventInfo['related_contacts']).$lead;
+    		        
+    		        $output["updated"][] = $updatedEventData;
+		        }
 		    }
 		}
 		
@@ -470,8 +471,8 @@ Class Office365_Vtiger_Connector extends Office365_Base_Connector{
 		}
 		
 		$output['lastModifiedTime'] = $modifiedtime;
-
-		$error = $adb->hasFailedTransaction();
+		
+		$errors= $adb->hasFailedTransaction();
 		/*$adb->completeTransaction();*/
 
 		if($error){
