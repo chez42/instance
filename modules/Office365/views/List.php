@@ -17,7 +17,7 @@ class Office365_List_View extends Vtiger_PopupAjax_View {
     
     function process(Vtiger_Request $request) {
         switch ($request->get('operation')) {
-            case "deleteSync" :  $this->deleteSync($request);
+            case "deleteSync" : $this->deleteSync($request);
             break;
             default: echo "Default view";
             break;

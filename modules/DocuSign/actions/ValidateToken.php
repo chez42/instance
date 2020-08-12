@@ -57,7 +57,7 @@ class DocuSign_ValidateToken_Action extends Vtiger_Action_Controller{
                 
                 try {
                     
-                    $refreshTokenData = $api_client->generateRefreshAccessToken(DocuSign_Config_Connector::$client_id, DocuSign_Config_Connector::$client_secret, $token['refresh_token']);
+                    $refreshTokenData = $api_client->generateRefreshAccessToken(DocuSign_Config_Connector::$clientId, DocuSign_Config_Connector::$clientSecret, $token['refresh_token']);
                     
                     $token['access_token'] = $refreshTokenData[0]['access_token'];
                     $token['refresh_token'] = $refreshTokenData[0]['refresh_token'];

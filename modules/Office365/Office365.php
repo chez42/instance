@@ -97,7 +97,7 @@ class Office365 {
 			enable_cron INT(19) NULL , 
 			access_token TEXT NULL , 
 			refresh_token TEXT NULL ,
-            delta_token TEXT NULL 
+            delta_token TEXT NULL,
 			PRIMARY KEY (id));");
 
 		$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_office365_sync ( 

@@ -28,10 +28,12 @@ class DocuSign_Settings_View extends Settings_Vtiger_Index_View {
             $clientId = $adb->query_result($conQuery, 0, 'clientid');
             $cliensecret = $adb->query_result($conQuery, 0, 'clientsecret');
             $server = $adb->query_result($conQuery, 0, 'server');
+            $redirect_url = $adb->query_result($conQuery, 0, 'redirect_url');
             
             $viewer->assign('CLIENTID', $clientId);
             $viewer->assign('CLIENTSECRET', $cliensecret);
             $viewer->assign('SERVER', $server);
+            $viewer->assign('REDIRECT_URL', $redirect_url);
             
         }
         

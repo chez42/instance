@@ -15,6 +15,8 @@ require_once 'libraries/Office365/autoload.php';
 
 require_once 'libraries/Google/autoload.php';
 
+require_once 'modules/DocuSign/vendor/autoload.php';
+
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
 
@@ -112,6 +114,46 @@ class Vtiger_ReceiveOauthToken_Action {
                 }
             }
             
+        }else if($data["source"] == 'Docusign'){
+            
+            try{
+                
+                $config = new \DocuSign\eSign\Configuration();
+                
+                if(DocuSign_Config_Connector::$server == 'Sandbox'){
+                    $config->setHost('https://demo.docusign.net/restapi');
+                    $OAuth = new \DocuSign\eSign\Client\Auth\OAuth();
+                    $OAuth->setBasePath($config->getHost());
+                    $api_client = new \DocuSign\eSign\Client\ApiClient($config,$OAuth);
+                }
+                if(DocuSign_Config_Connector::$server == 'Production')
+                    $api_client = new \DocuSign\eSign\Client\ApiClient($config);
+                    
+                    $token = $api_client->generateAccessToken(DocuSign_Config_Connector::$clientId, DocuSign_Config_Connector::$clientSecret, $data['code']);
+                
+                $access_token = $token[0]['access_token'];
+                $refresh_token = $token[0]['refresh_token'];
+                $token_type = $token[0]['token_type'];
+                $expires_in = $token[0]['expires_in'];
+                
+                $current_user_id = $data["userid"];
+                
+                $result = $db->pquery('SELECT * FROM vtiger_document_designer_configuration WHERE userid = ?',array($current_user_id));
+                
+                if($db->num_rows($result)){
+                    $db->pquery("update vtiger_document_designer_configuration set access_token = ?,
+                refresh_token = ?, token_type = ?, expires_in = ? where userid = ?",
+                        array($access_token, $refresh_token, $token_type, $expires_in, $current_user_id));
+                } else{
+                    $db->pquery("insert into vtiger_document_designer_configuration(userid,access_token,
+                refresh_token, token_type, expires_in) values(?,?,?,?,?)",
+                        array($current_user_id, $access_token, $refresh_token, $token_type, $expires_in));
+                }
+                    
+            }catch(Exception $e){
+                $error = true;
+            }
+            
         }
         
         if($data["source_module"] == 'MailManager' && !$error){
@@ -158,20 +200,20 @@ class Vtiger_ReceiveOauthToken_Action {
             
             try {
                 $accessibleModules = array('Calendar', 'Contacts');
-				
                 $current_user_id = $data["userid"];
+                $syncStartDate = date('Y-m-d', strtotime('-2 days'));
+                $direction = '11';
                 
-				foreach($accessibleModules as $module){
+                foreach($accessibleModules as $module){
                     
                     $syncModules = $db->pquery("SELECT * FROM vtiger_office365_sync_settings WHERE user =? AND module =?",array($current_user_id, $module));
                     if($db->num_rows($syncModules)){
-                        
                         $db->pquery("UPDATE vtiger_office365_sync_settings SET access_token = ?, refresh_token = ? WHERE user = ? AND module = ?",
                             array($accessToken, $refreshToken, $current_user_id, $module));
                         
                     } else {
-                        $db->pquery("INSERT INTO vtiger_office365_sync_settings(user, module, access_token, refresh_token) VALUES (?,?,?,?)",
-                            array($current_user_id, $module, $accessToken, $refreshToken));
+                        $db->pquery("INSERT INTO vtiger_office365_sync_settings(user, module, direction, sync_start_from, access_token, refresh_token) VALUES (?,?,?,?,?,?)",
+                            array($current_user_id, $module, $direction, $syncStartDate, $accessToken, $refreshToken));
                     }
                 }
             } catch(Exception $e){

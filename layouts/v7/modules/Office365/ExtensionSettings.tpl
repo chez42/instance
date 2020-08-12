@@ -14,8 +14,24 @@
 <input type="hidden" name="settingsPage" value="{$RETURN_URL}">
 <div class="col-sm-12 col-xs-12 extensionContents">
 	<div class="row">
-		<div class="col-sm-12 col-xs-12">
+		<div class="col-sm-3 col-xs-3">
 			<h3 class="module-title pull-left"> {vtranslate('LBL_SELECT_MODULES_TO_SYNC', $MODULE)} </h3>
+		</div>
+		<div class="col-sm-9 col-xs-9">
+			{if !$IS_SYNC_READY}
+				<div class="row">
+					<div class="col-sm-4 col-xs-4 pull-right">
+						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" {*style = "padding-left:59px;"*} data-url='{$AUTH_URL}'>{vtranslate('Sign in with Office365', $MODULE)}</a>
+					</div>
+				</div>
+			{else}
+				<div class="row">
+				
+					<div class="col-sm-3 col-xs-3 pull-right">
+						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" {*style = "padding-left:59px;"*} data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'> {vtranslate('Revoke Access', $MODULE)} </a>
+					</div>
+				</div>
+			{/if}
 		</div>
 	</div>
 	<br>
@@ -58,7 +74,7 @@
 							<td><a id="syncSetting" class="extensionLink" data-sync-module="Calendar">{vtranslate('LBL_VIEW', $MODULE)}</a></td>
 							<td>
 								<div class="input-group inputElement" style="margin-bottom: 3px">
-									<input type="text" class="dateField form-control" name="Calendar[sync_start_from]" data-fieldtype="date" data-date-format="yyyy-mm-dd" value="{$CALENDAR_SYNC_START}"/>
+									<input type="text" class="{if !$SYNC_STATE} startDateField {/if} form-control" name="Calendar[sync_start_from]" data-fieldtype="date" data-date-format="yyyy-mm-dd" value="{$CALENDAR_SYNC_START}" {if $SYNC_STATE} readonly {/if}/>
 									<span class="input-group-addon"><i class="fa fa-calendar "></i></span>
 								</div>	
 							</td>
@@ -81,38 +97,13 @@
 			</div>
 		</div>
 		<br>
-		{if !$IS_SYNC_READY}
-			
-			<div class="row">
-				<div class="col-sm-3 col-xs-3">
-					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style = "padding-left:59px;" data-url='{$AUTH_URL}'>{vtranslate('Sign in with Office365', $MODULE)}</a>
-				</div>
-			</div>
-		{else}
-			
-			{if $USER_EMAIL}
-				<div class="row">
-					<div class="col-sm-3 col-xs-3">
-						<h5 class="module-title pull-left fieldLabel"> {vtranslate('LBL_GOOGLE_ACCOUNT_SYNCED_WITH', $MODULE)} </h5>
-					</div>
-					<div class="col-sm-4 col-xs-4">
-						<input class="listSearchContributor col-sm-12 col-xs-12" type="text" value="{$USER_EMAIL}" disabled="disabled" style="height: 30px;">
-					</div>
-				</div>
-			{/if}
-			<div class="row">
-				<div class="col-sm-3 col-xs-3">
-					<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style = "padding-left:59px;" data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'> {vtranslate('LBL_CHANGE_USER', $MODULE)} </a>
-				</div>
-			</div>
-		{/if}
 		
 		<div style="margin-top: 8%;">
-			<div>
+			<div class="text-center">
 				<button id="saveSettings" type="submit" class="btn btn-success saveButton">{vtranslate('LBL_SAVE_SETTINGS', $MODULENAME)}</button>
-					{if $PARENT neq 'Settings'}
+				{if $PARENT neq 'Settings'}
 					<a type="reset" data-url="{$MODULE_MODEL->getBaseExtensionUrl($SOURCEMODULE)}" class="cancelLink navigationLink">{vtranslate('LBL_CANCEL', $MODULENAME)}</a>
-					{/if}
+				{/if}
 			</div>
 		</div>		
 	</form>

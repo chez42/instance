@@ -109,7 +109,7 @@ class Office365_Index_View extends Vtiger_ExtensionViews_View {
         global $site_URL;
         
         $auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
-        $auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, $user->id, "Office365", "OfficeCalendar")));
+        $auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, $user->id, "Office365", "Office365Calendar")));
         $auth_url .= '&scope=' . urlencode('Contacts.ReadWrite Calendars.ReadWrite offline_access User.Read.All');
         
         $viewer->assign('AUTH_URL', $auth_url);
@@ -123,7 +123,13 @@ class Office365_Index_View extends Vtiger_ExtensionViews_View {
 	    $viewer->assign('CALENDAR_SYNC_DIRECTION', Office365_Utils_Helper::getSyncDirectionForUser('Calendar'));
 	    $viewer->assign('CONTACTS_ENABLED', Office365_Utils_Helper::checkCronEnabled('Contacts'));
 	    $viewer->assign('CALENDAR_ENABLED', Office365_Utils_Helper::checkCronEnabled('Calendar'));
-	    $viewer->assign('CALENDAR_SYNC_START', Office365_Utils_Helper::getCalendarSyncStartDate());
+	    
+	    $syncStartDate = Office365_Utils_Helper::getCalendarSyncStartDate();
+	    if(!$syncStartDate)
+	        $syncStartDate = date('Y-m-d', strtotime('-2 days'));
+	    
+        $viewer->assign('CALENDAR_SYNC_START', $syncStartDate);
+        $viewer->assign('SYNC_STATE',Office365_Utils_Helper::getSyncState('Calendar'));
 	    $viewer->assign('IS_SYNC_READY', $isSyncReady);
 	    $viewer->assign('PARENT', $request->get('parent'));
 	    
