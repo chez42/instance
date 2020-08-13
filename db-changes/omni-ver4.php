@@ -395,3 +395,21 @@ if (!$fieldInstance) {
 
 $adb->pquery("ALTER TABLE vtiger_document_designer_auth_settings ADD redirect_url VARCHAR(500) NULL ");
 
+$ckEditor = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+array('Ck Editor Images', 'index.php?parent=Settings&module=Vtiger&view=CkEditorImages'));
+if(!$adb->num_rows($ckEditor)){
+    
+    $blockid = $adb->query_result(
+        $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_OTHER_SETTINGS'",array()),0, 'blockid');
+		
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    			as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
+        0, 'sequence') + 1;
+		
+    $fieldid = $adb->getUniqueId('vtiger_settings_field');
+    $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Ck Editor Images','','', 'index.php?parent=Settings&module=Vtiger&view=CkEditorImages'));
+        
+}
+Vtiger_Cron::register('Auto Office365 Sync Calendar', 'cron/modules/Office365/Office365CalendarSync.service', 
+900, "Office365", 1, 0, "Recommended frequency for Office365 Events Sync is 15 mins");

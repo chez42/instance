@@ -107,7 +107,7 @@ class Office365 {
 			lastsynctime DATETIME NULL , 
 			vtigersynctime VARCHAR(255) NULL);");
 
-		$adb->pquery("CREATE TABLE vtiger_office365_recordmapping ( 
+		$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_office365_recordmapping ( 
 			id BIGINT(20) NOT NULL AUTO_INCREMENT , 
 			sync_id INT(19) NULL ,
 			serverid VARCHAR(250) NULL , 
