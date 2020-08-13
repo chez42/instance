@@ -25,6 +25,10 @@ class ModSecurities_EODActions_Action extends Vtiger_BasicAjax_Action {
         $record = $request->get('record');
         switch(strtolower($request->get('todo'))){
             case "updateeodsymbol":
+                    $security_instance = ModSecurities_Record_Model::getInstanceById($record);
+                    $writer = new OmniscientWriter();
+                    $writer->WriteEodToOmni($security_instance->get("security_symbol"));
+/*                    echo 'done';exit;
                     include_once("libraries/EODHistoricalData/EODGuzzle.php");
                     $guz = new cEodGuzzle();
                     $security_instance = ModSecurities_Record_Model::getInstanceById($record);
@@ -45,7 +49,7 @@ class ModSecurities_EODActions_Action extends Vtiger_BasicAjax_Action {
                         ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
                     }
 
-                    ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
+                    ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);*/
                     echo 1;
                 break;
             case "getdelayedpricing":

@@ -22,8 +22,8 @@ jQuery.Class("EODUpdate_JS",{
             var recordID = $("#eodUpdateSecurity").data("id");
             var progressInstance = jQuery.progressIndicator();
             $.post("index.php", {module:'ModSecurities', action:'EODActions', todo:'UpdateEODSymbol', record:recordID}, function(response){
-                console.log(response);
-//                location.reload();
+//                console.log(response);
+                location.reload();
             });
         });
     },

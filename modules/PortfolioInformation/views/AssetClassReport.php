@@ -73,7 +73,7 @@ class PortfolioInformation_AssetClassReport_View extends Vtiger_Index_View{
         if (sizeof($accounts) > 0) {
             PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
             $categories = array("aclass");
-            $fields = array("symbol", "security_type", "account_number", "cusip", "description", "quantity", "price", "market_value");//, "weight", "current_value");
+            $fields = array("symbol", "security_type", "account_number", "description", "quantity", "price", "market_value");//, "weight", "current_value");
             $totals = array("market_value");
             $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
             $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");

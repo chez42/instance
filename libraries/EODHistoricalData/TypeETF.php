@@ -142,7 +142,7 @@ class TypeETF{
                       Asia_Developed_equity = ?, Asia_Emerging_equity = ?, Basic_Materials_Weight = ?, Consumer_Cyclical_Weight = ?, 
                       Financial_Services_Weight = ?, Real_Estate_Weight = ?, Consumer_Defensive_Weight = ?, Healthcare_Weight = ?, 
                       Utilities_Weight = ?, Energy_Weight = ?, Industrials_Weight = ?, Communication_Services_Weight = ?, technology_weight = ?,
-                      aclass = ?, pay_frequency = ?
+                      aclass = ?, pay_frequency = ?, last_eod = NOW()
                       WHERE security_symbol = ?";
 
         $params = array();
@@ -192,9 +192,14 @@ class TypeETF{
         $params[] = $this->frequency;
         $params[] = $this->Code;
 
-/*foreach($params AS $k => $v){
-    echo "'" . $v . "'" . '<br />';
-
-exit;*/        $adb->pquery($query, $params, true);
+foreach($params AS $k => $v){
+    if(strlen($v) == 0){
+        $params[$k] = 0;
+#        echo 'found one ' . $k . '<br />';
+    }
+#    echo "'" . $v . "'" . '<br />';
+}
+#exit;
+        $adb->pquery($query, $params, true);
     }
 }

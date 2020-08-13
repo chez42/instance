@@ -2377,7 +2377,11 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $record = VTiger_Record_Model::getInstanceById($record_id);
         $assigned_user = $record->get('assigned_user_id');
         $statement = new PortfolioInformation_Statements_Model();
-        return htmlspecialchars_decode($statement->GetPreparedByData($assigned_user));
+        $preparedBy = $statement->GetPreparedByData($assigned_user);
+        if($preparedBy)
+            return htmlspecialchars_decode($preparedBy);
+
+        return false;
     }
 
     static public function GetPreparedByNameByRecordID($record_id)
