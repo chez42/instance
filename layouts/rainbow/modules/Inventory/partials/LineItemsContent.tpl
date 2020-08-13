@@ -72,7 +72,7 @@
 				<div class="row">
 					<div class="col-lg-10">
 						<div class="input-group" style="width:100%">
-							<input type="text" id="{$productName}" name="{$productName}" value="{$data.$productName}" class="productName form-control {if $row_no neq 0} autoComplete {/if} " placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}"
+							<input type="text" id="{$productName}" name="{$productName}" value="{$data.$productName}" class="productName form-control {if $row_no neq 0} autoComplete {/if} {if $row_no eq 0} ignore-validation {/if}" placeholder="{vtranslate('LBL_TYPE_SEARCH',$MODULE)}"
 								   data-rule-required=true {if !empty($data.$productName)} disabled="disabled" {/if}>
 							{if !$data.$productDeleted}
 								<span class="input-group-addon cursorPointer clearLineItem" title="{vtranslate('LBL_CLEAR',$MODULE)}">
@@ -130,7 +130,7 @@
 	{/if}
 
 	<td>
-		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox inputElement"
+		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox inputElement {if $row_no eq 0} ignore-validation {/if}"
 			   data-rule-required=true data-rule-positive=true data-rule-greater_than_zero=true value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"
 			   {if $QUANTITY_EDITABLE eq false} disabled=disabled {/if} />
 
@@ -165,7 +165,7 @@
 		<td>
 			<div>
 				<input id="{$listPrice}" name="{$listPrice}" value="{if !empty($data.$listPrice)}{$data.$listPrice}{else}0{/if}" type="text"
-					   data-rule-required=true data-rule-positive=true class="listPrice smallInputBox inputElement" data-is-price-changed="{if $RECORD_ID && $row_no neq 0}true{else}false{/if}" list-info='{if isset($data.$listPrice)}{Zend_Json::encode($listPriceValues)}{/if}' data-base-currency-id="{getProductBaseCurrency($productId, {$entityType})}" />
+					   data-rule-required=true data-rule-positive=true class="listPrice smallInputBox inputElement {if $row_no eq 0} ignore-validation {/if}" data-is-price-changed="{if $RECORD_ID && $row_no neq 0}true{else}false{/if}" list-info='{if isset($data.$listPrice)}{Zend_Json::encode($listPriceValues)}{/if}' data-base-currency-id="{getProductBaseCurrency($productId, {$entityType})}" />
 				&nbsp;
 				{assign var=PRICEBOOK_MODULE_MODEL value=Vtiger_Module_Model::getInstance('PriceBooks')}
 				{if $PRICEBOOK_MODULE_MODEL->isPermitted('DetailView') && $MODULE != 'PurchaseOrder'}
