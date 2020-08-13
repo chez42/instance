@@ -60,7 +60,7 @@
                             </li>
                         {/if}
                     {/foreach}
-                    <li id="eodUpdateSecurity" data-id="{$RECORD->getId()}">&nbsp;&nbsp;EOD Update</li>
+                    <li id="eodUpdateSecurity" data-id="{$RECORD->getId()}"><a href="{$DETAIL_VIEW_LINK->getUrl()}">&nbsp;&nbsp;EOD Update</a></li>
                 </ul>
             {/if}
         </div>
