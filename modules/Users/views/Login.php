@@ -100,6 +100,13 @@ class Users_Login_View extends Vtiger_View_Controller {
 
 		$viewer->assign('AUTH_URL', $auth_url);
 		
+		$officeModuleModel = Vtiger_Module_Model::getInstance('Office365');
+		$moduleActive = '';
+		if(!empty($officeModuleModel))
+		    $moduleActive = $officeModuleModel->isActive();
+	    
+	    $viewer->assign('OFFICE_ACTIVE', $moduleActive);
+		
 		$viewer->view('Login.tpl', 'Users');
 	}
 
