@@ -21,29 +21,49 @@ class Settings_MailConverter_SaveMailBox_Action extends Settings_Vtiger_Index_Ac
 		$recordId = $request->get('record');
 		$qualifiedModuleName = $request->getModule(false);
 
-		if ($recordId) {
-			$recordModel = Settings_MailConverter_Record_Model::getInstanceById($recordId);
-		} else {
-			$recordModel = Settings_MailConverter_Record_Model::getCleanInstance();
-		}
-
-		$recordModel->set('scannerOldName', $request->get('scannerOldName'));
-        $recordModel->set('userid', $request->get('userid'));
+		$duplicate = false;
 		
-		$fieldsList = $recordModel->getModule()->getFields();
-		foreach ($fieldsList as $fieldName=>$fieldModel) {
-			$recordModel->set($fieldName, $request->get($fieldName));
+		if(!$recordId){
+	        
+		    global $adb;
+    		$scanner = $adb->pquery("SELECT * FROM vtiger_mailscanner WHERE username = ? AND userid = ?",
+    		    array($request->get('username'), $request->get('userid')));
+    		
+    		if($adb->num_rows($scanner))
+    		    $duplicate = true;
+		
 		}
-
-		$status = $recordModel->save();
-
+		
+		if(!$duplicate){
+    	
+		    if ($recordId) {
+    			$recordModel = Settings_MailConverter_Record_Model::getInstanceById($recordId);
+    		} else {
+    			$recordModel = Settings_MailConverter_Record_Model::getCleanInstance();
+    			
+    		}
+    
+    		$recordModel->set('scannerOldName', $request->get('scannerOldName'));
+            $recordModel->set('userid', $request->get('userid'));
+    		
+    		$fieldsList = $recordModel->getModule()->getFields();
+    		foreach ($fieldsList as $fieldName=>$fieldModel) {
+    			$recordModel->set($fieldName, $request->get($fieldName));
+    		}
+    
+    		$status = $recordModel->save();
+	
+		}
+		
 		$response = new Vtiger_Response();
 		if ($status) {
 			$result = array('message' => vtranslate('LBL_SAVED_SUCCESSFULLY', $qualifiedModuleName));
 			$result['id'] = $recordModel->getId();
 			$result['listViewUrl'] = $recordModel->getListUrl();
 			$response->setResult($result);
-		} else {
+		}else if($duplicate) {
+		    $response->setError(vtranslate('Scanner is already available. Please try with another user.', $qualifiedModuleName));
+		}else {
 			$response->setError(vtranslate('LBL_CONNECTION_TO_MAILBOX_FAILED', $qualifiedModuleName));
 		}
 		$response->emit();

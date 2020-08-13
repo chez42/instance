@@ -1641,6 +1641,7 @@ Vtiger_Edit_Js("Inventory_Edit_Js", {
             newLineItem = newLineItem.appendTo(self.lineItemsHolder);
 			newLineItem.find('input.productName').addClass('autoComplete');
             newLineItem.find('.ignore-ui-registration').removeClass('ignore-ui-registration');
+            newLineItem.find('.ignore-validation').removeClass('ignore-validation');
             vtUtils.applyFieldElementsView(newLineItem);
             app.event.trigger('post.lineItem.New', newLineItem);
             self.checkLineItemRow();
