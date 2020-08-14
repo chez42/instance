@@ -10,11 +10,22 @@
 
 class MailManager_BasicAjax_Action extends Vtiger_Action_Controller {
 
+    function __construct() {
+        parent::__construct();
+        $this->exposeMethod('getMailRecordDetails');
+    } 
+    
 	function checkPermission(Vtiger_Request $request) {
 		return;
 	}
 
 	public function process(Vtiger_Request $request) {
+	    
+	    $mode = $request->getMode();
+	    if (!empty($mode)) {
+	        echo $this->invokeExposedMethod($mode, $request);
+	        return;
+	    }
 	    
 		$searchValue = $request->get('search_value');
 		
@@ -76,4 +87,22 @@ class MailManager_BasicAjax_Action extends Vtiger_Action_Controller {
 		$response->setResult($result);
 		$response->emit();
 	}
+	
+	public function getMailRecordDetails(Vtiger_Request $request){
+	    
+	    $response = new Vtiger_Response();
+	    $mailBoxModel = MailManager_Mailbox_Model::activeInstance($request->get('account_id'));
+	    
+	    $data['id'] = $mailBoxModel->mId;
+	    $data['type'] = $mailBoxModel->server();
+	    
+	    if(!empty($mailBoxModel->mId)){
+	        $response->setResult(array('success'=>true, 'data'=>array_map('decode_html',$data)));
+	    } else {
+	        $response->setResult(array('success'=>false, 'message'=>vtranslate('LBL_PERMISSION_DENIED')));
+	    }
+	    $response->emit();
+	    
+	}
+	
 }
