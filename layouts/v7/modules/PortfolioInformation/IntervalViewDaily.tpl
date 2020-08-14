@@ -112,8 +112,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                {*<span class="begin_value_{$v.symbol_id}"></span>*}
-                                <span class="sp_begin_value"></span>
+                                <span class="begin_value_{$v.symbol_id}"></span>
+{*                                <span class="sp_begin_value"></span>*}
                             </div>
                         {/foreach}
                     </div>
@@ -165,8 +165,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                {*<span class="twr_{$v.symbol_id}"></span>*}
-                                <span class="sp_twr"></span>
+                                <span class="twr_{$v.symbol_id}"></span>
+                                {*<span class="sp_twr"></span>*}
                             </div>
                         {/foreach}
                     </div>
@@ -179,8 +179,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                {*<span class="average_return_{$v.symbol_id}"></span>*}
-                                <span class="sp_average_return"></span>
+                                <span class="average_return_{$v.symbol_id}"></span>
+                                {*<span class="sp_average_return"></span>*}
                             </div>
                         {/foreach}
                     </div>
@@ -193,8 +193,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-{*                                <span class="end_value_{$v.symbol_id}"></span>*}
-                                <span class="sp_end_value"></span>
+                                <span class="end_value_{$v.symbol_id}"></span>
+                                {*<span class="sp_end_value"></span>*}
                             </div>
                         {/foreach}
                     </div>
