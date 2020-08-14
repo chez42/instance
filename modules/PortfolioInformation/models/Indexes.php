@@ -27,6 +27,7 @@ class PortfolioInformation_Indexes_Model extends Vtiger_Module {
     static public function GetSelectedIndexes(){
         global $adb;
         $ids = self::GetIndexPreferences();
+        $ids = array("102");
         $questions = generateQuestionMarks($ids);
         $query = "SELECT symbol_id, symbol, description, security_symbol
                   FROM vtiger_index_list
@@ -35,7 +36,7 @@ class PortfolioInformation_Indexes_Model extends Vtiger_Module {
         $list = array();
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)) {
-                $list[] = $v;
+                $list[$v['symbol_id']] = $v;
             }
         }
         return $list;

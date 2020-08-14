@@ -1,8 +1,8 @@
-<div class="btn-toolbar" style="display:block;">
+{*<div class="btn-toolbar" style="display:block;">
     <span class="btn-group">
         <button class="btn ExportReport" style="display:block;"><strong>Generate PDF</strong></button>
     </span>
-</div>
+</div>*}
 
 <form id="IntervalForm" method="post" action="index.php?module=PortfolioInformation&view=OmniIntervalsDaily">
     <input type="hidden" name="module" value="PortfolioInformation" />
@@ -112,7 +112,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="begin_value_{$v.symbol_id}"></span>
+                                {*<span class="begin_value_{$v.symbol_id}"></span>*}
+                                <span class="sp_begin_value"></span>
                             </div>
                         {/foreach}
                     </div>
@@ -125,7 +126,7 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="selected_flows_{$v.symbol_id}"></span>
+                                <span class="selected_flows_{$v.symbol_id}">N/A</span>
                             </div>
                         {/foreach}
                     </div>
@@ -138,7 +139,7 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="selected_income_{$v.symbol_id}"></span>
+                                <span class="selected_income_{$v.symbol_id}">N/A</span>
                             </div>
                         {/foreach}
                     </div>
@@ -164,7 +165,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="twr_{$v.symbol_id}"></span>
+                                {*<span class="twr_{$v.symbol_id}"></span>*}
+                                <span class="sp_twr"></span>
                             </div>
                         {/foreach}
                     </div>
@@ -177,7 +179,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="average_return_{$v.symbol_id}"></span>
+                                {*<span class="average_return_{$v.symbol_id}"></span>*}
+                                <span class="sp_average_return"></span>
                             </div>
                         {/foreach}
                     </div>
@@ -190,7 +193,8 @@
                         </div>
                         {foreach item=v from=$SELECTED_INDEXES}
                             <div class="td aright">
-                                <span class="end_value_{$v.symbol_id}"></span>
+{*                                <span class="end_value_{$v.symbol_id}"></span>*}
+                                <span class="sp_end_value"></span>
                             </div>
                         {/foreach}
                     </div>

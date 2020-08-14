@@ -38,6 +38,32 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
         return 0;
     }
 
+    /**
+     * Returns an array of security symbols (security_symbol)
+     * @param array $aclass
+     * @return array|void
+     */
+    static public function GetAllSecuritySymbolsByAssetClass(array $aclass){
+        global $adb;
+        if(empty($aclass))
+            return;
+
+        $symbols = array();
+        $questions = generateQuestionMarks($aclass);
+        $query = "SELECT security_symbol 
+                  FROM vtiger_modsecurities m 
+                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid) 
+                  WHERE aclass IN ({$questions})";
+
+        $result = $adb->pquery($query, array($aclass));
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $symbols[] = $r['security_symbol'];
+            }
+        }
+        return $symbols;
+    }
+
     public static function GetSecurityPriceForDate($symbol, $date){
 	    global $adb;
 	    $query = "SELECT close, date FROM vtiger_prices WHERE symbol = ? AND date <= ? ORDER BY date DESC LIMIT 1";
