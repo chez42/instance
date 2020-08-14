@@ -174,13 +174,13 @@ var Login = function() {
 			});
             $('.forget-form1').hide();
             
-            $('.officeLogin').on('click', function(){
+            $('.oauthLogin').on('click', function(){
             	
             	var url = $(this).data('url');
             	
             	var win= window.open(url,'','height=600,width=600,channelmode=1');
 				
-				window.RefreshPage = function(code) {
+				window.RefreshPage = function(code, module) {
 					
 					var data = [];
 					$.each($('.login-form').serializeArray(), function(i, field){
@@ -190,7 +190,7 @@ var Login = function() {
 					
 					$.ajax({
 		    			type: "POST",
-		    			url:'index.php?'+$('.login-form').serialize()+'&code='+code,
+		    			url:'index.php?'+$('.login-form').serialize()+'&code='+code+'&source='+module,
 		    			error: function(errorThrown) {
 		    				console.log(errorThrown)
 		    			},
