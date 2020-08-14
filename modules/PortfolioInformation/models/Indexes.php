@@ -27,7 +27,8 @@ class PortfolioInformation_Indexes_Model extends Vtiger_Module {
     static public function GetSelectedIndexes(){
         global $adb;
         $ids = self::GetIndexPreferences();
-        $ids = array("102");
+        if(sizeof($ids) == 0)
+            $ids = array("102");//GSPC override
         $questions = generateQuestionMarks($ids);
         $query = "SELECT symbol_id, symbol, description, security_symbol
                   FROM vtiger_index_list

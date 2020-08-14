@@ -4,6 +4,7 @@
 jQuery.Class("IntervalsDaily_Js",{
     currentInstance : false,
     symbols : [],
+    symbolData : [],
     chart : [],
     chartData : [],
     selectedCount : 0,
@@ -157,11 +158,6 @@ jQuery.Class("IntervalsDaily_Js",{
             expense += tmp_expense;
         });
 
-        var begin_val = self.ConvertDateAndReturnValueFromSymbolObject(begin_date, "mm-dd-yy");
-        var end_val = self.ConvertDateAndReturnValueFromSymbolObject(end_date, "mm-dd-yy");
-        var calculated_index = ( ((end_val/begin_val) * 100) - 100).toFixed(2);
-        var average_index = (calculated_index / self.selectedCount).toFixed(2);
-
         $(".start_date_range").text(begin_date);
         $(".end_date_range").text(end_date);
 
@@ -180,6 +176,25 @@ jQuery.Class("IntervalsDaily_Js",{
                 var tmp_formatted = $.datepicker.formatDate( "mm-dd-yy", tmp_date);
                 var begin_val = parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);//parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);*/
 
+        var count = 0;
+        $.each(self.symbolData, function(a, symbol){
+            var begin_val = self.ConvertDateAndReturnValueFromSymbolObject(begin_date, "mm-dd-yy", count);
+            var end_val = self.ConvertDateAndReturnValueFromSymbolObject(end_date, "mm-dd-yy", count);
+            var calculated_index = ( ((end_val/begin_val) * 100) - 100).toFixed(2);
+            var average_index = (calculated_index / self.selectedCount).toFixed(2);
+
+            self.DetermineColor($(".begin_value_"+symbol.symbol_id), begin_val);
+            $(".begin_value_"+symbol.symbol_id).text(Number(begin_val).toLocaleString());//Set the begin value text
+            self.DetermineColor($(".end_value_"+symbol.symbol_id), end_val);
+            $(".end_value_"+symbol.symbol_id).text(Number(end_val).toLocaleString());//Set the begin value text
+            self.DetermineColor($(".twr_"+symbol.symbol_id), calculated_index);
+            $(".twr_"+symbol.symbol_id).text(Number(calculated_index).toLocaleString() + "%");//Set the begin value text
+            self.DetermineColor($(".average_return_"+symbol.symbol_id), average_index);
+            $(".average_return_"+symbol.symbol_id).text(Number(average_index).toLocaleString() + "%");//Set the begin value text
+
+            count++;
+        });
+/*
         self.DetermineColor($(".sp_begin_value"), begin_val);
         $(".sp_begin_value").text(Number(begin_val).toLocaleString());//Set the begin value text
         self.DetermineColor($(".sp_end_value"), end_val);
@@ -188,13 +203,15 @@ jQuery.Class("IntervalsDaily_Js",{
         $(".sp_twr").text(Number(calculated_index).toLocaleString() + "%");//Set the begin value text
         self.DetermineColor($(".sp_average_return"), average_index);
         $(".sp_average_return").text(Number(average_index).toLocaleString() + "%");//Set the begin value text
+*/
     },
 
-    ConvertDateAndReturnValueFromSymbolObject: function(date, format){
+    ConvertDateAndReturnValueFromSymbolObject: function(date, format, id){
         var self = this;
+
         var tmp_date = $.datepicker.parseDate(format, date);
         var tmp_formatted = $.datepicker.formatDate( format, tmp_date);
-        var val = parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);//parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);
+        var val = parseFloat(self.symbols[id][tmp_formatted].value).toFixed(2);//parseFloat(self.symbols[0][tmp_formatted].value).toFixed(2);
         return val;
     },
 
@@ -219,7 +236,18 @@ jQuery.Class("IntervalsDaily_Js",{
         chart.colors.step = 3;
 
         var mydata = {};
-        var symbols = new Array("GSPC", "SP500BDT");
+        var symbolData = $.parseJSON($("#selected_indexes").val());//new Array("GSPC", "SP500BDT");
+        var symbols = [];
+
+        $.each(symbolData, function(a, symbol){
+            symbols.push(symbol.symbol);
+        });
+
+        self.symbolData = symbolData;
+
+        console.log("Symbols");
+        console.log(self.symbolData);
+
         var symbol_info;
         var final = [];
         var start_date = $("#start_date").val();
