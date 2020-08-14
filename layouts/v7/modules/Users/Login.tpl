@@ -90,13 +90,17 @@
                                     <button class="btn green auto_submit" type="submit" style = "background:#0098CF;border-color:#0098CF;">Sign In</button>
                                 </div>
                             </div>
-                            {if $OFFICE_ACTIVE}
-	                            <div class="row" style = "margin-top:30px;">
-	                                <div class="col-sm-12" style = "text-align:center;padding-right:30px;">
-	                                	<button class="btn green officeLogin" data-url="{$AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Office365</button>
-	                                </div>
-	                            </div>
-                            {/if}
+                           
+                            <div class="row" style = "margin-top:30px;">
+                                <div class="col-sm-12" style = "text-align:center;padding-right:30px;">
+                                	{if $OFFICE_ACTIVE}
+                                		<button class="btn green officeLogin oauthLogin" data-url="{$AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Office365</button>&nbsp;&nbsp;
+                                	{/if}
+                                	{if $GOOGLE_ACTIVE}
+                                		<button class="btn green googleLogin oauthLogin" data-url="{$GOOGLE_AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Google</button>
+                            		{/if}
+                                </div>
+                            </div>
                         </form>
                     </div>
 	            </div>

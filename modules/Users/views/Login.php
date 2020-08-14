@@ -95,7 +95,7 @@ class Users_Login_View extends Vtiger_View_Controller {
 		global $site_URL;
 		
 		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
-		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Login", "ValidateLogin")));
+		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Office365Login", "ValidateLogin")));
 		$auth_url .= '&scope=' . urlencode('User.Read Mail.ReadWrite Mail.Send offline_access');
 
 		$viewer->assign('AUTH_URL', $auth_url);
@@ -106,6 +106,27 @@ class Users_Login_View extends Vtiger_View_Controller {
 		    $moduleActive = $officeModuleModel->isActive();
 	    
 	    $viewer->assign('OFFICE_ACTIVE', $moduleActive);
+	    
+	    
+	    $googleClientId = Google_Config_Connector::$clientId;
+	    
+	    $googleRedirectUri = Google_Config_Connector::$redirect_url;
+	    
+	    $googleauth_url = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline";
+	    $googleauth_url .= "&client_id=".urlencode($googleClientId);
+	    $googleauth_url .= "&redirect_uri=".urlencode($googleRedirectUri);
+	    $googleauth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "GoogleLogin", "ValidateLogin")));
+	    $googleauth_url .= '&scope=' . urlencode('https://mail.google.com/');
+	    $googleauth_url .= '&prompt='. urlencode('select_account consent');
+	    
+	    $viewer->assign('GOOGLE_AUTH_URL', $googleauth_url);
+	    
+	    $googleModuleModel = Vtiger_Module_Model::getInstance('Google');
+	    $googleModuleActive = '';
+	    if(!empty($googleModuleModel))
+	        $googleModuleActive = $googleModuleModel->isActive();
+	        
+        $viewer->assign('GOOGLE_ACTIVE', $googleModuleActive);
 		
 		$viewer->view('Login.tpl', 'Users');
 	}
