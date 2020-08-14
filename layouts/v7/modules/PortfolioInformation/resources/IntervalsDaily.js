@@ -264,7 +264,7 @@ jQuery.Class("IntervalsDaily_Js",{
                 count = count + 1;
             });
             self.symbols = tmpSymbols;
-//            console.log(self.symbols);
+            console.log(self.symbols);
             $.each(mydata, function(k, v){
                 v.amcharts_date = new Date($.datepicker.parseDate("m-d-yy", v.date));
 //                console.log(v.symbol_1);
@@ -518,7 +518,11 @@ jQuery.Class("IntervalsDaily_Js",{
                 var end = chart.dateFormatter.format(Date(), "yyyy-MM-dd");
                 SetButtonColor($("#b3m"), "lightgreen");
                 console.log('auto zoom');
-                zoomToDatesCustom(start, end);
+                setTimeout(
+                function()
+                {
+                    zoomToDatesCustom(start, end);
+                }, 200);
 //            });
 
         });

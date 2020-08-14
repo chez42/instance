@@ -9,6 +9,8 @@
  ************************************************************************************/
 require_once 'libraries/Office365/autoload.php';
 
+require_once 'libraries/Google/autoload.php';
+
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
 
@@ -28,8 +30,11 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 
 		if($request->get('code')){
 		    
-		    $token = $this->getOfficeToken($request->get('code'));
-		    
+		    if($request->get('source') == 'Office')
+                $token = $this->getOfficeToken($request->get('code'));
+            elseif($request->get('source') == 'Google')
+                $token = $this->getGoogleToken($request->get('code'));
+            
 		    if($token['success']){
 		         echo $token['url'];
 		         exit;
@@ -182,4 +187,92 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 	        return array("success" => false);
 	    }
 	}
+	
+	public function getGoogleToken($code){
+	   
+	    $client = new Google_Client();
+	    $config = array();
+	    $config['client_id'] = Google_Config_Connector::$clientId;
+	    $config['client_secret'] = Google_Config_Connector::$clientSecret;
+	    $config['redirect_uris'] = array(Google_Config_Connector::$redirect_url);
+	    
+	    $client->setAuthConfig($config);
+	    
+	    $response = $client->fetchAccessTokenWithAuthCode($code);
+	    
+	    if($response['access_token']){
+	        
+	        $accessToken = $response['access_token'];
+	        $refreshToken = $response['refresh_token'];
+	        
+	        try{
+	            
+	            $client->setAccessToken($accessToken);
+	            $service = new Google_Service_Gmail($client);
+	            $results = $service->users->getProfile('me');
+	            $displayName = $results->getEmailAddress();
+	            $userPrincipal = $results->getEmailAddress();
+	           
+	            $db = PearDatabase::getInstance();
+	            $userQuery = $db->pquery("SELECT * FROM vtiger_users WHERE email1=? AND status=?",
+	                array($userPrincipal, 'Active'));
+	            
+	            if($db->num_rows($userQuery)){
+	                
+	                $username = $db->query_result($userQuery, 0, 'user_name');
+	                
+	                $user = CRMEntity::getInstance('Users');
+	                $user->column_fields['user_name'] = $username;
+	                
+	                session_regenerate_id(true); // to overcome session id reuse.
+	                
+	                $userid = $user->retrieve_user_id($username);
+	                Vtiger_Session::set('AUTHUSERID', $userid);
+	                
+	                // For Backward compatability
+	                // TODO Remove when switch-to-old look is not needed
+	                $_SESSION['authenticated_user_id'] = $userid;
+	                $_SESSION['app_unique_key'] = vglobal('application_unique_key');
+	                $_SESSION['authenticated_user_language'] = vglobal('default_language');
+	                
+	                //Enabled session variable for KCFINDER
+	                $_SESSION['KCFINDER'] = array();
+	                $_SESSION['KCFINDER']['disabled'] = false;
+	                $_SESSION['KCFINDER']['uploadURL'] = "test/upload";
+	                $_SESSION['KCFINDER']['uploadDir'] = "../test/upload";
+	                
+	                global $root_directory, $site_URL;
+	                $_SESSION['CKFINDER']['uploadDir'] = $root_directory;
+	                $_SESSION['CKFINDER']['baseUrl'] = $site_URL;
+	                
+	                
+	                $deniedExts = implode(" ", vglobal('upload_badext'));
+	                $_SESSION['KCFINDER']['deniedExts'] = $deniedExts;
+	                // End
+	                
+	                //Track the login History
+	                $moduleModel = Users_Module_Model::getInstance('Users');
+	                $moduleModel->saveLoginHistory($user->column_fields['user_name']);
+	                //End
+	                
+	                if(isset($_SESSION['return_params'])){
+	                    $return_params = $_SESSION['return_params'];
+	                }
+	                
+	                $url = 'index.php?module=Users&parent=Settings&view=SystemSetup';
+	            }else {
+	                $url = 'index.php?module=Users&parent=Settings&view=Login&error=login';
+	            }
+	            
+	        }catch(Exception $e){
+	            $url = 'index.php?module=Users&parent=Settings&view=Login&error=login';
+	        }
+	        
+	        return array("success" => true, "url" => $url);
+	        
+	    } else {
+	        return array("success" => false);
+	    }
+	}
+	
 }
