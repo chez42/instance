@@ -24,23 +24,88 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			'account_id' : accountid
 		}
 		app.request.post({"data" : params}).then(function(error, responseData) {
-			app.helper.hideProgress();
-			self.getContainer().find('#folders_list').html(responseData);
-			self.getContainer().find('#extraFolderList').mCustomScrollbar({
-				setHeight: 550,
-				autoExpandScrollbar: true,
-				scrollInertia: 200,
-				autoHideScrollbar: true,
-				theme : "dark-3"
-			});
-			self.registerFolderClickEvent();
-			if(folder) {
-				self.openFolder(folder);
-			} else {
-				self.openFolder('INBOX');
+			if(error === null) {
+				app.helper.hideProgress();
+				self.getContainer().find('#folders_list').html(responseData);
+				self.getContainer().find('#extraFolderList').mCustomScrollbar({
+					setHeight: 550,
+					autoExpandScrollbar: true,
+					scrollInertia: 200,
+					autoHideScrollbar: true,
+					theme : "dark-3"
+				});
+				self.registerFolderClickEvent();
+				if(folder) {
+					self.openFolder(folder);
+				} else {
+					self.openFolder('INBOX');
+				}
+				self.registerAutoRefresh();
+				
+			}else{
+				
+				if(error.message == 'invalid json token' || error.message == 'No access token has been provided.'){
+					var params ={
+						'accountid': typeof accountid == "undefined" ? '' : accountid,
+					};
+					self.getMailRecordDetails(params).then(function(response){
+						app.helper.hideProgress();
+						var data = response.data;
+						
+						accountid = data.id;
+						var type = data.type;
+						
+						if(type == 'Google')
+							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/GoogleConnect.php');
+						else if(type == 'Office365')
+							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/OutlookConnect.php');
+						
+						app.helper.showConfirmationBox({'message': "Invalid token! Do you want to reconnect."}).then(
+								
+							function(data) {
+								
+								var win= window.open(url,'','height=600,width=600,channelmode=1');
+								
+								window.RefreshPage = function() {
+									location.reload();
+								}
+							},
+							
+							function(error, err) {
+								
+								var ele = $('.mailManagerDropDown').find('.deleteMailManager[data-boxid="'+accountid+'"]');
+								ele.trigger('click');
+								
+							}
+							
+						);
+					});
+					
+					
+				}else{
+					app.helper.showErrorNotification({'message': error.message});
+				}
 			}
-			self.registerAutoRefresh();
 		});
+	},
+	
+	getMailRecordDetails : function(params) {
+		var aDeferred = jQuery.Deferred();
+		
+		var url = "index.php?module="+app.getModuleName()+"&action=BasicAjax&account_id="+params['accountid']+"&mode=getMailRecordDetails";
+		app.request.get({'url':url}).then(
+			function(error, data){
+				if(error == null) {
+					aDeferred.resolve(data);
+				} else {
+					//aDeferred.reject(data['message']);
+				}
+			},
+			function(error){
+				aDeferred.reject();
+			}
+			)
+		return aDeferred.promise();
 	},
 
 	registerAutoRefresh : function() {
