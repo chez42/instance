@@ -96,7 +96,7 @@ class Users_Login_View extends Vtiger_View_Controller {
 		
 		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
 		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Office365Login", "ValidateLogin")));
-		$auth_url .= '&scope=' . urlencode('User.Read Mail.ReadWrite Mail.Send offline_access');
+		$auth_url .= '&scope=' . urlencode('User.Read offline_access');
 
 		$viewer->assign('AUTH_URL', $auth_url);
 		
@@ -116,7 +116,7 @@ class Users_Login_View extends Vtiger_View_Controller {
 	    $googleauth_url .= "&client_id=".urlencode($googleClientId);
 	    $googleauth_url .= "&redirect_uri=".urlencode($googleRedirectUri);
 	    $googleauth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "GoogleLogin", "ValidateLogin")));
-	    $googleauth_url .= '&scope=' . urlencode('https://mail.google.com/');
+	    $googleauth_url .= '&scope=' . urlencode('https://www.googleapis.com/auth/userinfo.email');
 	    $googleauth_url .= '&prompt='. urlencode('select_account consent');
 	    
 	    $viewer->assign('GOOGLE_AUTH_URL', $googleauth_url);
