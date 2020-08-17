@@ -208,11 +208,12 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 	        try{
 	            
 	            $client->setAccessToken($accessToken);
-	            $service = new Google_Service_Gmail($client);
-	            $results = $service->users->getProfile('me');
-	            $displayName = $results->getEmailAddress();
-	            $userPrincipal = $results->getEmailAddress();
-	           
+	            $service = new Google_Service_Oauth2($client);
+	            
+	            $results = $service->userinfo->get();
+	            
+	            $userPrincipal = $results->getEmail();
+	            
 	            $db = PearDatabase::getInstance();
 	            $userQuery = $db->pquery("SELECT * FROM vtiger_users WHERE email1=? AND status=?",
 	                array($userPrincipal, 'Active'));
