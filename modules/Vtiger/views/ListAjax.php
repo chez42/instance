@@ -119,7 +119,7 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 		foreach ($searchableModules as $searchModule => $searchModuleModel) {
 		   
 		    $globalSearchModel = new Vtiger_GlobalSearch_Model();
-		    $searchedRecords =  $globalSearchModel->getSearchResult($searchValue, $searchModule, $moduleName);
+		    $searchedRecords =  $globalSearchModel->getSearchResult($searchValue, $searchModule, $moduleName, $pagingModel);
 		    
 			//$searchedRecords = Vtiger_Record_Model::getSearchResult($searchValue, $searchModule);
 			if ($searchedRecords[$searchModule]) {
@@ -137,7 +137,14 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 			$cvId = $customView->getViewIdByName('All', $module);
 
 			$listViewModel = Vtiger_ListView_Model::getInstance($module, $cvId);
-			$listViewModel->listViewHeaders = $listViewModel->getListViewHeaders();
+			
+			$globalSearchModel = new Vtiger_GlobalSearch_Model();
+			$listViewModel->listViewHeaders = $globalSearchModel->getGlobalSearchFields($module);
+			
+			if(!$listViewModel->listViewHeaders){
+			    $listViewModel->listViewHeaders = $listViewModel->getListViewHeaders();
+			}
+			
 			$listViewModel->set('pageNumber', 1);
 
 			$listviewPagingModel = clone $pagingModel;
@@ -191,7 +198,16 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
             
             $gsData = $adb->fetch_array($search_ListFields_result);
             
-            $nameFields = explode(',',$gsData['fieldnames']);
+            $nameFields = array();
+            $showField = array();
+            if($fields)
+                $showField = explode(',', $gsData['fieldnames']);
+            if(!empty($showField)){
+                foreach($showField as $shwField){
+                    $fieldDetails = explode(":", $shwField);
+                    $nameFields[] = $fieldDetails[2];
+                }
+            }
             
         }
         if( empty($nameFields) ){
@@ -227,6 +243,15 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 		$viewer = $this->getViewer($request);
 		$this->initializeListViewContents($request, $viewer);
 
+		$listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $this->viewName );
+		
+		$globalSearchModel = new Vtiger_GlobalSearch_Model();
+		$listViewModel->listViewHeaders = $globalSearchModel->getGlobalSearchFields($moduleName);
+		
+		if($listViewModel->listViewHeaders){
+		    $viewer->assign('LISTVIEW_HEADERS', $listViewModel->listViewHeaders);
+		}
+		
 		$viewer->assign('VIEW', $request->get('view'));
 		$viewer->assign('MODULE_MODEL', $moduleModel);
 		$viewer->assign('RECORDS_COUNT', $recordsCount);
