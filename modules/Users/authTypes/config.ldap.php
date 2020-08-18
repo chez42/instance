@@ -14,7 +14,7 @@
 $AUTHCFG['authType']      = 'AD';
 
 // ----------- Configuration LDAP -------------
-$AUTHCFG['ldap_host']     = 'vmserver6.concertglobal.com';	//system where ldap is running (e.g. ldap://localhost)
+$AUTHCFG['ldap_host']     = 'vmserver8.concertglobal.com';	//system where ldap is running (e.g. ldap://localhost)
 $AUTHCFG['ldap_port']     = '389';				//port of the ldap service
 
 // The LDAP branch which stores the User Information
@@ -23,7 +23,6 @@ $AUTHCFG['ldap_basedn']   = 'dc=concertglobal,dc=com';
 
 // The account on the LDAP server which has permissions to read the branch specified in ldap_basedn
 //$AUTHCFG['ldap_username'] = 'cn=admin,dc=localhost,dc=localdomain';   // set = NULL if not required
-//$AUTHCFG['ldap_username'] = 'cn=concertadmin,dc=vmserver6,dc=concertglobal,dc=com';   // set = NULL if not required
 $AUTHCFG['ldap_username'] = 'cn=concertadmin,cn=users,dc=concertglobal,dc=com';   // set = NULL if not required
 
 $AUTHCFG['ldap_pass']     = 'Consec1'; // set = NULL if not required
@@ -59,7 +58,7 @@ $AUTHCFG['ldap_adminpwd'] = 'Consec1';  //Change to NULL if admin do not need to
 
 $AUTHCFG['ad_accountSuffix'] = '@concertglobal.com';
 $AUTHCFG['ad_basedn']        = 'dc=concertglobal,dc=com';
-$AUTHCFG['ad_dc']            = 'vmserver6.concertglobal.com'; //array of domain controllers
+$AUTHCFG['ad_dc']            = 'vmserver8.concertglobal.com'; //array of domain controllers
 //$AUTHCFG['ad_dc']            = 'vmserver6.concertglobal.com,lanserver1.concertglobal.com'; //array of domain controllers
 $AUTHCFG['ad_username']      = 'concertadmin'; //optional user/pass for searching
 $AUTHCFG['ad_password']          = 'Consec1';
@@ -67,7 +66,7 @@ $AUTHCFG['ad_realgroup']     = true; //AD does not return the primary group.  Se
 
 $AUTHCFG['account_suffix'] = "@concertglobal.com";
 $AUTHCFG['base_dn'] = 'dc=concertglobal,dc=com';
-$AUTHCFG['domain_controllers'] = array('vmserver6.concertglobal.com','vmserver7.concertglobal.com');
+$AUTHCFG['domain_controllers'] = array('vmserver8.concertglobal.com','vmserver7.concertglobal.com');
 //$AUTHCFG['domain_controllers'] = array('vmserver6.concertglobal.com','lanserver1.concertglobal.com');
 //$AUTHCFG['ad_username'] = 'concertadmin';
 //$AUTHCFG['ad_password'] = 'Consec1';
@@ -75,4 +74,3 @@ $AUTHCFG['use_ssl'] = false;
 
 // #########################################################################
 ?>
-
