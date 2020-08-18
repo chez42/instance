@@ -42,6 +42,9 @@ function vtws_managemodules($element) {
         
     }else if($element['mode'] == 'enableDisableModule'){
         
+        $user = Users::getActiveAdminUser();
+        vglobal("current_user", $user);
+        
         $moduleManagerModel = new Settings_ModuleManager_Module_Model();
         
         if(!empty($element['enable'])) {
