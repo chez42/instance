@@ -301,6 +301,8 @@ class cTDTransactions extends cCustodian
     protected function FillTransactionTable($crmid, cTDTransactionsData $data){
         global $adb;
         $params = array();
+        if($data->operation == null)
+            $data->operation = '';
         $params[] = $crmid;
         $params[] = $data->account_number;
         $params[] = $data->symbol;
