@@ -67,7 +67,7 @@ $config['backends'][] = array(
     'adapter'      => 'local',
     'baseUrl' => $_SESSION['CKFINDER']['baseUrl'],
     'root' => $_SESSION['CKFINDER']['uploadDir'],
-    'chmodFiles'   => 0777,
+    'chmodFiles'   => 0644,
     'chmodFolders' => 0755,
     'filesystemEncoding' => 'UTF-8',
 );
