@@ -3,6 +3,7 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 	
 	fieldsContainer : false,
 	moduleContainer : false,
+	fieldsShowContainer : false,
 	
 	form : false,
 	
@@ -15,6 +16,7 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 	
 	registerSelect2ElementForFields : function() {
 		app.changeSelectElementView(this.fieldsContainer, 'select2', {maximumSelectionSize: 6});
+		app.changeSelectElementView(this.fieldsShowContainer, 'select2', {maximumSelectionSize: 6});
 	},
 	
 	registerModuleChangeEvent : function() {
@@ -33,8 +35,10 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 			
 			if(selected_module != ''){
 				thisInstance.fieldsContainer.attr('data-validation-engine','validate[required]');
+				thisInstance.fieldsShowContainer.attr('data-validation-engine','validate[required]');
 			} else {
 				thisInstance.fieldsContainer.removeAttr('data-validation-engine');
+				thisInstance.fieldsShowContainer.removeAttr('data-validation-engine');
 			}
 			
 			var data = 'index.php?module='+app.getModuleName()+'&parent='+app.getParentModuleName()+
@@ -48,6 +52,7 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 					});
 					
 					var options = '';
+					var showOption = '';
 					
 					$('input[name="allow_global_search"]').prop('checked',false);
 					
@@ -56,7 +61,10 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 						var allFields = response.all_fields;	
 						var savedData = response.savedData;
 						
-						for( var fieldname in allFields ) {
+						options += response.selectedFields;
+						showOption += response.showFields;
+						
+						/*for( var fieldname in allFields ) {
 								
 							options += '<option value="'+fieldname+'"';
 							
@@ -66,14 +74,24 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 							options += '>'+allFields[fieldname]+'</option>';
 						}
 						
+						for( var fieldname in allFields ) {
+							
+							showOption += '<option value="'+fieldname+'"';
+							
+							if( typeof savedData.fieldshow != undefined && $.inArray(fieldname, savedData.fieldshow) != '-1' )
+								showOption += ' selected ';
+							
+							showOption += '>'+allFields[fieldname]+'</option>';
+						}*/
+						
 						if( typeof savedData.allow_global_search != undefined && savedData.allow_global_search == '1' )
 							$('input[name="allow_global_search"]').prop('checked', true);
 								
 					}
 					
-					
-					
 					thisInstance.fieldsContainer.html(options).trigger("change");
+					thisInstance.fieldsShowContainer.html(showOption).trigger("change");
+					
 					
 				});
 		});
@@ -162,6 +180,7 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 	
 		this.moduleContainer = $("#modulename");
 		this.fieldsContainer = $("#fieldnames");
+		this.fieldsShowContainer = $("#fieldnames_show");
 	
 		this.registerModuleChangeEvent();
 		this.registerSelect2ElementForFields();

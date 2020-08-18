@@ -57,6 +57,18 @@
 							</tr>
 							<tr>
 								<td class="{$WIDTHTYPE} fieldLabel">
+									<label><b>Show Fields</b></label>
+									&nbsp;<span class="redColor">*</span>
+								</td>
+								<td class="{$WIDTHTYPE} fieldValue">
+									<div class=" col-lg-6 col-md-6 col-sm-12">
+										<select class="select2" id="fieldnames_show"style='width:250px;height:30px;'  multiple name="fieldnames_show[]" data-rule-required="true">
+										</select>
+									</div>	
+								</td>
+							</tr>
+							<tr>
+								<td class="{$WIDTHTYPE} fieldLabel">
 									<label><b>Allow Global Search</b></label>
 								</td>
 								<td class="{$WIDTHTYPE} fieldValue">

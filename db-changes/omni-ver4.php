@@ -413,3 +413,30 @@ if(!$adb->num_rows($ckEditor)){
 }
 Vtiger_Cron::register('Auto Office365 Sync Calendar', 'cron/modules/Office365/Office365CalendarSync.service', 
 900, "Office365", 1, 0, "Recommended frequency for Office365 Events Sync is 15 mins");
+
+$adb->pquery("ALTER TABLE vtiger_globalsearch ADD fieldname_show TEXT NULL ");
+
+$adb->pquery("ALTER TABLE `vtiger_globalsearch` CHANGE `fieldnames` `fieldnames` TEXT ");
+
+$module = Vtiger_Module::getInstance("Instances");
+$blockInstance = Vtiger_Block::getInstance('LBL_INSTANCES_INFORMATION',$module);
+$fieldInstance = Vtiger_Field::getInstance('portal_title', $module);
+if(!$fieldInstance && $blockInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'portal_title';
+    $field->label = 'Portal Title';
+    $field->uitype = 2;
+    $field->typeofdata = 'V~O';
+    $field->columntype = 'VARCHAR(500)';
+    $blockInstance->addField($field);
+}
+$fieldInstance = Vtiger_Field::getInstance('portal_subtitle', $module);
+if(!$fieldInstance && $blockInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'portal_subtitle';
+    $field->label = 'Portal Sub Title';
+    $field->uitype = 2;
+    $field->typeofdata = 'V~O';
+    $field->columntype = 'VARCHAR(500)';
+    $blockInstance->addField($field);
+}
