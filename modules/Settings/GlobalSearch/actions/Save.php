@@ -4,12 +4,17 @@ class Settings_GlobalSearch_Save_Action extends Settings_Vtiger_Basic_Action {
     
     public function process(Vtiger_Request $request) {
         
-    	$selectedModule = $request->get('modulename');
+        $selectedModule = $request->get('modulename');
         $fieldList = $request->get('fieldnames');
+    	$showFieldList = $request->get('fieldnames_show');
+       
+    	if(is_array($fieldList)){
+    	    $fieldList = implode(',',$fieldList);
+    	}
     	
-        if(is_array($fieldList)){
-        	$fieldList = implode(',',$fieldList);
-        }
+    	if(is_array($showFieldList)){
+    	    $showFieldList = implode(',',$showFieldList);
+    	}
     	
         $result = array();
         
@@ -32,6 +37,7 @@ class Settings_GlobalSearch_Save_Action extends Settings_Vtiger_Basic_Action {
         		$recordModel->set('allow_global_search','0');        	
         	}
     		$recordModel->set('fieldnames',$fieldList);
+    		$recordModel->set('fieldnames_show',$showFieldList);
     	
     		$id = $recordModel->save();
             $recordModel = Settings_GlobalSearch_Record_Model::getInstance($id);

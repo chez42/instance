@@ -17,16 +17,16 @@ class Settings_GlobalSearch_Record_Model extends Settings_Vtiger_Record_Model{
         $id = $this->getId();
         $tableName = Settings_GlobalSearch_Record_Model::tableName;
         if(!empty($id)) {
-            $query = 'UPDATE '.$tableName.' SET modulename = ?, fieldnames = ?, allow_global_search = ? WHERE globalsearchid = ?' ;
+            $query = 'UPDATE '.$tableName.' SET modulename = ?, fieldnames = ?, allow_global_search = ?, fieldname_show = ? WHERE globalsearchid = ?' ;
             $params = array(
                 $this->get('modulename'), $this->get('fieldnames'),
-                $this->get('allow_global_search'), $id
+                $this->get('allow_global_search'), $this->get('fieldnames_show'), $id
             );
         }else {
             $id = $db->getUniqueID($tableName);
-            $query = 'INSERT INTO '. $tableName .' SET globalsearchid = ?, modulename = ?, fieldnames = ?, allow_global_search = ? ';
+            $query = 'INSERT INTO '. $tableName .' SET globalsearchid = ?, modulename = ?, fieldnames = ?, allow_global_search = ?, fieldname_show = ? ';
             $params = array(
-                $id , $this->get('modulename'), $this->get('fieldnames'), $this->get('allow_global_search')
+                $id , $this->get('modulename'), $this->get('fieldnames'), $this->get('allow_global_search'), $this->get('fieldnames_show')
             );
         }
         $db->pquery($query,$params);
