@@ -46,6 +46,8 @@ if(!$_SESSION['api_url']){
          $_SESSION['portal_logo'] = $results['image'];
          $_SESSION['portal_name'] = $results['name'];
          $_SESSION['portal_accesskey'] = $results['accesskey'];
+        $_SESSION['portal_main_title'] = $results['portal_main_title'];
+        $_SESSION['portal_subtitle'] = $results['portal_subtitle'];
      }
      
 }
@@ -68,6 +70,16 @@ if($_SESSION['portal_name'])
 else
     $GLOBALS['portal_title'] = 'OMNI Client Portal';
 
+if($_SESSION['portal_main_title'])
+    $GLOBALS['portal_main_title'] = $_SESSION['portal_main_title'];
+else 
+    $GLOBALS['portal_main_title'] = 'OMNI Client Information Center';
+
+if($_SESSION['portal_subtitle'])
+    $GLOBALS['portal_subtitle'] = $_SESSION['portal_subtitle'];
+else 
+    $GLOBALS['portal_subtitle'] = 'Empowering our clients to focus on their clients.';
+    
 if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
@@ -90,6 +102,6 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     $GLOBALS['avmod'] = $avmod;
     
-	$GLOBALS['hiddenmodules'] = array();
+    $GLOBALS['hiddenmodules'] = array();
     
 }
