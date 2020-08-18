@@ -19,6 +19,9 @@ function vtws_portalconfiguration($element,$user){
             $returnData['url'] = $adb->query_result($portalData, 0, 'domain');
             $returnData['accesskey'] = $adb->query_result($portalData, 0, 'portal_access_key');
             
+            $returnData['portal_main_title'] = $adb->query_result($portalData, 0, 'portal_title');
+            $returnData['portal_subtitle'] = $adb->query_result($portalData, 0, 'portal_subtitle');
+            
             $recordData = Vtiger_Record_Model::getInstanceById($adb->query_result($portalData, 0, 'instancesid'));
             
             $imageDetails = $recordData->getImageDetails();
