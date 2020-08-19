@@ -27,7 +27,7 @@
 	<div class="left-block col-lg-4 col-md-12 col-sm-12 col-xs-12">
 			
 		{* Module Summary View*}
-		<div class="summaryView">
+		<div class="summaryView" style="padding:10px;">
 			<div class="summaryViewFields">
 				{$MODULE_SUMMARY}
 			</div>
@@ -182,7 +182,7 @@
 								{assign var=FIELD_INFO value=Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($FIELD_INFO))}
 								{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
 								<select class="select2" name="{$FIELD_MODEL->get('name')}" data-validation-engine="validate[{if $FIELD_MODEL->isMandatory() eq true} required,{/if}funcCall[Vtiger_Base_Validator_Js.invokeValidation]]" data-fieldinfo='{$FIELD_INFO|escape}' {if !empty($SPECIAL_VALIDATOR)}data-validator='{Zend_Json::encode($SPECIAL_VALIDATOR)}'{/if} >
-									<option value="">{vtranslate('LBL_SELECT_STATUS',$MODULE_NAME)}</option>
+									<option value="">{vtranslate('Status - All',$MODULE_NAME)}</option>
 									{foreach item=PICKLIST_VALUE key=PICKLIST_NAME from=$PICKLIST_VALUES}
 										<option value="{$PICKLIST_NAME}" {if $FIELD_MODEL->get('fieldvalue') eq $PICKLIST_NAME} selected {/if}>{$PICKLIST_VALUE}</option>
 									{/foreach}
