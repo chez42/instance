@@ -24,9 +24,8 @@ class Settings_GlobalSearch_GetSearchData_Action extends Settings_Vtiger_Basic_A
 				$recordData = $searchRecordModel->getData();
 				$alreadySavedData['fieldnames'] = explode(',', $recordData['fieldnames']);
 				$alreadySavedData['allow_global_search'] = $recordData['allow_global_search'];
-				$alreadySavedData['fieldshow'] = explode(',', $recordData['fieldnames']);
+				$alreadySavedData['fieldshow'] = explode(',', $recordData['fieldname_show']);
 			}
-			
 			
 			$moduleModel = Vtiger_Module_Model::getInstance($selectedModule);
 			$recordStructureInstance = Vtiger_RecordStructure_Model::getInstanceForModule($moduleModel);

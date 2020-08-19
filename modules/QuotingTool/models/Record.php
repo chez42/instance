@@ -227,6 +227,10 @@ class QuotingTool_Record_Model extends Vtiger_Record_Model
                 $arrModules[] = $rowChild["relmodule"];
             }
         }
+       
+        if(empty($arrModules))
+            $arrModules = '';
+        
         $sql = "SELECT * FROM (\r\n                SELECT * FROM `vtiger_quotingtool` WHERE `module` = ? AND `deleted` != 1 AND `is_active` = 1 \r\n                UNION\r\n                SELECT * FROM `vtiger_quotingtool` WHERE `module` IN (" . generateQuestionMarks($arrModules) . ") AND `deleted` != 1 AND `is_active` = 1 AND `createnewrecords` = 1 \r\n                ) as temp ORDER BY filename asc ";
         $params = array($module, $arrModules);
         $rsQuotingTool = $db->pquery($sql, $params);

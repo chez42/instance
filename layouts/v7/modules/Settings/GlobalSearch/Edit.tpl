@@ -45,7 +45,7 @@
 							</tr>
 							<tr>
 								<td class="{$WIDTHTYPE} fieldLabel">
-									<label><b>Select Fields</b></label>
+									<label><b>Search Fields</b></label>
 									&nbsp;<span class="redColor">*</span>
 								</td>
 								<td class="{$WIDTHTYPE} fieldValue">
