@@ -31,7 +31,7 @@
 			$tasksOpen = $taskCompleted = $taskDue = $taskDeferred = $numOfPeople = 0;
 			$highTasks = $lowTasks = $normalTasks = $otherTasks = 0;
 			$currentDate = date('Y-m-d');
-			$inProgressStatus = array('Open', 'In Progress');
+			$inProgressStatus = array('Open', 'In Progress', '-----');
 			$usersList = array();
 
 			while($row = $adb->fetchByAssoc($result)) {
