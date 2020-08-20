@@ -148,7 +148,7 @@ class Vtiger_MailScannerAction {
                     }
                 }
             } else if($this->actiontype == 'LINK') {
-                $returnid = $this->__LinkToRecord($mailscanner, $mailrecord);
+                $returnid = $this->__LinkToRecord($mailscanner, $mailrecord, $mailscannerrule);
             } else if ($this->actiontype == 'UPDATE') {
                 if ($this->module == 'HelpDesk') {
                     $returnid = $this->__UpdateTicket($mailscanner, $mailrecord, $mailscannerrule->hasRegexMatch($matchresult),$mailscannerrule);
@@ -224,7 +224,7 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 				// Set the ticket status to Open if its Closed
 				$adb->pquery("UPDATE vtiger_troubletickets set status=? WHERE ticketid=? AND status='Closed'", Array('Open', $linkfocus->id));
 
-				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus);
+				$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 
 			} else {
 				// TODO If matching ticket was not found, create ticket?
@@ -376,7 +376,7 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 				$relatedTo = $contactLinktoid;
 			else
 				$relatedTo = $linktoid;
-			$this->linkMail($mailscanner, $mailrecord, $relatedTo);
+			$this->linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule);
 
 			return $ticket->id;
 		} catch (Exception $e) {
@@ -391,7 +391,7 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 	 * @param type $mailscanner
 	 * @param type $mailrecord
 	 */
-	function linkMail($mailscanner, $mailrecord, $relatedTo) {
+	function linkMail($mailscanner, $mailrecord, $relatedTo, $mailscannerrule) {
 		$fromemail = $mailrecord->_from[0];
 
 		$linkfocus = $mailscanner->GetContactRecord($fromemail, $relatedTo);
@@ -402,14 +402,14 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 		}
 
 		if($linkfocus) {
-			$this->__CreateNewEmail($mailrecord, $module, $linkfocus);
+		    $this->__CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule);
 		}
 	}
 
 	/**
 	 * Add email to CRM record like Contacts/Accounts
 	 */
-	function __LinkToRecord($mailscanner, $mailrecord) {
+	function __LinkToRecord($mailscanner, $mailrecord, $mailscannerrule) {
 		$linkfocus = false;
 
 		$useemail = false;
@@ -435,10 +435,10 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 					break;
 			}
 		}
-
+		
 		$returnid = false;
 		if($linkfocus) {
-			$returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus);
+		    $returnid = $this->__CreateNewEmail($mailrecord, $this->module, $linkfocus, $mailscannerrule);
 		}
 		return $returnid;
 	}
@@ -446,16 +446,19 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 	/**
 	 * Create new Email record (and link to given record) including attachements
 	 */
-	function __CreateNewEmail($mailrecord, $module, $linkfocus) {
+	function __CreateNewEmail($mailrecord, $module, $linkfocus, $mailscannerrule) {
+	    
 		global $current_user, $adb;
 		if(!$current_user) {
 			$current_user = Users::getActiveAdminUser();
 		}
-		$assignedToId = $linkfocus->column_fields['assigned_user_id'];
+		/* $assignedToId = $linkfocus->column_fields['assigned_user_id'];
 		if(vtws_getOwnerType($assignedToId) == 'Groups') {
 			$assignedToId = Users::getActiveAdminId();
-		}
+		} */
 
+		$assignedToId = $mailscannerrule->assigned_to;
+		
 		$focus = new Emails();
 		$focus->column_fields['parent_type'] = $module;
 		$focus->column_fields['activitytype'] = 'Emails';
@@ -516,31 +519,35 @@ function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerr
 
 			$issaved = $this->__SaveAttachmentFile($attachid, $filename, $filecontent);
 			if($issaved) {
-				// Create document record
-				$document = new Documents();
-				$document->column_fields['notes_title']		= $filename;
-				$document->column_fields['filename']		= $filename;
-				$document->column_fields['filesize']		= mb_strlen($filecontent, '8bit');
-				$document->column_fields['filestatus']		= 1;
-				$document->column_fields['filelocationtype']= 'I';
-				$document->column_fields['folderid']		= 1; // Default Folder
-				$document->column_fields['assigned_user_id']= $userid;
-				$document->column_fields['source']			= $this->recordSource;
-				$document->save('Documents');
-
-				// Link file attached to document
-				$adb->pquery("INSERT INTO vtiger_seattachmentsrel(crmid, attachmentsid) VALUES(?,?)",
-					Array($document->id, $attachid));
-
-				// Link document to base record
-				$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
-					Array($basefocus->id, $document->id));
-
-				// Link document to Parent entity - Account/Contact/...
-				list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
-				$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
-					Array($eid, $document->id));
-
+			    
+			    if($basemodule != 'Emails'){
+			        
+    				// Create document record
+    				$document = new Documents();
+    				$document->column_fields['notes_title']		= $filename;
+    				$document->column_fields['filename']		= $filename;
+    				$document->column_fields['filesize']		= mb_strlen($filecontent, '8bit');
+    				$document->column_fields['filestatus']		= 1;
+    				$document->column_fields['filelocationtype']= 'I';
+    				$document->column_fields['folderid']		= 1; // Default Folder
+    				$document->column_fields['assigned_user_id']= $userid;
+    				$document->column_fields['source']			= $this->recordSource;
+    				$document->save('Documents');
+    
+    				// Link file attached to document
+    				$adb->pquery("INSERT INTO vtiger_seattachmentsrel(crmid, attachmentsid) VALUES(?,?)",
+    					Array($document->id, $attachid));
+    
+    				// Link document to base record
+    				$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
+    					Array($basefocus->id, $document->id));
+    
+    				// Link document to Parent entity - Account/Contact/...
+    				list($eid,$junk)=explode('@',$basefocus->column_fields['parent_id']);
+    				$adb->pquery("INSERT INTO vtiger_senotesrel(crmid, notesid) VALUES(?,?)",
+    					Array($eid, $document->id));
+    				
+			    }
 				// Link Attachement to the Email
 				$adb->pquery("INSERT INTO vtiger_seattachmentsrel(crmid, attachmentsid) VALUES(?,?)",
 					Array($basefocus->id, $attachid));
