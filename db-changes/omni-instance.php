@@ -487,3 +487,27 @@ if(!$fieldInstance && $blockInstance){
     $field->columntype = 'VARCHAR(500)';
     $blockInstance->addField($field);
 }
+
+$quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Quick Create Menu', 'index.php?parent=Settings&module=Vtiger&view=QuickCreateMenu'));
+if(!$adb->num_rows($quickCreateMenu)){
+    
+    $blockid = $adb->query_result(
+        $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_CONFIGURATION'",array()),0, 'blockid');
+    
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    			as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
+        0, 'sequence') + 1;
+        
+        $fieldid = $adb->getUniqueId('vtiger_settings_field');
+        $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Quick Create Menu','','', 'index.php?parent=Settings&module=Vtiger&view=QuickCreateMenu'));
+        
+}
+
+$adb->pquery("ALTER TABLE vtiger_tab ADD quick_create_seq INT(11) NULL");
+
+$adb->pquery("ALTER TABLE vtiger_default_portal_permissions
+ ADD tickets_visible INT(3) NULL DEFAULT '0',
+ ADD tickets_record_across_org INT(3) NULL DEFAULT '0',
+ ADD tickets_edit_records INT(3) NULL DEFAULT '0';");

@@ -181,82 +181,92 @@ class Vtiger_ListAjax_View extends Vtiger_List_View {
 	}
 
 	public function showSearchResultsWithValue(Vtiger_Request $request) {
-		$moduleName = $request->getModule();
-		$pageNumber = $request->get('page');
-		$searchValue = $request->get('value');
-		$recordsCount = $request->get('recordsCount');
+	    $moduleName = $request->getModule();
+	    $pageNumber = $request->get('page');
+	    $searchValue = $request->get('value');
+	    $recordsCount = $request->get('recordsCount');
+	    
+	    $moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+	    
+	    
+	    $pageLimit = $this->getGlobalSearchPageLimit();
+	    $pagingModel = new Vtiger_Paging_Model();
+	    $pagingModel->set('limit', $pageLimit-1);
+	    $pagingModel->set('page', $pageNumber);
+	    
+	    $range = array();
+	    $previousPageRecordCount = (($pageNumber-1)*$pageLimit);
+	    
+	    $range['start'] = $previousPageRecordCount+1;
+	    $range['end'] = $previousPageRecordCount+$pageLimit;
+	    $pagingModel->set('range', $range);
+	    $this->pagingModel = $pagingModel;
+	    
+	    $customView = new CustomView();
+	    $this->viewName = $customView->getViewIdByName('All', $moduleName);
+	    
+	    $viewer = $this->getViewer($request);
+	    
+	    $globalSearchModel = new Vtiger_GlobalSearch_Model();
+	    $searchedRecords =  $globalSearchModel->getSearchResult($searchValue, $moduleName, $moduleName, $pagingModel);
+	    
+	    if ($searchedRecords[$moduleName]) {
+	        $matchingRecords[$moduleName] = $searchedRecords[$moduleName];
+	    }
 
-		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
-        
-        global $adb;
-        
-        $nameFields = array();
-        
-        $search_ListFields_result = $adb->pquery("select * from vtiger_globalsearch where modulename = ?",array($moduleName));
-        
-        if( $adb->num_rows($search_ListFields_result) ){
-            
-            $gsData = $adb->fetch_array($search_ListFields_result);
-            
-            $nameFields = array();
-            $showField = array();
-            if($fields)
-                $showField = explode(',', $gsData['fieldnames']);
-            if(!empty($showField)){
-                foreach($showField as $shwField){
-                    $fieldDetails = explode(":", $shwField);
-                    $nameFields[] = $fieldDetails[2];
-                }
-            }
-            
-        }
-        if( empty($nameFields) ){
-            
-            $nameFields = $moduleModel->getNameFields();
-            
-        }
-        
-		$params = array();
-		foreach ($nameFields as $fieldName) {
-			$params[] = array($fieldName, 'c', $searchValue);
-		}
-		$searchParams[] = array();
-		$searchParams[] = $params;
-		$request->set('search_params', $searchParams);
-		$request->set('orderby', $moduleModel->basetableid);
-
-		$pageLimit = $this->getGlobalSearchPageLimit();
-		$pagingModel = new Vtiger_Paging_Model();
-		$pagingModel->set('limit', $pageLimit-1);
-		$pagingModel->set('page', $pageNumber);
-
-		$range = array();
-		$previousPageRecordCount = (($pageNumber-1)*$pageLimit);
-		$range['start'] = $previousPageRecordCount+1;
-		$range['end'] = $previousPageRecordCount+$pageLimit;
-		$pagingModel->set('range', $range);
-		$this->pagingModel = $pagingModel;
-
-		$customView = new CustomView();
-		$this->viewName = $customView->getViewIdByName('All', $moduleName);
-
-		$viewer = $this->getViewer($request);
-		$this->initializeListViewContents($request, $viewer);
-
-		$listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $this->viewName );
-		
-		$globalSearchModel = new Vtiger_GlobalSearch_Model();
-		$listViewModel->listViewHeaders = $globalSearchModel->getGlobalSearchFields($moduleName);
-		
-		if($listViewModel->listViewHeaders){
-		    $viewer->assign('LISTVIEW_HEADERS', $listViewModel->listViewHeaders);
-		}
-		
-		$viewer->assign('VIEW', $request->get('view'));
-		$viewer->assign('MODULE_MODEL', $moduleModel);
-		$viewer->assign('RECORDS_COUNT', $recordsCount);
-		$viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
-		$viewer->view('ModuleSearchResults.tpl', $moduleName);
+	    $matchingRecordsList = array();
+	    foreach ($matchingRecords as $module => $recordModelsList) {
+	        
+	        $recordModelsList = array_keys($recordModelsList);
+	        $recordModelsList = array_slice($recordModelsList, 0, $pageLimit);
+	        
+	        $customView = new CustomView();
+	        $cvId = $customView->getViewIdByName('All', $module);
+	        
+	        $listViewModel = Vtiger_ListView_Model::getInstance($module, $cvId);
+	        
+	        $globalSearchModel = new Vtiger_GlobalSearch_Model();
+	        $listViewModel->listViewHeaders = $globalSearchModel->getGlobalSearchFields($module);
+	        
+	        if(!$listViewModel->listViewHeaders){
+	            $listViewModel->listViewHeaders = $listViewModel->getListViewHeaders();
+	        }
+	        
+	        $listViewModel->set('pageNumber', 1);
+	        
+	        $listviewPagingModel = clone $pagingModel;
+	        $listviewPagingModel->calculatePageRange($recordModelsList);
+	        $listViewModel->pagingModel = $listviewPagingModel;
+	      
+	        if (count($recordModelsList) == $pageLimit) {
+	            array_pop($recordModelsList);
+	        }
+	        
+	        $listViewEntries = array();
+	        foreach ($recordModelsList as $recordId) {
+	            $recordModel = Vtiger_Record_Model::getInstanceById($recordId, $listViewModel->getModule());
+	            $recordModel->setRawData($recordModel->getData());
+	            
+	            foreach ($listViewModel->listViewHeaders as $fieldName => $fieldModel) {
+	                $recordModel->set($fieldName, $fieldModel->getDisplayValue($recordModel->get($fieldName),$recordId));
+	            }
+	            $listViewModel->listViewEntries[$recordId] = $recordModel;
+	        }
+	        
+	    }
+	    
+	    $viewer->assign("LISTVIEW_HEADERS", $listViewModel->listViewHeaders);
+	    $viewer->assign("LISTVIEW_ENTRIES", $listViewModel->listViewEntries);
+	    $viewer->assign("PAGING_MODEL", $listviewPagingModel);
+	    $viewer->assign("LISTVIEW_ENTRIES_COUNT", count($listViewModel->listViewEntries));
+	    $viewer->assign("SEARCH_MODULE", $moduleName);
+	    $viewer->assign("PAGE_NUMBER", $request->get("page"));
+	    $viewer->assign("VALUE", trim($request->get("value")));
+	    $viewer->assign('VIEW', $request->get('view'));
+	    $viewer->assign('MODULE_MODEL', $moduleModel);
+	    $viewer->assign('RECORDS_COUNT', $recordsCount);
+	    $viewer->assign('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());
+	    $viewer->view('ModuleSearchResults.tpl', $moduleName);
 	}
 
 	public function getGlobalSearchPageLimit() {
