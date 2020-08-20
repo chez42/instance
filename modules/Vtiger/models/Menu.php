@@ -54,28 +54,51 @@ class Vtiger_Menu_Model extends Vtiger_Module_Model {
 	 * @return <Array> - List of Vtiger_Menu_Model instances
 	 */
 	public static function getAllForQuickCreate() {
+	    global $adb;
 		$userPrivModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		
         $restrictedModulesList = array('Emails', 'ModComments', 'Integration', 'PBXManager', 'Dashboard', 'Home', 'Google', 'Transactions', 'DocumentFolder', 'PositionInformation', 'PortfolioInformation', 'ModSecurities', 'Reports', 'RingCentral');
 		
-		$allModules = parent::getAll(array('0', '2'));
 		$menuModels = array();
-		$sortMenuModels = array();
+		$result = $adb->pquery("SELECT * FROM vtiger_tab WHERE presence IN ('0','2') 
+            AND isentitytype = 1 AND (quick_create_seq IS NOT NULL || quick_create_seq != '')
+            ORDER by quick_create_seq ASC",array());
+		
+		$noOfModules = $adb->num_rows($result);
+		for($i=0; $i<$noOfModules; ++$i) {
+		    $row = $adb->query_result_rowdata($result, $i);
+		    $allModules[$row['tabid']] = parent::getInstanceFromArray($row);
+		}
 		
 		foreach ($allModules as $module) {
-			if (($userPrivModel->isAdminUser() || $userPrivModel->hasGlobalReadPermission() || $userPrivModel->hasModulePermission($module->getId())) && !in_array($module->getName(), $restrictedModulesList) && $module->get('parent') != '') {
-			    if($module->getName() == 'Campaigns' || $module->getName() == 'ProjectTask' || $module->getName() == 'ProjectMilestone'){
-			        $sortMenuModels[$module->getName()] = $module;
-			        continue;
-			    }
+		    
+			if (($userPrivModel->isAdminUser() || $userPrivModel->hasGlobalReadPermission() || $userPrivModel->hasModulePermission($module->getId())) && !in_array($module->getName(), $restrictedModulesList)) {
 		        $menuModels[$module->getName()] = $module;
-		        
 			}
 		}
 		
-		uksort($menuModels, array('Vtiger_MenuStructure_Model', 'sortMenuItemsByProcess'));
-		
-		$menuModels = array_merge($menuModels,$sortMenuModels);
+		if(empty($menuModels)){
+		    
+		    $allModules = parent::getAll(array('0', '2'));
+		    $menuModels = array();
+		    $sortMenuModels = array();
+		    
+		    foreach ($allModules as $module) {
+		        if($module->isQuickCreateSupported()){
+    		        if (($userPrivModel->isAdminUser() || $userPrivModel->hasGlobalReadPermission() || $userPrivModel->hasModulePermission($module->getId())) && !in_array($module->getName(), $restrictedModulesList) && $module->get('parent') != '') {
+                        if($module->getName() == 'Campaigns' || $module->getName() == 'ProjectTask' || $module->getName() == 'ProjectMilestone'){
+                            $sortMenuModels[$module->getName()] = $module;
+                            continue;
+                        }    
+    		            $menuModels[$module->getName()] = $module;
+    		        }
+		        }
+		    }
+		    
+		    uksort($menuModels, array('Vtiger_MenuStructure_Model', 'sortMenuItemsByProcess'));
+		    
+		    $menuModels = array_merge($menuModels,$sortMenuModels);
+		}
 		
 		return $menuModels;
 	}

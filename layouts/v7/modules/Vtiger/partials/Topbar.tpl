@@ -56,7 +56,7 @@
 													{assign var='quickCreateModule' value=$moduleModel->isQuickCreateSupported()}
 													{assign var='singularLabel' value=$moduleModel->getSingularLabelKey()}
 													{assign var=hideDiv value={!$moduleModel->isPermitted('CreateView') && $moduleModel->isPermitted('EditView')}}
-													{if $quickCreateModule == '1'}
+													{*if $quickCreateModule == '1'*}
 														{if $count % 3 == 0}
 															<div class="row">
 															{/if}
@@ -119,7 +119,7 @@
 														{if !$hideDiv}
 															{assign var='count' value=$count+1}
 														{/if}
-													{/if}
+													{*/if*}
 												{/if}
 											{/foreach}
 										</div>

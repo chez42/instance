@@ -8,7 +8,7 @@ class Vtiger_GlobalSearch_Model extends Vtiger_Base_Model {
 	    $modules = array();
 	    
 	    $adb = PearDatabase::getInstance();
-	    $moduleQuery = $adb->pquery("SELECT modulename FROM vtiger_globalsearch");
+	    $moduleQuery = $adb->pquery("SELECT modulename FROM vtiger_globalsearch WHERE allow_global_search = 1");
 	    
 	    if($adb->num_rows($moduleQuery)){
 	        for($i=0;$i<$adb->num_rows($moduleQuery);$i++){
@@ -37,11 +37,12 @@ class Vtiger_GlobalSearch_Model extends Vtiger_Base_Model {
 		}
 		
 		$matchingRecords = array();
-		
+		$pageNumber = $pagingModel->getCurrentPage();
 		foreach($object_array as $search_module => $object_name){			
-		    
-		    $pagingModel = new Vtiger_Paging_Model();
-		    $pagingModel->set("page", "1");
+		    if($pageNumber == 1){
+		      $pagingModel = new Vtiger_Paging_Model();
+		      $pagingModel->set("page", "1");
+		    }
 		    $queryFields = array();
 		    $search_module = $searchModule;
 		    if (in_array($search_module, array("ANCustomers", "ANPaymentProfile", "ANTransactions", "DuplicateCheckMerge"))) {
@@ -326,7 +327,8 @@ class Vtiger_GlobalSearch_Model extends Vtiger_Base_Model {
 		            $pageCount = 1;
 		        }
 		        $search_results[$search_module]["PAGE_COUNT"] = $pageCount;
-		        $query .= " LIMIT " . $startIndex . "," . ($pageLimit + 1);
+		        if($pageNumber != 1)
+		          $query .= " LIMIT " . $startIndex . "," . ($pageLimit + 1);
 		        if ($debug == "1") {
 		            echo "query : " . $query . " <br><br>";
 		        }

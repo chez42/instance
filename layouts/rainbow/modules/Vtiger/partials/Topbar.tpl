@@ -335,7 +335,7 @@
 													
 													{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
 													
-													{if $quickCreateModule == '1'}
+													{*if $quickCreateModule == '1'*}
 															
 															{if $count % 3 == 0}
 																<div class="row">
@@ -418,7 +418,7 @@
 																{assign var='count' value=$count+1}
 															{/if}
 															
-													{/if}
+													{*/if*}
 												{/if}
 											{/foreach}
 										</div>
@@ -576,7 +576,7 @@
 											
 											{assign var=hideDiv value={!$moduleModel->isPermitted('CreateView') && $moduleModel->isPermitted('EditView')}}
 											
-											{if $quickCreateModule == '1'}
+											{*if $quickCreateModule == '1'*}
 											
 												
 													
@@ -632,7 +632,7 @@
 													{assign var='count' value=$count+1}
 												{/if}
 												
-											{/if}
+											{*/if*}
 										{/if}
 									{/foreach}
 								</div>
