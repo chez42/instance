@@ -78,8 +78,8 @@ class ProjectedIncome_Model extends Vtiger_Module {
 
     static private function CalculateGroupedAccounts(){
         global $adb;
-        $query = "SELECT account_number, UPPER(security_symbol) AS security_symbol, security_name, interest_rate, quantity, payment_date, DATE_FORMAT(payment_date, '%Y') AS year, DATE_FORMAT(payment_date, '%m') AS month, DATE_FORMAT(payment_date, '%d') AS day,
-                         year_payment, estimatePaymentAmount, pay_frequency, aclass, ppy, maturity_date, matures
+        $query = "SELECT account_number, UPPER(security_symbol) AS security_symbol, security_name, interest_rate, SUM(quantity) AS quantity, payment_date, DATE_FORMAT(payment_date, '%Y') AS year, DATE_FORMAT(payment_date, '%m') AS month, DATE_FORMAT(payment_date, '%d') AS day,
+                         SUM(year_payment) AS year_payment, SUM(estimatePaymentAmount) AS estimatePaymentAmount, pay_frequency, aclass, ppy, maturity_date, matures
                   FROM PROJECTED_INCOME GROUP BY security_symbol ORDER BY security_symbol ASC";
         $result = $adb->pquery($query, array());
         $toReturn = array();
