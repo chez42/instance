@@ -30,7 +30,7 @@
     background: lightgrey;
 }
 
-.td {
+.td:not(.headerAjaxEdit) {
     display: table-cell;
     width:auto;
     vertical-align: middle;

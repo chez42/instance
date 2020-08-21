@@ -58,7 +58,7 @@ $languageStrings = array(
 	'LBL_FIELDFORMULAS_DESCRIPTION' => 'Add custom equations to custom fields',
 
 	'VTLIB_LBL_MODULE_MANAGER' => 'Modules',
-	'VTLIB_LBL_MODULE_MANAGER_DESCRIPTION' => 'Manage module behavior inside vtiger CRM',
+	'VTLIB_LBL_MODULE_MANAGER_DESCRIPTION' => 'Manage module behavior inside Omniscient CRM',
 	'LBL_PICKLIST_EDITOR' => 'Picklist Field Values',
 	'LBL_PICKLIST_DESCRIPTION' => 'Customize Picklist values in each module',
 	'LBL_PICKLIST_DEPENDENCY_SETUP' => 'Picklist Dependencies',

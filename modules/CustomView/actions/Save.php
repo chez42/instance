@@ -47,11 +47,11 @@ class CustomView_Save_Action extends Vtiger_Action_Controller {
 			$customViewModel = CustomView_Record_Model::getCleanInstance();
 			$customViewModel->setModule($request->get('source_module'));
 		}
-		if($request->get('viewname')=='All') {
+		/* if($request->get('viewname')=='All') {
 		    $status = 0;
-		} else {
+		} else { */
             $status = $request->get('status');
-		}
+		//}
 		$customViewData = array(
 					'cvid' => $cvId,
 					'viewname' => $request->get('viewname'),

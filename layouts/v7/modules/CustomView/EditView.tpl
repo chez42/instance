@@ -29,16 +29,18 @@
 						<input type="hidden" id="sourceModule" name="source_module" value="{$SOURCE_MODULE}"/>
 						<input type="hidden" id="stdfilterlist" name="stdfilterlist" value=""/>
 						<input type="hidden" id="advfilterlist" name="advfilterlist" value=""/>
-						<input type="hidden" name="status" value="{$CV_PRIVATE_VALUE}"/>
+						
 						{if $RECORD_ID}
 							<input type="hidden" name="status" value="{$CUSTOMVIEW_MODEL->get('status')}" />
+						{else}
+							<input type="hidden" name="status" value="{$CV_PRIVATE_VALUE}"/>
 						{/if}
 						<input type="hidden" name="date_filters" data-value='{Vtiger_Util_Helper::toSafeHTML(ZEND_JSON::encode($DATE_FILTERS))}' />
 						<div class="form-group">
 							<label>{vtranslate('LBL_VIEW_NAME',$MODULE)}&nbsp;<span class="redColor">*</span> </label>
 							<div class="row">
 								<div class="col-lg-5 col-md-5 col-sm-5">
-									<input class="form-control" type="text" data-record-id="{$RECORD_ID}" id="viewname" name="viewname" value="{$CUSTOMVIEW_MODEL->get('viewname')}" data-rule-required="true" data-rule-maxsize="100" data-rule-check-filter-duplicate='{Vtiger_Util_Helper::toSafeHTML(Zend_JSON::encode($CUSTOM_VIEWS_LIST))}'>
+									<input class="form-control" type="text" data-record-id="{$RECORD_ID}" id="viewname" name="viewname" value="{$CUSTOMVIEW_MODEL->get('viewname')}" {if $CUSTOMVIEW_MODEL->get('status') eq '0'} readonly {/if} data-rule-required="true" data-rule-maxsize="100" data-rule-check-filter-duplicate='{Vtiger_Util_Helper::toSafeHTML(Zend_JSON::encode($CUSTOM_VIEWS_LIST))}'>
 								</div>
 								<div class="col-lg-5 col-md-5 col-sm-5">
 									<label class="checkbox-inline">
