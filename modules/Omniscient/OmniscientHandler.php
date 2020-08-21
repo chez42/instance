@@ -29,7 +29,7 @@ class OmniscientHandler extends VTEventHandler{
     				
     				//$advisor = GetAdvisorNameFromTicketId($ticket_id);
     				
-    				$query = "UPDATE vtiger_ticketcf SET financial_advisor = ? WHERE ticketid=?";
+    				$query = "UPDATE vtiger_troubletickets SET financial_advisor = ? WHERE ticketid=?";
     				$adb->pquery($query,array($advisor, $ticket_id));
 				}
 			}
