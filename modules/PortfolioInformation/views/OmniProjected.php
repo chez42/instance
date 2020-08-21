@@ -43,7 +43,7 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 
                     $returned = Date("Y-m-d", strtotime($data['last_eod']));
                     $compared = Date("Y-m-d", strtotime("-3 months"));
-                    if ($returned <= $compared)
+#                    if ($returned <= $compared)
                         ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
                 }
             }
