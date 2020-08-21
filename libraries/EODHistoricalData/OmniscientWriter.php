@@ -35,7 +35,7 @@ class OmniscientWriter{
 #               $data->UpdateIntoOmni();
 
             default:
-                echo "NO DEFINITION!";
+                return 0;//echo "NO DEFINITION!";
                break;
        }
     }

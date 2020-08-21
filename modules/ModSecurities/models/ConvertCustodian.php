@@ -5,7 +5,12 @@
  * Date: 2016-03-29
  * Time: 1:48 PM
  */
-require_once("libraries/EODHistoricalData/EODHistoricalData.php");
+spl_autoload_register(function ($className) {
+    if (file_exists("libraries/EODHistoricalData/$className.php")) {
+        include_once "libraries/EODHistoricalData/$className.php";
+    }
+});
+
 
 class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
 	static $tenant = "custodian_omniscient";
@@ -211,6 +216,12 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
     }
 
     static public function UpdateSecurityFromEOD($symbol, $exchange){
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD($symbol);
+        $writer = new OmniscientWriter();
+        $symData = OmnisolReader::MatchSymbolsOfSecurityType(array($symbol), $type);
+        $writer->WriteEodToOmni($symbol);
+        /*This is legacy code below, but the logic is somewhat the same so left here as a reminder
+
         global $adb;
         $params = array();
         $set = "";
@@ -225,7 +236,7 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
 /*        print_r($symbolData);
         echo "<br /><br />";
         print_r($dividendData);
-        exit;*/
+        exit;
 
         if(count((array)$symbolData) > 0 ){#|| count((array)$dividendData) > 0){
             switch($symbolData->General->Type){
@@ -376,7 +387,7 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
                   SET last_eod = NOW()
                   WHERE security_symbol = ?";
             $adb->pquery($query, array($symbol));
-        }
+        }*/
     }
 
     static public function UpdateFromEODGuzzleResult($symbolData, $dividendData = null, $symbol){
