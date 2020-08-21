@@ -916,10 +916,10 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 	                        
                             $query = " INNER JOIN vtiger_ticket_view_permission on vtiger_ticket_view_permission.ticketid = vtiger_troubletickets.ticketid ".
    	                        " INNER JOIN $tableName $tableName$scope ON $tableName$scope.id = vtiger_crmentity$scope.smownerid ".
-   	                        " OR $tableName$scope.id = vtiger_crmentity$scope.smcreatorid OR $tableName$scope.id = vtiger_ticketcf.financial_advisor ". 
+   	                        " OR $tableName$scope.id = vtiger_crmentity$scope.smcreatorid OR $tableName$scope.id = vtiger_troubletickets.financial_advisor ". 
    	                        " OR vtiger_ticket_view_permission.view_permission_id = $tableName$scope.id ".
    	                        " AND (vtiger_ticket_view_permission.view_permission_id IN(". $view_permission_ids .")  OR vtiger_crmentity.smcreatorid = '".$user->id."' ". 
-                            " OR vtiger_ticketcf.financial_advisor = '".$user->id."') ".
+                            " OR vtiger_troubletickets.financial_advisor = '".$user->id."') ".
                             " ";
 	                    }
 	                   
