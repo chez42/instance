@@ -511,3 +511,8 @@ $adb->pquery("ALTER TABLE vtiger_default_portal_permissions
  ADD tickets_visible INT(3) NULL DEFAULT '0',
  ADD tickets_record_across_org INT(3) NULL DEFAULT '0',
  ADD tickets_edit_records INT(3) NULL DEFAULT '0';");
+
+$adb->pquery("ALTER TABLE vtiger_troubletickets ADD financial_advisor int(11) NULL ");
+
+$adb->pquery("UPDATE  vtiger_field SET tablename = 'vtiger_troubletickets' WHERE
+tabid = ? AND columnname = 'financial_advisor'",array(getTabid('HelpDesk')));
