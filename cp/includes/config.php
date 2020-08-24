@@ -11,7 +11,7 @@ include_once('includes/function.php');
 
 if(!$_SESSION['api_url']){
     
-     $master_api_url = 'https://hq.omnisrv.com';
+     $master_api_url = 'https://hq.360vew.com';
     
      $master_api_username = 'felipeluna';
      $master_api_accesskey = 'vW6MiyBQVSfQjt3o';

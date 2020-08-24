@@ -7,7 +7,7 @@ session_start();
 
 include_once('functions.php');
 
-$api_url = 'https://hq.omnisrv.com/';
+$api_url = 'https://hq.360vew.com/';
 
 $api_username = 'felipeluna';
 

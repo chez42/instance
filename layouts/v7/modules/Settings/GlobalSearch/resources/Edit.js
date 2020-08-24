@@ -15,8 +15,14 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 	},
 	
 	registerSelect2ElementForFields : function() {
-		app.changeSelectElementView(this.fieldsContainer, 'select2', {maximumSelectionSize: 6});
-		app.changeSelectElementView(this.fieldsShowContainer, 'select2', {maximumSelectionSize: 6});
+		//app.changeSelectElementView(this.fieldsContainer, 'select2', {maximumSelectionSize: 6});
+		//app.changeSelectElementView(this.fieldsShowContainer, 'select2', {maximumSelectionSize: 6});
+		var chozenChoiceElement = jQuery("#s2id_fieldnames_show").find('ul.select2-choices');
+		chozenChoiceElement.sortable({
+			'containment': chozenChoiceElement,
+			start: function() { },
+			update: function() { }
+		});
 	},
 	
 	registerModuleChangeEvent : function() {
@@ -91,8 +97,7 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 					
 					thisInstance.fieldsContainer.html(options).trigger("change");
 					thisInstance.fieldsShowContainer.html(showOption).trigger("change");
-					
-					
+					thisInstance.registerSelect2ElementForFields();
 				});
 		});
 		
@@ -137,7 +142,20 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 		});
 		
 		var params = form.serializeFormData();
-			
+		
+		if ((typeof params['fieldnames_show[]'] == 'undefined') && (typeof params['fieldnames_show'] == 'undefined')) {
+			params['fieldnames_show'] = '';
+		}
+		
+		var selectElement = form.find('#fieldnames_show');
+		var selectValueElements = selectElement.select2('data');
+		var selectedValues = [];
+		for(i=0; i<selectValueElements.length; i++) {
+			selectedValues.push(selectValueElements[i].id);
+		}
+		
+		if(selectedValues.length)
+			params['fieldnames_show[]'] = selectedValues;
 				
 		params.module = app.getModuleName();
 		params.parent = app.getParentModuleName();
@@ -183,7 +201,6 @@ Vtiger.Class("Settings_GlobalSearch_Edit_Js",{}, {
 		this.fieldsShowContainer = $("#fieldnames_show");
 	
 		this.registerModuleChangeEvent();
-		this.registerSelect2ElementForFields();
 		this.registerFormSave();
 	},
 	
