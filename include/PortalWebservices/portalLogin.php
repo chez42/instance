@@ -67,7 +67,7 @@ function vtws_portallogin($element,$user){
                     if(
                         !empty($userImageDetail['imagename'][0]['orgname']) &&
                         !empty($userImageDetail['imagename'][0]['path'])) {
-                            $resultData["owner_image"] = "https://hq.omnisrv.com/" . $userImageDetail['imagename'][0]['path']."_".$userImageDetail['imagename'][0]['orgname'];
+                            $resultData["owner_image"] = "https://hq.360vew.com/" . $userImageDetail['imagename'][0]['path']."_".$userImageDetail['imagename'][0]['orgname'];
                         }
                 }
                 
