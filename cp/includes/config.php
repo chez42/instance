@@ -9,13 +9,13 @@ include_once('includes/functions.php');
 
 include_once('includes/function.php');
 
-$api_url = 'https://hq.omnisrv.com/';
+$api_url = 'https://hq.360vew.com/';
 
 $api_username = 'felipeluna';
 
 $api_accesskey = 'vW6MiyBQVSfQjt3o';
 
-$websocketUrl = 'wss://hq.omnisrv.com:3000';
+$websocketUrl = 'wss://hq.360vew.com:3000';
 
 $GLOBALS['portal_logo'] = 'images/logo1.png';
 
