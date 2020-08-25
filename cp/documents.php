@@ -20,7 +20,7 @@
 
 	$session_id = $loginObj->sessionName;
 
-	$element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId']);
+	$element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId'], 'emptyFolder' => true);
 
 	$postParams = array(
 		'operation'=>'get_documents',
@@ -63,7 +63,7 @@
                           </button>
                           <a href="#" class="btn ">
                           	Show Empty Folders : &nbsp;
-                            <input class="pull-right" title="Empty Folders" type="checkbox" name="emptyFolder" value='1'>
+                            <input class="pull-right" title="Empty Folders" type="checkbox" name="emptyFolder" value='1' checked>
                             <i class = "fa fa-question-circle" data-toggle = "kt-tooltip" style = "margin-left:5px;font-size:15px !important;color:#5867dd;" data-content = "By Default Folders with Documents are shown, click this checkbox to view all Folders"  data-original-title = "By Default Folders with Documents are shown, click this checkbox to view all Folders"></i>
                 		  </a>
                         </div>
