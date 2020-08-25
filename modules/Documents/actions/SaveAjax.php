@@ -63,13 +63,19 @@ class Documents_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			
 			if(!$request->get('doc_folder_id')){
 			    
-			    /*global $adb,$current_user;
-			    $docfolder = $adb->pquery("SELECT vtiger_users.documents_folder FROM vtiger_users WHERE vtiger_users.id = ?",
-			        array($current_user->id));
-			    $folderId = $adb->query_result($docfolder,0,'documents_folder');
-			    */
-				
-			    $recordModel->set('doc_folder_id', '24920905');
+			    global $adb;
+			    
+			    $doc_fol_id = '';
+			    
+			    $result = $adb->pquery("SELECT * FROM vtiger_documentfolder
+                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
+                WHERE vtiger_crmentity.deleted = 0 AND 
+				vtiger_documentfolder.folder_name = BINARY 'Default'", array());
+			    
+			    if($adb->num_rows($result)) {
+                    $doc_fol_id = $adb->query_result($result,0,'documentfolderid');
+			    	$recordModel->set('doc_folder_id', $doc_fol_id);
+				}
 				
 			}
 			

@@ -188,10 +188,10 @@
                             </ul>
 			</li>  
 			
-			{else}
+			{*else}
 				
 				<li class="{if $MODULE eq "Users"}active{/if}"> <a class=" waves-effect waves-dark" href="index.php?module=Users&view=Settings" ><i class="material-icons">settings</i><span class="hide-menu" style="text-transform: uppercase"> {vtranslate('LBL_SETTINGS', 'Settings:Vtiger')}</span></a>
-                        </li>
+                        </li>*}
                         
 			{/if}
 			
