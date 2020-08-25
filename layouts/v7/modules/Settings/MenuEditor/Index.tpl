@@ -13,7 +13,7 @@
 
 			<style>
 				.wrapper .col-md-3{
-				    width: 100%! important;
+				    width: 100%;
 				    padding-top: 5px;
 					padding-right: 15px;
 					padding-left: 15px;
