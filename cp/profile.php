@@ -76,52 +76,62 @@ $customer_detail = $customer_detail['result'];
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">Street</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingstreet" value="<?php echo $customer_detail['mailingstreet']; ?>">
+								<input type="text" class="form-control" name="mailingstreet" value="<?php echo $customer_detail['mailingstreet']; ?>"
+								<?php if(!$customer_detail['mailingstreet']) echo'style="border-color: #f7de63;"';?>>
                     		</div>
                     		<label class="col-lg-2 col-form-label">City</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingcity" value="<?php echo $customer_detail['mailingcity']; ?>">
+								<input type="text" class="form-control" name="mailingcity" value="<?php echo $customer_detail['mailingcity']; ?>"
+								<?php if(!$customer_detail['mailingcity']) echo'style="border-color: #f7de63;"';?>>
                     		</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">State</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingstate" value="<?php echo $customer_detail['mailingstate']; ?>">
+								<input type="text" class="form-control" name="mailingstate" value="<?php echo $customer_detail['mailingstate']; ?>"
+								<?php if(!$customer_detail['mailingstate']) echo'style="border-color: #f7de63;"';?>>
                 		    </div>
                     		<label class="col-lg-2 col-form-label">Zip</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingzip" value="<?php echo $customer_detail['mailingzip']; ?>">
+								<input type="text" class="form-control" name="mailingzip" value="<?php echo $customer_detail['mailingzip']; ?>"
+								<?php if(!$customer_detail['mailingzip']) echo'style="border-color: #f7de63;"';?>>
                     		</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">Mobile Phone</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mobile" value="<?php echo $customer_detail['mobile']; ?>">
+								<input type="text" class="form-control" name="mobile" value="<?php echo $customer_detail['mobile']; ?>"
+								<?php if(!$customer_detail['mobile']) echo'style="border-color: #f7de63;"';?>>
                 			</div>
                 			<label class="col-lg-2 col-form-label">Office Phone</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="phone" value="<?php echo $customer_detail['phone']; ?>">
+								<input type="text" class="form-control" name="phone" value="<?php echo $customer_detail['phone']; ?>"
+								<?php if(!$customer_detail['phone']) echo'style="border-color: #f7de63;"';?>>
                             </div>
 						</div>
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">Home Phone</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="homephone" value="<?php echo $customer_detail['homephone']; ?>">
+								<input type="text" class="form-control" name="homephone" value="<?php echo $customer_detail['homephone']; ?>"
+								<?php if(!$customer_detail['homephone']) echo'style="border-color: #f7de63;"';?>>
         					</div>
         					<label class="col-lg-2 col-form-label">Email</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="email" value="<?php echo $customer_detail['email']; ?>">
+								<input type="text" class="form-control" name="email" value="<?php echo $customer_detail['email']; ?>"
+								<?php if(!$customer_detail['email']) echo'style="border-color: #f7de63;"';?>>
                             </div>
 						</div>
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">LinkedIn</label>
 							<div class="col-lg-4">
-								<input type="text" class="form-control" name="cf_805" value="<?php echo $customer_detail['cf_805']; ?>">
+								<input type="text" class="form-control" name="cf_805" value="<?php echo $customer_detail['cf_805']; ?>"
+								<?php if(!$customer_detail['cf_805']) echo'style="border-color: #f7de63;"';?>>
                             </div>
                             <label class="col-lg-2 col-form-label">Birthdate</label>
 							<div class="col-lg-4">
 								<div class="input-group date">
-									<input type="text" class="form-control" name="birthday" value="<?php echo $customer_detail['birthday']; ?>" id="kt_datepicker_3">
+									<input type="text" class="form-control kt_datepicker_3" name="birthday" value="<?php echo date('m-d-Y',strtotime($customer_detail['birthday'])); ?>" id="kt_datepicker_3"
+									<?php if(!$customer_detail['birthday']) echo'style="border-color: #f7de63;"';?>>
 									<div class="input-group-append">
 										<span class="input-group-text">
 											<i class="la la-calendar"></i>
@@ -133,7 +143,7 @@ $customer_detail = $customer_detail['result'];
 						<div class="form-group row">
 							<label class="col-lg-2 col-form-label">Marital status</label>
 							<div class="col-lg-4">
-								<select class="form-control" name="cf_2182" aria-invalid="false">
+								<select class="form-control" name="cf_2182" aria-invalid="false" <?php if(!$customer_detail['cf_2182']) echo'style="border-color: #f7de63;"';?>>
 									<option value="">Select an Option</option>
 									<option value="Married" <?php echo ($customer_detail['cf_2182'] == 'Married')?'selected':''; ?>>Married</option>
 									<option value="Divorced" <?php echo ($customer_detail['cf_2182'] == 'Divorced')?'selected':''; ?>>Divorced</option>
@@ -148,14 +158,16 @@ $customer_detail = $customer_detail['result'];
                             <label class="col-lg-2 col-form-label">Wedding Anniversary</label>
 							<div class="col-lg-4">
 								<div class="input-group date">
-									<input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>" id="kt_datepicker_3">
+									<input type="text" class="form-control kt_datepicker_3" name="cf_667" value="<?php echo date('m-d-Y',strtotime($customer_detail['cf_667'])); ?>" id="kt_datepicker_3"
+									<?php if(!$customer_detail['cf_667']) echo'style="border-color: #f7de63;"';?>>
 									<div class="input-group-append">
 										<span class="input-group-text">
 											<i class="la la-calendar"></i>
 										</span>
 									</div>
 								</div>
-								<!-- <input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>"> -->
+								<!-- <input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>"
+								<?php if(!$customer_detail['cf_667']) echo'style="border-color: #f7de63;"';?>> -->
                             </div>
 						</div>
 					</form>
@@ -169,8 +181,6 @@ $customer_detail = $customer_detail['result'];
 	?>
 	</body>
 	
-	<script src="assets/js/pages/crud/forms/widgets/bootstrap-datepicker.js" type="text/javascript"></script>
-	
 	<script type="text/javascript">
 		jQuery(document).ready(function() {
     		$("#customer-info").validate({ 
@@ -181,10 +191,24 @@ $customer_detail = $customer_detail['result'];
 		                state: 'primary',
 		                message: 'Processing...'
 		            });
+
+    		    	var b = new Date(jQuery('[name="birthday"]').val()),
+    		        bmonth = (b.getMonth() + 1),
+    		        bday = b.getDate(),
+    		        byear = b.getFullYear();
+
+    		    	var birthDate = byear+'-'+bmonth+'-'+bday;
+    		    	 
+    		    	var d = new Date(jQuery('[name="cf_667"]').val()),
+    		        month = (d.getMonth() + 1),
+    		        day = d.getDate(),
+    		        year = d.getFullYear();
+		            var anDate = year+'-'+month+'-'+day;
+		            
     		    	$.ajax({
         	            type: "POST",
         	            url: 'update-customer.php',
-        	            data: jQuery('#customer-info').serialize(), // serializes the form's elements.
+        	            data: jQuery('#customer-info').serialize()+'&birthday='+birthDate+'&cf_667='+anDate, // serializes the form's elements.
         	            success: function(result){
         	            	var data = JSON.parse(result);
         	            	if(data.success){
@@ -198,6 +222,14 @@ $customer_detail = $customer_detail['result'];
     		$("#update-info").click(function(){
     			$("#customer-info").submit();
     		});
+
+    		 $('.kt_datepicker_3').datepicker({
+    			 	format: 'mm-dd-yyyy',
+    	            todayBtn: "linked",
+    	            clearBtn: true,
+    	            todayHighlight: true,
+    	        });
+    	    		
     	});
     </script>
 	
