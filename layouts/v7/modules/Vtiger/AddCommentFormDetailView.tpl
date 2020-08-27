@@ -40,7 +40,7 @@
 						</div>
 					</div>
 					<div class="col-xs-6 pull-left">
-						<div class="fileUploadContainer text-left">
+						<div class="fileUploadContainer text-left" style="display:none;">
 							<div class="fileUploadBtn btn btn-sm btn-primary">
 								<span><i class="fa fa-laptop"></i> {vtranslate('LBL_ATTACH_FILES', $MODULE)}</span>
 								<input type="file" id="{$MODULE}_editView_fieldName_commentFile" class="inputElement multi commentFile" maxlength="6" id="filename" name="filename[]"

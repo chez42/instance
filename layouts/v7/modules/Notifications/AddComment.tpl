@@ -40,7 +40,7 @@
 							{/if}
 						</div>
 					</div>
-					<div class="col-xs-6 pull-left">
+					<div class="col-xs-6 pull-left" style="display:none;">
 						<div class="fileUploadContainer text-left">
 							<div class="fileUploadBtn btn btn-sm btn-primary">
 								<span><i class="fa fa-laptop"></i> {vtranslate('LBL_ATTACH_FILES', $MODULE)}</span>
