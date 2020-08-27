@@ -91,8 +91,13 @@ function vtws_portallogin($element,$user){
                             $selectedPortalModulesInfo = $adb->query_result_rowdata($selectedPortalInfo);
                         }else{
                             $defaultPortalInfo = $adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = ?",array($resultData["ownerId"]));
-                            if($adb->num_rows($defaultPortalInfo))
+                            if($adb->num_rows($defaultPortalInfo)){
                                 $selectedPortalModulesInfo = $adb->query_result_rowdata($defaultPortalInfo);
+                            }else{
+                                $globalPortalInfo =$adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = 0");
+                                if($adb->num_rows($globalPortalInfo))
+                                    $selectedPortalModulesInfo = $adb->query_result_rowdata($defaultPortalInfo);
+                            }
                         }
                     }
                     
