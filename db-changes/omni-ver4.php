@@ -469,3 +469,21 @@ $adb->pquery("ALTER TABLE vtiger_troubletickets ADD financial_advisor int(11) NU
 
 $adb->pquery("UPDATE  vtiger_field SET tablename = 'vtiger_troubletickets' WHERE
 tabid = ? AND columnname = 'financial_advisor'",array(getTabid('HelpDesk')));
+
+$quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Global Portal Permissions', 'index.php?parent=Settings&module=Vtiger&view=GlobalPortalPermission'));
+if(!$adb->num_rows($quickCreateMenu)){
+    
+    $blockid = $adb->query_result(
+    $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_CONFIGURATION'",array()),0, 'blockid');
+    
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+	as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
+    0, 'sequence') + 1;
+        
+    $fieldid = $adb->getUniqueId('vtiger_settings_field');
+    $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Global Portal Permissions','','',
+    'index.php?parent=Settings&module=Vtiger&view=GlobalPortalPermission'));
+        
+}
