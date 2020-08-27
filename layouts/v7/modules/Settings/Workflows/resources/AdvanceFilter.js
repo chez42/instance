@@ -533,3 +533,31 @@ Vtiger_Multipicklist_Field_Js('Workflows_Multipicklist_Field_Js', {}, {
 		return selectContainer;
 	}
 });
+
+Workflows_Field_Js('Workflows_Integer_Field_Js',{},{
+	getUi : function() {
+		if(this.getName() === 'profile_rating') {
+			//Special handling for profile_rating field to show dropdown instead of input box as its integer field.
+			var html = '<select class="select2 inputElement inlinewidth" name="'+ this.getName() +'" id="field_'+this.getModuleName()+'_'+this.getName()+'">';
+			var pickListValues = {1 : 1, 2 : 2, 3 : 3, 4 : 4, 5 : 5};
+			var selectedOption = parseInt(this.getValue());
+			html += '<option value="">Select an Option</option>';
+			for(var option in pickListValues) {
+				html += '<option value="'+option+'" ';
+				if(option == selectedOption) {
+					html += ' selected ';
+				}
+				html += '>'+option+'</option>';
+			}
+			html +='</select>';
+			var selectContainer = jQuery(html);
+			this.addValidationToElement(selectContainer);
+			return selectContainer;
+		} else {
+            var value = app.htmlDecode(this.getValue());
+            value = value.replace(/"/g, "&quot;");
+            var html = '<input value="'+value+'" type="text" class="getPopupUi inputElement" name="'+ this.getName() +'"  /><input type="hidden" name="valuetype" value="'+this.get('workflow_valuetype')+'" />';
+            return this.addValidationToElement(jQuery(html));
+		}
+	}
+});
