@@ -26,7 +26,7 @@
 					<table style="width:100%">
 						<tr>
 							<td class="fieldLabel col-lg-3">
-								<span class="pull-right">
+								<span class="pull-right input-group">
 									<select style="width:140px;" class="select2 referenceModulesList select2-offscreen" tabindex="-1" title="">
 										<option value="Contacts">{vtranslate('Contacts', $MODULE)}</option>
 										<option value="Accounts">{vtranslate('Accounts', $MODULE)}</option>
