@@ -22,6 +22,8 @@ function vtws_getcomments($element,$user){
             
             for($c=$adb->num_rows($commentQuery)-1; $c>=0; $c--){
                 
+                $attName = '';
+                
                 $attachmentId = $adb->query_result($commentQuery, $c, 'filename');
                 
                 $commentId = $adb->query_result($commentQuery, $c, 'modcommentsid');
