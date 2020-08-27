@@ -8977,7 +8977,7 @@ var KTChat = function () {
 		                            '</div>'+
 		                            '<div class="kt-chat__text">'+
 		                                ele.commentContent;
-		                                if(ele.attachmentId){
+		                                if(ele.attachmentId && ele.attachmentId != "0"){
 		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
 		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
 		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
@@ -9010,7 +9010,7 @@ var KTChat = function () {
 		                            '</div>'+
 		                            '<div class="kt-chat__text">'+
 		                            	ele.commentContent;
-		                                if(ele.attachmentId){
+		                                if(ele.attachmentId && ele.attachmentId != "0"){
 		                                    html += '<br/><a style="font-size:11px!important;" target="_blank" href="'+ele.siteUrl+'/index.php?module=Vtiger&action=ExternalDownloadLink&record='+ele.commentId+'" >'+ele.attName+'</a>';
 		                                    html += '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'+ele.commentId+'">'+
 		            							'<span class="chat_document_preview" title="Preview" style="font-size:1.5em!important;">'+
