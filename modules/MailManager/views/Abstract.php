@@ -104,7 +104,7 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 	 * @param String $folder - Name of the folder
 	 * @return MailManager_Connector
 	 */
-	protected function getConnector($folder='', $accountId=false, $mode=false) {
+	protected function getConnector($folder='', $accountId=false, $mode=false, $model=false) {
 		if (!$this->mConnector || ($this->mFolder != $folder)) {
 			if($folder == "__vt_drafts") {
 				$draftController = new MailManager_Draft_View();
@@ -112,7 +112,10 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 			} else {
 				if ($this->mConnector) $this->mConnector->close();
 
-				$model = $this->getMailboxModel($accountId, $mode);
+				if(empty($model)){
+				    $model = $this->getMailboxModel($accountId, $mode);
+				}
+				
 				$this->mConnector = MailManager_Connector_Connector::connectorWithModel($model, $folder);
 			}
 			$this->mFolder = $folder;

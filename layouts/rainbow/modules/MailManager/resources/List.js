@@ -47,56 +47,52 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			
 			}else{
 				
-				if(error.message == 'invalid json token' || error.message == 'No access token has been provided.' || error.message == 'Login aborted'){
-					var params ={
-						'accountid': typeof accountid == "undefined" ? '' : accountid,
-					};
-					self.getMailRecordDetails(params).then(function(response){
-						app.helper.hideProgress();
-						var data = response.data;
+				var params ={
+					'accountid': typeof accountid == "undefined" ? '' : accountid,
+				};
+				self.getMailRecordDetails(params).then(function(response){
+					app.helper.hideProgress();
+					var data = response.data;
+					
+					accountid = data.id;
+					var type = data.type;
+					
+					if(type == 'Google'){
+						var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/GoogleConnect.php');
+						var message = "Invalid token! Do you want to reconnect.";
+					}else if(type == 'Office365'){
+						var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/OutlookConnect.php');
+						var message = "Invalid token! Do you want to reconnect.";
+					}else{
+						var message = "Something went wrong! Connect again.";
+					}
+					
+					app.helper.showConfirmationBox({'message': message}).then(
+							
+						function(data) {
+							
+							if(url){
+								var win= window.open(url,'','height=600,width=600,channelmode=1');
+							
+								window.RefreshPage = function() {
+									location.reload();
+								}
+							}else{
+								var ele = $('.mailManagerDropDown').find('.mailbox_setting[data-boxid="'+accountid+'"]');
+								ele.trigger('click');
+							}
+						},
 						
-						accountid = data.id;
-						var type = data.type;
-						
-						if(type == 'Google'){
-							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/GoogleConnect.php');
-							var message = "Invalid token! Do you want to reconnect.";
-						}else if(type == 'Office365'){
-							var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/MailManager/OutlookConnect.php');
-							var message = "Invalid token! Do you want to reconnect.";
-						}else{
-							var message = "Something went wrong! Connect again.";
+						function(error, err) {
+							
+							var ele = $('.mailManagerDropDown').find('.deleteMailManager[data-boxid="'+accountid+'"]');
+							ele.trigger('click');
+							
 						}
 						
-						app.helper.showConfirmationBox({'message': message}).then(
-								
-							function(data) {
-								
-								if(url){
-									var win= window.open(url,'','height=600,width=600,channelmode=1');
-								
-									window.RefreshPage = function() {
-										location.reload();
-									}
-								}else{
-									var ele = $('.mailManagerDropDown').find('.mailbox_setting[data-boxid="'+accountid+'"]');
-									ele.trigger('click');
-								}
-							},
-							
-							function(error, err) {
-								
-								var ele = $('.mailManagerDropDown').find('.deleteMailManager[data-boxid="'+accountid+'"]');
-								ele.trigger('click');
-								
-							}
-							
-						);
-					});
+					);
+				});
 					
-				}else{
-					app.helper.showErrorNotification({'message': error.message});
-				}
 			}
 			
 		});
