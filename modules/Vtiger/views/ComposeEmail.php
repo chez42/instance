@@ -19,6 +19,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$this->exposeMethod('composeMailData');
 		$this->exposeMethod('emailReply');
 		$this->exposeMethod('emailReplyAll');
+		$this->exposeMethod('getMailModels');
 	}
 
 	public function checkPermission(Vtiger_Request $request) {
@@ -692,4 +693,25 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		}
 		return $recordModel;
 	}
+	
+	public function getMailModels (Vtiger_Request $request){
+	    $response = new Vtiger_Response();
+	    global $adb;
+	    $list_servers = array();
+	    $currentUser = Users_Record_Model::getCurrentUserModel();
+	    $userId = $currentUser->getId();
+	    $result = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=?", array($userId));
+	    if ($adb->num_rows($result)) {
+	        for($u=0;$u<$adb->num_rows($result);$u++){
+	            $list_servers[$u]['account_id'] = $adb->query_result($result, $u, 'account_id');
+	            $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'from_email');
+	            $list_servers[$u]['default'] = $adb->query_result($result, $u, 'set_default');
+	        }
+	    }
+	    
+	    $response->setResult($list_servers);
+	    $response->emit();
+	    
+	}
+	
 }

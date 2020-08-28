@@ -43,11 +43,11 @@
                      <div class="row">
 		                <div class="col-lg-12">
 		                    <div class="col-lg-2">
-		                        <span class="pull-right">From
+		                        <span class="pull-right">From &nbsp;<span class="redColor">*</span></span>
 		                    </div>
 		                    <div class="col-lg-6">
-		                        <select class="from_field select2" name="from_serveremailid" style="width:100%;">
-			                        <option value="" >System Mail</option>
+		                        <select class="from_field select2" name="from_serveremailid" data-rule-required="true" style="width:100%;">
+			                        <option value="" ></option>
 		                            {foreach from=$LIST_SERVERS item=serverinfo}
 		                                <option value="{$serverinfo["account_id"]}" {if $serverinfo["default"] == 0}  selected {/if} > {$serverinfo["account_name"]} </option>
 		                            {/foreach}
@@ -56,6 +56,13 @@
 		                            {/if}
 		                        </select>
 		                    </div>
+		                    <div class="col-lg-4">
+			                	<span class="pull-left">
+			                        <span class="cursorPointer select_refresh" title="Refresh">
+			                        	<i class="fa fa-refresh"></i>
+		                        	</span>&nbsp;
+	                        	</span>
+			                </div>
 		                </div>
 		                <div class="col-lg-4"></div>
 		            </div>
