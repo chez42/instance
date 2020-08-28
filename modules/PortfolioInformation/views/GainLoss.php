@@ -9,6 +9,7 @@
 require_once("libraries/Reporting/ReportCommonFunctions.php");
 include_once("libraries/reports/pdf/cNewPDFGenerator.php");
 include_once("include/utils/omniscientCustom.php");
+include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
 class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
 
@@ -71,8 +72,15 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
             /* === END : Changes For Report Logo 2016-12-07 === */
 
             if($is_pdf) {
-                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
+                $coverpage = new FormattedContactInfo($calling_record);
+                $coverpage->SetTitle("Portfolio Review");
+                $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
+                $viewer->assign("COVERPAGE", $coverpage);
+
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+#                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
+#                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
 
                 /*                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
@@ -80,6 +88,7 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicPie.tpl', $moduleName);
                                 $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicHoldings.tpl', $moduleName);*/
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
 
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
