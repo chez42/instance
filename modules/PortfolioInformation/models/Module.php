@@ -242,7 +242,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                 return $contact_instance;
             }
         }
-        return 0;
+        return null;
     }
 
     static public function CheckCloudForAccountNumber($custodian, $custodianDB, $account_number)
@@ -269,7 +269,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $result = $adb->pquery($query, array($account_number));
         if ($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'crmid');
-        return 0;
+        return null;
     }
 
     static public function GetCustodianFromAccountNumber($account_number)
@@ -2371,6 +2371,15 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                     break;
             }
         }
+    }
+
+    static public function GetPreparedByFormattedByUserID($user_id){
+        $statement = new PortfolioInformation_Statements_Model();
+        $preparedBy = $statement->GetPreparedByData($user_id);
+        if($preparedBy)
+            return htmlspecialchars_decode($preparedBy);
+
+        return false;
     }
 
     static public function GetPreparedByFormattedByRecordID($record_id){

@@ -1,0 +1,11 @@
+.LogoImage{width:100%;}
+.LogoSection{width:50%;}
+.ReportLogo{width:100%; display:block;}
+
+
+.LHLogoContainer{width:50%;}
+.CoverPageLogo{display:block; float:left; width:63%;}
+
+#CoverPage .LogoSection{display:block; float:left; width:50%; margin-top:10%; padding-top:10%; padding-bottom:10%; border-right:1px dotted black;}
+#CoverPage .LogoSection .ReportTitle{font-size:4em;}
+#CoverPage .LogoSection .ReportTitle #TitleName{text-align:center;}
