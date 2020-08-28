@@ -191,6 +191,11 @@ jQuery.Class("Emails_MassEdit_Js",{
 			} else {
 				jQuery('#flag').val(thisInstance.sent);
 			}
+			
+			if(form.find('[name="from_serveremailid"]').val() == 'clickHereToConfigureMail'){
+				form.find('[name="from_serveremailid"]').val('');
+			}
+			
 			var params = {
 				submitHandler: function(form) {
 					form = jQuery(form);
@@ -1010,7 +1015,41 @@ jQuery.Class("Emails_MassEdit_Js",{
 		var thisInstance = this;
 		jQuery('[name="from_serveremailid"]').on('change',function(e){
 			if($(this).val() == 'clickHereToConfigureMail')
-				window.location.href = "index.php?module=MailManager&view=List";
+				window.open("index.php?module=MailManager&view=List", '_blank');
+		});
+		
+		jQuery('.select_refresh').on('click', function(){
+			//app.helper.showProgress();
+			var params = {
+	    		'module': 'Vtiger',
+	            'view': 'ComposeEmail',
+	            'mode': 'getMailModels'
+	        };
+	        app.request.post({data: params}).then(
+	    		function(err, response) {
+	                if (!err) {
+                		if(response.length){
+                			
+							var o = new Option('', '');
+		                	$(o).html('');
+		                	$('[name="from_serveremailid"]').append(o);
+		                	
+		                	$.each(response,function(i,v){
+		                		
+		                		//if($('[name="from_serveremailid"]').val() == 'clickHereToConfigureMail')
+		                			$('[name="from_serveremailid"]').val('');
+		                		
+		                		$('[name="from_serveremailid"]').empty();
+		                		var o = new Option(v.account_name, v.account_id);
+			                	$(o).html(v.account_name);
+			                	$('[name="from_serveremailid"]').append(o);
+			                	
+		                	});
+		                	
+                		}
+	                }
+	    		}
+    		);
 		});
 	},
 	
