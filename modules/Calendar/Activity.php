@@ -175,18 +175,23 @@ class Activity extends CRMEntity {
 		
 		//Insert into vtiger_activity_remainder table
 		if($_REQUEST['action'] != 'InvoiceAjax' && $_REQUEST['ajxaction'] != 'DETAILVIEW'
-		    && $_REQUEST['action'] != 'MassEditSave' && $_REQUEST['action'] != 'ProcessDuplicates'
-		    && ($_REQUEST['action'] != 'SaveAjax' || isset($_REQUEST['remdays']) || 
-		        $_REQUEST['field'] == 'reminder_time') && $_REQUEST['action'] != 'FROM_WS') {
-		        $this->insertIntoReminderTable('vtiger_activity_reminder',$module,"");
+	    && $_REQUEST['action'] != 'MassEditSave' && $_REQUEST['action'] != 'ProcessDuplicates'
+	    && ($_REQUEST['action'] != 'SaveAjax' || isset($_REQUEST['remdays']) || 
+        $_REQUEST['field'] == 'reminder_time') && $_REQUEST['action'] != 'FROM_WS') {
 		        
-		        //Handling for invitees
-		        $selected_users_string =  $_REQUEST['inviteesid'];
-		        $invitees_array = explode(';',$selected_users_string);
-		        $this->insertIntoInviteeTable($module,$invitees_array);
-		        
-	    }
+            $this->insertIntoReminderTable('vtiger_activity_reminder',$module,"");
 
+        }
+        
+        //Handling for invitees
+        if(isset($_REQUEST['inviteesid'])){
+            
+            $selected_users_string =  $_REQUEST['inviteesid'];
+            $invitees_array = explode(';',$selected_users_string);
+            $this->insertIntoInviteeTable($module,$invitees_array);
+            
+        }
+	    
 		//Inserting into sales man activity rel
 		$this->insertIntoSmActivityRel($module);
 
