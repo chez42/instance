@@ -208,9 +208,9 @@ class Home_Module_Model extends Vtiger_Module_Model {
 		}
 
 		if ($mode === 'upcoming') {
-			$query .= " AND CASE WHEN vtiger_activity.activitytype='Task' THEN due_date >= '$currentDate' ELSE CONCAT(due_date,' ',time_end) >= '$nowInDBFormat' END";
+			$query .= " AND CONCAT(date_start,' ',time_start) >= '$nowInDBFormat' ";
 		} elseif ($mode === 'overdue') {
-			$query .= " AND CASE WHEN vtiger_activity.activitytype='Task' THEN due_date < '$currentDate' ELSE CONCAT(due_date,' ',time_end) < '$nowInDBFormat' END";
+			$query .= " AND CONCAT(due_date,' ',time_end) < '$nowInDBFormat' ";
 		}
 
 		$params = array();
