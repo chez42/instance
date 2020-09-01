@@ -43,19 +43,30 @@
                      <div class="row">
 		                <div class="col-lg-12">
 		                    <div class="col-lg-2">
-		                        <span class="pull-right">From
+		                        <span class="pull-right">From &nbsp;{if $SITE_URL neq 'crm4.omnisrv.com'}<span class="redColor">*</span>{/if}</span>
 		                    </div>
 		                    <div class="col-lg-6">
-		                        <select class="from_field select2" name="from_serveremailid" style="width:100%;">
-			                        <option value="" >System Mail</option>
+		                        <select class="from_field select2" name="from_serveremailid" {if $SITE_URL neq 'crm4.omnisrv.com'}data-rule-required="true"{/if} style="width:100%;">
+			                        {if $SITE_URL eq 'crm4.omnisrv.com'}
+			                        	<option value="" >System Mail</option>
+			                        {else}
+			                        	<option value="" ></option>
+		                        	{/if}
 		                            {foreach from=$LIST_SERVERS item=serverinfo}
 		                                <option value="{$serverinfo["account_id"]}" {if $serverinfo["default"] == 0}  selected {/if} > {$serverinfo["account_name"]} </option>
 		                            {/foreach}
 		                            {if empty($LIST_SERVERS)}
-		                            	<option value="clickHereToConfigureMail">Click Here To Configure Mail </option>
+		                            	<option value="clickHereToConfigureMail">Configure New Mail Server</option>
 		                            {/if}
 		                        </select>
 		                    </div>
+		                    <div class="col-lg-4">
+			                	<span class="pull-left">
+			                        <span class="cursorPointer select_refresh" title="Refresh">
+			                        	<i class="fa fa-refresh"></i>
+		                        	</span>&nbsp;
+	                        	</span>
+			                </div>
 		                </div>
 		                <div class="col-lg-4"></div>
 		            </div>

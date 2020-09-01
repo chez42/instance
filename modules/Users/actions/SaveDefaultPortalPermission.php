@@ -12,12 +12,14 @@ class Users_SaveDefaultPortalPermission_Action extends Vtiger_Action_Controller 
         $result = array();
         
         $record = $request->get('record');
+        if($request->get('from'))
+            $record = 0;
         
         $adb = PearDatabase::getInstance();
         
         $portal_module_permission = $request->get("portalModulesInfo");
             
-        if(!empty($portal_module_permission) && $record){
+        if(!empty($portal_module_permission) ){
             
             $portal_permission_result = $adb->pquery("select * from vtiger_default_portal_permissions where userid = ?",array($record));
             
@@ -59,6 +61,8 @@ class Users_SaveDefaultPortalPermission_Action extends Vtiger_Action_Controller 
                 $adb->pquery("insert into vtiger_default_portal_permissions (userid, ".$queryFields.") values (?, ".$queryValues.")",array($record));
                 
             }
+            
+            $result = array('success'=>true);
         }
         
         $response = new Vtiger_Response();

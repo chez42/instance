@@ -230,14 +230,16 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 
 	addInviteesIds : function(form) {
 		var thisInstance = this;
-		if(thisInstance.isEvents(form)) {
-			var inviteeIdsList = jQuery('#selectedUsers').val();
-			if(inviteeIdsList) {
-				inviteeIdsList = jQuery('#selectedUsers').val().join(';')
+		if(form.attr('id') != 'QuickCreate'){
+			if(thisInstance.isEvents(form)) {
+				var inviteeIdsList = jQuery('#selectedUsers').val();
+				if(inviteeIdsList) {
+					inviteeIdsList = jQuery('#selectedUsers').val().join(';')
+				}
+				jQuery('<input type="hidden" name="inviteesid" />').
+						appendTo(form).
+						val(inviteeIdsList);
 			}
-			jQuery('<input type="hidden" name="inviteesid" />').
-					appendTo(form).
-					val(inviteeIdsList);
 		}
 	},
 

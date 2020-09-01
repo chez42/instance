@@ -123,7 +123,7 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="row padding-bottom1per">
+            <div class="row padding-bottom1per" style="margin:10px !important;">
                 {assign var="TEMPLATE_CONTENT" value=$RECORD->get('body')}
                 <textarea id="templatecontent" name="templatecontent" {if $IS_SYSTEM_TEMPLATE_EDIT} data-rule-required="true" {/if} >
                     {if !empty($TEMPLATE_CONTENT)}
