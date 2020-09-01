@@ -487,3 +487,17 @@ if(!$adb->num_rows($quickCreateMenu)){
     'index.php?parent=Settings&module=Vtiger&view=GlobalPortalPermission'));
         
 }
+
+$votingPick = $adb->pquery("SELECT * FROM vtiger_proxy_voting_code WHERE proxy_voting_code = ?",array("Client"));
+if(!$adb->num_rows($votingPick)){
+    $module = Vtiger_Module::getInstance('PortfolioInformation');
+    $fieldInstance = Vtiger_Field::getInstance('proxy_voting_code', $module);
+    $picklist_values = array("Client");
+    $fieldInstance->setPicklistValues($picklist_values);
+}
+
+$adb->pquery("UPDATE vtiger_field SET defaultvalue = 'Client' WHERE tabid = ? AND columnname = ?",
+    array(getTabid('PortfolioInformation'), 'proxy_voting_code'));
+
+$adb->pquery("UPDATE vtiger_field SET defaultvalue = '1' WHERE tabid = ? AND columnname = ?",
+    array(getTabid('PortfolioInformation'), 'advisor_discretion'));
