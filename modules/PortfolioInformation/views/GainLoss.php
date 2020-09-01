@@ -7,7 +7,8 @@
  */
 
 require_once("libraries/Reporting/ReportCommonFunctions.php");
-include_once("libraries/reports/pdf/cNewPDFGenerator.php");
+#include_once("libraries/reports/pdf/cNewPDFGenerator.php");
+require_once("libraries/reports/pdf/cMpdf7.php");
 include_once("include/utils/omniscientCustom.php");
 include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
@@ -77,19 +78,13 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
                 $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
                 $viewer->assign("COVERPAGE", $coverpage);
 
-                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl',"PortfolioInformation");
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', "PortfolioInformation");
 #                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
 #                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
-
-                /*                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicPie.tpl', $moduleName);
-                                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/DynamicHoldings.tpl', $moduleName);*/
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', $moduleName);
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', "PortfolioInformation");
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', "PortfolioInformation");
 
                 $this->GeneratePDF($pdf_content, $logo, $calling_record);
             }
@@ -102,7 +97,8 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
     }
 
     public function GeneratePDF($content, $logo = false, $calling_record){
-        $pdf = new cNewPDFGenerator('c','LETTER-L','8','Arial');
+#        $pdf = new cNewPDFGenerator('c','LETTER-L','8','Arial');
+        $pdf = new cMpdf7(array('orientation' => 'L'));
 
         if($logo)
             $pdf->logo = $logo;
