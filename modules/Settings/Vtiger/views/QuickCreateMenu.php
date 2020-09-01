@@ -17,7 +17,9 @@ class Settings_Vtiger_QuickCreateMenu_View extends Settings_Vtiger_Index_View {
         $viewer = $this->getViewer($request);
         $qualifiedName = $request->getModule(false);
         
-        $restrictedModulesList = array('Emails', 'ModComments', 'Integration', 'PBXManager', 'Dashboard', 'Home', 'Google', 'Transactions', 'DocumentFolder', 'PositionInformation', 'PortfolioInformation', 'ModSecurities', 'Reports', 'RingCentral');
+        $restrictedModulesList = array('Emails', 'ModComments', 'Integration', 'PBXManager', 'Dashboard', 
+            'Home', 'Google', 'Transactions', 'DocumentFolder', 'PositionInformation', 'PortfolioInformation', 
+            'ModSecurities', 'Reports', 'RingCentral', 'Events', 'OmniCal');
         
         $quickSeq = $adb->pquery("SELECT * FROM vtiger_tab WHERE presence IN ('0','2') 
             AND isentitytype = 1 AND name NOT IN (".generateQuestionMarks($restrictedModulesList).")
@@ -26,10 +28,16 @@ class Settings_Vtiger_QuickCreateMenu_View extends Settings_Vtiger_Index_View {
         
         if($adb->num_rows($quickSeq)){
             for($i=0;$i<$adb->num_rows($quickSeq);$i++){
-                $moduleList[$adb->query_result($quickSeq, $i, 'tabid')] = array(
-                    'name' => $adb->query_result($quickSeq, $i, 'name'),
-                    'seq' => $adb->query_result($quickSeq, $i, 'quick_create_seq')
-                );
+                $module = Vtiger_Module_Model::getInstance($adb->query_result($quickSeq, $i, 'name'));
+                
+                if($module->isQuickCreateSupported()){
+                
+                    $moduleList[$adb->query_result($quickSeq, $i, 'tabid')] = array(
+                        'name' => $adb->query_result($quickSeq, $i, 'name'),
+                        'seq' => $adb->query_result($quickSeq, $i, 'quick_create_seq')
+                    );
+                
+                }
             }
         }
             
