@@ -259,7 +259,11 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$userPrevilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		$viewer->assign('MODULE_IS_ACTIVE', $userPrevilegesModel->hasModulePermission(Vtiger_Module_Model::getInstance('EmailTemplates')->getId()));
 		//
-
+		global $site_URL;
+		$site_URL = str_replace(array('https', 'http', ':', '/'), array('','','',''), $site_URL);
+		
+		$viewer->assign('SITE_URL', $site_URL);
+		
 		if($relatedLoad){
 			$viewer->assign('RELATED_LOAD', true);
 		}

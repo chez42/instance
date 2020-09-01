@@ -9,6 +9,14 @@
 
 Vtiger.Class("Settings_Vtiger_QuickCreateMenu_Js",{},{
 	
+	init : function() {
+	       this.addComponents();
+	    },
+	   
+    addComponents : function (){
+        this.addModuleSpecificComponent('Index',app.module(), app.getParentModuleName());
+    },
+    
 	registerEventForQuickCreateSeq: function () {
 		var thisInstance = this;
 		var container = jQuery('.quickCreateMenuDiv');
