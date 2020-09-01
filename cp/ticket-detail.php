@@ -420,7 +420,7 @@ if(isset($_GET['record'])){
     				enableEditing: false,
     				enableDeleting: false,
 
-    				enableAttachments: true,
+    				enableAttachments: false,
     				enableNavigation: false,
     				enablePinging: false,
     				

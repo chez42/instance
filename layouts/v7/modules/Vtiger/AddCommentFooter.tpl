@@ -12,8 +12,10 @@
 {strip}
     <div class="modal-footer">
         <div class="row-fluid">
-            <div class="col-xs-6">
-                {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME)}
+            <div class="col-xs-6" >
+            	<span style="display:none;">
+                	{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME)}
+            	</span>
             </div>
             <div class="col-xs-6">
                 <div>
