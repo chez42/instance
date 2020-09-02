@@ -38,7 +38,7 @@
 	</div>
 {/if}
 
-<div class="listViewPageDiv content-area {if $LEFTPANELHIDE eq '1' || empty($MAILMODELS)} full-width {/if}" id="listViewContent">
+<div class="listViewPageDiv content-area {if empty($MAILMODELS)} full-width {/if}" id="listViewContent">
 
 {if $MODULE neq 'EmailTemplates' && $SEARCH_MODE_RESULTS neq true}
         {assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
