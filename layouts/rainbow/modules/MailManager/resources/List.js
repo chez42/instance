@@ -660,7 +660,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			var query = container.find('#mailManagerSearchbox').val();
 			var date = container.find('[name="date"]').val();
 			
-			if(query.trim() == '' && date == '') {
+			/*if(query.trim() == '' && date == '') {
 				vtUtils.showValidationMessage(container.find('#mailManagerSearchbox'));
 				vtUtils.showValidationMessage(container.find('[name="date"]'));
 				app.helper.showErrorNotification({'message': 'Atleast one field is required.'});
@@ -668,7 +668,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			} else {
 				vtUtils.hideValidationMessage(container.find('#mailManagerSearchbox'));
 				vtUtils.hideValidationMessage(container.find('[name="date"]'));
-			}
+			}*/
+			
 			var folder = container.find('#mailManagerSearchbox').data('foldername');
 			var type = container.find('#searchType').val();
 			
