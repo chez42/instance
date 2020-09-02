@@ -5,7 +5,8 @@
  * Date: 2018-08-29
  * Time: 5:09 PM
  */
-
+set_time_limit(180);
+//ini_set('display_errors','on'); version_compare(PHP_VERSION, '5.5.0') <= 0 ? error_reporting(E_WARNING & ~E_NOTICE & ~E_DEPRECATED) : error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);   // DEBUGGING
 require_once("libraries/Reporting/ReportCommonFunctions.php");
 #include_once("libraries/reports/pdf/cNewPDFGenerator.php");
 require_once("libraries/reports/pdf/cMpdf7.php");
@@ -74,15 +75,15 @@ class PortfolioInformation_GainLoss_View extends Vtiger_Index_View{
 
             if($is_pdf) {
                 $coverpage = new FormattedContactInfo($calling_record);
-                $coverpage->SetTitle("Portfolio Review");
+                $coverpage->SetTitle("Gain/Loss");
                 $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
                 $viewer->assign("COVERPAGE", $coverpage);
 
-                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl',"PortfolioInformation");
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/CoverPage.tpl',"PortfolioInformation");
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', "PortfolioInformation");
 #                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/MailingInfo.tpl', $moduleName);
 #                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/TitlePage.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/GainLoss.tpl', "PortfolioInformation");
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GainLoss.tpl', "PortfolioInformation");
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', "PortfolioInformation");
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/disclaimer.tpl', "PortfolioInformation");
 
