@@ -15,6 +15,6 @@ class PortfolioInformation_Statements_Model extends Vtiger_Module {
         $query = "INSERT INTO vtiger_statement_settings (entity_id, prepared_by) 
                   VALUES (?, ?)
                   ON DUPLICATE KEY UPDATE prepared_by = VALUES(prepared_by)";
-        $adb->pquery($query, array($prepared_by, $content));
+        $adb->pquery($query, array($prepared_by, $content), true);
     }
 }

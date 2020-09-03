@@ -68,6 +68,36 @@ trait tTransactions{
     }
 
     /**
+     * Get all cloud transaction ID's for given custodian
+     * @param array|null $account_number
+     * @return array|null
+     */
+    public function GetCloudTransactionIDs(array $account_number = null, $custodian){
+        global $adb;
+        $params = array();
+        $params[] = $custodian;
+        $where = " WHERE origination = ? ";
+        if(!empty($account_number)){
+            $questions = generateQuestionMarks($account_number);
+            $where .= " AND account_number IN (?) ";
+            $params[] = $account_number;
+        }
+
+        $query = "SELECT cloud_transaction_id 
+                  FROM vtiger_transactions
+                  {$where}";
+        $result = $adb->pquery($query, $params, true);
+        if($adb->num_rows($result) > 0){
+            $ids = array();
+            while ($r = $adb->fetchByAssoc($result)) {
+                $ids[] = $r['cloud_transaction_id'];
+            }
+            return $ids;
+        }
+        return null;
+    }
+
+    /**
      * Return the owner ID for the passed in account number
      * @param string $account_number
      * @return int|string|string[]|null

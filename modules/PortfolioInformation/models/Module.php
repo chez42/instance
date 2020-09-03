@@ -242,7 +242,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                 return $contact_instance;
             }
         }
-        return 0;
+        return null;
     }
 
     static public function CheckCloudForAccountNumber($custodian, $custodianDB, $account_number)
@@ -269,7 +269,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $result = $adb->pquery($query, array($account_number));
         if ($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'crmid');
-        return 0;
+        return null;
     }
 
     static public function GetCustodianFromAccountNumber($account_number)
@@ -2373,6 +2373,15 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
+    static public function GetPreparedByFormattedByUserID($user_id){
+        $statement = new PortfolioInformation_Statements_Model();
+        $preparedBy = $statement->GetPreparedByData($user_id);
+        if($preparedBy)
+            return htmlspecialchars_decode($preparedBy);
+
+        return false;
+    }
+
     static public function GetPreparedByFormattedByRecordID($record_id){
         $record = VTiger_Record_Model::getInstanceById($record_id);
         $assigned_user = $record->get('assigned_user_id');
@@ -2716,7 +2725,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $t = Vtiger_Record_Model::getCleanInstance("Transactions");
                 $data = $t->getData();
                 $data['security_symbol'] = $v['security_symbol'];
-                $data['description'] = 'System Generated Transaction';
+                $data['description'] = 'System Generated Transaction (Code 1)';
                 $data['account_number'] = $v['account_number'];
                 $data['quantity'] = 0;
                 $data['net_amount'] = 0;
@@ -2745,7 +2754,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                         $t = Vtiger_Record_Model::getCleanInstance("Transactions");
                         $data = $t->getData();
                         $data['security_symbol'] = $v['security_symbol'];
-                        $data['description'] = 'System Generated Transaction';
+                        $data['description'] = 'System Generated Transaction (Code 2)';
                         $data['account_number'] = $account_number;
                         $tmp_quantity = $v['reconcile'];
                         $data['quantity'] = ABS($v['reconcile']);
