@@ -6,6 +6,7 @@ require_once("libraries/reports/pdf/cMpdf7.php");
 require_once("libraries/reports/new/holdings_report.php");
 require_once("libraries/Reporting/ProjectedIncomeModel.php");
 require_once("modules/PortfolioInformation/models/NameMapper.php");
+include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
 
 class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
@@ -194,11 +195,18 @@ class PortfolioInformation_GH2Report_View extends Vtiger_Index_View{
                 $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
                 $viewer->assign("LOGO", $logo);
 
-                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/lighthouse.tpl', $moduleName);
+                $coverpage = new FormattedContactInfo($calling_record);
+                $coverpage->SetTitle("Portfolio Review");
+                $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
+#        $output = $coverpage->GetFormattedLogo();
+#                $viewer = new Vtiger_Viewer();
+                $viewer->assign("COVERPAGE", $coverpage);
+#                $output = $viewer->view('Reports/LighthouseCover.tpl', 'PortfolioInformation', true);
+
+#                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/lighthouse.tpl', $moduleName);
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
+#                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/CoverPage.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
-                /*$pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/TableOfContents.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/GroupAccounts.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/vlayout/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);*/
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/GH2ReportPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf/AllocationTypesPDF.tpl', $moduleName);

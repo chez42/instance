@@ -348,6 +348,22 @@ class cTDTransactions extends cCustodian
         $adb->pquery($query, $params, true);
     }
 
+    public function UpdateAllTransactionsOperations(array $account_number){
+        global $adb;
+        $params = array();
+        if(!empty($account_number)){
+            $questions = generateQuestionMarks($account_number);
+            $where = " WHERE account_number IN (?) ";
+            $params[] = $questions;
+        }
+        $query = "UPDATE vtiger_transactions t
+                  JOIN {$this->database}.custodian_transactions_td ct ON t.cloud_transaction_id = ct.transaction_id
+                  JOIN {$this->database}.tdmapping m ON m.id = ct.transaction_code
+                  SET t.operation = m.operation
+                  {$where}";
+        $adb->pquery($query, $params, true);
+    }
+
     /**
      * Update the transaction in the CRM using the cTDTransactionsData class
      * @param cTDTransactionsData $data

@@ -16,6 +16,7 @@ require_once("include/utils/cron/cPortfolioAccess.php");
 require_once("include/utils/cron/cPricingAccess.php");
 include_once("libraries/Stratifi/StratifiAPI.php");
 require_once("libraries/EODHistoricalData/EODGuzzle.php");
+include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
 spl_autoload_register(function ($className) {
     if (file_exists("libraries/EODHistoricalData/$className.php")) {
@@ -27,6 +28,52 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+#        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+        $recordid = '74049453';
+        $coverpage = new FormattedContactInfo($recordid);
+        $coverpage->SetTitle("Portfolio Review");
+        $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
+#        $output = $coverpage->GetFormattedLogo();
+        $viewer = new Vtiger_Viewer();
+        $viewer->assign("COVERPAGE", $coverpage);
+#        $output = $viewer->view('Reports/LighthouseCover.tpl', 'PortfolioInformation', true);
+        $output = $viewer->view('Reports/CoverPage.tpl', 'PortfolioInformation', true);
+        echo $output;
+        exit;
+/*
+        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+        echo 'fini';exit;*/
+/*
+        $strat = new StratifiAPI();
+        $data = PortfolioInformation_Module_Model::GetStratifiData('941107663');
+        $result = $strat->UpdatePositionsToStratifi($data);
+        echo '<br /><br />';
+        print_r($result);
+        echo '<br /><br />';
+        echo 'done';exit;
+print_r($data);exit;
+*/
+
+        set_time_limit(0);
+        $control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
+        'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
+        $strat_hh = new StratHouseholds();
+        $strat_contact = new StratContacts();
+        $sAdvisors = new StratAdvisors();
+
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
+        $sAdvisors->AutoCreateCompanies();
+        $sAdvisors->AutoCreateAdvisors();
+
+        PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
+        PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
+        PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
+        PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
+#PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
+        $strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
+        $strat_contact->GetAllContactsAndUpdateAdvisorOwnership();
+        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+        echo 'done';exit;
 /*        $guz = new cEodGuzzle();
         $data = json_decode($guz->getFundamentals("HYG"));
         $div = json_decode($guz->getDividends("HYG", "US", '2019-01-01', '2019-12-31'));

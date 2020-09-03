@@ -46,7 +46,7 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
     $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
         "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
         "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
-        "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity");
+        "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
 
     $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
                                         "custodian_portfolios_td", "custodian_transactions_td",
