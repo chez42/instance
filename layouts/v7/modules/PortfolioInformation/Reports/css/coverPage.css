@@ -1,0 +1,26 @@
+#PreparedForName{text-align:right;}
+#PreparedByName{text-align:right;}
+#TitleName{text-align:right; margin:0; padding:0;}
+#DatePrepared{text-align:right;}
+
+.LHLogoContainer{display:block; float:left;}
+.LHPreparedSection{width:35%; display:block; float:left;}
+.LHPreparedSection .PreparedByName{font-size:118px;}
+.LHPreparedSection #TitleName{font-size:22px; text-align:center; text-decoration: underline; text-decoration-color: darkred;}
+
+.LHPreparedSection #PreparedForName{font-size:18px; text-align:center; margin:0; padding:0;}
+.LHPreparedSection #PreparedByName{font-size:16px; text-align:center; margin:0; padding:0; padding-top:1em;}
+.LHPreparedSection #DatePrepared{font-size:16px; text-align:center; margin:0; padding:0;}
+#LHCoverPage{padding-top:20%;}
+
+.prepared_for{display:none;}
+.prepared_by{display:none;}
+
+#CoverPage .PreparedSection{display:block; float:right; width:45%; padding-top:5%;}
+#CoverPage .PreparedSection .PreparedFor {}
+#CoverPage .PreparedSection .PreparedFor #PreparedForName{text-align:center; font-size:2em;}
+
+#CoverPage .PreparedSection .PreparedBy .prepared_by{display:inline; text-decoration:underline; font-weight:bold;}
+
+#CoverPage .PreparedSection #PreparedByName{text-align:center; margin:0; padding:0; padding-top:0.5em;}
+#CoverPage .PreparedSection #DatePrepared{text-align:center; font-weight:bold; padding-top:2em;}
