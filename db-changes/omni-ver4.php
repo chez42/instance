@@ -501,3 +501,25 @@ $adb->pquery("UPDATE vtiger_field SET defaultvalue = 'Client' WHERE tabid = ? AN
 
 $adb->pquery("UPDATE vtiger_field SET defaultvalue = '1' WHERE tabid = ? AND columnname = ?",
     array(getTabid('PortfolioInformation'), 'advisor_discretion'));
+
+$adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_edit_records INT(3) NULL DEFAULT '0'");
+
+$adb->pquery("UPDATE vtiger_field SET displaytype = '3' WHERE tabid =? and fieldname=?",
+    array(getTabid('Contacts'), 'salutationtype'));
+	
+$result = $adb->pquery("select * from vtiger_emailtemplates where templatename = ?",
+array('Outgoing Email Configuration Confirmation Template'));
+if(!$adb->num_rows($result)){
+	$adb->pquery("INSERT INTO vtiger_emailtemplates 
+	(templatename, subject, description, body, deleted, creatorid, systemtemplate, module, templateid) 
+	VALUES (    
+	'Outgoing Email Configuration Confirmation Template', 
+	'Test mail about the mail server configuration.', 
+	'Test mail about the mail server configuration.', 
+	'<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\r\n<html>\r\n<head>\r\n <title></title>\r\n</head>\r\n<body class=\"scayt-enabled\"><br />\r\n<br />\r\n<b>This is a test mail sent to confirm if a mail is actually being sent through the smtp server that you have configured. </b><br />\r\nFeel free to delete this mail.<br />\r\n<br />\r\nThanks and Regards,<br />\r\nTeam Omniscient<br />\r\n&nbsp;</body>\r\n</html>\r\n', 
+	'0',
+	'1', 
+	'1', 
+	'Contacts',
+	".$adb->getUniqueID('vtiger_emailtemplates').")");
+}
