@@ -15,7 +15,7 @@ $languageStrings = array(
     "LBL_GO_BACK_TO_LISTVIEW"=>'Go back to Listview',
     "LBL_GO_TO_DETAIL_VIEW"=>'Go to Detail View',
     "LBL_DEFAULT_PAGE"=>'Default page',
-
+    
     /* For License page - Begin */
     'MODULE_LBL' => 'Kanban View',
     'LBL_REQUIREMENTS' => 'Requirements',

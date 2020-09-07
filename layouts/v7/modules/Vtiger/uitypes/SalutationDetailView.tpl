@@ -11,6 +11,9 @@
 -->*}
 
 {* TODO: Review the order of parameters - good to eliminate $RECORD->getId, $RECORD should be used *}
-{$RECORD->getDisplayValue('salutationtype')}
+
+{if $RECORD->getDisplayValue('salutationtype') neq 'None'}
+	{$RECORD->getDisplayValue('salutationtype')}
+{/if}
 
 {$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'), $RECORD->getId(), $RECORD)}
