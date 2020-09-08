@@ -14,14 +14,36 @@ class Settings_Vtiger_OutgoingServer_Model extends Settings_Vtiger_Systems_Model
 
 
     public function getSubject() {
-        return 'Test mail about the mail server configuration.';
+        global $adb;
+        
+        $subject = $adb->pquery("SELECT * FROM vtiger_emailtemplates WHERE templatename=?",
+            array('Outgoing Email Configuration Confirmation%'));
+        
+        if($adb->num_rows($subject)){
+            $subject = $adb->query_result($subject, 0, 'subject');
+        }else{
+            $subject = 'Test mail about the mail server configuration.';
+        }
+        
+        return $subject;
     }
     
     public function getBody() {
         $currentUser = Users_Record_Model::getCurrentUserModel();
-        return 'Dear '.$currentUser->get('user_name').', <br><br><b> This is a test mail sent to confirm if a mail is 
+        global $adb;
+        
+        $body = $adb->pquery("SELECT * FROM vtiger_emailtemplates WHERE templatename=?",
+            array('Outgoing Email Confirmation Template.'));
+        
+        if($adb->num_rows($body)){
+            $body = $adb->query_result($body, 0, 'body');
+        }else{
+            $body = 'Dear '.$currentUser->get('user_name').', <br><br><b> This is a test mail sent to confirm if a mail is
                 actually being sent through the smtp server that you have configured. </b><br>Feel free to delete this mail.
                 <br><br>Thanks  and  Regards,<br> Team Omniscient <br><br>';
+        }
+        
+        return $body;
     }
     
 	public function loadDefaultValues() {

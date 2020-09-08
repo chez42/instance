@@ -82,6 +82,9 @@
                                 {/if}
                                 <input id="emailField" style="width:100%" name="toEmail" type="text" class="autoComplete sourceField select2" data-rule-required="true" data-rule-multiEmails="true" value="{$TO_EMAILS}" placeholder="{vtranslate('LBL_TYPE_AND_SEARCH',$MODULE)}">
                             </div>
+                            <div class="col-lg-4 insertTemplate">
+                                <button id="selectEmailTemplate" class="btn btn-success pull-right" data-url="module=EmailTemplates&view=Popup">{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</button>
+                            </div>
                            <div class="col-lg-4 input-group" style = "display:none;">
                                 <select style="width: 140px;" class="select2 emailModulesList pull-right">
                                     {foreach item=MODULE_NAME from=$RELATED_MODULES}
@@ -105,7 +108,7 @@
                                 <span class="pull-right">{vtranslate('LBL_CC',$MODULE)}</span>
                             </div>
                             <div class="col-lg-6">
-                                <input type="text" name="cc" data-rule-multiEmails="true" value="{if !empty($CC)}{$CC}{/if}"/>
+                                <input id="ccEmailField" style="width:100%" class="autoComplete sourceField select2" type="text" name="cc" data-rule-multiEmails="true" value="{if !empty($CC)}{$CC}{/if}" placeholder="{vtranslate('LBL_TYPE_AND_SEARCH',$MODULE)}"/>
                             </div>
                             <div class="col-lg-4"></div>
                         </div>
@@ -117,7 +120,7 @@
                                 <span class="pull-right">{vtranslate('LBL_BCC',$MODULE)}</span>
                             </div>
                             <div class="col-lg-6">
-                                <input type="text" name="bcc" data-rule-multiEmails="true" value="{if !empty($BCC)}{$BCC}{/if}"/>
+                                <input id="bccEmailField" style="width:100%" class="autoComplete sourceField select2" type="text" name="bcc" data-rule-multiEmails="true" value="{if !empty($BCC)}{$BCC}{/if}" placeholder="{vtranslate('LBL_TYPE_AND_SEARCH',$MODULE)}"/>
                             </div>
                             <div class="col-lg-4"></div>
                         </div>
@@ -154,18 +157,13 @@
                             </div>
                             <div class="col-lg-10">
                                 <div class="row">
-                                    <div class="col-lg-4 browse">
+                                    <div class="col-lg-5 browse">
                                         <input type="file" {if $FILE_ATTACHED}class="removeNoFileChosen"{/if} id="multiFile" name="file[]"/>&nbsp;
                                     </div>
-                                    <div class="col-lg-2 brownseInCrm">
-                                        <button type="button" class="btn btn-small btn-default" id="browseCrm" data-url="{$DOCUMENTS_URL}" title="{vtranslate('LBL_BROWSE_CRM',$MODULE)}">{vtranslate('LBL_BROWSE_CRM',$MODULE)}</button>
+                                    <div class="col-lg-6 brownseInCrm">
+                                        <button type="button" class="btn btn-small btn-success" id="browseCrm" data-url="{$DOCUMENTS_URL}" title="{vtranslate('LBL_BROWSE_CRM',$MODULE)}">{vtranslate('LBL_BROWSE_CRM',$MODULE)}</button>
                                     </div>
-                                     <div class="col-lg-2 insertLink">
-                                        <button type="button" class="btn btn-small btn-default" id="insertLink" data-url="module=Documents&view=InsertLinkPopup&src_module=Emails&src_field=composeEmail" title="{vtranslate('Insert Link',$MODULE)}">{vtranslate('Insert Link',$MODULE)}</button>
-                                    </div>
-                                    <div class="col-lg-4 insertTemplate">
-                                        <button id="selectEmailTemplate" class="btn btn-success pull-right" data-url="module=EmailTemplates&view=Popup">{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</button>
-                                    </div>
+                                     
                                 </div>
                                 <div id="attachments">
                                     {foreach item=ATTACHMENT from=$ATTACHMENTS}
@@ -192,8 +190,15 @@
                             <div class="col-lg-2">
                                 <span class="pull-right">{vtranslate('LBL_INCLUDE_SIGNATURE',$MODULE)}</span>
                             </div>
-                            <div class="item col-lg-9">
-                                <input class="" type="checkbox" name="signature" value="Yes" checked="checked" id="signature">
+                            <div class="col-lg-10">
+                            	<div class="row">
+		                            <div class="item col-lg-1">
+		                                <input class="" type="checkbox" name="signature" value="Yes" checked="checked" id="signature">
+		                            </div>
+		                            <div class="col-lg-6 insertLink">
+		                                <button type="button" class="btn btn-small btn-success" id="insertLink" data-url="module=Documents&view=InsertLinkPopup&src_module=Emails&src_field=composeEmail" title="{vtranslate('Insert Link',$MODULE)}">{vtranslate('Insert Link',$MODULE)}</button>
+		                            </div>
+	                            </div>
                             </div>
                         </div>
                     </div>
