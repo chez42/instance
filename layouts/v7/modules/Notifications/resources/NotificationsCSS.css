@@ -137,7 +137,7 @@ a.notification_link:hover {
     /*margin: -10px 0px -10px 0px;*/
 }
 
-.notification-container .fa {
+.notification-container .fa:not(.fa-star-o){
     right: 0;
     position: absolute;
     cursor: pointer;

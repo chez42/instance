@@ -372,6 +372,7 @@ class MailManager_Connector_Connector {
 	 * @param Integer $maxLimit - Number of mails
 	 */
 	public function searchMails($query, $folder, $start, $maxLimit) {
+	    echo $query;
 		$nos = imap_search($this->mBox, $query);
 
 		if (!empty($nos)) {

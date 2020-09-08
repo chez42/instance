@@ -120,7 +120,73 @@
             		
             		<?php if(!empty($avmod)){?>
             		<div class="gridstack grid-stack" data-gs-width="12" >
-            		
+            			
+            			<?php 
+            			    
+            			    $element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId'], 'emptyFolder' => true);
+
+                        	$postParams = array(
+                        		'operation'=>'get_documents',
+                        		'sessionName'=>$session_id,
+                        		'element'=>json_encode($element)
+                        	);
+                        	
+                        	$response = postHttpRequest($ws_url, $postParams);
+                        	
+                        	$response = json_decode($response,true);
+                        
+                        	$html = $response['result'];
+                        	
+                    	?>
+            			<div data-gs-id="document_widget" id="document_widget" 
+                			data-gs-x=<?php echo $widgetsPosition['document_widget']['row'];?> 
+                			data-gs-y=<?php echo $widgetsPosition['document_widget']['col'];?> 
+                			data-gs-width=<?php if($widgetsPosition['document_widget']['width'])echo $widgetsPosition['document_widget']['width'];else echo'12';?>
+                			data-gs-height=<?php if($widgetsPosition['document_widget']['height'])echo $widgetsPosition['document_widget']['height'];else echo'5';?>
+                			class="dashboardWidget grid-stack-item">
+                    		
+                            <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                            	
+                            	<div class="kt-portlet__head">
+                    				<div class = "kt-portlet__head-label">
+                    					<h3 class="kt-portlet__head-title">Documents</h3>
+                    					<style>
+                    					   .kt-subheader__breadcrumbs-separator{
+                        					    display: inline-block;
+                                                width: 4px;
+                                                height: 4px;
+                                                border-radius: 50%;
+                                                content: " ";
+                                                background: rgb(231, 232, 239);
+                                            }
+                    					</style>
+                    					<div class="kt-subheader__breadcrumbs" style="padding:10px;">
+                                       		<a href="#" class="folderBreadcrumb kt-subheader__breadcrumbs-home" data-folder-id = "">
+                                        		<b><i style= "font-size:1.5rem !important;" class="la la-home"></i></b>
+                                        	</a>
+                                    	</div>
+                    				</div>
+                    				<div class="kt-portlet__head-label pull-right">
+                    					<button class="add-doc-btn btn btn-brand btn-sm" title="Add Documents">
+                            				<i class="fa fa-upload"></i> Upload
+                                        </button>
+                    				</div>
+                				</div>
+                    			
+                    			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent " style="padding:10px;">
+                        			<input type="hidden" name="startIndex" value="50" />
+                    				<div class="folderContent">
+                            			<?php if(!empty($html)){?>
+                                			<?php echo $html;?>
+                        				<?php }else{?>
+                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        				<?php }?>
+                    				</div>
+                    			</div>
+                    		
+                    		</div>
+                    		
+                    	</div>
             		<?php 
             		
                         //$ACCOUNTS = json_encode($account_numbers);
@@ -609,6 +675,211 @@
     		
         	//}
     	}
+
+        $(document).on('click',".folderFiles",function(){
+
+			$('body').waitMe({effect : 'orbit',text : '' });
+			
+			var folderId = $(this).data('folderid');
+			
+			var hasClass = $(this).hasClass('filterName');
+
+			var empty = true;
+			
+			$.ajax({
+
+				url:'folderData.php',
+
+				data: 'folder_id='+folderId+'&emptyFolder='+empty,
+
+				error: function(errorThrown) {
+					$('body').waitMe('hide');
+				},
+				success: function(data) {
+    				
+					$('.folderContent').html(data);
+
+					var folderId = jQuery('.folderContent').find("[name='folderId']").val();
+
+					var folderName = jQuery('.folderContent').find("[name='folderName']").val();
+
+					if(hasClass)
+						$('.kt-subheader__breadcrumbs').find('a:first').nextAll().remove();
+					
+					if(jQuery('.kt-subheader__breadcrumbs').find('.folderBreadcrumb').length > 0 ){
+
+						var html = '<span class="kt-subheader__breadcrumbs-separator"></span>';
+                    	html += '<a href="" class="kt-subheader__breadcrumbs-link folderBreadcrumb"  data-folder-id="'+folderId+'" style="padding: 5px;">';
+                    	html += folderName + '</a>';
+                    	
+						jQuery('.kt-subheader__breadcrumbs').find('a:last').after(html);
+						
+					}
+					
+					$('body').waitMe('hide');
+
+    			},
+
+				beforeSend: function() {}
+				
+			});
+		});
+
+		$(document).on('click','.folderBreadcrumb', function(e){
+
+			e.preventDefault();
+			
+			$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+
+			var curEle = $(this);
+			
+			var folderId = $(this).data('folderId');
+
+			var empty = true;
+			
+			$.ajax({
+				url:'folderData.php',
+				
+				data: 'emptyFolder='+empty+'&folder_id='+folderId,
+
+				error: function(errorThrown) {},
+				
+				success: function(data) {
+					$('.folderContent').html(data);
+
+					curEle.nextAll().remove();
+					curEle.prev().remove();
+
+					$('body').waitMe('hide');
+				}
+			});
+		});
+
+		$('div.dashboardWidgetContent').scroll(function() {
+			if($(document).find('.fileDrag').length > 0){
+				 if ($(this).scrollTop() + $(this).height() >= $('.folderContent').outerHeight() - 30 && 
+	    			jQuery('[name="scrollevent"]').val() == 1){
+					$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+		    		var folderId = $(document).find('.foldersData').data('parentFolder');
+		    		var index = parseInt(jQuery('[name="startIndex"]').val());
+					var empty = true;
+		    		$.ajax({
+						url:'folderData.php',
+						data: 'folder_id='+folderId+'&index='+index+'&emptyFolder='+empty,
+						success: function(data) {
+							jQuery('[name="scrollevent"]').remove();
+							$(document).find('.foldersData').append(data);
+							jQuery('[name="startIndex"]').val(index + 50);
+							$('body').waitMe('hide');
+						}
+					});
+		    	}
+			}
+		});
+
+  		jQuery(document).on('click','.document_preview, .document_download', function(){
+      		var self = $(this);
+      		$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+      		var currentTargetObject = self.closest('a');
+      		var fileId = currentTargetObject.data('fileid');
+    		var fileLocationType = currentTargetObject.data('filelocationtype');
+	        var fileName = currentTargetObject.data('filename'); 
+	        
+	       	if(self.hasClass('document_download')){
+				var mode = 'download';
+	       	}else if(self.hasClass('document_preview')){
+	       		var mode = 'preview';
+	       	}
+	       
+  			if(fileLocationType == 'I'){
+	        	
+	            $.ajax({
+					url:'filePreview.php',
+					data: 'file_id='+fileId+'&mode='+mode,
+					error: function(errorThrown) {
+						console.log(errorThrown);
+					},
+					success: function(data) {
+						var success;
+					 	try {
+					        var data = JSON.parse(data);
+					        if(data.success)
+						        success = true;
+					    } catch (e) {
+				      		success = false;
+					    }
+					    if(success){
+					    	window.location.href = data.downloadUrl;
+					    }else{
+							$(document).find('#chatfilePreviewModal').html(data);
+							$('#chatfilePreviewModal').modal('show');
+					    }
+					    $('body').waitMe('hide');
+					}
+				});
+	            
+	        } else {
+	            var win = window.open(fileName, '_blank');
+	            win.focus();
+	        }
+  		});
+
     </script>
+    <span class = "upload-docs"></span>
+    <link href="assets/plugins/custom/uppy/dist/uppy.min.css" rel="stylesheet" type="text/css" />
+    <script src="assets/plugins/custom/uppy/dist/uppy.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    	$(document).ready(function(){
+
+			$(".add-doc-btn").click(function(){
+        		if($( 'body' ).find('.foldersData').data('parentFolder')){
+					$(".upload-docs").trigger("click");
+        		} else {
+        			var params = [];
+                    params['message'] = 'Please click any Folder before Upload';
+                	toastr.error(params['message']);
+   				}
+        	});
+
+    	    var uppy = Uppy.Core({
+    			autoProceed: false,
+				allowMultipleUploads: true,
+				restrictions: {
+    			    maxFileSize: 20971520,
+    			    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']
+    			}
+			}).use(Uppy.Dashboard, {
+          		inline: false,
+          		trigger: '.upload-docs',
+          		target: '.add_doc_modal',
+          		replaceTargetContent: true,
+          	  	showProgressDetails: true,
+           	 	height: 470,
+        	}).use(Uppy.XHRUpload, { endpoint: 'upload-document.php'})
+
+      		uppy.on('file-added', (result) => {
+      			uppy.setMeta({ doc_folder_id: $("[name='folderId']").val()})
+      		});
+      		
+      		uppy.on('complete', (result) => {
+
+				 var index = parseInt(jQuery('[name="startIndex"]').val());
+
+				 var empty = true;
+
+	    	     $.ajax({
+					url:'folderData.php',
+					data: 'folder_id='+$("[name='folderId']").val()+'&emptyFolder='+empty,
+					
+					success: function(data) {
+						$('.folderContent').html(data);
+						$( 'body' ).waitMe('hide');
+					}
+				});
+			});
+    	});
+    	
+    </script>
+    <div class="add_doc_modal"></div>
 	</body>
 </html>    

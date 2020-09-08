@@ -76,13 +76,33 @@ class FollowRecordHandler extends VTEventHandler {
 									$detailViewLink = "$site_URL/index.php?module=$moduleName&view=Detail&record=$recordId";
 									$recordDetailViewLink = '<a style="text-decoration:none;" target="_blank" href="'.$detailViewLink.'">'.$label.'</a>';
 
-									$data = vtranslate('LBL_STARRED_RECORD_UPDATED', $moduleName, $currentUserModel->getName(), $recordDetailViewLink).$changedFieldString;
+									/*$data = vtranslate('LBL_STARRED_RECORD_UPDATED', $moduleName, $currentUserModel->getName(), $recordDetailViewLink).$changedFieldString;
 									$body = '<table><tbody><tr><td style="padding:10px">'.nl2br(decode_html($data)).'</td></tr></tbody></table>';
 
 									$notificationMessage = ucwords($companyDetails['companyname']).' '.vtranslate('LBL_NOTIFICATION', $moduleName).' - '.$currentUserModel->getName();
 									$subject = vtranslate('LBL_STARRED_RECORD_UPDATED', $moduleName, $notificationMessage, $label);
 
-									$this->sendEmail($userRecordModel->get('email1'), $subject, $body, $recordId);
+									$this->sendEmail($userRecordModel->get('email1'), $subject, $body, $recordId);*/
+									
+									$data = $changedFieldString;
+                                    $body = '<ul>'.nl2br(decode_html($data)).'</ul>';
+                                    
+                                    $notificationMessage = $currentUserModel->getName();
+                                    $subject = vtranslate('LBL_STARRED_RECORD_UPDATED', $moduleName, $notificationMessage, $label);
+                                    
+                                    $notifications = CRMEntity::getInstance('Notifications');
+                                    $notifications->column_fields['assigned_user_id'] = $userId;
+                                    $notifications->column_fields['related_to'] = $recordId;
+                                    $notifications->column_fields['description'] = $body;
+                                    
+                                    $notifications->column_fields['title'] = $subject;
+                                    $notifications->column_fields['notification_type'] = 'Follow Record';
+                                    
+                                    $notifications->column_fields['source'] = 'PORTAL';
+                                    $notifications->save('Notifications');
+
+									
+									
 								}
 							}
 						}
@@ -129,7 +149,10 @@ class FollowRecordHandler extends VTEventHandler {
 					default				:	$fieldDisplayValue = $fieldModel->getEditViewDisplayValue($fieldCurrentValue);break;
 				}
 			}
-			$changedFieldString .= '<br/>'.vtranslate('LBL_STARRED_RECORD_TO', $moduleName, vtranslate($fieldModel->get('label'), $moduleName), $fieldDisplayValue);
+			/*$changedFieldString .= '<br/>'.vtranslate('LBL_STARRED_RECORD_TO', $moduleName, vtranslate($fieldModel->get('label'), $moduleName), $fieldDisplayValue);*/
+			
+			$changedFieldString .= '<li>'.vtranslate('LBL_STARRED_RECORD_TO', $moduleName, vtranslate($fieldModel->get('label'), $moduleName), $fieldDisplayValue).'</li>';
+		
 		}
 		return $changedFieldString;
 	}
