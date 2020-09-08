@@ -144,22 +144,30 @@ Vtiger.Class("NotificationsJS", {}, {
                         var reply = '';
                         var title = '';
                         var description = '';
+                        var toolTipClass = '';
+                        
                         if(item['relatedModule'] == "ModComments"){
                         	moduleIcon = '<i class="vicon-chat" title="comment" style="font-size: 1.5rem !important;"></i>';
                         	reply = '<i title="reply" data-commentid="'+item['relatedRecord']+'" class="vicon-replytoall pull-right replyComment" style="margin:0px 20px 0px 0px !important;font-size: 1rem !important;"></i>';
+                        	toolTipClass ='';
                         }else if(item['relatedModule'] == "Documents"){
                         	moduleIcon = '<i class="vicon-documents" title="document" style="font-size: 1.5rem !important;"></i>';
+                        	toolTipClass ='';
                         }else if(item['relatedModule'] == "Events"){
                         	moduleIcon = '<i class="vicon-calendar" title="Events" style="font-size: 1.5rem !important;"></i>';
                         	if(!item['accepted']){
                         		reply = '<i title="Accept" data-event="accept" data-eventid="'+item['rel_id']+'" class="fa fa-check-circle pull-right eventAction" style="margin:0px 20px 0px 0px !important;color:green;"></i>';
                         		reply += '<i title="Reject" data-event="reject" data-eventid="'+item['rel_id']+'" class="fa fa-times-circle pull-right eventAction" style="margin:0px 0px 0px 0px !important;color:red;"></i>';
                         	}
+                        	toolTipClass ='';
+                        }else if(item['type'] == "Follow Record"){
+                        	moduleIcon = '<i title="Follow" class="fa fa-star-o" style="font-size: 1.5rem !important;"></i>'
+                    		toolTipClass = 'followUpClass';
                         }
                         if(!$('[data-notify-id="'+ item['id']+'"]').length){
 	                        listItem =
 	                            '<li data-notify-id="'+ item['id'] +'">' +
-	                            '   <a class="notification_link" href="javascript:;" data-module="'+item['relatedModule']+'" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
+	                            '   <a class="notification_link '+toolTipClass+'" href="javascript:;" data-module="'+item['relatedModule']+'" data-href="' + item['link'] + '" data-id="' + item['id'] + '" data-rel_id="' + item['rel_id'] + '">' +
 	                            '       <div class="notification-container">' +
 	                            			reply ;
 	                        	if(item['relatedModule'] == "Events")
@@ -412,12 +420,58 @@ Vtiger.Class("NotificationsJS", {}, {
 			}   
 		});
 		
+		$('.followUpClass').each(function(){
+			
+			var element = $(this);
+			element.popover('destroy');
+			
+			var value = element.data('module');
+			var recordId = element.data('id');
+			
+			
+			if (value !== '' && typeof value !== "undefined") {
+				var params= {
+					'source_module': value,
+					'record':recordId
+				};
+				
+				thisInstance.getListRecordDetails(params).then(
+					function(response){
+						var data = response['data'];
+						
+    					var template = jQuery('<div class="popover" role="tooltip" style = "position:fixed;"><div class="arrow"></div><div class="popover-content" style="padding: 0px 2px;"></div></div>');
+    					var container = '<div class="row">';
+    					
+    					container += '</div><div class="row"><div class="col-md-12"><div class="table-responsive" style="max-height:250px;">'+data.description+'</div></div></div>';
+						element.popover({
+							'content' : container,
+							'width'	:'80',
+							'html' : true,
+							'placement' : 'left',
+							'trigger' : 'hover',
+							'template' : template,
+							'container' : element,
+						});
+						
+					},
+					function(error, err){
+
+					}
+				);
+			}   
+		});
+		
 	},
         	
 	getListRecordDetails : function(params) {
 		var aDeferred = jQuery.Deferred();
+		var mode = '';
+		if(params['source_module'] == 'Events')
+			mode = 'getEventData';
+		else if(params['source_module'])
+			mode = 'getNotificationData';
 		
-		var url = "index.php?module=Notifications&action=ActionAjax&record="+params['record']+"&source_module="+params['source_module']+"&mode=getEventData";
+		var url = "index.php?module=Notifications&action=ActionAjax&record="+params['record']+"&source_module="+params['source_module']+"&mode="+mode;
 		app.request.get({'url':url}).then(
 			function(error, data){
 				if(error == null) {

@@ -94,7 +94,7 @@
 				{include file="partials/FolderSidebarEssentials.tpl"|vtemplate_path:$MODULE}
 			</div>
 			
-			<div class="col-md-10" id="listViewContent" style="width:calc(98vw - 230px);">
+			<div class="col-md-10 relatedFolderView" id="listViewContent" {*style="width:calc(98vw - 230px);"*}>
 				<div class="col-sm-12 col-xs-12" >
 					<input type="hidden" name="view" id="view" value="{$VIEW}" />
 					<input type="hidden" name="app" id="appName" value="{$SELECTED_MENU_CATEGORY}">

@@ -535,7 +535,7 @@ When click on sidebar toggler and also for tablet
 	padding-bottom: 20px;
 }
 
-#listViewContent{
+#listViewContent:not(.relatedFolderView){
 	width: calc(100vw - 230px);
 }
 #listViewContent.full-width{
