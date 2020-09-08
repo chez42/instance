@@ -17,6 +17,7 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         $this->exposeMethod("discardAllNotifications");
         $this->exposeMethod("eventInvitations");
         $this->exposeMethod('getEventData');
+        $this->exposeMethod('getNotificationData');
     }
     
     
@@ -70,7 +71,11 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
                 $detailUrl = $relatedRecordModel->getDetailViewUrl();
                 $detailUrl .= '&relatedModule=ModComments&mode=showRelatedList&tab_label=ModComments';
                 $relatedModule = 'ModComments';
+            }else if($n->get('related_to')){
+                $detailUrl = $relatedRecordModel->getDetailViewUrl();
+                $relatedModule = getSalesEntityType($n->get('related_to'));
             }
+            
             $accepted = false;
             if(getSalesEntityType($relatedId) == 'Contacts'){
                 $fullName = $relatedRecordModel->get('firstname').' '.$relatedRecordModel->get('lastname');
@@ -94,10 +99,11 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
             }
             
             $items[] = array("id" => $n->get("notificationsid"), "notificationno" => $n->get("notificationno"), 
-                "description" => html_entity_decode($n->get("description")), "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
+                "description" => $n->get('notification_type') != 'Follow Record' ? html_entity_decode($n->get("description")) : 'N/A', 
+                "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
                 "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, 
                 "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$n->get('related_record'), 
-                "relatedToModule" => $relatedToModule, "accepted" => $accepted, "title"=>$n->get('title'));
+                "relatedToModule" => $relatedToModule, "accepted" => $accepted, "title"=>$n->get('title'), "type"=>$n->get('notification_type'));
         }
         
         $data["items"] = $items;
@@ -215,6 +221,24 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
         $data['startDate'] = Vtiger_Datetime_UIType::getDisplayValue($data['date_start'].' '.$data['time_start']);
         $data['endDate'] = Vtiger_Datetime_UIType::getDisplayValue($data['due_date'].' '.$data['time_end']);
         
+        if(!empty($data)){
+            $response->setResult(array('success'=>true, 'data'=>array_map('decode_html',$data)));
+        } else {
+            $response->setResult(array('success'=>false, 'message'=>vtranslate('LBL_PERMISSION_DENIED')));
+        }
+        $response->emit();
+        
+    }
+    
+    public function getNotificationData(Vtiger_Request $request){
+        
+        $record = $request->get('record');
+        $sourceModule = $request->get('source_module');
+        $response = new Vtiger_Response();
+        
+        $recordModel = Vtiger_Record_Model::getInstanceById($record);
+        $data = $recordModel->getData();
+       
         if(!empty($data)){
             $response->setResult(array('success'=>true, 'data'=>array_map('decode_html',$data)));
         } else {

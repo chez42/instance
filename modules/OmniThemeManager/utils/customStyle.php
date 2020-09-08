@@ -886,6 +886,6 @@ tbody .ps__thumb-y{
 	background: <?= $menu_color ?>;
 	color: <?= $text_contrast_menu ?>!important;
 }
-.nav-tabs>li>a{
+.nav-tabs:not(.layoutTabs)>li>a{
 	color: <?= $text_contrast_menu ?>!important;
 }

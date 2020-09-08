@@ -254,7 +254,8 @@ jQuery.Class("Emails_MassEdit_Js",{
 	registerAutoCompleteFields : function(container) {
 		var thisInstance = this;
 		var lastResults = [];
-		container.find('#emailField').select2({
+		container.find('#emailField, #bccEmailField, #ccEmailField').select2({
+			
 			minimumInputLength: 3,
 			closeOnSelect : false,
 
@@ -312,58 +313,60 @@ jQuery.Class("Emails_MassEdit_Js",{
 
 		}).on("change", function (selectedData) {
 			var addedElement = selectedData.added;
-			if (typeof addedElement != 'undefined') {
-				var data = {
-					'id' : addedElement.recordId,
-					'name' : addedElement.text,
-					'emailid' : addedElement.id
-				}
-				thisInstance.addToEmails(data);
-				if (typeof addedElement.recordId != 'undefined') {
-					thisInstance.addToEmailAddressData(data);
-					thisInstance.appendToSelectedIds(addedElement.recordId);
-				}
-
-				var preloadData = thisInstance.getPreloadData();
-				var emailInfo = {
-					'id' : addedElement.id
-				}
-				if (typeof addedElement.recordId != 'undefined') {
-					emailInfo['text'] = addedElement.text;
-					emailInfo['recordId'] = addedElement.recordId;
-				} else {
-					emailInfo['text'] = addedElement.id;
-				}
-				preloadData.push(emailInfo);
-				thisInstance.setPreloadData(preloadData);
-			}
-
-			var removedElement = selectedData.removed;
-			if (typeof removedElement != 'undefined') {
-				var data = {
-					'id' : removedElement.recordId,
-					'name' : removedElement.text,
-					'emailid' : removedElement.id
-				}
-				thisInstance.removeFromEmails(data);
-				if (typeof removedElement.recordId != 'undefined') {
-					thisInstance.removeFromSelectedIds(removedElement.recordId);
-					thisInstance.removeFromEmailAddressData(data);
-				}
-
-				var preloadData = thisInstance.getPreloadData();
-				var updatedPreloadData = [];
-				for(var i in preloadData) {
-					var preloadDataInfo = preloadData[i];
-					var skip = false;
-					if (removedElement.id == preloadDataInfo.id) {
-						skip = true;
+			if($(this).attr('id') == 'emailField'){
+				if (typeof addedElement != 'undefined') {
+					var data = {
+						'id' : addedElement.recordId,
+						'name' : addedElement.text,
+						'emailid' : addedElement.id
 					}
-					if (skip == false) {
-						updatedPreloadData.push(preloadDataInfo);
+					thisInstance.addToEmails(data);
+					if (typeof addedElement.recordId != 'undefined') {
+						thisInstance.addToEmailAddressData(data);
+						thisInstance.appendToSelectedIds(addedElement.recordId);
 					}
+	
+					var preloadData = thisInstance.getPreloadData();
+					var emailInfo = {
+						'id' : addedElement.id
+					}
+					if (typeof addedElement.recordId != 'undefined') {
+						emailInfo['text'] = addedElement.text;
+						emailInfo['recordId'] = addedElement.recordId;
+					} else {
+						emailInfo['text'] = addedElement.id;
+					}
+					preloadData.push(emailInfo);
+					thisInstance.setPreloadData(preloadData);
 				}
-				thisInstance.setPreloadData(updatedPreloadData);
+	
+				var removedElement = selectedData.removed;
+				if (typeof removedElement != 'undefined') {
+					var data = {
+						'id' : removedElement.recordId,
+						'name' : removedElement.text,
+						'emailid' : removedElement.id
+					}
+					thisInstance.removeFromEmails(data);
+					if (typeof removedElement.recordId != 'undefined') {
+						thisInstance.removeFromSelectedIds(removedElement.recordId);
+						thisInstance.removeFromEmailAddressData(data);
+					}
+	
+					var preloadData = thisInstance.getPreloadData();
+					var updatedPreloadData = [];
+					for(var i in preloadData) {
+						var preloadDataInfo = preloadData[i];
+						var skip = false;
+						if (removedElement.id == preloadDataInfo.id) {
+							skip = true;
+						}
+						if (skip == false) {
+							updatedPreloadData.push(preloadDataInfo);
+						}
+					}
+					thisInstance.setPreloadData(updatedPreloadData);
+				}
 			}
 		});
 
@@ -384,7 +387,7 @@ jQuery.Class("Emails_MassEdit_Js",{
 		if (toEmails.length > 0) {
 			toFieldValues = toEmails.split(',');
 		}
-
+		
 		var preloadData = thisInstance.getPreloadData();
 		if (typeof toEmailInfo != 'undefined') {
 			for(var key in toEmailInfo) {
@@ -421,6 +424,46 @@ jQuery.Class("Emails_MassEdit_Js",{
 		if (typeof preloadData != 'undefined') {
 			thisInstance.setPreloadData(preloadData);
 			container.find('#emailField').select2('data', preloadData);
+		}
+		
+		var ccEmails = container.find('[name="cc"]').val();
+		var ccFieldValues = new Array();
+		if (ccEmails.length > 0) {
+			ccFieldValues = ccEmails.split(',');
+		}
+		if (typeof ccFieldValues != 'undefined') {
+			var ccLoadData = new Array();
+			for(var i in ccFieldValues) {
+				var emailId = ccFieldValues[i];
+				var emailInfo = {
+					'id' : emailId,
+					'text' : emailId
+				}
+				ccLoadData.push(emailInfo);
+			}
+		}
+		if (typeof ccLoadData != 'undefined') {
+			container.find('#ccEmailField').select2('data', ccLoadData);
+		}
+		
+		var bccEmails = container.find('[name="bcc"]').val();
+		var bccFieldValues = new Array();
+		if (bccEmails.length > 0) {
+			bccFieldValues = bccEmails.split(',');
+		}
+		if (typeof bccFieldValues != 'undefined') {
+			var bccLoadData = new Array();
+			for(var i in bccFieldValues) {
+				var emailId = bccFieldValues[i];
+				var emailInfo = {
+					'id' : emailId,
+					'text' : emailId
+				}
+				bccLoadData.push(emailInfo);
+			}
+		}
+		if (typeof bccLoadData != 'undefined') {
+			container.find('#bccEmailField').select2('data', bccLoadData);
 		}
 
 	},
