@@ -49,12 +49,30 @@ function vtws_getdocuments($element,$user){
         if($element['emptyFolder']){
             
             $folder_query .= ' AND (vtiger_crmentity.smownerid = ?
-            and vtiger_documentfolder.is_default = 1) OR vtiger_documentfolder.default_for_all_users = 1 OR vtiger_documentfolder.documentfolderid
+            and vtiger_documentfolder.is_default = 1) ';
+            
+            if(!$element['folder_id']){
+                $folder_query .= 'OR vtiger_documentfolder.default_for_all_users = 1 ';
+            }
+            
+            $folder_query .= 'OR vtiger_documentfolder.documentfolderid
 			in (select doc_folder_id from vtiger_notes
-			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid where vtiger_senotesrel.crmid = ?)';
+			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid ';
+            
+            if($element['folder_id'])
+                $folder_query .= ' INNER JOIN vtiger_documentfolder ON vtiger_documentfolder.documentfolderid = vtiger_notes.doc_folder_id';
+            
+            $folder_query .= ' where vtiger_senotesrel.crmid = ? ';
+           
+            if($element['folder_id']){
+                $folder_query .= ' AND vtiger_documentfolder.parent_id = '.$element['folder_id'];
+            }
+            
+			$folder_query .= ')';
             
             $params[] = $element['owner_id'];
             $params[] = $element['ID'];
+            
             
         } else {
             
