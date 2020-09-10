@@ -79,7 +79,7 @@
 				    	</a>
 				    </li>
 				{/foreach}
-				<li class="tab-item block block_LBL_INVITE_USER_BLOCK " >
+				<li class="tab-item block_LBL_INVITE_USER_BLOCK " >
 	    			{assign var=IS_HIDDEN value=$BLOCK->isHidden()}
 					{assign var=WIDTHTYPE value=$USER_MODEL->get('rowheight')}
 			    	<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#LBL_INVITE_USER_BLOCK" role="tab">
