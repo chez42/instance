@@ -628,6 +628,9 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 		app.event.on(paginationObj.pageJumpSubmitButtonClickEvent, function(event, currentEle){
 			thisInstance.pageJumpOnSubmit(currentEle);
 		});
+		
+		//thisInstance.registerEventForUploadDocumentUppy();
+		
 	},
     
     registerEditLink : function() {
@@ -1846,7 +1849,73 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 			
 		});
 	},
-    
+	
+	registerEventForUploadDocumentUppy : function(){
+		
+		var thisInstance = this;
+		
+		$(document).on('click', '.uploadDocUppy', function(){
+			var params = {
+				"module" : "Documents",
+				"view" : "UploadDocuments",
+				"record" : app.getRecordId()
+			};
+			app.request.post({data:params}).then(
+				function(error, data) {
+					app.helper.hideProgress();
+					var callback = function (data) {
+						var uppy = Uppy.Core({
+							autoProceed: false,
+							allowMultipleUploads: true,
+							restrictions: {
+							    maxFileSize: 20971520,
+							    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.txt']
+							},
+							onBeforeFileAdded: (currentFile, files) => {
+								if(!$(document).find('[name="folder_id"]').val()){
+									app.helper.showErrorNotification({message: app.vtranslate('Select the folder before add the document.')});
+				       	 			return false;
+				       	 		}
+							},
+							onBeforeUpload: (files) => {
+								if(!$(document).find('[name="folder_id"]').val()){
+									app.helper.showErrorNotification({message: app.vtranslate('Select the folder before upload the document.')});
+					    			return false;
+				       	 		}
+							},
+						}).use(Uppy.Dashboard, {
+				      		inline: true,
+				      		//trigger: '.upload-docs',
+				      		target: '.add_doc_modal',
+				      		replaceTargetContent: true,
+				      	  	showProgressDetails: true,
+				      	  	fileManagerSelectionType: 'both',
+				       	 	height: 470,
+				       	 	proudlyDisplayPoweredByUppy: false,
+				    	}).use(Uppy.XHRUpload, { endpoint: 'index.php?module=Documents&action=UploadDocuments'})
+				
+				    	
+				  		uppy.on('file-added', (result) => {
+				  			uppy.setMeta({ doc_folder_id: $(document).find('[name="folder_id"]').val(), record : app.getRecordId()})
+				  		});
+
+						uppy.on('complete', (result) => {
+				  			app.helper.hideModal();
+							var urlParams = {};
+			            	thisInstance.loadRelatedList(urlParams);
+						});
+					}
+					var params = {};
+					params.cb = callback
+					app.helper.showModal(data, params);
+					
+				}
+			);
+			
+		});
+		
+	},
+	
 })
 
 
@@ -1867,5 +1936,6 @@ jQuery(document).ready(function(){
 	instance.relatedtriggerExportZipAction();
 	instance.registerEventForSendEnvelopeRelatedList();
 	instance.registerEventForSendEmailRelatedList();
+	instance.registerEventForUploadDocumentUppy();
 	instance.registerEvents();
 });
