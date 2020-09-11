@@ -78,6 +78,14 @@
                             {/if}
                             
                     {/foreach}
+                    
+                    {if $IS_CREATE_PERMITTED}
+						<div class="col-sm-3">
+							<button type="button" class="btn btn-primary uploadDocUppy">
+								<span title="{vtranslate('Bulk Upload', $MODULE)}"><i class="fa fa-upload"></i></span>&nbsp;{vtranslate('Bulk Upload', $RELATED_MODULE_NAME)}
+							</button>
+						</div>
+					{/if}
                 </div>&nbsp;
             </div>
              <div class="col-lg-2 col-md-2 col-sm-2 btn-toolbar pull-right">

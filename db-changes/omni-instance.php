@@ -570,3 +570,5 @@ if(!$adb->num_rows($result)){
 	'Contacts',
 	".$adb->getUniqueID('vtiger_emailtemplates').")");
 }
+
+$adb->pquery("UPDATE vtiger_entityname SET fieldname = 'firstname,lastname' WHERE tabid IN(".getTabid('Contacts').",".getTabid('Leads').")");
