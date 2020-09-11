@@ -80,7 +80,7 @@ class ModComments_ListView_Model extends Vtiger_ListView_Model {
 		$db = PearDatabase::getInstance();
 		$listViewRecordModels = parent::getListViewEntries($pagingModel);
 
-		foreach($listViewRecordModels as $listViewRecordModel) {
+		/*foreach($listViewRecordModels as $listViewRecordModel) {
 			$rawData = $listViewRecordModel->getRawData();
 			$relatedToArray[] = $rawData['related_to'];
 		}
@@ -103,7 +103,7 @@ class ModComments_ListView_Model extends Vtiger_ListView_Model {
 			} else {
 				unset($listViewRecordModels[$key]);
 			}
-		}
+		}*/
 
 		return $listViewRecordModels;
 	}
