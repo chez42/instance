@@ -3,7 +3,7 @@ var MAX_UPLOAD_LIMIT_BYTES;
 var Extension_DragDrop_ToUpload_Js = {
     init : function(){
         var thisInstance = this;
-        var container = $( 'body' );
+        var container = $( '#page' );
         var params = {};
         params.module = 'DragDropDocuments';
         params.action = 'GetMaxLimitAjax';
