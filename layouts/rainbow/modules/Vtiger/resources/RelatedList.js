@@ -1855,6 +1855,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 		var thisInstance = this;
 		
 		$(document).on('click', '.uploadDocUppy', function(){
+			app.helper.showProgress();
 			var params = {
 				"module" : "Documents",
 				"view" : "UploadDocuments",

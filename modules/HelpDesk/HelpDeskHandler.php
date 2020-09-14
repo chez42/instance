@@ -556,4 +556,118 @@ function getAttachmentDetails($recordId) {
     return $attachmentsList;
 }
 
+function SyncTicketsInHq( $entityData ){
+    
+    $data = $entityData->getData();
+    
+    require_once "vtlib/Vtiger/Net/Client.php";
+    
+    $httpc = new Vtiger_Net_Client("https://hq.360vew.com/webservice.php");
+    
+    $params = array();
+    
+    $params['operation'] = 'getchallenge';
+    
+    $params['username'] = 'admin';
+    
+    $response = $httpc->doGet($params);
+    
+    $jsonResponse = json_decode($response,true);
+    
+    $challengeToken = $jsonResponse['result']['token'];
+    
+    $master_Key = 'Bq89UFzMqnDimcwg';
+    
+    $generatedKey = md5($challengeToken.$master_Key);
+    
+    $params = array();
+    
+    $params['operation'] = 'login';
+    
+    $params['username'] = 'admin';
+    
+    $params['accessKey'] = $generatedKey;
+    
+    $response= $httpc->doPost($params);
+    
+    $jsonResponse = json_decode($response,true);
+        
+    $sessionId = $jsonResponse['result']['sessionName'];
+    
+    $userId = $jsonResponse['result']['userId'];
+    
+    $data['mode'] = 'tickets';
+    
+    $params = array("sessionName"=>$sessionId, "operation" => 'sync_ticket_and_comment', 
+	"element" => json_encode($data));
+    
+    $response = $httpc->doPost($params);
+    
+}
+
+function SyncTicketCommentsInHq( $entityData ){
+    
+    
+    global $adb;
+    
+    $wsId = $entityData->getId();
+    $parts = explode('x', $wsId);
+    $entityId = $parts[1];
+    
+    $data = $entityData->getData();
+    
+    $comment = $adb->pquery("SELECT vtiger_modcomments.* FROM vtiger_modcomments
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
+    WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to = ?
+    ORDER BY vtiger_modcomments.modcommentsid DESC",array($entityId));
+    
+    $comData = array();
+    if($adb->num_rows($comment)){
+        $comData = $adb->query_result_rowdata($comment,0);
+    }
+    
+    $comData['mode'] = 'comment';
+    
+    require_once "vtlib/Vtiger/Net/Client.php";
+    
+    $httpc = new Vtiger_Net_Client("https://hq.360vew.com/webservice.php");
+    
+    $params = array();
+    
+    $params['operation'] = 'getchallenge';
+    
+    $params['username'] = 'admin';
+    
+    $response = $httpc->doGet($params);
+    
+    $jsonResponse = json_decode($response,true);
+    
+    $challengeToken = $jsonResponse['result']['token'];
+    
+    $master_Key = 'Bq89UFzMqnDimcwg';
+    
+    $generatedKey = md5($challengeToken.$master_Key);
+    
+    $params = array();
+    
+    $params['operation'] = 'login';
+    
+    $params['username'] = 'admin';
+    
+    $params['accessKey'] = $generatedKey;
+    
+    $response= $httpc->doPost($params);
+    
+    $jsonResponse = json_decode($response,true);
+    
+	$sessionId = $jsonResponse['result']['sessionName'];
+    
+    $userId = $jsonResponse['result']['userId'];
+    
+    $comData['ticket_no'] = $data['ticket_no'];
+    
+    $params = array("sessionName"=>$sessionId, "operation"=>'sync_ticket_and_comment', "element" => json_encode($comData));
+    
+    $response = $httpc->doPost($params);
+}
 ?>
