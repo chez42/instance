@@ -18,6 +18,10 @@ include_once("libraries/Stratifi/StratifiAPI.php");
 require_once("libraries/EODHistoricalData/EODGuzzle.php");
 include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
+require_once("libraries/custodians/cCustodian.php");
+require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+include_once("include/utils/omniscientCustom.php");
+
 spl_autoload_register(function ($className) {
     if (file_exists("libraries/EODHistoricalData/$className.php")) {
         include_once "libraries/EODHistoricalData/$className.php";
@@ -28,6 +32,170 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        require_once("libraries/custodians/cCustodian.php");
+        require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+        include_once("include/utils/omniscientCustom.php");
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+#foreach($rep_codes AS $k => $v){
+        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
+        //Pull portfolio and balance information for the specified rep codes
+/*        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_td", "custodian_balances_td", $rep_codes);
+        $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
+        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
+        /*********END OF STEP 1********/
+        /*
+                /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
+        //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
+        //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
+        //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
+        /*        $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
+                    "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
+                $missing_positions = $positions->GetMissingCRMPositions();
+                $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
+                if(!empty($missing_positions))
+                    $positions->CreateNewPositionsFromPositionData($missing_positions);
+
+                //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
+                $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
+                    "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
+                    "f.issue_date", "f.share_per_contact", "pr.factor");
+                //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
+                $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
+                    "custodian_securities_td", $symbols, array(), $fields);
+                $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
+                if(!empty($missing_securities))
+                    $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
+                $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
+                $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+                /*********END OF STEP 2********/
+
+        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+        $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+            "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+            "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+            "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+        $start = $month = strtotime('2019-01-01');
+        $end = strtotime(date("Y-m-d"));
+        while($month < strtotime("+1 month", $end))
+        {
+            $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+                "custodian_portfolios_td", "custodian_transactions_td",
+                $rep_codes, $fields);
+
+            $s = date("Y-m-d", $month);
+            $e = date("Y-m-d", strtotime("+1 month", $month));
+            $transactions->GetTransactionsDataBetweenDates($s, $e);
+            $missing = $transactions->GetMissingCRMTransactions();
+            $transactions->CreateNewTransactionsFromTransactionData($missing);
+
+//            echo date('Y-m-d', $month), PHP_EOL;
+#            echo "Start: {$s}, End: {$e}<br />";
+#            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
+            $month = strtotime("+1 month", $month);
+            echo "DONE {$s} to {$e}<br />";
+        }
+        /*********END OF STEP 3********/
+#}
+        echo 'bla bla bla';exit;
+        global $adb, $dbconfig;
+/*        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $start = date('Y-m-d', strtotime('-5000 days'));
+        $finish = date('Y-m-d');
+        $questions = generateQuestionMarks($accounts);
+        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+//Write to the users table from consolidated balances for grand total of all accounts
+        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
+*/
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsers(5000);
+echo 'Check widget!';exit;
+
+        echo date("m-d-Y H:i:s") . '<br />';
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+#        PortfolioInformation_Module_Model::TDBalanceCalculationsMissingOnly("2010-01-01", "2020-09-11");
+#        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2019-12-10', '2019-12-13', false);
+        echo date("m-d-Y H:i:s") . '<br />';
+        echo 'balances done';exit;
+        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+        $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+            "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+            "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+            "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+        $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+            "custodian_portfolios_td", "custodian_transactions_td",
+            $rep_codes, $fields);
+        $transactions->GetTransactionsDataBetweenDates('2020-07-01', date("Y-m-d"));
+        $missing = $transactions->GetMissingCRMTransactions();
+        $transactions->CreateNewTransactionsFromTransactionData($missing);
+        /*********END OF STEP 3********/
+        echo 'done';exit;
+
+        require_once("libraries/custodians/cReady.php");
+
+        $ready = new cReady();
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+
+        $data = $ready->GetReadyDataViaRepCode($rep_codes);//We now have a list of elements that are ready
+
+        foreach($data AS $k => $v){
+            switch(strtolower($v['custodian'])){
+                case "td":
+                    $ready->PullDataTD($v['account_number'], $v['ready_type']);
+                    break;
+            }
+        }
+
+        echo 'dun';exit;
+
+
+        set_time_limit(0);
+        $control_numbers = array('SV2');/*, 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
+            'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active*/
+        $strat_hh = new StratHouseholds();
+        $strat_contact = new StratContacts();
+        $sAdvisors = new StratAdvisors();
+/*
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
+        $sAdvisors->AutoCreateCompanies();
+        $sAdvisors->AutoCreateAdvisors();
+
+        PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
+        PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
+        PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
+        PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
+#PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
+        $strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
+        $strat_contact->GetAllContactsAndUpdateAdvisorOwnership();*/
+        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+        echo 'done';exit;
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+        $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+            "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+            "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+            "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+        $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+            "custodian_portfolios_td", "custodian_transactions_td",
+            $rep_codes, $fields);
+        $transactions->UpdateAllTransactionsOperations(array());
+#        echo 'done';exit;
+        $transactions->SetAccountNumbers(array("939137688"));
+        $transactions->GetTransactionsDataBetweenDates('2020-08-01', date("Y-m-d"));
+        $missing = $transactions->GetMissingCRMTransactions();
+        $transactions->CreateNewTransactionsFromTransactionData($missing);
+        /*********END OF STEP 3********/
+        echo 'done';exit;
 #        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
         $recordid = '74049453';
         $coverpage = new FormattedContactInfo($recordid);
@@ -40,23 +208,23 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         $output = $viewer->view('Reports/CoverPage.tpl', 'PortfolioInformation', true);
         echo $output;
         exit;
-/*
-        PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
-        echo 'fini';exit;*/
-/*
-        $strat = new StratifiAPI();
-        $data = PortfolioInformation_Module_Model::GetStratifiData('941107663');
-        $result = $strat->UpdatePositionsToStratifi($data);
-        echo '<br /><br />';
-        print_r($result);
-        echo '<br /><br />';
-        echo 'done';exit;
-print_r($data);exit;
-*/
+        /*
+                PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+                echo 'fini';exit;*/
+        /*
+                $strat = new StratifiAPI();
+                $data = PortfolioInformation_Module_Model::GetStratifiData('941107663');
+                $result = $strat->UpdatePositionsToStratifi($data);
+                echo '<br /><br />';
+                print_r($result);
+                echo '<br /><br />';
+                echo 'done';exit;
+        print_r($data);exit;
+        */
 
         set_time_limit(0);
         $control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
-        'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
+            'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
         $strat_hh = new StratHouseholds();
         $strat_contact = new StratContacts();
         $sAdvisors = new StratAdvisors();
@@ -74,17 +242,17 @@ print_r($data);exit;
         $strat_contact->GetAllContactsAndUpdateAdvisorOwnership();
         PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
         echo 'done';exit;
-/*        $guz = new cEodGuzzle();
-        $data = json_decode($guz->getFundamentals("HYG"));
-        $div = json_decode($guz->getDividends("HYG", "US", '2019-01-01', '2019-12-31'));
+        /*        $guz = new cEodGuzzle();
+                $data = json_decode($guz->getFundamentals("HYG"));
+                $div = json_decode($guz->getDividends("HYG", "US", '2019-01-01', '2019-12-31'));
 
-        $fund = new TypeETF($data, $div);
-        print_r($fund);
-        $fund->UpdateIntoOmni();
-echo 'done';
-        exit;
+                $fund = new TypeETF($data, $div);
+                print_r($fund);
+                $fund->UpdateIntoOmni();
+        echo 'done';
+                exit;
 
-echo 'test';exit;*/
+        echo 'test';exit;*/
 
         $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
         ModSecurities_OmniToOmniTransfer_Model::CopyFromInstance("live_omniscient", $symbols);
@@ -93,13 +261,13 @@ echo 'test';exit;*/
         $count = 0;
         $etfs = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "etf");
         $count = 0;//Reset the counter
-/*        foreach($etfs AS $k => $v){
-            if($count >= $limit)
-                continue;
-            $writer->WriteEodToOmni($v);
-            echo "Wrote " . $v . '<br />';
-            $count++;
-        }*/
+        /*        foreach($etfs AS $k => $v){
+                    if($count >= $limit)
+                        continue;
+                    $writer->WriteEodToOmni($v);
+                    echo "Wrote " . $v . '<br />';
+                    $count++;
+                }*/
 
         echo "Start Funds: " . Date("Y-m-d H:i:s") . '<br />';
         $funds = OmnisolReader::MatchSymbolsOfSecurityType($symbols, "fund");
@@ -126,9 +294,9 @@ echo 'test';exit;*/
 
 
 #        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes(array("GOX"), '2016-01-01', '2020-07-27');
-echo "Start: " . Date("Y-m-d H:i:s") . '<br />';
-ob_flush();
-flush();
+        echo "Start: " . Date("Y-m-d H:i:s") . '<br />';
+        ob_flush();
+        flush();
 
         $writer = new OmniscientWriter();
         $symbols = ModSecurities_Module_Model::GetAllSecuritySymbols();
@@ -148,9 +316,9 @@ flush();
 
         PositionInformation_Module_Model::UpdatePositionSecurityAttributes();
 
-echo "End: " . Date("Y-m-d H:i:s") . '<br />';
-ob_flush();
-flush();
+        echo "End: " . Date("Y-m-d H:i:s") . '<br />';
+        ob_flush();
+        flush();
         echo 'done';exit;
 
 
@@ -165,17 +333,17 @@ flush();
 #            $writer->GetAndWriteTickers('US');
 #        }
         echo 'done';
-exit;
+        exit;
         $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("AGG");
-echo $type . '<br />';
+        echo $type . '<br />';
 #        echo $type;exit;
         $data = $guz->getFundamentals("AGG");
         print_r($data);exit;
-/*        foreach($data->Highlights AS $k => $v){
-#            echo "$" . $k . ",";
-            echo '$this->' . $k . ' = $data->' . $k . ';';
-            echo "<br />";
-        }*/
+        /*        foreach($data->Highlights AS $k => $v){
+        #            echo "$" . $k . ",";
+                    echo '$this->' . $k . ' = $data->' . $k . ';';
+                    echo "<br />";
+                }*/
         $stock = new TypeStock($data);
         $writer = new OmnisolWriter();
 #        print_r($data);
@@ -242,9 +410,9 @@ echo $type . '<br />';
             foreach($v AS $a => $b){
 
 #                echo "$" . $a . ", ";
-/*                echo "$" . $k . ", ";
-                print_r($v);
-                echo $v->'Net_%' . '<br />';*/
+                /*                echo "$" . $k . ", ";
+                                print_r($v);
+                                echo $v->'Net_%' . '<br />';*/
                 echo "<br />";
             }
         }
@@ -263,7 +431,7 @@ print_r($price);exit;*/
 
         $op_data = json_decode($guz->getOptionContract($option));//This is the individual contract, but takes much longer
 
-print_r($op_data);exit;
+        print_r($op_data);exit;
         require_once("modules/PortfolioInformation/models/TWR.php");
         require_once("libraries/Reporting/ReportCommonFunctions.php");
         $twr = new TWR();

@@ -1,3 +1,5 @@
+<div id="example-table"></div>
+{*
 <table class="FileLocationsTable" style="table-layout:fixed; width:1000px;">
     <thead>
     <tr>
@@ -34,3 +36,4 @@
 {foreach key=index item=jsModel from=$SCRIPTS}
     <script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 {/foreach}
+*}

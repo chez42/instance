@@ -1,6 +1,7 @@
 <?php
 include_once "include/utils/omniscientCustom.php";
 include_once("libraries/Stratifi/StratifiAPI.php");
+require_once("libraries/custodians/cCustodian.php");
 
 class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 {
@@ -1472,6 +1473,17 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
      */
     static public function AutoDetermineIntervalCalculationDates($account_number){
         global $adb;
+        $tmp = self::GetCustodianFromAccountNumber($account_number);
+        $tmpClass = "c".$tmp."Portfolios";
+        if (class_exists($tmpClass)) {
+            $earliest_balance_date = $tmpClass::GetEarliestBalanceAndDate(array($account_number));
+            $earliest_interval = self::GetEarliestIntervalDateForAccount($account_number);
+
+            if($earliest_interval > $earliest_balance_date[$account_number]['as_of_date']){
+                return $earliest_balance_date[$account_number]['as_of_date'];//We need to recalculate based on the earliest balance!
+            }
+        }
+
         $query = "SELECT last_calculated FROM vtiger_interval_calculations WHERE account_number = ?";
         $result = $adb->pquery($query, array($account_number));
         if($adb->num_rows($result)> 0){
@@ -1505,6 +1517,24 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             return $adb->query_result($result, 0, "count");
         }
         return 0;
+    }
+
+    /**
+     * Returns the earliest date available for passed in account number that is in intervals_daily.  If nothing, it returns '2010-01-01'
+     * @param $account_number
+     * @return string|string[]|null
+     * @throws Exception
+     */
+    static public function GetEarliestIntervalDateForAccount($account_number){
+        global $adb;
+        $query = "SELECT intervalenddate 
+                  FROM intervals_daily 
+                  WHERE accountnumber = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "intervalenddate");
+        }
+        return '2010-01-01';
     }
 
     /**
@@ -3007,9 +3037,47 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
+    static public function GetEarliestTDPositionDate(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $account_number;
+        $query = "SELECT MIN(date) AS date FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}) AND date != '0000-00-00'";
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'date');
+        return 0;
+    }
+
+    static public function TDBalanceCalculationsMissingOnly($sdate, $edate){
+        global $adb, $dbconfig;
+        $db_name = 'live_omniscient';//$dbconfig['db_name'];
+
+        $begin = new DateTime($sdate);
+        $end = new DateTime($edate);
+
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod($begin, $interval, $end);
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MISSING_ONLY(?, ?);";
+
+        foreach ($period as $dt) {
+            $d = $dt->format("Y-m-d");
+#            echo $query . '<br />';
+##            $adb->pquery($query, array());
+
+            $adb->pquery($query, array($d, $db_name), true);
+#            echo $query . '<br />' . $d . '<br />' . $db_name;exit;
+#            $q = "SELECT * FROM AccountValues;";
+#            $result = $adb->pquery($q, array());
+#            if($adb->num_rows($result) > 0){
+#                echo 'YAY';
+#            }
+        }
+    }
+
     static public function TDBalanceCalculationsMultiple(array $account_number, $sdate, $edate){
         global $adb, $dbconfig;
-        $db_name = $dbconfig['db_name'];
+        $db_name = 'live_omniscient';//$dbconfig['db_name'];
 
         $begin = new DateTime($sdate);
         $end = new DateTime($edate);
@@ -3018,22 +3086,38 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $period = new DatePeriod($begin, $interval, $end);
 
         $questions = generateQuestionMarks($account_number);
-        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE(\"{$questions}\", ?, ?)";
-
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE_FAST(\"{$questions}\", ?, ?)";
+#        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE(\"'925514559'\", '2019-02-20', '360vew_opt')";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
+#            echo $query . '<br />';
+##            $adb->pquery($query, array());
             $adb->pquery($query, array($account_number, $d, $db_name), true);
+#            echo $query . '<br />' . $d . '<br />' . $db_name;exit;
+#            $q = "SELECT * FROM AccountValues;";
+#            $result = $adb->pquery($q, array());
+#            if($adb->num_rows($result) > 0){
+#                echo 'YAY';
+#            }
         }
     }
 
-    static public function TDBalanceCalculationsRepCodes(array $rep_codes, $sdate, $edate){
+    static public function TDBalanceCalculationsRepCodes(array $rep_codes, $sdate, $edate, $earliest=false){
         $accounts = self::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
-
+        $accounts = array("920035287");
+        if($earliest == true)
+            $sdate = PortfolioInformation_Module_Model::GetEarliestTDPositionDate($accounts);
+        /*        foreach($accounts AS $k => $v){
+                    echo "'{$v}',";
+                }
+                exit;*/
 #        foreach($accounts AS $k => $v){
 #            echo "Trying {$v} using {$sdate}, {$edate}<br />";
+#        $accounts = array('925514559');
+#        print_r($accounts);exit;
             self::TDBalanceCalculationsMultiple($accounts, $sdate, $edate);
-            echo 'check now for ';
-            print_r($accounts);exit;
+#            echo 'check now for ';
+#            print_r($accounts);exit;
 #            echo "Done {$v}<br />";exit;
 #        }
     }
@@ -3246,5 +3330,16 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             $logo = "test/logo/Omniscient Logo small.png";
 
         return $logo;
+    }
+
+    static public function DoesAccountExist($account_number)
+    {
+        global $adb;
+        $query = "SELECT account_number FROM vtiger_portfolioinformation WHERE account_number = ?";
+        $r = $adb->pquery($query, array($account_number));
+        if ($adb->num_rows($r) > 0) {
+            return true;
+        }
+        return false;
     }
 }
