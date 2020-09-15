@@ -556,7 +556,7 @@ function getAttachmentDetails($recordId) {
     return $attachmentsList;
 }
 
-function SyncTicketsInHq( $entityData ){
+function SyncTicketsWithHQ( $entityData ){
     
     $data = $entityData->getData();
     
@@ -598,14 +598,17 @@ function SyncTicketsInHq( $entityData ){
     
     $data['mode'] = 'tickets';
     
-    $params = array("sessionName"=>$sessionId, "operation" => 'sync_ticket_and_comment', 
-	"element" => json_encode($data));
+    $params = array(
+		"sessionName" => $sessionId, 
+		"operation" => 'sync_ticket_and_comment', 
+		"element" => json_encode($data)
+	);
     
     $response = $httpc->doPost($params);
     
 }
 
-function SyncTicketCommentsInHq( $entityData ){
+function SyncTicketCommentsWithHQ( $entityData ){
     
     
     global $adb;
