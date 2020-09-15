@@ -10,6 +10,7 @@ trait tTransactions{
         $params = array();
         $custodian_transactions = array();//List of custodian accounts
         $existing_transactions = array();//Accounts that exist in the crm
+
         foreach($this->transactions_data AS $k => $v){
             $transactions = array();
             foreach($v AS $info){
@@ -26,12 +27,13 @@ trait tTransactions{
             $result = $adb->pquery($query, $params);
             if($adb->num_rows($result) > 0){
                 while ($r = $adb->fetchByAssoc($result)) {
-                    $existing_transactions[$r['account_number']][] = $r['transaction_id'];
+                    $existing_transactions[$r['account_number']][] = $r['cloud_transaction_id'];
                 }
             }
         }
         $this->custodian_transactions = $custodian_transactions;
         $this->existing_transactions = $existing_transactions;
+        $this->missing_transactions = array();
 
         foreach($tmp_accounts AS $k => $v){
             if(empty($this->existing_transactions[$v]))//If we don't do this, the array_diff below fails because transactions[$x] doesn't exist, this creates it
