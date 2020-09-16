@@ -21,15 +21,18 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
         
         $moduleModel = Vtiger_Module_Model::getInstance($moduleName);
         
-        $trade_date= '';
+        $trade_date= array();
         
         if($request->get('trade_date')){
         
             $trade_date = $request->get('trade_date');
-            $trade_date['start'] = date('Y-m-d', strtotime($trade_date['start']));
-            $trade_date['end'] = date('Y-m-d', strtotime($trade_date['end']));
+            $start = new DateTimeField($trade_date['start']);
+            $trade_date['start'] = $start->getDBInsertDateValue();
+            
+            $end = new DateTimeField($trade_date['end']);
+            $trade_date['end'] = $end->getDBInsertDateValue();
             $_SESSION['distributionWidgetId'] =$trade_date;
-        
+            
         }else if($_SESSION['distributionWidgetId']){
             
             $trade_date = $_SESSION['distributionWidgetId'];
@@ -38,12 +41,14 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
             
             $date = new DateTime();
             $dateMinus12 = $date->modify("-12 months");
-            $lastDay = $date->format("m-d-Y");
+            $lastDay = $date->format("Y-m-d");
             
             $trade_date['start'] = $lastDay;
-            $trade_date['end'] = date('m-d-Y');
-           
+            $trade_date['end'] = date('Y-m-d');
+            
         }
+        
+        
         
         $db = PearDatabase::getInstance();
         

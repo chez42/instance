@@ -1871,6 +1871,7 @@ createTreeFolderPopup : function() {
 		var thisInstance = this;
 		
 		$(document).on('click', '.uploadDocUppy', function(){
+			app.helper.showProgress();
 			var params = {
 				"module" : "Documents",
 				"view" : "UploadDocuments",

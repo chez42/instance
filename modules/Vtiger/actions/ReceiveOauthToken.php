@@ -154,6 +154,37 @@ class Vtiger_ReceiveOauthToken_Action {
                 $error = true;
             }
             
+        }else if($data["source"] == "PandaDoc"){
+            
+            $current_user_id = $data["userid"];
+            
+            $token = $this->getPandaDocToken($data['code']);
+           
+            if($token['success']){
+                
+                $tQuery = $db->pquery("SELECT * FROM vtiger_pandadoc_configuration WHERE vtiger_pandadoc_configuration.userid =?", 
+                    array($current_user_id));
+                
+                if($db->num_rows($tQuery)){
+                    
+                    $db->pquery("UPDATE vtiger_pandadoc_configuration SET access_token = ?, refresh_token = ?, token_type = ?, 
+                    expires_in = ? WHERE userid = ?", array($token['access_token'], $token['refresh_token'], $token['token_type'],
+                        $token['expire'], $current_user_id));
+                    
+                }else{
+                    
+                    $db->pquery("INSERT INTO vtiger_pandadoc_configuration(userid, access_token, refresh_token, token_type, expires_in) 
+                    VALUES (?, ?, ?, ?, ?)",array($current_user_id, $token['access_token'], $token['refresh_token'], $token['token_type'],
+                        $token['expire']));
+                    
+                }
+                
+            }else{
+                
+                $error = true;
+                
+            }
+            
         }
         
         if($data["source_module"] == 'MailManager' && !$error){
@@ -305,6 +336,49 @@ class Vtiger_ReceiveOauthToken_Action {
         } else {
             return array("success" => false);
         }
+        
+    }
+    
+    public function getPandaDocToken($code){
+        
+        $redirect_url = PandaDoc_Config_Connector::$redirect_url;
+        $client_id = PandaDoc_Config_Connector::$clientId;
+        $client_secret = PandaDoc_Config_Connector::$clientSecret;
+        
+        $token_request_data = array(
+            "grant_type" => "authorization_code",
+            "code" => $code,
+            "redirect_uri" => $redirect_url,
+            "client_id" => $client_id,
+            "client_secret" => $client_secret,
+            "scope" => "read write"
+        );
+        
+        $token_request_body = http_build_query($token_request_data);
+        $curl = curl_init('https://api.pandadoc.com/oauth2/access_token/');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $token_request_body);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        $response = curl_exec($curl);
+        
+        $response = json_decode($response, true);
+        
+        if(isset($response['access_token'])){
+        
+            $accessToken = $response['access_token'];
+            $refreshToken = $response['refresh_token'];
+            $type = $response['token_type'];
+            $expires = $response['expires_in'];
+            
+            return array("success" => true, "access_token"=>$accessToken, 
+            "refresh_token"=>$refreshToken, "token_type"=>$type, "expire"=>$expires);
+        
+        }else {
+            return array("success" => false);
+        }
+        
         
     }
     

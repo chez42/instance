@@ -189,8 +189,8 @@ class PortfolioInformation_NewAllCustodians_Model extends Vtiger_Module{
                 PortfolioInformation_HistoricalInformation_Model::TransferConsolidatedBalancesFromCloud($start, $end);
                 $this->cloud->SetStepStatus("xfer_consolidated_balances", "1");
                 $page = $this->GeneratedSucceededPage();
-                $this->SendMail("rsandnes@glenmerrybowl.com", "Cron Finished", $page);
-                $this->SendMail("felipe.luna@omnisrv.com", "Cron Finished", $page);
+#                $this->SendMail("rsandnes@glenmerrybowl.com", "Cron Finished", $page);
+#                $this->SendMail("felipe.luna@omnisrv.com", "Cron Finished", $page);
 
             }
         } catch (Exception $e) {
