@@ -572,3 +572,8 @@ if(!$adb->num_rows($result)){
 }
 
 $adb->pquery("UPDATE vtiger_entityname SET fieldname = 'firstname,lastname' WHERE tabid IN(".getTabid('Contacts').",".getTabid('Leads').")");
+
+
+$module = Vtiger_Module::getInstance('Home');
+$linkURL = 'index.php?module=Contacts&view=ShowWidget&name=ClientDistribution';
+$module->addLink('DASHBOARDWIDGET', 'Client Distribution', $linkURL, '', '', '');
