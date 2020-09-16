@@ -109,7 +109,7 @@ class Contacts_PopulationPyramid_Dashboard extends Vtiger_IndexAjax_View {
             $age[] = $i;
         }
         
-        $conditions = array(array('cf_1718','e',decode_html(urlencode(escapeSlashes($gender)))),array('cf_3266','c',decode_html(urlencode(escapeSlashes(implode(',',$age))))));
+        $conditions = array(array('cf_1718','e',decode_html(urlencode(escapeSlashes($gender)))),array('cf_3266','g',decode_html(urlencode(escapeSlashes($numVal[0])))),array('cf_3266','m',decode_html(urlencode(escapeSlashes($numVal[1])))));
         $listSearchParams[] = $conditions;
         return '&search_params='. json_encode($listSearchParams);
     }
