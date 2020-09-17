@@ -62,6 +62,14 @@ class cTDPortfolios extends cCustodian {
         }
     }
 
+    public function SetAccountNumbers(array $account_numbers)
+    {
+        parent::SetAccountNumbers($account_numbers);
+        $this->GetPortfolioPersonalData();
+        $this->GetPortfolioBalanceData();
+        $this->SetupPortfolioComparisons();
+    }
+
     protected function GetPortfolioPersonalData(){
         global $adb;
         $params = array();
@@ -245,6 +253,7 @@ class cTDPortfolios extends cCustodian {
     public function CreateNewPortfoliosFromPortfolioData(array $account_numbers){
         if(!empty($account_numbers)) {
             foreach ($account_numbers AS $k => $v) {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Creating Portfolio {$v}");
                 $data = $this->portfolio_data[$v];
                 if (!empty($data)) {
                     $tmp = new cTDPortfolioData($data);
@@ -260,6 +269,7 @@ class cTDPortfolios extends cCustodian {
     public function UpdatePortfoliosFromPortfolioData(array $account_numbers){
         if(!empty($account_numbers)) {
             foreach ($account_numbers AS $k => $v) {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Updating Portfolio {$v}");
                 $data = $this->portfolio_data[$v];
                 if (!empty($data)) {
                     $tmp = new cTDPortfolioData($data);
@@ -267,5 +277,54 @@ class cTDPortfolios extends cCustodian {
                 }
             }
         }
+    }
+
+    static public function GetBalanceAsOfDate(array $account_numbers, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+        $params[] = $date;
+
+        $query = "SELECT account_number, account_value 
+                  FROM custodian_omniscient.custodian_balances_td 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date = ?";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']] = $r['account_value'];
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Returns the earliest date and balance for passed in account numbers
+     * @param array $account_numbers
+     * @return array
+     */
+    static public function GetEarliestBalanceAndDate(array $account_numbers){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+
+        $query = "SELECT account_number, account_value, MIN(as_of_date) AS as_of_date
+                  FROM custodian_omniscient.custodian_balances_td 
+                  WHERE account_number IN ({$questions}) 
+                  GROUP BY account_number";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']] = array("account_value" => $r['account_value'],
+                                                    "as_of_date" => $r['as_of_date']);
+            }
+        }
+        return $data;
     }
 }
