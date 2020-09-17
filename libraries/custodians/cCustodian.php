@@ -19,6 +19,7 @@ spl_autoload_register(function ($className) {
         include_once "libraries/custodians/$className.php";
     }
 });
+include_once("libraries/statusupdates/StatusUpdate.php");
 
 class cCustodian{
     protected $custodian_name, $module, $database, $rep_codes, $account_numbers, $table, $portfolio_table, $columns;
