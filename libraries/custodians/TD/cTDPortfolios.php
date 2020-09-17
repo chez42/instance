@@ -253,6 +253,7 @@ class cTDPortfolios extends cCustodian {
     public function CreateNewPortfoliosFromPortfolioData(array $account_numbers){
         if(!empty($account_numbers)) {
             foreach ($account_numbers AS $k => $v) {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Creating Portfolio {$v}");
                 $data = $this->portfolio_data[$v];
                 if (!empty($data)) {
                     $tmp = new cTDPortfolioData($data);
@@ -268,6 +269,7 @@ class cTDPortfolios extends cCustodian {
     public function UpdatePortfoliosFromPortfolioData(array $account_numbers){
         if(!empty($account_numbers)) {
             foreach ($account_numbers AS $k => $v) {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Updating Portfolio {$v}");
                 $data = $this->portfolio_data[$v];
                 if (!empty($data)) {
                     $tmp = new cTDPortfolioData($data);

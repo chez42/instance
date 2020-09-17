@@ -32,78 +32,77 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
-        require_once("libraries/custodians/cCustodian.php");
-        require_once('modules/ModSecurities/actions/ConvertCustodian.php');
-        include_once("include/utils/omniscientCustom.php");
+        require_once('modules/PortfolioInformation/models/DailyBalances.php');
+        require_once("libraries/Reporting/ReportCommonFunctions.php");
+        /**
+         * One simple call to write the daily balances for all active users using the past 7 days (allows for mistakes and missing data to catch up)
+         */
 
+        global $dbconfig, $adb;
+
+        $query = "INSERT IGNORE INTO vtiger_prices
+          SELECT * FROM live_omniscient.vtiger_prices WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)
+          AND symbol IN (SELECT security_symbol FROM vtiger_modsecurities)";
+        $adb->pquery($query, array());
+
+        $query = "INSERT IGNORE INTO vtiger_prices_index
+          SELECT * FROM live_omniscient.vtiger_prices_index WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)";
+        $adb->pquery($query, array());
+
+        /*Positions asset allocation widget calculations*/
+        PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
 
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
-#foreach($rep_codes AS $k => $v){
-        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
-        //Pull portfolio and balance information for the specified rep codes
-/*        $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
-            "custodian_portfolios_td", "custodian_balances_td", $rep_codes);
-        $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
-        $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
-        $td->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
-        $existing = $td->GetExistingCRMAccounts();//Get existing CRM accounts
-        $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts with the latest data from the custodian
-        /*********END OF STEP 1********/
-        /*
-                /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
-        //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
-        //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
-        //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
-        /*        $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
-                    "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
-                $missing_positions = $positions->GetMissingCRMPositions();
-                $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
-                if(!empty($missing_positions))
-                    $positions->CreateNewPositionsFromPositionData($missing_positions);
+        /*Fill in the consolidated balances table*/
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $start = date('Y-m-d', strtotime('-7 days'));
+        $finish = date('Y-m-d');
+        $questions = generateQuestionMarks($accounts);
+        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+//Write to the users table from consolidated balances for grand total of all accounts
+        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
 
-                //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
-                $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
-                    "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
-                    "f.issue_date", "f.share_per_contact", "pr.factor");
-                //Securities REQUIRES a list of symbols.  It does not auto compare to positions because we may not necessarily want just those symbols
-                $securities = new cTDSecurities("TD", "custodian_omniscient", "securities",
-                    "custodian_securities_td", $symbols, array(), $fields);
-                $missing_securities = $securities->GetMissingCRMSecurities();//Get a list of securities the CRM doesn't currently have
-                if(!empty($missing_securities))
-                    $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
-                $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
-                $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
-                /*********END OF STEP 2********/
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
 
-        /***STEP 3 - CREATE TRANSACTIONS WORKING***/
-        $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
-            "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
-            "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
-            "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+        echo 'FINI!';exit;
 
-        $start = $month = strtotime('2019-01-01');
-        $end = strtotime(date("Y-m-d"));
-        while($month < strtotime("+1 month", $end))
-        {
-            $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
-                "custodian_portfolios_td", "custodian_transactions_td",
-                $rep_codes, $fields);
 
-            $s = date("Y-m-d", $month);
-            $e = date("Y-m-d", strtotime("+1 month", $month));
-            $transactions->GetTransactionsDataBetweenDates($s, $e);
-            $missing = $transactions->GetMissingCRMTransactions();
-            $transactions->CreateNewTransactionsFromTransactionData($missing);
+        require_once('modules/PortfolioInformation/models/DailyBalances.php');
+        require_once("libraries/Reporting/ReportCommonFunctions.php");
+        /**
+         * One simple call to write the daily balances for all active users using the past 7 days (allows for mistakes and missing data to catch up)
+         */
 
-//            echo date('Y-m-d', $month), PHP_EOL;
-#            echo "Start: {$s}, End: {$e}<br />";
-#            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
-            $month = strtotime("+1 month", $month);
-            echo "DONE {$s} to {$e}<br />";
-        }
-        /*********END OF STEP 3********/
-#}
-        echo 'bla bla bla';exit;
+        global $dbconfig, $adb;
+
+        $query = "INSERT IGNORE INTO vtiger_prices
+          SELECT * FROM live_omniscient.vtiger_prices WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)
+          AND symbol IN (SELECT security_symbol FROM vtiger_modsecurities)";
+        $adb->pquery($query, array());
+
+        $query = "INSERT IGNORE INTO vtiger_prices_index
+          SELECT * FROM live_omniscient.vtiger_prices_index WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)";
+        $adb->pquery($query, array());
+
+        /*Positions asset allocation widget calculations*/
+        PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        /*Fill in the consolidated balances table*/
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $start = date('Y-m-d', strtotime('-7 days'));
+        $finish = date('Y-m-d');
+        $questions = generateQuestionMarks($accounts);
+        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+//Write to the users table from consolidated balances for grand total of all accounts
+        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
+
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+        echo 'fini';exit;
         global $adb, $dbconfig;
 /*        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
         $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);

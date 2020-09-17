@@ -27,6 +27,8 @@ class PortfolioInformation_FileAdministration_View extends Vtiger_Index_View{
             "~/libraries/tabulator/dist/js/tabulator.min.js",
             "~/libraries/tabulator/dist/js/tabulator_core.min.js",
             "~/libraries/tabulator/dist/js/jquery_wrapper.min.js",
+            "~/libraries/tabulator/dist/js/modules/edit.min.js",
+            "~/libraries/tabulator/dist/js/modules/sort.min.js",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         return $jsScriptInstances;
@@ -35,7 +37,8 @@ class PortfolioInformation_FileAdministration_View extends Vtiger_Index_View{
     public function getHeaderCss(Vtiger_Request $request) {
         $headerCssInstances = parent::getHeaderCss($request);
         $cssFileNames = array(
-            '~/libraries/tabulator/dist/css/tabulator.min.css'
+            '~/libraries/tabulator/dist/css/tabulator.min.css',
+            '~/layouts/v7/modules/PortfolioInformation/css/FileAdministration.css',
         );
         $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
         $headerCssInstances = array_merge($headerCssInstances, $cssInstances);

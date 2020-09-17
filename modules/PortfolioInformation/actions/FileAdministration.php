@@ -21,6 +21,11 @@ class PortfolioInformation_FileAdministration_Action extends Vtiger_BasicAjax_Ac
             case 'getlocations':
                 echo json_encode($locations);
                 break;
+            case 'updatefilefield':
+                $data = $request->get("RowData");
+                $files->AutoInsertOrUpdateData($data);
+                $files->ResetGoodRepCodeList();
+                break;
         }
     }
 }
