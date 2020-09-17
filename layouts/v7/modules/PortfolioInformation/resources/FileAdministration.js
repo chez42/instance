@@ -3,6 +3,7 @@
  */
 jQuery.Class("FileAdministration_Module_Js",{
     currentInstance : false,
+    table: Array(),
 
     getInstanceByView : function(){
         var instance = new FileAdministration_Module_Js();
@@ -27,6 +28,11 @@ jQuery.Class("FileAdministration_Module_Js",{
             });
             //936980564
             self.UpdateStatus();
+        });
+
+        $("#add-row").click(function(e){
+            self.table.addRow({});
+            $(".tabulator-cell").css("height","27px");
         });
 
 /*
@@ -62,10 +68,12 @@ jQuery.Class("FileAdministration_Module_Js",{
     },
 
     RenderTable : function(){
+        var self = this;
         $.post("index.php", {module:'PortfolioInformation', action:'FileAdministration', todo:'getlocations'}, function(response){
 //        alert(response);
             var table = new Tabulator("#file-locations-table", {
                 data:$.parseJSON(response),
+                addRowPos:"top",
                 layout:"fitColumns",
                 columns:[
                     {title:"ID", field:"id", sorter:"number"},
@@ -83,6 +91,7 @@ jQuery.Class("FileAdministration_Module_Js",{
 
                 },
             });
+            self.table = table;
         });
     },
 

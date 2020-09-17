@@ -5,6 +5,7 @@
         based on the custodian and Rep Code to determine the location.  Active means that the rep code should be getting a daily feed on it.
         The daily email report listing missing files depends on this table to be accurate, or deactivated rep code's will show up as
         having missing files</p>
+        <button id="add-row">Add New RepCode</button>
         <div id="file-locations-table"></div>
     </div>
     <div id="custodian-interactions">
