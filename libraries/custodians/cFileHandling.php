@@ -59,11 +59,10 @@ class cFileHandling{
         $params[] = $data['prefix'];
         $params[] = $data['currently_active'];
 
+        if(strlen($data['rep_code']) < 2)
+            return;
         $query = "INSERT INTO custodian_omniscient.file_locations SET custodian = ?, tenant = ?, file_location = ?, rep_code = ?,
-                                                                      omni_code = ?, prefix = ?, currently_active = ?
-                  ON DUPLICATE KEY UPDATE custodian=values(custodian), tenant=values(tenant), file_location = values(file_location), rep_code=values(rep_code),
-                                                                       master_rep_code=values(master_rep_code), omni_code=values(omni_code), 
-                                                                       prefix=values(prefix), currently_active=values(currently_active)";
+                                                                      omni_code = ?, prefix = ?, currently_active = ?";
         $adb->pquery($query, $params);
 
     }
@@ -125,7 +124,7 @@ class cFileHandling{
         if(strlen(TRIM($data['id'])) > 0){
             self::UpdateFieldRow($data);
         }else{
-            echo 'creating';
+            self::CreateFieldRow($data);
         }
     }
 
