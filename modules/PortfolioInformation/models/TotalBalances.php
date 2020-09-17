@@ -97,6 +97,26 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
     }
 
     /**
+     * Loop through all users and create/update values for the last 7 days
+     */
+    static public function WriteAndUpdateLastXDaysForAllUsers($days){
+        global $adb;
+        $ids = GetAllActiveUserIDs();
+        $date = date('Y-m-d', strtotime("-{$days} days"));
+        foreach($ids AS $k => $v){
+            $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
+            $questions = generateQuestionMarks($account_numbers);
+            $query = "INSERT INTO daily_user_total_balances
+                          SELECT {$v}, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW()
+                          FROM consolidated_balances
+                          WHERE account_number IN({$questions}) AND as_of_date >= ?
+                          GROUP BY as_of_date
+                      ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
+            $adb->pquery($query, array($account_numbers, $date));
+        }
+    }
+
+    /**
      * Loop through all users and create/update values for the last X number days
      */
     static public function WriteAndUpdateLastXDaysForAllUsersIntervals($num_days){

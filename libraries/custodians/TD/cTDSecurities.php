@@ -193,6 +193,7 @@ class cTDSecurities extends cCustodian {
                 $data = $this->securities_data[strtoupper($v)];
                 if (!empty($data)) {
 #                    echo $v . '<br />';//Enable this for showing the symbol name
+                    StatusUpdate::UpdateMessage("TDUPDATER", "Updating Security {$k}");
                     $tmp = new cTDSecuritiesData($data);
                     $this->UpdateSecuritiesUsingcTDSecuritiesData($tmp);
                 }

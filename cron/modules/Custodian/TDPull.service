@@ -42,8 +42,37 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
     $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
     /*********END OF STEP 2********/
 
+
     /***STEP 3 - CREATE TRANSACTIONS WORKING***/
     $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+        "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+        "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+        "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+    $start = $month = strtotime('2019-01-01');
+    $end = strtotime(date("Y-m-d"));
+    while($month < strtotime("+1 month", $end))
+    {
+        $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+            "custodian_portfolios_td", "custodian_transactions_td",
+            $rep_codes, $fields);
+
+        $s = date("Y-m-d", $month);
+        $e = date("Y-m-d", strtotime("+1 month", $month));
+        $transactions->GetTransactionsDataBetweenDates($s, $e);
+        $missing = $transactions->GetMissingCRMTransactions();
+        $transactions->CreateNewTransactionsFromTransactionData($missing);
+
+    //            echo date('Y-m-d', $month), PHP_EOL;
+    #            echo "Start: {$s}, End: {$e}<br />";
+    #            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
+        $month = strtotime("+1 month", $month);
+        echo "DONE {$s} to {$e}<br />";
+    }
+    /*********END OF STEP 3********/
+
+    /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+/*    $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
         "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
         "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
         "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
