@@ -135,6 +135,7 @@ class cTDPositions extends cCustodian {
     public function CreateNewPositionsFromPositionData(array $missing_account_data){
         if(!empty($missing_account_data)) {
             foreach ($missing_account_data AS $k => $v) {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Creating Positions for {$k}");
                 foreach ($v AS $a => $position) {
                     $data = $this->positions_data[$k][$a];
                     if (!empty($data)) {
@@ -154,6 +155,7 @@ class cTDPositions extends cCustodian {
         if(!empty($position_account_data)) {
             foreach ($position_account_data AS $k => $v) {
                 $this->ResetAccountPositions($k);
+                StatusUpdate::UpdateMessage("TDUPDATER", "Updating Positions for {$k}");
                 foreach ($v AS $a => $position) {
                     $data = $this->positions_data[$k][$a];
                     if (!empty($data)) {

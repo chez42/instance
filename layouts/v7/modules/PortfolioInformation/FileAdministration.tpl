@@ -1,3 +1,20 @@
+<div id="custodian-wrapper">
+    <div id="file-locations">
+        <h2>File Parsing</h2>
+        <p>This table represents each rep code in the system and where its files are stored.  The system knows where to put the files
+        based on the custodian and Rep Code to determine the location.  Active means that the rep code should be getting a daily feed on it.
+        The daily email report listing missing files depends on this table to be accurate, or deactivated rep code's will show up as
+        having missing files</p>
+        <button id="add-row">Add New RepCode</button>
+        <div id="file-locations-table"></div>
+    </div>
+    <div id="custodian-interactions">
+        <h2>Custodian Interaction</h2>
+        <p>Current Status: <span class="current-status">Idle</span></p>
+        <input type="button" id="PullRecalculate" value="Pull and Recalculate" title="Pull all data from custodian and recalculate homepage values.  This will take awhile"/>
+    </div>
+</div>
+{*
 <table class="FileLocationsTable" style="table-layout:fixed; width:1000px;">
     <thead>
     <tr>
@@ -34,3 +51,4 @@
 {foreach key=index item=jsModel from=$SCRIPTS}
     <script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 {/foreach}
+*}

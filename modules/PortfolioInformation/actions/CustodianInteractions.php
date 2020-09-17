@@ -1,8 +1,20 @@
 <?php
+include_once("libraries/custodians/cCustodian.php");
 
 class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax_Action{
 	public function process(Vtiger_Request $request) {
 		switch($request->get('todo')){
+            case "PullRecalculate":{
+                $custodian = $request->get('custodian');
+
+                $updateClass = "c".$custodian."Updater";
+                $update = new $updateClass(array());
+                $update->UpdateAll();
+
+            }break;
+            case "GetUpdateStatus":{
+                echo StatusUpdate::ReadMessage("TDUPDATER");
+            }break;
 			case "AuditTDPositions": {
 /*				global $adb;
 				$query = "TRUNCATE TABLE vtiger_audit_results";//DELETE FROM vtiger_audit_results WHERE account_number = ?";
