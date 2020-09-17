@@ -1,0 +1,11 @@
+<?php
+require_once("libraries/custodians/cCustodian.php");
+require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+include_once("include/utils/omniscientCustom.php");
+require_once("libraries/custodians/cReady.php");
+
+$ready = new cReady();
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+
+$data = $ready->GetReadyDataViaRepCode($rep_codes);
+print_r($data);

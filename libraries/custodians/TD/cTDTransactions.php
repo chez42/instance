@@ -248,6 +248,7 @@ class cTDTransactions extends cCustodian
                     $data = $this->transactions_data[$account_number][$transaction_id];
                     if (!empty($data)) {
                         $tmp = new cTDTransactionsData($data);
+                        StatusUpdate::UpdateMessage("TDUPDATER", "Creating Transactions for {$account_number} " . $tmp->trade_date . ' - ' . $tmp->symbol);
                         $this->CreateNewTransactionUsingcTDTransactionsData($tmp);
                     }
                 }

@@ -52,4 +52,58 @@
 	
 	$adb->pquery("delete FROM `vtiger_activitycf` where activityid not in (select crmid from vtiger_crmentity)");
 	
-	$adb->pquery("delete FROM `vtiger_activity` where activityid not in (select crmid from vtiger_crmentity);")
+	$adb->pquery("delete FROM `vtiger_activity` where activityid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_emaildetails` where emailid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_emailslookup` where crmid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_emails_recipientprefs` where userid not in (select id from vtiger_users)");
+	
+	$adb->pquery("delete FROM `vtiger_email_access` where crmid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_email_access` where mailid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_email_track` where crmid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_email_track` where mailid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_vteemailmarketing` where vteemailmarketingid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_vteemailmarketingcf` where vteemailmarketingid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_vteemailmarketingrel` where vteemailmarketingid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_activity_reminder_popup` where recordid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_calendar_user_activitytypes` where userid not  in (select id from vtiger_users)");
+	
+	$adb->pquery("delete FROM `vtiger_cntactivityrel` where activityid not  in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_salesmanactivityrel` where activityid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `vtiger_seactivityrel` where activityid not in (select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM vtiger_crmentity where  setype = 'ModSecurities' and crmid not in (select modsecuritiesid from vtiger_modsecurities)");
+	
+	$adb->pquery("delete FROM `vtiger_asset_class_history` where account_number not  in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `accountstatus` where AccountNumber not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `account_rep_codes` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `com_vtiger_workflow_activatedonce` where entity_id not in 
+	(select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `consolidated_balances` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `contacts` where crmid not in (Select crmid from vtiger_crmentity)");
+	
+	$adb->pquery("delete FROM `daily_user_intervals_summed` where user_id not  in (select id from vtiger_users)");
+	
+	$adb->pquery("delete FROM `daily_user_total_balances` where user_id not in (select id from vtiger_users)");
+	
+	$adb->pquery("delete FROM `vtiger_user_records` where userid not  in (select id from vtiger_users)");
+	
+	$adb->pquery("delete FROM `vtiger_wsapp_logs_basic` where userid not  in (select id from vtiger_users)");
+	
+	//account_value_history
+	//closeme
+	
+	/*ALTER TABLE `vtiger_emailtemplates_view_permission` ADD CONSTRAINT `fk_emailtemplate_view_permission` FOREIGN KEY (`template_id`) REFERENCES `vtiger_emailtemplates`(`templateid`) ON DELETE CASCADE ON UPDATE RESTRICT;
+	*/
