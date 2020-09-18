@@ -22,7 +22,9 @@ class OwnCloud_SyncDocuments_Action extends Vtiger_Mass_Action {
     }
     
     public function process(Vtiger_Request $request) {
-       
+        
+        global $adb;
+        
         $moduleName = $request->getModule();
         
         $userName = OwnCloud_Config_Connector::$username;

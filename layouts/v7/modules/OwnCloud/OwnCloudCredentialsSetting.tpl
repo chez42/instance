@@ -15,7 +15,7 @@
 	{include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
 	<form class="form-horizontal" id="updatedetails" method="post" action="index.php">
 		<input type="hidden" name="module" value="{$MODULE}" />
-		<input type="hidden" name="action" value="SaveAuthSettings" />
+		<input type="hidden" name="action" value="SaveSettings" />
 		<input type="hidden" name="record" value="{$RECORD}" />
 		<input type="hidden" name="mode" value="OwncloudCredentials" />
 
