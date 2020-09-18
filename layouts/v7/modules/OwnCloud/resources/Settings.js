@@ -12,14 +12,19 @@ jQuery.Class("Settings_OwnCloud_Js",{},{
 	/*
 	 * function to Save the Outgoing Server Details
 	 */
-	saveOwnCloudDetails : function(form) {
+	saveOwnCloudSettings : function(form) {
+		
 		var thisInstance = this;
+		
 		var aDeferred = jQuery.Deferred();
+		
 		var data = form.serializeFormData();
+		
 		var params = {
-		'module' : app.getModuleName(),
-		'action': 'SaveAuthSettings'
-			};
+				'module' : app.getModuleName(),
+				'action': 'SaveSettings'
+		};
+		
           
        jQuery.extend(params,data);
 		app.request.post({'data' : params}).then(
@@ -75,7 +80,7 @@ jQuery.Class("Settings_OwnCloud_Js",{},{
             submitHandler : function(form) {
             	app.helper.showProgress();
                 var form = jQuery(form);
-				thisInstance.saveOwnCloudDetails(form);
+				thisInstance.saveOwnCloudSettings(form);
             }
 		};
 		if (form.length) {
