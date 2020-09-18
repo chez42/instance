@@ -46,7 +46,7 @@ class OwnCloud_GetFolders_View extends Vtiger_IndexAjax_View {
         
         $id = ($request->get('id') == '#') ? '' : urldecode($request->get('id'));
         
-        $folders = $management->listContents(urlencode($id));
+        $folders = $management->listContents(str_replace(" ", "%20", $id));
         
         $folderData = array();
         
