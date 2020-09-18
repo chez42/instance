@@ -31,33 +31,14 @@
 				<div class="blockData">
 					<br>
 					<div class="block">
-						<div>
-							<h4>{vtranslate('OwnCloud Details', $QUALIFIED_MODULE)}</h4>
-						</div>
-						<hr>
 						{if $mode eq 'edit'}
 							<table class="table editview-table no-border">
 								<tbody>
 									
 									<tr>
-										<td class="{$WIDTHTYPE} fieldLabel"><label>{vtranslate('Url', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span></td>
+										<td class="{$WIDTHTYPE} fieldLabel"><label>{vtranslate('OwnCloud URL', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span></td>
 										<td class="{$WIDTHTYPE} fieldValue"><div class=" col-lg-6 col-md-6 col-sm-12">
 										<input type="text" class="inputElement" name="url" data-rule-required="true" value="{$LOGINURL}" ></div></td>
-									</tr>
-									
-									<tr>
-										<td class="{$WIDTHTYPE} fieldLabel"><label>{vtranslate('UserName', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span></td>
-										<td class="{$WIDTHTYPE} fieldValue"><div class=" col-lg-6 col-md-6 col-sm-12">
-										<input type="text" class="inputElement" name="username" data-rule-required="true" value="{$USERNAME}" ></div></td>
-									</tr>
-									
-									<tr>
-										<td class="{$WIDTHTYPE} fieldLabel"><label>{vtranslate('Password', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span></td>
-										<td>
-											<div class=" col-lg-6 col-md-6 col-sm-12">
-												<input type="text" class="inputElement" name="password" data-rule-required="true" value="{$PASSWORD}" >
-											</div>
-										</td>
 									</tr>
 									
 								</tbody>
@@ -70,15 +51,6 @@
 										<td class="{$WIDTHTYPE} fieldValue"><span>{$LOGINURL}</span></td>
 									</tr>
 									
-									<tr>
-										<td class="{$WIDTHTYPE} fieldLabel"style="width:25%" ><label>{vtranslate('UserName', $QUALIFIED_MODULE)}</label></td>
-										<td class="{$WIDTHTYPE} fieldValue"><span>{$USERNAME}</span></td>
-									</tr>
-								
-									<tr>
-										<td class="{$WIDTHTYPE} fieldLabel"style="width:25%" ><label>{vtranslate('Password', $QUALIFIED_MODULE)}</label></td>
-										<td class="{$WIDTHTYPE} fieldValue"><span>{$PASSWORD}</span></td>
-									</tr>
 								</tbody>
 							</table>
 						{/if}	

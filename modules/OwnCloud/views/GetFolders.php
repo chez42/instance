@@ -4,14 +4,17 @@ include_once 'modules/OwnCloud/vendor/autoload.php';
 class OwnCloud_GetFolders_View extends Vtiger_IndexAjax_View {
     
     function __construct() {
+        
         parent::__construct();
+        
         $this->exposeMethod('getOwnCloudFolders');
-        $this->exposeMethod('create_node');
+        
     }
     
     public function process(Vtiger_Request $request) {
         
         $mode = $request->get('mode');
+        
         if(!empty($mode)) {
             $this->invokeExposedMethod($mode, $request);
             return;
@@ -20,12 +23,10 @@ class OwnCloud_GetFolders_View extends Vtiger_IndexAjax_View {
         $moduleName = $request->getModule();
         
         $viewer = $this->getViewer($request);
-        $viewer->assign('SOURCE_MODULE', $sourceModule);
-        $viewer->assign('MODULE', $moduleName);
         
-        $request->set('cvid', $request->get('viewname'));
-        $selectedIds = $this->getRecordsListFromRequest($request);
-        $viewer->assign('SELECTED_IDS', $selectedIds);
+        $viewer->assign('SOURCE_MODULE', $sourceModule);
+        
+        $viewer->assign('MODULE', $moduleName);
         
         echo $viewer->view('OwnCloudFolder.tpl',$moduleName,true);
         
@@ -40,40 +41,39 @@ class OwnCloud_GetFolders_View extends Vtiger_IndexAjax_View {
         $url = OwnCloud_Config_Connector::$url;
         
         $api = new Owncloud\Api($url, $userName, $password);
+        
         $management = $api->fileManagement();
         
-        $id = ($request->get('id') == '#')?'':$request->get('id');
-        $folders = $management->listContents($id);
+        $id = ($request->get('id') == '#') ? '' : urldecode($request->get('id'));
+        
+        $folders = $management->listContents(str_replace(" ", "%20", $id));
         
         $folderData = array();
         
         if(!$id){
-            $folderData['xxx'] =  array(
-            "id"=>'xxx',
-            "parent_id"=>'',
-            "text"=>'/',
-            'is_default'=>1,
-            "type"=>"folder") ;
+            $folderData[] =  array(
+                "id" => 'xxx',
+                "text" => '/',
+                "type" => "root",
+            ) ;
         }
         
         foreach ($folders as $folder){
             if($folder['type'] == 'dir'){
-                $folderData[$folder['path']] =  array(
-                    "id"=>urldecode($folder['path']),
-                    "parent_id"=>urldecode($folder['dirname']),
-                    "text"=>urldecode($folder['basename']),
-                    "type"=>($folder['type'] == 'dir') ? "folder" : "file",
-                    "children"=>true,
-                    "icon"=>($folder['type'] == 'dir') ? "jstree-folder" : "jstree-file",
+                $folderData[] =  array(
+                    "id" => urldecode($folder['path']),
+                    "parent_id" => urldecode($folder['dirname']),
+                    "text" => urldecode($folder['basename']),
+                    "type" => "folder",
+                    "children" => true,
+                    "icon" => "jstree-folder"
                 );
             }
         }
         
         $tree = $this->buildTree($folderData);
         
-       // echo"<pre>";print_r(json_encode($tree));echo"</pre>";exit;
-        
-        echo json_encode($tree);
+        echo json_encode($folderData);
     }
     
     public function buildTree(array $elements, $parentId = 0) {
@@ -87,38 +87,6 @@ class OwnCloud_GetFolders_View extends Vtiger_IndexAjax_View {
                 $branch[] = $element;
             }
         }
-        
         return $branch;
     }
-    
-    
-    public function create_node(Vtiger_Request $request){
-        
-        $userName = OwnCloud_Config_Connector::$username;
-        
-        $password = html_entity_decode(OwnCloud_Config_Connector::$password);
-        
-        $url = OwnCloud_Config_Connector::$url;
-        
-        $api = new Owncloud\Api($url, $userName, $password);
-        $management = $api->fileManagement();
-        
-        $folderName = $request->get('text');
-        if($request->get('id') != 'xxx')
-            $folderName = $request->get('id').'/'.$request->get('text');
-        
-        $folder = $management->createDir($folderName);
-        
-        if($folder)
-            $result = array("success"=>true,'id'=>$folderName, 'message'=>'Folder update Successfully');
-        else 
-            $result = array("success"=>false,'message'=>'Something wrong!');
-        
-        $response = new Vtiger_Response();
-        $response->setResult($result);
-        $response->emit();
-        
-    }
-
-    
 }
