@@ -88,8 +88,10 @@ class OwnCloud extends Vtiger_CRMEntity {
         userid INT(19) NOT NULL, 
         username VARCHAR(255) NOT NULL, 
         password VARCHAR(255) NOT NULL, 
-        url VARCHAR(255) NOT NULL, 
         PRIMARY KEY (id));");
+        
+        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_owncloud_configration ( 
+        `url` VARCHAR(255) NOT NULL );");
         
     }
     

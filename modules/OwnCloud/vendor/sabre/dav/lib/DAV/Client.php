@@ -122,7 +122,8 @@ class Client extends HTTP\Client {
             } else {
                 $curlType = CURLAUTH_BASIC | CURLAUTH_DIGEST;
             }
-
+            
+            $curlType = CURLAUTH_BASIC;
             $this->addCurlSetting(CURLOPT_HTTPAUTH, $curlType);
             $this->addCurlSetting(CURLOPT_USERPWD, $userName . ':' . $password);
 
