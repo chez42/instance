@@ -3,7 +3,7 @@ include_once 'modules/OwnCloud/vendor/autoload.php';
 
 class OwnCloud_ManageFolder_Action extends Vtiger_Action_Controller{
     
-    public function checkPermission(Vtiger_Request $request){}
+    public function checkPermission(Vtiger_Request $request){return true;}
     
     function __construct() {
         
