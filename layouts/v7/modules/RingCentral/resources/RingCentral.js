@@ -847,11 +847,12 @@ Vtiger.Class("RingCentral_Js",{
 			app.request.post({data:params}).then(function(err,data){
 				if(err === null) {
 					if(data.success){
+						
 						var buttonContainer = jQuery('.detailViewContainer');
-                        var btnToolBar = buttonContainer.find('.btn-group');
-                        var outGoingServerBtn = jQuery('<button type="button" class="btn btn-danger btndisconnect">RingCentral Disconnect</button>');
-                        btnToolBar.find('.btn:first').before(outGoingServerBtn);
-                        self.registerEventForDisconnectButton();
+						
+						buttonContainer.find('ul.dropdown-menu').append('<li class=  "btndisconnect"><a href = "#">Revoke RingCentral Access</a></li>');
+						
+						self.registerEventForDisconnectButton();
 					}
 				}
 			});
