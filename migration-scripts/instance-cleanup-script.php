@@ -20,7 +20,7 @@
 	$adb->pquery("delete FROM `vtiger_mail_accounts` where user_id not in (select id from vtiger_users)");
 	$adb->pquery("delete FROM `vtiger_modtracker_basic` where crmid not in (select crmid from vtiger_crmentity)");
 	
-	$adb->pquery("delete FROM `vtiger_modtracker_detail` where vtiger_modtracker_detail.id not in (SELECT id FROM `vtiger_modtracker_basic`");
+	$adb->pquery("delete FROM `vtiger_modtracker_detail` where vtiger_modtracker_detail.id not in (SELECT id FROM `vtiger_modtracker_basic`)");
 	
 	$adb->pquery("delete FROM `vtiger_crmentityrel` where crmid not in (select crmid from vtiger_crmentity)");
 	
@@ -46,7 +46,7 @@
 	
 	$adb->pquery("delete FROM `vtiger_activity_reminder` where activity_id not in (select crmid from vtiger_crmentity)");
 	
-	$adb->pquery("delete FROM `vtiger_activity_reminder_popup` where recorid not in (select crmid from vtiger_crmentity)");
+	$adb->pquery("delete FROM `vtiger_activity_reminder_popup` where recordid not in (select crmid from vtiger_crmentity)");
 	
 	$adb->pquery("delete FROM `vtiger_contact_portal_permissions` where crmid not in (select crmid from vtiger_crmentity)");
 	
@@ -102,8 +102,33 @@
 	
 	$adb->pquery("delete FROM `vtiger_wsapp_logs_basic` where userid not  in (select id from vtiger_users)");
 	
+	$adb->pquery("delete FROM `vtiger_portfolioinformation_current` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `vtiger_portfolioinformation_fees` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `vtiger_portfolioinformation_historical` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `vtiger_portfolio_daily_individual` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `vtiger_portfolio_summary` where account_number not in (select account_number from vtiger_portfolioinformation)");
+	
+	$adb->pquery("delete FROM `vtiger_customview` where viewname  != 'All'");
+	
+	$adb->pquery("DELETE FROM vtiger_cvcolumnlist WHERE cvid not in (select cvid from vtiger_customview)");
+	
+	$adb->pquery("DELETE FROM vtiger_cvstdfilter WHERE cvid not in (select cvid from vtiger_customview)");
+	
+	$adb->pquery("DELETE FROM vtiger_cvadvfilter WHERE cvid not in (select cvid from vtiger_customview)");
+	
+	$adb->pquery("DELETE FROM vtiger_cvadvfilter_grouping WHERE cvid not in (select cvid from vtiger_customview)");
+	
 	//account_value_history
 	//closeme
 	
 	/*ALTER TABLE `vtiger_emailtemplates_view_permission` ADD CONSTRAINT `fk_emailtemplate_view_permission` FOREIGN KEY (`template_id`) REFERENCES `vtiger_emailtemplates`(`templateid`) ON DELETE CASCADE ON UPDATE RESTRICT;
 	*/
+	
+	/*
+	ALTER TABLE `vtiger_portfolioinformation` ADD CONSTRAINT `fk_portfolio_crmentity` FOREIGN KEY (`portfolioinformationid`) REFERENCES `vtiger_crmentity`(`crmid`) ON DELETE CASCADE ON UPDATE RESTRICT;
+	*/
+	
