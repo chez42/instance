@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-class OwnCloud_Settings_View extends Settings_Vtiger_Index_View {
+class OwnCloud_Settings_View extends Vtiger_Index_View {
     
     function __construct() {
         parent::__construct();
