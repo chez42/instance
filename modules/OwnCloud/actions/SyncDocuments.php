@@ -12,13 +12,7 @@ include_once 'modules/OwnCloud/vendor/autoload.php';
 class OwnCloud_SyncDocuments_Action extends Vtiger_Mass_Action {
     
     public function checkPermission(Vtiger_Request $request) {
-        $moduleName = $request->getModule();
-        $moduleModel = Vtiger_Module_Model::getInstance($moduleName);
-        
-        $currentUserPriviligesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
-        if(!$currentUserPriviligesModel->hasModuleActionPermission($moduleModel->getId(), 'Export')) {
-            throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
-        }
+       return true;
     }
     
     public function process(Vtiger_Request $request) {
