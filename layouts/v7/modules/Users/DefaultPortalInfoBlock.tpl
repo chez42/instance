@@ -97,7 +97,7 @@
 									
 									{foreach key=ReprtName item=PortalReport from=$PortalReports}
 										
-										<tr class="portal_reports_row">
+										<tr class="portal_reports_row"  {if !$REPORT_PERMISSION} style = "display:none;" {/if}>
 											<td class="fieldLabel textOverflowEllipsis text-left" ><a href="#" class="mainmodule" data-value="{$ReprtName}" style="cursor:pointer;">{vtranslate($ReprtName, $MODULE)}<span>(+) click to enable all</span></a></td>
 											
 											<td class="fieldValue text-center">
@@ -118,7 +118,7 @@
 												{assign var=REPORT_VISIBLE value="0"}
 												{assign var=REPORT_RECORD_VISIBLE value="0"}
 											{/if}
-											<tr>
+											<tr  {if !$REPORT_PERMISSION} style = "display:none;" {/if}>
 												<td>&nbsp;</td>
 												<td class="fieldLabel textOverflowEllipsis text-left">{vtranslate($ReportModules, $MODULE)}</td>
 												<td class="fieldValue text-center">

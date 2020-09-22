@@ -29,9 +29,9 @@
         {/if}
         {if $REPORT_TYPE eq 'chart'}
         <span class="dropdown">
-            <a style="font-size:13px;" title="{if $PIN_CLASS eq 'ti-pin2'}{vtranslate('LBL_PIN_CHART_TO_DASHBOARD',$MODULE)}{else}{vtranslate('LBL_UNPIN_CHART_FROM_DASHBOARD',$MODULE)}{/if}" 
+            <a style="font-size:13px;" title="{if $PIN_CLASS eq 'vicon-pin'}{vtranslate('LBL_PIN_CHART_TO_DASHBOARD',$MODULE)}{else}{vtranslate('LBL_UNPIN_CHART_FROM_DASHBOARD',$MODULE)}{/if}" 
                   class="fa icon action {$PIN_CLASS} pinToDashboard "  data-recordid="{$LISTVIEW_ENTRY->get('reportid')}" 
-                  data-primemodule="{$LISTVIEW_ENTRY->get('primarymodule')}" {if count($DASHBOARD_TABS) gt 1 && $PIN_CLASS eq 'ti-pin2'} data-toggle='dropdown'{/if}
+                  data-primemodule="{$LISTVIEW_ENTRY->get('primarymodule')}" {if count($DASHBOARD_TABS) gt 1 && $PIN_CLASS eq 'vicon-pin'} data-toggle='dropdown'{/if}
                   data-dashboard-tab-count='{count($DASHBOARD_TABS)}'></a>
             <ul class='dropdown-menu dashBoardTabMenu'>
                 <li class="dropdown-header popover-title">
