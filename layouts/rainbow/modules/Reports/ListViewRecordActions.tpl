@@ -23,9 +23,9 @@
         {/if}
         {assign var="PINNED" value=$LISTVIEW_ENTRY->get('pinned')}
         {if $PINNED neq null && $REPORT_TYPE eq 'chart'}
-            {assign var=PIN_CLASS value='ti-pin-alt'}
+            {assign var=PIN_CLASS value='vicon-unpin'}
         {elseif $REPORT_TYPE eq 'chart'}
-            {assign var=PIN_CLASS value='ti-pin2'}
+            {assign var=PIN_CLASS value='vicon-pin'}
         {/if}
         {if $REPORT_TYPE eq 'chart'}
         <span class="dropdown">

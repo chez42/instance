@@ -358,9 +358,9 @@ Vtiger_List_Js("Reports_List_Js",{
 	
 	registerEventForPinChartToDashboard: function () {
 		var thisInstance = this;
-       
-        this.getListViewContainer().on('click','.pinToDashboard',function (e) {
-			var element = jQuery(e.currentTarget);
+		
+		this.getListViewContainer().find('a.pinToDashboard').click(function (e) {
+        	var element = jQuery(e.currentTarget);
 			var recordId = jQuery(element).data('recordid');
 			var pinned = element.hasClass('vicon-pin');
 			if(pinned) {

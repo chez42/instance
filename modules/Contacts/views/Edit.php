@@ -48,6 +48,9 @@ class Contacts_Edit_View extends Vtiger_Edit_View {
 		
 		$viewer->assign('SELECTED_PORTAL_MODULES', $selectedPortalModulesInfo);
 		
+		$portfolioModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+		$viewer->assign('REPORT_PERMISSION',$portfolioModel->isActive());
+		
 		parent::process($request);
 	}
 
