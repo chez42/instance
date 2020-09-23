@@ -141,7 +141,7 @@
 			{/if}
 			<li>
 				{if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
-                	{include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+                	{include file='layouts/rainbow/modules/Vtiger/ReportsNavigation.tpl'}
 				{/if}
             </li>
 		</ul>
