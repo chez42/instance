@@ -141,10 +141,10 @@ function vtws_getdocuments($element,$user){
                     $icon = 'video.jpg';
                     $fileType = 'video File';
                 }else if($file[0] == 'text'){
-                    $icon = 'docx.jpg';
+                    $icon = 'document.png';
                     $fileType = 'text File';
                 }else if($file[1] == 'pdf'){
-                    $icon = 'pdf.jpg';
+                    $icon = 'pdf.png';
                     $fileType = 'pdf File';
                 }else if($file[1] == 'zip'){
                     $icon = 'zip.jpg';
@@ -153,7 +153,7 @@ function vtws_getdocuments($element,$user){
                     $icon = 'office.jpg';
                     $fileType = 'office File';
                 }else {
-                    $icon = 'txt.jpg';
+                    $icon = 'document.png';
                     $fileType = 'doc File';
                     if($loctype == 'E')
                         $fileType = 'external File';
