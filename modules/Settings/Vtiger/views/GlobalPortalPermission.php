@@ -26,8 +26,8 @@ class Settings_Vtiger_GlobalPortalPermission_View extends Settings_Vtiger_Index_
         
         global $adb;
         $selectedPortalModulesInfo = array();
-        
-        $selectedPortalInfo = $adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = ?",array('0'));
+        $selectedPortalInfo = $adb->pquery("SELECT * FROM vtiger_default_portal_permissions 
+        WHERE userid = ?",array('0'));
         if($adb->num_rows($selectedPortalInfo)){
             $selectedPortalModulesInfo = $adb->query_result_rowdata($selectedPortalInfo);
         }
@@ -39,6 +39,10 @@ class Settings_Vtiger_GlobalPortalPermission_View extends Settings_Vtiger_Index_
         $viewer->assign('URL', $url);
         
         $viewer->assign('SELECTED_PORTAL_MODULES', $selectedPortalModulesInfo);
+        
+        $portfolioModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+        $viewer->assign('REPORT_PERMISSION',$portfolioModel->isActive());
+        
         $viewer->assign('QUALIFIED_MODULE', $qualifiedName);
         $viewer->view('GlobalPortalInfoBlock.tpl', $qualifiedName);
     }

@@ -40,6 +40,8 @@ class Contacts_Detail_View extends Accounts_Detail_View {
 		} 
 		$viewer->assign('SELECTED_PORTAL_MODULES', $selectedPortalModulesInfo);
 		
+		$portfolioModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+		$viewer->assign('REPORT_PERMISSION',$portfolioModel->isActive());
 		
 		return parent::showModuleDetailView($request);
 	}

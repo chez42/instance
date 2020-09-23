@@ -36,6 +36,9 @@ class Users_DefaultPortalPermission_View extends Vtiger_IndexAjax_View {
 		$viewer->assign('SELECTED_PORTAL_MODULES', $selectedPortalModulesInfo);
 		
 		
+		$portfolioModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+		$viewer->assign('REPORT_PERMISSION',$portfolioModel->isActive());
+		
 		$viewer->view('DefaultPortalInfoBlock.tpl', $moduleName);
 	}
 	
