@@ -173,7 +173,7 @@ $customer_detail = $customer_detail['result'];
     		});
 
     		$('[type="checkbox"]').click(function(){
-				console.log($(this).val())
+				
 				if($(this).prop('checked'))
 					$(this).val('on');
 				else
