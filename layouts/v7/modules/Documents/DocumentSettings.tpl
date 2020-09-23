@@ -13,7 +13,7 @@
 	{/foreach}
 	<div class="modal-dialog modal-lg documentsSettingsContainer">
 		<div class="modal-content">
-			{assign var=HEADER_TITLE value={vtranslate('Documents Folder Settings', $MODULE)}}
+			{assign var=HEADER_TITLE value={vtranslate('Folder Settings', $MODULE)}}
 			{include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
 			{assign var=TRANSLATION_MODULE value="Users"}
 			<div class="modal-body">
@@ -26,8 +26,8 @@
 					<div class="row">
 						<div class="col-md-7" style="margin-left: 20px;">
 							<div class="form-group">
-								<label class="fieldLabel col-lg-4 col-sm-4 col-xs-4">{vtranslate('Default Folder',$MODULE)}</label>
-								<div class="fieldValue col-lg-8 col-sm-8 col-xs-8">
+								<label class=" col-lg-4 col-sm-4 col-xs-4">{vtranslate('Default Folder',$MODULE)}</label>
+								<div class=" col-lg-8 col-sm-8 col-xs-8">
 									<select class="select2" name="documents_folder" style="width: 250px;">
 										{foreach key=ID item=FOLDER from=$FOLDER_ENTRIES}
 											<option value="{$FOLDER->getId()}" {if $FOLDERID eq $ID} selected="" {/if}>{vtranslate($FOLDER->getName(),$MODULE)}</option>
@@ -72,7 +72,7 @@
 					style="table-layout: fixed; width: 100%;">
 						<thead>
 							<tr class="listViewContentHeader">
-								<th style="width:7% !important">
+								<th style="width:12% !important">
 									
 								</th>
 								<th style="width:15% !important">
@@ -99,7 +99,7 @@
 							{foreach item=DOCFOLDER from=$FOLDER_ENTRIES}
 								
 								<tr class="folderListViewEntries" data-id='{$DOCFOLDER->getId()}' ondblclick="Documents_FolderSettings_Js.registerSettingsRowDoubleClickEvent({$DOCFOLDER->getId()})">
-									<td style="width:7% !important" class="folderListViewEntryValue">
+									<td style="width:17% !important" class="folderListViewEntryValue">
 										<div class="btn-group inline-save hide">
 									        <button class="button btn-success btn-small saveFolder" type="button" onclick="Documents_FolderSettings_Js.registerFolderInlineSave({$DOCFOLDER->getId()})" name="save"><i class="fa fa-check"></i></button>
 									        <button class="button btn-danger btn-small cancelFolder" type="button" name="Cancel" onclick="Documents_FolderSettings_Js.registerFolderInlineCancel({$DOCFOLDER->getId()})"><i class="fa fa-close"></i></button>
@@ -109,7 +109,7 @@
 									    </div>
 									</td>
 									<td style="width:15% !important" class="folderListViewEntryValue" data-name="folder_name" title="Folder Name" data-rawvalue="{$DOCFOLDER->getName()}" >
-										<span class="fieldValue title">
+										<span class=" title">
 											<span class="value">
 												{$DOCFOLDER->getName()}
 											</span>
@@ -119,7 +119,7 @@
 										</span>
 									</td>
 									<td style="width:50% !important" class="folderListViewEntryValue" data-name="view_permissions" title="View Permissions" >
-										<span class="fieldValue permissions">
+										<span class=" permissions">
 											<span class="value">
 												{assign var=permissions value=DocumentFolder_Record_Model::folderViewPermissions($DOCFOLDER->getId(),'name')}
 												{$permissions}
