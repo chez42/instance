@@ -45,4 +45,6 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
 	$GLOBALS['hiddenmodules'] = array();
     
+    $GLOBALS['profilefield'] = $_SESSION['profile_fields'];
+    
 }

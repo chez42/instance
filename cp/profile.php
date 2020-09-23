@@ -14,7 +14,7 @@ include_once "includes/aside.php";
 
 include_once 'includes/top-header.php';
 
-global $api_url,$api_username,$api_accesskey;
+global $api_url, $api_username, $api_accesskey, $profilefield;
 
 $ws_url =  $api_url . '/webservice.php';
 
@@ -72,103 +72,49 @@ $customer_detail = $customer_detail['result'];
 				<div class="kt-portlet__body">
 					<form class="kt-form" id="customer-info" method="post" action="update-customer-info.php">
 						<input type="hidden" name="recordId" value="<?php echo $recordId; ?>" />
-						
 						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">Street</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingstreet" value="<?php echo $customer_detail['mailingstreet']; ?>"
-								<?php if(!$customer_detail['mailingstreet']) echo'style="border-color: #f7de63;"';?>>
-                    		</div>
-                    		<label class="col-lg-2 col-form-label">City</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingcity" value="<?php echo $customer_detail['mailingcity']; ?>"
-								<?php if(!$customer_detail['mailingcity']) echo'style="border-color: #f7de63;"';?>>
-                    		</div>
-						</div>
-						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">State</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingstate" value="<?php echo $customer_detail['mailingstate']; ?>"
-								<?php if(!$customer_detail['mailingstate']) echo'style="border-color: #f7de63;"';?>>
-                		    </div>
-                    		<label class="col-lg-2 col-form-label">Zip</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mailingzip" value="<?php echo $customer_detail['mailingzip']; ?>"
-								<?php if(!$customer_detail['mailingzip']) echo'style="border-color: #f7de63;"';?>>
-                    		</div>
-						</div>
-						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">Mobile Phone</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="mobile" value="<?php echo $customer_detail['mobile']; ?>"
-								<?php if(!$customer_detail['mobile']) echo'style="border-color: #f7de63;"';?>>
-                			</div>
-                			<label class="col-lg-2 col-form-label">Office Phone</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="phone" value="<?php echo $customer_detail['phone']; ?>"
-								<?php if(!$customer_detail['phone']) echo'style="border-color: #f7de63;"';?>>
-                            </div>
-						</div>
-						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">Home Phone</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="homephone" value="<?php echo $customer_detail['homephone']; ?>"
-								<?php if(!$customer_detail['homephone']) echo'style="border-color: #f7de63;"';?>>
-        					</div>
-        					<label class="col-lg-2 col-form-label">Email</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="email" value="<?php echo $customer_detail['email']; ?>"
-								<?php if(!$customer_detail['email']) echo'style="border-color: #f7de63;"';?>>
-                            </div>
-						</div>
-						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">LinkedIn</label>
-							<div class="col-lg-4">
-								<input type="text" class="form-control" name="cf_805" value="<?php echo $customer_detail['cf_805']; ?>"
-								<?php if(!$customer_detail['cf_805']) echo'style="border-color: #f7de63;"';?>>
-                            </div>
-                            <label class="col-lg-2 col-form-label">Birthdate</label>
-							<div class="col-lg-4">
-								<div class="input-group date">
-									<input type="text" class="form-control kt_datepicker_3" name="birthday" value="<?php echo date('m-d-Y',strtotime($customer_detail['birthday'])); ?>" id="kt_datepicker_3"
-									<?php if(!$customer_detail['birthday']) echo'style="border-color: #f7de63;"';?>>
-									<div class="input-group-append">
-										<span class="input-group-text">
-											<i class="la la-calendar"></i>
-										</span>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="form-group row">
-							<label class="col-lg-2 col-form-label">Marital status</label>
-							<div class="col-lg-4">
-								<select class="form-control" name="cf_2182" aria-invalid="false" <?php if(!$customer_detail['cf_2182']) echo'style="border-color: #f7de63;"';?>>
-									<option value="">Select an Option</option>
-									<option value="Married" <?php echo ($customer_detail['cf_2182'] == 'Married')?'selected':''; ?>>Married</option>
-									<option value="Divorced" <?php echo ($customer_detail['cf_2182'] == 'Divorced')?'selected':''; ?>>Divorced</option>
-									<option value="Widowed" <?php echo ($customer_detail['cf_2182'] == 'Widowed')?'selected':''; ?>>Widowed</option>
-									<option value="DomesticPartner" <?php echo ($customer_detail['cf_2182'] == 'DomesticPartner')?'selected':''; ?>>DomesticPartner</option>
-									<option value="Unknown" <?php echo ($customer_detail['cf_2182'] == 'Unknown')?'selected':''; ?>>Unknown</option>
-									<option value="Separated" <?php echo ($customer_detail['cf_2182'] == 'Separated')?'selected':''; ?>>Separated</option>
-									<option value="Single" <?php echo ($customer_detail['cf_2182'] == 'Single')?'selected':''; ?>>Single</option>
-									<option value="Life Partner" <?php echo ($customer_detail['cf_2182'] == 'Life Partner')?'selected':''; ?>>Life Partner</option>
-								</select>
-                            </div>
-                            <label class="col-lg-2 col-form-label">Wedding Anniversary</label>
-							<div class="col-lg-4">
-								<div class="input-group date">
-									<input type="text" class="form-control kt_datepicker_3" name="cf_667" value="<?php echo date('m-d-Y',strtotime($customer_detail['cf_667'])); ?>" id="kt_datepicker_3"
-									<?php if(!$customer_detail['cf_667']) echo'style="border-color: #f7de63;"';?>>
-									<div class="input-group-append">
-										<span class="input-group-text">
-											<i class="la la-calendar"></i>
-										</span>
-									</div>
-								</div>
-								<!-- <input type="text" class="form-control" name="cf_667" value="<?php echo $customer_detail['cf_667']; ?>"
-								<?php if(!$customer_detail['cf_667']) echo'style="border-color: #f7de63;"';?>> -->
-                            </div>
+							<?php $count =0; 
+							     foreach($profilefield as $profile_field){
+							    ?>
+    							<label class="col-lg-2 col-form-label"><?php echo $profile_field['label']?></label>
+    							<div class="col-lg-4">
+    								<?php if($profile_field['type'] == 'salutation' || $profile_field['type'] == 'string'){?>
+        								<input type="text" class="form-control" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']]; ?>"
+        								<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
+                        			<?php }else if($profile_field['type'] == 'picklist'){?>
+                        				<select class="form-control" name="<?php echo $profile_field['name'];?>" aria-invalid="false" <?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
+        									<option value="">Select an Option</option>
+        									<?php foreach($profile_field['picklist'] as $pickValue => $picklist){?>
+        										<option value="<?php echo $pickValue;?>" <?php echo ($customer_detail[$profile_field['name']] == $pickValue)?'selected':''; ?>><?php echo $picklist;?></option>
+        									<?php }?>
+        								</select>
+    								<?php }else if($profile_field['type'] == 'multipicklist'){
+    								    $multiVal = explode(' |##| ', $customer_detail[$profile_field['name']]);
+    								    ?>
+    									<select class="form-control" multiple name="<?php echo $profile_field['name'];?>[]" aria-invalid="false" <?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
+        									<?php foreach($profile_field['picklist'] as $pickValue => $picklist){?>
+        										<option value="<?php echo $pickValue;?>" <?php echo (in_array($pickValue,$multiVal))?'selected':''; ?>><?php echo $picklist;?></option>
+        									<?php }?>
+        								</select>
+                        			<?php }else if($profile_field['type'] == 'date'){?>
+                        				<div class="input-group date">
+        									<input type="text" class="form-control kt_datepicker_3" name="<?php echo $profile_field['name'];?>" value="<?php echo date('m-d-Y',strtotime($customer_detail[$profile_field['name']])); ?>" id="kt_datepicker_3"
+        									<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
+        									<div class="input-group-append">
+        										<span class="input-group-text">
+        											<i class="la la-calendar"></i>
+        										</span>
+        									</div>
+        								</div>
+                        			<?php }else if($profile_field['type'] == 'boolean'){?>
+                        				<input type="checkbox" class="" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']]; ?>"
+        								<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"'; else echo 'checked';?>>
+                        			<?php }?>
+                        		</div>
+                        		
+                    		<?php $count++;
+							     if (!($count % 2)){ echo '</div><div class="form-group row">'; }
+						     }?>
 						</div>
 					</form>
 				</div>
@@ -192,23 +138,26 @@ $customer_detail = $customer_detail['result'];
 		                message: 'Processing...'
 		            });
 
-    		    	var b = new Date(jQuery('[name="birthday"]').val()),
-    		        bmonth = (b.getMonth() + 1),
-    		        bday = b.getDate(),
-    		        byear = b.getFullYear();
+					var date ='';
+		            jQuery('.kt_datepicker_3').each(function(i, e){
+						
+						var d = new Date(jQuery(e).val()),
+	    		        month = (d.getMonth() + 1),
+	    		        day = d.getDate(),
+	    		        year = d.getFullYear();
 
-    		    	var birthDate = byear+'-'+bmonth+'-'+bday;
-    		    	 
-    		    	var d = new Date(jQuery('[name="cf_667"]').val()),
-    		        month = (d.getMonth() + 1),
-    		        day = d.getDate(),
-    		        year = d.getFullYear();
-		            var anDate = year+'-'+month+'-'+day;
-		            
+						month = (month<10)?'0'+month:month;
+						day = (day<10)?'0'+day:day;
+						
+						date += '&'+jQuery(e).attr('name')+'='+year+'-'+month+'-'+day;
+	    		        
+		            });
+
+
     		    	$.ajax({
         	            type: "POST",
         	            url: 'update-customer.php',
-        	            data: jQuery('#customer-info').serialize()+'&birthday='+birthDate+'&cf_667='+anDate, // serializes the form's elements.
+        	            data: jQuery('#customer-info').serialize()+date, // serializes the form's elements.
         	            success: function(result){
         	            	var data = JSON.parse(result);
         	            	if(data.success){
@@ -224,11 +173,11 @@ $customer_detail = $customer_detail['result'];
     		});
 
     		 $('.kt_datepicker_3').datepicker({
-    			 	format: 'mm-dd-yyyy',
-    	            todayBtn: "linked",
-    	            clearBtn: true,
-    	            todayHighlight: true,
-    	        });
+			 	format: 'mm-dd-yyyy',
+	            todayBtn: "linked",
+	            clearBtn: true,
+	            todayHighlight: true,
+	         });
     	    		
     	});
     </script>

@@ -117,14 +117,21 @@ function vtws_portallogin($element,$user){
                         }
                     }
                     
-                    foreach($PortalReports as $ReprtName => $PortalReport){
-                        foreach($PortalReport as $ReportModules){
-                            $portalReportName = strtolower(str_replace(' ', '_', $ReportModules));
-                            if(isset($selectedPortalModulesInfo[$portalReportName.'_visible']) && $selectedPortalModulesInfo[$portalReportName.'_visible'] == '1'){
-                                $allowed_reports[$ReprtName][$ReportModules] =  array(
-                                    'visible' => ($selectedPortalModulesInfo[$portalReportName.'_visible'])?$selectedPortalModulesInfo[$portalReportName.'_visible']:0,
-                                    'record_across_org' => ($selectedPortalModulesInfo[$portalReportName.'_record_across_org'])?$selectedPortalModulesInfo[$portalReportName.'_record_across_org']:0,
-                                );
+                    $allowed_reports = array();
+                    
+                    $portfolioModel = Vtiger_Module_Model::getInstance('PortfolioInformation');
+                    $currentUserModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+                    $permissionPortfolio = $currentUserModel->hasModulePermission($portfolioModel->getId());
+                    if($permissionPortfolio){
+                        foreach($PortalReports as $ReprtName => $PortalReport){
+                            foreach($PortalReport as $ReportModules){
+                                $portalReportName = strtolower(str_replace(' ', '_', $ReportModules));
+                                if(isset($selectedPortalModulesInfo[$portalReportName.'_visible']) && $selectedPortalModulesInfo[$portalReportName.'_visible'] == '1'){
+                                    $allowed_reports[$ReprtName][$ReportModules] =  array(
+                                        'visible' => ($selectedPortalModulesInfo[$portalReportName.'_visible'])?$selectedPortalModulesInfo[$portalReportName.'_visible']:0,
+                                        'record_across_org' => ($selectedPortalModulesInfo[$portalReportName.'_record_across_org'])?$selectedPortalModulesInfo[$portalReportName.'_record_across_org']:0,
+                                    );
+                                }
                             }
                         }
                     }
@@ -186,6 +193,27 @@ function vtws_portallogin($element,$user){
                     
                     $resultData["portal_profile_image"] = $profile_image;
                     
+                    $showPortalFields = array();
+                    
+                    $portalField = $adb->pquery("SELECT * FROM vtiger_portal_editable_profile_fields");
+                    if($adb->num_rows($portalField)){
+                        $portalFields  = json_decode(html_entity_decode($adb->query_result($portalField, 0, 'portal_fields')));
+                        if(!empty($portalFields)){
+                            $c_module = Vtiger_Module_Model::getInstance($setype);
+                            foreach($portalFields as $portal_field){
+                                $showField = array();
+                                $field = Vtiger_Field_Model::getInstance($portal_field, $c_module);
+                                $showField['label'] = vtranslate($field->get('label'), $setype);
+                                $showField['name'] = $field->getName();
+                                $showField['type'] = $field->getFieldDataType();
+                                if($field->getFieldDataType() == 'picklist' || $field->getFieldDataType() == 'multipicklist'){
+                                    $showField['picklist'] = $field->getPicklistValues();
+                                }
+                                $showPortalFields[] = $showField;
+                            }
+                        }
+                    }
+                    $resultData['profileFields'] = $showPortalFields;
                 }
                 
                 $resultData['data']  = $list[0];

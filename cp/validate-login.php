@@ -67,6 +67,8 @@ if(!empty($_REQUEST)) {
         
         }
         
+        $_SESSION['profile_fields'] = $data['profileFields'];
+        
         $result = true;
        // header("Location: index.php");
         

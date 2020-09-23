@@ -387,6 +387,8 @@ $languageStrings = array(
     'LBL_SECURITIES_ADMINISTRATION' => 'Securities Administration',
     'LBL_MASTER_PASSWORD' => 'Master Password', 
     'LBL_PORTAL_MASTER_PASSWORD' => 'Portal Master Password', 
+    'LBL_PORTAL_CONFIGURATION' => 'Portal Configuration',
+    
 );
 
 $jsLanguageStrings = array(
