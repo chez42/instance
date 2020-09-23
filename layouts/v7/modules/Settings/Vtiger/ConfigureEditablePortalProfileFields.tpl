@@ -37,7 +37,7 @@
 										<optgroup label="{vtranslate($BLOCK_LABEL,$SOURCE_MODULE)}">
 											{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS name=blockfields}
 												{if $FIELD_MODEL->getName() neq 'portal' && $FIELD_MODEL->getName() neq 'portal_password' && $FIELD_MODEL->getName() neq 'assigned_user_id' &&
-												$FIELD_MODEL->getName() neq 'support_end_date' && $FIELD_MODEL->getName() neq 'support_start_date'}	
+												$FIELD_MODEL->getName() neq 'support_end_date' && $FIELD_MODEL->getName() neq 'support_start_date' && $FIELD_MODEL->getFieldDataType() neq 'reference'}	
 													<option {if in_array($FIELD_MODEL->getName(), $PORTAL_FIELDS)}selected=""{/if} value="{$FIELD_MODEL->getName()}" data-id="{$FIELD_MODEL->getId()}">
 														{vtranslate($FIELD_MODEL->get('label'), $SOURCE_MODULE)}
 													</option>

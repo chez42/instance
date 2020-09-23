@@ -72,13 +72,15 @@ $customer_detail = $customer_detail['result'];
 				<div class="kt-portlet__body">
 					<form class="kt-form" id="customer-info" method="post" action="update-customer-info.php">
 						<input type="hidden" name="recordId" value="<?php echo $recordId; ?>" />
+						<input type="hidden" name="all_fields" value='<?php echo json_encode($profilefield);?>'>
 						<div class="form-group row">
 							<?php $count =0; 
 							     foreach($profilefield as $profile_field){
 							    ?>
     							<label class="col-lg-2 col-form-label"><?php echo $profile_field['label']?></label>
     							<div class="col-lg-4">
-    								<?php if($profile_field['type'] == 'salutation' || $profile_field['type'] == 'string'){?>
+    								<?php if($profile_field['type'] == 'salutation' || $profile_field['type'] == 'string' || $profile_field['type'] == 'text' 
+    								    || $profile_field['type'] == 'email' || $profile_field['type'] == 'phone'){?>
         								<input type="text" class="form-control" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']]; ?>"
         								<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
                         			<?php }else if($profile_field['type'] == 'picklist'){?>
@@ -98,7 +100,7 @@ $customer_detail = $customer_detail['result'];
         								</select>
                         			<?php }else if($profile_field['type'] == 'date'){?>
                         				<div class="input-group date">
-        									<input type="text" class="form-control kt_datepicker_3" name="<?php echo $profile_field['name'];?>" value="<?php echo date('m-d-Y',strtotime($customer_detail[$profile_field['name']])); ?>" id="kt_datepicker_3"
+        									<input type="text" class="form-control kt_datepicker_3" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']] ? date('m-d-Y',strtotime($customer_detail[$profile_field['name']])) : '' ; ?>" id="kt_datepicker_3"
         									<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
         									<div class="input-group-append">
         										<span class="input-group-text">
@@ -107,7 +109,7 @@ $customer_detail = $customer_detail['result'];
         									</div>
         								</div>
                         			<?php }else if($profile_field['type'] == 'boolean'){?>
-                        				<input type="checkbox" class="" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']]; ?>"
+                        				<input type="checkbox" class="" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']] ? 'on' : 'off'; ?>"
         								<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"'; else echo 'checked';?>>
                         			<?php }?>
                         		</div>
@@ -140,17 +142,17 @@ $customer_detail = $customer_detail['result'];
 
 					var date ='';
 		            jQuery('.kt_datepicker_3').each(function(i, e){
-						
-						var d = new Date(jQuery(e).val()),
-	    		        month = (d.getMonth() + 1),
-	    		        day = d.getDate(),
-	    		        year = d.getFullYear();
-
-						month = (month<10)?'0'+month:month;
-						day = (day<10)?'0'+day:day;
-						
-						date += '&'+jQuery(e).attr('name')+'='+year+'-'+month+'-'+day;
-	    		        
+						if(jQuery(e).val()){
+    						var d = new Date(jQuery(e).val()),
+    	    		        month = (d.getMonth() + 1),
+    	    		        day = d.getDate(),
+    	    		        year = d.getFullYear();
+    
+    						month = (month<10)?'0'+month:month;
+    						day = (day<10)?'0'+day:day;
+    						
+    						date += '&'+jQuery(e).attr('name')+'='+year+'-'+month+'-'+day;
+						}
 		            });
 
 
@@ -162,12 +164,23 @@ $customer_detail = $customer_detail['result'];
         	            	var data = JSON.parse(result);
         	            	if(data.success){
         	            		toastr.info('Changes Saved Successfully');
+        	            		location.reload();
         	            	}
         	            	KTApp.unblock('#customer-info');
         	            }
         	        });
     		    }
     		});
+
+    		$('[type="checkbox"]').click(function(){
+				console.log($(this).val())
+				if($(this).prop('checked'))
+					$(this).val('on');
+				else
+					$(this).val('off');
+
+    		});
+    		
     		$("#update-info").click(function(){
     			$("#customer-info").submit();
     		});

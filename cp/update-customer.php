@@ -19,6 +19,27 @@ $session_id = $loginObj->sessionName;
 
 $customerId = $_SESSION['ID'];
 
+$allFields = json_decode($_POST['all_fields'],true);
+
+foreach($allFields as $fields){
+    
+    if($fields['type'] == 'date'){
+        
+        $_POST[$fields['name']] = $_POST[$fields['name']] ? date('Y-m-d',strtotime($_POST[$fields['name']])) : '';
+        
+    }else if($_POST[$fields['name']] && $fields['type'] == 'boolean'){
+        
+        $_POST[$fields['name']] = ($_POST[$fields['name']] == 'on') ? true : false;
+        
+    }else{
+        
+        $_POST[$fields['name']] = $_POST[$fields['name']];
+        
+    }
+    
+}
+unset($_POST['all_fields']);
+
 if(isset($_POST['cf_667']) && $_POST['cf_667'] != ''){
     $_POST['cf_667'] = date('Y-m-d',strtotime($_POST['cf_667']));
 }
