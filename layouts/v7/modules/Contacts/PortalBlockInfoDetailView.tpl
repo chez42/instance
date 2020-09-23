@@ -120,7 +120,8 @@
 					
 					{foreach key=ReprtName item=PortalReport from=$PortalReports}
 						
-						<tr>
+						<tr {if !$REPORT_PERMISSION} style = "display:none;" {/if}>
+						
 							<td class="fieldValue textOverflowEllipsis text-left">
 								{vtranslate($ReprtName, $MODULE)}
 							</td>
@@ -138,7 +139,7 @@
 								{assign var=REPORT_VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_REPORT|cat:_visible]}
 								{assign var=REPORT_RECORD_VISIBLE value=$SELECTED_PORTAL_MODULES[$NAME_REPORT|cat:_record_across_org]}
 							{/if}
-							<tr>
+							<tr {if !$REPORT_PERMISSION} style = "display:none;" {/if}>
 								<td>&nbsp;</td>
 								<td class="fieldValue textOverflowEllipsis text-left">
 									{vtranslate($ReportModules, $MODULE)}

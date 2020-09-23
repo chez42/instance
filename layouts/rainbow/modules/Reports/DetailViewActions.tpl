@@ -34,7 +34,7 @@
                                     {if $LINK_ICON_CLASS}
                                         {if $LINK_ICON_CLASS eq 'icon-pencil'}&nbsp;&nbsp;&nbsp;{/if}
                                         <i class="{if $LINK_ICON_CLASS eq 'icon-pencil'}ti-pencil{elseif $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
-                                        {if $REPORT_MODEL->isPinnedToDashboard()}ti-pin-alt{else}ti-pin2{/if}{/if}" style="font-size: 13px;"></i>
+                                        {if $REPORT_MODEL->isPinnedToDashboard()}vicon-unpin{else}vicon-pin{/if}{/if}" style="font-size: 13px;"></i>
                                     {/if}
                                 </button>
                                     {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}

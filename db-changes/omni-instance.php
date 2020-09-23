@@ -577,3 +577,73 @@ $adb->pquery("UPDATE vtiger_entityname SET fieldname = 'firstname,lastname' WHER
 $module = Vtiger_Module::getInstance('Home');
 $linkURL = 'index.php?module=Contacts&view=ShowWidget&name=ClientDistribution';
 $module->addLink('DASHBOARDWIDGET', 'Client Distribution', $linkURL, '', '', '');
+
+$blockLabel = 'LBL_PORTAL_CONFIGURATION';
+
+$block_result = $adb->pquery("SELECT * FROM vtiger_settings_blocks 
+WHERE label = ?",array($blockLabel));
+
+if(!$adb->num_rows($block_result)){
+    
+    $blockId = $adb->getUniqueId('vtiger_settings_blocks');
+    
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+	as sequence FROM vtiger_settings_blocks ",array()),
+        0, 'sequence') + 1;
+        
+    $adb->pquery("INSERT INTO vtiger_settings_blocks(blockid, label, sequence) 
+    VALUES (?, ?, ?)", array($blockId, $blockLabel, $sequence));
+        
+} else {
+    $blockId = $adb->query_result($block_result, 0, 'blockid');
+}
+
+if($blockId){
+    
+    $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Editable Profile Fields', 'index.php?parent=Settings&module=Vtiger&view=ConfigurePortalEditableProfileFields'));
+    
+    if(!$adb->num_rows($quickCreateMenu)){
+        
+        $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    	as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockId)),
+        0, 'sequence') + 1;
+            
+        $fieldid = $adb->getUniqueId('vtiger_settings_field');
+        
+        $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+    	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockId,$sequence, 'Editable Profile Fields', '','',
+	    'index.php?parent=Settings&module=Vtiger&view=ConfigurePortalEditableProfileFields'));
+            
+    }
+    
+    $adb->pquery("update vtiger_settings_field set blockid = ? WHERE name = ? AND linkto = ?",
+    array($blockId, 'Global Portal Permissions', 'index.php?parent=Settings&module=Vtiger&view=GlobalPortalPermission'));
+    
+    
+    
+}
+
+$adb->pquery("CREATE TABLE IF NOT EXISTS 
+vtiger_portal_editable_profile_fields ( portal_fields TEXT NULL DEFAULT NULL );");   
+
+
+$functionPath = "modules/HelpDesk/HelpDeskHandler.php";
+$functionName = "SyncTicketsWithHQ";
+$checkMeth = $adb->pquery("SELECT * FROM com_vtiger_workflowtasks_entitymethod
+WHERE function_path = ? AND function_name = ?",array($functionPath, $functiponName));
+if(!$adb->num_rows($checkMeth)){
+    require_once 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+    $class = new VTEntityMethodManager($adb);
+    $class->addEntityMethod('HelpDesk', 'Sync Tickets With HQ', $functionPath, $functionName);
+}
+
+$functionPath = "modules/HelpDesk/HelpDeskHandler.php";
+$functionName = "SyncTicketCommentsWithHQ";
+$checkMeth = $adb->pquery("SELECT * FROM com_vtiger_workflowtasks_entitymethod
+WHERE function_path = ? AND function_name = ?",array($functionPath, $functiponName));
+if(!$adb->num_rows($checkMeth)){
+    require_once 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+    $class = new VTEntityMethodManager($adb);
+    $class->addEntityMethod('HelpDesk', 'Sync Ticket Comments With HQ', $functionPath, $functionName);
+} 

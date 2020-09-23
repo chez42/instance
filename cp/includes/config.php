@@ -46,8 +46,8 @@ if(!$_SESSION['api_url']){
          $_SESSION['portal_logo'] = $results['image'];
          $_SESSION['portal_name'] = $results['name'];
          $_SESSION['portal_accesskey'] = $results['accesskey'];
-        $_SESSION['portal_main_title'] = $results['portal_main_title'];
-        $_SESSION['portal_subtitle'] = $results['portal_subtitle'];
+         $_SESSION['portal_main_title'] = $results['portal_main_title'];
+         $_SESSION['portal_subtitle'] = $results['portal_subtitle'];
      }
      
 }
@@ -103,5 +103,6 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     $GLOBALS['avmod'] = $avmod;
     
     $GLOBALS['hiddenmodules'] = array();
-    
+	
+	$GLOBALS['profilefield'] = $_SESSION['profile_fields'];
 }

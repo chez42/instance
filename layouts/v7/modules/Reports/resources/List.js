@@ -358,9 +358,9 @@ Vtiger_List_Js("Reports_List_Js",{
 	
 	registerEventForPinChartToDashboard: function () {
 		var thisInstance = this;
-       
-        this.getListViewContainer().on('click','.pinToDashboard',function (e) {
-			var element = jQuery(e.currentTarget);
+		
+		this.getListViewContainer().find('a.pinToDashboard').click(function (e) {
+        	var element = jQuery(e.currentTarget);
 			var recordId = jQuery(element).data('recordid');
 			var pinned = element.hasClass('vicon-pin');
 			if(pinned) {
@@ -392,13 +392,13 @@ Vtiger_List_Js("Reports_List_Js",{
 		});
              
         
-            jQuery('html').on('click','.dashBoardTab', function(e){
-                    var element = jQuery(e.currentTarget);
-                    var params = {'dashBoardTabId': element.data('tabId')};
-                    var originalDropDownMenu = element.closest('.dropdown-menu').data('original-menu');
-                    var parent = app.helper.getDropDownmenuParent(originalDropDownMenu);
-                    thisInstance.savePinToDashboard(parent.find('.pinToDashboard'), params);
-                })
+		jQuery('html').find('li.dashBoardTab').click(function(e){
+			var element = jQuery(e.currentTarget);
+			var params = {'dashBoardTabId': element.data('tabId')};
+			var originalDropDownMenu = element.closest('.dropdown-menu').data('original-menu');
+			var parent = app.helper.getDropDownmenuParent(originalDropDownMenu);
+			thisInstance.savePinToDashboard(parent.find('.pinToDashboard'), params);
+		})
 	},
 	
 	registerFolderEditEvent:function(){
