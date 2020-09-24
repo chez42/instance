@@ -4,11 +4,11 @@
     <div id="kt_scrolltop" class="kt-scrolltop">
     	<i class="fa fa-arrow-up"></i>
     </div>
-    <ul class="kt-sticky-toolbar" style="margin-top: 30px;">
+    <!--  <ul class="kt-sticky-toolbar" style="margin-top: 30px;">
     	<li class="kt-sticky-toolbar__item kt-sticky-toolbar__item--danger" id="kt_sticky_toolbar_chat_toggler" data-toggle="kt-tooltip" title="" data-placement="left" data-original-title="Chat">
     		<a href="#" data-toggle="modal" data-target="#kt_chat_modal" class='chat_modal'><i class="flaticon2-chat-1"></i></a>
     	</li>
-    </ul>
+    </ul>-->
     
     <div class="modal fade- modal-sticky-bottom-right" id="kt_chat_modal" role="dialog" data-backdrop="false" style="display: none;" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -403,3 +403,27 @@
     	    
     	});
     </script>
+    <?php if($_SESSION['chat_widget_code']){?>
+        <!--Start of Tawk.to Script-->
+        <script type="text/javascript">
+
+	    	var widgetSrc = "https://embed.tawk.to/<?php echo $_SESSION['chat_widget_code'];?>/default";
+
+            var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+
+            Tawk_API.visitor = {
+            	name : '<?php  echo $_SESSION['name']; ?>',
+            	email : '<?php echo $_SESSION['user_email']; ?>'
+           	};
+            
+            (function(){
+                var s1 = document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+                s1.async = true;
+                s1.src = widgetSrc;
+                s1.charset = 'UTF-8';
+                s1.setAttribute('crossorigin','*');
+                s0.parentNode.insertBefore(s1,s0);
+            })();
+        </script>
+        <!--End of Tawk.to Script-->
+    <?php }?>

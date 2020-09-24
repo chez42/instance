@@ -69,6 +69,8 @@ if(!empty($_REQUEST)) {
         
         $_SESSION['profile_fields'] = $data['profileFields'];
         
+        $_SESSION['chat_widget_code'] = $data['chatWidgetCode'];
+        
         $result = true;
        // header("Location: index.php");
         
