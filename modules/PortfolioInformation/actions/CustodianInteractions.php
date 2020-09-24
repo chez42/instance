@@ -4,6 +4,25 @@ include_once("libraries/custodians/cCustodian.php");
 class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax_Action{
 	public function process(Vtiger_Request $request) {
 		switch($request->get('todo')){
+            case "RecalculateAllHistoricalBalances":
+                $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+                //2012 set for no particular reason, 'true' finds the earliest date as is
+                PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2012-01-01', date("Y-m-d"), true);
+                break;
+            case "ParseData":
+                $parseID = $request->get('parseID');
+                $parse_type = $request->get("parse_type");
+                $num_days = $request->get('num_days');
+                $locations = new cFileHandling();
+                $data = $locations->GetLocationDataFromID($parseID);
+
+                $parse = new FileParsing($data->custodian, $parse_type, $num_days, 0, $data->rep_code);
+                $parse->parseFiles();
+                echo 'finished';
+                break;
+            case 'RecalculateHomepageWidgets':
+                include("cron/modules/InstanceOnly/HomepageWidgets.service");
+                break;
             case "PullRecalculate":{
                 $custodian = $request->get('custodian');
 

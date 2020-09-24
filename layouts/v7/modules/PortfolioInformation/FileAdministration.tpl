@@ -1,6 +1,6 @@
 <div id="custodian-wrapper">
     <div id="file-locations">
-        <h2>File Parsing</h2>
+        <h2>File Parsing (GLOBAL)</h2>
         <p>This table represents each rep code in the system and where its files are stored.  The system knows where to put the files
         based on the custodian and Rep Code to determine the location.  Active means that the rep code should be getting a daily feed on it.
         The daily email report listing missing files depends on this table to be accurate, or deactivated rep code's will show up as
@@ -9,9 +9,14 @@
         <div id="file-locations-table"></div>
     </div>
     <div id="custodian-interactions">
-        <h2>Custodian Interaction</h2>
+        <h2>CRM and Custodian Interactions (THIS INSTANCE ONLY)</h2>
         <p>Current Status: <span class="current-status">Idle</span></p>
-        <input type="button" id="PullRecalculate" value="Pull and Recalculate" title="Pull all data from custodian and recalculate homepage values.  This will take awhile"/>
+        <p>Parsing Status: <span class="parse-status">Idle</span></p>
+        <p>Calculation Status: <span class="calculation-status">Idle</span></p>
+        <input type="button" id="PullRecalculate" value="Pull and Recalculate" title="Pull all data from custodian and recalculate homepage values.  This will take awhile" />
+        <input type="button" id="RecalculateHomepageWidgets" value="Recalculate Homepage Widgets" title="Recalculate the homepage widgets to update balances and AUM" />
+        <input type="button" id="ClearReconciledTransactions" value="Clear Reconciled Transactions" title="Clear Reconciled Transactions" />
+        <input type="button" id="RecalculateAllHistoricalBalances" value="Recalculate All Historical Balances" title="Recalculate All Historical Balances (All rep codes in the instance, this takes awhile!)" />
     </div>
 </div>
 {*
