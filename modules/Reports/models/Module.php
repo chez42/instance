@@ -24,8 +24,8 @@ class Reports_Module_Model extends Vtiger_Module_Model {
 		}
 
 		$owner = $reportModel->get('owner');
-
-		if($currentUser->isAdminUser() || in_array($owner, $subOrdinates) || $owner == $currentUser->getId()) {
+		//if($currentUser->isAdminUser() || in_array($owner, $subOrdinates) || $owner == $currentUser->getId()) {
+		if($currentUser->isAdminUser() || $owner == $currentUser->getId()) {
 			$reportId = $reportModel->getId();
 			$db = PearDatabase::getInstance();
 
