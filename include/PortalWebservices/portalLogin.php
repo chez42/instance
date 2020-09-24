@@ -194,9 +194,10 @@ function vtws_portallogin($element,$user){
                     $resultData["portal_profile_image"] = $profile_image;
                     
                     $showPortalFields = array();
-                    
-                    $portalField = $adb->pquery("SELECT * FROM vtiger_portal_editable_profile_fields");
+                    $portalChatWidgetCode = '';
+                    $portalField = $adb->pquery("SELECT * FROM vtiger_portal_configuration");
                     if($adb->num_rows($portalField)){
+                        $portalChatWidgetCode  = $adb->query_result($portalField, 0, 'portal_chat_widget_code');
                         $portalFields  = json_decode(html_entity_decode($adb->query_result($portalField, 0, 'portal_fields')));
                         if(!empty($portalFields)){
                             $c_module = Vtiger_Module_Model::getInstance($setype);
@@ -214,6 +215,7 @@ function vtws_portallogin($element,$user){
                         }
                     }
                     $resultData['profileFields'] = $showPortalFields;
+                    $resultData['chatWidgetCode'] = $portalChatWidgetCode;
                 }
                 
                 $resultData['data']  = $list[0];
