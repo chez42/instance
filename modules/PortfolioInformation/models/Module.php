@@ -2256,7 +2256,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     static public function CreateTransactionsFromPCCloudUsingJava($custodian, $account_number){
         global $dbconfig;
         $db_name = $dbconfig['db_name'];
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.102.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 
@@ -2264,7 +2264,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     {
         global $dbconfig;
         $db_name = $dbconfig['db_name'];
-        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.100.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
+        $url = "http://lanserver24.concertglobal.com:8085/OmniServ/AutoParse?tenant=Omniscient&user=syncuser&password=Concert222&connection=192.168.102.229&dbname=custodian_omniscient&operation=createtransactions&vtigerDBName={$db_name}&custodian={$custodian}&account_number={$account_number}";
         file_get_contents($url);
     }
 
@@ -3085,6 +3085,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
 
+        print_r($account_number);exit;
         $questions = generateQuestionMarks($account_number);
         $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE_FAST(\"{$questions}\", ?, ?)";
 #        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE(\"'925514559'\", '2019-02-20', '360vew_opt')";
@@ -3092,6 +3093,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             $d = $dt->format("Y-m-d");
 #            echo $query . '<br />';
 ##            $adb->pquery($query, array());
+            StatusUpdate::UpdateMessage("TDBALANCEUPDATE", "Calculating Balances for {$d}");
             $adb->pquery($query, array($account_number, $d, $db_name), true);
 #            echo $query . '<br />' . $d . '<br />' . $db_name;exit;
 #            $q = "SELECT * FROM AccountValues;";
@@ -3100,11 +3102,11 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 #                echo 'YAY';
 #            }
         }
+        StatusUpdate::UpdateMessage("TDBALANCEUPDATE", "Finished");
     }
 
     static public function TDBalanceCalculationsRepCodes(array $rep_codes, $sdate, $edate, $earliest=false){
         $accounts = self::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
-        $accounts = array("920035287");
         if($earliest == true)
             $sdate = PortfolioInformation_Module_Model::GetEarliestTDPositionDate($accounts);
         /*        foreach($accounts AS $k => $v){

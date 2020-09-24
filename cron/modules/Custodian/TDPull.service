@@ -2,10 +2,12 @@
 require_once("libraries/custodians/cCustodian.php");
 require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
-
+include_once("libraries/statusupdates/StatusUpdate.php");
 
 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 #foreach($rep_codes AS $k => $v){
+StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
+
     /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
     //Pull portfolio and balance information for the specified rep codes
     $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
@@ -21,6 +23,7 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
     //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
     //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
     //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
+    StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions (TD)");
     $positions = new cTDPositions("TD", "custodian_omniscient", "positions",
         "custodian_portfolios_td", "custodian_positions_td", $rep_codes, array());
     $missing_positions = $positions->GetMissingCRMPositions();
@@ -29,6 +32,7 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
         $positions->CreateNewPositionsFromPositionData($missing_positions);
 
     //Fields specifically identified here because there are joins to other tables (prices for example), and we don't want * to conserve memory
+    StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Securities (TD)");
     $fields = array("f.symbol", "f.description", "f.security_type", "pr.price", "f.maturity", "f.annual_income_amount", "f.interest_rate", "acm.multiplier",
         "acm.omni_base_asset_class", "acm.security_type AS mapped_security_type", "f.call_date", "f.first_coupon", "f.call_price",
         "f.issue_date", "f.share_per_contact", "pr.factor");
@@ -44,6 +48,8 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 
 
     /***STEP 3 - CREATE TRANSACTIONS WORKING***/
+    StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (TD)");
+
     $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
         "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
         "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
@@ -67,10 +73,9 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
     #            echo "Start: {$s}, End: {$e}<br />";
     #            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
         $month = strtotime("+1 month", $month);
-        echo "DONE {$s} to {$e}<br />";
     }
     /*********END OF STEP 3********/
-
+    StatusUpdate::UpdateMessage("CRONUPDATER", "Finished");
     /***STEP 3 - CREATE TRANSACTIONS WORKING***/
 /*    $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
         "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
