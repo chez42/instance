@@ -13,12 +13,13 @@ use GuzzleHttp\Psr7\Request;
 
 DEFINE("URI_DEFAULT","http://lanserver24.concertglobal.com:8085/OmniServ/");
 
-class cParseGuzzle{
-    private $custodian, $parse_type, $num_days, $parse_program;
+class FileParsing{
+    private $custodian, $parse_type, $num_days, $parse_program, $rep_code;
     private $guz;
     private $url_extension, $file_extensions;
     private $tenant, $user, $password, $connection, $dbname, $vtDBName, $dont_ignore_if_exists;
-    public function __construct($custodian, $parse_type, $num_days = 7, $dont_ignore_if_exists=0){
+    public function __construct($custodian, $parse_type, $num_days = 7, $dont_ignore_if_exists=0, $rep_code){
+        global $dbconfig;
         $this->custodian = $custodian;
         $this->parse_type = $parse_type;
         $this->num_days = $num_days;
@@ -27,11 +28,13 @@ class cParseGuzzle{
         $this->password = "Concert222";
         $this->connection = "192.168.102.229";
         $this->dbname = "custodian_omniscient";
-        $this->vtDBName = "live_omniscient";
+        $this->vtDBName = $dbconfig['db_name'];
+        $this->rep_code = $rep_code;
         $this->dont_ignore_if_exists = $dont_ignore_if_exists;
 
         $this->DetermineParseProgram();
         $this->DetermineExtension();
+
         $this->guz = new Guzzle();
     }
 
@@ -54,16 +57,23 @@ class cParseGuzzle{
 
     private function DetermineExtension(){
         global $adb;
-        $query = "SELECT extension FROM parse_mapping WHERE parse_type = ? AND custodian = ?";
+        $query = "SELECT extension FROM custodian_omniscient.parse_mapping WHERE parse_type = ? AND custodian = ?";
         $result = $adb->pquery($query, array($this->parse_type, $this->custodian));
         $extensions = array();
+
         if($adb->num_rows($result) > 0){
             while($row = $adb->fetchByAssoc($result)){
-                $extensions[] = $row['extension'];
+
+#                echo $row['extension'];
+                if( strpos($row['extension'], ',') !== false ) {
+                    $extensions = explode(',', $row['extension']);
+                }else
+                    $extensions[] = $row['extension'];
             }
         }else{
             return 0;
         }
+
         $this->file_extensions = $extensions;
         return 1;
     }
@@ -74,23 +84,28 @@ class cParseGuzzle{
             $extend = "&extension=" . $file_extension;
         }
         $this->url_extension = $this->parse_program .
-                               "custodian=" . $this->custodian .
-                               "&tenant=" . $this->tenant .
-                               "&user=" . $this->user .
-                               "&password=" . $this->password .
-                               "&connection=" . $this->connection .
-                               "&dbname=" . $this->dbname .
-                               "&vtigerDBName=" . $this->vtDBName .
-                               "&skipDays=" . $this->num_days .
-                               "&dontIgnoreFileIfExists=" . $this->dont_ignore_if_exists .
-                               "&operation=writefiles" .
-                               $extend;
+            "custodian=" . $this->custodian .
+            "&tenant=" . $this->tenant .
+            "&user=" . $this->user .
+            "&password=" . $this->password .
+            "&connection=" . $this->connection .
+            "&dbname=" . $this->dbname .
+            "&vtigerDBName=" . $this->vtDBName .
+            "&skipDays=" . $this->num_days .
+            "&dontIgnoreFileIfExists=" . $this->dont_ignore_if_exists .
+            "&repcode=" . $this->rep_code .
+            "&operation=writefiles" .
+            $extend;
     }
 
     public function parseFiles(){
         foreach($this->file_extensions AS $k => $v){
             $this->FillURL($v);
             $url = URI_DEFAULT . $this->url_extension;
+            StatusUpdate::UpdateMessage("MANUALPARSING", "Parsing data for " .
+                    $this->custodian . " using Rep Code " .
+                    $this->rep_code . " File Type " . $v
+            );
             $res = $this->guz->get($url);
         }
     }
