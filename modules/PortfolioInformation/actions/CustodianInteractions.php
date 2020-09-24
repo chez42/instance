@@ -7,6 +7,7 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
             case "RecalculateAllHistoricalBalances":
                 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
                 //2012 set for no particular reason, 'true' finds the earliest date as is
+#                PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2012-01-01', date("Y-m-d"), true);
                 PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2012-01-01', date("Y-m-d"), true);
                 break;
             case "ParseData":
@@ -18,7 +19,7 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
 
                 $parse = new FileParsing($data->custodian, $parse_type, $num_days, 0, $data->rep_code);
                 $parse->parseFiles();
-                echo 'finished';
+                StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
                 break;
             case 'RecalculateHomepageWidgets':
                 include("cron/modules/InstanceOnly/HomepageWidgets.service");
