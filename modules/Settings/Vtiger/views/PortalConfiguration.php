@@ -1,7 +1,19 @@
 <?php
-class Settings_Vtiger_ConfigurePortalEditableProfileFields_View extends Settings_Vtiger_Index_View {
+class Settings_Vtiger_PortalConfiguration_View extends Settings_Vtiger_Index_View {
+    
+    
+    public function __construct() {
+        parent::__construct();
+        $this->exposeMethod('chatWidget');
+    }
     
     public function process (Vtiger_Request $request) {
+        
+        $mode = $request->get('mode');
+        if(!empty($mode)) {
+            $this->invokeExposedMethod($mode, $request);
+            return;
+        }
         
         global $adb;
        
@@ -16,7 +28,7 @@ class Settings_Vtiger_ConfigurePortalEditableProfileFields_View extends Settings
         
         $fields = $recordStructureInstance->getStructure();
         
-        $portalField = $adb->pquery("SELECT * FROM vtiger_portal_editable_profile_fields");
+        $portalField = $adb->pquery("SELECT * FROM vtiger_portal_configuration");
         
         if($adb->num_rows($portalField)){
             $portalFields  = json_decode(html_entity_decode($adb->query_result($portalField, 0, 'portal_fields')));
@@ -29,7 +41,7 @@ class Settings_Vtiger_ConfigurePortalEditableProfileFields_View extends Settings
         $viewer->assign('QUALIFIED_MODULE', $qualifiedModule);
         $viewer->assign('SOURCE_MODULE_MODEL', $moduleModel);
         $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
-        $viewer->view('ConfigureEditablePortalProfileFields.tpl', $qualifiedModule);
+        $viewer->view('PortalConfiguration.tpl', $qualifiedModule);
     }
     
     function getPageTitle(Vtiger_Request $request) {
@@ -47,12 +59,35 @@ class Settings_Vtiger_ConfigurePortalEditableProfileFields_View extends Settings
         $moduleName = $request->getModule();
         
         $jsFileNames = array(
-            "modules.Settings.$moduleName.resources.ConfigurePortalEditableProfileFields"
+            "modules.Settings.$moduleName.resources.PortalConfiguration"
         );
         
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
         return $headerScriptInstances;
+    }
+    
+    
+    function chatWidget(Vtiger_Request $request){
+        
+        global $adb;
+        
+        $qualifiedModule = $request->getModule(false);
+        
+        $portalChatWidget = $adb->pquery("SELECT * FROM vtiger_portal_configuration");
+        
+        if($adb->num_rows($portalChatWidget)){
+            $portalChatWidgetCode  = $adb->query_result($portalChatWidget, 0, 'portal_chat_widget_code');
+        }
+        
+        $viewer = $this->getViewer($request);
+        $viewer->assign('PORTAL_WIDGET_CODE', $portalChatWidgetCode);
+        $viewer->assign('QUALIFIED_MODULE', $qualifiedModule);
+        $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+        $viewer->assign('MODE', $request->get('mode'));
+        
+        $viewer->view('PortalConfiguration.tpl', $qualifiedModule);
+        
     }
     
     

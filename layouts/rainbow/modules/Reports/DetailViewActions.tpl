@@ -20,24 +20,24 @@
                             {assign var=LINK_URL value=$DETAILVIEW_LINK->getUrl()}
                             {assign var=LINK_NAME value=$DETAILVIEW_LINK->getLabel()}
                             {assign var=LINK_ICON_CLASS value=$DETAILVIEW_LINK->get('linkiconclass')}
-                                {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
+                                {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}
                                     <div class="btn-group">
                                 {/if}
                                 <button {if $LINK_URL} onclick='window.location.href = "{$LINK_URL}"' {/if} type="button" 
                                         class="cursorPointer btn btn-secondary {$DETAILVIEW_LINK->get('customclass')} 
-                                               {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip' && count($DASHBOARD_TABS) gt 1} dropdown-toggle{/if}"
-                                        title="{if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
+                                               {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach' && count($DASHBOARD_TABS) gt 1} dropdown-toggle{/if}"
+                                        title="{if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}
                                         {if $REPORT_MODEL->isPinnedToDashboard()}{vtranslate('LBL_UNPIN_CHART_FROM_DASHBOARD', $MODULE)}{else}{vtranslate('LBL_PIN_CHART_TO_DASHBOARD', $MODULE)}{/if}
-                                        {else}{$DETAILVIEW_LINK->get('linktitle')}{/if}" {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip' && count($DASHBOARD_TABS) gt 1 }data-toggle="dropdown"{/if}
-                                               {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}data-dashboard-tab-count='{count($DASHBOARD_TABS)}'{/if} >
+                                        {else}{$DETAILVIEW_LINK->get('linktitle')}{/if}" {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach' && count($DASHBOARD_TABS) gt 1 }data-toggle="dropdown"{/if}
+                                               {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}data-dashboard-tab-count='{count($DASHBOARD_TABS)}'{/if} >
                                     {if $LINK_NAME} {$LINK_NAME}{/if}
                                     {if $LINK_ICON_CLASS}
                                         {if $LINK_ICON_CLASS eq 'icon-pencil'}&nbsp;&nbsp;&nbsp;{/if}
-                                        <i class="{if $LINK_ICON_CLASS eq 'icon-pencil'}ti-pencil{elseif $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
+                                        <i class="fa {if $LINK_ICON_CLASS eq 'icon-pencil'}fa-pencil{elseif $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}
                                         {if $REPORT_MODEL->isPinnedToDashboard()}vicon-unpin{else}vicon-pin{/if}{/if}" style="font-size: 13px;"></i>
                                     {/if}
                                 </button>
-                                    {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
+                                    {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}
                                         <ul class='dropdown-menu dashBoardTabMenu'>
                                             <li class="dropdown-header popover-title">
                                                 {vtranslate('LBL_DASHBOARD',$MODULE)}
@@ -49,7 +49,7 @@
                                             {/foreach}
                                         </ul>
                                     {/if}
-                                 {if $LINK_ICON_CLASS eq 'vtGlyph ti-clip'}
+                                 {if $LINK_ICON_CLASS eq 'vtGlyph vticon-attach'}
                                     </div>
                                  {/if}
                                 {/foreach}

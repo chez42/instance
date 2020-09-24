@@ -533,6 +533,9 @@ $module->addLink('DASHBOARDWIDGET', 'Client Distribution', $linkURL, '', '', '')
 
 $blockLabel = 'LBL_PORTAL_CONFIGURATION';
 
+$adb->pquery("delete from vtiger_settings_field WHERE name = ? AND linkto = ?",
+array('Editable Profile Fields', 'index.php?parent=Settings&module=Vtiger&view=ConfigurePortalEditableProfileFields'));
+
 $block_result = $adb->pquery("SELECT * FROM vtiger_settings_blocks 
 WHERE label = ?",array($blockLabel));
 
@@ -554,7 +557,7 @@ if(!$adb->num_rows($block_result)){
 if($blockId){
     
     $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
-    array('Editable Profile Fields', 'index.php?parent=Settings&module=Vtiger&view=ConfigurePortalEditableProfileFields'));
+    array('Editable Profile Fields', 'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration'));
     
     if(!$adb->num_rows($quickCreateMenu)){
         
@@ -566,16 +569,35 @@ if($blockId){
         
         $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
     	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockId,$sequence, 'Editable Profile Fields', '','',
-	    'index.php?parent=Settings&module=Vtiger&view=ConfigurePortalEditableProfileFields'));
+	    'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration'));
             
     }
     
     $adb->pquery("update vtiger_settings_field set blockid = ? WHERE name = ? AND linkto = ?",
     array($blockId, 'Global Portal Permissions', 'index.php?parent=Settings&module=Vtiger&view=GlobalPortalPermission'));
     
-    
-    
 }
 
 $adb->pquery("CREATE TABLE IF NOT EXISTS 
-vtiger_portal_editable_profile_fields ( portal_fields TEXT NULL DEFAULT NULL );");    
+vtiger_portal_configuration ( portal_fields TEXT NULL DEFAULT NULL );");    
+
+$quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Configure Chat Widget', 'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration&mode=chatWidget'));
+
+if(!$adb->num_rows($quickCreateMenu)){
+    
+    $blockid = $adb->query_result(
+        $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_PORTAL_CONFIGURATION'",array()),0, 'blockid');
+    
+    $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+	as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
+    0, 'sequence') + 1;
+        
+    $fieldid = $adb->getUniqueId('vtiger_settings_field');
+    $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Configure Chat Widget','','',
+    'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration&mode=chatWidget'));
+        
+}
+
+$adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");

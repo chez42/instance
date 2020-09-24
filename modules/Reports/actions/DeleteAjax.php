@@ -13,11 +13,17 @@ class Reports_DeleteAjax_Action extends Vtiger_DeleteAjax_Action {
 	public function checkPermission(Vtiger_Request $request) {
 		$moduleName = $request->getModule();
 		$record = $request->get('record');
-
-		$currentUserPrivilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
+        
+		$recordModel = Reports_Record_Model::getInstanceById($record);
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		
+		if(!$currentUser->isAdminUser() &&  $recordModel->get('owner') != $currentUser->getId()) {
+		   throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
+	    }
+		/* $currentUserPrivilegesModel = Users_Privileges_Model::getCurrentUserPrivilegesModel();
 		if(!$currentUserPrivilegesModel->isPermitted($moduleName, 'Delete', $record)) {
 			throw new AppException(vtranslate('LBL_PERMISSION_DENIED'));
-		}
+		} */
 	}
 
 	public function process(Vtiger_Request $request) {
