@@ -3085,9 +3085,8 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $interval = DateInterval::createFromDateString('1 day');
         $period = new DatePeriod($begin, $interval, $end);
 
-        print_r($account_number);exit;
         $questions = generateQuestionMarks($account_number);
-        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE_FAST(\"{$questions}\", ?, ?)";
+        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE_FASTEST(\"{$questions}\", ?, ?)";
 #        $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_MULTIPLE(\"'925514559'\", '2019-02-20', '360vew_opt')";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
@@ -3107,6 +3106,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 
     static public function TDBalanceCalculationsRepCodes(array $rep_codes, $sdate, $edate, $earliest=false){
         $accounts = self::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
+
         if($earliest == true)
             $sdate = PortfolioInformation_Module_Model::GetEarliestTDPositionDate($accounts);
         /*        foreach($accounts AS $k => $v){
@@ -3209,7 +3209,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 
     static public function GetRepCodeListFromUsersTable(){
         global $adb;
-        $query = "SELECT advisor_control_number
+        $query = "SELECT REPLACE(advisor_control_number, ' ', '') AS advisor_control_number
                   FROM vtiger_users WHERE advisor_control_number != ''";
         $result = $adb->pquery($query, array());
         $list = array();

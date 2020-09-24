@@ -5,7 +5,7 @@
 function UpdateStatus(code, element){
     $.post("GetStatus.php", {code:code}, function(response) {
         $(element).html(response);
-        if(response !== 'finished')
+//        if(response !== 'finished')
             setTimeout(UpdateStatus(code, element), 5000);
     });
 }
@@ -50,7 +50,7 @@ jQuery.Class("FileAdministration_Module_Js",{
 
         $("#RecalculateAllHistoricalBalances").click(function(e){
             $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'RecalculateAllHistoricalBalances'}, function(response) {
-                alert(response);
+//                alert(response);
             });
             UpdateStatus('TDBALANCEUPDATE', '.calculation-status');
         });
@@ -108,6 +108,7 @@ jQuery.Class("FileAdministration_Module_Js",{
     registerEvents : function() {
         this.RenderTable();
         this.ClickEvents();
+        UpdateStatus('TDBALANCEUPDATE', '.calculation-status');
     }
 });
 

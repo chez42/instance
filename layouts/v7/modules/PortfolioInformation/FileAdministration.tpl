@@ -16,6 +16,7 @@
         <input type="button" id="PullRecalculate" value="Pull and Recalculate" title="Pull all data from custodian and recalculate homepage values.  This will take awhile" />
         <input type="button" id="RecalculateHomepageWidgets" value="Recalculate Homepage Widgets" title="Recalculate the homepage widgets to update balances and AUM" />
         <input type="button" id="ClearReconciledTransactions" value="Clear Reconciled Transactions" title="Clear Reconciled Transactions" />
+        <h2>Long Running Scripts</h2>
         <input type="button" id="RecalculateAllHistoricalBalances" value="Recalculate All Historical Balances" title="Recalculate All Historical Balances (All rep codes in the instance, this takes awhile!)" />
     </div>
 </div>
