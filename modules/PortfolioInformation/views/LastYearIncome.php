@@ -32,7 +32,7 @@ class PortfolioInformation_LastYearIncome_View extends Vtiger_Index_View{
             $combined = $income->GetCombinedSymbolsForDates(GetFirstDayLastYear(), GetLastDayLastYear());
 
             $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayLastYear(), GetLastDayLastYear());
-            $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastMonth());
+            $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastYear());
 
             $start_month = date("F, Y", strtotime(GetFirstDayLastYear()));
             $end_month = date("F, Y", strtotime(GetLastDayLastYear()));
