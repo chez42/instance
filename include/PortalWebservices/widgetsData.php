@@ -41,6 +41,9 @@ function vtws_widgetData($element,$user){
 	$pie = PortfolioInformation_Reports_Model::GetPieFromTable();
     $data['pie'] = $pie;
     
+    $recDocs = getRecentDocuments($element['ID']);
+    $data['recentWidget'] = $recDocs;
+    
     return $data;
 
 }
@@ -200,3 +203,31 @@ function getTicketData($contactId){
     return array('ticketStatus'=>$statusData, 'timeResult'=>$finalData, 'catData'=>$catData);
 }
 
+function getRecentDocuments($conId){
+
+    global $adb;
+    $end = date('Y-m-d');
+    $start = date('Y-m-d', strtotime('-7 days'));
+    
+    $doc = $adb->pquery("SELECT  * FROM vtiger_notes
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notes.notesid
+    INNER JOIN vtiger_senotesrel ON vtiger_senotesrel.notesid = vtiger_notes.notesid
+    INNER JOIN vtiger_documentfolder ON vtiger_documentfolder.documentfolderid = vtiger_notes.doc_folder_id
+    LEFT JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.crmid = vtiger_notes.notesid
+    WHERE vtiger_crmentity.deleted = 0 AND vtiger_crmentity.createdtime BETWEEN ? AND ? 
+    AND vtiger_senotesrel.crmid = ? ORDER BY vtiger_crmentity.crmid DESC",
+        array($start, $end, $conId));
+    $recDocument = array();
+    if($adb->num_rows($doc)){
+        for($i=0;$i<$adb->num_rows($doc);$i++){
+            $documents = $adb->query_result_rowdata($doc, $i);
+            $recDocument[] = array(
+                'filename' => $documents['filename'],
+                'foldername'=> $documents['folder_name'],
+                'docid' => $documents['notesid'],
+                'attid' => $documents['attachmentsid']
+            );
+        }
+    }
+    return $recDocument;
+}
