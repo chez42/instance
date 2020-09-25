@@ -32,6 +32,15 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        print_r($rep_codes);exit;
+        /*Fill in the consolidated balances table*/
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        foreach($accounts AS $k => $v){
+            echo "'{$v}'," . '<br />';
+        }
+        exit;
+
         require_once('modules/PortfolioInformation/models/DailyBalances.php');
         require_once("libraries/Reporting/ReportCommonFunctions.php");
         /**

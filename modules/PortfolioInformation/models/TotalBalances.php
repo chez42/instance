@@ -157,16 +157,19 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         foreach($ids AS $k => $v){
             try {
                 $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
-                $questions = generateQuestionMarks($account_numbers);
-                $query = "INSERT INTO vtiger_asset_class_history_daily_users
-                          SELECT {$v}, SUM(value) AS value, ach.base_asset_class, as_of_date
-                          FROM vtiger_asset_class_history ach
-                          WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                          AND account_number IN ({$questions}) AND as_of_date = ? AND value != 0
-                          GROUP BY base_asset_class
-                          ON DUPLICATE KEY UPDATE value=VALUES(value)";
-                $adb->pquery($query, array($account_numbers, $date));
+                if(count($account_numbers) > 0) {
+                    $questions = generateQuestionMarks($account_numbers);
+                    $query = "INSERT INTO vtiger_asset_class_history_daily_users
+                              SELECT {$v}, SUM(value) AS value, ach.base_asset_class, as_of_date
+                              FROM vtiger_asset_class_history ach
+                              WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
+                              AND account_number IN ({$questions}) AND as_of_date = ? AND value != 0
+                              GROUP BY base_asset_class
+                              ON DUPLICATE KEY UPDATE value=VALUES(value)";
+                    $adb->pquery($query, array($account_numbers, $date), true);
+                }
             }catch(Exception $e){
+                StatusUpdate::UpdateMessage("TDUPDATER", "Error Encountered");
                 $note = "Trying to run WriteAndUpdateAssetAllocationUserDaily for user {$v}  Likely caused by the users privilege file not existing";
                 $query = "INSERT INTO vtiger_exceptions(message, date_time, code_notes) VALUES(?, NOW(), ?)";
                 $adb->pquery($query, array($e->getMessage(), $note));

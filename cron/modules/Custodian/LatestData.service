@@ -7,5 +7,5 @@ require_once("libraries/custodians/cReady.php");
 $ready = new cReady();
 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 
-$data = $ready->GetReadyDataViaRepCode($rep_codes);
+$data = $ready->GetReadyModuleDataViaRepCode($rep_codes);
 print_r($data);
