@@ -23,8 +23,10 @@ class PortfolioInformation_FileAdministration_Action extends Vtiger_BasicAjax_Ac
                 break;
             case 'updatefilefield':
                 $data = $request->get("RowData");
-                $files->AutoInsertOrUpdateData($data);
+                $last_id = $files->AutoInsertOrUpdateData($data);
                 $files->ResetGoodRepCodeList();
+                if($last_id)
+                    echo $last_id;//Return last id created so tabulator knows to send an ID to update next time
                 break;
         }
     }

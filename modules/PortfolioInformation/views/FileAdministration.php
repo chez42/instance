@@ -29,6 +29,7 @@ class PortfolioInformation_FileAdministration_View extends Vtiger_Index_View{
             "~/libraries/tabulator/dist/js/jquery_wrapper.min.js",
             "~/libraries/tabulator/dist/js/modules/edit.min.js",
             "~/libraries/tabulator/dist/js/modules/sort.min.js",
+            "~/libraries/tabulator/dist/js/modules/format.min.js",
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         return $jsScriptInstances;
