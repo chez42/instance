@@ -11,6 +11,10 @@ class Transactions_FixTransaction_Action extends Vtiger_BasicAjax_Action
     public function process(Vtiger_Request $request)
     {
         switch(strtolower($request->get('todo'))) {
+            case "clearreconciledtransactions":
+            {
+                echo Transactions_FixTransactions_Model::RemoveReconciledTransactions();
+            }break;
             case "fixtransaction":
             {
                 $fix = new Transactions_FixTransactions_View();

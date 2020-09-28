@@ -2,34 +2,42 @@
 
 require_once('modules/PortfolioInformation/models/DailyBalances.php');
 require_once("libraries/Reporting/ReportCommonFunctions.php");
+include_once("libraries/custodians/cCustodian.php");
 /**
  * One simple call to write the daily balances for all active users using the past 7 days (allows for mistakes and missing data to catch up)
  */
 
 global $dbconfig, $adb;
-
+/*
+StatusUpdate::UpdateMessage("TDUPDATER", "Pulling Prices from Live");
 $query = "INSERT IGNORE INTO vtiger_prices
           SELECT * FROM live_omniscient.vtiger_prices WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)
           AND symbol IN (SELECT security_symbol FROM vtiger_modsecurities)";
 $adb->pquery($query, array());
 
+StatusUpdate::UpdateMessage("TDUPDATER", "Updating Indexes");
 $query = "INSERT IGNORE INTO vtiger_prices_index
           SELECT * FROM live_omniscient.vtiger_prices_index WHERE date > DATE_SUB(CURDATE(), INTERVAL 2 WEEK)";
 $adb->pquery($query, array());
-
+*/
 /*Positions asset allocation widget calculations*/
+StatusUpdate::UpdateMessage("TDUPDATER", "Closing positions based on their portfolio");
 PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
+StatusUpdate::UpdateMessage("TDUPDATER", "Calculating asset allocation values");
 PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+StatusUpdate::UpdateMessage("TDUPDATER", "Updating asset allocation users table");
 PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
-
+StatusUpdate::UpdateMessage("TDUPDATER", "Pulling rep code list");
 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 /*Fill in the consolidated balances table*/
 $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
 $start = date('Y-m-d', strtotime('-7 days'));
 $finish = date('Y-m-d');
 $questions = generateQuestionMarks($accounts);
+StatusUpdate::UpdateMessage("TDUPDATER", "Running Consolidate Balances");
 $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
 //Write to the users table from consolidated balances for grand total of all accounts
 $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
 
+StatusUpdate::UpdateMessage("TDUPDATER", "Updating Previous 7");
 PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
