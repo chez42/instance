@@ -132,6 +132,7 @@ Vtiger.Class('Vtiger_Widget_Js',{
 		if(!this.isEmptyData()) {
 			this.loadChart();
             this.postInitializeCalls();
+            this.refreshWidget();
 		}else{
 			//this.positionNoDataMsg();
 		}
