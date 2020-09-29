@@ -66,7 +66,7 @@
 
 			$newInstanceInfo['root_directory'] = $base_path . "/" . $instance_name . "/";
 
-			system("/usr/bin/bash /var/www/sites/360vew/fixperms.sh " . $instance_name);
+			system("/usr/bin/bash /var/www/sites/fixperms.sh " . $instance_name);
 			
 			echo "Permissions run<br />";
 
