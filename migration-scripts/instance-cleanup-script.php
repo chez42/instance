@@ -3,7 +3,10 @@
 	include_once "includes/main/WebUI.php";
 	
 	global $adb;
-
+	
+	//SI
+	//18658,21481,33965,11844,33797
+	
 	/*$adb->pquery('DELETE FROM vtiger_group2grouprel WHERE groupid not in (21481,11844,33968,15372,33965)', array());
 	$adb->pquery('DELETE FROM vtiger_group2role where groupid not in (21481,11844,33968,15372,33965)', array());
 	$adb->pquery('DELETE FROM vtiger_group2rs where groupid not in (21481,11844,33968,15372,33965)', array());
