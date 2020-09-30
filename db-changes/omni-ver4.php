@@ -601,3 +601,32 @@ if(!$adb->num_rows($quickCreateMenu)){
 }
 
 $adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");
+
+$module = Vtiger_Module::getInstance("HelpDesk");
+$blockInstance = Vtiger_Block::getInstance('LBL_TICKET_INFORMATION',$module);
+$fieldInstance = Vtiger_Field::getInstance('original_creator', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'original_creator';
+    $field->label = 'Original Creator';
+    $field->uitype = 2;
+    $field->typeofdata = 'V~O';
+    $field->displaytype = 2;
+    $field->columntype = 'VARCHAR(200)';
+    $blockInstance->addField($field);
+}
+
+
+$fieldInstance = Vtiger_Field::getInstance('original_assigned_to', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'original_assigned_to';
+    $field->label = 'Original Assigned to';
+    $field->uitype = 2;
+    $field->typeofdata = 'V~O';
+    $field->displaytype = 2;
+    $field->columntype = 'VARCHAR(200)';
+    $blockInstance->addField($field);
+}
+
+
