@@ -9,77 +9,18 @@ include_once('includes/functions.php');
 
 include_once('includes/function.php');
 
-if(!$_SESSION['api_url']){
-    
-     $master_api_url = 'https://hq.360vew.com';
-    
-     $master_api_username = 'felipeluna';
-     $master_api_accesskey = 'vW6MiyBQVSfQjt3o';
-     
-     $master_ws_url =  $master_api_url . '/webservice.php';
-     
-     $loginObj = login($master_ws_url, $master_api_username, $master_api_accesskey);
-     
-     $session_id = $loginObj->sessionName;
-     
-     $params = array();
-     
-     $request_URL = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on')? 'https': 'http')."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-     $request_URL = str_replace(array('http://', 'https://', "www.", '/login.php', '/index.php'), '', $request_URL);
-     $params['portalurl'] = rtrim($request_URL, " /");
-     
-     $postParams = array(
-         'operation'=>'portalconfiguration',
-         'sessionName'=>$session_id,
-         'element'=>json_encode($params)
-     );
-     
-     $response = postHttpRequest($master_ws_url, $postParams);
-     
-     $response = json_decode($response,true);
-     
-     $results = $response['result'];
-     
-     if(!empty($results)){
-         $_SESSION['api_url'] = $results['url'];
-         $_SESSION['portal_user'] = $results['user'];
-         $_SESSION['portal_logo'] = $results['image'];
-         $_SESSION['portal_name'] = $results['name'];
-         $_SESSION['portal_accesskey'] = $results['accesskey'];
-         $_SESSION['portal_main_title'] = $results['portal_main_title'];
-         $_SESSION['portal_subtitle'] = $results['portal_subtitle'];
-     }
-     
-}
+$api_url = 'https://hq.360vew.com/';
 
-$api_url = $_SESSION['api_url'];
- 
-$api_username =  $_SESSION['portal_user'];
- 
-$api_accesskey = $_SESSION['portal_accesskey'];
- 
-$websocketUrl = '';
+$api_username = 'felipeluna';
 
-if($_SESSION['portal_logo'])
-    $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
-else 
-    $GLOBALS['portal_logo'] = 'images/logo1.png';
+$api_accesskey = 'vW6MiyBQVSfQjt3o';
 
-if($_SESSION['portal_name'])
-    $GLOBALS['portal_title'] = $_SESSION['portal_name'];
-else
-    $GLOBALS['portal_title'] = 'OMNI Client Portal';
+$websocketUrl = 'wss://hq.360vew.com:3000';
 
-if($_SESSION['portal_main_title'])
-    $GLOBALS['portal_main_title'] = $_SESSION['portal_main_title'];
-else 
-    $GLOBALS['portal_main_title'] = 'OMNI Client Information Center';
+$GLOBALS['portal_logo'] = 'images/logo1.png';
 
-if($_SESSION['portal_subtitle'])
-    $GLOBALS['portal_subtitle'] = $_SESSION['portal_subtitle'];
-else 
-    $GLOBALS['portal_subtitle'] = 'Empowering our clients to focus on their clients.';
-    
+$GLOBALS['portal_title'] = 'OMNI Client Portal';
+
 if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
@@ -102,7 +43,8 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     $GLOBALS['avmod'] = $avmod;
     
-    $GLOBALS['hiddenmodules'] = array();
-	
-	$GLOBALS['profilefield'] = $_SESSION['profile_fields'];
+	$GLOBALS['hiddenmodules'] = array();
+    
+    $GLOBALS['profilefield'] = $_SESSION['profile_fields'];
+    
 }
