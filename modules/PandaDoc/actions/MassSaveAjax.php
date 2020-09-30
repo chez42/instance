@@ -55,7 +55,6 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
         
         $content = $request->get('envelope_content');
         
-        
         $pandadoc_settings_result = $adb->pquery("SELECT * FROM vtiger_pandadoc_configuration WHERE
         vtiger_pandadoc_configuration.userid = ? and ( access_token is not NULL and access_token != '' )",array($current_user->id));
         
@@ -161,236 +160,15 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
             exit;
             
         }
-        
-     /*   $postfields = array();
-        $postfields['name'] = 'PSA_demo';
-        $postfields['url'] = 'https://dev.omnisrv.com/ver4manish/demo3.pdf';
-        $postfields['recipients'] = array(
-            array(
-                'email'      => 'sonuabc16@gmail.com',
-                'first_name' => 'don',
-                'last_name'  => 'jones',
-                "role" => "ass"
-            ),
-            array(
-                'email'      => 'nitish@devitechnosolutions.com',
-                'first_name' => 'n.k',
-                'last_name'  => 'm',
-                "role" => "71414082"
-            )
-        );
-        $postfields['fields'] = array(
-            "signature"=>array(
-                "role" => "ass",
-                "value" => true
-            ),
-            "signature"=>array(
-                "role" => "71414082",
-                "value" => true
-            )
-        );
-        $postfields['parse_form_fields'] = false;
-        $data_string = json_encode( $postfields );
-        $docHeaders = array( "Authorization: Bearer ". $token['access_token'],
-            "content-type: application/json",'Content-length: '.strlen( $data_string ) );
-        
-        $url = "https://api.pandadoc.com/public/v1/documents/";
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $docHeaders);
-        curl_setopt($curl, CURLINFO_HEADER_OUT, TRUE);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-        
-        $response = curl_exec($curl);
-        
-        $response = json_decode($response, true);
-        echo"<pre>";print_r($response);echo"</pre>";
-        $sendDocHeaders = array( "Authorization: Bearer ". $token['access_token']);
-        $url = "https://api.pandadoc.com/public/v1/documents/".$response['id']."/send";
-        
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $sendDocHeaders);
-        $send_request_data = array(
-            "message"=> "Please sign this document.",
-            "subject"=> "Please sign this document.",
-        );
-        $send_request_body = http_build_query($send_request_data);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $send_request_body);
-        
-        $response = curl_exec($curl);
-        echo"<pre>";print_r($response);echo"</pre>";
-        $response = json_decode($response, true);
-        
-        
-        
-        exit;*/
-        
-        
-        if($request->get('receiver_mode') == 'single'){
             
-            foreach($recordIds as $recordId) {
-                
-                $content = str_replace("single_signature", "{signature*:".$recordId."_______}", $content);
-                
-                $templateId = $request->get('templateid');
-                $qutRecordModel = new QuotingTool_Record_Model();
-                $quotingToolSettingRecordModel = new QuotingTool_SettingRecord_Model();
-                $record = $qutRecordModel->getById($templateId);
-                $fileName = $record->get('file_name');
-                
-                $quotingTool = new QuotingTool();
-                $varHeader = $quotingTool->getVarFromString(base64_decode($record->get("header")));
-                $varFooter = $quotingTool->getVarFromString(base64_decode($record->get("footer")));
-                $customFunction = json_decode(html_entity_decode($record->get("custom_function")));
-                $record = $record->decompileRecord($parentRecord, array("header", "content", "footer"), array(), $customFunction);
-                
-                foreach ($varHeader as $var) {
-                    if ($var == "\$custom_proposal_link\$") {
-                        $keys_values["\$custom_proposal_link\$"] = $compactLink;
-                    } else {
-                        if ($var == "\$custom_user_signature\$") {
-                            $keys_values["\$custom_user_signature\$"] = nl2br($current_user->signature);
-                        }
-                    }
-                    if (array_key_exists($var, $companyfields)) {
-                        $keys_values[$var] = $companyfields[$var];
-                    }
-                }
-                if (!empty($keys_values)) {
-                    $record->set("header", $quotingTool->mergeCustomTokens($record->get("header"), $keys_values));
-                }
-                foreach ($varFooter as $var) {
-                    if ($var == "\$custom_proposal_link\$") {
-                        $keys_values["\$custom_proposal_link\$"] = $compactLink;
-                    } else {
-                        if ($var == "\$custom_user_signature\$") {
-                            $keys_values["\$custom_user_signature\$"] = nl2br($current_user->signature);
-                        }
-                    }
-                    if (array_key_exists($var, $companyfields)) {
-                        $keys_values[$var] = $companyfields[$var];
-                    }
-                }
-                
-                if (!empty($keys_values)) {
-                    $record->set("footer", $quotingTool->mergeCustomTokens($record->get("footer"), $keys_values));
-                }
-                
-                $pdf = $quotingTool->createPdf($content, $record->get("header"), $record->get("footer"), $fileName, $record->get("settings_layout"), $parentRecord, "storage/QuotingTool/", array(), array(), false);
-                
-                
-                $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
-                
-                $toEmail ='';
-                $fieldValue = $recordModel->get($emailFieldList);
-                if(!empty($fieldValue)) {
-                    $toEmail = $fieldValue;
-                }
-                
-                if(empty($toEmail)){
-                    $response = new Vtiger_Response();
-                    $response->setError('NO Valid Email Found');
-                    $response->emit();
-                    exit;
-                }
-                
-                try {
-                    
-                    $postfields = array();
-                    $postfields['name'] = $fileName;
-                    $postfields['url'] = rtrim($site_URL).'/'.$pdf;
-                    $postfields['recipients'] = array(
-                        array(
-                            'email'      => $toEmail,
-                            'first_name' => $recordModel->getName(),
-                            "role" => $recordId
-                        )
-                    );
-                   /* $postfields['fields'] = array(
-                        "signature"=>array(
-                            "role" => $recordId,
-                            "value" => true
-                        )
-                    );*/
-                    $postfields['parse_form_fields'] = false;
-                    $data_string = json_encode( $postfields );
-                    $docHeaders = array( "Authorization: Bearer ". $token['access_token'],
-                        "content-type: application/json",'Content-length: '.strlen( $data_string ) );
-                    
-                    $url = "https://api.pandadoc.com/public/v1/documents/";
-                    $curl = curl_init($url);
-                    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, $docHeaders);
-                    curl_setopt($curl, CURLINFO_HEADER_OUT, TRUE);
-                    curl_setopt($curl, CURLOPT_POST, true);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-                    $response = curl_exec($curl);
-                    
-                    $response = json_decode($response, true);
-                    
-                    if($response['id']){
-                        $envelopeId = $response['id'];
-                        if($request->get('parent_record')){
-                            $adb->pquery("INSERT INTO vtiger_sync_pandadoc_records(userid, documentid, contactid) VALUES (?, ?, ?)",
-                                array($current_user->id, $envelopeId, $request->get('parent_record')));
-                        }else{
-                            $adb->pquery("INSERT INTO vtiger_sync_pandadoc_records(userid, documentid, contactid) VALUES (?, ?, ?)",
-                                array($current_user->id, $envelopeId, $recordId));
-                        }
-                        $result = array('success' => true);
-                    }else{
-                        $result = array('message' => 'Unable to send the email try again later.');
-                    }
-                    
-                    
-                } catch(Exception $e){
-                    $result = array('message' => $e->getMessage());
-                }
-                
-            }
+        foreach($recordIds as $recordId) {
             
-        }else if($request->get('receiver_mode') == 'multiple'){
-            
-            $moduleModel = Vtiger_Module_Model::getInstance($srcModule); 
-            
-            foreach($recordIds as $recordId) {
-                $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
-                $fieldValue = $recordModel->get($emailFieldList);
-                if(!empty($fieldValue)) {
-                    $toEmail[$recordId] = $fieldValue;
-                }
-                
-                $fullName= '';
-                $COUNTER = 0;
-                foreach ($moduleModel->getNameFields() as $NAME_FIELD){
-                    $FIELD_MODEL = $moduleModel->getField($NAME_FIELD);
-                    if($FIELD_MODEL->getPermissions()){
-                        if($recordModel->getDisplayValue('salutationtype') && $FIELD_MODEL->getName() == 'firstname'){
-                            $fullName .= $recordModel->getDisplayValue('salutationtype');
-                        }
-                        $fullName .= trim($recordModel->get($NAME_FIELD));
-                        if($COUNTER == 0 && ($recordModel->get($NAME_FIELD))){
-                            $fullName .= ' ';
-                            $COUNTER++;
-                        }
-                    }
-                }
-                
-                $contactName[$recordId] = $fullName;
-                $content = str_replace($recordId."_SIGN", "{signature*:".$recordId."_______}", $content);
-            }
-            
+            $content = str_replace("single_signature", "{signature*:".$recordId."_______}", $content);
             
             $templateId = $request->get('templateid');
-            $recordModel = new QuotingTool_Record_Model();
+            $qutRecordModel = new QuotingTool_Record_Model();
             $quotingToolSettingRecordModel = new QuotingTool_SettingRecord_Model();
-            $record = $recordModel->getById($templateId);
+            $record = $qutRecordModel->getById($templateId);
             $fileName = $record->get('file_name');
             
             $quotingTool = new QuotingTool();
@@ -433,32 +211,35 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
             
             $pdf = $quotingTool->createPdf($content, $record->get("header"), $record->get("footer"), $fileName, $record->get("settings_layout"), $parentRecord, "storage/QuotingTool/", array(), array(), false);
             
+            
+            $recordModel = Vtiger_Record_Model::getInstanceById($recordId);
+            
+            $toEmail ='';
+            $fieldValue = $recordModel->get($emailFieldList);
+            if(!empty($fieldValue)) {
+                $toEmail = $fieldValue;
+            }
+            
+            if(empty($toEmail)){
+                $response = new Vtiger_Response();
+                $response->setError('NO Valid Email Found');
+                $response->emit();
+                exit;
+            }
+            
             try {
                 
                 $postfields = array();
                 $postfields['name'] = $fileName;
-                $postfields['url'] = rtrim($site_URL).'/'.$pdf;
-                foreach($toEmail as $record=>$email){
-                    $contacts[] = array(
-                        'email'      => $email,
-                        'first_name' => $contactName[$record],
-                        "role" => $record
-                    ); 
-                    
-                    $signature["signature"]['role'] = $record;
-                    $signature["signature"]["value"] = true;
-                    
-                    $addSignature = $signature;
-                }
-                
-              
-                $postfields['recipients'] = $contacts;
-                /*$postfields['fields'] = array(
-                    "signature"=>array(
-                        "role" => $recordId,
-                        "value" => true
+                $postfields['url'] = 'https://dev.omnisrv.com/ver4manish/demo_71414082.pdf';//rtrim($site_URL).'/'.$pdf;
+                $postfields['recipients'] = array(
+                    array(
+                        'email'      => $toEmail,
+                        'first_name' => $recordModel->getName(),
+                        "role" => $recordId
                     )
-                );*/
+                );
+               
                 $postfields['parse_form_fields'] = false;
                 $data_string = json_encode( $postfields );
                 $docHeaders = array( "Authorization: Bearer ". $token['access_token'],
@@ -475,20 +256,16 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
                 $response = curl_exec($curl);
                 
                 $response = json_decode($response, true);
-               
+                
                 if($response['id']){
                     $envelopeId = $response['id'];
-                    
                     if($request->get('parent_record')){
                         $adb->pquery("INSERT INTO vtiger_sync_pandadoc_records(userid, documentid, contactid) VALUES (?, ?, ?)",
                             array($current_user->id, $envelopeId, $request->get('parent_record')));
                     }else{
-                        foreach($toEmail as $record=>$email){
-                            $adb->pquery("INSERT INTO vtiger_sync_pandadoc_records(userid, documentid, contactid) VALUES (?, ?, ?)",
-                                array($current_user->id, $envelopeId, $record));
-                        }
+                        $adb->pquery("INSERT INTO vtiger_sync_pandadoc_records(userid, documentid, contactid) VALUES (?, ?, ?)",
+                            array($current_user->id, $envelopeId, $recordId));
                     }
-                    
                     $result = array('success' => true);
                 }else{
                     $result = array('message' => 'Unable to send the email try again later.');
@@ -500,7 +277,7 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
             }
             
         }
-        
+            
         $response = new Vtiger_Response();
         $response->setResult($result);
         $response->emit();
@@ -533,6 +310,7 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
                     VALUES (?, ?, ?, ?, ?)",array($current_user_id, $access_token, $refresh_token, $token_type, $expires_in));
             
         }
+        
         
     }
     
