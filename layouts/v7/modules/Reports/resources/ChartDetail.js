@@ -70,6 +70,8 @@ Reports_Detail_Js("Reports_ChartDetail_Js", {
 				vtUtils.hideValidationMessage(jQuery('#groupbyfield').parent().find('.select2-container'));
 			}
 			
+			var orderField = jQuery('#orderby').val();
+			
 			var postData = {
 				'advanced_filter': advFilterCondition,
 				'record': recordId,
@@ -78,7 +80,8 @@ Reports_Detail_Js("Reports_ChartDetail_Js", {
 				'mode': currentMode,
 				'charttype': jQuery('input[name=charttype]').val(),
 				'groupbyfield': groupByField,
-				'datafields': dataField
+				'datafields': dataField,
+				'orderby':orderField
 			};
 
 			var reportChartContents = thisInstance.getContentHolder().find('#reportContentsDiv');

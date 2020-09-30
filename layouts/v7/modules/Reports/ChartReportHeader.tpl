@@ -48,18 +48,29 @@
                     <div class="well filterConditionContainer">
                         <div>
                             <div class='row'>
-                                <span class="col-lg-4">
+                                <span class="col-lg-3">
                                     <div><span>{vtranslate('LBL_SELECT_GROUP_BY_FIELD', $MODULE)}</span><span class="redColor">*</span></div><br>
                                     <div>
                                         <select id='groupbyfield' name='groupbyfield' class="col-lg-10" data-validation-engine="validate[required]" style='min-width:300px;'></select>
                                     </div>
                                 </span>
-                                <span class="col-lg-2">&nbsp;</span>
-                                <span class="col-lg-4">
+                                <span class="col-lg-1">&nbsp;</span>
+                                <span class="col-lg-3">
                                     <div><span>{vtranslate('LBL_SELECT_DATA_FIELD', $MODULE)}</span><span class="redColor">*</span></div><br>
                                     <div>
                                         <select id='datafields' name='datafields[]' class="col-lg-10" data-validation-engine="validate[required]" style='min-width:300px;'>
-                                        </select></div>
+                                        </select>
+                                    </div>
+                                </span>
+                                <span class="col-lg-1">&nbsp;</span>
+                                <span class="col-lg-3">
+                                    <div><span>{vtranslate('Order By', $MODULE)}</span></div><br>
+                                    <div>
+                                        <select id='orderby' name='orderby' class="col-lg-10 select2" style='min-width:300px;'>
+                                        	<option value="asc" {if $ORDERBY eq 'asc'}selected{/if}> ASC </option>
+                                        	<option value="desc" {if $ORDERBY eq 'desc'}selected{/if}> DESC </option>
+                                        </select>
+                                    </div>
                                 </span>
                             </div>
                             <br>

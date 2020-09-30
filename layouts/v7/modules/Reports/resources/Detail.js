@@ -133,7 +133,7 @@ Vtiger_Detail_Js("Reports_Detail_Js",{},{
     },
 	
 	registerConditionBlockChangeEvent : function() {
-		jQuery('.reportsDetailHeader').find('#groupbyfield,#datafields,[name="columnname"],[name="comparator"]').on('change', function() {
+		jQuery('.reportsDetailHeader').find('#groupbyfield,#datafields,#orderby,[name="columnname"],[name="comparator"]').on('change', function() {
 			jQuery('.reportActionButtons').removeClass('hide');
 		});
 		jQuery('.fieldUiHolder').find('[data-value="value"]').on('change input', function() {
