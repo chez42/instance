@@ -48,7 +48,9 @@ class Reports_ChartSaveAjax_View extends Vtiger_IndexAjax_View {
 		$reportModel->set('reporttypedata', Zend_Json::encode(array(
 																'type'=>$request->get('charttype', 'pieChart'),
 																'groupbyfield'=>$request->get('groupbyfield'),
-																'datafields'=>$dataFields)
+																'datafields'=>$dataFields,
+		                                                        'orderby' => $request->get('orderby')
+	                   	                                       )
 															));
 		$reportModel->set('reporttype', 'chart');
 		$reportModel->save();

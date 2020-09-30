@@ -102,7 +102,8 @@ class PandaDoc extends Vtiger_CRMEntity {
         $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_sync_pandadoc_records (
             userid INT(11) NULL ,
             documentid VARCHAR(250) NULL,
-            contactid INT(19) NULL );");
+            contactid INT(19) NULL,
+            status VARCHAR(255) NULL );");
         
     }
     
