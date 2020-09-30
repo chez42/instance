@@ -12,7 +12,7 @@
             <div class="filePreview container-fluid">
                 <div class="modal-header row">
                     <div class="filename {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes'} col-lg-8 {else} col-lg-11 {/if}">
-                        <h3 style="margin-top:0px;"><b>{$FILE_NAME}</b></h3>
+                        <h3 style="margin-top:0px;word-break: break-all;"><b>{$FILE_NAME}</b></h3>
                     </div>
                     {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes'}
                         <div class="col-lg-3">
