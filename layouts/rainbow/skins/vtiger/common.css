@@ -6595,9 +6595,9 @@ li.select2-search-choice div {
   display: inherit;
 }
 #quickCreateModules .quickcreateMoreDropdown {
-  left: 85%;
-  top: 0px;
-  min-width: 170px;
+  /*left: 85%;*/
+  /*top: 0px;*/
+  min-width: 200px;
   padding: 4%;
 }
 #quickCreateModules .quickcreateMoreDropdown li {

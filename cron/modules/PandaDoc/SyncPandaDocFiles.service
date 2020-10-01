@@ -1,0 +1,161 @@
+<?php
+
+global $adb, $current_user;
+
+$pandadoc_settings_result = $adb->pquery("SELECT * FROM vtiger_pandadoc_configuration WHERE
+        vtiger_pandadoc_configuration.userid = ? and ( access_token is not NULL and access_token != '' )",
+    array($current_user->id));
+
+if($adb->num_rows($pandadoc_settings_result)){
+    
+    $token_data = $adb->query_result_rowdata($pandadoc_settings_result, 0);
+    
+    $token = array();
+    
+    $token['token_type'] = $token_data['token_type'];
+    
+    $token['expires_in'] = $token_data['expires_in'];
+    
+    $token['access_token'] = $token_data['access_token'];
+    
+    $token['refresh_token'] = $token_data['refresh_token'];
+    
+    try {
+        
+        $headers = array(
+            "Authorization: Bearer ".$token['access_token'],
+        );
+        
+        $url = "https://api.pandadoc.com/public/v1/documents";
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        
+        $response = curl_exec($curl);
+        $response = json_decode($response, true);
+        
+        $docId = $response['results'][0]['id'];
+    
+        
+    }catch(Exception $e){
+        
+        $docId = '';
+        echo $e->getMessage();
+        
+    }
+}
+
+if(!$docId){
+    
+    try {
+        
+        $client_id = PandaDoc_Config_Connector::$clientId;
+        $client_secret = PandaDoc_Config_Connector::$clientSecret;
+        
+        
+        $token_request_data = array(
+            "grant_type" => "refresh_token",
+            "refresh_token" => $token['refresh_token'],
+            "client_id" => $client_id,
+            "client_secret" => $client_secret,
+            "scope" => "read write"
+        );
+        
+        $token_request_body = http_build_query($token_request_data);
+        $curl = curl_init('https://api.pandadoc.com/oauth2/access_token/');
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $token_request_body);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        $response = curl_exec($curl);
+        
+        $response = json_decode($response, true);
+        
+        $token['access_token'] = $response['access_token'];
+        $token['refresh_token'] = $response['refresh_token'];
+        $token['token_type'] = $response['token_type'];
+        $token['expires_in'] = $response['expires_in'];
+        
+        
+        saveToken($token);
+        
+    } catch(Exception $e){
+        
+        echo $e->getMessage();
+        
+    }
+    
+    if($token['access_token']){
+        
+        $headers = array(
+            "Authorization: Bearer ".$token['access_token'],
+        );
+        
+        $documents = $adb->pquery("SELECT * FROM vtiger_sync_pandadoc_records WHERE userid = ? AND (status != 'sent' OR status IS NULL)",
+            array($current_user->id));
+        
+        for($i=0;$i<$adb->num_rows($documents);$i++){
+            
+            $docData = $adb->query_result_rowdata($documents, $i);
+            $docId = $docData['documentid'];
+            $conId = $docData['contactid'];
+            
+            $url = "https://api.pandadoc.com/public/v1/documents/".$docId."/send";
+            
+            $curl = curl_init($url);
+            
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            
+            $token_request_data = array(
+                "message"=> "Hello! This document was sent from the PandaDoc API.",
+                "subject"=> "Please check this test API document from PandaDoc",
+            );
+            $token_request_body = http_build_query($token_request_data);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $token_request_body);
+            
+            $response = curl_exec($curl);
+            
+            $response = json_decode($response, true);
+            
+            if($response['status'] == 'document.sent'){
+                $adb->pquery("UPDATE vtiger_sync_pandadoc_records SET status = ? WHERE documentid = ?",
+                    array('sent', $docId));
+            }
+            
+        }
+    }
+}
+
+function saveToken($token_data){
+    
+    global $adb, $current_user;
+    
+    $access_token = $token_data['access_token'];
+    $refresh_token = $token_data['refresh_token'];
+    $token_type = $token_data['token_type'];
+    $expires_in = $token_data['expires_in'];
+   
+    $current_user_id = $current_user->id;
+    
+    $tQuery = $adb->pquery("SELECT * FROM vtiger_pandadoc_configuration WHERE vtiger_pandadoc_configuration.userid =?",
+        array($current_user_id));
+    
+    if($adb->num_rows($tQuery)){
+        
+        $adb->pquery("UPDATE vtiger_pandadoc_configuration SET access_token = ?, refresh_token = ?, token_type = ?,
+                    expires_in = ? WHERE userid = ?", array($access_token, $refresh_token, $token_type,
+                        $expires_in, $current_user_id));
+        
+    }else{
+        
+        $adb->pquery("INSERT INTO vtiger_pandadoc_configuration(userid, access_token, refresh_token, token_type, expires_in)
+                    VALUES (?, ?, ?, ?, ?)",array($current_user_id, $access_token, $refresh_token, $token_type, $expires_in));
+        
+    }
+    
+}
