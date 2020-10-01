@@ -601,3 +601,34 @@ if(!$adb->num_rows($quickCreateMenu)){
 }
 
 $adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");
+
+
+$actions = array('Download');
+foreach($actions as $action){
+    $actionQuery= $adb->pquery("SELECT actionid FROM vtiger_actionmapping ORDER BY actionid DESC LIMIT 1");
+    $actionId = $adb->query_result($actionQuery, 0, "actionid");
+    $checkAction = $adb->pquery("SELECT * FROM vtiger_actionmapping WHERE actionname = ?",array($action));
+    if(!$adb->num_rows($checkAction)){
+        $adb->pquery("INSERT INTO vtiger_actionmapping(actionid, actionname, securitycheck) VALUES (?,?,?)",
+            array($actionId+1,$action,0));
+    }
+}
+
+$tabid = getTabid("Documents");
+$results = $adb->pquery("SELECT actionid FROM vtiger_actionmapping WHERE actionname in ('Download')", array());
+if ($adb->num_rows($results)) {
+    while ($res_row = $adb->fetch_array($results)) {
+        $actionid = $res_row["actionid"];
+        $permission = "1";
+        $profileids = Vtiger_Profile::getAllIds();
+        foreach ($profileids as $useprofileid) {
+            $result = $adb->pquery("SELECT permission FROM vtiger_profile2utility WHERE profileid=? AND tabid=? AND activityid=?", array($useprofileid, $tabid, $actionid));
+            if (0 < $adb->num_rows($result)) {
+                $curpermission = $adb->query_result($result, 0, "permission");
+                $adb->pquery("UPDATE vtiger_profile2utility set permission=? WHERE profileid=? AND tabid=? AND activityid=?", array($curpermission, $useprofileid, $tabid, $actionid));
+            } else {
+                $adb->pquery("INSERT INTO vtiger_profile2utility (profileid, tabid, activityid, permission) VALUES(?,?,?,?)", array($useprofileid, $tabid, $actionid, $permission));
+            }
+        }
+    }
+}
