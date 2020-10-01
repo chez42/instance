@@ -306,7 +306,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		}
 
 		$groupByColumnsByFieldModel = $this->getGroupbyColumnsByFieldModel();
-
+		$fieldType = '';
 		if(is_array($groupByColumnsByFieldModel)) {
 			foreach($groupByColumnsByFieldModel as $groupField) {
 				/**
@@ -319,6 +319,7 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 				$this->reportRun->queryPlanner->addTable($groupField->get('table'));
 				$groupByColumns[] = "`".$groupField->get('reportlabel')."`"; // to escape special characters
 				$columns[] = $groupField->get('reportcolumn');
+				$fieldType = $groupField->getFieldType();
 			}
 		}
 
@@ -342,6 +343,14 @@ abstract class Base_Chart extends Vtiger_Base_Model{
 		if($groupByColumns && is_array($groupByColumns)) {
 			$chartSQL .= " GROUP BY " . implode(',', $groupByColumns);
 		}
+		
+		$orderModel = Reports_Chart_Model::getInstanceById($reportModel);
+		if($fieldType == 'DT' && $orderModel->get('orderby')){
+		    $chartSQL .= " ORDER BY Year(" . implode(',', $groupByColumns) . ") * 1, MONTH(".implode(',', $groupByColumns).") * 1 ".$orderModel->get('orderby');
+		}else if($orderModel->get('orderby')){
+		    $chartSQL .= " ORDER BY " . implode(',', $groupByColumns)." ". $orderModel->get('orderby');
+		}
+		
 		return $chartSQL;
 	}
 

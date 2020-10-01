@@ -108,6 +108,8 @@ class Reports_ChartDetail_View extends Vtiger_Index_View {
 		}
 		$viewer->assign('DASHBOARD_TABS', $activeTabs);
 
+		$viewer->assign('ORDERBY', $reportChartModel->get('orderby'));    
+		
 		$viewer->view('ChartReportHeader.tpl', $moduleName);
 	}
 
