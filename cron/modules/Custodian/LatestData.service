@@ -5,7 +5,8 @@ include_once("include/utils/omniscientCustom.php");
 require_once("libraries/custodians/cReady.php");
 
 $ready = new cReady();
-$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 
-$data = $ready->GetReadyModuleDataViaRepCode($rep_codes);
-print_r($data);
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+$data = $ready->GetReadyModuleDataViaRepCode($rep_codes, 2);//We now have a list of elements that are ready
+if(isset($data->account_list))
+    $ready->PullAllTD($data->account_list, true);
