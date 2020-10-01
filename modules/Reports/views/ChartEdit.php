@@ -260,6 +260,8 @@ Class Reports_ChartEdit_View extends Vtiger_Edit_View {
 		$viewer->assign('PRIMARY_MODULE',$primaryModule);
 		$viewer->assign('SECONDARY_MODULES',$secondaryModules);
 		$viewer->assign('MODULE', $moduleName);
+		
+		$viewer->assign('ORDERBY', $chartModel->get('orderby'));
 
 		$viewer->view('ChartEditStep3.tpl', $moduleName);
 	}

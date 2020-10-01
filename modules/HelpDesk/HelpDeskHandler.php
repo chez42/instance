@@ -560,6 +560,15 @@ function SyncTicketsWithHQ( $entityData ){
     
     $data = $entityData->getData();
     
+    $creatorId = vtws_getIdComponents($data['creator']);
+    $assigned = vtws_getIdComponents($data['assigned_user_id']);
+    
+    $creatorName = getUserFullName($creatorId[1]);
+    $userName = getUserFullName($assigned[1]);
+    
+    $data['originalcreatorname'] = $creatorName;
+    $data['originalassigneduser'] = $userName; 
+    
     require_once "vtlib/Vtiger/Net/Client.php";
     
     $httpc = new Vtiger_Net_Client("https://hq.360vew.com/webservice.php");

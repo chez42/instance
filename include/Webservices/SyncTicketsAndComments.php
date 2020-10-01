@@ -47,11 +47,13 @@ function vtws_save_tickets_and_comments($element,$user){
         $helpDesk->save('HelpDesk');
         
         
-       /*  if($helpDesk->id){
-            $fin_value = explode('x', $element['financial_advisor']);
-            $adb->pquery("UPDATE vtiger_ticketcf SET vtiger_ticketcf.financial_advisor = ? WHERE vtiger_ticketcf.ticketid = ?;",array($fin_value[1], $helpDesk->id));
-            $adb->pquery("UPDATE vtiger_troubletickets SET vtiger_troubletickets.ticket_no = ? WHERE vtiger_troubletickets.ticketid > ?",array($element['ticket_no'], $helpDesk->id));
-        } */
+        if($helpDesk->id){
+            $adb->pquery("UPDATE vtiger_troubletickets SET vtiger_troubletickets.original_assigned_to = ?, vtiger_troubletickets.original_creator = ? WHERE vtiger_troubletickets.ticketid = ?",
+                array($element['originalassigneduser'], $element['originalcreatorname'], $helpDesk->id));
+           // $fin_value = explode('x', $element['financial_advisor']);
+           // $adb->pquery("UPDATE vtiger_ticketcf SET vtiger_ticketcf.financial_advisor = ? WHERE vtiger_ticketcf.ticketid = ?;",array($fin_value[1], $helpDesk->id));
+            //$adb->pquery("UPDATE vtiger_troubletickets SET vtiger_troubletickets.ticket_no = ? WHERE vtiger_troubletickets.ticketid > ?",array($element['ticket_no'], $helpDesk->id));
+        } 
         
         return $helpDesk->id;
         

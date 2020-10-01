@@ -41,7 +41,9 @@ class Reports_ChartSave_Action extends Reports_Save_Action {
 		$reportModel->set('reporttypedata', Zend_Json::encode(array(
 																'type'=>$request->get('charttype', 'pieChart'),
 																'groupbyfield'=>$request->get('groupbyfield'),
-																'datafields'=>$dataFields)
+																'datafields'=>$dataFields,
+		                                                        'orderby' => $request->get('orderby')
+		                                                      )
 															));
 		$reportModel->save();
 
