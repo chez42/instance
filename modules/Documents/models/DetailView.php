@@ -21,33 +21,38 @@ class Documents_DetailView_Model extends Vtiger_DetailView_Model {
 
 		$linkModelList = parent::getDetailViewLinks($linkParams);
 		$recordModel = $this->getRecord();
-        if($recordModel->get('filestatus') && $recordModel->get('filename')) {
-            $previewAvailable = true;
-            if($recordModel->get('filelocationtype') === 'I'){
-                if(!count($recordModel->getFileDetails()))
-                    $previewAvailable = false;
-            }
-            if($previewAvailable){
-                $filePreviewLinkModel = array(
-                            'linktype' => 'DETAILVIEWBASIC',
-                            'linklabel' => 'LBL_VIEW_FILE',
-                            'linkicon' => '',
-                            'linkurl' => 'Vtiger_Header_Js.previewFile(event,'.$recordModel->getId().')',
-                            'filelocationtype' => $recordModel->get('filelocationtype'),
-                            'filename' => $recordModel->get('filename'),
-                    );
-                $linkModelList['DETAILVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($filePreviewLinkModel);
-            }
-		}
-
-		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I' && count($recordModel->getFileDetails())) {
-			$basicActionLink = array(
-					'linktype' => 'DETAILVIEW',
-					'linklabel' => 'LBL_DOWNLOAD_FILE',
-					'linkurl' => $recordModel->getDownloadFileURL(),
-					'linkicon' => ''
-			);
-			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+		
+		if(Users_Privileges_Model::isPermitted('Documents', 'DownloadDocuments')){
+            
+		    if($recordModel->get('filestatus') && $recordModel->get('filename')) {
+                $previewAvailable = true;
+                if($recordModel->get('filelocationtype') === 'I'){
+                    if(!count($recordModel->getFileDetails()))
+                        $previewAvailable = false;
+                }
+                if($previewAvailable){
+                    $filePreviewLinkModel = array(
+                                'linktype' => 'DETAILVIEWBASIC',
+                                'linklabel' => 'LBL_VIEW_FILE',
+                                'linkicon' => '',
+                                'linkurl' => 'Vtiger_Header_Js.previewFile(event,'.$recordModel->getId().')',
+                                'filelocationtype' => $recordModel->get('filelocationtype'),
+                                'filename' => $recordModel->get('filename'),
+                        );
+                    $linkModelList['DETAILVIEWBASIC'][] = Vtiger_Link_Model::getInstanceFromValues($filePreviewLinkModel);
+                }
+    		}
+    
+    		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I' && count($recordModel->getFileDetails())) {
+    			$basicActionLink = array(
+    					'linktype' => 'DETAILVIEW',
+    					'linklabel' => 'LBL_DOWNLOAD_FILE',
+    					'linkurl' => $recordModel->getDownloadFileURL(),
+    					'linkicon' => ''
+    			);
+    			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+    		}
+    		
 		}
         
         if($recordModel->get('filelocationtype') === 'I') {

@@ -568,7 +568,10 @@ function SyncTicketsWithHQ( $entityData ){
     
     $data['originalcreatorname'] = $creatorName;
     $data['originalassigneduser'] = $userName; 
-    
+	
+	$host_parts = explode(".", $_SERVER['HTTP_HOST']);
+	$data['source'] = $host_parts[0];
+	
     require_once "vtlib/Vtiger/Net/Client.php";
     
     $httpc = new Vtiger_Net_Client("https://hq.360vew.com/webservice.php");
@@ -585,7 +588,7 @@ function SyncTicketsWithHQ( $entityData ){
     
     $challengeToken = $jsonResponse['result']['token'];
     
-    $master_Key = 'Bq89UFzMqnDimcwg';
+    $master_Key = 'rV8daZto5LQj779';
     
     $generatedKey = md5($challengeToken.$master_Key);
     
@@ -597,10 +600,10 @@ function SyncTicketsWithHQ( $entityData ){
     
     $params['accessKey'] = $generatedKey;
     
-    $response= $httpc->doPost($params);
+    $response = $httpc->doPost($params);
     
     $jsonResponse = json_decode($response,true);
-        
+   
     $sessionId = $jsonResponse['result']['sessionName'];
     
     $userId = $jsonResponse['result']['userId'];
@@ -614,14 +617,16 @@ function SyncTicketsWithHQ( $entityData ){
 	);
     
     $response = $httpc->doPost($params);
-    
 }
 
 function SyncTicketCommentsWithHQ( $entityData ){
     
     
     global $adb;
-    
+    global $current_user;
+	
+	$current_user_name = $current_user->first_name . ' ' . $current_user->last_name;
+	
     $wsId = $entityData->getId();
     $parts = explode('x', $wsId);
     $entityId = $parts[1];
@@ -637,7 +642,10 @@ function SyncTicketCommentsWithHQ( $entityData ){
     if($adb->num_rows($comment)){
         $comData = $adb->query_result_rowdata($comment,0);
     }
-    
+	
+	
+	$comData['commentcontent'] = $current_user_name . ':  ' . $comData['commentcontent'];
+	
     $comData['mode'] = 'comment';
     
     require_once "vtlib/Vtiger/Net/Client.php";
@@ -656,7 +664,7 @@ function SyncTicketCommentsWithHQ( $entityData ){
     
     $challengeToken = $jsonResponse['result']['token'];
     
-    $master_Key = 'Bq89UFzMqnDimcwg';
+    $master_Key = 'rV8daZto5LQj779';
     
     $generatedKey = md5($challengeToken.$master_Key);
     
