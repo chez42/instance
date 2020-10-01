@@ -93,7 +93,7 @@
     	<div class="kt-aside__brand kt-grid__item " id="kt_aside_brand">
     		<div class="kt-aside__brand-logo">
     			<a href="index.php">
-    				<img alt="Logo" src="<?php echo $portal_logo;?>" />
+    				<img alt="Logo" src="<?php echo $portal_logo;?>" style = "width:100%;" />
     			</a>
     		</div>
 			<div class="kt-aside__brand-tools">
