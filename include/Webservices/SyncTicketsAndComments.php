@@ -31,28 +31,14 @@ function vtws_save_tickets_and_comments($element,$user){
         $helpDesk->column_fields['cf_656'] = $element['cf_656'];
         $helpDesk->column_fields['description'] = $element['description'];
         
-       /*  foreach($element as $key => $value){
-            if($key != 'id' && $key != 'label' && $key != 'creator' && $key != 'modifiedby' && $key != 'createdtime' && $key != 'modifiedtime'){
-                $helpDesk->column_fields[$key] = $value;
-            }
-            if($key == 'assigned_user_id' || $key == 'parent_id' || $key == 'financial_advisor' || $key == 'project_id'){
-                $value = explode('x',$value);
-                $helpDesk->column_fields[$key] = $value[1];
-            }
-        } */
-        
-        $helpDesk->column_fields['source'] = 'opt';
-        $helpDesk->column_fields['referenceid'] = $ticketId;
+        $helpDesk->column_fields['source'] = $element['source'];
         
         $helpDesk->save('HelpDesk');
         
         
         if($helpDesk->id){
-            $adb->pquery("UPDATE vtiger_troubletickets SET vtiger_troubletickets.original_assigned_to = ?, vtiger_troubletickets.original_creator = ? WHERE vtiger_troubletickets.ticketid = ?",
-                array($element['originalassigneduser'], $element['originalcreatorname'], $helpDesk->id));
-           // $fin_value = explode('x', $element['financial_advisor']);
-           // $adb->pquery("UPDATE vtiger_ticketcf SET vtiger_ticketcf.financial_advisor = ? WHERE vtiger_ticketcf.ticketid = ?;",array($fin_value[1], $helpDesk->id));
-            //$adb->pquery("UPDATE vtiger_troubletickets SET vtiger_troubletickets.ticket_no = ? WHERE vtiger_troubletickets.ticketid > ?",array($element['ticket_no'], $helpDesk->id));
+            $adb->pquery("UPDATE vtiger_troubletickets SET referenceid = ?, vtiger_troubletickets.original_assigned_to = ?, vtiger_troubletickets.original_creator = ? WHERE vtiger_troubletickets.ticketid = ?",
+            array($ticketId, $element['originalassigneduser'], $element['originalcreatorname'], $helpDesk->id));
         } 
         
         return $helpDesk->id;
@@ -81,3 +67,4 @@ function vtws_save_tickets_and_comments($element,$user){
     }
     
 }
+

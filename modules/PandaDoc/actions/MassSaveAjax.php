@@ -231,7 +231,7 @@ class PandaDoc_MassSaveAjax_Action extends Vtiger_Mass_Action {
                 
                 $postfields = array();
                 $postfields['name'] = $fileName;
-                $postfields['url'] = 'https://dev.omnisrv.com/ver4manish/demo_71414082.pdf';//rtrim($site_URL).'/'.$pdf;
+                $postfields['url'] = rtrim($site_URL).'/'.$pdf;
                 $postfields['recipients'] = array(
                     array(
                         'email'      => $toEmail,
