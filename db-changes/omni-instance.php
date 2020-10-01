@@ -144,6 +144,26 @@ Vtiger_Cron::register("Auto MSExchange Sync Task", "cron/MSExchangeTaskSync.serv
 
 $adb->pquery("ALTER TABLE vtiger_mailscanner_ids ADD user_name VARCHAR(250) NULL");
 
+$adb->pquery("ALTER TABLE vtiger_tab ADD ishide INT(3) NULL DEFAULT '0' ");
+
+$operation = array(
+	'name'=>'managemodules',
+    'path'=>'include/InstancesWebservices/ManageModules.php',
+    'method'=>'vtws_managemodules',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+
+
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name = ?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
+
 $module = Vtiger_Module::getInstance("Transactions");
 $fieldmodel = Vtiger_Field_Model::getInstance('description', $module);
 if($fieldmodel){
@@ -183,6 +203,23 @@ if (!$fieldInstance) {
     $field->displaytype = 2;
     $blockInstance->addField($field);
     
+}
+
+$operation = array('name'=>'manageinstanceusersrepcode',
+    'path'=>'include/InstancesWebservices/ManageInstanceUsersRepCode.php',
+    'method'=>'vtws_manageinstanceusersrepcode',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+
+
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
 }
 
 $moduleInstance = Vtiger_Module::getInstance('Contacts');
@@ -578,9 +615,6 @@ if($blockId){
     
 }
 
-$adb->pquery("CREATE TABLE IF NOT EXISTS 
-vtiger_portal_configuration ( portal_fields TEXT NULL DEFAULT NULL );");    
-
 $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
     array('Configure Chat Widget', 'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration&mode=chatWidget'));
 
@@ -600,8 +634,30 @@ if(!$adb->num_rows($quickCreateMenu)){
         
 }
 
-$adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");
+$functionPath = "modules/HelpDesk/HelpDeskHandler.php";
+$functionName = "SyncTicketsWithHQ";
+$checkMeth = $adb->pquery("SELECT * FROM com_vtiger_workflowtasks_entitymethod
+WHERE function_path = ? AND function_name = ?",array($functionPath, $functionName));
+if(!$adb->num_rows($checkMeth)){
+    require_once 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+    $class = new VTEntityMethodManager($adb);
+    $class->addEntityMethod('HelpDesk', 'Sync Tickets With HQ', $functionPath, $functionName);
+}
 
+$functionPath = "modules/HelpDesk/HelpDeskHandler.php";
+$functionName = "SyncTicketCommentsWithHQ";
+$checkMeth = $adb->pquery("SELECT * FROM com_vtiger_workflowtasks_entitymethod
+WHERE function_path = ? AND function_name = ?",array($functionPath, $functionName));
+if(!$adb->num_rows($checkMeth)){
+    require_once 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+    $class = new VTEntityMethodManager($adb);
+    $class->addEntityMethod('HelpDesk', 'Sync Ticket Comments With HQ', $functionPath, $functionName);
+} 
+
+$adb->pquery("CREATE TABLE IF NOT EXISTS 
+vtiger_portal_configuration ( portal_fields TEXT NULL DEFAULT NULL );");    
+
+$adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");
 
 $actions = array('Download');
 foreach($actions as $action){
@@ -632,4 +688,5 @@ if ($adb->num_rows($results)) {
         }
     }
 }
+
 
