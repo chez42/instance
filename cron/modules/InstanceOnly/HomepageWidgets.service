@@ -41,3 +41,4 @@ $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), tr
 
 StatusUpdate::UpdateMessage("TDUPDATER", "Updating Previous 7");
 PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+StatusUpdate::UpdateMessage("TDUPDATER", "finished");
