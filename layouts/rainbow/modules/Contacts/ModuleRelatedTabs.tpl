@@ -139,7 +139,7 @@
 					</ul>
 				</li>
 			{/if}
-			<li>
+			<li class = "stellarnavli">
 				{if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
                 	{include file='layouts/rainbow/modules/Vtiger/ReportsNavigation.tpl'}
 				{/if}
