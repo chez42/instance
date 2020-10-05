@@ -1928,7 +1928,9 @@ class Accounts extends CRMEntity {
         
         require_once("libraries/reports/cReports.php");
         include_once('libraries/reports/new/nCommon.php');
-        
+
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromHouseholdID($id);
+        /*
         $report = new cReports('household', $id);
        
         if($report->pids)
@@ -1939,7 +1941,7 @@ class Accounts extends CRMEntity {
             $account_numbers = array_merge($account_numbers, $account_numbers_ssn);
         else
             $account_numbers = $account_numbers_ssn;
-         
+         */
         $questions = SeparateArrayToQuoteAndCommas($account_numbers);
         
         $userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
