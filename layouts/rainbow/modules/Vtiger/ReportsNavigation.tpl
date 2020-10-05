@@ -7,11 +7,15 @@
 .stellarnav li a:hover{
 	 background-color: transparent !important;
  }
+li.stellarnavli {
+	border-bottom:0px !important;
+}
+.stellarnav ul ul {width:auto !important;min-width:220px;}
 </style>
 {/literal}
 <div class="stellarnav" style="z-index:10; margin:0; padding:0;">
     <ul>
-        <li><a href="#" style = "font-weight:800;">Reports</a>
+        <li class = "stellarnavli"><a href="#" style = "font-weight:800;">Reports</a>
             <ul>
                 <li><a href="#">Performance</a>
                     <ul>
