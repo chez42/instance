@@ -1847,18 +1847,20 @@ function get_contactsforol($user_name)
         
         require_once("libraries/reports/cReports.php");
         include_once('libraries/reports/new/nCommon.php');
-        
-        $report = new cReports('contacts', $id);
-        
-        if($report->pids)
-            $account_numbers = GetPortfolioAccountNumbersFromPids($report->pids);
-        if($report->ssn)
-            $account_numbers_ssn = GetPortfolioAccountNumbersFromSSN($report->ssn);
-        if(is_array($account_numbers))
-            $account_numbers = array_merge($account_numbers, $account_numbers_ssn);
-        else
-            $account_numbers = $account_numbers_ssn;
-            
+
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromContactID($id);
+
+        /*        $report = new cReports('contacts', $id);
+
+                if($report->pids)
+                    $account_numbers = GetPortfolioAccountNumbersFromPids($report->pids);
+                if($report->ssn)
+                    $account_numbers_ssn = GetPortfolioAccountNumbersFromSSN($report->ssn);
+                if(is_array($account_numbers))
+                    $account_numbers = array_merge($account_numbers, $account_numbers_ssn);
+                else
+                    $account_numbers = $account_numbers_ssn;
+        */
         $questions = SeparateArrayToQuoteAndCommas($account_numbers);
         
         $userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>
