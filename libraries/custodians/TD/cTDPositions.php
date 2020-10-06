@@ -158,7 +158,7 @@ class cTDPositions extends cCustodian {
                 StatusUpdate::UpdateMessage("TDUPDATER", "Updating Positions for {$k}");
                 foreach ($v AS $a => $position) {
                     $data = $this->positions_data[$k][$a];
-                    if (!empty($data)) {
+                    if (isset($data)) {
                         $tmp = new cTDPositionsData($data);
                         $this->UpdatePositionsUsingcTDPositionsData($tmp);
                     }
