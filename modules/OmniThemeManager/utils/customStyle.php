@@ -892,4 +892,4 @@ tbody .ps__thumb-y{
 
 .stellarnav li li.has-sub > a:after {border-left: 6px solid <?= $text_contrast_menu ?> !important;}
 .stellarnav li a {color: <?= $text_contrast_menu ?> !important;}
-.stellarnav li {background-color:<?= $menu_color ?>;; border:<?= $menu_color ?>;}
+.stellarnav li {background-color:<?= $menu_color ?>; border:<?= $menu_color ?>;}
