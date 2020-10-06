@@ -194,21 +194,22 @@ class Potentials_Module_Model extends Vtiger_Module_Model {
 		$db = PearDatabase::getInstance();
 		$query = "SELECT crmid, amount, potentialname, related_to FROM vtiger_potential
 						INNER JOIN vtiger_crmentity ON vtiger_potential.potentialid = vtiger_crmentity.crmid
-							AND deleted = 0 ".Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName())."
-						WHERE sales_stage NOT IN ('Closed Won', 'Closed Lost') AND amount > 0
-						ORDER BY amount DESC LIMIT ".$pagingModel->getStartIndex().", ".$pagingModel->getPageLimit()."";
-		$result = $db->pquery($query, array());
-
-		$models = array();
-		for($i=0; $i<$db->num_rows($result); $i++) {
-			$modelInstance = Vtiger_Record_Model::getCleanInstance('Potentials');
-			$modelInstance->setId($db->query_result($result, $i, 'crmid'));
-			$modelInstance->set('amount', $db->query_result($result, $i, 'amount'));
-			$modelInstance->set('potentialname', $db->query_result($result, $i, 'potentialname'));
-			$modelInstance->set('related_to', $db->query_result($result, $i, 'related_to'));
-			$models[] = $modelInstance;
-		}
-		return $models;
+						AND deleted = 0 ".Users_Privileges_Model::getNonAdminAccessControlQuery($this->getName())."
+						LEFT JOIN vtiger_sales_stage ON vtiger_sales_stage.sales_stage = vtiger_potential.sales_stage
+						WHERE vtiger_potential.sales_stage NOT IN ('Closed Won', 'Closed Lost') AND amount > 0
+						ORDER BY vtiger_sales_stage.sortorderid DESC, vtiger_potential.amount DESC LIMIT ".$pagingModel->getStartIndex().", ".$pagingModel->getPageLimit()."";
+	    $result = $db->pquery($query, array());
+	    
+	    $models = array();
+	    for($i=0; $i<$db->num_rows($result); $i++) {
+	        $modelInstance = Vtiger_Record_Model::getCleanInstance('Potentials');
+	        $modelInstance->setId($db->query_result($result, $i, 'crmid'));
+	        $modelInstance->set('amount', $db->query_result($result, $i, 'amount'));
+	        $modelInstance->set('potentialname', $db->query_result($result, $i, 'potentialname'));
+	        $modelInstance->set('related_to', $db->query_result($result, $i, 'related_to'));
+	        $models[] = $modelInstance;
+	    }
+	    return $models;
 	}
 
 	/**
