@@ -4,9 +4,19 @@ require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
 require_once("libraries/custodians/cReady.php");
 
-$ready = new cReady();
-
 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+
+$locations = new cFileHandling();
+$data = $locations->GetLocationDataFromRepCode($rep_codes);
+foreach($data AS $k => $v){
+    StatusUpdate::UpdateMessage("MANUALPARSING", "Auto Parsing {$v->rep_code}");
+    $parse = new FileParsing($v->custodian, 'parse_all', 3, 0, $v->rep_code);
+    $parse->parseFiles();
+}
+StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
+
+
+$ready = new cReady();
 $data = $ready->GetReadyModuleDataViaRepCode($rep_codes, 2);//We now have a list of elements that are ready
 if(isset($data->account_list))
     $ready->PullAllTD($data->account_list, true);
