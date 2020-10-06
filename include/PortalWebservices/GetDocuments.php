@@ -76,8 +76,9 @@ function vtws_getdocuments($element,$user){
             
         } else {
             
-            $folder_query .= ' AND vtiger_documentfolder.documentfolderid in (select doc_folder_id from vtiger_notes
-			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid where vtiger_senotesrel.crmid = ?)';
+            $folder_query .= ' AND (vtiger_documentfolder.documentfolderid in (select doc_folder_id from vtiger_notes
+			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid where vtiger_senotesrel.crmid = ?)
+            OR vtiger_documentfolder.folder_name = BINARY "Default")';
             
             $params[] = $element['ID'];
             
@@ -137,26 +138,33 @@ function vtws_getdocuments($element,$user){
                 if($file[0] == 'image'){
                     $icon = 'img.jpg';
                     $fileType = 'image File';
+                    $preview = true;
                 }else if($file[0] == 'video'){
                     $icon = 'video.jpg';
                     $fileType = 'video File';
+                    $preview = true;
                 }else if($file[0] == 'text'){
                     $icon = 'document.png';
                     $fileType = 'text File';
+                    $preview = false;
                 }else if($file[1] == 'pdf'){
                     $icon = 'pdf.png';
                     $fileType = 'pdf File';
+                    $preview = true;
                 }else if($file[1] == 'zip'){
                     $icon = 'zip.jpg';
                     $fileType = 'zip File';
+                    $preview = false;
                 }else if(strpos($file[1], 'ms')!== false || strpos($file[1], 'vnd') !== false){
                     $icon = 'office.jpg';
                     $fileType = 'office File';
+                    $preview = false;
                 }else {
                     $icon = 'document.png';
                     $fileType = 'doc File';
                     if($loctype == 'E')
                         $fileType = 'external File';
+                    $preview = false;
                 }
                 
                 
@@ -165,16 +173,19 @@ function vtws_getdocuments($element,$user){
 					<div style = "float:left;padding-left:5px;vertical-align:middle;line-height:20px;color:#48465b;font-weight:500;">
 						<a href="javascript:void(0)" data-filelocationtype="' . $loctype .'" data-filename="'.$folder_data['fileName'].'" data-fileid="' . $docId . '">
 							'.substr($docName,0,20).'
-							<br><span class="document_preview" title="Preview" style="font-size:1.5em!important;">
-								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
-									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-										<rect x="0" y="0" width="24" height="24"/>
-										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
-										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"/>
-									</g>
-								</svg>
-							</span>&nbsp;&nbsp;
-							<span class="document_download" title="Download" style="font-size:1.5em!important;">
+							<br>';
+                            if($preview){
+                                $html .= '<span class="document_preview" title="Preview" style="font-size:1.5em!important;">
+    								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+    									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    										<rect x="0" y="0" width="24" height="24"/>
+    										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"/>
+    										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"/>
+    									</g>
+    								</svg>
+    							</span>&nbsp;&nbsp;';
+                            }
+							$html .='<span class="document_download" title="Download" style="font-size:1.5em!important;">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
 									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 										<rect x="0" y="0" width="24" height="24"/>

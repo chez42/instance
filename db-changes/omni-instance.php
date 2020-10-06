@@ -690,3 +690,37 @@ if ($adb->num_rows($results)) {
 }
 
 
+$blockId = '';
+$blockLabel = 'LBL_OTHER_SETTINGS';
+$block_result = $adb->pquery("SELECT * FROM vtiger_settings_blocks
+WHERE label = ?",array($blockLabel));
+if($adb->num_rows($block_result)){
+    $blockId = $adb->query_result($block_result, 0, 'blockid');
+}
+
+if($blockId){
+    
+    $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Stratifi Configuration', 'index.php?parent=Settings&module=Vtiger&view=StratifiConfiguration'));
+    
+    if(!$adb->num_rows($quickCreateMenu)){
+        
+        $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    	as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockId)),
+            0, 'sequence') + 1;
+            
+        $fieldid = $adb->getUniqueId('vtiger_settings_field');
+            
+        $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+    	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockId,$sequence, 'Stratifi Configuration', '','',
+	    'index.php?parent=Settings&module=Vtiger&view=StratifiConfiguration'));
+        
+    
+    }
+    
+    
+}
+
+$adb->pquery("CREATE TABLE `vtiger_stratifi_configuration` (
+ `rep_codes` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1");

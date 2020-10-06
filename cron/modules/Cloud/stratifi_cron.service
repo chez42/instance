@@ -1,24 +1,38 @@
 <?php
 
-$control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
-                         'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
-$strat_hh = new StratHouseholds();
-$strat_contact = new StratContacts();
-$sAdvisors = new StratAdvisors();
+global $adb;
 
-$account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
-$sAdvisors->AutoCreateCompanies();
-$sAdvisors->AutoCreateAdvisors();
+$result = $adb->pquery("select * from vtiger_stratifi_configuration where rep_codes != ''");
 
-PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
-PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
-PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
-PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
-#PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
-$strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
-$strat_contact->GetAllContactsAndUpdateAdvisorOwnership();
-PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
-
+if($adb->num_rows($result)){
+	
+	$rep_codes = $adb->query_result($result, 0, "rep_codes");
+	
+	$control_numbers = explode(",", $rep_codes); 
+				
+				
+				
+	/*array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
+	                         'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active
+	 */                       
+	                         
+	$strat_hh = new StratHouseholds();
+	$strat_contact = new StratContacts();
+	$sAdvisors = new StratAdvisors();
+	
+	$account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
+	$sAdvisors->AutoCreateCompanies();
+	$sAdvisors->AutoCreateAdvisors();
+	
+	PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
+	PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
+	PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
+	PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
+	#PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
+	$strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
+	$strat_contact->GetAllContactsAndUpdateAdvisorOwnership();
+	PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
+}
 
 /*
 $control_numbers = array('SV2', 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1');//SD2 is patrick berry, no longer active
