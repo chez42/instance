@@ -37,7 +37,7 @@
 	$response = postHttpRequest($ws_url, $postParams);
 	
 	$response = json_decode($response,true);
-	 
+	
 	$widgetsPosition = $response['result']['widgetsPosition'];
 	
 	$widgetsPosition = array();
@@ -86,6 +86,9 @@
     	$ticketProgress = array();
     	
 	}
+	
+	$recentDocuments = $response['result']['recentWidget'];
+	
 ?>
 
         	<style>
@@ -121,9 +124,56 @@
             		<?php if(!empty($avmod)){?>
             		<div class="gridstack grid-stack" data-gs-width="12" >
             			
+            			<div data-gs-id="recent_upload_widget" id="recent_upload_widget" 
+                			data-gs-x=<?php echo $widgetsPosition['recent_upload_widget']['row'];?> 
+                			data-gs-y=<?php echo $widgetsPosition['recent_upload_widget']['col'];?> 
+                			data-gs-width=<?php if($widgetsPosition['recent_upload_widget']['width'])echo $widgetsPosition['recent_upload_widget']['width'];else echo'12';?>
+                			data-gs-height=<?php if($widgetsPosition['recent_upload_widget']['height'])echo $widgetsPosition['recent_upload_widget']['height'];else echo'5';?>
+                			class="dashboardWidget grid-stack-item">
+                    		
+                            <div class='col-lg-12 grid-stack-item-content kt-portlet'>
+                            	
+                            	<div class="kt-portlet__head">
+                    				<div class = "kt-portlet__head-label">
+                    					<h3 class="kt-portlet__head-title">Recent Uploads</h3>
+                    				</div>
+                				</div>
+                    			
+                    			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent " style="padding:10px;">
+                        			<div class="table-responsive">
+                                        <table class="table table-bordered text-center">
+                                        	<tr>
+                                        		<th>FileName</th>
+                                        		<th>FolderName</th>
+                                        		<th>Preview</th>
+                                        	</tr>
+                                        	<?php foreach($recentDocuments as $recDoc){?>
+                                            	<tr>
+                                            		<td><?php echo $recDoc['filename'];?></td>
+                                            		<td><?php echo $recDoc['foldername'];?></td>
+                                            		<td><?php
+                                            		  $html = '<a href="javascript:void(0)" data-filelocationtype="I" data-filename="" data-fileid="'.$recDoc['docid'].'">
+                                                        <span class="document_preview" title="Preview" style="font-size:1.5em!important;">
+                        								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
+                        									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        										<rect x="0" y="0" width="24" height="24"></rect>
+                        										<path d="M3,12 C3,12 5.45454545,6 12,6 C16.9090909,6 21,12 21,12 C21,12 16.9090909,18 12,18 C5.45454545,18 3,12 3,12 Z" fill="#000000" fill-rule="nonzero" opacity="0.3"></path>
+                        										<path d="M12,15 C10.3431458,15 9,13.6568542 9,12 C9,10.3431458 10.3431458,9 12,9 C13.6568542,9 15,10.3431458 15,12 C15,13.6568542 13.6568542,15 12,15 Z" fill="#000000" opacity="0.3"></path>
+                        									</g>
+                        								</svg></span></a>';
+                                            		  echo $recDoc['attid'] ? $html : '';?></td>
+                                            	</tr>
+                                        	<?php }?>
+                                        </table>
+                                    </div>
+                    			</div>
+                    		
+                    		</div>
+                    		
+                    	</div>
             			<?php 
             			    
-            			    $element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId'], 'emptyFolder' => true);
+            			    $element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId'], 'emptyFolder' => false);
 
                         	$postParams = array(
                         		'operation'=>'get_documents',
@@ -170,6 +220,11 @@
                     					<button class="add-doc-btn btn btn-brand btn-sm" title="Add Documents">
                             				<i class="fa fa-upload"></i> Upload
                                         </button>
+                                        <a href="#" class="btn ">
+                                          	Show Empty Folders : &nbsp;
+                                            <input class="pull-right" title="Empty Folders" type="checkbox" name="emptyFolder" value='1' >
+                                            <i class = "fa fa-question-circle" data-toggle = "kt-tooltip" style = "margin-left:5px;font-size:15px !important;color:#5867dd;" data-content = "By Default Folders with Documents are shown, click this checkbox to view all Folders"  data-original-title = "By Default Folders with Documents are shown, click this checkbox to view all Folders"></i>
+                            		  	</a>
                     				</div>
                 				</div>
                     			
@@ -684,7 +739,10 @@
 			
 			var hasClass = $(this).hasClass('filterName');
 
-			var empty = true;
+			var empty = false;
+			if($('[name="emptyFolder"]').prop('checked')){
+				var empty = true;
+			}
 			
 			$.ajax({
 
@@ -735,7 +793,11 @@
 			
 			var folderId = $(this).data('folderId');
 
-			var empty = true;
+			var empty = false;
+
+			if($('[name="emptyFolder"]').prop('checked')){
+				var empty = true;
+			}
 			
 			$.ajax({
 				url:'folderData.php',
@@ -755,6 +817,32 @@
 			});
 		});
 
+		$(document).on('change','[name="emptyFolder"]', function(){
+    		
+			$('body').waitMe({effect : 'orbit',text : 'Please wait...' });
+
+			var empty = false;
+
+			if($(this).prop('checked')){
+				var empty = true;
+			}
+
+			var folderId = $(document).find('.foldersData').data('parentFolder');
+
+    		var index = parseInt(jQuery('[name="startIndex"]').val());
+    		
+			$.ajax({
+				url:'folderData.php',
+				data:'folder_id='+folderId+'&emptyFolder='+empty,
+				error: function(errorThrown) {},
+				success: function(data) {
+					$('.folderContent').html(data);
+					$('body').waitMe('hide');
+				}
+			});
+			
+		});
+		
 		$('div.dashboardWidgetContent').scroll(function() {
 			if($(document).find('.fileDrag').length > 0){
 				 if ($(this).scrollTop() + $(this).height() >= $('.folderContent').outerHeight() - 30 && 
@@ -846,7 +934,7 @@
 				allowMultipleUploads: true,
 				restrictions: {
     			    maxFileSize: 20971520,
-    			    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']
+    			    //allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx']
     			}
 			}).use(Uppy.Dashboard, {
           		inline: false,
