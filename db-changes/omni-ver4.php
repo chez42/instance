@@ -578,9 +578,6 @@ if($blockId){
     
 }
 
-$adb->pquery("CREATE TABLE IF NOT EXISTS 
-vtiger_portal_configuration ( portal_fields TEXT NULL DEFAULT NULL );");    
-
 $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
     array('Configure Chat Widget', 'index.php?parent=Settings&module=Vtiger&view=PortalConfiguration&mode=chatWidget'));
 
@@ -601,7 +598,6 @@ if(!$adb->num_rows($quickCreateMenu)){
 }
 
 $adb->pquery("ALTER TABLE vtiger_portal_configuration ADD portal_chat_widget_code TEXT NULL");
-
 
 $actions = array('Download');
 foreach($actions as $action){
@@ -633,3 +629,38 @@ if ($adb->num_rows($results)) {
     }
 }
 
+
+$blockId = '';
+$blockLabel = 'LBL_OTHER_SETTINGS';
+$block_result = $adb->pquery("SELECT * FROM vtiger_settings_blocks
+WHERE label = ?",array($blockLabel));
+if($adb->num_rows($block_result)){
+    $blockId = $adb->query_result($block_result, 0, 'blockid');
+}
+
+if($blockId){
+    
+    $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+    array('Stratifi Configuration', 'index.php?parent=Settings&module=Vtiger&view=StratifiConfiguration'));
+    
+    if(!$adb->num_rows($quickCreateMenu)){
+        
+        $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    	as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockId)),
+            0, 'sequence') + 1;
+            
+        $fieldid = $adb->getUniqueId('vtiger_settings_field');
+            
+        $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+    	VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockId,$sequence, 'Stratifi Configuration', '','',
+	    'index.php?parent=Settings&module=Vtiger&view=StratifiConfiguration'));
+        
+    
+    }
+    
+    
+}
+
+$adb->pquery("CREATE TABLE `vtiger_stratifi_configuration` (
+ `rep_codes` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1");
