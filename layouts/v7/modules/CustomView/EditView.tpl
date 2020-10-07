@@ -156,7 +156,7 @@
 								</optgroup>
 							{/foreach}
 						</select>
-						<input type="hidden" name="status" id="allUsersStatusValue" value=""
+						<input type="hidden" name="status" id="allUsersStatusValue" value="" data-value="{$CUSTOMVIEW_MODEL->get('status')}"
 							data-public="{$CV_PUBLIC_VALUE}" data-private="{$CV_PRIVATE_VALUE}"/>
 
 					</div>
