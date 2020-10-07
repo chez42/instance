@@ -254,7 +254,14 @@ jQuery.Class("Vtiger_CustomView_Js",{
 					if(self.isAllUsersSelected() && (jQuery('[data-toogle-members]').is(":checked"))){
 						allUsersStatusEle.val(allUsersStatusEle.data('public'));
 					}else{
-						allUsersStatusEle.val(allUsersStatusEle.data('private'));
+						if(allUsersStatusEle.data('value') == 0){
+							var checkVal = allUsersStatusEle.data('value');
+						}else if(allUsersStatusEle.data('value')){
+							var checkVal = allUsersStatusEle.data('value');
+						}else{
+							var checkVal = allUsersStatusEle.data('private');
+						}
+						allUsersStatusEle.val(checkVal);
 					}
 					self.saveAndViewFilter();
 					return false;

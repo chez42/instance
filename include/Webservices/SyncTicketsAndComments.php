@@ -24,12 +24,12 @@ function vtws_save_tickets_and_comments($element,$user){
         }
         
         $helpDesk->column_fields['ticket_title'] = $element['ticket_title'];
-        $helpDesk->column_fields['ticketcategories'] = $element['ticketcategories'];
-        $helpDesk->column_fields['cf_3643'] = $element['cf_3643'];
+        $helpDesk->column_fields['description'] = $element['description'];
+        $helpDesk->column_fields['cf_656'] = $element['cf_656'];
         $helpDesk->column_fields['ticketstatus'] = $element['ticketstatus'];
         $helpDesk->column_fields['ticketpriorities'] = $element['ticketpriorities'];
-        $helpDesk->column_fields['cf_656'] = $element['cf_656'];
-        $helpDesk->column_fields['description'] = $element['description'];
+        $helpDesk->column_fields['cf_658'] = $element['cf_658'];
+        $helpDesk->column_fields['cf_646'] = $element['cf_646'];
         
         $helpDesk->column_fields['source'] = $element['source'];
         

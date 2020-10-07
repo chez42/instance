@@ -366,16 +366,15 @@
 																	</a>
 																	
 																	<ul class="dropdown-menu quickcreateMoreDropdown" aria-labelledby="menubar_quickCreate_{$moduleModel->getName()}">
-																		<li class="dropdown-header"><i class="material-icons">file_upload</i> {vtranslate('LBL_FILE_UPLOAD', $moduleName)}</li>
-																		<li id="VtigerAction">
+																		<li class="dropdown-header" style = "font-size:14px;"><i class="material-icons">file_upload</i> {vtranslate('LBL_FILE_UPLOAD', $moduleName)}</li>
+																		<li id="VtigerAction" style = "padding-left:17px;font-size:14px;">
 																			<a href="javascript:Documents_Index_Js.uploadTo('Vtiger')">
 																				<i class="fa fa-desktop"> </i>  {vtranslate('LBL_FROM_COMPUTER', 'Documents' )}
 																			</a>
 																		</li>
-																		<li class="dropdown-header"><i class="ti-link"></i> {vtranslate('LBL_LINK_EXTERNAL_DOCUMENT', $moduleName)}</li>
-																		<li id="shareDocument"><a href="javascript:Documents_Index_Js.createDocument('E')">&nbsp;<i class="material-icons">link</i>&nbsp;&nbsp; {vtranslate('LBL_FROM_SERVICE', $moduleName, {vtranslate('LBL_FILE_URL', $moduleName)})}</a></li>
-																		<li role="separator" class="divider"></li>
-																		<li id="createDocument"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
+																		<li class="dropdown-header" style = "font-size:14px;"><i class="ti-link"></i> {vtranslate('LBL_LINK_EXTERNAL_DOCUMENT', $moduleName)}</li>
+																		<li id="shareDocument" style = "padding-left:17px;font-size:14px;"><a href="javascript:Documents_Index_Js.createDocument('E')"><i class="fa fa-link"></i> {vtranslate('LBL_FROM_SERVICE', $moduleName, {vtranslate('LBL_FILE_URL', $moduleName)})}</a></li>
+																		<li id="createDocument" style = "font-size:14px;"><a href="javascript:Documents_Index_Js.createDocument('W')"><i class="ti-file"></i> {vtranslate('LBL_CREATE_NEW', $moduleName, {vtranslate('SINGLE_Documents', $moduleName)})}</a></li>
 																	</ul>
 																</div>
 																

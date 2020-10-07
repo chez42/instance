@@ -23,11 +23,22 @@ class Settings_Vtiger_StratifiConfiguration_View extends Settings_Vtiger_Index_V
         
         $qualifiedName = $request->getModule(false);
         
+        global $adb;
+        
+        $userPick = array();
+        
+        $userQuery = $adb->pquery("SELECT CONCAT(vtiger_users.first_name,' ',vtiger_users.last_name) AS fullname, vtiger_users.advisor_control_number FROM vtiger_users");
+        if($adb->num_rows($userQuery)){
+            for($u=0;$u<$adb->num_rows($userQuery);$u++){
+                $userPick[$adb->query_result($userQuery, $u, 'advisor_control_number')] = $adb->query_result($userQuery, $u, 'fullname');
+            }
+        }
+        
+        $viewer->assign('USERPICK', $userPick);
+        
         $viewer->assign('USER_MODEL', $currentUserModel);
         
         $viewer->assign('MODULE',$moduleName);
-        
-        global $adb;
         
         $result = $adb->pquery("SELECT * FROM vtiger_stratifi_configuration");
         

@@ -20,7 +20,7 @@ Vtiger.Class("Settings_Vtiger_StratifiConfiguration_Js",{},{
 	/*
 	 * function to Save the Outgoing Server Details
 	 */
-	saveDocuSignDetails : function(form) {
+	saveStratifiConfiguration : function(form) {
 		var thisInstance = this;
 		var aDeferred = jQuery.Deferred();
 		var data = form.serializeFormData();
@@ -84,7 +84,7 @@ Vtiger.Class("Settings_Vtiger_StratifiConfiguration_Js",{},{
             submitHandler : function(form) {
             	app.helper.showProgress();
                 var form = jQuery(form);
-				thisInstance.saveDocuSignDetails(form);
+				thisInstance.saveStratifiConfiguration(form);
             }
 		};
 		if (form.length) {
@@ -139,7 +139,31 @@ Vtiger.Class("Settings_Vtiger_StratifiConfiguration_Js",{},{
 		var thisInstance = this;
 		thisInstance.registerEditViewEvents();
 		thisInstance.registerDetailViewEvents();
+		thisInstance.registerEventForSelectUsers();
 		
+	},
+	
+	registerEventForSelectUsers: function(){
+		$('[name="users"]').on('change', function(){
+			
+			var thisVal = $(this).val();
+			
+			var repCodesArray = [];
+			
+			var repCodes = $('[name="rep_codes"]').val();
+			
+			if(repCodes)
+				repCodesArray = repCodes.split(',');
+			
+			repCodesArray.push(thisVal);
+			
+			var unique = repCodesArray.filter(function(itm, i, a) {
+			    return i == a.indexOf(itm);
+			});
+
+			$('[name="rep_codes"]').val(unique.join(','));
+			
+		});
 	}
 
 });
