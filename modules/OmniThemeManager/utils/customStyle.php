@@ -504,7 +504,7 @@ tbody .ps__thumb-y{
 	background: <?= $menu_color ?>;
 	color: <?= $text_contrast_menu ?>;
 }
-.related-tabs.row a, .nav-tabs:not(.massEditTabs, .dashboardTab)>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus{
+.related-tabs.row a, .nav-tabs:not(.massEditTabs)>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus{
 	color: <?= $text_contrast_menu ?>;
 }
 
@@ -886,8 +886,8 @@ tbody .ps__thumb-y{
 	background: <?= $menu_color ?>;
 	color: <?= $text_contrast_menu ?>!important;
 }
-.nav-tabs:not(.massEditTabs, .dashboardTab)>li>a{
-	color: <?= $text_contrast_menu ?>!important;
+.nav-tabs:not(.massEditTabs)>li>a{
+	color: <?= $text_contrast_menu ?>;
 }
 
 .stellarnav li li.has-sub > a:after {border-left: 6px solid <?= $text_contrast_menu ?> !important;}

@@ -6962,7 +6962,7 @@ input:focus::-moz-placeholder {
 input:focus:-ms-input-placeholder {
   color: transparent;
 }
-.global-actions .dropdown-menu:before {
+/*.global-actions .dropdown-menu:before {
   position: absolute;
   top: -7px;
   right: 13px;
@@ -6982,7 +6982,7 @@ input:focus:-ms-input-placeholder {
   border-bottom: 6px solid #ffffff;
   border-left: 6px solid transparent;
   content: '';
-}
+}*/
 #sharedcalendar .fc-event-container .vicon-meeting,
 #mycalendar .fc-event-container .vicon-meeting {
   font-size: inherit;
