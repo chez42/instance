@@ -41,6 +41,21 @@
 								<tbody>
 									<tr>
 										<td class="{$WIDTHTYPE} fieldLabel">
+											<label>{vtranslate('Users', $QUALIFIED_MODULE)}</label>&nbsp
+										</td>
+										<td class="{$WIDTHTYPE} fieldValue">
+											<div class=" col-lg-6 col-md-6 col-sm-12">
+												<select class="inputElement select2" name="users" id="users">
+													<option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
+													{foreach item=USERNAME key=USERNO from=$USERPICK}
+														<option value="{$USERNO}">{$USERNAME}</option>
+													{/foreach}
+												</select>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td class="{$WIDTHTYPE} fieldLabel">
 											<label>{vtranslate('Rep Code', $QUALIFIED_MODULE)}</label>&nbsp;<span class="redColor">*</span>
 										</td>
 										<td class="{$WIDTHTYPE} fieldValue">
