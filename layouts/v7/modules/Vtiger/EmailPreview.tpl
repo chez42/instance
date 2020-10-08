@@ -133,12 +133,26 @@
 											{vtranslate('LBL_NO_ATTACHMENTS',$MODULE)}
 										{else}
 											{foreach item=ATTACHMENT_DETAILS from=$RECORD->getAttachmentDetails()}
-												<i class="fa fa-download"></i>&nbsp;
-												<a	{if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
-														href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
-													{else} 
-														href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
-													{/if}>{$ATTACHMENT_DETAILS['attachment']}</a>&nbsp;&nbsp; 
+												<!-- <i class="fa fa-download"></i> -->
+												<span class="more dropdown action" style="cursor:pointer;">
+													<span href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+														<i class="fa fa-ellipsis-v icon"></i>
+													</span>
+													<ul class="dropdown-menu">
+														<li>
+															<a	{if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
+																href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
+															{else} 
+																href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
+															{/if}>Save on desktop</a>
+														</li>
+														<li>
+															<a class="saveasdocument" href="javascript:void(0);" id="saveasdocument" data-id="{$ATTACHMENT_DETAILS['fileid']}" >Save as document</a>
+														</li>
+													</ul>
+												</span>
+												&nbsp; 
+												{$ATTACHMENT_DETAILS['attachment']}&nbsp;&nbsp; 
 											{/foreach}
 										{/if}
 									</span>
