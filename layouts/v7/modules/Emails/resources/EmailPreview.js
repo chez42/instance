@@ -80,6 +80,35 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
         var thisInstance = this;
         app.event.on('post.EmailPreview.load',function(event,args){
             thisInstance.registerEventsForActionButtons();
+            thisInstance.registerEventForSaveDocument();
         });
-	}
+	},
+	
+	registerEventForSaveDocument : function(){
+		
+		jQuery('.saveasdocument').on('click', function(){
+			
+			var attId = $(this).data('id');
+			
+			var params = {};
+			params['module'] = "Emails";
+			params['action'] = "DownloadFile";
+			params['attid'] = attId;
+			params['mode'] = 'saveAsDocument';
+			
+			app.helper.showProgress();
+			app.request.post({data:params}).then(function(err,data){
+				app.helper.hideProgress();
+				if(err === null){
+					if(data.success)
+						app.helper.showSuccessNotification({message:app.vtranslate('Document Save Successfully.')});
+					else
+						app.helper.showErrorMessage(app.vtranslate('Something wrong try again.'));
+				}
+			});
+			
+		});
+		
+	},
+	
 })
