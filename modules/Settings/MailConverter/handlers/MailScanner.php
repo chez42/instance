@@ -193,8 +193,21 @@ class Vtiger_MailScanner {
 		global $adb;
 		if($crmid === false) $crmid = null;
 		// TODO Make sure we have unique entry
-        $adb->pquery("INSERT INTO vtiger_mailscanner_ids(scannerid, messageid, crmid, user_name) VALUES(?,?,?,?)",
+		$messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?
+        AND scannerid=?",Array($this->_scannerinfo->username, $mailrecord->_uniqueid, $this->_scannerinfo->scannerid));
+		if(!$adb->num_rows($messages)){
+            $adb->pquery("INSERT INTO vtiger_mailscanner_ids(scannerid, messageid, crmid, user_name) VALUES(?,?,?,?)",
             Array($this->_scannerinfo->scannerid, $mailrecord->_uniqueid, $crmid, $this->_scannerinfo->username));
+		}else{
+		    $adb->pquery("UPDATE vtiger_mailscanner_ids SET scannerid=?, messageid=?, crmid=?, user_name=? WHERE
+            scannerid=? AND messageid=? AND user_name=?",
+		        array(
+		            $this->_scannerinfo->scannerid, $mailrecord->_uniqueid, $crmid, $this->_scannerinfo->username,
+		            $this->_scannerinfo->scannerid, $mailrecord->_uniqueid, $this->_scannerinfo->username
+		        ));
+		    
+		    
+		}
 	}
 
 	/**
@@ -202,7 +215,8 @@ class Vtiger_MailScanner {
 	 */
 	function isMessageScanned($mailrecord, $lookAtFolder) {
 		global $adb;
-        $messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?",
+        $messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=? 
+        AND (crmid != '' || crmid IS NOT NULL)",
             Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
 
 		$folderRescan = $this->_scannerinfo->needRescan($lookAtFolder);
