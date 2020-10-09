@@ -513,7 +513,10 @@ class Import_Data_Action extends Vtiger_Action_Controller {
 			$fieldInstance = $moduleFields[$fieldName];
 			$fieldDataType = $fieldInstance->getFieldDataType();
 			if ($fieldDataType == 'owner') {
-				$ownerId = getUserId_Ol(trim($fieldValue));
+			    $ownerId = getUserId_Fl(trim($fieldValue));
+			    if (empty($ownerId)) {
+				    $ownerId = getUserId_Ol(trim($fieldValue));
+			    }
 				if (empty($ownerId)) {
 					$ownerId = getGrpId($fieldValue);
 				}
