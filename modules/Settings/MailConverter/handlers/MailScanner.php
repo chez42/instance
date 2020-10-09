@@ -116,7 +116,7 @@ class Vtiger_MailScanner {
 				$mailrecord->log();
 
 				// If the email is already scanned & rescanning is not set, skip it
-				if($this->isMessageScanned($mailrecord, $lookAtFolder)) {
+				if($this->isMessageScanned($mailrecord, $lookAtFolder, $request['cron'])) {
 					$this->log("\nMessage already scanned [$mailrecord->_subject], IGNORING...\n");
 					unset($mailrecord);
 					continue;
@@ -213,11 +213,15 @@ class Vtiger_MailScanner {
 	/**
 	 * Check if email was scanned.
 	 */
-	function isMessageScanned($mailrecord, $lookAtFolder) {
+	function isMessageScanned($mailrecord, $lookAtFolder, $cron=false) {
 		global $adb;
-        $messages = $adb->pquery("SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=? 
-        AND (crmid != '' || crmid IS NOT NULL)",
-            Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
+		
+		$query = "SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?";
+		
+		if(!$cron)
+            $query = " AND (crmid != '' || crmid IS NOT NULL)";
+        
+        $messages = $adb->pquery($query,Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
 
 		$folderRescan = $this->_scannerinfo->needRescan($lookAtFolder);
 		$isScanned = false;
