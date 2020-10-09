@@ -8,7 +8,7 @@
 		<title><?php echo $portal_title;?></title>
 		<meta name="description" content="Updates and statistics">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+		<link rel="shortcut icon" href="favicon.ico"/>
 		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700|Roboto:300,400,500,600,700">
 		<link href="assets/css/pages/login/login-5.css" rel="stylesheet" type="text/css" />
 
