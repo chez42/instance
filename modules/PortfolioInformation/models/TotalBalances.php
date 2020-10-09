@@ -152,10 +152,12 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         $ids = GetAllActiveUserIDs();
         if($date == null)
             $date = date('Y-m-d');
+#250-246-3811
 
 #        set_error_handler("exception_error_handler");
         foreach($ids AS $k => $v){
             try {
+                StatusUpdate::UpdateMessage("TDUPDATER", "Updating user id {$v}");
                 $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
                 if(count($account_numbers) > 0) {
                     $questions = generateQuestionMarks($account_numbers);
