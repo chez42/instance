@@ -2620,4 +2620,31 @@ function getDuplicatesPreventionMessage($moduleName, $duplicateRecordsList) {
 	return $message;
 }
 
+function getUserId_Fl($fullName)
+{
+    global $log;
+    $log->debug("Entering getUserId_Fl(".$fullName.") method ...");
+    $log->info("in getUserId_Fl ".$fullName);
+    $cache = Vtiger_Cache::getInstance();
+    if($cache->getUserId($fullName) || $cache->getUserId($fullName) === 0){
+        return $cache->getUserId($fullName);
+    } else {
+        global $adb;
+        $sql = "select id from vtiger_users where  CONCAT(vtiger_users.first_name, ' ',vtiger_users.last_name) = ?";
+        $result = $adb->pquery($sql, array($fullName));
+        $num_rows = $adb->num_rows($result);
+        if($num_rows > 0)
+        {
+            $user_id = $adb->query_result($result,0,"id");
+        }
+        else
+        {
+            $user_id = 0;
+        }
+        $log->debug("Exiting getUserId_Fl method ...");
+        $cache->setUserId($fullName,$user_id);
+        return $user_id;
+    }
+}
+
 ?>
