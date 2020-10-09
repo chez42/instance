@@ -172,6 +172,10 @@ class cReady
         StatusUpdate::UpdateMessage("AUTOQUEUE", "Pulling all for specified accounts");
         StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
 
+        $end = date('Y-m-d');
+        $start = date('Y-m-d', strtotime('-7 days'));
+
+        PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($account_number, $start, $end);
         $tdPortfolios = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
             "custodian_portfolios_td", "custodian_balances_td", array());
         $tdPortfolios->SetAccountNumbers($account_number);
@@ -238,7 +242,8 @@ class cReady
             $month = strtotime("+1 month", $month);
         }
         /*********END OF STEP 3********/
-        StatusUpdate::UpdateMessage("CRONUPDATER", "Finished");
+        StatusUpdate::UpdateMessage("CRONUPDATER", "finished");
+        StatusUpdate::UpdateMessage("TDUPDATER", "finished");
         StatusUpdate::UpdateMessage("AUTOQUEUE", "Finished Pulling {$account_number}");
         /***STEP 3 - CREATE TRANSACTIONS WORKING***/
 

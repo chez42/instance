@@ -32,6 +32,60 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsers(5000);
+        echo 'Check widget!';exit;
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        foreach($accounts AS $k => $v){
+            echo "'{$v}'," . '<br />';
+        }
+        exit;
+
+        $locations = new cFileHandling();
+        $data = $locations->GetLocationDataFromRepCode($rep_codes);
+        foreach($data AS $k => $v){
+            StatusUpdate::UpdateMessage("MANUALPARSING", "Auto Parsing {$v->rep_code}");
+            $parse = new FileParsing($v->custodian, 'parse_all', 3, 0, $v->rep_code);
+            $parse->parseFiles();
+        }
+        StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
+        echo 'fini';exit;
+        /*        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+                $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        print_r($rep_codes);
+        echo '<br /><br />';
+        print_r($accounts);
+        exit;
+                echo 'hi';exit;
+                include("cron/modules/Custodian/LatestData.service");
+                echo 'dun';exit;
+                $ready = new cReady();
+        #        $ready->PullAllTD('942266318');
+        #        echo 'done 942266318';exit;*/
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2020-09-25', '2020-10-01', false);
+        echo 'werd 2';exit;
+        exit;
+        $data = $ready->GetReadyModuleDataViaRepCode($rep_codes, 3);//We now have a list of elements that are ready
+        if(isset($data->account_list))
+            $ready->PullAllTD($data->account_list, true);
+        echo 'DUN';exit;
+        foreach($data AS $k => $v){
+            switch(strtolower($v['custodian'])){
+                case "td":
+                    $ready->PullAllTD($v['account_number']);
+                    break;
+            }
+        }
+
+        echo 'dun';exit;
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        //2012 set for no particular reason, 'true' finds the earliest date as is
+        PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2020-05-10', '2020-05-31', false);
+        echo 'dun';exit;
+
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
         print_r($rep_codes);exit;
         /*Fill in the consolidated balances table*/
@@ -113,17 +167,17 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
         echo 'fini';exit;
         global $adb, $dbconfig;
-/*        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
-        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
-        $start = date('Y-m-d', strtotime('-5000 days'));
-        $finish = date('Y-m-d');
-        $questions = generateQuestionMarks($accounts);
-        $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
-//Write to the users table from consolidated balances for grand total of all accounts
-        $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
-*/
+        /*        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+                $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+                $start = date('Y-m-d', strtotime('-5000 days'));
+                $finish = date('Y-m-d');
+                $questions = generateQuestionMarks($accounts);
+                $query = "CALL custodian_omniscient.CONSOLIDATE_BALANCES_DEFINED(\"{$questions}\", ?, ?, ?)";//Write to consolidated balances
+        //Write to the users table from consolidated balances for grand total of all accounts
+                $adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
+        */
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsers(5000);
-echo 'Check widget!';exit;
+        echo 'Check widget!';exit;
 
         echo date("m-d-Y H:i:s") . '<br />';
         $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
@@ -146,42 +200,24 @@ echo 'Check widget!';exit;
         /*********END OF STEP 3********/
         echo 'done';exit;
 
-        require_once("libraries/custodians/cReady.php");
-
-        $ready = new cReady();
-        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
-
-        $data = $ready->GetReadyDataViaRepCode($rep_codes);//We now have a list of elements that are ready
-
-        foreach($data AS $k => $v){
-            switch(strtolower($v['custodian'])){
-                case "td":
-                    $ready->PullDataTD($v['account_number'], $v['ready_type']);
-                    break;
-            }
-        }
-
-        echo 'dun';exit;
-
-
         set_time_limit(0);
         $control_numbers = array('SV2');/*, 'LR1', 'AW1', 'SV3', 'HT1', 'SV1', 'AT1', 'TV1',
             'NSGV', 'NSGV1');//SD2 is patrick berry, no longer active*/
         $strat_hh = new StratHouseholds();
         $strat_contact = new StratContacts();
         $sAdvisors = new StratAdvisors();
-/*
-        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
-        $sAdvisors->AutoCreateCompanies();
-        $sAdvisors->AutoCreateAdvisors();
+        /*
+                $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromOmniscientControlNumber($control_numbers);
+                $sAdvisors->AutoCreateCompanies();
+                $sAdvisors->AutoCreateAdvisors();
 
-        PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
-        PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
-        PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
-        PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
-#PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
-        $strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
-        $strat_contact->GetAllContactsAndUpdateAdvisorOwnership();*/
+                PortfolioInformation_Stratifi_Model::CreateAccountsInStratifiForControlNumbers(($control_numbers));
+                PortfolioInformation_Stratifi_Model::CreateStratifiContactsForAllAccounts();
+                PortfolioInformation_Stratifi_Model::CreateStratifiHouseholdsForAllAccounts();
+                PortfolioInformation_Stratifi_Model::UpdateStratifiAccountLinkingForControlNumbers($control_numbers);
+        #PortfolioInformation_Stratifi_Model::UpdateStratifiInvestorLinkingForControlNumbers($control_numbers);###THIS IS NOW DONE IN THE FUNCTION GetAllContactsAndUpdateAdvisorOwnership
+                $strat_hh->GetAllHouseholdsAndUpdateAdvisorOwnership();
+                $strat_contact->GetAllContactsAndUpdateAdvisorOwnership();*/
         PortfolioInformation_Stratifi_Model::SendAllPositionsToStratifi();
         echo 'done';exit;
 

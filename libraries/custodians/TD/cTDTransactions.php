@@ -242,11 +242,11 @@ class cTDTransactions extends cCustodian
      * @param array $account_numbers
      */
     public function CreateNewTransactionsFromTransactionData(array $missing_account_data){
-        if(!empty($missing_account_data)) {
+        if(isset($missing_account_data)) {
             foreach ($missing_account_data AS $account_number => $v) {
                 foreach ($v AS $a => $transaction_id) {
                     $data = $this->transactions_data[$account_number][$transaction_id];
-                    if (!empty($data)) {
+                    if (isset($data)) {
                         $tmp = new cTDTransactionsData($data);
                         StatusUpdate::UpdateMessage("TDUPDATER", "Creating Transactions for {$account_number} " . $tmp->trade_date . ' - ' . $tmp->symbol);
                         $this->CreateNewTransactionUsingcTDTransactionsData($tmp);
@@ -261,11 +261,11 @@ class cTDTransactions extends cCustodian
      * @param array $account_numbers
      */
     public function UpdateTransactionsFromTransactionsData(array $transaction_account_data){
-        if(!empty($transaction_account_data)) {
+        if(isset($transaction_account_data)) {
             foreach ($transaction_account_data AS $k => $v) {
                 foreach ($v AS $a => $transaction) {
                     $data = $this->transactions_data[$k][$a];
-                    if (!empty($data)) {
+                    if (isset($data)) {
                         $tmp = new cTDTransactionsData($data);
                         $this->UpdateTransactionsUsingcTDTransactionsData($tmp);
                     }
@@ -352,7 +352,7 @@ class cTDTransactions extends cCustodian
     public function UpdateAllTransactionsOperations(array $account_number){
         global $adb;
         $params = array();
-        if(!empty($account_number)){
+        if(isset($account_number)){
             $questions = generateQuestionMarks($account_number);
             $where = " WHERE account_number IN (?) ";
             $params[] = $questions;
