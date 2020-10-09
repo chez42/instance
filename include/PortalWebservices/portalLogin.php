@@ -154,21 +154,12 @@ function vtws_portallogin($element,$user){
             		INNER JOIN vtiger_users ON vtiger_users.id = vtiger_salesmanattachmentsrel.smid
             		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_salesmanattachmentsrel.attachmentsid
             		WHERE vtiger_salesmanattachmentsrel.smid = ? and vtiger_crmentity.setype = ?", array($resultData["ownerId"], "User Logo"));
-                    
                     if($adb->num_rows($result) == 1){
-                        
                         $portalLogo = $site_URL;
                         $portalLogo .= "/".$adb->query_result($result, "0", "path");
                         $portalLogo .= $adb->query_result($result, "0", "attachmentsid");
                         $portalLogo .= "_".$adb->query_result($result, "0", "name");
-                        
                         $logo = ($portalLogo);
-                        
-                        // 						if(!file_exists($logo))
-                            // 							$logo = "images/logo1.png";
-                        
-                    } else {
-                        $logo = "";
                     }
                     
                     $resultData["portal_logo"] = $logo;

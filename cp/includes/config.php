@@ -82,7 +82,8 @@ else
     
 if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
-    $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
+    if($_SESSION['portal_logo'] != '')
+        $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
     
 	$GLOBALS['portal_profile_image'] = $_SESSION['portal_profile_image'];
     

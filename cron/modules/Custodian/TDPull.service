@@ -68,14 +68,16 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
         $transactions->GetTransactionsDataBetweenDates($s, $e);
         $missing = $transactions->GetMissingCRMTransactions();
         $transactions->CreateNewTransactionsFromTransactionData($missing);
+        StatusUpdate::UpdateMessage("TDUPDATER", "Transactions Finished Creating");
 
-    //            echo date('Y-m-d', $month), PHP_EOL;
+        //            echo date('Y-m-d', $month), PHP_EOL;
     #            echo "Start: {$s}, End: {$e}<br />";
     #            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
         $month = strtotime("+1 month", $month);
     }
     /*********END OF STEP 3********/
-    StatusUpdate::UpdateMessage("CRONUPDATER", "Finished");
+    StatusUpdate::UpdateMessage("CRONUPDATER", "finished");
+StatusUpdate::UpdateMessage("TDUPDATER", "finished");
     /***STEP 3 - CREATE TRANSACTIONS WORKING***/
 /*    $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
         "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
