@@ -724,3 +724,8 @@ if($blockId){
 $adb->pquery("CREATE TABLE `vtiger_stratifi_configuration` (
  `rep_codes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+
+$adb->pquery("UPDATE `vtiger_role` SET `rolename` = 'Organization' WHERE `vtiger_role`.`roleid` = 'H1'");
+$adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_visible INT(3) NULL DEFAULT '0'");
+
+$adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_record_across_org INT(3) NULL DEFAULT '0'");

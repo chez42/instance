@@ -8,7 +8,7 @@
 ************************************************************************************}
 
 {strip}
-	<div class="SendEmailFormStep2 modal-dialog modal-lg" name="emailPreview">
+	<div class="SendEmailFormStep2 fc-overlay-modal overlayDetail" name="emailPreview">
 		<div class="modal-content">
 			<input type="hidden" name="parentRecord" value="{$PARENT_RECORD}"/>
 			<input type="hidden" name="recordId" value="{$RECORD_ID}"/>
@@ -132,23 +132,50 @@
 										{if count($RECORD->getAttachmentDetails()) le 0}
 											{vtranslate('LBL_NO_ATTACHMENTS',$MODULE)}
 										{else}
+											
+											{assign var=imageFileTypes value=array('image/gif','image/png','image/jpeg')}
+											{assign var=videoFileTypes value=array('video/mp4','video/ogg','audio/ogg','video/webm')}
+
 											{foreach item=ATTACHMENT_DETAILS from=$RECORD->getAttachmentDetails()}
+												{assign var=parts value=explode('.',$ATTACHMENT_DETAILS['attachment'])}
+												{assign var=extn value='txt'}
+												{if count($parts) > 1}
+													{$extn = end($parts)}
+												{/if}
+												
+												{assign var=PREVIEW value=''}
+												{if in_array($ATTACHMENT_DETAILS['type'], $videoFileTypes)}
+													{$PREVIEW = 1}
+												{else if in_array($ATTACHMENT_DETAILS['type'], $imageFileTypes)}
+													{$PREVIEW = 1}
+												{else if $extn == 'pdf'}
+													{$PREVIEW = 1}
+												{/if}
+												
 												<!-- <i class="fa fa-download"></i> -->
 												<span class="more dropdown action" style="cursor:pointer;">
 													<span href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
 														<i class="fa fa-ellipsis-v icon"></i>
 													</span>
 													<ul class="dropdown-menu">
-														<li>
-															<a	{if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
-																href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
-															{else} 
-																href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
-															{/if}>Save on desktop</a>
-														</li>
+														{assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
+														{if $IS_DOWNLOAD_PERMITTED}
+															<li>
+																<a	{if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
+																	href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
+																{else} 
+																	href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
+																{/if}>Save on desktop</a>
+															</li>
+														{/if}
 														<li>
 															<a class="saveasdocument" href="javascript:void(0);" id="saveasdocument" data-id="{$ATTACHMENT_DETAILS['fileid']}" >Save as document</a>
 														</li>
+														{if $PREVIEW eq 1}
+															<li>
+																<a class="previewdocument" href="javascript:void(0);" id="previewdocument" data-id="{$ATTACHMENT_DETAILS['fileid']}" >Preview</a>
+															</li>
+														{/if}
 													</ul>
 												</span>
 												&nbsp; 
