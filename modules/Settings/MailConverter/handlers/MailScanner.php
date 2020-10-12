@@ -219,7 +219,7 @@ class Vtiger_MailScanner {
 		$query = "SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?";
 		
 		if(!$cron)
-            $query = " AND (crmid != '' || crmid IS NOT NULL)";
+            $query .= " AND (crmid != '' || crmid IS NOT NULL)";
         
         $messages = $adb->pquery($query,Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
 

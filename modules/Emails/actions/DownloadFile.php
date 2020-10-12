@@ -13,6 +13,7 @@ class Emails_DownloadFile_Action extends Vtiger_Action_Controller {
     public function __construct() {
         parent::__construct();
         $this->exposeMethod('saveAsDocument');
+        $this->exposeMethod('previewDocument');
     }
     
 	public function checkPermission(Vtiger_Request $request) {
@@ -147,6 +148,93 @@ class Emails_DownloadFile_Action extends Vtiger_Action_Controller {
         $response = new Vtiger_Response();
         $response->setResult($result);
         $response->emit();
+    }
+    
+    public function previewDocument(Vtiger_Request $request){
+        
+        global $adb;
+        $moduleName = $request->getModule();
+        $recordId = $request->get('attid');
+        
+        $basicFileTypes = array('txt','csv','ics');
+        $imageFileTypes = array('image/gif','image/png','image/jpeg');
+        //supported by video js
+        $videoFileTypes = array('video/mp4','video/ogg','audio/ogg','video/webm');
+        $audioFileTypes = array('audio/mp3','audio/mpeg','audio/wav');
+        //supported by viewer js
+        $opendocumentFileTypes = array('odt','ods','odp','fodt');
+        
+        $result = $adb->pquery("SELECT * FROM vtiger_attachments
+				WHERE attachmentsid = ?", array($recordId));
+        $fileDetails = array();
+        if($adb->num_rows($result)) {
+            $fileDetails = $adb->query_result_rowdata($result);
+        }
+        
+        $fileContent = false;
+        if (!empty ($fileDetails)) {
+            $filePath = $fileDetails['path'];
+            $fileName = $fileDetails['name'];
+            
+            $fileName = html_entity_decode($fileName, ENT_QUOTES, vglobal('default_charset'));
+            $savedFile = $fileDetails['attachmentsid']."_".$fileName;
+            
+            $fileSize = filesize($filePath.$savedFile);
+            $fileSize = $fileSize + ($fileSize % 1024);
+            
+            if (fopen($filePath.$savedFile, "r")) {
+                $fileContent = fread(fopen($filePath.$savedFile, "r"), $fileSize);
+            }
+        }
+        
+        $path = $fileDetails['path'].$fileDetails['attachmentsid'].'_'.$fileDetails['name'];
+        $type = $fileDetails['type'];
+        $contents = $fileContent;
+        $filename = $fileDetails['name'];
+        $parts = explode('.',$filename);
+       
+        $downloadUrl = 'index.php?module=Emails&action=DownloadFile&attachment_id='.$fileDetails['attachmentsid'];
+        
+        //support for plain/text document
+        $extn = 'txt';
+        if(count($parts) > 1){
+            $extn = end($parts);
+        }
+        global $vtiger_current_version, $vtiger_display_version, $onlyV7Instance;
+        $viewer = new Vtiger_Viewer();
+        $viewer->assign('APPTITLE', getTranslatedString('APPTITLE'));
+        $viewer->assign('VTIGER_VERSION', $vtiger_current_version);
+        $viewer->assign('VTIGER_DISPLAY_VERSION', $vtiger_display_version);
+        $viewer->assign('ONLY_V7_INSTANCE', $onlyV7Instance);
+        
+        $viewer->assign('MODULE_NAME',$moduleName);
+        if(in_array($extn,$basicFileTypes))
+            $viewer->assign('BASIC_FILE_TYPE','yes');
+        else if(in_array($type,$videoFileTypes))
+            $viewer->assign('VIDEO_FILE_TYPE','yes');
+        else if(in_array($type,$imageFileTypes))
+            $viewer->assign('IMAGE_FILE_TYPE','yes');
+        else if(in_array($type,$audioFileTypes))
+            $viewer->assign('AUDIO_FILE_TYPE','yes');
+        else if (in_array($extn, $opendocumentFileTypes)) {
+            $viewer->assign('OPENDOCUMENT_FILE_TYPE', 'yes');
+            $downloadUrl .= "&type=$extn";
+        } else if ($extn == 'pdf') {
+            $viewer->assign('PDF_FILE_TYPE', 'yes');
+        } else {
+            $viewer->assign('FILE_PREVIEW_NOT_SUPPORTED','yes');
+        }
+        
+        $viewer->assign('DOWNLOAD_URL',$downloadUrl);
+        $viewer->assign('FILE_PATH',$path);
+        $viewer->assign('FILE_NAME',$filename);
+        $viewer->assign('FILE_EXTN',$extn);
+        $viewer->assign('FILE_TYPE',$type);
+        $viewer->assign('FILE_CONTENTS',$contents);
+        global $site_URL;
+        $viewer->assign('SITE_URL',$site_URL);
+        
+        echo $viewer->view('FilePreview.tpl','Documents',true);
     }
 }
 

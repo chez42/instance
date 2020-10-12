@@ -42,8 +42,8 @@ class Settings_Vtiger_CustomRecordNumberingModule_Model extends Vtiger_Module_Mo
 	public static function getSupportedModules() {
 		$db = PearDatabase::getInstance();
 
-		$sql = "SELECT tabid, name FROM vtiger_tab WHERE isentitytype = ? AND presence = ? AND tabid IN (SELECT DISTINCT tabid FROM vtiger_field WHERE uitype = ?)";
-		$result = $db->pquery($sql, array(1, 0, 4));
+		$sql = "SELECT tabid, name FROM vtiger_tab WHERE isentitytype = ? AND presence = ? AND (tabid IN (SELECT DISTINCT tabid FROM vtiger_field WHERE uitype = ?) OR tabid = ?)";
+		$result = $db->pquery($sql, array(1, 0, 4, getTabid('PortfolioInformation')));
 		$numOfRows = $db->num_rows($result);
 
 		for($i=0; $i<$numOfRows; $i++) {
