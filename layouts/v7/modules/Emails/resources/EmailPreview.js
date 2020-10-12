@@ -109,6 +109,32 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
 			
 		});
 		
+		jQuery('.previewdocument').on('click', function(){
+			
+			var attId = $(this).data('id');
+			
+			var params = {};
+			params['module'] = "Emails";
+			params['action'] = "DownloadFile";
+			params['attid'] = attId;
+			params['mode'] = "previewDocument";
+			
+			app.helper.showProgress();
+			var modalParams = {
+				cb: function (modalContainer) {
+					//modalContainer.find('.viewer').zoomer();
+				},
+				'ignoreScroll' : true
+			};
+			app.request.post({data: params}).then(function (err, res) {
+				app.helper.hideProgress();
+				//app.helper.hideModal();
+				app.helper.showModal(res, modalParams);
+			});
+			
+			
+		});
+		
 	},
 	
 })

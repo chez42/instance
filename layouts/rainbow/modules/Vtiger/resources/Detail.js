@@ -987,7 +987,8 @@ Vtiger.Class("Vtiger_Detail_Js",{
 				if(err === null){
 					var dataObj = jQuery(data);
 					var descriptionContent = dataObj.find('#iframeDescription').val();
-					app.helper.showModal(data,{cb:function(){
+					var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
+					app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
 						if(mode === 'emailEdit'){
 							var editInstance = new Emails_MassEdit_Js();
 							editInstance.registerEvents();
@@ -1002,7 +1003,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 							window.open(url, '_blank');
 						});
 						//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
-					}});
+					});
 				}
 			});
 		})
