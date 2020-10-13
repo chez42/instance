@@ -124,7 +124,7 @@
             		<?php if(!empty($avmod)){?>
             		<div class="gridstack grid-stack" data-gs-width="12" >
             			
-            			<div data-gs-id="recent_upload_widget" id="recent_upload_widget" 
+            			<!-- <div data-gs-id="recent_upload_widget" id="recent_upload_widget" 
                 			data-gs-x=<?php echo $widgetsPosition['recent_upload_widget']['row'];?> 
                 			data-gs-y=<?php echo $widgetsPosition['recent_upload_widget']['col'];?> 
                 			data-gs-width=<?php if($widgetsPosition['recent_upload_widget']['width'])echo $widgetsPosition['recent_upload_widget']['width'];else echo'12';?>
@@ -170,7 +170,7 @@
                     		
                     		</div>
                     		
-                    	</div>
+                    	</div> -->
             			<?php 
             			    
             			    $element = array('ID' => $_SESSION['ID'], 'owner_id' => $_SESSION['ownerId'], 'emptyFolder' => false);

@@ -29,7 +29,14 @@ jQuery.Class("Vtiger_Header_Js", {
                 record : recordId
             };
             app.request.post({"data":params}).then(function(err,data){
-                app.helper.showModal(data);
+                app.helper.showModal(data,{'cb':function(){
+                	$('.viewerDownload').ready(function() {
+            		   setTimeout(function() {
+            		      $('.viewerDownload').contents().find('#download').remove();
+            		      $('.viewerDownload').contents().find('#print').remove();
+            		   }, 100);
+            		});
+                }});
             });
         } else {
             var win = window.open(fileName, '_blank');
