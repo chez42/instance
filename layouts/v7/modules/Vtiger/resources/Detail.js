@@ -1002,7 +1002,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 							app.event.trigger('post.EmailPreview.load',null);
 						}
 						jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
-						jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height());
+						jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height()-70);
 						jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
 							e.preventDefault();
 							var url = jQuery(e.currentTarget).attr('href');

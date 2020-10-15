@@ -52,22 +52,22 @@
 						
 							<th style="min-width:100px">
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Date
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Type
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Assigned To
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Subject
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Description
 							</th>
-							<th class="nowrap">
+							<th class="">
 								Status
 							</th>
 						</tr>
@@ -148,12 +148,12 @@
 								<td class="related-list-actions">
 	
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis">
 										{$RECENT_ACTIVITY->get('createddate')|date_format:"%A, %B %e, %Y"}
 									</span>
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis">
 										{if $RECENT_ACTIVITY->get('module') eq 'Calendar'}
 											{vtranslate('Events', $RECENT_ACTIVITY->get('module'))}
@@ -162,17 +162,17 @@
 										{/if}
 									</span>
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis">
 										{getUserFullName($RECENT_ACTIVITY->get('creator'))}
 									</span>
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis">
 										{wordwrap(html_entity_decode($RECENT_ACTIVITY->get('subject')),75,"<br>\n")}
 									</span>
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis" title="{strip_tags(html_entity_decode($RECENT_ACTIVITY->get('description')))}">
 										{if $RECENT_ACTIVITY->get('module') eq 'ModComments' }
 											N/A
@@ -181,7 +181,7 @@
 										{/if}
 									</span>
 								</td>
-								<td class="relatedListEntryValues" nowrap>
+								<td class="relatedListEntryValues" >
 									<span class="value textOverflowEllipsis">
 										
 										{if $RECENT_ACTIVITY->get('module') eq 'ModComments' || $RECENT_ACTIVITY->get('module') eq 'Emails' ||

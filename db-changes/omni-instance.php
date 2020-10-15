@@ -729,3 +729,5 @@ $adb->pquery("UPDATE `vtiger_role` SET `rolename` = 'Organization' WHERE `vtiger
 $adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_visible INT(3) NULL DEFAULT '0'");
 
 $adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_record_across_org INT(3) NULL DEFAULT '0'");
+
+$adb->pquery("UPDATE vtiger_ws_operation SET handler_method = 'vtws_get_tickets' WHERE name = 'get_related_tickets'");
