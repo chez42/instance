@@ -451,13 +451,14 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                             			<input type="hidden" id="ticket_status" value='<?php echo json_encode($ticketStatus);?>' />
                             			<?php if(!empty($ticketStatus)){?>
-                                			<div id="ticketStatusWidget row">
-                                				<div class="col-md-4">
+                                			<div id="ticketStatusWidget" class="row">
+                                				<div class="col-md-12">
             										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
                                                         <div id="ticket_status_filtered_pie" style="height:200px; width:300px;"></div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-8">
+                                            
+                                                <div class="col-md-12">
                                                 	<div id="ticketstatuslegenddiv"></div>
                                                 </div>
                     						</div>
@@ -488,13 +489,13 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_time" value='<?php echo json_encode($ticketTime);?>' />
                             			<?php if(!empty($ticketTime)){?>
-                                			<div id="ticketTimeWidget row">
-                                    			<div class="col-md-4">
+                                			<div id="ticketTimeWidget" class="row">
+                                    			<div class="col-md-12">
             										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
                                                         <div id="ticket_time_filtered_pie" style="height:200px; width:300px;"></div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-8">
+                                                <div class="col-md-12">
                                                     <div id="tickettimelegenddiv"></div>
                                                 </div>
                     						</div>
@@ -550,13 +551,13 @@
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_type" value='<?php echo json_encode($ticketType);?>' />
                             			<?php if(!empty($ticketType)){?>
-                        					<div id="ticketCatWidget row">
-                        						<div class="col-md-4">
+                        					<div id="ticketCatWidget" class="row">
+                        						<div class="col-md-12">
             										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
                                                         <div id="ticket_cat_filtered_pie" style="height:200px; width:300px;"></div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-8">
+                                                <div class="col-md-12">
                                                     <div id="ticketcatlegenddiv"></div>
                                                 </div>
                     						</div>
