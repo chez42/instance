@@ -10,18 +10,23 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="filePreview container-fluid">
-                <div class="modal-header row">
-                    <div class="filename {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes'} col-lg-8 {else} col-lg-11 {/if}">
-                        <h3 style="margin-top:0px;word-break: break-all;"><b>{$FILE_NAME}</b></h3>
+                <div class="modal-header row" style = "padding-top:5px;">
+                	
+                	{assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
+                    
+                    <div class="filename {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes' && $IS_DOWNLOAD_PERMITTED} col-lg-8 col-md-8{else} col-md-11 col-lg-11 {/if}">
+                        <h3 style="margin-top:0px;word-break: break-all;font-size:18px;"><b>{$FILE_NAME}</b></h3>
                     </div>
-                    {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes'}
+                    
+                    {if $FILE_PREVIEW_NOT_SUPPORTED neq 'yes' && $IS_DOWNLOAD_PERMITTED}
                         <div class="col-lg-3">
                             <a class="btn btn-primary btn-small pull-right" href="{$DOWNLOAD_URL}">{vtranslate('LBL_DOWNLOAD_FILE',$MODULE_NAME)}</a>
                         </div>
                     {/if}
-                    <div class="col-lg-1">
-                        <button data-dismiss="modal" class="close pull-right" title="close"> 
-                            <span aria-hidden="true" class='ti-close'></span></button>
+                    
+                    <div class="col-lg-1 col-md-1">
+                        <button data-dismiss="modal" class="close pull-right" title="close" style = "margin-top:0px;"> 
+                        <span aria-hidden="true" class='ti-close' style = "font-size:14px;"></span></button>
                     </div>
                 </div>
                 <div class="modal-body row" style="height:550px;">
@@ -51,7 +56,7 @@
                         {else if $OPENDOCUMENT_FILE_TYPE eq 'yes'}
                             <iframe id="viewer" src="libraries/jquery/Viewer.js/#../../../{$DOWNLOAD_URL}" width="100%" height="100%" allowfullscreen webkitallowfullscreen></iframe>
                         {else if $PDF_FILE_TYPE eq 'yes'}
-                            <iframe id='viewer' src="libraries/jquery/pdfjs/web/viewer.html?file={$SITE_URL}/{$DOWNLOAD_URL|escape:'url'}" height="100%" width="100%"></iframe>
+                            <iframe {if !$IS_DOWNLOAD_PERMITTED}class="viewerDownload"{/if} id='viewer' src="libraries/jquery/pdfjs/web/viewer.html?file={$SITE_URL}/{$DOWNLOAD_URL|escape:'url'}#toolbar=0" height="100%" width="100%"></iframe>
                         {else if $IMAGE_FILE_TYPE eq 'yes'}
                             <div style="overflow:auto;height:100%;width:100%;float:left;background-image: url({$DOWNLOAD_URL});background-color: #EEEEEE;background-position: center 25%;background-repeat: no-repeat;display: block; background-size: contain;"></div>
                         {else if $AUDIO_FILE_TYPE eq 'yes'}
