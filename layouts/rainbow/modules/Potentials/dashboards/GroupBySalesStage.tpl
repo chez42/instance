@@ -56,7 +56,7 @@
    {include file="dashboards/DashBoardWidgetContentsGroupByStage.tpl"|@vtemplate_path:$MODULE_NAME}
 </div>
 <div class="widgeticons dashBoardWidgetFooter" style="width:25%;margin-left:75%;">
-    <div class="filterContainer">
+    <div class="filterContainer" style="margin-left: -300%;width: 400%;margin-bottom: 10px;">
 		<div class="row">
 			<span class="col-lg-5">
 				<span class="pull-right">
