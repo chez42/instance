@@ -30,7 +30,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				app.helper.hideProgress();
 				
 				self.getContainer().find('#folders_list').html(responseData);
-				self.getContainer().find('#extraFolderList').mCustomScrollbar({
+				self.getContainer().find('#folders_list').mCustomScrollbar({
 					setHeight: 550,
 					autoExpandScrollbar: true,
 					scrollInertia: 200,
@@ -44,6 +44,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 					self.openFolder('INBOX');
 				}
 				self.registerAutoRefresh();
+				self.createTreeFolder();
 			
 			}else{
 				
@@ -1802,6 +1803,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		self.deleteMailBox();
 		self.registerDeleteMailboxEvent();
 		self.registerOpenMailMangerId();
+		
 	},
 	
 	registerEventForSingleMailActions : function(){
@@ -2652,5 +2654,60 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			}
 		});
 	},
+	
+    createTreeFolder : function() {
+		
+		var thisInstance = this;
+    	var moduleName = app.getModuleName();
+    	
+    	jQuery(document).ready(function(){
+    		var data = JSON.parse(jQuery("[name='folderData']").val());
+	    	$(function () {
+	    		jQuery('#tree_folder').jstree({
+					'core' : {
+						'data' : data,
+						'check_callback' : function(o, n, p, i, m) {
+							return false;
+						},
+						'themes' : {
+							'responsive' : false,
+							'variant' : 'small',
+							//'stripes' : true
+						}
+					},
+					
+					'plugins' : ['types']//,'contextmenu'
+				});
+    			
+    			jQuery('#tree_folder').on("ready.jstree",function(e, d){
+    				
+					$(this).jstree("open_all");
+				    $(this).jstree().close_all();
+				    app.helper.hideProgress();
+				    
+				});
+    			jQuery('#tree_folder').on("open_node.jstree", function (e, data) {
+    				
+				    $('#tree_folder li').each(function (index,value) {
+				    	$(this).find('.jstree-ocl').after('&nbsp;');
+				        var node = $("#tree_folder").jstree().get_node(this.id);
+				        if(node.type == 'default'){
+				        	if(node.children.length <1){
+				        		if(!$("#tree_folder").jstree().is_parent(this.id)){
+				        			$(this).find('.fa-caret-right').removeClass('fa-caret-right');
+		    			        }
+				        	}
+				        }
+				    });
+				   
+				});
+    			jQuery('#tree_folder').on("select_node.jstree", function (e, data) {
+    				thisInstance.openFolder(data.node.id);
+				});
+				
+    		});
+	    	
+    	});
+    },
 	
 });

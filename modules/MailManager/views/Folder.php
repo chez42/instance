@@ -27,7 +27,6 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 			$foldername = $request->get('_folder');
 			$type = $request->get('type');
             $date = $request->get('date');
-			
 			$connector = $this->getConnector($foldername);
 			$folder = $connector->folderInstance($foldername);
 			
@@ -133,33 +132,93 @@ class MailManager_Folder_View extends MailManager_Abstract_View {
 		} else if ('getFoldersList' == $this->getOperationArg($request)) {
 			$viewer = $this->getViewer($request);
             if ($this->hasMailboxModel($request->get('account_id'))) {
-				$connector = $this->getConnector();
-
-				if ($connector->isConnected()) {
-					$folders = $connector->folders();
-					$connector->updateFolders();
-					$viewer->assign('FOLDERS', $folders);
-				} else if($connector->hasError()) {
-					$error = $connector->lastError();
-					$response->isJSON(true);
-					$response->setError(101, $error);
-				}
-				$this->closeConnector();
-			} 
-			$viewer->assign('MODULE', $request->getModule());
-			$response->setResult($viewer->view('FolderList.tpl', $moduleName, true));
-		}
-		return $response;
-	}
-
-	/**
-	 * Returns the List of search string on the MailBox
-	 * @return string
-	 */
-	public static function getSearchOptions() {
-	    $options = array('FROM'=>'FROM','SUBJECT'=>'SUBJECT','TO'=>'TO','BODY'=>'BODY','BCC'=>'BCC','CC'=>'CC'/*,'DATE'=>'ON'*/);
-		return $options;
-	}
+                $connector = $this->getConnector();
+                
+                if ($connector->isConnected()) {
+                    $folders = $connector->folders();
+                    $connector->updateFolders();
+                    $eleFol = array();
+                    
+                    /* $eleFol['xxx'] =  array(
+                        "id"=>'xxx',
+                        "parent_id"=>'',
+                        "text"=>'/',
+                        'is_default'=>1,
+                        "type"=>"folder") ; */
+                   // fa fa-caret-right
+                    foreach($folders as $folder){
+                        if( $folder->name() != 'Sent Items' && $folder->name() != 'Trash'){
+                            $folNa = explode('/',$folder->name()) ;
+                            $folderCount = $folder->unreadCount();
+                            foreach($folNa as $key => $fol_na){
+                                if(!in_array($folNa[$key], $folName)){
+                                    $eleFol[$fol_na] = array(
+                                        'id' => $folder->name(),
+                                        'text'=>$fol_na,
+                                        'parent_id'=>'',
+                                        'type'=>'folder',
+                                        "icon"=>"fa fa-caret-right",
+                                    );
+                                }
+                                if($key > 0){
+                                    if(!in_array($fol_na, $folName)){
+                                        $eleFol[$fol_na] = array(
+                                            'id' => $eleFol[$folNa[$key-1]]['id'].'/'.$fol_na,
+                                            'text' => $fol_na,
+                                            'parent_id' => $eleFol[$folNa[$key-1]]['id'],
+                                            'type'=>'folder',
+                                            //'children'=>true,
+                                            "icon"=>"fa fa-caret-right",
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                        $folName[] = $folder->name();
+                    }
+                    
+                    $branch = $this->buildTree($eleFol);
+                    
+                    $viewer->assign('OTHERFOLDER', json_encode($branch));
+                    
+                    $viewer->assign('FOLDERS', $folders);
+                    
+                } else if($connector->hasError()) {
+                    $error = $connector->lastError();
+                    $response->isJSON(true);
+                    $response->setError(101, $error);
+                }
+                $this->closeConnector();
+            }
+            $viewer->assign('MODULE', $request->getModule());
+            $response->setResult($viewer->view('FolderList.tpl', $moduleName, true));
+        }
+        return $response;
+    }
+    
+    public function buildTree(array $elements, $parentId = 0) {
+        $branch = array();
+        foreach ($elements as $element) {
+            if ($element['parent_id'] == $parentId) {
+                $children =  $this->buildTree($elements, $element['id']);
+                if($children) {
+                    $element['children'] = $children;
+                }
+                $branch[] = $element;
+            }
+        }
+        
+        return $branch;
+    }
+    
+    /**
+     * Returns the List of search string on the MailBox
+     * @return string
+     */
+    public static function getSearchOptions() {
+        $options = array('FROM'=>'FROM','SUBJECT'=>'SUBJECT','TO'=>'TO','BODY'=>'BODY','BCC'=>'BCC','CC'=>'CC'/*,'DATE'=>'ON'*/);
+        return $options;
+    }
     public function validateRequest(Vtiger_Request $request) {
         return $request->validateWriteAccess();
     }

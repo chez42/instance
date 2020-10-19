@@ -393,6 +393,7 @@ Vtiger.Class('Vtiger_Index_Js', {
 		this.registerEventForPostSaveFail();
 		this.requestDocumentsReminder();
 		vtUtils.enableTooltips();
+		this.registerSaveCommentQuickView();
 	},
 
 	addBodyScroll: function () {
@@ -1347,6 +1348,7 @@ Vtiger.Class('Vtiger_Index_Js', {
 		this.registerPreviousRecordClickEvent(container);
 		this.registerRelatedNextRecordClickEvent(container);
 		this.registerRelatedPreviousRecordClickEvent(container);
+		this.registerMoreRecentJournalClickEvent(container);
 	},
 
 	registerNextRecordClickEvent: function(container){
@@ -1906,6 +1908,70 @@ Vtiger.Class('Vtiger_Index_Js', {
 		
 	},
 	
+	registerSaveCommentQuickView : function(){
+    	var self = this;
+    	jQuery(document).on('click', '.quickViewSaveComment', function(e){
+    		
+    		var currentTarget = jQuery(e.currentTarget);
+     		var commentMode = currentTarget.data('mode');
+    		var closestCommentBlock = currentTarget.closest('.addCommentBlock');
+    		var commentContent = closestCommentBlock.find('.commentcontent');
+    		var formData = new FormData(); 
+    		var commentContentValue = commentContent.val();
+    		var errorMsg;
+    		if(commentContentValue.trim() == ""){
+    			errorMsg = app.vtranslate('JS_LBL_COMMENT_VALUE_CANT_BE_EMPTY');
+    			vtUtils.showValidationMessage(commentContent, errorMsg);
+    			return;
+    		}
+    		vtUtils.hideValidationMessage(commentContent);
+    		app.helper.showProgress();
+			var element = jQuery(e.currentTarget);
+			element.attr('disabled', 'disabled');
+
+			var commentRelatedTo = jQuery('#RecordId').val();
+			
+			var postData = {
+				'commentcontent' : 	commentContentValue,
+				'related_to': commentRelatedTo,
+				'module' : 'ModComments',
+				'action': 'SaveAjax',
+			}
+			
+			jQuery.each(postData, function (key, value) {
+				formData.append(key, value);
+			});
+			
+			postData = { 
+				'url': 'index.php', 
+				'type': 'POST', 
+				'data': formData, 
+				processData: false, 
+				contentType: false 
+			};
+			
+			app.request.post(postData).then(
+				function(err,data){
+					//app.helper.hideProgress();
+					self.showQuickPreviewForId(commentRelatedTo,app.getModuleName(), app.getAppName());
+				},
+				function(textStatus, errorThrown){
+					app.helper.hideProgress();
+				}
+			);
+    		
+    	});
+    	
+    },
+    
+    registerMoreRecentJournalClickEvent: function (container) {
+		var moduleName = container.find('#sourceModuleName').val();
+		var recordId = container.find('#RecordId').val();
+		container.find('.moreRecentJournals').on('click', function () {
+			var recentUpdateURL = "index.php?view=Journal&mode=recentJournals&page=1&module=" + moduleName + "&record=" + recordId + "&tab_label=LBL_JOURNAL";
+			window.location.href = recentUpdateURL;
+		});
+	},
     
 });
 
