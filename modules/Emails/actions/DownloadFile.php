@@ -140,9 +140,25 @@ class Emails_DownloadFile_Action extends Vtiger_Action_Controller {
         }
         
         if($docId){
-            $result = array('success' => true);
+            
+            $docQuery = $db->pquery("SELECT * FROM vtiger_senotesrel WHERE crmid = ? AND notesid =?",
+                array($request->get('parentrecord'), $docId));
+            
+            if(!$db->num_rows($docQuery)){
+                
+                $db->pquery("INSERT INTO vtiger_senotesrel (crmid, notesid) VALUES (?, ?)",
+                    array($request->get('parentrecord'), $docId));
+                    
+                $result = array('success' => true, 'message' => 'Document Save Successfully.');
+            
+            }else{
+                
+                $result = array('success' => false, 'message' => 'Document already exists.');
+            
+            }
+            
         }else{
-            $result = array('success' => false);
+            $result = array('success' => false, 'message' => 'Something wrong try again.');
         }
         
         $response = new Vtiger_Response();

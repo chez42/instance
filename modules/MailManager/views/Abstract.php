@@ -132,5 +132,33 @@ abstract class MailManager_Abstract_View extends Vtiger_Index_View {
 			$this->mConnector = false;
 		}
 	}
+	
+	function getHeaderScripts(Vtiger_Request $request) {
+	    $headerScriptInstances =  parent::getHeaderScripts($request);
+	    $moduleName = $request->getModule();
+	    
+	    $jsFileNames = array(
+	        '~libraries/tree/jstree.min.js',
+	    );
+	    
+	    $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
+	    $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
+	    return $headerScriptInstances;
+	}
+	
+	
+	public function getHeaderCss(Vtiger_Request $request) {
+	    $headerCssInstances = parent::getHeaderCss($request);
+	    $moduleName = $request->getModule();
+	    $cssFileNames = array(
+	        '~libraries/tree/style.min.css',
+	    );
+	    
+	    $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
+	    
+	    $headerCssInstances = array_merge($headerCssInstances, $cssInstances);
+	    
+	    return $headerCssInstances;
+	}
 }
 ?>

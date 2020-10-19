@@ -13,6 +13,7 @@ Vtiger.Class("KanbanView_Js",{
             'view':'ConfigureViewAjax',
             'source_module': source_module
         };
+        app.helper.showProgress();
         app.request.post({data:params}).then(
             function(err,data){
                 if(err==null){
@@ -21,6 +22,7 @@ Vtiger.Class("KanbanView_Js",{
                     thisinstance.targetModule = targetModule;
                     thisinstance.source_module = source_module;
                     thisinstance.registerEvent();
+                    app.helper.hideProgress();
                 }
             }
         );
