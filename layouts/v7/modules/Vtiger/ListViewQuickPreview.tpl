@@ -13,7 +13,7 @@
     <input type="hidden" name="sourceModuleName" id="sourceModuleName" value="{$MODULE_NAME}" />
     <input type="hidden" id = "nextRecordId" value ="{$NEXT_RECORD_ID}">
     <input type="hidden" id = "previousRecordId" value ="{$PREVIOUS_RECORD_ID}">
-
+	<input type="hidden" id = "RecordId" value ="{$RECORD->getId()}">
     <div class='quick-preview-modal modal-content'>
         <div class='modal-body'>
             <div class = "quickPreviewModuleHeader row">
@@ -67,8 +67,8 @@
             </div>
 
             <div class="engagementsContainer">
-				{include file="ListViewQuickPreviewSectionHeader.tpl"|vtemplate_path:$MODULE_NAME TITLE="{vtranslate('LBL_UPDATES',$MODULE_NAME)}"}
-				{include file="RecentActivities.tpl"|vtemplate_path:$MODULE_NAME}
+				{include file="ListViewQuickPreviewSectionHeader.tpl"|vtemplate_path:$MODULE_NAME TITLE="{vtranslate('Journal',$MODULE_NAME)}"}
+				{include file="RecentJournal.tpl"|vtemplate_path:$MODULE_NAME}
             </div>
 
             <br>

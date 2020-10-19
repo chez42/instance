@@ -95,15 +95,17 @@ jQuery.Class("Vtiger_EmailPreview_Js",{},{
 			params['action'] = "DownloadFile";
 			params['attid'] = attId;
 			params['mode'] = 'saveAsDocument';
+			params['parentrecord'] = app.getRecordId();
+			params['record'] = jQuery('[name="recordId"]').val();
 			
 			app.helper.showProgress();
 			app.request.post({data:params}).then(function(err,data){
 				app.helper.hideProgress();
 				if(err === null){
 					if(data.success)
-						app.helper.showSuccessNotification({message:app.vtranslate('Document Save Successfully.')});
+						app.helper.showSuccessNotification({message:data.message});
 					else
-						app.helper.showErrorMessage(app.vtranslate('Something wrong try again.'));
+						app.helper.showErrorNotification({message:data.message});
 				}
 			});
 			

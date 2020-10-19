@@ -185,3 +185,25 @@ function TicketOwnerComments($entityData) {
 		}
 	}
 }
+
+function updateLatestComment($entityData){
+    
+    $adb = PearDatabase::getInstance();
+    $moduleName = $entityData->getModuleName();
+    $wsId = $entityData->getId();
+    $parts = explode('x', $wsId);
+    $entityId = $parts[1];
+    
+    $comment = $adb->pquery("SELECT * FROM vtiger_modcomments 
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
+    WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to = ?
+    ORDER BY vtiger_modcomments.modcommentsid DESC LIMIT 1", array($entityId));
+    
+    if($adb->num_rows($comment)){
+        $commentContent = $adb->query_result($comment,0,'commentcontent');
+    }
+    
+   $adb->pquery("UPDATE vtiger_leaddetails SET latest_comment = ? WHERE leadid = ?",
+       array($commentContent, $entityId));
+    
+}
