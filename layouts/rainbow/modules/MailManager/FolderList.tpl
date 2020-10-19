@@ -10,6 +10,57 @@
 {if $FOLDERS}
     {assign var=INBOX_ADDED value=0}
     {assign var=TRASH_ADDED value=0}
+     <style>
+		.mmMainFolder {
+		    padding: 0.5rem;
+		}
+		.jstree-default-small .jstree-node, .jstree-default-small .jstree-icon {
+			background-image: unset !important;
+		}
+		.jstree-default .jstree-hovered {
+		    background: unset !important;
+		    border-radius: unset !important;
+		    box-shadow: unset !important;
+		}
+		.jstree-default .jstree-clicked {
+		    border-radius: unset !important;
+		    box-shadow: unset !important;
+		    background: unset !important;
+		    color : blue !important;
+		}
+		.modules-menu .jstree ul li:hover {
+			background: unset !important;
+		  	border-left: unset !important;
+		  	opacity: 1;
+		}
+		
+		.modules-menu ul li.active {
+			background: unset !important;
+		  	border-left: unset !important;
+		}
+		.jstree-default-small .jstree-anchor {
+			height: 40px !important;
+		}
+		.jstree ul > li > a{
+			margin-top : -28px !important;
+		}
+		ul.jstree-children > li > ul > li:first-child {
+		    margin-left: 18px;
+		}
+		.tree-body { 
+			max-width:100%;
+			min-height:600px; 
+			min-width:100%; 
+			margin:0 auto; 
+			padding:10px 10px; 
+			font-size:14px; 
+			font-size:1em; 
+			font-weight: bold;
+			color: black;
+		}
+		.demo { overflow:auto; min-height:600px; }
+		
+	</style>
     <ul>
         {foreach item=FOLDER from=$FOLDERS}
             {if stripos($FOLDER->name(), 'inbox') !== false && $INBOX_ADDED == 0}
@@ -18,9 +69,9 @@
                 <li class="cursorPointer mm_folder mmMainFolder active" data-foldername="{$FOLDER->name()}">
                     <i class="ti-harddrive fontSize20px"></i>&nbsp;&nbsp;
                     <b>{vtranslate('LBL_INBOX', $MODULE)}</b>
-                    <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
+                    <!-- <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
                        {$FOLDER->unreadCount()} 
-                    </span>
+                    </span> -->
                 </li>
                 <li class="cursorPointer mm_folder mmMainFolder" data-foldername="vt_drafts">
                     <i class="material-icons fontSize20px">save</i>&nbsp;&nbsp;
@@ -35,9 +86,9 @@
                 <li class="cursorPointer mm_folder mmMainFolder" data-foldername="{$FOLDER->name()}">
                     <i class="material-icons fontSize20px">send</i>&nbsp;&nbsp;
                     <b>{vtranslate('LBL_SENT', $MODULE)}</b>
-                    <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
+                    <!-- <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
                        {$FOLDER->unreadCount()} 
-                    </span>
+                    </span> -->
                 </li>
             {/if}
         {/foreach}
@@ -49,17 +100,17 @@
                 <li class="cursorPointer mm_folder mmMainFolder" data-foldername="{$FOLDER->name()}">
                     <i class="material-icons fontSize20px">delete</i>&nbsp;&nbsp;
                     <b>{vtranslate('LBL_TRASH', $MODULE)}</b>
-                    <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
+                    <!-- <span class="pull-right mmUnreadCountBadge {if !$FOLDER->unreadCount()}hide{/if}">
                        {$FOLDER->unreadCount()} 
-                    </span>
+                    </span> -->
                 </li>
             {/if}
         {/foreach}
-        <br>
-        <span class="padding15px"><b>{vtranslate('LBL_Folders', $MODULE)}</b></span>
+        <!-- <span class="padding15px"><b>{vtranslate('LBL_Folders', $MODULE)}</b></span> -->
+        <input type="hidden" name="folderData" value='{$OTHERFOLDER}' />
         <div id="extraFolderList">
-	        {assign var=IGNORE_FOLDERS value=array($INBOX_FOLDER, $SENT_FOLDER, $TRASH_FOLDER)}
-	        {foreach item=FOLDER from=$FOLDERS}
+	        {*assign var=IGNORE_FOLDERS value=array($INBOX_FOLDER, $SENT_FOLDER, $TRASH_FOLDER)*}
+	        {*foreach item=FOLDER from=$FOLDERS}
 	            {if !in_array($FOLDER->name(), $IGNORE_FOLDERS)}
 	            <li class="cursorPointer mm_folder mmOtherFolder" data-foldername="{$FOLDER->name()}">
 	                <b>{$FOLDER->name()}</b>
@@ -68,7 +119,13 @@
 	                </span>
 	            </li>
 	            {/if}
-	        {/foreach}
+	        {/foreach*}
+	       
+	        <div class="tree-body" >
+				<div class="demo" id="tree_folder">
+					
+				</div>
+			</div>
         </div>
     </ul>
 {/if}
