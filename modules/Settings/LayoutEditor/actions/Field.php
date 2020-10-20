@@ -21,6 +21,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
 		$this->exposeMethod('updateDuplicateHandling');
         $this->exposeMethod('updateFieldForRelatedTab');
         $this->exposeMethod('updateForRoundRobinField');
+        $this->exposeMethod('updateFieldForQuickPreview');
     }
 
     public function add(Vtiger_Request $request) {
@@ -71,6 +72,7 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
         $headerField = $request->get('headerfield',null);
 
         $relatedListView = $request->get("related_list_view",null);
+        $quickPreview = $request->get("quick_preview",null);
         
 		if (!$fieldLabel) {
 			$fieldInstance->set('label', $fieldLabel);
@@ -102,6 +104,10 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
         
         /****************************** 09-Aug-2018 Changes End *************************************/
         
+        
+        if(isset($quickPreview)){
+            $fieldInstance->set('quickpreview', $quickPreview);
+        }
         
         if(!empty($massEditable)){
             $fieldInstance->set('masseditable', $massEditable);
@@ -263,5 +269,21 @@ class Settings_LayoutEditor_Field_Action extends Settings_Vtiger_Index_Action {
     
     public function validateRequest(Vtiger_Request $request) {
         $request->validateWriteAccess();
+    }
+    
+    public function updateFieldForQuickPreview(Vtiger_Request $request) {
+        $response = new Vtiger_Response();
+        try {
+            $sourceModule = $request->get('sourceModule');
+            $moduleModel = Settings_LayoutEditor_Module_Model::getInstanceByName($sourceModule);
+            
+            $fieldIdsList = $request->get('fieldIdsList');
+            $result = $moduleModel->updateFieldForQuickPreview($fieldIdsList);
+            
+            $response->setResult($result);
+        } catch (Exception $e) {
+            $response->setError($e->getCode(), $e->getMessage());
+        }
+        $response->emit();
     }
 }

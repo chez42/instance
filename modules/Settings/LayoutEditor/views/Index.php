@@ -19,6 +19,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$this->exposeMethod('showDuplicationHandling');
         $this->exposeMethod('showRelatedTabHandling');
         $this->exposeMethod('showRoundRobinContent');
+        $this->exposeMethod('showQuickPreviewHandling');
 	}
 
 	public function process(Vtiger_Request $request) {
@@ -28,6 +29,7 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 			case 'showDuplicationHandling'	:	$selectedTab = 'duplicationTab';	break;
             case 'showRelatedTabHandling'	:	$selectedTab = 'relatedTab';	    break;
             case 'showRoundRobinContent'	:	$selectedTab = 'roundRobinTab';	    break;
+            case 'showQuickPreviewHandling'	:	$selectedTab = 'quickPreviewTab';	break;
 			default							:	$selectedTab = 'detailViewTab';
 												if (!$mode) {
 													$mode = 'showFieldLayout';
@@ -380,6 +382,50 @@ class Settings_LayoutEditor_Index_View extends Settings_Vtiger_Index_View {
 		$cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
 		$headerCssInstances = array_merge($headerCssInstances, $cssInstances);
 		return $headerCssInstances;
+	}
+	
+	public function showQuickPreviewHandling(Vtiger_Request $request) {
+	    global $adb;
+	    
+	    $qualifiedModule = $request->getModule(false);
+	    $sourceModuleName = $request->get('sourceModule');
+	    $moduleModel = Vtiger_Module_Model::getInstance($sourceModuleName);
+	    
+	    $tabid = $moduleModel->getId();
+	    
+	    $result = $adb->pquery("SELECT vtiger_field.fieldid, vtiger_field.fieldlabel,
+        vtiger_field.quickpreview, vtiger_field.quick_preview_field_seq  
+        FROM vtiger_field WHERE vtiger_field.tabid = ? AND vtiger_field.presence != 1
+        ORDER by ISNULL(vtiger_field.quick_preview_field_seq), vtiger_field.quick_preview_field_seq ASC",
+	        array($tabid));
+	    
+	    $fields = array();
+	    if($adb->num_rows($result)){
+	        while ($row = $adb->fetch_array($result)){
+	            if($row['quickpreview'] == 1)
+	                $selected = true;
+                else
+                    $selected = false;
+                    
+                $fields[$row['fieldid']] = array(
+                    'label' => $row['fieldlabel'],
+                    'field_seq' => $selected
+                );
+	        }
+	    }
+	    
+	    $viewer = $this->getViewer($request);
+	    $viewer->assign('FIELDS', $fields);
+	    $viewer->assign('SOURCE_MODULE', $sourceModuleName);
+	    $viewer->assign('QUALIFIED_MODULE', $qualifiedModule);
+	    $viewer->assign('SOURCE_MODULE_MODEL', $moduleModel);
+	    $viewer->assign('USER_MODEL', Users_Record_Model::getCurrentUserModel());
+	    
+	    if ($request->isAjax() && !$request->get('showFullContents')) {
+	        $viewer->view('QuickPreviewTab.tpl', $qualifiedModule);
+	    } else {
+	        $viewer->view('Index.tpl', $qualifiedModule);
+	    }
 	}
 
 }

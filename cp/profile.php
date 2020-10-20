@@ -80,7 +80,7 @@ $customer_detail = $customer_detail['result'];
     							<label class="col-lg-2 col-form-label"><?php echo $profile_field['label']?></label>
     							<div class="col-lg-4">
     								<?php if($profile_field['type'] == 'salutation' || $profile_field['type'] == 'string' || $profile_field['type'] == 'text' 
-    								    || $profile_field['type'] == 'email' || $profile_field['type'] == 'phone'){?>
+    								    || $profile_field['type'] == 'email' || $profile_field['type'] == 'phone'  || $profile_field['type'] == 'url'){?>
         								<input type="text" class="form-control" name="<?php echo $profile_field['name'];?>" value="<?php echo $customer_detail[$profile_field['name']]; ?>"
         								<?php if(!$customer_detail[$profile_field['name']]) echo'style="border-color: #f7de63;"';?>>
                         			<?php }else if($profile_field['type'] == 'picklist'){?>
