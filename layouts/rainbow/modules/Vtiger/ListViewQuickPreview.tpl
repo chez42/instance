@@ -49,20 +49,37 @@
             <div class = "quickPreviewSummary">
                 <table class="summary-table no-border table table-striped table-hover" style="width:100%;">
                     <tbody>
-                        {foreach item=FIELD_MODEL key=FIELD_NAME from=$SUMMARY_RECORD_STRUCTURE['SUMMARY_FIELDS']}
-                            {if $FIELD_MODEL->get('name') neq 'modifiedtime' && $FIELD_MODEL->get('name') neq 'createdtime'}
-                                <tr class="summaryViewEntries">
-                                    <td class="fieldLabel col-lg-5" ><label class="muted">{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}</label></td>
-                                    <td class="fieldValue col-lg-7">
-                                        <div class="row">
-                                            <span class="value textOverflowEllipsis"{if $FIELD_MODEL->getFieldDataType() eq 'phone'} data-recordid = "{$RECORD->getId()}"  data-field-type="{$FIELD_MODEL->getFieldDataType()}" {/if} {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word;"{/if}>
-                                                {include file=$FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName()|@vtemplate_path:$MODULE_NAME FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {/if}
-                        {/foreach}
+                    	{if !empty($QUICK_PREVIEW_FIELDS)}
+                    		{foreach item=FIELD_MODEL key=FIELD_NAME from=$QUICK_PREVIEW_FIELDS}
+	                            {if $FIELD_MODEL->get('name') neq 'modifiedtime' && $FIELD_MODEL->get('name') neq 'createdtime'}
+	                                <tr class="summaryViewEntries">
+	                                    <td class="fieldLabel col-lg-5" ><label class="muted">{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}</label></td>
+	                                    <td class="fieldValue col-lg-7">
+	                                        <div class="row">
+	                                            <span class="value textOverflowEllipsis"{if $FIELD_MODEL->getFieldDataType() eq 'phone'} data-recordid = "{$RECORD->getId()}"  data-field-type="{$FIELD_MODEL->getFieldDataType()}" {/if} {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word;"{/if}>
+	                                                {include file=$FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName()|@vtemplate_path:$MODULE_NAME FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+	                                            </span>
+	                                        </div>
+	                                    </td>
+	                                </tr>
+	                            {/if}
+	                        {/foreach}
+                    	{else}
+	                        {foreach item=FIELD_MODEL key=FIELD_NAME from=$SUMMARY_RECORD_STRUCTURE['SUMMARY_FIELDS']}
+	                            {if $FIELD_MODEL->get('name') neq 'modifiedtime' && $FIELD_MODEL->get('name') neq 'createdtime'}
+	                                <tr class="summaryViewEntries">
+	                                    <td class="fieldLabel col-lg-5" ><label class="muted">{vtranslate($FIELD_MODEL->get('label'),$MODULE_NAME)}</label></td>
+	                                    <td class="fieldValue col-lg-7">
+	                                        <div class="row">
+	                                            <span class="value textOverflowEllipsis"{if $FIELD_MODEL->getFieldDataType() eq 'phone'} data-recordid = "{$RECORD->getId()}"  data-field-type="{$FIELD_MODEL->getFieldDataType()}" {/if} {if $FIELD_MODEL->get('uitype') eq '19' or $FIELD_MODEL->get('uitype') eq '20' or $FIELD_MODEL->get('uitype') eq '21'}style="word-wrap: break-word;"{/if}>
+	                                                {include file=$FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName()|@vtemplate_path:$MODULE_NAME FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+	                                            </span>
+	                                        </div>
+	                                    </td>
+	                                </tr>
+	                            {/if}
+	                        {/foreach}
+                        {/if}
                     </tbody>
                 </table>
             </div>
@@ -71,8 +88,6 @@
 				{include file="ListViewQuickPreviewSectionHeader.tpl"|vtemplate_path:$MODULE_NAME TITLE="{vtranslate('Journal',$MODULE_NAME)}"}
 				{include file="RecentJournal.tpl"|vtemplate_path:$MODULE_NAME}
             </div>
-
-            <br>
             {if $MODULE_MODEL->isCommentEnabled() && $MODULE_NAME neq 'Cases'}
                 <div class="quickPreviewComments">
                     {include file="ListViewQuickPreviewSectionHeader.tpl"|vtemplate_path:$MODULE_NAME TITLE="{vtranslate('LBL_RECENT_COMMENTS',$MODULE_NAME)}"}

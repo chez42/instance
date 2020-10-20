@@ -300,5 +300,22 @@ class Vtiger_Field extends Vtiger_FieldBasic {
         }
         return $instances;
     }
+    
+    static function getAllForQuickPreview($moduleInstance) {
+        global $adb;
+        $instances = false;
+        
+        $query = "SELECT * FROM vtiger_field WHERE quickpreview = 1 and tabid=? ORDER by ISNULL(vtiger_field.quick_preview_field_seq), vtiger_field.quick_preview_field_seq ASC";
+        $queryParams = Array($moduleInstance->id);
+        
+        $result = $adb->pquery($query, $queryParams);
+        for($index = 0; $index < $adb->num_rows($result); ++$index) {
+            $instance = new self();
+            $instance->initialize($adb->fetch_array($result), $moduleInstance);
+            $instances[] = $instance;
+        }
+        return $instances;
+    }
+    
 }
 ?>

@@ -1,5 +1,5 @@
 {strip}
-	<div class="widget_contents">
+	<div class="widget_contents" style="padding:0px !important;margin-bottom:0px !important;">
 		<div class="activities">
 			<div class="streamline b-accent">
 				{if count($RECENT_ACTIVITIES) neq '0'}

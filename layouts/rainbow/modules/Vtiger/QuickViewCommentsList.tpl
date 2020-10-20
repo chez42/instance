@@ -48,7 +48,6 @@
         <div class="commentsBody container-fluid" style = "height:100%">
             {if !empty($COMMENTS)}
                 <div class="recentCommentsBody row">
-                    <br>
                     {foreach key=index item=COMMENT from=$COMMENTS}
                         {assign var=CREATOR_NAME value=$COMMENT->getCommentedByName()}
                         <div class="commentDetails">

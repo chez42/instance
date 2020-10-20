@@ -369,6 +369,8 @@ class Settings_LayoutEditor_Field_Model extends Vtiger_Field_Model {
 		$fieldInfo['currency_symbol'] = $currentUser->get('currency_symbol');
 		$fieldInfo['decimal_separator'] = $currentUser->get('currency_decimal_separator');
 		$fieldInfo['group_separator'] = $currentUser->get('currency_grouping_separator');
+		
+		$fieldInfo['isQuickPreview'] = $this->isQuickPreviewEnabled();
 
 		return $fieldInfo;
 	}
