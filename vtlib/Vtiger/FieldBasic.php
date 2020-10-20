@@ -43,6 +43,8 @@ class Vtiger_FieldBasic {
 
 	var $relatedlistview = 0; //change 09-Aug-2018
 	
+	var $quickpreview = 0;
+	
 	/**
 	 * Constructor
 	 */
@@ -79,6 +81,8 @@ class Vtiger_FieldBasic {
 		$this->headerfield = $valuemap['headerfield'];
 		
 		$this->relatedlistview = $valuemap['relatedlistview']; //change 09-Aug-2018
+		
+		$this->quickpreview = $valuemap['quickpreview'];
 	}
 
 	/** Cache (Record) the schema changes to improve performance */

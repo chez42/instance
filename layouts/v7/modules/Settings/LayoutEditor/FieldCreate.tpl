@@ -248,6 +248,19 @@
 								</div>
 			{*Change For 09-Aug-2018 End*}					
 							</div>
+							<div class="row">
+								<div class="form-group col-sm-7">
+									<label class="control-label fieldLabel col-sm-10">
+										<img src="{vimage_path('MassEdit.png')}" height=14 width=14/> &nbsp; {vtranslate('Quick Preview',$QUALIFIED_MODULE)}
+									</label>
+									<div class="controls col-sm-2">
+										<input type="hidden" name="quick_preview" value="0"/>
+										<label class="checkbox" style="margin-left: 9%;">
+											<input type="checkbox" class="cursorPointer" name="quick_preview" value="1" {if $FIELD_MODEL->get('quickpreview') eq '1'}checked="checked"{/if} />
+										</label>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

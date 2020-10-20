@@ -1165,9 +1165,9 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	
 /****************************** 09-Aug-2018 Changes *************************************/
 		
-		$query = 'UPDATE vtiger_field SET typeofdata=?,presence=?,quickcreate=?,masseditable=?,defaultvalue=?,summaryfield=?,headerfield=?, relatedlistview =?';
+		$query = 'UPDATE vtiger_field SET typeofdata=?,presence=?,quickcreate=?,masseditable=?,defaultvalue=?,summaryfield=?,headerfield=?, relatedlistview =?, quickpreview=?';
 		$params = array($this->get('typeofdata'), $this->get('presence'), $this->get('quickcreate'),
-		    $this->get('masseditable'), $this->get('defaultvalue'), $this->get('summaryfield'), $this->get('headerfield'),$this->get("relatedlistview"));
+		    $this->get('masseditable'), $this->get('defaultvalue'), $this->get('summaryfield'), $this->get('headerfield'),$this->get("relatedlistview"),$this->get("quickpreview"));
 
 /****************************** 09-Aug-2018 Changes END *************************************/
 		
@@ -1386,4 +1386,32 @@ class Vtiger_Field_Model extends Vtiger_Field {
         }
         return $fieldModelList;
     }
+    
+    public function isQuickPreviewEnabled(){
+        return ($this->get('quickpreview')) ? true : false;
+    }
+    
+    public static function getAllForQuickPreview($moduleModel){
+        $fieldModelList = Vtiger_Cache::get('QuickPreviewFields',$moduleModel->id);
+        if(!$fieldModelList){
+            $fieldObjects = parent::getAllForQuickPreview($moduleModel);
+            
+            $fieldModelList = array();
+            //if module dont have any fields
+            if(!is_array($fieldObjects)){
+                $fieldObjects = array();
+            }
+            
+            foreach($fieldObjects as $fieldObject){
+                $fieldModelObject= self::getInstanceFromFieldObject($fieldObject);
+                $fieldModelList[] = $fieldModelObject;
+                Vtiger_Cache::set('field-'.$moduleModel->getId(),$fieldModelObject->getId(),$fieldModelObject);
+                Vtiger_Cache::set('field-'.$moduleModel->getId(),$fieldModelObject->getName(),$fieldModelObject);
+            }
+            
+            Vtiger_Cache::set('QuickPreviewFields',$moduleModel->id,$fieldModelList);
+        }
+        return $fieldModelList;
+    }
+    
 }
