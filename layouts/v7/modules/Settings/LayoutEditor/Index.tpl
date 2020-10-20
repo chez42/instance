@@ -42,6 +42,7 @@
 					{if $SELECTED_MODULE_NAME eq 'Leads'}
 						<li class="{if $SELECTED_TAB eq 'roundRobinTab'}active {/if}roundRobinTab"><a data-toggle="tab" href="#roundRobinTabContainer" data-url="{$URL}" data-mode="showRoundRobinContent"><strong>{vtranslate('Round Robin Handling', $QUALIFIED_MODULE)}</strong></a></li>
 					{/if}
+					<li class="{if $SELECTED_TAB eq 'quickPreviewTab'}active {/if}quickPreviewTab"><a data-toggle="tab" href="#quickPreviewTabContainer" data-url="{$URL}" data-mode="showQuickPreviewHandling"><strong>{vtranslate('Quick Preview', $QUALIFIED_MODULE)}</strong></a></li>
 				</ul>
 				<div class="tab-content layoutContent themeTableColor overflowVisible">
 					<div class="tab-pane{if $SELECTED_TAB eq 'detailViewTab'} active{/if}" id="detailViewLayout">
@@ -67,6 +68,11 @@
 					<div class="tab-pane{if $SELECTED_TAB eq 'roundRobinTab'} active{/if}" id="roundRobinTabContainer">
 						{if $SELECTED_TAB eq 'roundRobinTab'}
 							{include file=vtemplate_path('RoundRobinTab.tpl', $QUALIFIED_MODULE)}
+						{/if}
+					</div>
+					<div class="tab-pane{if $SELECTED_TAB eq 'quickPreviewTab'} active{/if}" id="quickPreviewTabContainer">
+						{if $SELECTED_TAB eq 'quickPreviewTab'}
+							{include file=vtemplate_path('QuickPreviewTab.tpl', $QUALIFIED_MODULE)}
 						{/if}
 					</div>
 				</div>

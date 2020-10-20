@@ -2142,4 +2142,25 @@ class Vtiger_Module_Model extends Vtiger_Module {
         return $this->fields;
     }
     
+    public function getQuickPreviewFields($blockInstance=false) {
+        if(empty($this->fields)){
+            if($this->getName() == 'Calendar'){
+                $model = Vtiger_Module_Model::getInstance('Events');
+                $moduleBlockFields = Vtiger_Field_Model::getAllForQuickPreview($model);
+            }else{
+                $moduleBlockFields = Vtiger_Field_Model::getAllForQuickPreview($this);
+            }
+            
+            $this->fields = array();
+            foreach($moduleBlockFields as $moduleField){
+                $block = $moduleField->get('block');
+                if(empty($block)) {
+                    continue;
+                }
+                $this->fields[$moduleField->get('name')] = $moduleField;
+            }
+        }
+        return $this->fields;
+    }
+    
 }

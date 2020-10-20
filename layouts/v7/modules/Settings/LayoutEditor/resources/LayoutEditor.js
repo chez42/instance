@@ -1176,6 +1176,17 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
 		
 /****************************** 09-Aug-2018 Changes End *************************************/
 		
+		
+		if(!result['isQuickPreview']) {
+			form.find('.quickPreview').addClass('disabled');
+			meTitle = app.vtranslate('JS_SHOW_THIS_FIELD_IN', app.vtranslate('Quick preview'));
+			
+			//form.find('[name="related_list_view"]').filter(':checkbox').attr('checked', true);
+		} else {
+			form.find('.quickPreview').removeClass('disabled');
+			meTitle = app.vtranslate('JS_HIDE_THIS_FIELD_IN', app.vtranslate('Quick preview'));
+		}
+		
 		if (!result['fieldDefaultValue']) {
 			form.find('.defaultValue').addClass('disabled');
 			var defaultValueIcon = jQuery('.defaultValueIcon').html();
@@ -2370,10 +2381,77 @@ Vtiger.Class('Settings_LayoutEditor_Js', {
 		
 		thisInstance.triggerRelatedTabClickEvent();
 		thisInstance.triggerRoundRobinTabClickEvent();
+		thisInstance.triggerQuickPreviewTabClickEvent();
 
 		var selectedTab = jQuery('.selectedTab').val();
 		jQuery('#layoutEditorContainer').find('.contents').find('.'+selectedTab).trigger('click');
-	}
+	},
+	
+	triggerQuickPreviewTabClickEvent: function () {
+		var thisInstance = this;
+		var contents = jQuery('#layoutEditorContainer').find('.contents');
+
+		contents.find('.quickPreviewTab').click(function (e) {
+			var quickPreviewTabContainer = contents.find('#quickPreviewTabContainer');
+			thisInstance.showDuplicationHandlingUI(quickPreviewTabContainer, e).then(function (data) {
+				var form = jQuery('.QuickPreviewTabHandlingForm');
+
+				form.find('select').on('change', function () {
+					form.find('.formFooter').addClass('show').removeClass('hide');
+				});
+
+				form.find('.cancelLink').on('click', function () {
+					duplicationContainer.html('');
+					contents.find('.quickPreviewTab').trigger('click');
+				});
+				
+				var selectElement = form.find('select').addClass('select2');
+				vtUtils.showSelect2ElementView(selectElement,{maximumSelectionSize: 15});
+				var chozenChoiceElement = jQuery("#s2id_fieldsList").find('ul.select2-choices');
+				chozenChoiceElement.sortable({
+					'containment': chozenChoiceElement,
+					start: function() { },
+					update: function() {
+						form.find('.formFooter').addClass('show').removeClass('hide');
+					}
+				});
+				
+				var params = {
+					submitHandler: function (form) {
+						var form = jQuery(form);
+						
+						var params = form.serializeFormData();
+						
+						if ((typeof params['fieldIdsList[]'] == 'undefined') && (typeof params['fieldIdsList'] == 'undefined')) {
+							params['fieldIdsList'] = '';
+						}
+						var selectValueElements = selectElement.select2('data');
+						var selectedValues = [];
+						for(i=0; i<selectValueElements.length; i++) {
+							selectedValues.push(selectValueElements[i].id);
+						}
+						if(selectedValues.length)
+							params['fieldIdsList[]'] = selectedValues;
+						
+						app.helper.showProgress();
+						app.request.post({'data': params}).then(function (error, data) {
+							app.helper.hideProgress();
+							if (error == null) {
+								var message = app.vtranslate('Fields sequence updated Successfully.');
+								app.helper.showSuccessNotification({'message': message});
+								form.find('.formFooter').removeClass('show').addClass('hide');
+							} else {
+								app.helper.showErrorNotification({'message': app.vtranslate('Operation Failed!')});
+							}
+						});
+						return false;
+					}
+				}
+				form.vtValidate(params);
+			});
+		});
+	},
+	
 });
 
 Settings_LayoutEditor_Js('Settings_LayoutEditor_Index_Js', {}, {

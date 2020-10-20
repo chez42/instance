@@ -124,6 +124,9 @@
 														{assign var=R_L_FIELD_TITLE value={vtranslate('LBL_SHOW_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE))}}
 														{assign var=NOT_R_L_FIELD_TITLE value={vtranslate('LBL_HIDE_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE))}}
 														
+														{assign var=Q_P_FIELD_TITLE value={vtranslate('LBL_SHOW_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('Quick Preview',$QUALIFIED_MODULE))}}
+														{assign var=NOT_Q_P_FIELD_TITLE value={vtranslate('LBL_HIDE_THIS_FIELD_IN', $QUALIFIED_MODULE, vtranslate('Quick Preview',$QUALIFIED_MODULE))}}
+														
 														<div class="fieldProperties col-sm-10" data-field-id="{$FIELD_MODEL->get('id')}">
 															<span class="mandatory switch text-capitalize {if (!$IS_MANDATORY)}disabled{/if} {if $FIELD_MODEL->isMandatoryOptionDisabled()} cursorPointerNotAllowed {else} cursorPointer {/if}"
 																	data-toggle="tooltip" {if $IS_MANDATORY} title="{$NOT_M_FIELD_TITLE}" {else} title="{$M_FIELD_TITLE}" {/if}>
@@ -178,6 +181,14 @@
 																	 />&nbsp;{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}
 															</span>
 															
+															<br><br>
+															{assign var=IS_QUICK_PREVIEW_ENABLED value=$FIELD_MODEL->isQuickPreviewEnabled()}
+															<span class="quickPreview switch {if (!$IS_QUICK_PREVIEW_ENABLED)} disabled {/if} cursorPointer"
+																	data-toggle="tooltip" {if $IS_QUICK_PREVIEW_ENABLED} title="{$NOT_Q_P_FIELD_TITLE}" {else} title="{$Q_P_FIELD_TITLE}" {/if}>
+																<img src="{vimage_path('MassEdit.png')}" data-name="quick_preview" 
+																	 data-enable-value="1" data-disable-value="0" title="{vtranslate('Quick Preview',$QUALIFIED_MODULE)}" 
+																	  height=14 width=14 />&nbsp;{vtranslate('Quick Preview',$QUALIFIED_MODULE)}
+															</span>
 															<br><br>
 															<div class="defaultValue col-sm-12 {if !$FIELD_MODEL->hasDefaultValue()}disabled{/if} 
 																 {if $FIELD_MODEL->isDefaultValueOptionDisabled()} cursorPointerNotAllowed {/if}">
@@ -362,6 +373,16 @@
 																	 {if $FIELD_MODEL->isRelatedTabViewOptionDisabled()}readonly="readonly"{/if} height=14 width=14 
 																	 />&nbsp;{vtranslate('LBL_ENABLE_RELATED_LIST_FIELD',$QUALIFIED_MODULE)}
 															</span><br><br>
+															
+															{assign var=IS_QUICK_PREVIEW_ENABLED value=$FIELD_MODEL->isQuickPreviewEnabled()}
+															<span class="quickPreview switch {if (!$IS_QUICK_PREVIEW_ENABLED)} disabled {/if} cursorPointer "
+																	data-toggle="tooltip" {if $IS_QUICK_PREVIEW_ENABLED} title="{$NOT_Q_P_FIELD_TITLE}" {else} title="{$Q_P_FIELD_TITLE}" {/if}>
+																<img src="{vimage_path('MassEdit.png')}" data-name="quick_preview" 
+																	 data-enable-value="1" data-disable-value="0" title="{vtranslate('Quick Preview',$QUALIFIED_MODULE)}" 
+																	  height=14 width=14 />&nbsp;{vtranslate('Quick Preview',$QUALIFIED_MODULE)}
+															</span>
+															<br><br>
+															
 															<div class="defaultValue col-sm-12 {if !$FIELD_MODEL->hasDefaultValue()}disabled{/if} 
 																 {if $FIELD_MODEL->isDefaultValueOptionDisabled()} cursorPointerNotAllowed {/if}">
 																{assign var=DEFAULT_VALUE value=$FIELD_MODEL->getDefaultFieldValueToViewInV7FieldsLayOut()}
