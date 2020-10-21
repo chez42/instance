@@ -690,4 +690,69 @@ function SyncTicketCommentsWithHQ( $entityData ){
     
     $response = $httpc->doPost($params);
 }
+
+function SyncTicketWithInstance( $entityData ){
+    
+    $data = $entityData->getData();
+    
+    $site = strtolower($data['source']);
+    
+    require_once "vtlib/Vtiger/Net/Client.php";
+    
+    $httpc = new Vtiger_Net_Client("https://".$site.".360vew.com/webservice.php");
+    
+    $data['mode'] = 'tickets';
+    
+    $params = array(
+        "operation" => 'sync_ticket_and_comments_with_instance',
+        "element" => json_encode($data)
+    );
+    
+    $response = $httpc->doPost($params);
+   
+}
+
+function SyncTicketCommentsWithInstance( $entityData ){
+    
+    global $adb;
+    global $current_user;
+    
+    $current_user_name = $current_user->first_name . ' ' . $current_user->last_name;
+    
+    $wsId = $entityData->getId();
+    $parts = explode('x', $wsId);
+    $entityId = $parts[1];
+    
+    $data = $entityData->getData();
+    
+    $comment = $adb->pquery("SELECT vtiger_modcomments.* FROM vtiger_modcomments
+    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modcomments.modcommentsid
+    WHERE vtiger_crmentity.deleted = 0 AND vtiger_modcomments.related_to = ?
+    ORDER BY vtiger_modcomments.modcommentsid DESC",array($entityId));
+    
+    $comData = array();
+    if($adb->num_rows($comment)){
+        $comData = $adb->query_result_rowdata($comment,0);
+    }
+    
+    $comData['commentcontent'] = $current_user_name . ':  ' . $comData['commentcontent'];
+    
+    $comData['mode'] = 'comment';
+    
+    $site = strtolower($data['source']);
+    
+    require_once "vtlib/Vtiger/Net/Client.php";
+    
+    $httpc = new Vtiger_Net_Client("https://".$site.".360vew.com/webservice.php");
+
+    $comData['ticket_no'] = $data['referenceid'];
+    
+    $params = array(
+        "operation"=>'sync_ticket_and_comments_with_instance', 
+        "element" => json_encode($comData)
+    );
+    
+    $response = $httpc->doPost($params);
+    
+}
 ?>
