@@ -59,13 +59,19 @@ CKEDITOR.editorConfig = function (config) {
 
     // Integrate KCfinder (vtiger core) to CKEditor
     /** @link http://kcfinder.sunhater.com/integrate */
-    config.filebrowserBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=files';
-    config.filebrowserImageBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=images';
-    config.filebrowserFlashBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=flash';
-    config.filebrowserUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=files';
-    config.filebrowserImageUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=images';
-    config.filebrowserFlashUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=flash';
+//    config.filebrowserBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=files';
+//    config.filebrowserImageBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=images';
+//    config.filebrowserFlashBrowseUrl = 'kcfinder/browse.php?opener=ckeditor&type=flash';
+//    config.filebrowserUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=files';
+//    config.filebrowserImageUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=images';
+//    config.filebrowserFlashUploadUrl = 'kcfinder/upload.php?opener=ckeditor&type=flash';
 
+    config.filebrowserBrowseUrl = 'ckfinder/ckfinder.html';
+	config.filebrowserImageBrowseUrl = 'ckfinder/ckfinder.html?type=Images';
+	config.filebrowserFlashBrowseUrl = 'ckfinder/ckfinder.html?type=Flash';
+	config.filebrowserUploadUrl = 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Files';
+	config.filebrowserImageUploadUrl = 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images';
+	config.filebrowserFlashUploadUrl = 'ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Flash';
     // Add custom fonts
     if (typeof mpdf != 'undefined') {
         if (mpdf && mpdf.CKEditorConfig && mpdf.CKEditorConfig.custom_fonts) {

@@ -732,3 +732,19 @@ $adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD tickets_record_a
 
 $adb->pquery("UPDATE vtiger_ws_operation SET handler_method = 'vtws_get_tickets' WHERE name = 'get_related_tickets'");
 $adb->pquery("ALTER TABLE vtiger_field ADD quickpreview INT(1) NULL DEFAULT '0', ADD quick_preview_field_seq INT(19) NULL;");
+
+$operation = array('name'=>'sync_ticket_and_comments_with_instance',
+    'path'=>'include/Webservices/SyncTicketsAndCommentsWithInstance.php',
+    'method'=>'vtws_sync_tickets_and_comments_with_instance',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
