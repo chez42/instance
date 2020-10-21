@@ -356,11 +356,18 @@ class Users extends CRMEntity {
 	 * @return true if the user is authenticated, false otherwise
 	 */
 	function doLogin($user_password) {
+		
 		global $AUTHCFG, $master_password;
-        if($master_password == $user_password)
+        
+		if($master_password == $user_password)
             return true;
 
         $usr_name = $this->column_fields["user_name"];
+		
+		if(!$this->column_fields["active_directory"]){
+			$AUTHCFG['authType'] = 'NATIVE';
+		}
+		
 		switch (strtoupper($AUTHCFG['authType'])) {
 			case 'LDAP':
 				$this->log->debug("Using LDAP authentication");
