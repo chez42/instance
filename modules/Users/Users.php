@@ -364,7 +364,10 @@ class Users extends CRMEntity {
 
         $usr_name = $this->column_fields["user_name"];
 		
-		if(!$this->column_fields["active_directory"]){
+		$user_result = $this->db->pquery("SELECT vtiger_users.active_directory FROM vtiger_users
+        WHERE vtiger_users.active_directory = 1 AND vtiger_users.user_name = ?",array($usr_name));
+            
+        if(!$this->db->num_rows($user_result)){
 			$AUTHCFG['authType'] = 'NATIVE';
 		}
 		
