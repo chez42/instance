@@ -24,7 +24,7 @@ function vtws_sync_tickets_and_comments_with_instance($element){
             $helpDesk->mode = 'edit';
             
             $helpDesk->column_fields['ticketstatus'] = $element['ticketstatus'];
-            $helpDesk->save('HelpDesk');
+            $helpDesk->saveentity('HelpDesk');
             
         }
         
@@ -45,7 +45,7 @@ function vtws_sync_tickets_and_comments_with_instance($element){
             $modComments->column_fields['commentcontent'] = $element['commentcontent'];
             $modComments->column_fields['related_to'] = $id;
             $modComments->column_fields['userid'] = $element['userid'];
-            $modComments->save('ModComments');
+            $modComments->saveentity('ModComments');
             
             return $modComments->id;
             
