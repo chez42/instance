@@ -135,6 +135,37 @@ class cCustodian{
         return 0;
     }
 
+    public function GetAccountsMissingBalancesAsOfDate($as_of_field="as_of_date", $balance_field="account_value", $as_of_date){
+        global $adb;
+        $missing = array();
+
+        $query = "DROP TABLE IF EXISTS AccountsToCheck";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TABLE AccountsToCheck (account_number VARCHAR(50) NOT NULL, 
+                                                balance DECIMAL(20,2))";
+        $adb->pquery($query, array(), true);
+
+        foreach($this->account_numbers AS $k => $v){
+            $query = "INSERT INTO AccountsToCheck (account_number) VALUES (?)";
+            $adb->pquery($query, array($v), true);
+        }
+
+        $query = "UPDATE AccountsToCheck 
+                  JOIN {$this->database}.{$this->table} USING (account_number)
+                  SET balance = {$balance_field}
+                  WHERE {$as_of_field} = ?";
+        $adb->pquery($query, array($as_of_date), true);
+
+        $query = "SELECT account_number FROM AccountsToCheck WHERE balance IS NULL";
+        $result = $adb->pquery($query, array(), true);
+        if($adb->num_rows($result) > 0)
+            while($r = $adb->fetchByAssoc($result)){
+                $missing[] = $r['account_number'];
+            }
+        return $missing;
+    }
+
     /**
      * Get the latest positions date for the provided rep codes.  This is a MAX date for all passed in and only returns the highest date
      * between them.
