@@ -1587,7 +1587,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             $transaction_date = self::GetFirstTransactionDate($v);
 
             //#3
-            if($transaction_date < $first_balance['date']) {
+            if($transaction_date < $first_balance['date'] AND $transaction_date != null) {
                 #4
                 $transaction_flow_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("flow"), true);
                 $transaction_expense_value = self::GetTransactionValuesByTypeOnDate($v, $first_balance['date'], array("expense"), true);
@@ -3343,5 +3343,21 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             return true;
         }
         return false;
+    }
+
+    static public function WipeAccountData(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params[] = $account_number;
+
+        if(!empty($params)) {
+            $query = "UPDATE vtiger_portfolioinformation p 
+                      JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                      JOIN vtiger_positioninformation pos ON pos.account_number = p.account_number
+                      JOIN vtiger_positioninformationcf poscf ON poscf.positioninformationid = pos.positioninformationid
+                      SET p.total_value = 0, p.market_value = 0, p.cash_value = 0, pos.quantity = 0, pos.current_value = 0
+                      WHERE p.account_number IN ({$questions})";
+            $adb->pquery($query, $params, true);
+        }
     }
 }
