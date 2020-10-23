@@ -16,9 +16,10 @@ class Transactions_FixTransactions_Model extends Vtiger_Module_Model{
     static public function RemoveReconciledTransactions(){
         global $adb;
         $query = "DELETE FROM vtiger_crmentity 
-                  WHERE crmid IN (SELECT transactionsid 
-                                  FROM vtiger_transactions t 
-                                  WHERE t.security_symbol = 'CRMRECON')";
+                  WHERE crmid IN (SELECT t.transactionsid 
+                                  FROM vtiger_transactionscf tcf 
+                                  JOIN vtiger_transactions t USING (transactionsid)
+                                  WHERE tcf.description LIKE ('%System Generated Transaction%') OR t.security_symbol = 'CRMRECON')";
         $adb->pquery($query, array());
         $query = "SELECT ROW_COUNT() as DelRowCount";
         $result = $adb->pquery($query, array());
