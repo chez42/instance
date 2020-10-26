@@ -687,15 +687,15 @@ Vtiger.Class("RingCentral_Js",{
 	
 		//var view = app.getViewName();
 			
-			jQuery('#overlayPage').one('shown.bs.modal',function(){
-				thisInstance.registerEventForMouse();
-			});
+		jQuery('#overlayPage').on('shown.bs.modal',function(){
+			thisInstance.registerEventForMouse();
+		});
+		
+		jQuery('#helpPageOverlay').on('shown.bs.modal', function () {
+			thisInstance.registerEventForMouse();
+		});
 			
-			jQuery('#helpPageOverlay').one('shown.bs.modal', function () {
-				thisInstance.registerEventForMouse();
-			});
-			
-		jQuery('#overlayPageContent').one('shown.bs.modal', function () {
+		jQuery('#overlayPageContent').on('shown.bs.modal', function () {
 			thisInstance.registerEventForMouse();
 		});
 

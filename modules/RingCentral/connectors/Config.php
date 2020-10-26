@@ -40,7 +40,7 @@ Class RingCentral_Config_Connector {
     
     static function getCallBackUrl() {
         global $site_URL;
-        return $site_URL.'modules/RingCentral/connect.php';
+        return 'https://oauth.360vew.com';
     }
 	
     

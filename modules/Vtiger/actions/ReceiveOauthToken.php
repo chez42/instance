@@ -20,6 +20,7 @@ require_once 'modules/DocuSign/vendor/autoload.php';
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model;
 
+require_once 'modules/RingCentral/vendor/autoload.php';
 
 class Vtiger_ReceiveOauthToken_Action {
     
@@ -185,6 +186,90 @@ class Vtiger_ReceiveOauthToken_Action {
                 
             }
             
+        }else if($data["source"] == "RingCentral"){
+            
+            try {
+                
+                if(RingCentral_Config_Connector::$server == 'Sandbox')
+                    $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
+                    
+                if(RingCentral_Config_Connector::$server == 'Production')
+                    $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_PRODUCTION);
+                
+                $platform = $rcsdk->platform();
+                
+                if(isset($data['code'])){
+                    
+                    $qs = $platform->parseAuthRedirectUrl(http_build_query($data));
+                    
+                    $qs["redirectUri"] = RingCentral_Config_Connector::getCallBackUrl();
+                   
+                    $apiResponse = $platform->login($qs);
+                    
+                    $token_data =  $apiResponse->text();
+                    
+                    $token = json_decode($token_data, true);
+                    
+                    $access_token = $token['access_token'];
+                    
+                    $refresh_token = $token['refresh_token'];
+                    
+                    $token_type = $token['token_type'];
+                    
+                    $refresh_token_expires_in = $token['refresh_token_expires_in'];
+                    
+                    $owner_id = $token['owner_id'];
+                    
+                    $access_token_expires_in = $token['expires_in'];
+                    
+                    $access_token_expiry_time = date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s")) + ($token['expires_in'] - 60));
+                    
+                    $refresh_token_expiry_time = date("Y-m-d H:i:s", strtotime(date("Y-m-d H:i:s")) + ($token['refresh_token_expires_in'] - 60));
+                    
+                    $platform->auth()->setData($token);
+                    
+                    $account_information = $platform->get('/account/~/extension/'.$owner_id.'/phone-number');
+                    
+                    $account_info = json_decode($account_information->text(), true);
+                    
+                    if(count($account_info['records']) > 1){
+                        
+                        foreach($account_info['records'] as $record){
+                            if(in_array('SmsSender', $record['features']) && $record['usageType'] == 'DirectNumber'){
+                                $from_no = $record['phoneNumber'];
+                            }
+                        }
+                        
+                        
+                    } else {
+                        $from_no = '';
+                    }
+                    
+                    $current_user_id = $data["userid"];
+                    
+                    $result = $db->pquery('SELECT * FROM vtiger_ringcentral_oauth WHERE userid = ?',array($current_user_id));
+                    
+                    if($db->num_rows($result)){
+                        $db->pquery("update vtiger_ringcentral_oauth set access_token = ?,
+                		refresh_token = ?, token_type = ?, refresh_token_expires_in = ?, access_token_expires_in = ?,
+                		refresh_token_expiry_time = ?, access_token_expiry_time = ?, from_no = ? where userid = ?",
+                            array($access_token, $refresh_token, $token_type, $refresh_token_expires_in, $access_token_expires_in,
+                                $refresh_token_expiry_time, $access_token_expiry_time, $from_no, $current_user_id));
+                    } else{
+                        $db->pquery("insert into vtiger_ringcentral_oauth(userid,access_token,
+                		refresh_token, token_type, refresh_token_expires_in, access_token_expires_in,
+                		refresh_token_expiry_time, access_token_expiry_time, from_no) values(?,?,?,?,?,?,?,?,?)",
+                            array($current_user_id, $access_token, $refresh_token, $token_type, $refresh_token_expires_in,
+                                $access_token_expires_in,$refresh_token_expiry_time, $access_token_expiry_time, $from_no));
+                    }
+                } 
+                
+            } catch(Exception $e){
+                
+                $error = true;
+                
+            }
+                
         }
         
         if($data["source_module"] == 'MailManager' && !$error){
