@@ -1953,7 +1953,10 @@ Vtiger.Class('Vtiger_Index_Js', {
 			app.request.post(postData).then(
 				function(err,data){
 					//app.helper.hideProgress();
-					self.showQuickPreviewForId(commentRelatedTo,app.getModuleName(), app.getAppName());
+					if(viewType == 'List')
+						self.showQuickPreviewForId(commentRelatedTo, moduleName, app.getAppName());
+					else if(viewType == 'RelatedList')
+						self.showRelatedQuickPreviewForId(commentRelatedTo, moduleName, app.getAppName());
 				},
 				function(textStatus, errorThrown){
 					app.helper.hideProgress();
