@@ -688,3 +688,48 @@ if (!$adb->num_rows($rs)) {
         vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
     }
 }
+
+$lead_gender_field_result = $adb->pquery("SELECT * FROM vtiger_field WHERE fieldname='cf_1602' AND uitype=15");
+if(!$adb->num_rows($lead_gender_field_result)){
+    $adb->pquery("UPDATE vtiger_field  SET uitype=15 WHERE fieldname = 'cf_1602'");
+    $lead_module_model = Vtiger_Module::getInstance('Leads');
+    $fieldInstance = Vtiger_Field::getInstance('cf_1602', $lead_module_model);
+    $fieldInstance->setPicklistValues(array("Male", "Female"));
+}
+
+$own_cloud_result = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'OwnCloud'");
+if (!$adb->num_rows($own_cloud_result)) {
+    $moduleInstance = new Vtiger_Module();
+    $moduleInstance->name = 'OwnCloud';
+    $moduleInstance->parent= 'Tools';
+    $moduleInstance->isentitytype = false;
+    $moduleInstance->save();
+}
+
+
+$mod_tracker_result = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'ModTracker'");
+if (!$adb->num_rows($mod_tracker_result)) {
+    $moduleInstance = new Vtiger_Module();
+    $moduleInstance->name = 'ModTracker';
+    $moduleInstance->parent= 'Tools';
+    $moduleInstance->isentitytype = false;
+    $moduleInstance->save();
+}
+
+$kanban_view_result = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'KanbanView'");
+if (!$adb->num_rows($kanban_view_result)) {
+    $moduleInstance = new Vtiger_Module();
+    $moduleInstance->name = 'KanbanView';
+    $moduleInstance->parent= 'Tools';
+    $moduleInstance->isentitytype = false;
+    $moduleInstance->save();
+}
+
+$office365_result = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'Office365'");
+if (!$adb->num_rows($office365_result)) {
+    $moduleInstance = new Vtiger_Module();
+    $moduleInstance->name = 'Office365';
+    $moduleInstance->parent= 'Tools';
+    $moduleInstance->isentitytype = false;
+    $moduleInstance->save();
+}
