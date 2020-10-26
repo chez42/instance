@@ -27,7 +27,7 @@ class Vtiger_DocumentsFileUpload_UIType extends Vtiger_Base_UIType {
 		if($recordModel) {
 			$fileLocationType = $recordModel->get('filelocationtype');
 			$fileStatus = $recordModel->get('filestatus');
-			if(!empty($value) && $fileStatus) {
+			if(!empty($value) && $fileStatus && Users_Privileges_Model::isPermitted('Documents', 'Download')){
 				if($fileLocationType == 'I') {
 					$db = PearDatabase::getInstance();
 					$fileIdRes = $db->pquery('SELECT attachmentsid FROM vtiger_seattachmentsrel WHERE crmid = ?', array($recordId));
