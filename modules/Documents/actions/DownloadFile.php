@@ -19,6 +19,10 @@ class Documents_DownloadFile_Action extends Vtiger_Action_Controller {
 	}*/
 	
 	function checkPermission(Vtiger_Request $request) {
+	    
+	    if(!Users_Privileges_Model::isPermitted('Documents', 'Download'))
+	        throw new AppException('LBL_PERMISSION_DENIED');
+	    
 	    $record = $request->get('record');
 	    $check = Documents_Record_Model::checkPermission('Detail',$record);
 	    if(!$check)

@@ -43,12 +43,15 @@
                                                     {assign var=RECORD_ID value=$RELATED_RECORD->getId()}
                                                     {if isPermitted('Documents', 'DetailView', $RECORD_ID) eq 'yes'}
                                                         {assign var="DOCUMENT_RECORD_MODEL" value=Vtiger_Record_Model::getInstanceById($RECORD_ID)}
+                                                        {assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
                                                         {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus')}
                                                             <a name="viewfile" href="javascript:void(0)" data-filelocationtype="{$DOCUMENT_RECORD_MODEL->get('filelocationtype')}" data-filename="{$DOCUMENT_RECORD_MODEL->get('filename')}" onclick="Vtiger_Header_Js.previewFile(event,{$RECORD_ID})"><i title="{vtranslate('LBL_VIEW_FILE', 'Documents')}" class="ti-image alignMiddle"></i></a>&nbsp;
                                                         {/if}
-                                                        {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus') && $DOCUMENT_RECORD_MODEL->get('filelocationtype') eq 'I'}
-                                                            <a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}"><i title="{vtranslate('LBL_DOWNLOAD_FILE', 'Documents')}" class="ti-download alignMiddle"></i></a>
-                                                        {/if}
+                                                        {if $IS_DOWNLOAD_PERMITTED}
+	                                                        {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus') && $DOCUMENT_RECORD_MODEL->get('filelocationtype') eq 'I'}
+	                                                            <a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}"><i title="{vtranslate('LBL_DOWNLOAD_FILE', 'Documents')}" class="ti-download alignMiddle"></i></a>
+	                                                        {/if}
+                                                        {/if} 
                                                     {/if}
                                                 </span>
 					</div>

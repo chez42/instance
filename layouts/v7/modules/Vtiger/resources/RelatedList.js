@@ -1886,7 +1886,7 @@ createTreeFolderPopup : function() {
 							allowMultipleUploads: true,
 							restrictions: {
 							    maxFileSize: 20971520,
-							    allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.txt']
+							    //allowedFileTypes: ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.txt']
 							},
 							onBeforeFileAdded: (currentFile, files) => {
 								if(!$(document).find('[name="folder_id"]').val()){
