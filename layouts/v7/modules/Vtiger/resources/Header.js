@@ -23,6 +23,7 @@ jQuery.Class("Vtiger_Header_Js", {
         var fileLocationType = currentTargetObject.data('filelocationtype');
         var fileName = currentTargetObject.data('filename'); 
         if(fileLocationType == 'I'){
+        	app.helper.showProgress();
             var params = {
                 module : 'Documents',
                 view : 'FilePreview',
@@ -30,12 +31,27 @@ jQuery.Class("Vtiger_Header_Js", {
             };
             app.request.post({"data":params}).then(function(err,data){
                 app.helper.showModal(data,{'cb':function(){
+                	app.helper.hideProgress();
+                	$('.modal-content').resizable({
+                		stop : function(event, ui){
+                			var height = ui.size.height;
+                			var width =  ui.size.width;
+                			if($('iframe').length)
+                				$('iframe').height(height-90);
+                			
+                			$('.filePreview .modal-body.row').height(height-90);
+                		}
+            	    });
+                	
+            	    $('.modal-dialog').draggable();
+            	    
                 	$('.viewerDownload').ready(function() {
             		   setTimeout(function() {
             		      $('.viewerDownload').contents().find('#download').remove();
             		      $('.viewerDownload').contents().find('#print').remove();
             		   }, 100);
             		});
+                	
                 }});
             });
         } else {

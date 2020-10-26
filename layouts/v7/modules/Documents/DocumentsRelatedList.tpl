@@ -257,13 +257,16 @@
                             {/if}
                             {assign var=RECORD_ID value=$RELATED_RECORD->getId()}
                             {assign var="DOCUMENT_RECORD_MODEL" value=Vtiger_Record_Model::getInstanceById($RECORD_ID)}
+                            {assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
                             {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus')}
                                 <a name="viewfile" href="javascript:void(0)" data-filelocationtype="{$DOCUMENT_RECORD_MODEL->get('filelocationtype')}" data-filename="{$DOCUMENT_RECORD_MODEL->get('filename')}" onclick="Vtiger_Header_Js.previewFile(event)"><i title="{vtranslate('LBL_VIEW_FILE', $RELATED_MODULE_NAME)}" class="fa fa-picture-o alignMiddle"></i></a>&nbsp;&nbsp;
                             {/if}
-                            {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus') && $DOCUMENT_RECORD_MODEL->get('filelocationtype') eq 'I'}
-                                <a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}" onclick="event.stopImmediatePropagation();"><i title="{vtranslate('LBL_DOWNLOAD_FILE', $RELATED_MODULE_NAME)}" class="fa fa-download alignMiddle"></i></a>
-                            {/if}
-                        </span>
+                        	{if $IS_DOWNLOAD_PERMITTED}
+	                            {if $DOCUMENT_RECORD_MODEL->get('filename') && $DOCUMENT_RECORD_MODEL->get('filestatus') && $DOCUMENT_RECORD_MODEL->get('filelocationtype') eq 'I'}
+	                                <a name="downloadfile" href="{$DOCUMENT_RECORD_MODEL->getDownloadFileURL()}" onclick="event.stopImmediatePropagation();"><i title="{vtranslate('LBL_DOWNLOAD_FILE', $RELATED_MODULE_NAME)}" class="fa fa-download alignMiddle"></i></a>
+	                            {/if}
+                            {/if} 
+                        </span> 
                         
                     </td>
                     {foreach item=HEADER_FIELD from=$RELATED_HEADERS}

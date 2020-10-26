@@ -14,6 +14,8 @@
     <input type="hidden" id = "nextRecordId" value ="{$NEXT_RECORD_ID}">
     <input type="hidden" id = "previousRecordId" value ="{$PREVIOUS_RECORD_ID}">
 	<input type="hidden" id = "RecordId" value ="{$RECORD->getId()}">
+	<input type="hidden" id = "viewType" value ="List">
+	
     <div class='quick-preview-modal modal-content'>
         <div class='modal-body'>
             <div class = "quickPreviewModuleHeader row">

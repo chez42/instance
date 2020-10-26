@@ -12,7 +12,10 @@ jQuery.Class("Consolidated_Js",{
     FillCharts : function(){
         var vals = $("#consolidated_chart").data("vals");
         if(vals === 0){
-            this.RemoveWidget();
+        	if(app.getViewName() == 'Detail')
+        		$("#consolidated_chart").html('<div class="text-center">No data found.</div>');
+        	else
+        		this.RemoveWidget();
         }else if(typeof(vals) !== "undefined")
         {
             this.AssetChart(vals);
