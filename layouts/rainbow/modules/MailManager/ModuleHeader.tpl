@@ -135,7 +135,7 @@
 							</ul>
 						{/if}
 						
-						<button href="javascript:void(0);" data-toggle="dropdown" class="btn btn-default" style="margin-left: 4px;">
+						<button href="javascript:void(0);" data-toggle="dropdown" class="btn btn-default module-buttons" style="margin-left: 4px;">
 							{vtranslate('Configure Mail Converter', $QUALIFIED_MODULE_NAME)}&nbsp;<i class="caret"></i>
 						</button>
 						<ul class="dropdown-menu pull-right mailBoxDropDown">
