@@ -41,13 +41,13 @@
 					<p class="textAlignCenter">{vtranslate('No data available.',$MODULE_NAME)}</p>
 				</div>
 			{/if}
-			{if $PAGING_MODEL->isNextPageExists()}
+			{*if $PAGING_MODEL->isNextPageExists()}
 				<div class="row">
 					<div class="pull-right">
 						<a href="javascript:void(0)" class="moreRecentJournals">{vtranslate('LBL_SHOW_MORE',$MODULE_NAME)}</a>
 					</div>
 				</div>
-			{/if}
+			{/if*}
 			</div>
 		</div>
 	</div>

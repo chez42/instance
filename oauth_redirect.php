@@ -1,5 +1,5 @@
 <?php
-if($_REQUEST['source'] == 'MailManager' || $_REQUEST['source'] == 'DocuSign'){
+if($_REQUEST['source'] == 'MailManager' || $_REQUEST['source'] == 'DocuSign' || $_REQUEST['source'] == 'RingCentral'){
     echo '<script>window.opener.RefreshPage();window.close();</script>';
 } else if($_REQUEST['source']  == 'Calendar' || $_REQUEST['source'] == 'Office365Calendar'){
     echo '<script>window.opener.sync();window.close();</script>';

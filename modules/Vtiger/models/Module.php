@@ -2142,7 +2142,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
         return $this->fields;
     }
     
-    public function getQuickPreviewFields($blockInstance=false) {
+    public function getQuickPreviewFields($recordModel) {
         if(empty($this->fields)){
             if($this->getName() == 'Calendar'){
                 $model = Vtiger_Module_Model::getInstance('Events');
@@ -2157,6 +2157,7 @@ class Vtiger_Module_Model extends Vtiger_Module {
                 if(empty($block)) {
                     continue;
                 }
+                $moduleField->set('fieldvalue', $recordModel->get($moduleField->get('name')));
                 $this->fields[$moduleField->get('name')] = $moduleField;
             }
         }
