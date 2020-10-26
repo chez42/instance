@@ -30,20 +30,36 @@
 		{/if}
 	{/foreach}
 
-	{* Balance Widget Model Start*}
-	{if $BALANCE_WIDGET_MODEL}
-		<div class="summaryWidgetContainer" style="border-radius:10px;">
-			<div class="widgetContainer_balances" data-url="{$BALANCE_WIDGET_MODEL->getUrl()}" data-name="{$BALANCE_WIDGET_MODEL->getLabel()}">
-				<div class="widget_header">
-					<input type="hidden" name="relatedModule" value="{$BALANCE_WIDGET_MODEL->get('linkName')}" />
-					<h4 class="display-inline-block">{vtranslate($BALANCE_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-				</div>
-				<div class="widget_contents" style="height:150px;">
+	<div class="top-block  container-fluid">
+		{* Revenue Widget Model Start*}
+		{if $REPORTING_REVENUE_WIDGET_MODEL}
+			<div class="summaryWidgetContainer col-lg-4" style="border-radius:10px;">
+				<div class="widgetContainer_risk_assessment" data-url="{$REPORTING_REVENUE_WIDGET_MODEL->getUrl()}" data-name="{$REPORTING_REVENUE_WIDGET_MODEL->getLabel()}">
+					<div class="widget_header">
+						<input type="hidden" name="relatedModule" value="{$REPORTING_REVENUE_WIDGET_MODEL->get('linkName')}" />
+						<h4 class="display-inline-block">{vtranslate($REPORTING_REVENUE_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
+					</div>
+					<div class="widget_contents" style="min-height:150px;">
+					</div>
 				</div>
 			</div>
-		</div>
-	{/if}
-	{* Balance Widget Model End*}
+		{/if}
+		{* Revenue Widget Model End*}
+		{* Balance Widget Model Start*}
+		{if $BALANCE_WIDGET_MODEL}
+			<div class="summaryWidgetContainer col-lg-8" style="border-radius:10px;">
+				<div class="widgetContainer_balances" data-url="{$BALANCE_WIDGET_MODEL->getUrl()}" data-name="{$BALANCE_WIDGET_MODEL->getLabel()}">
+					<div class="widget_header">
+						<input type="hidden" name="relatedModule" value="{$BALANCE_WIDGET_MODEL->get('linkName')}" />
+						<h4 class="display-inline-block">{vtranslate($BALANCE_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
+					</div>
+					<div class="widget_contents" style="min-height:150px;">
+					</div>
+				</div>
+			</div>
+		{/if}
+		{* Balance Widget Model End*}
+	</div>
 	<div class="left-block col-lg-4">
 		{* Module Summary View*}
 {*		<div class="summaryView">
@@ -85,21 +101,6 @@
 			</div>
 		{/if}
 		{*Holdings Widget Model End*}
-
-		{* Revenue Widget Model Start*}
-		{if $REPORTING_REVENUE_WIDGET_MODEL}
-			<div class="summaryWidgetContainer">
-				<div class="widgetContainer_risk_assessment" data-url="{$REPORTING_REVENUE_WIDGET_MODEL->getUrl()}" data-name="{$REPORTING_REVENUE_WIDGET_MODEL->getLabel()}">
-					<div class="widget_header">
-						<input type="hidden" name="relatedModule" value="{$REPORTING_REVENUE_WIDGET_MODEL->get('linkName')}" />
-						<h4 class="display-inline-block">{vtranslate($REPORTING_REVENUE_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h4>
-					</div>
-					<div class="widget_contents">
-					</div>
-				</div>
-			</div>
-		{/if}
-		{* Revenue Widget Model End*}
 
 		{* Summary View Documents Widget*}
 		{if $DOCUMENT_WIDGET_MODEL}

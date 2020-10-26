@@ -18,7 +18,10 @@ jQuery.Class("HistoricalInformation_Js",{
         {
             var chartData = $.parseJSON(pie);
             if(chartData === 0){
-                this.RemoveWidget();
+            	if(app.getViewName() == 'Detail')
+            		$("#AssetAllocationWidget").html('<div class="text-center">No data found.</div>');
+            	else
+            		this.RemoveWidget();
             }
             this.AssetChart(chartData);
         }
