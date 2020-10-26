@@ -34,7 +34,7 @@ class Vtiger_RelatedRecordQuickPreview_View extends Vtiger_Index_View {
 		$recordStrucure = Vtiger_RecordStructure_Model::getInstanceFromRecordModel($recordModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_SUMMARY);
 		$moduleModel = $recordModel->getModule();
 		
-		$quickPreviewFields = $moduleModel->getQuickPreviewFields();
+		$quickPreviewFields = $moduleModel->getQuickPreviewFields($recordModel);
 
 		$viewer->assign('RECORD', $recordModel);
 		$viewer->assign('MODULE_MODEL', $moduleModel);

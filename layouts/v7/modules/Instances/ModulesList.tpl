@@ -25,7 +25,7 @@
                                 <td class="fieldValue selectModule">
                                     <select name="select_modules" class="select2 selectModules" multiple style="width:100%;">
                                         {foreach item=INMODULE from=$INSMODULES}
-                                            <option value="{$INMODULE['id']}" {if !$INMODULE['ishide']}selected{/if}>{$INMODULE['name']}</option>
+                                            <option value="{$INMODULE['id']}" {if !$INMODULE['ishide']}selected{/if}>{vtranslate($INMODULE['name'], $INMODULE['name'])}</option>
                                         {/foreach}
                                     </select>
                                 </td>
