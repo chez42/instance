@@ -160,7 +160,7 @@ class cSchwabTransactionsData{
         $this->omniscient_category = $data['omniscient_category'];
         $this->omniscient_activity = $data['omniscient_activity'];
         $this->schwab_category = $data['schwab_category'];
-        $this->operation = (is_null($data['operation'])) ? 1 : $data['operation'];
+        $this->operation = (is_null($data['operation'])) ? '' : $data['operation'];
         $this->stopping_point = $data['stopping_point'];
         $this->affects_total = $data['affects_total'];
         $this->affects_performance = $data['affects_performance'];
@@ -344,10 +344,10 @@ class cSchwabTransactions extends cCustodian
 #            echo "CRMID: {$crmid} <br />";
 
             $owner = $this->GetAccountOwnerFromAccountNumber($data->account_number);
+
             $this->FillEntityTable($crmid, $owner, $data);
             $this->FillTransactionTable($crmid, $data);
             $this->FillTransactionCFTable($crmid, $data);
-            echo "CHECK NOW FOR {$crmid}";exit;
         }
     }
 
