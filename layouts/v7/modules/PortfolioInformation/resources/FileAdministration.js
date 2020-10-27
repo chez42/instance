@@ -98,7 +98,7 @@ jQuery.Class("FileAdministration_Module_Js",{
                             row.update({id: id});
                         }
                     });
-
+                    alert("Update Saved");
                 },
             });
             self.table = table;
