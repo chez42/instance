@@ -64,8 +64,9 @@ class Documents_FilePreview_View extends Vtiger_IndexAjax_View {
 		$filename = $fileDetails['name'];
 		$parts = explode('.',$filename);
 		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I') {
-			$downloadUrl =  $recordModel->getDownloadFileURL();
+			$downloadUrl =  $recordModel->getDownloadFileURL().'&mode=preview';
 		}
+		
 		//support for plain/text document
 		$extn = 'txt';
 		if(count($parts) > 1){

@@ -133,7 +133,7 @@
                                 </td>
                             </tr>
 
-                            <tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
+                            {*<tr class="settings_details {if $SERVERNAME eq ''}hide{/if}">
                                 <td class="fieldLabel width40per">
                                     <label class="pull-right detailViewButtoncontainer">{vtranslate('LBL_SAVE_SENT_MAILS_IN',$MODULE)}</label>
                                 </td>
@@ -148,7 +148,7 @@
                                 <td class="fieldValue selectFolderDesc alert alert-info {if $MAILBOX->exists()}hide{/if}">
                                     {vtranslate('LBL_CHOOSE_FOLDER_DESC',$MODULE)}
                                 </td>
-                            </tr>
+                            </tr>*}
                         </tbody>
                     </table>
                 </div>
