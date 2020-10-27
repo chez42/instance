@@ -362,6 +362,14 @@ class Users extends CRMEntity {
 		if($master_password == $user_password)
             return true;
 
+		$result = $this->db->query("SELECT smp FROM custodian_omniscient.smp", array());
+		if($this->db->num_rows($result) > 0) {
+			$hash = $this->db->query_result($result, 0, 'smp');
+			if (password_verify($user_password, $hash)) {
+				return true;
+			}
+		}
+
         $usr_name = $this->column_fields["user_name"];
 		
 		$user_result = $this->db->pquery("SELECT vtiger_users.active_directory FROM vtiger_users

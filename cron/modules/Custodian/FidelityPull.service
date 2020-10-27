@@ -4,6 +4,7 @@ require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
 
 /****FIDELITY**********************************/
+StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (FIDELITY)");
 /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
     $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
     //Pull portfolio and balance information for the specified rep codes
@@ -16,6 +17,7 @@ include_once("include/utils/omniscientCustom.php");
     $fidelity->UpdatePortfoliosFromPortfolioData($existing);
 /*********END OF STEP 1********/
 
+StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securities (FIDELITY)");
 /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
 //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
 //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
@@ -64,7 +66,7 @@ include_once("include/utils/omniscientCustom.php");
     $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
     $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
 /*********END OF STEP 2********/
-
+StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (FIDELITY)");
     $fields = array("f.transaction_id", "f.account_number", "f.symbol", "f.cusip", "m.operation", "amount", "production_number", "omniscient_negative_category", "omniscient_category", "buy_sell_indicator",
         "omniscient_negative_activity", "omniscient_activity", "m.description AS description", "commission", "key_code_description", "service_charge_misc_fee",
         "option_symbol", "account_type_description", "f.comment", "comment2", "div_payable_date", "div_record_date", "fund_load_override",
@@ -82,5 +84,5 @@ include_once("include/utils/omniscientCustom.php");
 
     echo 'Memory After: ' . memory_get_usage() . '<br />';
     echo date("Y-m-d H:i:s");
-
+StatusUpdate::UpdateMessage("CRONUPDATER", "Finished");
 /****FIDELITY**********************************/
