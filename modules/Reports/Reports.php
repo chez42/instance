@@ -48,7 +48,7 @@ $old_related_modules = Array('Accounts'=>Array('Potentials','Contacts','Products
 			 'Potentials'=>Array('Accounts','Contacts','Quotes'),
 			 'Calendar'=>Array('Leads','Accounts','Contacts','Potentials'),
 			 'Products'=>Array('Accounts','Contacts'),
-			 'HelpDesk'=>Array('Products'),
+             'HelpDesk'=>Array('Products','Accounts','Contacts'),
 			 'Quotes'=>Array('Accounts','Contacts','Potentials'),
 			 'PurchaseOrder'=>Array('Contacts'),
 			 'Invoice'=>Array('Accounts'),
