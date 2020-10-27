@@ -40,8 +40,6 @@ trait tTransactions{
                 $this->existing_transactions[$v] = array();
             $tmp = array_diff($this->custodian_transactions[$v], $this->existing_transactions[$v]);
             if(!empty($tmp)) {
-                echo 'NOT EMPTY -- ';
-                print_r($tmp);
                 $this->missing_transactions[$v] = $tmp;//Missing transactions now holds any transaction id's we don't have that the custodian does
             }
         }
