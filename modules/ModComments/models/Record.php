@@ -320,6 +320,8 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
             
             if($recordModel->getModuleName() == 'HelpDesk'){
                 $query = $queryGenerator->getQuery(false);
+            } else {
+                $query = $queryGenerator->getQuery();
             }
         } else {
             $query = $queryGenerator->getQuery();
