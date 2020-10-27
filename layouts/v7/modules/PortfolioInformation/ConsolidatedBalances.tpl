@@ -6,4 +6,4 @@
     <script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 {/foreach}
 
-<div id="consolidated_chart" data-vals='{$CONSOLIDATED}' style="width:100%; height:100%"></div>
+<div id="consolidated_chart" data-vals='{$CONSOLIDATED}' style="width:100%; min-height: 200px;"></div>
