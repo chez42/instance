@@ -29,9 +29,10 @@
 			</div>
 		</div>
 		{* Module Summary View Ends Here*}
-
 		
+	</div>
 
+	<div class="middle-block col-lg-8">
 		{* Summary View Comments Widget*}
 		{if $COMMENTS_WIDGET_MODEL}
 			<div class="summaryWidgetContainer">
@@ -47,12 +48,8 @@
 		{/if}
 		{* Summary View Comments Widget Ends Here*}
 		
-		
-	</div>
-
-	<div class="middle-block col-lg-8">
 		{* Summary View Updates Widget*}
-		{if $UPDATES_WIDGET_MODEL}
+		{*if $UPDATES_WIDGET_MODEL}
 			<div class="summaryWidgetContainer">
 				<div class="widgetContainer_updates" data-url="{$UPDATES_WIDGET_MODEL->getUrl()}" data-name="{$UPDATES_WIDGET_MODEL->getLabel()}">
 					<div class="widget_header row-fluid">
@@ -72,7 +69,7 @@
 					</div>
 				</div>
 			</div>
-		{/if}
+		{/if*}
 		{* Summary View Updates Widget Ends Here*}
 		
 	</div>
