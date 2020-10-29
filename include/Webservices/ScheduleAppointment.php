@@ -235,19 +235,35 @@
 				
 				$logo = ($portalLogo);
 				
-			} 
+			}else{
+			    $moduleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
+			    $logo = $site_URL.$moduleModel->getLogoPath();
+			}
 			
 			$user_result = $adb->pquery("SELECT * FROM vtiger_users WHERE id = ?", array($user_id));
 			
+			$weekdays = array('sunday'=>0, 'monday'=>1, 'tuesday'=>2, 'wednesday'=>3, 'thursday'=>4, 'friday'=>5, 'saturday'=>6);
+			$disableDays = array();
 			if($adb->num_rows($user_result)){
 			    
 			    $min_15 = $adb->query_result($user_result, 0, '15min'); 
 			    $min_30 = $adb->query_result($user_result, 0, '30min'); 
 			    $hr_1 = $adb->query_result($user_result, 0, '1hr'); 
+			    $dateFormat = $adb->query_result($user_result, 0, 'date_format');
+			    $bussiness_hours = json_decode(html_entity_decode($adb->query_result($user_result, 0, 'business_hours')),true);
 			    
+			    foreach($weekdays as $key => $dayVal){
+			        if(!$bussiness_hours[$key.'_start'])
+			            $disableDays[] = $dayVal; 
+			    }
+
+			}else{
+			    foreach($weekdays as $key => $dayVal){
+		            $disableDays[] = $dayVal;
+			    }
 			}
-        
-			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1);
+			
+			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1, 'disableDays' => $disableDays, 'dateformat' => $dateFormat);
         
 		}
 		

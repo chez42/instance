@@ -18,7 +18,7 @@ $postParams = array(
 );
 
 $response = postHttpRequest($ws_url, $postParams);
-
+  
 $response = json_decode($response,true);
 
 $logoFile = $response['result']['logo'];
@@ -41,6 +41,16 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
 } else {
     $hr1Text = "let's chat";
 }
+
+$disableDays = json_encode($response['result']['disableDays']);
+
+$dateFormat = $response['result']['dateformat'];
+if($dateFormat == 'mm-dd-yyyy')
+    $dateFormat = 'm-d-Y';
+else if($dateFormat == 'dd-mm-yyyy')
+    $dateFormat = 'd-m-Y';
+else if($dateFormat == 'yyyy-mm-dd')
+    $dateFormat = 'Y-m-d';
 
 ?>
 <!DOCTYPE html>
@@ -145,7 +155,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
         						<div class="form-group" style="margin-left:7px;">
         							<div class="radio">
         								<label>
-        									<input class="c-p selected_meeting_time" type="radio" data="15" name="selected_meeting_time" value="say hi">
+        									<input class="c-p selected_meeting_time" type="radio" data="15" name="selected_meeting_time" value="<?php echo $min15Text;?>">
         									<i></i><?php echo $min15Text;?>
     									</label>
         							</div>
@@ -164,7 +174,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     							<div class="form-group" style="margin-left:7px;">
     								<div class="radio">
     									<label>
-    										<input class="c-p selected_meeting_time" type="radio" data="30" name="selected_meeting_time" value="let's keep it short">
+    										<input class="c-p selected_meeting_time" type="radio" data="30" name="selected_meeting_time" value="<?php echo $min30Text;?>">
     										<i></i><?php echo $min30Text;?>
     									</label>
     								</div>
@@ -183,7 +193,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     							<div class="form-group" style="margin-left:7px;">
     								<div class="radio">
     									<label>
-    										<input class="c-p selected_meeting_time" type="radio" data="60" name="selected_meeting_time" value="let's chat">
+    										<input class="c-p selected_meeting_time" type="radio" data="60" name="selected_meeting_time" value="<?php echo $hr1Text;?>">
     										<i></i><?php echo $hr1Text;?>
     									</label>
     								</div>
@@ -304,13 +314,19 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     
     				function(){
     					// Get current date
+    					var dateFormat = '<?php echo $dateFormat;?>';
     					var newDate = new Date();
     					var currMonth = (newDate.getMonth() + 1);
     					if (currMonth < 10)
     						currMonth = "0" + currMonth;
-    					var currentDate = newDate.getFullYear() + '-' + currMonth + '-' + newDate.getDate();
-    					//console.log("in doc ready");
-    					//console.log(currentDate);
+						
+						if(dateFormat == 'Y-m-d')
+    						var currentDate = newDate.getFullYear() + '-' + currMonth + '-' + newDate.getDate();
+						else if(dateFormat == 'm-d-Y')
+							var currentDate = currMonth + '-' + newDate.getDate() + '-' + newDate.getFullYear() ;
+						else if(dateFormat == 'd-m-Y')
+							var currentDate =  newDate.getDate() + '-' + currMonth + '-' + newDate.getFullYear();
+					
                      	current_date_mozilla=currentDate;
     					// Set current date as selected date
     					Selected_Date = currentDate;
@@ -321,19 +337,27 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     					locale_dates = $.fn.datepicker.dates['en'];
     					$('#datepick').DatePicker({ flat : true, date : [
     							'2014-07-6', '2016-07-28'
-    					], current : '' + currentDate, format : 'Y-m-d', calendars : 1,starts: CALENDAR_WEEK_START_DAY, mode : 'single', view : 'days', locale : locale_dates,
+    					], current : '' + currentDate, format : dateFormat, calendars : 1,starts: CALENDAR_WEEK_START_DAY, mode : 'single', view : 'days', locale : locale_dates,
     					onRender: function(date) {
+							var disabled = false;
+        					if(date.valueOf() < new Date().getTime()-ms)
+        						disabled = true;
+
+    						var disabledDate = <?php echo $disableDays?>;
+    						if($.inArray(date.getDay(), disabledDate) !== -1){
+    							disabled = true;
+    						}
+    					
     						return {
     							
-                                     disabled: (date.valueOf() < new Date().getTime()-ms),
-    								 className: date.valueOf() < new Date().getTime()-ms ? 'datepickerNotInMonth' : false
+                                     disabled: disabled,
+    								 className: disabled ? 'datepickerNotInMonth' : false
     						}
     					},onChange : function(formated, dates)
     					{
         					
     						CURRENT_DAY_OPERATION=false;
-    						//console.log("In date picker on change");
-    						//console.log(formated + "  " + dates);
+
     						selecteddate=dates;
     						// On date change change selected date
     						Selected_Date = formated;
@@ -354,8 +378,6 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     						// Add loading img
     						$('.checkbox-main-grid').html('<img class="loading-img" src="img/21-0.gif" style="width: 40px;margin-left: 216px;"></img>');
     
-    						//console.log(dates+"      "+Selected_Time);
-    					
     						// Get available slots With new date
     						get_slots(dates, Selected_Time);
     					} });
