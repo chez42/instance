@@ -184,7 +184,8 @@
 	            				</td>
 	            				<td class="fieldValue {$WIDTHTYPE}" id="{$MODULE_NAME}_detailView_fieldValue_{$FIELD_MODEL->getName()}" >
 	            					<span class="value textOverflowEllipsis" data-field-type="{$FIELD_MODEL->getFieldDataType()}"  >
-	                                    {include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD}
+	                                   	{$RECORD->get($FIELD)}
+	                                    {*include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getDetailViewTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME RECORD=$RECORD*}
 	                                </span>
 	            				</td>
 	            			{/foreach}
