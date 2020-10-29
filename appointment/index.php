@@ -18,7 +18,7 @@ $postParams = array(
 );
 
 $response = postHttpRequest($ws_url, $postParams);
-
+  
 $response = json_decode($response,true);
 
 $logoFile = $response['result']['logo'];
@@ -41,6 +41,8 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
 } else {
     $hr1Text = "let's chat";
 }
+
+$disableDays = json_encode($response['result']['disableDays']);
 
 ?>
 <!DOCTYPE html>
@@ -145,7 +147,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
         						<div class="form-group" style="margin-left:7px;">
         							<div class="radio">
         								<label>
-        									<input class="c-p selected_meeting_time" type="radio" data="15" name="selected_meeting_time" value="say hi">
+        									<input class="c-p selected_meeting_time" type="radio" data="15" name="selected_meeting_time" value="<?php echo $min15Text;?>">
         									<i></i><?php echo $min15Text;?>
     									</label>
         							</div>
@@ -164,7 +166,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     							<div class="form-group" style="margin-left:7px;">
     								<div class="radio">
     									<label>
-    										<input class="c-p selected_meeting_time" type="radio" data="30" name="selected_meeting_time" value="let's keep it short">
+    										<input class="c-p selected_meeting_time" type="radio" data="30" name="selected_meeting_time" value="<?php echo $min30Text;?>">
     										<i></i><?php echo $min30Text;?>
     									</label>
     								</div>
@@ -183,7 +185,7 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     							<div class="form-group" style="margin-left:7px;">
     								<div class="radio">
     									<label>
-    										<input class="c-p selected_meeting_time" type="radio" data="60" name="selected_meeting_time" value="let's chat">
+    										<input class="c-p selected_meeting_time" type="radio" data="60" name="selected_meeting_time" value="<?php echo $hr1Text;?>">
     										<i></i><?php echo $hr1Text;?>
     									</label>
     								</div>
@@ -323,10 +325,19 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
     							'2014-07-6', '2016-07-28'
     					], current : '' + currentDate, format : 'Y-m-d', calendars : 1,starts: CALENDAR_WEEK_START_DAY, mode : 'single', view : 'days', locale : locale_dates,
     					onRender: function(date) {
+							var disabled = false;
+        					if(date.valueOf() < new Date().getTime()-ms)
+        						disabled = true;
+
+    						var disabledDate = <?php echo $disableDays?>;
+    						if($.inArray(date.getDay(), disabledDate) !== -1){
+    							disabled = true;
+    						}
+    					
     						return {
     							
-                                     disabled: (date.valueOf() < new Date().getTime()-ms),
-    								 className: date.valueOf() < new Date().getTime()-ms ? 'datepickerNotInMonth' : false
+                                     disabled: disabled,
+    								 className: disabled ? 'datepickerNotInMonth' : false
     						}
     					},onChange : function(formated, dates)
     					{
