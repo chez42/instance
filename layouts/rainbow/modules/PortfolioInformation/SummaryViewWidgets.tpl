@@ -34,11 +34,10 @@
 			{assign var=BALANCE_WIDGET_MODEL value=$DETAIL_VIEW_WIDGET}
 		{/if}
 	{/foreach}
-	<div class="top-block  container-fluid">
-		
+	<div class="left-block col-lg-4">
 		{* Revenue Widget Model Start*}
 		{if $REPORTING_REVENUE_WIDGET_MODEL}
-			<div class="summaryWidgetContainer col-lg-4" style="padding-right: 0px!important;border-right: 1px solid #ddd;">
+			<div class="summaryWidgetContainer">
 				<div class="widgetContainer_risk_assessment" data-url="{$REPORTING_REVENUE_WIDGET_MODEL->getUrl()}" data-name="{$REPORTING_REVENUE_WIDGET_MODEL->getLabel()}">
 					<div class="widget_header">
 						<input type="hidden" name="relatedModule" value="{$REPORTING_REVENUE_WIDGET_MODEL->get('linkName')}" />
@@ -50,7 +49,8 @@
 			</div>
 		{/if}
 		{* Revenue Widget Model End*}
-	
+	</div>
+	<div class="middle-block col-lg-8">
 		{* Balance Widget Model Start*}
 		{if $BALANCE_WIDGET_MODEL}
 			<div class="summaryWidgetContainer col-lg-8" style="border-radius:10px;">
