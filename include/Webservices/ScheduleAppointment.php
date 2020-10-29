@@ -235,7 +235,10 @@
 				
 				$logo = ($portalLogo);
 				
-			} 
+			}else{
+			    $moduleModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
+			    $logo = $site_URL.$moduleModel->getLogoPath();
+			}
 			
 			$user_result = $adb->pquery("SELECT * FROM vtiger_users WHERE id = ?", array($user_id));
 			
