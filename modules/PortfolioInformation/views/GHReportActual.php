@@ -83,10 +83,14 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
                 };
                 if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
                     $tmp[] = $v;
-                else{
-                    echo "No interval data available";
-                    exit;
-                }
+#                else{
+#                    echo "No interval data available";
+#                    exit;
+#                }
+            }
+            if(empty($tmp)){
+                echo "No interval data available";
+                exit;
             }
             $accounts = $tmp;
 
