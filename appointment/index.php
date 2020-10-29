@@ -44,6 +44,14 @@ if(isset($response['result']['1hr']) && $response['result']['1hr'] != ''){
 
 $disableDays = json_encode($response['result']['disableDays']);
 
+$dateFormat = $response['result']['dateformat'];
+if($dateFormat == 'mm-dd-yyyy')
+    $dateFormat = 'm-d-Y';
+else if($dateFormat == 'dd-mm-yyyy')
+    $dateFormat = 'd-m-Y';
+else if($dateFormat == 'yyyy-mm-dd')
+    $dateFormat = 'Y-m-d';
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -306,13 +314,19 @@ $disableDays = json_encode($response['result']['disableDays']);
     
     				function(){
     					// Get current date
+    					var dateFormat = '<?php echo $dateFormat;?>';
     					var newDate = new Date();
     					var currMonth = (newDate.getMonth() + 1);
     					if (currMonth < 10)
     						currMonth = "0" + currMonth;
-    					var currentDate = newDate.getFullYear() + '-' + currMonth + '-' + newDate.getDate();
-    					//console.log("in doc ready");
-    					//console.log(currentDate);
+						
+						if(dateFormat == 'Y-m-d')
+    						var currentDate = newDate.getFullYear() + '-' + currMonth + '-' + newDate.getDate();
+						else if(dateFormat == 'm-d-Y')
+							var currentDate = currMonth + '-' + newDate.getDate() + '-' + newDate.getFullYear() ;
+						else if(dateFormat == 'd-m-Y')
+							var currentDate =  newDate.getDate() + '-' + currMonth + '-' + newDate.getFullYear();
+					
                      	current_date_mozilla=currentDate;
     					// Set current date as selected date
     					Selected_Date = currentDate;
@@ -323,7 +337,7 @@ $disableDays = json_encode($response['result']['disableDays']);
     					locale_dates = $.fn.datepicker.dates['en'];
     					$('#datepick').DatePicker({ flat : true, date : [
     							'2014-07-6', '2016-07-28'
-    					], current : '' + currentDate, format : 'Y-m-d', calendars : 1,starts: CALENDAR_WEEK_START_DAY, mode : 'single', view : 'days', locale : locale_dates,
+    					], current : '' + currentDate, format : dateFormat, calendars : 1,starts: CALENDAR_WEEK_START_DAY, mode : 'single', view : 'days', locale : locale_dates,
     					onRender: function(date) {
 							var disabled = false;
         					if(date.valueOf() < new Date().getTime()-ms)
@@ -343,8 +357,7 @@ $disableDays = json_encode($response['result']['disableDays']);
     					{
         					
     						CURRENT_DAY_OPERATION=false;
-    						//console.log("In date picker on change");
-    						//console.log(formated + "  " + dates);
+
     						selecteddate=dates;
     						// On date change change selected date
     						Selected_Date = formated;
@@ -365,8 +378,6 @@ $disableDays = json_encode($response['result']['disableDays']);
     						// Add loading img
     						$('.checkbox-main-grid').html('<img class="loading-img" src="img/21-0.gif" style="width: 40px;margin-left: 216px;"></img>');
     
-    						//console.log(dates+"      "+Selected_Time);
-    					
     						// Get available slots With new date
     						get_slots(dates, Selected_Time);
     					} });
