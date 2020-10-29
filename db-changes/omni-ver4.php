@@ -733,3 +733,12 @@ if (!$adb->num_rows($office365_result)) {
     $moduleInstance->isentitytype = false;
     $moduleInstance->save();
 }
+
+$modcomment_module_model = Vtiger_Module::getInstance("ModComments");
+$fieldInstance = Vtiger_Field_Model::getInstance('userid', $modcomment_module_model);
+$useridField = $adb->pquery("SELECT * FROM vtiger_def_org_field WHERE vtiger_def_org_field.fieldid = ?",
+    array($fieldInstance->getId()));
+if(!$adb->num_rows($useridField)){
+    $adb->pquery("INSERT INTO vtiger_def_org_field(tabid, fieldid, visible, readonly) VALUES (?,?,?,?)",
+        array($modcomment_module_model->getId(), $fieldInstance->getId(), 0, 0));
+}
