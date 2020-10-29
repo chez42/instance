@@ -249,6 +249,7 @@
 			    $min_15 = $adb->query_result($user_result, 0, '15min'); 
 			    $min_30 = $adb->query_result($user_result, 0, '30min'); 
 			    $hr_1 = $adb->query_result($user_result, 0, '1hr'); 
+			    $dateFormat = $adb->query_result($user_result, 0, 'date_format');
 			    $bussiness_hours = json_decode(html_entity_decode($adb->query_result($user_result, 0, 'business_hours')),true);
 			    
 			    foreach($weekdays as $key => $dayVal){
@@ -262,7 +263,7 @@
 			    }
 			}
 			
-			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1, 'disableDays' => $disableDays);
+			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1, 'disableDays' => $disableDays, 'dateformat' => $dateFormat);
         
 		}
 		
