@@ -500,4 +500,56 @@ class cSchwabTransactions extends cCustodian
                           WHERE account_number = ? AND p.security_symbol = ?";
                 $adb->pquery($query, $params, true);*/
     }
+
+    public function RemoveDupesByZeroingOut(array $account_number){
+        global $adb;
+        if(empty($account_number))
+            return;
+
+        foreach($account_number AS $k => $v){
+            $sdate = PortfolioInformation_Module_Model::GetFirstTransactionDate($v);
+            $query = "DROP TABLE IF EXISTS TradeDates";
+            $adb->pquery($query, array());
+            $query = "DROP TABLE IF EXISTS DupeDays";
+            $adb->pquery($query, array());
+            $query = "DROP TABLE IF EXISTS NumTransactions";
+            $adb->pquery($query, array());
+
+            $query = "CREATE TEMPORARY TABLE TradeDates
+                      SELECT trade_date, master_account_number, COUNT(*) AS count
+                      FROM custodian_omniscient.custodian_transactions_schwab
+                      WHERE account_number=?
+                      AND trade_date BETWEEN ? AND NOW()
+                      GROUP BY master_account_number, trade_date
+                      ORDER BY trade_date DESC";
+            $adb->pquery($query, array($v, $sdate));
+
+            $query = "CREATE TEMPORARY TABLE DupeDays
+                      SELECT trade_date, COUNT(*) AS count
+                      FROM TradeDates
+                      GROUP BY trade_date
+                      ORDER BY trade_date DESC";
+            $adb->pquery($query, array());
+
+            $query = "DELETE FROM DupeDays WHERE count <= 1";
+            $adb->pquery($query, array());
+            $query = "SELECT * FROM DupeDays";
+            $adb->pquery($query, array());
+
+            $query = "CREATE TEMPORARY TABLE NumTransactions
+                      SELECT master_account_number, COUNT(*) num_transactions
+                      FROM custodian_omniscient.custodian_transactions_schwab
+                      WHERE account_number = ?
+                            AND trade_date = ?
+                      GROUP BY master_account_number
+                      ORDER BY COUNT(*) DESC";
+            $adb->pquery($query, array($v, $sdate));
+
+            $query = "SELECT * FROM custodian_omniscient.custodian_transactions_schwab
+                      WHERE master_account_number IN (SELECT master_account_number FROM NumTransactions)
+                      AND trade_date = '2020-08-31'
+                      AND account_number = '0080256918'";
+            $adb->pquery($query, array());
+        }
+    }
 }
