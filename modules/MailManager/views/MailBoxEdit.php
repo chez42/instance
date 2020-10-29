@@ -173,7 +173,7 @@ class MailManager_MailBoxEdit_View extends Vtiger_Index_View {
         $serverName = $model->serverName();
         
         $mailContents = array(
-            'server' => $serverName,
+            'server' => $serverName == 'Google' ? 'gmail' : $serverName,
             'serverName' => $model->server(),
             'userName' => $model->username(),
             'password' => $model->password(),

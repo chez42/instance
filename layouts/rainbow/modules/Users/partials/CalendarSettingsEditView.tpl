@@ -94,7 +94,7 @@
             			 	{vtranslate($FIELD_MODEL->get('label'), $MODULE)}
             			 </div>
             			 <div class="fieldValue col-xs-12 col-md-3"  >
-            			 	<input id="Users_editView_fieldName_{$FIELD_MODEL->getFieldName()}" type="text" data-fieldname="{$FIELD_MODEL->getFieldName()}" data-fieldtype="string" class="inputElement " name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}">
+            			 	<input id="Users_editView_fieldName_{$FIELD_MODEL->getFieldName()}" type="text" data-fieldname="{$FIELD_MODEL->getFieldName()}" data-fieldtype="string" class="inputElement " name="{$FIELD_MODEL->getFieldName()}" value="{$RECORD->get($FIELD)}{*$FIELD_MODEL->get('fieldvalue')*}">
             			 </div>
             		{/foreach}
         		</div>
