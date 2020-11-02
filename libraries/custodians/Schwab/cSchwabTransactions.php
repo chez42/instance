@@ -177,24 +177,24 @@ class cSchwabTransactionsData{
             $this->transaction_activity = $data['transaction_activity'];
 
         if($data['price'] == 0 && $data['closing_price'] != 0)
-            $data['price'] = $data['closing_price'];
+            $this->price = $data['closing_price'];
         else
-            $data['price'] = 1;
+            $this->price = 1;
 
-        $data['quantity'] = abs($data['quantity']);
+        $this->quantity = abs($data['quantity']);
         $data['net_amount'] = abs($data['net_amount']);
-        $data['gross_amount'] = abs($data['gross_amount']);
+        $this->gross_amount = abs($data['gross_amount']);
 
         if(strlen($data['ticker_symbol']) < 2 && strlen($data['cusip']) > 2)
-            $data['ticker_symbol'] = $data['cusip'];
+            $this->ticker_symbol = $data['cusip'];
 
         if(strlen($data['ticker_symbol']) < 2)
-            $data['ticker_symbol'] = 'SCASH';
+            $this->ticker_symbol = 'SCASH';
 
         if($data['gross_amount'] == 0)
-            $data['net_amount'] = $data['quantity'] * $data['closing_price'] * ModSecurities_Module_Model::GetSecurityPriceAdjustment($data['symbol']);
+            $this->net_amount = $data['quantity'] * $data['closing_price'] * ModSecurities_Module_Model::GetSecurityPriceAdjustment($data['symbol']);
         else
-            $data['net_amount'] = $data['gross_amount'];
+            $this->net_amount = $data['gross_amount'];
     }
 }
 
@@ -379,9 +379,9 @@ class cSchwabTransactions extends cCustodian
      * Auto updates the transaction's based on the data loaded into the $transaction_data member.
      * @param array $account_numbers
      */
-    public function UpdateTransactionsFromTransactionsData(array $transaction_account_data){
-        if(!empty($transaction_account_data)) {
-            foreach ($transaction_account_data AS $k => $v) {
+    public function UpdateTransactionsFromTransactionsData(){
+        if(!empty($this->transactions_data)){
+            foreach ($this->transactions_data AS $k => $v) {
                 foreach ($v AS $a => $transaction) {
                     $data = $this->transactions_data[$k][$a];
                     if (!empty($data)) {
@@ -475,33 +475,17 @@ class cSchwabTransactions extends cCustodian
     public function UpdateTransactionsUsingcSchwabTransactionsData(cSchwabTransactionsData $data){
         global $adb;
         $params = array();
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->insert_date;
-        $params[] = $data->filename;
-        $params[] = $data->account_number;
+        $params[] = $data->quantity;
+        $params[] = $data->net_amount;
         $params[] = $data->symbol;
+        $params[] = $data->net_amount;
+        $params[] = $data->transaction_id;
 
-
-        /*        $query = "UPDATE vtiger_transactions p
-                          JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
-                          SET p.quantity = 0, p.current_value = 0
-                          WHERE account_number = ?";
-                $adb->pquery($query, array($data->account_number), true);
-
-                $query = "UPDATE vtiger_positioninformation p
-                          JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                          LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol
-                          LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-                          SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment > 0
-                                                                                            THEN mcf.security_price_adjustment ELSE 1 END
-                                                                                            * CASE WHEN m.asset_backed_factor > 0
-                                                                                            THEN m.asset_backed_factor ELSE 1 END,
-                          p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
-                          p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
-                          cf.last_update = ?, cf.custodian_source = ?
-                          WHERE account_number = ? AND p.security_symbol = ?";
-                $adb->pquery($query, $params, true);*/
+        $query = "UPDATE vtiger_transactions t
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  SET t.quantity = ?, t.net = ?, t.security_symbol = ?, cf.net_amount = ?
+                  WHERE cloud_transaction_id = ?";
+        $adb->pquery($query, $params);
     }
 
     public function RemoveDupesByZeroingOut(){
