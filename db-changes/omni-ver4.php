@@ -742,3 +742,5 @@ if(!$adb->num_rows($useridField)){
     $adb->pquery("INSERT INTO vtiger_def_org_field(tabid, fieldid, visible, readonly) VALUES (?,?,?,?)",
         array($modcomment_module_model->getId(), $fieldInstance->getId(), 0, 0));
 }
+
+$adb->pquery("UPDATE vtiger_settings_field SET active = '1' WHERE name = 'LBL_CUSTOMER_PORTAL' AND linkto = 'index.php?module=CustomerPortal&parent=Settings&view=Index'");

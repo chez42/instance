@@ -223,7 +223,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				settingContainer.find('.settings_details').removeClass('hide');
 				settingContainer.find('.additional_settings').removeClass('hide');
 				settingContainer.find('.smtpPort').show();
-				console.log(settingContainer.find('.smtpPort'))
+				
 			} else if(serverType == 'omniExchange') {
 				useServer = 'mail.omnisrv.com';
 				useSmtp = 'tls://mail.omnisrv.com:587';
@@ -2649,6 +2649,17 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
     				
 					$(this).jstree("open_all");
 				    $(this).jstree().close_all();
+				    $('#tree_folder li').each(function (index,value) {
+				    	$(this).find('.jstree-ocl').after('&nbsp;');
+				        var node = $("#tree_folder").jstree().get_node(this.id);
+				        if(node.type == 'default'){
+				        	if(node.children.length <1){
+				        		if(!$("#tree_folder").jstree().is_parent(this.id)){
+				        			$(this).find('.fa-caret-right').removeClass('fa-caret-right');
+		    			        }
+				        	}
+				        }
+				    });
 				    app.helper.hideProgress();
 				    
 				});
