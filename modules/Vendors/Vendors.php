@@ -441,7 +441,7 @@ class Vendors extends CRMEntity {
 			$query .= " left join vtiger_users as vtiger_createdbyVendors on vtiger_createdbyVendors.id = vtiger_crmentityVendors.smcreatorid ";
 		}
 		//if secondary modules custom reference field is selected
-        $query .= parent::getReportsUiType10Query($secmodule, $queryPlanner);
+		$query .= parent::getReportsUiType10Query($secmodule, $queryplanner);
 
 		return $query;
 	}
