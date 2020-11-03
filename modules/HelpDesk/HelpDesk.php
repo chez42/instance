@@ -673,7 +673,7 @@ case when (vtiger_users.user_name not like '') then $userNameSql else vtiger_gro
 		}
 
 		//if secondary modules custom reference field is selected
-        $query .= parent::getReportsUiType10Query($secmodule, $queryPlanner);
+		$query .= parent::getReportsUiType10Query($secmodule, $queryplanner);
         
 		return $query;
 	}
