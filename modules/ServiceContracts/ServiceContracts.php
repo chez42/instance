@@ -261,7 +261,7 @@ class ServiceContracts extends CRMEntity {
 			$query .= " left join vtiger_users as vtiger_createdbyServiceContracts on vtiger_createdbyServiceContracts.id = vtiger_crmentityServiceContracts.smcreatorid ";
 		}
 		//if secondary modules custom reference field is selected
-        $query .= parent::getReportsUiType10Query($secmodule, $queryPlanner);
+		$query .= parent::getReportsUiType10Query($secmodule, $queryplanner);
 
 		return $query;
 	}

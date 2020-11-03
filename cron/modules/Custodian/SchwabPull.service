@@ -3,6 +3,7 @@ require_once("libraries/custodians/cCustodian.php");
 require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
 
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 /****SCHWAB**********************************/
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (SCHWAB)");
 /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
@@ -50,12 +51,31 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (SCHWAB)");
 
 
 
-$transactions = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
-    "custodian_portfolios_schwab", "custodian_transactions_schwab", $rep_codes);
-echo 'Memory Before: ' . memory_get_usage() . '<br />';
-$data = $transactions->GetTransactionsDataBetweenDates(date("Y-m-d", strtotime("-1 months")), date("Y-m-d"));
-$missing = $transactions->GetMissingCRMTransactions();
-$transactions->CreateNewTransactionsFromTransactionData($missing);
-echo 'Memory After: ' . memory_get_usage() . '<br />';
-echo date("Y-m-d H:i:s");
+$start = $month = strtotime('2019-01-01');
+$end = strtotime(date("Y-m-d"));
+while($month < strtotime("+1 month", $end))
+{
+    $transactions = new cSchwabTransactions("Schwab", "custodian_omniscient", "transactions",
+        "custodian_portfolios_schwab", "custodian_transactions_schwab", $rep_codes);
+    $s = date("Y-m-d", $month);
+    $e = date("Y-m-d", strtotime("+1 month", $month));
+
+
+    echo 'Memory Before: ' . memory_get_usage() . '<br />';
+    $data = $transactions->GetTransactionsDataBetweenDates($s, $e);
+    $missing = $transactions->GetMissingCRMTransactions();
+    $transactions->CreateNewTransactionsFromTransactionData($missing);
+    echo 'Memory After: ' . memory_get_usage() . '<br />';
+    echo date("Y-m-d H:i:s");
+
+    StatusUpdate::UpdateMessage("TDUPDATER", "Transactions Finished Creating");
+
+    //            echo date('Y-m-d', $month), PHP_EOL;
+    #            echo "Start: {$s}, End: {$e}<br />";
+    #            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
+    $month = strtotime("+1 month", $month);
+    $transactions->RemoveDupesByZeroingOut();
+}
+
+
 /****SCHWAB**********************************/

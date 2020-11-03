@@ -4,28 +4,28 @@ require_once("libraries/custodians/cCustodian.php");
 
 class cSchwabTransactionsData{
     public  $transaction_id, $account_number, $trade_date, $transaction_code, $security_type, $symbol, $dollar_amount, $account_type, $quantity,
-            $brokerage_fee, $unit_cost, $accrued_interest, $broker_code, $filename, $custodian_id, $master_account_number, $master_account_name,
-            $business_date, $account_title_line1, $account_title_line2, $account_title_line3, $account_registration, $product_code,
-            $product_category_code, $tax_code, $legacy_security_type, $ticker_symbol, $industry_ticker_symbol, $cusip, $schwab_security_number,
-            $item_issue_id, $rule_set_suffix_id, $isin, $sedol, $options_display_symbol, $underlying_ticker_symbol,
-            $underlying_industry_ticker_symbol, $underlying_cusip, $underlying_schwab_security_number, $underlying_item_issue_id,
-            $underlying_rule_set_suffix_id, $underlying_isin, $underlying_sedol, $money_market_code, $transaction_type_code,
-            $transaction_subtype_code, $transaction_category, $transaction_source_code, $transaction_source_code_description,
-            $transaction_detail_description, $action_code, $transaction_cancel_code, $settlement_date, $transaction_date, $exdividend_date,
-            $price, $gross_amount, $debit_credit_indicator, $net_amount, $commission, $exchange_processing_fee, $broker_service_fee,
-            $prime_broker_fee, $trade_away_fee, $redemption_fee, $other_fee, $federal_tefra_withholding, $state_tax_withholding,
-            $state_receiving_tax, $accounting_rule_code, $order_source_code, $order_number, $trade_order_entry_time_stamp,
-            $trade_order_execution_time_stamp, $broker_name, $schwab_from_account, $schwab_to_account, $schwab1_check_number, $sweep_indicator,
-            $stock_exchange_code, $interclass_exchange_code, $distribution_rate, $cash_in_lieu_share_quantity, $dividend_interest_share_quantity,
-            $cash_in_lieu_rate, $asset_backed_factor, $source_system, $journal_type, $deposit_media, $schwab_cashiering_unique_identifier,
-            $recipient_maker_name_line1, $recipient_maker_name_line2, $recipient_maker_name_line3, $frequency, $disbursed_check_number,
-            $fed_reference_number, $recipient_maker_account_number, $bank_account_type, $bank_name_part1, $bank_name_part2, $bank_aba_number,
-            $intermediary_name, $transaction_check_memo1, $transaction_check_memo2, $retirement_federal_income_tax, $retirement_state_income_tax,
-            $retirement_income_tax_state, $publication_time_stamp, $version_marker1, $tips_factor, $closing_price, $version_marker2,
-            $transaction_memo, $version_marker3, $closing_price_unfactored, $factor, $factor_date, $file_date, $insert_date, $dupe_flag;
+        $brokerage_fee, $unit_cost, $accrued_interest, $broker_code, $filename, $custodian_id, $master_account_number, $master_account_name,
+        $business_date, $account_title_line1, $account_title_line2, $account_title_line3, $account_registration, $product_code,
+        $product_category_code, $tax_code, $legacy_security_type, $ticker_symbol, $industry_ticker_symbol, $cusip, $schwab_security_number,
+        $item_issue_id, $rule_set_suffix_id, $isin, $sedol, $options_display_symbol, $underlying_ticker_symbol,
+        $underlying_industry_ticker_symbol, $underlying_cusip, $underlying_schwab_security_number, $underlying_item_issue_id,
+        $underlying_rule_set_suffix_id, $underlying_isin, $underlying_sedol, $money_market_code, $transaction_type_code,
+        $transaction_subtype_code, $transaction_category, $transaction_source_code, $transaction_source_code_description,
+        $transaction_detail_description, $action_code, $transaction_cancel_code, $settlement_date, $transaction_date, $exdividend_date,
+        $price, $gross_amount, $debit_credit_indicator, $net_amount, $commission, $exchange_processing_fee, $broker_service_fee,
+        $prime_broker_fee, $trade_away_fee, $redemption_fee, $other_fee, $federal_tefra_withholding, $state_tax_withholding,
+        $state_receiving_tax, $accounting_rule_code, $order_source_code, $order_number, $trade_order_entry_time_stamp,
+        $trade_order_execution_time_stamp, $broker_name, $schwab_from_account, $schwab_to_account, $schwab1_check_number, $sweep_indicator,
+        $stock_exchange_code, $interclass_exchange_code, $distribution_rate, $cash_in_lieu_share_quantity, $dividend_interest_share_quantity,
+        $cash_in_lieu_rate, $asset_backed_factor, $source_system, $journal_type, $deposit_media, $schwab_cashiering_unique_identifier,
+        $recipient_maker_name_line1, $recipient_maker_name_line2, $recipient_maker_name_line3, $frequency, $disbursed_check_number,
+        $fed_reference_number, $recipient_maker_account_number, $bank_account_type, $bank_name_part1, $bank_name_part2, $bank_aba_number,
+        $intermediary_name, $transaction_check_memo1, $transaction_check_memo2, $retirement_federal_income_tax, $retirement_state_income_tax,
+        $retirement_income_tax_state, $publication_time_stamp, $version_marker1, $tips_factor, $closing_price, $version_marker2,
+        $transaction_memo, $version_marker3, $closing_price_unfactored, $factor, $factor_date, $file_date, $insert_date, $dupe_flag;
 
     public  $id, $source_code, $type_code, $subtype_code, $direction, $transaction_activity, $omniscient_category, $omniscient_activity,
-            $schwab_category, $operation, $stopping_point, $affects_total, $affects_performance;
+        $schwab_category, $operation, $stopping_point, $affects_total, $affects_performance;
 
     public  $transaction_type;
 
@@ -177,24 +177,24 @@ class cSchwabTransactionsData{
             $this->transaction_activity = $data['transaction_activity'];
 
         if($data['price'] == 0 && $data['closing_price'] != 0)
-            $data['price'] = $data['closing_price'];
+            $this->price = $data['closing_price'];
         else
-            $data['price'] = 1;
+            $this->price = 1;
 
-        $data['quantity'] = abs($data['quantity']);
+        $this->quantity = abs($data['quantity']);
         $data['net_amount'] = abs($data['net_amount']);
-        $data['gross_amount'] = abs($data['gross_amount']);
+        $this->gross_amount = abs($data['gross_amount']);
 
         if(strlen($data['ticker_symbol']) < 2 && strlen($data['cusip']) > 2)
-            $data['ticker_symbol'] = $data['cusip'];
+            $this->ticker_symbol = $data['cusip'];
 
         if(strlen($data['ticker_symbol']) < 2)
-            $data['ticker_symbol'] = 'SCASH';
+            $this->ticker_symbol = 'SCASH';
 
         if($data['gross_amount'] == 0)
-            $data['net_amount'] = $data['quantity'] * $data['closing_price'] * ModSecurities_Module_Model::GetSecurityPriceAdjustment($data['symbol']);
+            $this->net_amount = $data['quantity'] * $data['closing_price'] * ModSecurities_Module_Model::GetSecurityPriceAdjustment($data['symbol']);
         else
-            $data['net_amount'] = $data['gross_amount'];
+            $this->net_amount = $data['gross_amount'];
     }
 }
 
@@ -221,7 +221,7 @@ class cSchwabTransactions extends cCustodian
         $result = $adb->pquery($query, array($this->rep_codes), true);
         if($adb->num_rows($result) > 0)
             while($r = $adb->fetchByAssoc($result)){
-                $this->account_numbers[] = $r;
+                $this->account_numbers[] = $r['account_number'];
             }
     }
     /**
@@ -281,7 +281,7 @@ class cSchwabTransactions extends cCustodian
     protected function AccountsWithLeadingZeros(array $account_numbers){
         $tmp = array();
         foreach($account_numbers AS $k => $v){
-            $tmp[] = "00" . $v['account_number'];
+            $tmp[] = "00" . $v;
         }
         return $tmp;
     }
@@ -338,6 +338,9 @@ class cSchwabTransactions extends cCustodian
      * @throws Exception
      */
     public function CreateNewTransactionUsingcSchwabTransactionsData(cSchwabTransactionsData $data){
+#        print_r($data);exit;
+#        echo $data->transaction_id . '<br />';
+//        print_r(echo $data->transaction_id);exit;
         if(!$this->DoesTransactionExistInCRM($data->transaction_id)) {//If the transaction doesn't exist yet, create it (uses custodian transaction ID)
 #            $crmid = "73957144";
             $crmid = $this->UpdateEntitySequence();
@@ -359,9 +362,9 @@ class cSchwabTransactions extends cCustodian
         if(!empty($missing_account_data)) {
             foreach ($missing_account_data AS $account_number => $v) {
                 foreach ($v AS $a => $transaction_id) {
-/*                    print_r($this->transactions_data[$account_number]); echo " .. ";
-                    echo $transaction_id;exit;
-                    print_r($this->transactions_data[$account_number][$transaction_id]);exit;*/
+                    /*                    print_r($this->transactions_data[$account_number]); echo " .. ";
+                                        echo $transaction_id;exit;
+                                        print_r($this->transactions_data[$account_number][$transaction_id]);exit;*/
                     $data = $this->transactions_data[$account_number][$transaction_id];
                     if (!empty($data)) {
                         $tmp = new cSchwabTransactionsData($data);
@@ -376,9 +379,9 @@ class cSchwabTransactions extends cCustodian
      * Auto updates the transaction's based on the data loaded into the $transaction_data member.
      * @param array $account_numbers
      */
-    public function UpdateTransactionsFromTransactionsData(array $transaction_account_data){
-        if(!empty($transaction_account_data)) {
-            foreach ($transaction_account_data AS $k => $v) {
+    public function UpdateTransactionsFromTransactionsData(){
+        if(!empty($this->transactions_data)){
+            foreach ($this->transactions_data AS $k => $v) {
                 foreach ($v AS $a => $transaction) {
                     $data = $this->transactions_data[$k][$a];
                     if (!empty($data)) {
@@ -472,48 +475,36 @@ class cSchwabTransactions extends cCustodian
     public function UpdateTransactionsUsingcSchwabTransactionsData(cSchwabTransactionsData $data){
         global $adb;
         $params = array();
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->quantity_amount_combo;
-        $params[] = $data->insert_date;
-        $params[] = $data->filename;
-        $params[] = $data->account_number;
+        $params[] = $data->quantity;
+        $params[] = $data->net_amount;
         $params[] = $data->symbol;
+        $params[] = $data->net_amount;
+        $params[] = $data->transaction_id;
 
-
-        /*        $query = "UPDATE vtiger_transactions p
-                          JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
-                          SET p.quantity = 0, p.current_value = 0
-                          WHERE account_number = ?";
-                $adb->pquery($query, array($data->account_number), true);
-
-                $query = "UPDATE vtiger_positioninformation p
-                          JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                          LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol
-                          LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-                          SET p.quantity = ?, p.current_value = ? * m.security_price * CASE WHEN mcf.security_price_adjustment > 0
-                                                                                            THEN mcf.security_price_adjustment ELSE 1 END
-                                                                                            * CASE WHEN m.asset_backed_factor > 0
-                                                                                            THEN m.asset_backed_factor ELSE 1 END,
-                          p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
-                          p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
-                          cf.last_update = ?, cf.custodian_source = ?
-                          WHERE account_number = ? AND p.security_symbol = ?";
-                $adb->pquery($query, $params, true);*/
+        $query = "UPDATE vtiger_transactions t
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  SET t.quantity = ?, t.net = ?, t.security_symbol = ?, cf.net_amount = ?
+                  WHERE cloud_transaction_id = ?";
+        $adb->pquery($query, $params);
     }
 
-    public function RemoveDupesByZeroingOut(array $account_number){
+    public function RemoveDupesByZeroingOut(){
         global $adb;
-        if(empty($account_number))
+        if(empty($this->account_numbers))
             return;
 
-        foreach($account_number AS $k => $v){
-            $sdate = PortfolioInformation_Module_Model::GetFirstTransactionDate($v);
+        $leading_zeros = $this->AccountsWithLeadingZeros($this->account_numbers);
+        $merged_accounts = array_merge($this->account_numbers, $leading_zeros);
+        $questions = generateQuestionMarks($merged_accounts);
+
+        foreach($merged_accounts AS $k => $acct_num){
+            $sdate = PortfolioInformation_Module_Model::GetFirstTransactionDate($acct_num);
+            if(!isset($sdate))
+                continue;
             $query = "DROP TABLE IF EXISTS TradeDates";
-            $adb->pquery($query, array());
+            $adb->pquery($query, array(), true);
             $query = "DROP TABLE IF EXISTS DupeDays";
-            $adb->pquery($query, array());
-            $query = "DROP TABLE IF EXISTS NumTransactions";
-            $adb->pquery($query, array());
+            $adb->pquery($query, array(), true);
 
             $query = "CREATE TEMPORARY TABLE TradeDates
                       SELECT trade_date, master_account_number, COUNT(*) AS count
@@ -522,34 +513,80 @@ class cSchwabTransactions extends cCustodian
                       AND trade_date BETWEEN ? AND NOW()
                       GROUP BY master_account_number, trade_date
                       ORDER BY trade_date DESC";
-            $adb->pquery($query, array($v, $sdate));
+            $adb->pquery($query, array('00' . $acct_num, $sdate), true);
 
             $query = "CREATE TEMPORARY TABLE DupeDays
                       SELECT trade_date, COUNT(*) AS count
                       FROM TradeDates
                       GROUP BY trade_date
                       ORDER BY trade_date DESC";
-            $adb->pquery($query, array());
+            $adb->pquery($query, array(), true);
 
             $query = "DELETE FROM DupeDays WHERE count <= 1";
-            $adb->pquery($query, array());
-            $query = "SELECT * FROM DupeDays";
-            $adb->pquery($query, array());
+            $adb->pquery($query, array(), true);
 
-            $query = "CREATE TEMPORARY TABLE NumTransactions
-                      SELECT master_account_number, COUNT(*) num_transactions
-                      FROM custodian_omniscient.custodian_transactions_schwab
-                      WHERE account_number = ?
-                            AND trade_date = ?
-                      GROUP BY master_account_number
-                      ORDER BY COUNT(*) DESC";
-            $adb->pquery($query, array($v, $sdate));
+            $query = "SELECT trade_date FROM DupeDays";
+            $result = $adb->pquery($query, array(), true);
 
-            $query = "SELECT * FROM custodian_omniscient.custodian_transactions_schwab
-                      WHERE master_account_number IN (SELECT master_account_number FROM NumTransactions)
-                      AND trade_date = '2020-08-31'
-                      AND account_number = '0080256918'";
-            $adb->pquery($query, array());
+            $dates = array();
+            if($adb->num_rows($result) > 0){
+                while($r = $adb->fetchByAssoc($result)){
+                    $dates[] = $r['trade_date'];
+                }
+            }
+
+            foreach($dates AS $k => $v) {
+                $query = "DROP TABLE IF EXISTS NumTransactions";
+                $adb->pquery($query, array(), true);
+                $query = "DROP TABLE IF EXISTS ToRemove";
+                $adb->pquery($query, array(), true);
+
+                $query = "CREATE TEMPORARY TABLE NumTransactions
+                          SELECT master_account_number, COUNT(*) num_transactions
+                          FROM custodian_omniscient.custodian_transactions_schwab
+                          WHERE account_number = ?
+                                AND trade_date = ?
+                          GROUP BY master_account_number
+                          ORDER BY COUNT(*) DESC";
+                $adb->pquery($query, array('00'.$acct_num, $v), true);
+
+                $query = "CREATE TEMPORARY TABLE ToRemove
+                          SELECT transaction_id, master_account_number
+                          FROM custodian_omniscient.custodian_transactions_schwab
+                          WHERE master_account_number IN (SELECT master_account_number FROM NumTransactions)
+                          AND trade_date = ?
+                          AND account_number = ?";
+                $adb->pquery($query, array($v, '00'.$acct_num), true);
+
+                $query = "SELECT master_account_number FROM ToRemove GROUP BY master_account_number ORDER BY master_account_number ASC LIMIT 1";
+                $rresult = $adb->pquery($query, array(), true);
+                if($adb->num_rows($rresult) > 0) {
+                    $query = "DELETE FROM ToRemove WHERE master_account_number = ?";
+                    $adb->pquery($query, array($adb->query_result($rresult, 0, 'master_account_number')));
+                    $query = "UPDATE vtiger_transactions t
+                              JOIN vtiger_transactionscf cf USING (transactionsid)
+                              SET quantity = 0, security_price = 0, net_amount = 0
+                              WHERE cloud_transaction_id IN (SELECT transaction_id FROM ToRemove)";
+                    $adb->pquery($query, array(), true);
+                }
+
+                /*                if($adb->num_rows($dresult) > 0){
+                                    $to_zero = array();
+                                    while($r = $adb->fetchByAssoc($dresult)){
+                                        $to_zero[] = $r['transaction_id'];
+                                    }
+                                    $ids = generateQuestionMarks($to_zero);
+                                    if(!empty($to_zero)){
+                                        print_r($to_zero);
+                                        $query = "UPDATE vtiger_transactions t
+                                                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                                                  SET quantity = 0, security_price = 0, net_amount = 0
+                                                  WHERE cloud_transaction_id IN ({$ids})";
+                                        $adb->pquery($query, array($to_zero));
+                                        echo "Trying for " . $acct_num . ' aka ' . '00' . $acct_num . '<br />';
+                                    }
+                                }*/
+            }
         }
     }
 }
