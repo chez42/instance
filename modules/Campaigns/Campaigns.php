@@ -598,7 +598,7 @@ class Campaigns extends CRMEntity {
 		}
 
 		//if secondary modules custom reference field is selected
-        $query .= parent::getReportsUiType10Query($secmodule, $queryPlanner);
+		$query .= parent::getReportsUiType10Query($secmodule, $queryplanner);
 
 		return $query;
 	}
