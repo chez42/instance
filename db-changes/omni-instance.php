@@ -804,3 +804,17 @@ if(!$adb->num_rows($useridField)){
 }
 
 $adb->pquery("UPDATE vtiger_settings_field SET active = '1' WHERE name = 'LBL_CUSTOMER_PORTAL' AND linkto = 'index.php?module=CustomerPortal&parent=Settings&view=Index'");
+
+$module = Vtiger_Module::getInstance("PortfolioInformation");
+$blockInstance = Vtiger_Block::getInstance('Portfolio Information',$module);
+$fieldInstance = Vtiger_Field::getInstance('billingspecificationid', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'billingspecificationid';
+    $field->label = 'Billing Specification';
+    $field->uitype = 10;
+    $field->typeofdata = 'I~O';
+    $field->columntype = 'INT(19)';
+    $blockInstance->addField($field);
+    $field->setrelatedmodules(array('BillingSpecifications'));
+}
