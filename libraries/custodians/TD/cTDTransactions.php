@@ -120,7 +120,7 @@ class cTDTransactions extends cCustodian
             }
         }
 
-        $this->SetupTransactionComparisons();
+        $this->SetupTransactionComparisons($start, $end);
         return $this->transactions_data;
     }
 
@@ -209,7 +209,7 @@ class cTDTransactions extends cCustodian
                 $this->transactions_data[$r['account_number']][$r['transaction_id']] = $r;
             }
         }
-        $this->SetupTransactionComparisons();
+        $this->SetupTransactionComparisons($start, $end);
         return $this->transactions_data;
     }
 

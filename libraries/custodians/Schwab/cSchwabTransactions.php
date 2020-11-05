@@ -320,7 +320,7 @@ class cSchwabTransactions extends cCustodian
             }
         }
 
-        $this->SetupTransactionComparisons();
+        $this->SetupTransactionComparisons($start, $end);
         return $this->transactions_data;
     }
 
