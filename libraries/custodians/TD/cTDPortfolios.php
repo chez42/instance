@@ -237,7 +237,7 @@ class cTDPortfolios extends cCustodian {
     public function CreateNewPortfolioUsingcTDPortfolioData(cTDPortfolioData $data){
         if(!$this->DoesAccountNumberExistInCRM($data->account_number)) {//If the account number doesn't exist yet, create it
             $crmid = $this->UpdateEntitySequence();
-            $owner = $this->repcode_mapping[$data->rep_code];
+            $owner = $this->repcode_mapping[strtoupper($data->rep_code)];
 
             $this->FillEntityTable($crmid, $owner, $data);
             $this->FillPortfolioTable($crmid, $data);

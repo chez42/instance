@@ -68,7 +68,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
         $transactions->GetTransactionsDataBetweenDates($s, $e);
         $missing = $transactions->GetMissingCRMTransactions();
         $transactions->CreateNewTransactionsFromTransactionData($missing);
-        StatusUpdate::UpdateMessage("TDUPDATER", "Transactions Finished Creating");
+        StatusUpdate::UpdateMessage("TDUPDATER", "Transactions Finished Creating for {$month}");
 
         //            echo date('Y-m-d', $month), PHP_EOL;
     #            echo "Start: {$s}, End: {$e}<br />";

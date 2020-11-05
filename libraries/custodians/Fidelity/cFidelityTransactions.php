@@ -8,7 +8,7 @@ class cFidelityTransactionsData{
            $option_symbol, $account_type_description, $comment, $comment2, $div_payable_date, $div_record_date, $fund_load_override,
            $fund_load_percent, $interest_amount, $postage_fee, $reg_rep1, $reg_rep2, $service_fee, $short_term_redemption_fee,
            $state_tax_amount, $transaction_code_description, $transaction_key_mnemonic, $price, $security_price_adjustment, $quantity,
-           $account_number, $symbol, $transaction_type, $transaction_activity, $cusip, $transaction_key_code_description;
+           $account_number, $symbol, $transaction_type, $transaction_activity, $cusip, $transaction_key_code_description, $trade_date, $transaction_id;
 
     public function __construct($data){
         $this->account_number = $data['account_number'];
@@ -47,6 +47,8 @@ class cFidelityTransactionsData{
         $this->security_price_adjustment = $data['security_price_adjustment'];
         $this->quantity = $data['quantity'];
         $this->cusip = $data['cusip'];
+        $this->trade_date = $data['trade_date'];
+        $this->transaction_id = $data['transaction_id'];
 
         $this->transaction_type = ($data['amount'] < 0) ? $data['omniscient_negative_category'] : $data['omniscient_category'];
         $this->transaction_activity = ($data['amount'] < 0) ? $data['omniscient_negative_activity'] : $data['omniscient_activity'];
@@ -140,6 +142,9 @@ class cFidelityTransactions extends cCustodian
             $fields = implode ( ", ", $this->columns );
         }
 
+        $query = "DROP TABLE IF EXISTS transactions_to_update";
+        $adb->pquery($query, array());
+
         $query = "CREATE TEMPORARY TABLE transactions_to_update 
                   SELECT transaction_id, t.account_number, amount, t.symbol, trade_date, quantity, pos.close_price, pos.pricing_factor, t.quantity * pos.pricing_factor * pos.close_price AS calculated_amount
                   FROM {$this->database}.{$this->table} t 
@@ -184,7 +189,7 @@ class cFidelityTransactions extends cCustodian
                 $this->transactions_data[$r['account_number']][$r['transaction_id']] = $r;
             }
         }
-        $this->SetupTransactionComparisons();
+        $this->SetupTransactionComparisons($start, $end);
         return $this->transactions_data;
     }
 
