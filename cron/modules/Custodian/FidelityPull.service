@@ -64,7 +64,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securiti
         $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
     $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
     $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
-    $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+    $positions->UpdatePositionsFromPositionsData($positions->GetPositionsData());//Update the positions with the latest data
 /*********END OF STEP 2********/
 
 
