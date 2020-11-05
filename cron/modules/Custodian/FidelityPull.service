@@ -66,6 +66,9 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securiti
     $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
     $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
 /*********END OF STEP 2********/
+
+
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (FIDELITY)");
     $fields = array("f.transaction_id", "f.account_number", "f.symbol", "f.cusip", "m.operation", "amount", "production_number", "omniscient_negative_category", "omniscient_category", "buy_sell_indicator",
         "omniscient_negative_activity", "omniscient_activity", "m.description AS description", "commission", "key_code_description", "service_charge_misc_fee",
@@ -73,16 +76,25 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (FIDELITY)");
         "fund_load_percent", "interest_amount", "postage_fee", "reg_rep1", "reg_rep2", "service_fee", "short_term_redemption_fee",
         "state_tax_amount", "transaction_code_description", "transaction_key_mnemonic", "f.price AS price", "security_price_adjustment", "quantity");
 
+$start = $month = strtotime('2019-01-01');
+$end = strtotime(date("Y-m-d"));
+while($month < strtotime("+1 month", $end)) {
     $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions", "custodian_portfolios_fidelity",
-                                          "custodian_transactions_fidelity", $rep_codes, $fields);
-    //        $fidelity->SetColumns(array("transaction_id"));
-    #        $data = $td->GetTransactionsDataForDate('2020-04-01');
+        "custodian_transactions_fidelity", $rep_codes, $fields);
+    $s = date("Y-m-d", $month);
+    $e = date("Y-m-d", strtotime("+1 month", $month));
+
     echo 'Memory Before: ' . memory_get_usage() . '<br />';
-    $fidelity->GetTransactionsDataBetweenDates(date("Y-m-d", strtotime("-1 months")), date("Y-m-d"));
+    $fidelity->GetTransactionsDataBetweenDates($s, $e);
     $missing = $fidelity->GetMissingCRMTransactions();
     $fidelity->CreateNewTransactionsFromTransactionData($missing);
 
     echo 'Memory After: ' . memory_get_usage() . '<br />';
     echo date("Y-m-d H:i:s");
+
+    $month = strtotime("+1 month", $month);
+}
+
 StatusUpdate::UpdateMessage("CRONUPDATER", "Finished");
+
 /****FIDELITY**********************************/
