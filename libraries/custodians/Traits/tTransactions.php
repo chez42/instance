@@ -5,7 +5,7 @@ trait tTransactions{
     /**
      * Sets up the variables for determining which transactions exist with the custodian, which exist in the CRM, and which are missing
      */
-    protected function SetupTransactionComparisons(){
+    protected function SetupTransactionComparisons($sdate, $edate){
         global $adb;
         $params = array();
         $custodian_transactions = array();//List of custodian accounts
@@ -23,7 +23,9 @@ trait tTransactions{
         if(!empty($tmp_accounts)){
             $questions = generateQuestionMarks($tmp_accounts);
             $params[] = $tmp_accounts;
-            $query = "SELECT account_number, cloud_transaction_id FROM vtiger_transactions WHERE account_number IN ({$questions})";
+            $params[] = $sdate;
+            $params[] = $edate;
+            $query = "SELECT account_number, cloud_transaction_id FROM vtiger_transactions WHERE account_number IN ({$questions}) AND trade_date BETWEEN ? AND ?";
             $result = $adb->pquery($query, $params);
             if($adb->num_rows($result) > 0){
                 while ($r = $adb->fetchByAssoc($result)) {

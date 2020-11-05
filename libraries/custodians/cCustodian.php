@@ -97,7 +97,7 @@ class cCustodian{
             $query = "SELECT id FROM vtiger_users WHERE advisor_control_number LIKE ('%{$v}%') LIMIT 1";
             $result = $adb->pquery($query, array());
             if($adb->num_rows($result) > 0){
-                $this->repcode_mapping[$v] = $adb->query_result($result, 0, 'id');
+                $this->repcode_mapping[strtoupper($v)] = $adb->query_result($result, 0, 'id');
             }
         }
     }
