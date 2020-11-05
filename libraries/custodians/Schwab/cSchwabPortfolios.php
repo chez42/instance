@@ -381,7 +381,7 @@ class cSchwabPortfolios extends cCustodian {
         if(!$this->DoesAccountNumberExistInCRM($data->account_number)) {//If the account number doesn't exist yet, create it
 #            echo $data->account_number . ' does not exist!';exit;
             $crmid = $this->UpdateEntitySequence();
-            $owner = $this->repcode_mapping[$data->rep_code];
+            $owner = $this->repcode_mapping[strtoupper($data->rep_code)];
 
             $this->FillEntityTable($crmid, $owner, $data);
             $this->FillPortfolioTable($crmid, $data);
