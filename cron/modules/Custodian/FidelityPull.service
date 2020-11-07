@@ -36,8 +36,9 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securiti
     "SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount", "unsettled_cash", "file_date", "insert_date");
 
     $positions = new cFidelityPositions("FIDELITY", "custodian_omniscient", "positions",
-                                        "custodian_portfolios_fidelity", "custodian_positions_fidelity", $rep_codes, array());
+                                        "custodian_portfolios_fidelity", "custodian_positions_fidelity", $rep_codes, array(), true, $position_fields);
     $missing_positions = $positions->GetMissingCRMPositions();
+StatusUpdate::UpdateMessage("CRONUPDATER", "Getting Symbols List Old and New (FIDELITY)");
     $symbols = $positions->GetAllOldAndNewPositionSymbols($positions->GetAccountNumbers());//Get only symbols that belong to the account numbers we care about
     if(!empty($missing_positions))
         $positions->CreateNewPositionsFromPositionData($missing_positions);
@@ -64,7 +65,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securiti
         $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
     $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
     $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
-    $positions->UpdatePositionsFromPositionsData($positions->GetPositionsData());//Update the positions with the latest data
+    $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
 /*********END OF STEP 2********/
 
 
