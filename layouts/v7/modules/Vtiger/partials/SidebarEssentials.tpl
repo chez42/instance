@@ -61,7 +61,7 @@
 		                                                <span class="js-popover-container" style="cursor:pointer;">
 		                                                    <span  class="fa fa-angle-down" rel="popover" data-toggle="popover" aria-expanded="true" 
 		                                                {if $CUSTOM_VIEW->isMine() and $CUSTOM_VIEW->get('viewname') neq 'All' || $CURRENT_USER_MODEL->isAdminUser()}
-		                                                            data-deletable="{if $CUSTOM_VIEW->isDeletable() || $CURRENT_USER_MODEL->isAdminUser()}true{else}false{/if}" data-editable="{if $CUSTOM_VIEW->isEditable() || $CURRENT_USER_MODEL->isAdminUser()}true{else}false{/if}" 
+		                                                            {if $CUSTOM_VIEW->get('status') neq '0'}data-deletable="{if $CUSTOM_VIEW->isDeletable() || $CURRENT_USER_MODEL->isAdminUser()}true{else}false{/if}"{/if} data-editable="{if $CUSTOM_VIEW->isEditable() || $CURRENT_USER_MODEL->isAdminUser()}true{else}false{/if}" 
 		                                                            {if $CUSTOM_VIEW->isEditable() || $CURRENT_USER_MODEL->isAdminUser()} data-editurl="{$CUSTOM_VIEW->getEditUrl()}{/if}" {if $CUSTOM_VIEW->isDeletable() || $CURRENT_USER_MODEL->isAdminUser()} {if $SHARED_MEMBER_COUNT eq 1 or $LIST_STATUS eq 3} data-shared="1"{/if} data-deleteurl="{$CUSTOM_VIEW->getDeleteUrl()}"{/if}
 		                                                           {/if}
 		                                                          toggleClass="fa {if $IS_DEFAULT}fa-check-square-o{else}fa-square-o{/if}" data-filter-id="{$CUSTOM_VIEW->getId()}" 

@@ -68,7 +68,7 @@
 	                                                <span class="js-popover-container" style="cursor:pointer;">
 	                                                   <span  class="fa fa-angle-down" rel="popover" data-toggle="popover" aria-expanded="true" 
 															{if $CUSTOM_VIEW->isMine() and $CUSTOM_VIEW->get('viewname') neq 'All' || $CURRENT_USER_MODEL->isAdminUser()}
-																{if $CUSTOM_VIEW->get('viewname') neq 'All'}	
+																{if $CUSTOM_VIEW->get('status') neq '0'}
 																	data-deletable="{if $CUSTOM_VIEW->isDeletable()}true{else}false{/if}"
 																{/if}
 																data-editable="{if $CUSTOM_VIEW->isEditable() || $CURRENT_USER_MODEL->isAdminUser()}true{else}false{/if}" 
