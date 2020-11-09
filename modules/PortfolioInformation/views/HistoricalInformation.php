@@ -34,6 +34,12 @@ class PortfolioInformation_HistoricalInformation_View extends Vtiger_Detail_View
 		else
 			$account_numbers = GetAccountNumbersFromRecord($request->get('calling_record'));
 
+		$account_numbers = array_unique($account_numbers);
+		foreach($account_numbers AS $k => $v){
+            $tmp = new CustodianToOmni($v);
+            $tmp->UpdatePositions();
+        }
+
 		$margin_balance = PortfolioInformation_HoldingsReport_Model::GetMarginBalanceTotal($account_numbers);
 		$net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetNetCreditDebitTotal($account_numbers);
 		$unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetDynamicFieldTotal($account_numbers, "unsettled_cash");
