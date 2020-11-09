@@ -16,7 +16,7 @@ $date_options = $data['date_options'];
 
 echo "<input type='hidden' value='".$holdingspievalues."' id='holdings_values' class='holdings_values' />";
 echo "<input type='hidden' value='".$dynamic_pie."' id='estimate_pie_values' />";
-echo "<input type='hidden' value='ghreport' id='report_type' />"
+echo "<input type='hidden' value='ghreportactual' id='report_type' />"
 ?>
 <style>	
 	#ghreport_chart_table .borderless td, 
@@ -190,13 +190,12 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
 				<thead>
 				<tr>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:center; text-decoration:underline;">ACCOUNT NAME</th>
-					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:center; text-decoration:underline;">ACCOUNT TYPE</th>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:center; text-decoration:underline;">ACCT NUMBER</th>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:center; text-decoration:underline;">BEG. BALANCE</th>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center; text-decoration:underline;">ADDTNS/ WTHDRWLS</th>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center; text-decoration:underline;">CHANGE IN VALUE</th>
 					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center; text-decoration:underline;">END BALANCE</th>
-					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center; text-decoration:underline;">ESTIMATED INCOME</th>
+					<th style="font-weight:bold; background-color:RGB(245, 245, 245); width:5%; text-align:center; text-decoration:underline;">INCOME</th>
 				</tr>
 				</thead>
 				<tbody>
@@ -205,7 +204,6 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
     				foreach($ytd_individual_performance_summed as $account_number=>$v){?>
     					<tr <?php if($ytd_individual_performance_summed[$account_number]['Flow']['disable_performance'] == 1){?> style="<!-- background-color:#FFFFE0; -->" <?php }?>>
     						<td><?php echo $ytd_individual_performance_summed[$account_number]['account_name'];?></td>
-    						<td><?php echo $ytd_individual_performance_summed[$account_number]['account_type'];?></td>
     						<td>**<?php echo substr($account_number,5);?></td>
     						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_begin_values[$account_number]['value'],0,".",",");?></span></td>
     						<td><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_individual_performance_summed[$account_number]['Flow']['amount'],0,".",",");?></span></td>
@@ -215,7 +213,7 @@ echo "<input type='hidden' value='ghreport' id='report_type' />"
     					</tr>
     				<?php }?>
     				<tr>
-    					<td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="3">&nbsp;</td>
+    					<td style="background-color:RGB(245, 245, 245); font-weight:bold;" colspan="2">&nbsp;</td>
     					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($data['GetBeginningValuesSummed']['value'],0,".",",");?></span></td>
     					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_performance_summed['Flow']['amount'],0,".",",");?></span></td>
     					<td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;"><span style="text-align:left; float:left;width:10%;"></span><span style="text-align:right; float:right;width:90%;">$<?php echo number_format($ytd_performance_summed['change_in_value'],0,".",",");?></span></td>

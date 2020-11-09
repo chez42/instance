@@ -29,6 +29,7 @@ function getReportTypesData(){
         'gainloss'      => array('function_name' => 'LoadGainLoss', 'filepath' => "modules/Reports/GainLoss.php"),
         'omniintervals' => array('function_name' => 'LoadOmniIntervals', 'filepath' => "modules/Reports/OmniIntervals.php"),
         'omniintervalsdaily' => array('function_name' => 'LoadOmniIntervalsDaily', 'filepath' => "modules/Reports/OmniIntervalsDaily.php"),
+        'ghreportactual' => array('function_name' => 'LoadGHReportActual', 'filepath' => "modules/Reports/GHReportActual.php"),
     );
 }
 
@@ -1230,6 +1231,34 @@ function LoadOmniIntervalsDaily($account_number){
     $session_id = $loginObj->sessionName;
     
     $element = array('function_name'=>'LoadOmniIntervalsDaily','input_array'=>$account_number);
+    
+    $postParams = array(
+        'operation'=>'portal_function',
+        'sessionName'=>$session_id,
+        'element'=>json_encode($element)
+    );
+    $response = postHttpRequest($ws_url, $postParams);
+    
+    $response = json_decode($response,true);
+    
+    return $response['result'];
+    
+}
+
+function LoadGHReportActual($input_array){
+    
+    global $api_username, $api_accesskey, $api_url;
+    
+    $ws_url =  $api_url . '/webservice.php';
+    
+    $loginObj = login($ws_url, $api_username, $api_accesskey);
+    
+    $session_id = $loginObj->sessionName;
+    
+    $input_array['ID'] = $_SESSION['ID'];
+    $input_array['accountid'] = $_SESSION['accountid'];
+    
+    $element = array('function_name'=>'LoadGHReportActual','input_array'=>$input_array);
     
     $postParams = array(
         'operation'=>'portal_function',

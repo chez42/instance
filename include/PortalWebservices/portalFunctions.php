@@ -83,67 +83,67 @@ function get_reports($input_array){
     if(isset($tableColumnOrder['pos_'.$order]))
         $order_by = "ORDER By ".$tableColumnOrder['pos_'.$order]." ".$orderBy;
         
-        if(!empty($account_numbers)) {
-            
-            $query = "SELECT *, vtiger_portfolioinformation.account_number as account_number FROM vtiger_portfolioinformation INNER JOIN vtiger_portfolioinformationcf ON
+    if(!empty($account_numbers)) {
+        
+        $query = "SELECT *, vtiger_portfolioinformation.account_number as account_number FROM vtiger_portfolioinformation INNER JOIN vtiger_portfolioinformationcf ON
 		vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid
 		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
 		LEFT JOIN vtiger_pc_account_custom on vtiger_pc_account_custom.account_number = vtiger_portfolioinformation.account_number
 		WHERE vtiger_portfolioinformation.account_number IN (".generateQuestionMarks($account_numbers).") AND vtiger_crmentity.deleted = 0
 		AND (vtiger_portfolioinformation.accountclosed = 0 OR vtiger_portfolioinformation.accountclosed IS NULL)
 		GROUP BY vtiger_portfolioinformation.account_number $order_by  ";
-            
-            if($input_array['page_limit'])
-                $query.=" LIMIT ".$pageLimit;
+        
+        if($input_array['page_limit'])
+            $query.=" LIMIT ".$pageLimit;
+        
+        $result = $adb->pquery($query, array($account_numbers));
+        
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
                 
-                $result = $adb->pquery($query, array($account_numbers));
+                $v['record'] = $v['crmid'];
                 
-                if($adb->num_rows($result) > 0){
-                    while($v = $adb->fetchByAssoc($result)){
-                        
-                        $v['record'] = $v['crmid'];
-                        
-                        $tmp = new nExpense($v['account_number']);
-                        
-                        $v['management_fee'] = abs($tmp->CalculateAmount('DATE_SUB(NOW(),INTERVAL 1 YEAR)', 'NOW()'));
-                        
-                        if(isset($v['contact_link']) && $v['contact_link'] > 0)
-                            $v['contact_link'] = getContactName($v['contact_link']);
-                            
-                            $summary_info[] = $v;
-                            
-                            $totals["total_value"] += $v['total_value'];
-                            $totals["market_value"] += $v['securities'];
-                            $totals["cash_value"] += $v['cash'];
-                            $totals['management_fee'] += $v['management_fee'];
-                    }
-                }
+                $tmp = new nExpense($v['account_number']);
                 
-                // Total Records
-                $query = "SELECT count(vtiger_portfolioinformation.account_number) as total_portfolios FROM vtiger_portfolioinformation
-		INNER JOIN vtiger_portfolioinformationcf ON vtiger_portfolioinformation.portfolioinformationid = vtiger_portfolioinformationcf.portfolioinformationid
-		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
-		WHERE vtiger_portfolioinformation.account_number IN (".generateQuestionMarks($account_numbers).") AND vtiger_crmentity.deleted = 0
-		AND (vtiger_portfolioinformation.accountclosed = 0 OR vtiger_portfolioinformation.accountclosed IS NULL)";
+                $v['management_fee'] = abs($tmp->CalculateAmount('DATE_SUB(NOW(),INTERVAL 1 YEAR)', 'NOW()'));
                 
-                $result = $adb->pquery($query,array($account_numbers));
-                
-                if($adb->num_rows($result))
-                    $reportData["recordsTotal"] = $adb->query_result($result,0,'total_portfolios');
+                if(isset($v['contact_link']) && $v['contact_link'] > 0)
+                    $v['contact_link'] = getContactName($v['contact_link']);
+                    
+                    $summary_info[] = $v;
+                    
+                    $totals["total_value"] += $v['total_value'];
+                    $totals["market_value"] += $v['securities'];
+                    $totals["cash_value"] += $v['cash'];
+                    $totals['management_fee'] += $v['management_fee'];
+            }
         }
         
-        if(!empty($totals)){
-            $totals['total_value'] = number_format($totals['total_value'], "2");
-            $totals['market_value'] = number_format($totals['market_value'], "2");
-            $totals['cash_value'] = number_format($totals['cash_value'], "2");
-        }
+        // Total Records
+        $query = "SELECT count(vtiger_portfolioinformation.account_number) as total_portfolios FROM vtiger_portfolioinformation
+        INNER JOIN vtiger_portfolioinformationcf ON vtiger_portfolioinformation.portfolioinformationid = vtiger_portfolioinformationcf.portfolioinformationid
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
+        WHERE vtiger_portfolioinformation.account_number IN (".generateQuestionMarks($account_numbers).") AND vtiger_crmentity.deleted = 0
+        AND (vtiger_portfolioinformation.accountclosed = 0 OR vtiger_portfolioinformation.accountclosed IS NULL)";
         
-        $reportData["grandTotals"] = $totals;
-        $reportData["summary_info"] = $summary_info;
+        $result = $adb->pquery($query,array($account_numbers));
         
-        $dataReports = $reportData;
-        
-        return $dataReports;
+        if($adb->num_rows($result))
+            $reportData["recordsTotal"] = $adb->query_result($result,0,'total_portfolios');
+    }
+    
+    if(!empty($totals)){
+        $totals['total_value'] = number_format($totals['total_value'], "2");
+        $totals['market_value'] = number_format($totals['market_value'], "2");
+        $totals['cash_value'] = number_format($totals['cash_value'], "2");
+    }
+    
+    $reportData["grandTotals"] = $totals;
+    $reportData["summary_info"] = $summary_info;
+    
+    $dataReports = $reportData;
+    
+    return $dataReports;
 }
 
 function getAccountsRelatedContactsSSN($accountid){
@@ -634,106 +634,106 @@ function check_permission($customerid, $module, $entityid) {
     
     if($show_all == 'false')
         $allowed_contacts_and_accounts[] = $customerid;
-        else {
-            
-            $contactquery = "SELECT contactid, accountid FROM vtiger_contactdetails " .
-                " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid" .
-                " AND vtiger_crmentity.deleted = 0 " .
-                " WHERE (accountid = (SELECT accountid FROM vtiger_contactdetails WHERE contactid = ?) AND accountid != 0) OR contactid = ?";
-            $contactres = $adb->pquery($contactquery, array($customerid,$customerid));
-            $no_of_cont = $adb->num_rows($contactres);
-            for($i=0;$i<$no_of_cont;$i++){
-                $cont_id = $adb->query_result($contactres,$i,'contactid');
-                $acc_id = $adb->query_result($contactres,$i,'accountid');
-                if(!in_array($cont_id, $allowed_contacts_and_accounts))
-                    $allowed_contacts_and_accounts[] = $cont_id;
-                    if(!in_array($acc_id, $allowed_contacts_and_accounts) && $acc_id != '0')
-                        $allowed_contacts_and_accounts[] = $acc_id;
-            }
+    else {
+        
+        $contactquery = "SELECT contactid, accountid FROM vtiger_contactdetails " .
+            " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid" .
+            " AND vtiger_crmentity.deleted = 0 " .
+            " WHERE (accountid = (SELECT accountid FROM vtiger_contactdetails WHERE contactid = ?) AND accountid != 0) OR contactid = ?";
+        $contactres = $adb->pquery($contactquery, array($customerid,$customerid));
+        $no_of_cont = $adb->num_rows($contactres);
+        for($i=0;$i<$no_of_cont;$i++){
+            $cont_id = $adb->query_result($contactres,$i,'contactid');
+            $acc_id = $adb->query_result($contactres,$i,'accountid');
+            if(!in_array($cont_id, $allowed_contacts_and_accounts))
+                $allowed_contacts_and_accounts[] = $cont_id;
+                if(!in_array($acc_id, $allowed_contacts_and_accounts) && $acc_id != '0')
+                    $allowed_contacts_and_accounts[] = $acc_id;
         }
-        if(in_array($entityid, $allowed_contacts_and_accounts)) { //for contact's,if they are present in the allowed list then send true
+    }
+    if(in_array($entityid, $allowed_contacts_and_accounts)) { //for contact's,if they are present in the allowed list then send true
+        return true;
+    }
+    $faqquery = "select id from vtiger_faq";
+    $faqids = $adb->pquery($faqquery,array());
+    $no_of_faq = $adb->num_rows($faqids);
+    for($i=0;$i<$no_of_faq;$i++){
+        $faq_id[] = $adb->query_result($faqids,$i,'id');
+    }
+    switch($module) {
+        
+        case 'Documents'	: 	$query = "SELECT vtiger_senotesrel.notesid FROM vtiger_senotesrel
+							INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_senotesrel.notesid AND vtiger_crmentity.deleted = 0
+							WHERE vtiger_senotesrel.crmid IN (". generateQuestionMarks($allowed_contacts_and_accounts) .")
+							AND vtiger_senotesrel.notesid = ?";
+        $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $entityid));
+        if ($adb->num_rows($res) > 0) {
             return true;
         }
-        $faqquery = "select id from vtiger_faq";
-        $faqids = $adb->pquery($faqquery,array());
-        $no_of_faq = $adb->num_rows($faqids);
-        for($i=0;$i<$no_of_faq;$i++){
-            $faq_id[] = $adb->query_result($faqids,$i,'id');
-        }
-        switch($module) {
-            
-            case 'Documents'	: 	$query = "SELECT vtiger_senotesrel.notesid FROM vtiger_senotesrel
-								INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_senotesrel.notesid AND vtiger_crmentity.deleted = 0
-								WHERE vtiger_senotesrel.crmid IN (". generateQuestionMarks($allowed_contacts_and_accounts) .")
-								AND vtiger_senotesrel.notesid = ?";
-            $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $entityid));
-            if ($adb->num_rows($res) > 0) {
-                return true;
-            }
-            if(checkModuleActive('Project')) {
-                $query = "SELECT vtiger_senotesrel.notesid FROM vtiger_senotesrel
-					INNER JOIN vtiger_project ON vtiger_project.projectid = vtiger_senotesrel.crmid
-					WHERE vtiger_project.linktoaccountscontacts IN (". generateQuestionMarks($allowed_contacts_and_accounts) .")
-					AND vtiger_senotesrel.notesid = ?";
-                $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $entityid));
-                if ($adb->num_rows($res) > 0) {
-                    return true;
-                }
-            }
-            
+        if(checkModuleActive('Project')) {
             $query = "SELECT vtiger_senotesrel.notesid FROM vtiger_senotesrel
-				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_senotesrel.notesid AND vtiger_crmentity.deleted = 0
-				WHERE vtiger_senotesrel.crmid IN (". generateQuestionMarks($faq_id) .")
+				INNER JOIN vtiger_project ON vtiger_project.projectid = vtiger_senotesrel.crmid
+				WHERE vtiger_project.linktoaccountscontacts IN (". generateQuestionMarks($allowed_contacts_and_accounts) .")
 				AND vtiger_senotesrel.notesid = ?";
-            $res = $adb->pquery($query, array($faq_id,$entityid));
-            if ($adb->num_rows($res) > 0) {
-                return true;
-            }
-            break;
-            
-            case 'HelpDesk'	:	if($acc_id) $accCondition = "OR vtiger_troubletickets.parent_id = $acc_id";
-            $query = "SELECT vtiger_troubletickets.ticketid FROM vtiger_troubletickets
-				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid AND vtiger_crmentity.deleted = 0
-				WHERE (vtiger_troubletickets.contact_id IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") $accCondition )
-				AND vtiger_troubletickets.ticketid = ?";
             $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $entityid));
             if ($adb->num_rows($res) > 0) {
                 return true;
             }
-            
-            $query = "SELECT vtiger_troubletickets.ticketid FROM vtiger_troubletickets
-				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
-				INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.relcrmid = vtiger_crmentity.crmid OR vtiger_crmentityrel.crmid = vtiger_crmentity.crmid)
-				WHERE vtiger_crmentity.deleted = 0 AND
-				(vtiger_crmentityrel.crmid IN
-					(SELECT projectid FROM vtiger_project WHERE linktoaccountscontacts
-						IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") AND vtiger_crmentityrel.relcrmid = $entityid)
-				OR vtiger_crmentityrel.relcrmid IN
-					(SELECT projectid FROM vtiger_project WHERE linktoaccountscontacts
-						IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") AND vtiger_crmentityrel.crmid = $entityid)
-				AND vtiger_troubletickets.ticketid = ?)";
-            
-            $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $allowed_contacts_and_accounts, $entityid));
-            if ($adb->num_rows($res) > 0) {
-                return true;
-            }
-            
-            break;
-            
-            case 'Accounts' : 	$query = "SELECT vtiger_account.accountid FROM vtiger_account " .
-                "INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_account.accountid " .
-                "INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.accountid = vtiger_account.accountid " .
-                "WHERE vtiger_crmentity.deleted = 0 and vtiger_contactdetails.contactid = ? and vtiger_contactdetails.accountid = ?";
-            $res = $adb->pquery($query,array($customerid,$entityid));
-            if ($adb->num_rows($res) > 0) {
-                return true;
-            }
-            break;
-            
-            
         }
-        return false;
-        $log->debug("Exiting customerportal function check_permission ..");
+        
+        $query = "SELECT vtiger_senotesrel.notesid FROM vtiger_senotesrel
+			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_senotesrel.notesid AND vtiger_crmentity.deleted = 0
+			WHERE vtiger_senotesrel.crmid IN (". generateQuestionMarks($faq_id) .")
+			AND vtiger_senotesrel.notesid = ?";
+        $res = $adb->pquery($query, array($faq_id,$entityid));
+        if ($adb->num_rows($res) > 0) {
+            return true;
+        }
+        break;
+        
+        case 'HelpDesk'	:	if($acc_id) $accCondition = "OR vtiger_troubletickets.parent_id = $acc_id";
+        $query = "SELECT vtiger_troubletickets.ticketid FROM vtiger_troubletickets
+			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid AND vtiger_crmentity.deleted = 0
+			WHERE (vtiger_troubletickets.contact_id IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") $accCondition )
+			AND vtiger_troubletickets.ticketid = ?";
+        $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $entityid));
+        if ($adb->num_rows($res) > 0) {
+            return true;
+        }
+        
+        $query = "SELECT vtiger_troubletickets.ticketid FROM vtiger_troubletickets
+			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
+			INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.relcrmid = vtiger_crmentity.crmid OR vtiger_crmentityrel.crmid = vtiger_crmentity.crmid)
+			WHERE vtiger_crmentity.deleted = 0 AND
+			(vtiger_crmentityrel.crmid IN
+				(SELECT projectid FROM vtiger_project WHERE linktoaccountscontacts
+					IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") AND vtiger_crmentityrel.relcrmid = $entityid)
+			OR vtiger_crmentityrel.relcrmid IN
+				(SELECT projectid FROM vtiger_project WHERE linktoaccountscontacts
+					IN (". generateQuestionMarks($allowed_contacts_and_accounts) .") AND vtiger_crmentityrel.crmid = $entityid)
+			AND vtiger_troubletickets.ticketid = ?)";
+        
+        $res = $adb->pquery($query, array($allowed_contacts_and_accounts, $allowed_contacts_and_accounts, $entityid));
+        if ($adb->num_rows($res) > 0) {
+            return true;
+        }
+        
+        break;
+        
+        case 'Accounts' : 	$query = "SELECT vtiger_account.accountid FROM vtiger_account " .
+            "INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_account.accountid " .
+            "INNER JOIN vtiger_contactdetails ON vtiger_contactdetails.accountid = vtiger_account.accountid " .
+            "WHERE vtiger_crmentity.deleted = 0 and vtiger_contactdetails.contactid = ? and vtiger_contactdetails.accountid = ?";
+        $res = $adb->pquery($query,array($customerid,$entityid));
+        if ($adb->num_rows($res) > 0) {
+            return true;
+        }
+        break;
+        
+        
+    }
+    return false;
+    $log->debug("Exiting customerportal function check_permission ..");
 }
 
 function show_all($module){
@@ -1130,13 +1130,13 @@ function add_document_attachment($input_array){
     if(!$user_id)
         $user_id = getDefaultAssigneeId();
         
-        //require_once('modules/Documents/Documents.php');
-        
-        $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
-	vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
-	WHERE  vtiger_documentfolder.is_default=1 AND vtiger_crmentity.deleted = 0 
+    //require_once('modules/Documents/Documents.php');
+    
+    $query = "SELECT * FROM vtiger_documentfolder inner join vtiger_crmentity on
+    vtiger_crmentity.crmid = vtiger_documentfolder.documentfolderid
+    WHERE  vtiger_documentfolder.is_default=1 AND vtiger_crmentity.deleted = 0
     AND vtiger_crmentity.smownerid = ?";
-        
+    
     $result = $adb->pquery($query, array($user_id));
     
     if(!$adb->num_rows($result)){
@@ -1189,7 +1189,7 @@ function add_document_attachment($input_array){
     $res = $adb->pquery($doc,array($id,$focus->id));
     
     $log->debug("Exiting customer portal function add_document_attachment");
-        
+    
     return array("new_document" => array("document_id" => $focus->id));
 }
 
@@ -1341,9 +1341,9 @@ function get_module_details($input_array){
                 global $site_URL;
                 
                 $query = "SELECT vtiger_attachments.attachmentsid, vtiger_attachments.name, vtiger_attachments.path FROM vtiger_contactdetails
-			INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.crmid = vtiger_contactdetails.contactid
-			INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
-			WHERE vtiger_seattachmentsrel.crmid = ?";
+    			INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.crmid = vtiger_contactdetails.contactid
+    			INNER JOIN vtiger_attachments ON vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
+    			WHERE vtiger_seattachmentsrel.crmid = ?";
                 
                 $result = $adb->pquery($query,array($id));
                 
@@ -1435,105 +1435,105 @@ function update_document($input_array){
     
     if($filelocationtype == "E")
         $focus->column_fields['filename'] = $filename;
-        else
-            $filedownloadcount = $focus->column_fields['filedownloadcount'];
+    else
+        $filedownloadcount = $focus->column_fields['filedownloadcount'];
+        
+    $delete_previous_attachment = $input_array['delete_previous'];
+    
+    if($delete_previous_attachment){
+        
+        $att_result = $adb->pquery("select vtiger_seattachmentsrel.attachmentsid, vtiger_attachments.name,
+        vtiger_attachments.path from vtiger_seattachmentsrel inner join vtiger_attachments on
+        vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
+        where vtiger_seattachmentsrel.crmid = ?",array($notesid));
+        
+        if($adb->num_rows($att_result) > 0 ){
             
-            $delete_previous_attachment = $input_array['delete_previous'];
+            $attachment_id = $adb->query_result($att_result,"0","attachmentsid");
+            $path = $adb->query_result($att_result,"0","path");
+            $name = $adb->query_result($att_result,"0","name");
             
-            if($delete_previous_attachment){
-                
-                $att_result = $adb->pquery("select vtiger_seattachmentsrel.attachmentsid, vtiger_attachments.name,
-		vtiger_attachments.path from vtiger_seattachmentsrel inner join vtiger_attachments on
-		vtiger_attachments.attachmentsid = vtiger_seattachmentsrel.attachmentsid
-		where vtiger_seattachmentsrel.crmid = ?",array($notesid));
-                
-                if($adb->num_rows($att_result) > 0 ){
-                    
-                    $attachment_id = $adb->query_result($att_result,"0","attachmentsid");
-                    $path = $adb->query_result($att_result,"0","path");
-                    $name = $adb->query_result($att_result,"0","name");
-                    
-                    $adb->pquery("delete from vtiger_seattachmentsrel where crmid = ? and attachmentsid = ?", array($notesid, $attachment_id));
-                    $adb->pquery("delete from vtiger_attachments where attachmentsid = ?", array($attachment_id));
-                    unlink($path.$attachment_id."_".$name);
-                }
-            }
+            $adb->pquery("delete from vtiger_seattachmentsrel where crmid = ? and attachmentsid = ?", array($notesid, $attachment_id));
+            $adb->pquery("delete from vtiger_attachments where attachmentsid = ?", array($attachment_id));
+            unlink($path.$attachment_id."_".$name);
+        }
+    }
+    
+    
+    if($filename != '' && $filelocationtype == "I") {
+        
+        $filetype = $input_array['filetype'];
+        $filesize = $input_array['filesize'];
+        $filecontents = $input_array['filecontents'];
+        $filedownloadcount = '0';
+        
+        if($filesize > 0 && $filecontents != ''){
             
+            $save_doc = true;
             
-            if($filename != '' && $filelocationtype == "I") {
-                
-                $filetype = $input_array['filetype'];
-                $filesize = $input_array['filesize'];
-                $filecontents = $input_array['filecontents'];
-                $filedownloadcount = '0';
-                
-                if($filesize > 0 && $filecontents != ''){
-                    
-                    $save_doc = true;
-                    
-                    $upload_filepath = decideFilePath();
-                    
-                    $attachmentid = $adb->getUniqueID("vtiger_crmentity");
-                    
-                    $filename = sanitizeUploadFileName($filename, $upload_badext);
-                    $new_filename = $attachmentid.'_'.$filename;
-                    
-                    $data = base64_decode($filecontents);
-                    $description = 'CustomerPortal Document Attachment';
-                    
-                    $handle = @fopen($upload_filepath.$new_filename,'w');
-                    fputs($handle, $data);
-                    fclose($handle);
-                    
-                    $date_var = $adb->formatDate(date('Y-m-d H:i:s'), true);
-                    
-                    $crmquery = "insert into vtiger_crmentity (crmid,setype,description,createdtime) values(?,?,?,?)";
-                    $crmresult = $adb->pquery($crmquery, array($attachmentid, 'Documents Attachment', $description, $date_var));
-                    
-                    $attachmentquery = "insert into vtiger_attachments(attachmentsid,name,description,type,path) values(?,?,?,?,?)";
-                    $attachmentreulst = $adb->pquery($attachmentquery, array($attachmentid, $filename, $description, $filetype, $upload_filepath));
-                    
-                    $focus->column_fields['filename'] = $filename;
-                    $focus->column_fields['filetype'] = $filetype;
-                    $focus->column_fields['filesize'] = $filesize;
-                    $focus->column_fields['filelocationtype'] = 'I';
-                    $focus->column_fields['filedownloadcount']= '0';
-                    $focus->column_fields['filestatus'] = 1;
-                    $focus->column_fields['folderid'] = 1;
-                }
-            }
+            $upload_filepath = decideFilePath();
             
-            $focus->column_fields['notes_title'] = $title;
-            $focus->column_fields['notecontent'] = $note_desc;
-            $focus->column_fields['filelocationtype'] = $filelocationtype;
+            $attachmentid = $adb->getUniqueID("vtiger_crmentity");
             
-            $focus->save('Documents');
+            $filename = sanitizeUploadFileName($filename, $upload_badext);
+            $new_filename = $attachmentid.'_'.$filename;
             
-            if($save_doc && $attachmentid > 0){
-                
-                $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
-                $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
-            }
+            $data = base64_decode($filecontents);
+            $description = 'CustomerPortal Document Attachment';
             
-            if($filelocationtype == "E"){
-                
-                if($filename != '' && !preg_match('/^\w{1,5}:\/\/|^\w{0,3}:?\\\\\\\\/', trim($filename), $match)) {
-                    $filename = "http://$filename";
-                }
-                
-                $filetype = '';
-                $filesize = 0;
-                $filedownloadcount = null;
-            }
+            $handle = @fopen($upload_filepath.$new_filename,'w');
+            fputs($handle, $data);
+            fclose($handle);
             
-            if($filename){
-                $query = "UPDATE vtiger_notes SET filename = ? ,filesize = ?, filetype = ? , filelocationtype = ?, filedownloadcount = ? WHERE notesid = ?";
-                $adb->pquery($query,array(decode_html($filename),$filesize,$filetype,$filelocationtype,$filedownloadcount,$focus->id));
-            }
+            $date_var = $adb->formatDate(date('Y-m-d H:i:s'), true);
             
-            $log->debug("Exiting customer portal function update_document");
+            $crmquery = "insert into vtiger_crmentity (crmid,setype,description,createdtime) values(?,?,?,?)";
+            $crmresult = $adb->pquery($crmquery, array($attachmentid, 'Documents Attachment', $description, $date_var));
             
-            return array("document_id" => $focus->id);
+            $attachmentquery = "insert into vtiger_attachments(attachmentsid,name,description,type,path) values(?,?,?,?,?)";
+            $attachmentreulst = $adb->pquery($attachmentquery, array($attachmentid, $filename, $description, $filetype, $upload_filepath));
+            
+            $focus->column_fields['filename'] = $filename;
+            $focus->column_fields['filetype'] = $filetype;
+            $focus->column_fields['filesize'] = $filesize;
+            $focus->column_fields['filelocationtype'] = 'I';
+            $focus->column_fields['filedownloadcount']= '0';
+            $focus->column_fields['filestatus'] = 1;
+            $focus->column_fields['folderid'] = 1;
+        }
+    }
+    
+    $focus->column_fields['notes_title'] = $title;
+    $focus->column_fields['notecontent'] = $note_desc;
+    $focus->column_fields['filelocationtype'] = $filelocationtype;
+    
+    $focus->save('Documents');
+    
+    if($save_doc && $attachmentid > 0){
+        
+        $related_doc = 'insert into vtiger_seattachmentsrel values (?,?)';
+        $res = $adb->pquery($related_doc,array($focus->id,$attachmentid));
+    }
+    
+    if($filelocationtype == "E"){
+        
+        if($filename != '' && !preg_match('/^\w{1,5}:\/\/|^\w{0,3}:?\\\\\\\\/', trim($filename), $match)) {
+            $filename = "http://$filename";
+        }
+        
+        $filetype = '';
+        $filesize = 0;
+        $filedownloadcount = null;
+    }
+    
+    if($filename){
+        $query = "UPDATE vtiger_notes SET filename = ? ,filesize = ?, filetype = ? , filelocationtype = ?, filedownloadcount = ? WHERE notesid = ?";
+        $adb->pquery($query,array(decode_html($filename),$filesize,$filetype,$filelocationtype,$filedownloadcount,$focus->id));
+    }
+    
+    $log->debug("Exiting customer portal function update_document");
+    
+    return array("document_id" => $focus->id);
 }
 
 function getContactAccessibleAccounts($contactid){
@@ -1556,50 +1556,50 @@ function LoadIncomeLastYearReport($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
-        
-        
-        $accounts = $account_number;
-        
-        $income = new Income_Model($accounts);
-        $individual = $income->GetIndividualIncomeForDates(GetFirstDayLastYear(), GetLastDayLastYear());
-        $monthly = $income->GetMonthlyTotalForDates(GetFirstDayLastYear(), GetLastDayLastYear());
-        $graph = $income->GenerateGraphForDates(GetFirstDayLastYear(), GetLastDayLastYear());
-        $combined = $income->GetCombinedSymbolsForDates(GetFirstDayLastYear(), GetLastDayLastYear());
-        
-        $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayLastYear(), GetLastDayLastMonth());
-        $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastMonth());
-        
-        $start_month = date("F, Y", strtotime(GetFirstDayLastYear()));
-        $end_month = date("F, Y", strtotime(GetLastDayLastYear()));
-        
-        $output = array();
-        
-        $output["start_month"] = $start_month;
-        $output["end_month"] = $end_month;
-        $output['monthly_totals'] = $monthly;
-        $output['combined_symbols'] = $combined;
-        $output['year_end_totals'] = $year_end_totals;
-        $output['grand_total'] = $grand_total;
-        $output['dynamic_graph'] = json_encode($graph);
-        
-        $account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
-        $output['global_total'] = $account_totals['total'];
-        
-        if(is_array($account_number)){
-            $portfolios = array();
-            foreach($account_number AS $k => $v) {
-                $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                if($crmid) {
-                    $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                    $portfolios[] = $p->getData();
-                }
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    
+    $accounts = $account_number;
+    
+    $income = new Income_Model($accounts);
+    $individual = $income->GetIndividualIncomeForDates(GetFirstDayLastYear(), GetLastDayLastYear());
+    $monthly = $income->GetMonthlyTotalForDates(GetFirstDayLastYear(), GetLastDayLastYear());
+    $graph = $income->GenerateGraphForDates(GetFirstDayLastYear(), GetLastDayLastYear());
+    $combined = $income->GetCombinedSymbolsForDates(GetFirstDayLastYear(), GetLastDayLastYear());
+    
+    $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayLastYear(), GetLastDayLastYear());
+    $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastYear());
+    
+    $start_month = date("F, Y", strtotime(GetFirstDayLastYear()));
+    $end_month = date("F, Y", strtotime(GetLastDayLastYear()));
+    
+    $output = array();
+    
+    $output["start_month"] = $start_month;
+    $output["end_month"] = $end_month;
+    $output['monthly_totals'] = $monthly;
+    $output['combined_symbols'] = $combined;
+    $output['year_end_totals'] = $year_end_totals;
+    $output['grand_total'] = $grand_total;
+    $output['dynamic_graph'] = json_encode($graph);
+    
+    $account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
+    $output['global_total'] = $account_totals['total'];
+    
+    if(is_array($account_number)){
+        $portfolios = array();
+        foreach($account_number AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $portfolios[] = $p->getData();
             }
-            $output["portfolio_data"] = $portfolios;
         }
-        
-        return $output;
+        $output["portfolio_data"] = $portfolios;
+    }
+    
+    return $output;
 }
 
 
@@ -1622,85 +1622,85 @@ function LoadHoldingsReport($account_number){
     
     if(!is_array($account_number))
         $accounts = array($account_number);
-        else
-            $accounts = $account_number;
+    else
+        $accounts = $account_number;
+        
+    $accounts = array_unique($accounts);
+    
+    if (!empty($accounts)) {
+        
+        PortfolioInformation_HoldingsReport_Model::GenerateReportFromAccounts($accounts);
+        
+        holdingsReportReformatSecondaryTableData();
+        
+        $global_total = cHoldingsReport::GetGlobalTotal();
+        
+        $primary = cHoldingsReport::GetGroupedPrimary();
+        $secondary = cHoldingsReport::GetGroupedSecondary();
+        $positions = cHoldingsReport::GetWeightedPositions();
+        $positions = cHoldingsReport::CategorizePositions($positions);
+        
+        foreach($positions AS $k => $v)
+            $symbols[] = $v['security_symbol'];
             
-            $accounts = array_unique($accounts);
-            
-            if (!empty($accounts)) {
+            if(sizeof($symbols) > 0)
+                $position_information = ModSecurities_Module_Model::GetSecurityInformationFromSymbols($symbols);
                 
-                PortfolioInformation_HoldingsReport_Model::GenerateReportFromAccounts($accounts);
+                $grouped = cHoldingsReport::GetWeightedPositions(true);
+                $grouped = cHoldingsReport::CategorizePositions($grouped);
                 
-                holdingsReportReformatSecondaryTableData();
+                $categories = cHoldingsReport::TotalCategories($positions, $total_weight);
                 
-                $global_total = cHoldingsReport::GetGlobalTotal();
+                $ac = cHoldingsReport::TotalAssetClass($positions);
+                $ac_weight = cHoldingsReport::GetACWeights($ac, $global_total);
+                $individual_ac = cHoldingsReport::TotalIndividualizedAssetClass($positions);
+                $individual_weight = cHoldingsReport::GetACWeights($individual_ac, $global_total);
+    };
+    
+    $portfolios = array();
+    
+    $contact_instance = null;
+    if(is_array($accounts)){
+        $portfolios = array();
+        $unsettled_cash = 0;
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
                 
-                $primary = cHoldingsReport::GetGroupedPrimary();
-                $secondary = cHoldingsReport::GetGroupedSecondary();
-                $positions = cHoldingsReport::GetWeightedPositions();
-                $positions = cHoldingsReport::CategorizePositions($positions);
+                $portfolios[] = $p->getData();
+                $unsettled_cash += $p->get('unsettled_cash');
                 
-                foreach($positions AS $k => $v)
-                    $symbols[] = $v['security_symbol'];
-                    
-                    if(sizeof($symbols) > 0)
-                        $position_information = ModSecurities_Module_Model::GetSecurityInformationFromSymbols($symbols);
-                        
-                        $grouped = cHoldingsReport::GetWeightedPositions(true);
-                        $grouped = cHoldingsReport::CategorizePositions($grouped);
-                        
-                        $categories = cHoldingsReport::TotalCategories($positions, $total_weight);
-                        
-                        $ac = cHoldingsReport::TotalAssetClass($positions);
-                        $ac_weight = cHoldingsReport::GetACWeights($ac, $global_total);
-                        $individual_ac = cHoldingsReport::TotalIndividualizedAssetClass($positions);
-                        $individual_weight = cHoldingsReport::GetACWeights($individual_ac, $global_total);
-            };
-            
-            $portfolios = array();
-            
-            $contact_instance = null;
-            if(is_array($accounts)){
-                $portfolios = array();
-                $unsettled_cash = 0;
-                foreach($accounts AS $k => $v) {
-                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                    if($crmid) {
-                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                        
-                        $portfolios[] = $p->getData();
-                        $unsettled_cash += $p->get('unsettled_cash');
-                        
-                    }
-                }
             }
-            
-            $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
-            $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
-            
-            $monthly_values = getAccountValueOverLast12Months(array($request->get("account_number")));
-            
-            $output["date"] = date("F d, Y");
-            $output["num_accounts_used"] = sizeof($accounts);
-            $output["portfolio_data"] = $portfolios;
-            $output["unsettled_cash"] = $unsettled_cash;
-            $output["global_total"] = $global_total;
-            $output["asset_class"] = $ac;
-            $output["total_weight"] = $total_weight;
-            $output["primary"] = $primary;
-            $output["secondary"] = $secondary;
-            $output["categories"] = $categories;
-            $output["individual"] = $positions;
-            $output["positions"] = $position_information;
-            $output["grouped"] = $grouped;
-            $output["monthly_totals"] = json_encode($monthly_values);
-            $output["asset_class_weight"] = $ac_weight;
-            $output["individual_ac"] = $individual_ac;
-            $output["individual_weight"] = $individual_weight;
-            
-            $output["asset_allocation_report"] = getAssetAllocationReport($request->get("account_number"));
-            
-            return $output;
+        }
+    }
+    
+    $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
+    $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
+    
+    $monthly_values = getAccountValueOverLast12Months(array($request->get("account_number")));
+    
+    $output["date"] = date("F d, Y");
+    $output["num_accounts_used"] = sizeof($accounts);
+    $output["portfolio_data"] = $portfolios;
+    $output["unsettled_cash"] = $unsettled_cash;
+    $output["global_total"] = $global_total;
+    $output["asset_class"] = $ac;
+    $output["total_weight"] = $total_weight;
+    $output["primary"] = $primary;
+    $output["secondary"] = $secondary;
+    $output["categories"] = $categories;
+    $output["individual"] = $positions;
+    $output["positions"] = $position_information;
+    $output["grouped"] = $grouped;
+    $output["monthly_totals"] = json_encode($monthly_values);
+    $output["asset_class_weight"] = $ac_weight;
+    $output["individual_ac"] = $individual_ac;
+    $output["individual_weight"] = $individual_weight;
+    
+    $output["asset_allocation_report"] = getAssetAllocationReport($request->get("account_number"));
+    
+    return $output;
 }
 
 
@@ -1784,25 +1784,25 @@ function getAssetAllocationReport($account_number){
     if(!is_array($account_number))
         $account_number = array($account_number);
         
-        PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($account_number);
-        
-        $categories = array("estimatedtype");
-        $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
-        $totals = array("current_value", "weight");
-        
-        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
-        
-        $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable();
-        
-        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
-        
-        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
-        
-        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-        
-        $report_data = array("estimate_table" => $estimateTable, "estimate_pie" => json_encode($estimatePie));
-        
-        return $report_data;
+    PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($account_number);
+    
+    $categories = array("estimatedtype");
+    $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+    $totals = array("current_value", "weight");
+    
+    $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
+    
+    $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable();
+    
+    $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
+    
+    $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
+    
+    PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
+    
+    $report_data = array("estimate_table" => $estimateTable, "estimate_pie" => json_encode($estimatePie));
+    
+    return $report_data;
 }
 
 
@@ -1827,47 +1827,47 @@ function LoadMonthlyIncomeReport($input_array){
         if(is_array($monthly->account))
             foreach($monthly->account AS $k => $v)
                 $account .= "account_number[]={$v}&";
-                else
-                    $account = "account_number[]={$monthly->account}&";
-                    
-                    
-                    $monthlyReportData["account"] = $account;
-                    $monthlyReportData["main_categories_previous"] = $monthly->main_categories_previous;
-                    $monthlyReportData["main_categories_projected"] = $monthly->main_categories_projected;
-                    $monthlyReportData["sub_sub_categories_previous"] = $monthly->sub_sub_categories_previous;
-                    $monthlyReportData["sub_sub_categories_projected"] = $monthly->sub_sub_categories_projected;
-                    $monthlyReportData["projected_symbols"] = $monthly->individual_projected_symbols;
-                    $monthlyReportData["previous_symbols"] = $monthly->individual_previous_symbols;
-                    $monthlyReportData["previous_symbols_values"] = $monthly->previous_symbols;
-                    $monthlyReportData["projected_symbols_values"] = $monthly->projected_symbols;
-                    $monthlyReportData["previous_monthly_totals"] = $monthly->previous_monthly_totals;
-                    $monthlyReportData["projected_monthly_totals"] = $monthly->projected_monthly_totals;
-                    $monthlyReportData["display_months"] = $monthly->display_months;
-                    $monthlyReportData["display_years_current"] = $monthly->display_years_current;
-                    $monthlyReportData["display_years_projected"] = $monthly->display_years_projected;
-                    $monthlyReportData["monthly_values"] = $monthly->monthly_values;
-                    $monthlyReportData["monthly_totals"] = $monthly->monthly_totals;
-                    $monthlyReportData["grand_total"] = $monthly->grand_total;
-                    $monthlyReportData["estimate_payout"] = $monthly->estimate_payout;
-                    $monthlyReportData["estimated_monthly_totals"] = $monthly->estimated_monthly_totals;
-                    $monthlyReportData["estimated_grand_total"] = $monthly->estimated_grand_total;
-                    $monthlyReportData["history_data"] = json_encode($monthly->history);
-                    $monthlyReportData["future_data"] = json_encode($monthly->estimated_income);
-                    
-                    $monthlyReportData['account_number'] = $input_array['account_number'];
-                    
-                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($request->get("account_number"));
-                    
-                    if($crmid){
-                        
-                        $portfolioInformationModel = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                        
-                        $portfolios = $portfolioInformationModel->getData();
-                        
-                        $monthlyReportData["portfolio_data"] = $portfolios;
-                    }
-                    
-                    return $monthlyReportData;
+        else
+            $account = "account_number[]={$monthly->account}&";
+            
+            
+        $monthlyReportData["account"] = $account;
+        $monthlyReportData["main_categories_previous"] = $monthly->main_categories_previous;
+        $monthlyReportData["main_categories_projected"] = $monthly->main_categories_projected;
+        $monthlyReportData["sub_sub_categories_previous"] = $monthly->sub_sub_categories_previous;
+        $monthlyReportData["sub_sub_categories_projected"] = $monthly->sub_sub_categories_projected;
+        $monthlyReportData["projected_symbols"] = $monthly->individual_projected_symbols;
+        $monthlyReportData["previous_symbols"] = $monthly->individual_previous_symbols;
+        $monthlyReportData["previous_symbols_values"] = $monthly->previous_symbols;
+        $monthlyReportData["projected_symbols_values"] = $monthly->projected_symbols;
+        $monthlyReportData["previous_monthly_totals"] = $monthly->previous_monthly_totals;
+        $monthlyReportData["projected_monthly_totals"] = $monthly->projected_monthly_totals;
+        $monthlyReportData["display_months"] = $monthly->display_months;
+        $monthlyReportData["display_years_current"] = $monthly->display_years_current;
+        $monthlyReportData["display_years_projected"] = $monthly->display_years_projected;
+        $monthlyReportData["monthly_values"] = $monthly->monthly_values;
+        $monthlyReportData["monthly_totals"] = $monthly->monthly_totals;
+        $monthlyReportData["grand_total"] = $monthly->grand_total;
+        $monthlyReportData["estimate_payout"] = $monthly->estimate_payout;
+        $monthlyReportData["estimated_monthly_totals"] = $monthly->estimated_monthly_totals;
+        $monthlyReportData["estimated_grand_total"] = $monthly->estimated_grand_total;
+        $monthlyReportData["history_data"] = json_encode($monthly->history);
+        $monthlyReportData["future_data"] = json_encode($monthly->estimated_income);
+        
+        $monthlyReportData['account_number'] = $input_array['account_number'];
+        
+        $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($request->get("account_number"));
+        
+        if($crmid){
+            
+            $portfolioInformationModel = PortfolioInformation_Record_Model::getInstanceById($crmid);
+            
+            $portfolios = $portfolioInformationModel->getData();
+            
+            $monthlyReportData["portfolio_data"] = $portfolios;
+        }
+        
+        return $monthlyReportData;
     }
 }
 
@@ -1878,192 +1878,202 @@ function LoadOmniOverviewReport($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
-        
-        require_once("libraries/Reporting/ReportCommonFunctions.php");
-        require_once("libraries/Reporting/ReportPerformance.php");
-        require_once("libraries/Reporting/ReportHistorical.php");
-        require_once("libraries/reports/new/holdings_report.php");
-        
-        global $current_user,$adb,$log;
-        
-        $overviewReportParams = array();
-        
-        $overviewReportParams['account_number'] = $account_number;
-        $overviewReportParams['module'] = "PortfolioInformation";
-        
-        $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
-        
-        $accounts = $request->get("account_number");
-        $accounts = array_unique($accounts);
-        
-        //$start = date('Y-m-d', strtotime('-7 days'));
-        $end = date('Y-m-d');
-        
-        if(strlen($request->get('report_end_date')) > 1) {
-            $end_date = date("Y-m-d",strtotime($request->get("report_end_date")));
-        }else {
-            $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
-        }
-        
-        PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-        // 	PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
-        
-        // 	$t3_performance		= new Performance_Model($accounts, GetDateMinusMonths(TRAILING_3), date("Y-m-d"));
-        //     $t6_performance 	= new Performance_Model($accounts, GetDateStartOfYear(), date("Y-m-d"));
-        // 	$t12_performance 	= new Performance_Model($accounts, GetDateMinusMonths(TRAILING_12), date("Y-m-d"));
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    require_once("libraries/Reporting/ReportCommonFunctions.php");
+    require_once("libraries/Reporting/ReportPerformance.php");
+    require_once("libraries/Reporting/ReportHistorical.php");
+    require_once("libraries/reports/new/holdings_report.php");
+    
+    global $current_user,$adb,$log;
+    
+    $overviewReportParams = array();
+    
+    $overviewReportParams['account_number'] = $account_number;
+    $overviewReportParams['module'] = "PortfolioInformation";
+    
+    $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
+    
+    $accounts = $request->get("account_number");
+    $accounts = array_unique($accounts);
+    
+    //$start = date('Y-m-d', strtotime('-7 days'));
+    $end = date('Y-m-d');
+    
+    if(strlen($request->get('report_end_date')) > 1) {
+        $end_date = date("Y-m-d",strtotime($request->get("report_end_date")));
+    }else {
         $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
-        $t3_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_3)), $end_date);
-        $t6_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateStartOfYear()), $end_date);
-        $t12_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_12)), $end_date);
+    }
+    
+    PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
+    // 	PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start, $end);
+    
+    // 	$t3_performance		= new Performance_Model($accounts, GetDateMinusMonths(TRAILING_3), date("Y-m-d"));
+    //     $t6_performance 	= new Performance_Model($accounts, GetDateStartOfYear(), date("Y-m-d"));
+    // 	$t12_performance 	= new Performance_Model($accounts, GetDateMinusMonths(TRAILING_12), date("Y-m-d"));
+    $end_date = DetermineIntervalEndDate($accounts, date('Y-m-d'));
+    //$t3_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_3)), $end_date);
+    //$t6_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateStartOfYear()), $end_date);
+    //$t12_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_12)), $end_date);
+    
+    $t3_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_3, $end_date)), $end_date);
+    $t6_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateStartOfYear($end_date)), $end_date);
+    $t12_performance = new Performance_Model($accounts, DetermineIntervalStartDate($accounts, GetDateMinusMonths(TRAILING_12, $end_date)), $end_date);
+    
+    $historical = new Historical_Model($accounts);
+    $last_month = date('Y-m-d', strtotime('last day of previous month'));
+    $last_year = date('Y-m-d', strtotime("{$last_month} - 1 year"));
+    $t12_balances = $historical->GetEndValues($last_year, $last_month);
+    
+    $performance_summary = array();
+    
+    $performance_summary['t3']['performance_summed'] = $t3_performance->GetPerformanceSummed();
+    $performance_summary['t3']['performance'] = $t3_performance->GetPerformance();
+    $performance_summary['t3']['user_start_date'] = DateTimeField::convertToUserFormat($t3_performance->GetStartDate());
+    $performance_summary['t3']['user_end_date'] = DateTimeField::convertToUserFormat($t3_performance->GetEndDate());
+    $performance_summary['t3']['start_date'] = $t3_performance->GetStartDate();
+    $performance_summary['t3']['end_date'] = $t3_performance->GetEndDate();
+    $performance_summary['t3']['beginning_values'] = $t3_performance->GetBeginningValuesSummed()->value;
+    $performance_summary['t3']['ending_values'] = $t3_performance->GetEndingValuesSummed()->value;
+    $performance_summary['t3']['capital_appreciation'] = $t3_performance->GetCapitalAppreciation();
+    $performance_summary['t3']['interval_end_date'] = $t3_performance->GetIntervalEndDate();
+    $performance_summary['t3']['twr'] = $t3_performance->GetTWR();
+    $performance_summary['t3']['sp500'] = $t3_performance->GetIndex("S&P 500");
+    $performance_summary['t3']['agg'] = $t3_performance->GetIndex("AGG");
+    
+    $performance_summary['t6']['performance_summed'] = $t6_performance->GetPerformanceSummed();
+    $performance_summary['t6']['performance'] = $t6_performance->GetPerformance();
+    $performance_summary['t6']['user_start_date'] = DateTimeField::convertToUserFormat($t6_performance->GetStartDate());
+    $performance_summary['t6']['user_end_date'] = DateTimeField::convertToUserFormat($t6_performance->GetEndDate());
+    $performance_summary['t6']['start_date'] = $t6_performance->GetStartDate();
+    $performance_summary['t6']['end_date'] = $t6_performance->GetEndDate();
+    $performance_summary['t6']['beginning_values'] = $t6_performance->GetBeginningValuesSummed()->value;
+    $performance_summary['t6']['ending_values'] = $t6_performance->GetEndingValuesSummed()->value;
+    $performance_summary['t6']['capital_appreciation'] = $t6_performance->GetCapitalAppreciation();
+    $performance_summary['t6']['interval_end_date'] = $t6_performance->GetIntervalEndDate();
+    $performance_summary['t6']['twr'] = $t6_performance->GetTWR();
+    $performance_summary['t6']['sp500'] = $t6_performance->GetIndex("S&P 500");
+    $performance_summary['t6']['agg'] = $t6_performance->GetIndex("AGG");
+    
+    $performance_summary['t12']['performance_summed'] = $t12_performance->GetPerformanceSummed();
+    $performance_summary['t12']['performance'] = $t12_performance->GetPerformance();
+    $performance_summary['t12']['user_start_date'] = DateTimeField::convertToUserFormat($t12_performance->GetStartDate());
+    $performance_summary['t12']['user_end_date'] = DateTimeField::convertToUserFormat($t12_performance->GetEndDate());
+    $performance_summary['t12']['start_date'] = $t12_performance->GetStartDate();
+    $performance_summary['t12']['end_date'] = $t12_performance->GetEndDate();
+    $performance_summary['t12']['beginning_values'] = $t12_performance->GetBeginningValuesSummed()->value;
+    $performance_summary['t12']['ending_values'] = $t12_performance->GetEndingValuesSummed()->value;
+    $performance_summary['t12']['capital_appreciation'] = $t12_performance->GetCapitalAppreciation();
+    $performance_summary['t12']['interval_end_date'] = $t12_performance->GetIntervalEndDate();
+    $performance_summary['t12']['twr'] = $t12_performance->GetTWR();
+    $performance_summary['t12']['sp500'] = $t12_performance->GetIndex("S&P 500");
+    $performance_summary['t12']['agg'] = $t12_performance->GetIndex("AGG");
+    
+    $individual_summary = array();
+    $individual_summary['t3']['individual_performance_summed'] = $t3_performance->GetIndividualSummedBalance();
+    $individual_summary['t6']['individual_performance_summed'] = $t6_performance->GetIndividualSummedBalance();
+    $individual_summary['t12']['individual_performance_summed'] = $t12_performance->GetIndividualSummedBalance();
+    
+    $individual_summary['t3']['begin_values'] = $t3_performance->GetIndividualBeginValues();
+    $individual_summary['t6']['begin_values'] = $t6_performance->GetIndividualBeginValues();
+    $individual_summary['t12']['begin_values'] = $t12_performance->GetIndividualBeginValues();
+    
+    $individual_summary['t3']['end_values'] = $t3_performance->GetIndividualEndValues();
+    $individual_summary['t6']['end_values'] = $t6_performance->GetIndividualEndValues();
+    $individual_summary['t12']['end_values'] = $t12_performance->GetIndividualEndValues();
+    
+    $individual_summary['t3']['appreciation'] = $t3_performance->GetIndividualCapitalAppreciation();
+    $individual_summary['t6']['appreciation'] = $t6_performance->GetIndividualCapitalAppreciation();
+    $individual_summary['t12']['appreciation'] = $t12_performance->GetIndividualCapitalAppreciation();
+    
+    $individual_summary['t3']['appreciation_percent'] = $t3_performance->GetIndividualCapitalAppreciationPercent();
+    $individual_summary['t6']['appreciation_percent'] = $t6_performance->GetIndividualCapitalAppreciationPercent();
+    $individual_summary['t12']['appreciation_percent'] = $t12_performance->GetIndividualCapitalAppreciationPercent();
+    
+    $individual_summary['t3']['twr'] = $t3_performance->GetIndividualTWR();
+    $individual_summary['t6']['twr'] = $t6_performance->GetIndividualTWR();
+    $individual_summary['t12']['twr'] = $t12_performance->GetIndividualTWR();
+    
+    $tmp = array_merge_recursive($t3_performance->GetTransactionTypes(), $t6_performance->GetTransactionTypes(), $t12_performance->GetTransactionTypes());
+    
+    $table = array();
+    foreach($tmp AS $k => $v){
+        $vals = array_unique($v);
+        $table[$k] = $vals;
+    }
+    $tmp_end_date = date("Y-m-d", strtotime($end_date));
+    if (sizeof($accounts) > 0) {
+        // 		PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
+        // 		$categories = array("estimatedtype");
+        // 		$fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+        // 		$totals = array("current_value", "weight");
+        // 		$estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
+        // 		$estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
+        // 		$holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
+        // 		$category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
+        // 		PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
         
-        $historical = new Historical_Model($accounts);
-        $last_month = date('Y-m-d', strtotime('last day of previous month'));
-        $last_year = date('Y-m-d', strtotime("{$last_month} - 1 year"));
-        $t12_balances = $historical->GetEndValues($last_year, $last_month);
+        // 		global $adb;
+        // 		$query = "SELECT @global_total as global_total";
+        // 		$result = $adb->pquery($query, array());
+        // 		if($adb->num_rows($result) > 0){
+        // 			$global_total = $adb->query_result($result, 0, 'global_total');
+        // 		}
         
-        $performance_summary = array();
+        $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetUnsettledCashTotal($accounts);
+        $margin_balance = PortfolioInformation_HoldingsReport_Model::GetMarginBalanceTotal($accounts);
+        $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetNetCreditDebitTotal($accounts);
         
-        $performance_summary['t3']['performance_summed'] = $t3_performance->GetPerformanceSummed();
-        $performance_summary['t3']['performance'] = $t3_performance->GetPerformance();
-        $performance_summary['t3']['start_date'] = $t3_performance->GetStartDate();
-        $performance_summary['t3']['end_date'] = $t3_performance->GetEndDate();
-        $performance_summary['t3']['beginning_values'] = $t3_performance->GetBeginningValuesSummed()->value;
-        $performance_summary['t3']['ending_values'] = $t3_performance->GetEndingValuesSummed()->value;
-        $performance_summary['t3']['capital_appreciation'] = $t3_performance->GetCapitalAppreciation();
-        $performance_summary['t3']['interval_end_date'] = $t3_performance->GetIntervalEndDate();
-        $performance_summary['t3']['twr'] = $t3_performance->GetTWR();
-        $performance_summary['t3']['sp500'] = $t3_performance->GetIndex("S&P 500");
-        $performance_summary['t3']['agg'] = $t3_performance->GetIndex("AGG");
+        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+        $categories = array("aclass");
+        $fields = array("symbol", "security_type", "account_number", "cusip", "description", "quantity", "price", "market_value");//, "weight", "current_value");
+        $totals = array("market_value");
+        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
+        $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");//"PositionValuesPie"
+        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
         
-        $performance_summary['t6']['performance_summed'] = $t6_performance->GetPerformanceSummed();
-        $performance_summary['t6']['performance'] = $t6_performance->GetPerformance();
-        $performance_summary['t6']['start_date'] = $t6_performance->GetStartDate();
-        $performance_summary['t6']['end_date'] = $t6_performance->GetEndDate();
-        $performance_summary['t6']['beginning_values'] = $t6_performance->GetBeginningValuesSummed()->value;
-        $performance_summary['t6']['ending_values'] = $t6_performance->GetEndingValuesSummed()->value;
-        $performance_summary['t6']['capital_appreciation'] = $t6_performance->GetCapitalAppreciation();
-        $performance_summary['t6']['interval_end_date'] = $t6_performance->GetIntervalEndDate();
-        $performance_summary['t6']['twr'] = $t6_performance->GetTWR();
-        $performance_summary['t6']['sp500'] = $t6_performance->GetIndex("S&P 500");
-        $performance_summary['t6']['agg'] = $t6_performance->GetIndex("AGG");
+        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
+        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
         
-        $performance_summary['t12']['performance_summed'] = $t12_performance->GetPerformanceSummed();
-        $performance_summary['t12']['performance'] = $t12_performance->GetPerformance();
-        $performance_summary['t12']['start_date'] = $t12_performance->GetStartDate();
-        $performance_summary['t12']['end_date'] = $t12_performance->GetEndDate();
-        $performance_summary['t12']['beginning_values'] = $t12_performance->GetBeginningValuesSummed()->value;
-        $performance_summary['t12']['ending_values'] = $t12_performance->GetEndingValuesSummed()->value;
-        $performance_summary['t12']['capital_appreciation'] = $t12_performance->GetCapitalAppreciation();
-        $performance_summary['t12']['interval_end_date'] = $t12_performance->GetIntervalEndDate();
-        $performance_summary['t12']['twr'] = $t12_performance->GetTWR();
-        $performance_summary['t12']['sp500'] = $t12_performance->GetIndex("S&P 500");
-        $performance_summary['t12']['agg'] = $t12_performance->GetIndex("AGG");
-        
-        $individual_summary = array();
-        $individual_summary['t3']['individual_performance_summed'] = $t3_performance->GetIndividualSummedBalance();
-        $individual_summary['t6']['individual_performance_summed'] = $t6_performance->GetIndividualSummedBalance();
-        $individual_summary['t12']['individual_performance_summed'] = $t12_performance->GetIndividualSummedBalance();
-        
-        $individual_summary['t3']['begin_values'] = $t3_performance->GetIndividualBeginValues();
-        $individual_summary['t6']['begin_values'] = $t6_performance->GetIndividualBeginValues();
-        $individual_summary['t12']['begin_values'] = $t12_performance->GetIndividualBeginValues();
-        
-        $individual_summary['t3']['end_values'] = $t3_performance->GetIndividualEndValues();
-        $individual_summary['t6']['end_values'] = $t6_performance->GetIndividualEndValues();
-        $individual_summary['t12']['end_values'] = $t12_performance->GetIndividualEndValues();
-        
-        $individual_summary['t3']['appreciation'] = $t3_performance->GetIndividualCapitalAppreciation();
-        $individual_summary['t6']['appreciation'] = $t6_performance->GetIndividualCapitalAppreciation();
-        $individual_summary['t12']['appreciation'] = $t12_performance->GetIndividualCapitalAppreciation();
-        
-        $individual_summary['t3']['appreciation_percent'] = $t3_performance->GetIndividualCapitalAppreciationPercent();
-        $individual_summary['t6']['appreciation_percent'] = $t6_performance->GetIndividualCapitalAppreciationPercent();
-        $individual_summary['t12']['appreciation_percent'] = $t12_performance->GetIndividualCapitalAppreciationPercent();
-        
-        $individual_summary['t3']['twr'] = $t3_performance->GetIndividualTWR();
-        $individual_summary['t6']['twr'] = $t6_performance->GetIndividualTWR();
-        $individual_summary['t12']['twr'] = $t12_performance->GetIndividualTWR();
-        
-        $tmp = array_merge_recursive($t3_performance->GetTransactionTypes(), $t6_performance->GetTransactionTypes(), $t12_performance->GetTransactionTypes());
-        
-        $table = array();
-        foreach($tmp AS $k => $v){
-            $vals = array_unique($v);
-            $table[$k] = $vals;
+        global $adb;
+        $query = "SELECT @global_total as global_total";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0) {
+            $global_total = $adb->query_result($result, 0, 'global_total');
         }
-        $tmp_end_date = date("Y-m-d", strtotime($end_date));
-        if (sizeof($accounts) > 0) {
-            // 		PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
-            // 		$categories = array("estimatedtype");
-            // 		$fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
-            // 		$totals = array("current_value", "weight");
-            // 		$estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
-            // 		$estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
-            // 		$holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
-            // 		$category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
-            // 		PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-            
-            // 		global $adb;
-            // 		$query = "SELECT @global_total as global_total";
-            // 		$result = $adb->pquery($query, array());
-            // 		if($adb->num_rows($result) > 0){
-            // 			$global_total = $adb->query_result($result, 0, 'global_total');
-            // 		}
-            
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetUnsettledCashTotal($accounts);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetMarginBalanceTotal($accounts);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetNetCreditDebitTotal($accounts);
-            
-            PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-            $categories = array("aclass");
-            $fields = array("symbol", "security_type", "account_number", "cusip", "description", "quantity", "price", "market_value");//, "weight", "current_value");
-            $totals = array("market_value");
-            $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
-            $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");//"PositionValuesPie"
-            $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
-            
-            $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
-            PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-            
-            global $adb;
-            $query = "SELECT @global_total as global_total";
-            $result = $adb->pquery($query, array());
-            if($adb->num_rows($result) > 0) {
-                $global_total = $adb->query_result($result, 0, 'global_total');
+    }
+    
+    $output = array();
+    
+    if(is_array($accounts)){
+        $portfolios = array();
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $portfolios[] = $p->getData();
             }
         }
-        
-        $output = array();
-        
-        if(is_array($accounts)){
-            $portfolios = array();
-            foreach($accounts AS $k => $v) {
-                $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                if($crmid) {
-                    $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                    $portfolios[] = $p->getData();
-                }
-            }
-            $output["portfolio_data"] = $portfolios;
-        }
-        $output["unsettled_cash"] = $unsettled_cash;
-        $output["margin_balance"] = $margin_balance;
-        $output["net_credit_debit"] = $net_credit_debit;
-        $output["settled_total"] = $global_total+$unsettled_cash+$margin_balance+$net_credit_debit;
-        
-        $output["t3performance"] = $t3_performance;
-        $output["t6performance"] = $t6_performance;
-        $output["t12performance"] = $t12_performance;
-        $output["tablecategories"] = $table;
-        $output["holdingspievalues"] = json_encode($holdings_pie);
-        $output["t12balances"] = json_encode($t12_balances);
-        $output["account_number"] = $request->get("account_number");
-        $output["performance_summary"] = $performance_summary;
-        $output["individual_summary"] = $individual_summary;
-        
-        return $output;
+        $output["portfolio_data"] = $portfolios;
+    }
+    $output["unsettled_cash"] = $unsettled_cash;
+    $output["margin_balance"] = $margin_balance;
+    $output["net_credit_debit"] = $net_credit_debit;
+    $output["settled_total"] = $global_total+$unsettled_cash+$margin_balance+$net_credit_debit;
+    
+    $output["t3performance"] = $t3_performance;
+    $output["t6performance"] = $t6_performance;
+    $output["t12performance"] = $t12_performance;
+    $output["tablecategories"] = $table;
+    $output["holdingspievalues"] = json_encode($holdings_pie);
+    $output["t12balances"] = json_encode($t12_balances);
+    $output["account_number"] = $request->get("account_number");
+    $output["performance_summary"] = $performance_summary;
+    $output["individual_summary"] = $individual_summary;
+    
+    return $output;
 }
 
 function LoadOmniProjectedReport($input_array){
@@ -2072,66 +2082,66 @@ function LoadOmniProjectedReport($input_array){
     $accountIdNo = array();
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
+    
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    require_once("libraries/Reporting/ReportCommonFunctions.php");
+    require_once("libraries/Reporting/ProjectedIncomeModel.php");
+    
+    $start_date = GetDateFirstOfThisMonth();
+    
+    $end_date = GetDateLastOfPreviousMonthPlusOneYear();
+    
+    $positions = PositionInformation_Module_Model::GetPositionsForAccountNumber($account_number);
+    
+    foreach($positions AS $k => $v) {
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+        $crmid = ModSecurities_Module_Model::GetCrmidFromSymbol($v['security_symbol']);
         
-        require_once("libraries/Reporting/ReportCommonFunctions.php");
-        require_once("libraries/Reporting/ProjectedIncomeModel.php");
-        
-        $start_date = GetDateFirstOfThisMonth();
-        
-        $end_date = GetDateLastOfPreviousMonthPlusOneYear();
-        
-        $positions = PositionInformation_Module_Model::GetPositionsForAccountNumber($account_number);
-        
-        foreach($positions AS $k => $v) {
+        if($crmid > 0) {
             
-            $crmid = ModSecurities_Module_Model::GetCrmidFromSymbol($v['security_symbol']);
+            $instance = ModSecurities_Record_Model::getInstanceById($crmid);
             
-            if($crmid > 0) {
-                
-                $instance = ModSecurities_Record_Model::getInstanceById($crmid);
-                
-                $data = $instance->getData();
-                
-                $returned = Date("Y-m-d", strtotime($data['last_eod']));
-                
-                $compared = Date("Y-m-d", strtotime("-3 months"));
-                
-                if ($returned <= $compared)
-                    ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
+            $data = $instance->getData();
+            
+            $returned = Date("Y-m-d", strtotime($data['last_eod']));
+            
+            $compared = Date("Y-m-d", strtotime("-3 months"));
+            
+            if ($returned <= $compared)
+                ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
+        }
+    }
+    
+    $projected = new ProjectedIncome_Model($account_number);
+    
+    $calendar = CreateMonthlyCalendar($start_date, $end_date);
+    
+    $projected->CalculateMonthlyTotals($calendar);
+    
+    $graph = $projected->GetMonthlyIncomeGraph();
+    
+    $output = array();
+    
+    $output["individual_projected"] = $projected->GetGroupedAccounts();
+    $output["monthly_total"] = $projected->GetMonthlyTotals();
+    $output["projected_graph"] = json_encode($graph);
+    $output["grand_total"] = $projected->GetGrandTotal();
+    $output["calendar"] = $calendar;
+    
+    if(is_array($account_number)){
+        $portfolios = array();
+        foreach($account_number AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $portfolios[] = $p->getData();
             }
         }
-        
-        $projected = new ProjectedIncome_Model($account_number);
-        
-        $calendar = CreateMonthlyCalendar($start_date, $end_date);
-        
-        $projected->CalculateMonthlyTotals($calendar);
-        
-        $graph = $projected->GetMonthlyIncomeGraph();
-        
-        $output = array();
-        
-        $output["individual_projected"] = $projected->GetGroupedAccounts();
-        $output["monthly_total"] = $projected->GetMonthlyTotals();
-        $output["projected_graph"] = json_encode($graph);
-        $output["grand_total"] = $projected->GetGrandTotal();
-        $output["calendar"] = $calendar;
-        
-        if(is_array($account_number)){
-            $portfolios = array();
-            foreach($account_number AS $k => $v) {
-                $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                if($crmid) {
-                    $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                    $portfolios[] = $p->getData();
-                }
-            }
-            $output["portfolio_data"] = $portfolios;
-        }
-        return $output;
+        $output["portfolio_data"] = $portfolios;
+    }
+    return $output;
 }
 
 function LoadGHReport($input_array){
@@ -2141,173 +2151,173 @@ function LoadGHReport($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    require_once("libraries/Reporting/ReportCommonFunctions.php");
+    require_once("libraries/Reporting/ReportPerformance.php");
+    require_once("libraries/Reporting/ReportHistorical.php");
+    require_once("libraries/reports/new/holdings_report.php");
+    
+    if(isset($input_array['report_start_date'])) {
+        $start_date = $input_array['report_start_date'];
+    } else {
+        $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['start'];
+    }
+    
+    if(isset($input_array['report_end_date'])){
+        $end_date = $input_array['report_end_date'];
+    } else {
+        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['end'];
+    }
+    
+    if(!is_array($account_number))
+        $accounts = explode(",",$account_number);
+    else {
+        $accounts = $account_number;
+    }
+    $accounts = array_unique($accounts);
+    
+    $calling_record = $input_array['calling_record'];
+    
+    $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
+    $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
+    
+    $start_date = date("F Y", strtotime($start_date));
+    $end_date = date("F Y", strtotime($end_date));
+    
+    PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+    
+    $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);
+    
+    if (sizeof($accounts) > 0) {
+        PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
+        $categories = array("estimatedtype");
+        $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+        $totals = array("current_value", "weight");
+        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
+        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
+        $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
         
-        require_once("libraries/Reporting/ReportCommonFunctions.php");
-        require_once("libraries/Reporting/ReportPerformance.php");
-        require_once("libraries/Reporting/ReportHistorical.php");
-        require_once("libraries/reports/new/holdings_report.php");
+        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+        $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
+        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
+        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
         
-        if(isset($input_array['report_start_date'])) {
-            $start_date = $input_array['report_start_date'];
-        } else {
-            $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['start'];
+        global $adb;
+        $query = "SELECT @global_total as global_total";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $global_total = $adb->query_result($result, 0, 'global_total');
         }
-        
-        if(isset($input_array['report_end_date'])){
-            $end_date = $input_array['report_end_date'];
-        } else {
-            $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['end'];
+    }
+    
+    $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
+    $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
+    $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
+    
+    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
+    
+    $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
+    $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+    
+    $output = array();
+    
+    if(is_array($accounts)){
+        $portfolios = array();
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $portfolios[] = $p->getData();
+            }
         }
+        $output["portfolio_data"] = $portfolios;
+    }
+    
+    if($calling_record) {
+        $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
+        $prepared_by = PortfolioInformation_Module_Model::GetPreparedByFormattedByRecordID($calling_record);
+        $record = VTiger_Record_Model::getInstanceById($calling_record);
+        $data = $record->getData();
+        $module = $record->getModule();
+        if($module->getName() == "Accounts") {
+            $policy = $data['cf_2525'];//Investment Policy Statement
+            $output["Policy"] = $policy;
+        }
+        $output["PreparedFor"] = $prepared_for;
+        $output["PreparedBy"] = $prepared_by;
+    }
+    
+    
+    $output["ytdperformance"] = $ytd_performance;
+    $output["holdingspievalues"] = json_encode($new_pie);
+    $output["holdingspiearray"] = $new_pie;
+    $output["globaltotal"] = $global_total;
+    $output["unsettled_cash"] = $unsettled_cash;
+    $output["settled_total"] = $global_total+$unsettled_cash;
+    $output["date_options"] = $options;
+    $output["show_start_date"] = 1;
+    $output["show_end_date"] = 1;
+    $output["start_date"] = $start_date;
+    $output["end_date"] = $end_date;
+    $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
+    
+    if(!empty($output['ytd_individual_performance_summed'])){
+        foreach($output['ytd_individual_performance_summed'] as $account_number=>$v){
+            $output[$account_number]['EstimatedTotal'] = $output['ytd_individual_performance_summed'][$account_number]['estimated']->GetGrandTotal();
+        }
+    }
+    
+    $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
+    $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
+    $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
+    $output['ytd_appreciation_percent'] = $ytd_performance->GetIndividualCapitalAppreciationPercent();
+    $output['ytd_twr'] = $ytd_performance->GetIndividualTWR();
+    $output['ytd_performance_summed'] = $ytd_performance->GetPerformanceSummed();
+    $output['GetDividendAccrualAmount'] = $ytd_performance->GetDividendAccrualAmount();
+    $output['GetStartDate'] = $ytd_performance->GetStartDate();
+    $output['GetEndDate'] = $ytd_performance->GetEndDate();
+    $output['GetBeginningValuesSummed'] = $ytd_performance->GetBeginningValuesSummed();
+    $output['GetEndingValuesSummed'] = $ytd_performance->GetEndingValuesSummed();
+    $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
+    $output['GetIndexSP'] = $ytd_performance->GetIndex("S&P 500");
+    $output['GetIndexAGG'] = $ytd_performance->GetIndex("AGG");
+    $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
+    $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
+    $output['GetTWR'] = $ytd_performance->GetTWR();
+    $output['GetDVG'] = $ytd_performance->GetIndex("DVG");
+    $output['GetGSPC'] = $ytd_performance->GetIndex("GSPC");
+    $output['GetSP500BDT'] = $ytd_performance->GetIndex("SP500BDT");
+    $output['GetIDCOTCTR'] = $ytd_performance->GetIndex("IDCOTCTR");
+    $output['GetEstimatedTotal'] =	$ytd_performance->GetEstimatedIncome()->GetGrandTotal();
+    
+    $output['GetStartDateMDY'] = $ytd_performance->GetStartDateMDY();
+    $output['GetEndDateMDY'] = $ytd_performance->GetEndDateMDY();
+    
+    $current_user = Users_Record_Model::getCurrentUserModel();
+    $output['UserData'] =  $current_user->getData();
+    $output["PrepareDate"] = date("F d, Y");
+    $logo = $current_user->getImageDetails();
+    if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+        if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+            $logo = $logo['user_logo'][0];
+            $logo = $logo['path']."_".$logo['name'];
+        } else
+            $logo = 0;
+    } else
+        $logo = "";
         
-        if(!is_array($account_number))
-            $accounts = explode(",",$account_number);
-            else {
-                $accounts = $account_number;
-            }
-            $accounts = array_unique($accounts);
-            
-            $calling_record = $input_array['calling_record'];
-            
-            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
-            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
-            
-            $start_date = date("F Y", strtotime($start_date));
-            $end_date = date("F Y", strtotime($end_date));
-            
-            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-            
-            $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);
-            
-            if (sizeof($accounts) > 0) {
-                PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
-                $categories = array("estimatedtype");
-                $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
-                $totals = array("current_value", "weight");
-                $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
-                $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
-                $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
-                
-                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-                $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
-                $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
-                PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-                
-                global $adb;
-                $query = "SELECT @global_total as global_total";
-                $result = $adb->pquery($query, array());
-                if($adb->num_rows($result) > 0){
-                    $global_total = $adb->query_result($result, 0, 'global_total');
-                }
-            }
-            
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
-            
-            $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
-            
-            $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
-            $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
-            
-            $output = array();
-            
-            if(is_array($accounts)){
-                $portfolios = array();
-                foreach($accounts AS $k => $v) {
-                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                    if($crmid) {
-                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                        $portfolios[] = $p->getData();
-                    }
-                }
-                $output["portfolio_data"] = $portfolios;
-            }
-            
-            if($calling_record) {
-                $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
-                $prepared_by = PortfolioInformation_Module_Model::GetPreparedByFormattedByRecordID($calling_record);
-                $record = VTiger_Record_Model::getInstanceById($calling_record);
-                $data = $record->getData();
-                $module = $record->getModule();
-                if($module->getName() == "Accounts") {
-                    $policy = $data['cf_2525'];//Investment Policy Statement
-                    $output["Policy"] = $policy;
-                }
-                $output["PreparedFor"] = $prepared_for;
-                $output["PreparedBy"] = $prepared_by;
-            }
-            
-            
-            $output["ytdperformance"] = $ytd_performance;
-            $output["holdingspievalues"] = json_encode($new_pie);
-            $output["holdingspiearray"] = $new_pie;
-            $output["globaltotal"] = $global_total;
-            $output["unsettled_cash"] = $unsettled_cash;
-            $output["settled_total"] = $global_total+$unsettled_cash;
-            $output["date_options"] = $options;
-            $output["show_start_date"] = 1;
-            $output["show_end_date"] = 1;
-            $output["start_date"] = $start_date;
-            $output["end_date"] = $end_date;
-            $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
-            
-            if(!empty($output['ytd_individual_performance_summed'])){
-                foreach($output['ytd_individual_performance_summed'] as $account_number=>$v){
-                    $output[$account_number]['EstimatedTotal'] = $output['ytd_individual_performance_summed'][$account_number]['estimated']->GetGrandTotal();
-                }
-            }
-            
-            $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
-            $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
-            $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
-            $output['ytd_appreciation_percent'] = $ytd_performance->GetIndividualCapitalAppreciationPercent();
-            $output['ytd_twr'] = $ytd_performance->GetIndividualTWR();
-            $output['ytd_performance_summed'] = $ytd_performance->GetPerformanceSummed();
-            $output['GetDividendAccrualAmount'] = $ytd_performance->GetDividendAccrualAmount();
-            $output['GetStartDate'] = $ytd_performance->GetStartDate();
-            $output['GetEndDate'] = $ytd_performance->GetEndDate();
-            $output['GetBeginningValuesSummed'] = $ytd_performance->GetBeginningValuesSummed();
-            $output['GetEndingValuesSummed'] = $ytd_performance->GetEndingValuesSummed();
-            $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
-            $output['GetIndexSP'] = $ytd_performance->GetIndex("S&P 500");
-            $output['GetIndexAGG'] = $ytd_performance->GetIndex("AGG");
-            $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
-            $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
-            $output['GetTWR'] = $ytd_performance->GetTWR();
-            $output['GetDVG'] = $ytd_performance->GetIndex("DVG");
-            $output['GetGSPC'] = $ytd_performance->GetIndex("GSPC");
-            $output['GetSP500BDT'] = $ytd_performance->GetIndex("SP500BDT");
-            $output['GetIDCOTCTR'] = $ytd_performance->GetIndex("IDCOTCTR");
-            $output['GetEstimatedTotal'] =	$ytd_performance->GetEstimatedIncome()->GetGrandTotal();
-            
-            $output['GetStartDateMDY'] = $ytd_performance->GetStartDateMDY();
-            $output['GetEndDateMDY'] = $ytd_performance->GetEndDateMDY();
-            
-            $current_user = Users_Record_Model::getCurrentUserModel();
-            $output['UserData'] =  $current_user->getData();
-            $output["PrepareDate"] = date("F d, Y");
-            $logo = $current_user->getImageDetails();
-            if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-                if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                    $logo = $logo['user_logo'][0];
-                    $logo = $logo['path']."_".$logo['name'];
-                } else
-                    $logo = 0;
-            } else
-                $logo = "";
-                
-                if($logo == "_" || $logo == "")
-                    $logo = "test/logo/Omniscient Logo small.png";
-                    
-                    global $site_URL;
-                    $output["Logo"] = $site_URL.$logo;
-                    
-                    if(isset($input_array['selectedDate']))
-                        $output['selectedDate'] = $input_array['selectedDate'];
-                        
-                        return $output;
+    if($logo == "_" || $logo == "")
+        $logo = "test/logo/Omniscient Logo small.png";
+    
+    global $site_URL;
+    $output["Logo"] = $site_URL.$logo;
+    
+    if(isset($input_array['selectedDate']))
+        $output['selectedDate'] = $input_array['selectedDate'];
+        
+    return $output;
 }
 
 function LoadGH2Report($input_array){
@@ -2317,107 +2327,107 @@ function LoadGH2Report($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    require_once("libraries/Reporting/ReportCommonFunctions.php");
+    require_once("libraries/Reporting/ReportPerformance.php");
+    require_once("libraries/Reporting/ReportHistorical.php");
+    require_once("libraries/reports/new/holdings_report.php");
+    
+    if(!is_array($account_number))
+        $accounts = explode(",", $account_number);
+    else {
+        $accounts = $account_number;
+    }
+    $accounts = array_unique($accounts);
+    
+    if(isset($input_array['report_start_date'])) {
+        $start_date = $input_array['report_start_date'];
+    }
+    else {
+        $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2018", false)['start'];
+    }
+    
+    if(isset($input_array['report_end_date'])) {
+        $end_date = $input_array['report_end_date'];
+    }
+    else {
+        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2018", false)['end'];
+    }
+    
+    $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
+    $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
+    
+    $start_date = date("F Y", strtotime($start_date));
+    $end_date = date("F Y", strtotime($end_date));
+    
+    PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+    
+    $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);
+    
+    if (sizeof($accounts) > 0) {
+        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+        $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
+        $sector_pie = PortfolioInformation_Reports_Model::GetPositionSectorsPie();
         
-        require_once("libraries/Reporting/ReportCommonFunctions.php");
-        require_once("libraries/Reporting/ReportPerformance.php");
-        require_once("libraries/Reporting/ReportHistorical.php");
-        require_once("libraries/reports/new/holdings_report.php");
+        global $adb;
+        $query = "SELECT @global_total as global_total";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $global_total = $adb->query_result($result, 0, 'global_total');
+        }
+    };
+    
+    $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
+    $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
+    $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
+    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh2_report");
+    
+    $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
+    $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+    
+    $output["today"] = date("M d, Y");
+    $output["ytdperformance"] = $ytd_performance;
+    $output["holdingspievalues"] = json_encode($new_pie);
+    $output["holdingssectorpiestring"] = json_encode($sector_pie);
+    $output["holdingssectorpiearray"] = $sector_pie;
+    $output["holdingspiearray"] = $new_pie;
+    $output["positions"] = $positions;
+    $output["globaltotal"] = $global_total;
+    $output["unsettled_cash"] = $unsettled_cash;
+    $output["settled_total"] = $global_total+$unsettled_cash;
+    $output["date_options"] = $options;
+    $output["show_start_date"] = 1;
+    $output["show_end_date"] = 1;
+    $output["start_date"] = $start_date;
+    $output["end_date"] = $end_date;
+    $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
+    $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
+    $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
+    $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
+    $output['ytd_appreciation_percent'] = $ytd_performance->GetIndividualCapitalAppreciationPercent();
+    $output['ytd_twr'] = $ytd_performance->GetIndividualTWR();
+    $output['ytd_performance_summed'] = $ytd_performance->GetPerformanceSummed();
+    $output['dividendAmount'] = $ytd_performance->GetDividendAccrualAmount();
+    $output['GetStartDate'] = $ytd_performance->GetStartDate();
+    $output['GetEndDate'] = $ytd_performance->GetEndDate();
+    $output['GetBeginningValuesSummed'] = $ytd_performance->GetBeginningValuesSummed();
+    $output['GetEndingValuesSummed'] = $ytd_performance->GetEndingValuesSummed();
+    $output['GetCapitalAppreciation'] = $ytd_performance->GetCapitalAppreciation();
+    $output['GetTWR'] = $ytd_performance->GetTWR();
+    $output['GetIndexSP'] = $ytd_performance->GetIndex("S&P 500");
+    $output['GetIndexAGG'] = $ytd_performance->GetIndex("AGG");
+    $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
+    $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
+    $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
+    $output['GetGSPC'] =  $ytd_performance->GetIndex("GSPC");
+    $output['GetMSCIEAFE'] =  $ytd_performance->GetIndex("MSCIEAFE");
+    
+    if(isset($input_array['selectedDate']))
+        $output['selectedDate'] = $input_array['selectedDate'];
         
-        if(!is_array($account_number))
-            $accounts = explode(",", $account_number);
-            else {
-                $accounts = $account_number;
-            }
-            $accounts = array_unique($accounts);
-            
-            if(isset($input_array['report_start_date'])) {
-                $start_date = $input_array['report_start_date'];
-            }
-            else {
-                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2018", false)['start'];
-            }
-            
-            if(isset($input_array['report_end_date'])) {
-                $end_date = $input_array['report_end_date'];
-            }
-            else {
-                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2018", false)['end'];
-            }
-            
-            $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
-            $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
-            
-            $start_date = date("F Y", strtotime($start_date));
-            $end_date = date("F Y", strtotime($end_date));
-            
-            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
-            
-            $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);
-            
-            if (sizeof($accounts) > 0) {
-                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-                $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
-                $sector_pie = PortfolioInformation_Reports_Model::GetPositionSectorsPie();
-                
-                global $adb;
-                $query = "SELECT @global_total as global_total";
-                $result = $adb->pquery($query, array());
-                if($adb->num_rows($result) > 0){
-                    $global_total = $adb->query_result($result, 0, 'global_total');
-                }
-            };
-            
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
-            $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh2_report");
-            
-            $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
-            $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
-            
-            $output["today"] = date("M d, Y");
-            $output["ytdperformance"] = $ytd_performance;
-            $output["holdingspievalues"] = json_encode($new_pie);
-            $output["holdingssectorpiestring"] = json_encode($sector_pie);
-            $output["holdingssectorpiearray"] = $sector_pie;
-            $output["holdingspiearray"] = $new_pie;
-            $output["positions"] = $positions;
-            $output["globaltotal"] = $global_total;
-            $output["unsettled_cash"] = $unsettled_cash;
-            $output["settled_total"] = $global_total+$unsettled_cash;
-            $output["date_options"] = $options;
-            $output["show_start_date"] = 1;
-            $output["show_end_date"] = 1;
-            $output["start_date"] = $start_date;
-            $output["end_date"] = $end_date;
-            $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
-            $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
-            $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
-            $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
-            $output['ytd_appreciation_percent'] = $ytd_performance->GetIndividualCapitalAppreciationPercent();
-            $output['ytd_twr'] = $ytd_performance->GetIndividualTWR();
-            $output['ytd_performance_summed'] = $ytd_performance->GetPerformanceSummed();
-            $output['dividendAmount'] = $ytd_performance->GetDividendAccrualAmount();
-            $output['GetStartDate'] = $ytd_performance->GetStartDate();
-            $output['GetEndDate'] = $ytd_performance->GetEndDate();
-            $output['GetBeginningValuesSummed'] = $ytd_performance->GetBeginningValuesSummed();
-            $output['GetEndingValuesSummed'] = $ytd_performance->GetEndingValuesSummed();
-            $output['GetCapitalAppreciation'] = $ytd_performance->GetCapitalAppreciation();
-            $output['GetTWR'] = $ytd_performance->GetTWR();
-            $output['GetIndexSP'] = $ytd_performance->GetIndex("S&P 500");
-            $output['GetIndexAGG'] = $ytd_performance->GetIndex("AGG");
-            $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
-            $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
-            $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
-            $output['GetGSPC'] =  $ytd_performance->GetIndex("GSPC");
-            $output['GetMSCIEAFE'] =  $ytd_performance->GetIndex("MSCIEAFE");
-            
-            if(isset($input_array['selectedDate']))
-                $output['selectedDate'] = $input_array['selectedDate'];
-                
-                return $output;
+    return $output;
 }
 
 function getDocumentFolderWithParentList($elementId,$folderId,$index,$emptyFolder ) {
@@ -2586,117 +2596,117 @@ function LoadMonthOverMonth($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    $overviewReportParams = array();
+    
+    $overviewReportParams['account_number'] = $account_number;
+    $overviewReportParams['module'] = "PortfolioInformation";
+    $overviewReportParams['calling_record'] = $input_array['ID'];
+    
+    $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
+    
+    $calling_record = $request->get('calling_record');
+    
+    if($request->get('calling_record')) {
+        $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
+        $prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
+        $calling_instance = Vtiger_Record_Model::getInstanceById($request->get('calling_record'));
+        $advisor_instance = Users_Record_Model::getInstanceById($calling_instance->get('assigned_user_id'), "Users");
+        $assigned_to = getGroupName($calling_instance->get('assigned_user_id'));
+        if(sizeof($assigned_to) == 0)
+            $assigned_to = GetUserFirstLastNameByID($calling_instance->get('assigned_user_id'), true);
+    }
+    
+    if(is_array($assigned_to))
+        $assigned_to = $assigned_to[0];
         
-        $overviewReportParams = array();
-        
-        $overviewReportParams['account_number'] = $account_number;
-        $overviewReportParams['module'] = "PortfolioInformation";
-        $overviewReportParams['calling_record'] = $input_array['ID'];
-        
-        $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
-        
-        $calling_record = $request->get('calling_record');
-        
-        if($request->get('calling_record')) {
-            $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
-            $prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
-            $calling_instance = Vtiger_Record_Model::getInstanceById($request->get('calling_record'));
-            $advisor_instance = Users_Record_Model::getInstanceById($calling_instance->get('assigned_user_id'), "Users");
-            $assigned_to = getGroupName($calling_instance->get('assigned_user_id'));
-            if(sizeof($assigned_to) == 0)
-                $assigned_to = GetUserFirstLastNameByID($calling_instance->get('assigned_user_id'), true);
-        }
-        
-        if(is_array($assigned_to))
-            $assigned_to = $assigned_to[0];
-            
-            $moduleName = $request->getModule();
-            $account_number = $request->get("account_number");
-            
-            $total_weight = 0;
-            if(!is_array($account_number))
-                $accounts = explode(",", $request->get("account_number"));
-                else {
-                    $accounts = $account_number;
-                }
-                $accounts = array_unique($accounts);
-                if (sizeof($accounts) > 0) {
-                    $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
-                    $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
-                    $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
-                };
-                
-                $contact_instance = null;
-                if(is_array($accounts)){
-                    $portfolios = array();
-                    $unsettled_cash = 0;
-                    foreach($accounts AS $k => $v) {
-                        $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                        if($crmid) {
-                            $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                            $contact_id = $p->get('contact_link');
-                            if ($contact_id)
-                                $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                                
-                                $portfolios[] = $p->getData();
-                                $unsettled_cash += $p->get('unsettled_cash');
-                                if (!$advisor_instance) {
-                                    echo "NO INSTANCE!";
-                                    $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                                }
-                        }
+    $moduleName = $request->getModule();
+    $account_number = $request->get("account_number");
+    
+    $total_weight = 0;
+    if(!is_array($account_number))
+        $accounts = explode(",", $request->get("account_number"));
+    else {
+        $accounts = $account_number;
+    }
+    $accounts = array_unique($accounts);
+    if (sizeof($accounts) > 0) {
+        $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
+        $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
+        $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
+    };
+    
+    $contact_instance = null;
+    if(is_array($accounts)){
+        $portfolios = array();
+        $unsettled_cash = 0;
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $contact_id = $p->get('contact_link');
+                if ($contact_id)
+                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                    
+                    $portfolios[] = $p->getData();
+                    $unsettled_cash += $p->get('unsettled_cash');
+                    if (!$advisor_instance) {
+                        echo "NO INSTANCE!";
+                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
                     }
-                }
-                
-                if($contact_instance) {//If there is a contact instance to do anything with
-                    if(!$advisor_instance)
-                        $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                        
-                        $household_instance = null;
-                        if (reset($contact_instance)->get('account_id'))
-                            $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-                }
-                
-                $current_user = Users_Record_Model::getCurrentUserModel();
-                $data = $advisor_instance->getData();
-                $has_advisor = 0;
-                
-                if(strlen($data['user_name']) > 0)
-                    $has_advisor = 1;
-                    
-                    $toc = array();
-                    $output = array();
-                    $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-                    $toc[] = array("title" => "#2", "name" => "Month Over Month");
-                    
-                    $output["DATE"] = date("F d, Y");
-                    $output["ASSIGNED_TO"] = $assigned_to;
-                    $output["HAS_ADVISOR"] = $has_advisor;
-                    $output["CONTACTS"] = $contact_instance;
-                    $output["REPORT_TYPE"] = "Client Statement";
-                    $output["CURRENT_USER"] = $current_user;
-                    $output["ADVISOR"] = $advisor_instance;
-                    $output["HOUSEHOLD"] = $household_instance;
-                    $output["USER_DATA"] = $current_user->getData();
-                    $output["NUM_ACCOUNTS_USED"] = sizeof($accounts);
-                    $output["PORTFOLIO_DATA"] = $portfolios;
-                    $output["UNSETTLED_CASH"] = $unsettled_cash;
-                    $output["TOTAL_WEIGHT"] = $total_weight;
-                    $output["CALLING_RECORD"] = $request->get('calling_record');
-                    $output["TOC"] = $toc;
-                    $output["ACCOUNT_NUMBER"] = json_encode($accounts);
-                    $output["MOM_TABLE"] = $mom_table;
-                    $output["DOW_PRICES"] = $dow_prices;
-                    $output["YEARS"] = $years;
-                    $output["PREPARED_FOR"] = $prepared_for;
-                    $output["PREPARED_BY"] = $prepared_by;
-                    $output["MODULE"] = "PortfolioInformation";
-                    
-                    $output["RANDOM"] = rand(1,100000);
-                    
-                    return $output;
+            }
+        }
+    }
+    
+    if($contact_instance) {//If there is a contact instance to do anything with
+        if(!$advisor_instance)
+            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
+            
+            $household_instance = null;
+            if (reset($contact_instance)->get('account_id'))
+                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+    }
+    
+    $current_user = Users_Record_Model::getCurrentUserModel();
+    $data = $advisor_instance->getData();
+    $has_advisor = 0;
+    
+    if(strlen($data['user_name']) > 0)
+        $has_advisor = 1;
+        
+    $toc = array();
+    $output = array();
+    $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+    $toc[] = array("title" => "#2", "name" => "Month Over Month");
+    
+    $output["DATE"] = date("F d, Y");
+    $output["ASSIGNED_TO"] = $assigned_to;
+    $output["HAS_ADVISOR"] = $has_advisor;
+    $output["CONTACTS"] = $contact_instance;
+    $output["REPORT_TYPE"] = "Client Statement";
+    $output["CURRENT_USER"] = $current_user;
+    $output["ADVISOR"] = $advisor_instance;
+    $output["HOUSEHOLD"] = $household_instance;
+    $output["USER_DATA"] = $current_user->getData();
+    $output["NUM_ACCOUNTS_USED"] = sizeof($accounts);
+    $output["PORTFOLIO_DATA"] = $portfolios;
+    $output["UNSETTLED_CASH"] = $unsettled_cash;
+    $output["TOTAL_WEIGHT"] = $total_weight;
+    $output["CALLING_RECORD"] = $request->get('calling_record');
+    $output["TOC"] = $toc;
+    $output["ACCOUNT_NUMBER"] = json_encode($accounts);
+    $output["MOM_TABLE"] = $mom_table;
+    $output["DOW_PRICES"] = $dow_prices;
+    $output["YEARS"] = $years;
+    $output["PREPARED_FOR"] = $prepared_for;
+    $output["PREPARED_BY"] = $prepared_by;
+    $output["MODULE"] = "PortfolioInformation";
+    
+    $output["RANDOM"] = rand(1,100000);
+    
+    return $output;
 }
 
 function LoadOmniIncome($input_array){
@@ -2709,47 +2719,47 @@ function LoadOmniIncome($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    
+    $overviewReportParams = array();
+    
+    $overviewReportParams['account_number'] = $account_number;
+    $overviewReportParams['calling_module'] = "PortfolioInformation";
+    $overviewReportParams['calling_record'] = $input_array['ID'];
+    
+    $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
+    
+    $calling_module = $request->get('calling_module');
+    $calling_record = $request->get('calling_record');
+    $output = array();
+    if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
+        
+        $accounts = array_unique($account_number);
+        
+        $income = new Income_Model($accounts);
+        $individual = $income->GetIndividualIncomeForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        $monthly = $income->GetMonthlyTotalForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        $graph = $income->GenerateGraphForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        $combined = $income->GetCombinedSymbolsForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        $grand_total = $income->CalculateGrandTotal(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
+        
+        $start_month = date("F, Y", strtotime(GetFirstDayThisMonthLastYear()));
+        $end_month = date("F, Y", strtotime(GetLastDayLastMonth()));
+        
+        $output["START_MONTH"] = $start_month;
+        $output["END_MONTH"] = $end_month;
+        $output["MONTHLY_TOTALS"] = $monthly;
+        $output["COMBINED_SYMBOLS"] = $combined;
+        $output["YEAR_END_TOTALS"] = $year_end_totals;
+        $output["GRAND_TOTAL"] = $grand_total;
+        $output["DYNAMIC_GRAPH"] = json_encode($graph);
         
         
-        $overviewReportParams = array();
-        
-        $overviewReportParams['account_number'] = $account_number;
-        $overviewReportParams['calling_module'] = "PortfolioInformation";
-        $overviewReportParams['calling_record'] = $input_array['ID'];
-        
-        $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
-        
-        $calling_module = $request->get('calling_module');
-        $calling_record = $request->get('calling_record');
-        $output = array();
-        if(strlen($request->get("account_number") > 0) || strlen($calling_module) >= 0){
-            
-            $accounts = array_unique($account_number);
-            
-            $income = new Income_Model($accounts);
-            $individual = $income->GetIndividualIncomeForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            $monthly = $income->GetMonthlyTotalForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            $graph = $income->GenerateGraphForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            $combined = $income->GetCombinedSymbolsForDates(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            $grand_total = $income->CalculateGrandTotal(GetFirstDayThisMonthLastYear(), GetLastDayLastMonth());
-            
-            $start_month = date("F, Y", strtotime(GetFirstDayThisMonthLastYear()));
-            $end_month = date("F, Y", strtotime(GetLastDayLastMonth()));
-            
-            $output["START_MONTH"] = $start_month;
-            $output["END_MONTH"] = $end_month;
-            $output["MONTHLY_TOTALS"] = $monthly;
-            $output["COMBINED_SYMBOLS"] = $combined;
-            $output["YEAR_END_TOTALS"] = $year_end_totals;
-            $output["GRAND_TOTAL"] = $grand_total;
-            $output["DYNAMIC_GRAPH"] = json_encode($graph);
-            
-            
-        }
-        return $output;
+    }
+    return $output;
 }
 
 function LoadAssetClassReport($input_array){
@@ -2760,163 +2770,163 @@ function LoadAssetClassReport($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    $overviewReportParams = array();
+    
+    $overviewReportParams['account_number'] = $account_number;
+    $overviewReportParams['calling_module'] = "PortfolioInformation";
+    $overviewReportParams['calling_record'] = $input_array['ID'];
+    $overviewReportParams['report_end_date'] = $input_array['report_end_date'];
+    
+    $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
+    
+    $calling_record = $request->get('calling_record');
+    if($request->get('calling_record')) {
+        $calling_instance = Vtiger_Record_Model::getInstanceById($request->get('calling_record'));
+        $advisor_instance = Users_Record_Model::getInstanceById($calling_instance->get('assigned_user_id'), "Users");
+        $assigned_to = getGroupName($calling_instance->get('assigned_user_id'));
+        if(sizeof($assigned_to) == 0)
+            $assigned_to = GetUserFirstLastNameByID($calling_instance->get('assigned_user_id'), true);
+    }
+    
+    if(is_array($assigned_to))
+        $assigned_to = $assigned_to[0];
         
-        $overviewReportParams = array();
+    $account_number = $request->get("account_number");
+    
+    $total_weight = 0;
+    if(!is_array($account_number))
+        $accounts = explode(",", $request->get("account_number"));
+    else {
+        $accounts = $account_number;
+    }
+    $accounts = array_unique($accounts);
+    
+    if(strlen($request->get('report_end_date')) > 1) {
+        $end_date = $request->get("report_end_date");
+    }
+    else {
+        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
+    }
+    
+    $tmp_end_date = date("Y-m-d", strtotime($end_date));
+    if (sizeof($accounts) > 0) {
+        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+        $categories = array("aclass");
+        $fields = array("symbol", "security_type", "account_number",  "description", "quantity", "price", "market_value");//, "cusip", "weight", "current_value");
+        $totals = array("market_value");
+        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
+        $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
+        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
         
-        $overviewReportParams['account_number'] = $account_number;
-        $overviewReportParams['calling_module'] = "PortfolioInformation";
-        $overviewReportParams['calling_record'] = $input_array['ID'];
-        $overviewReportParams['report_end_date'] = $input_array['report_end_date'];
+        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
+        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
         
-        $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
-        
-        $calling_record = $request->get('calling_record');
-        if($request->get('calling_record')) {
-            $calling_instance = Vtiger_Record_Model::getInstanceById($request->get('calling_record'));
-            $advisor_instance = Users_Record_Model::getInstanceById($calling_instance->get('assigned_user_id'), "Users");
-            $assigned_to = getGroupName($calling_instance->get('assigned_user_id'));
-            if(sizeof($assigned_to) == 0)
-                $assigned_to = GetUserFirstLastNameByID($calling_instance->get('assigned_user_id'), true);
+        global $adb;
+        $query = "SELECT @global_total as global_total";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0) {
+            $global_total = $adb->query_result($result, 0, 'global_total');
         }
+        /*
+         PortfolioInformation_HoldingsReport_Model::GenerateAssetClassTables($accounts);
+         $categories = array("aclass");
+         $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+         $totals = array("current_value", "weight");
+         $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
+         $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable();
+         $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
+         #            print_r($estimateTable['table_categories']);
+         #            echo "<br /><br />";
+         $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
+         PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
+         
+         global $adb;
+         $query = "SELECT @global_total as global_total";
+         $result = $adb->pquery($query, array());
+         if($adb->num_rows($result) > 0){
+         $global_total = $adb->query_result($result, 0, 'global_total');
+         }*/
+    };
+    
+    $contact_instance = null;
+    $custodian = null;
+    if(is_array($accounts)){
+        $portfolios = array();
+        $unsettled_cash = 0;
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $contact_id = $p->get('contact_link');
+                if ($contact_id)
+                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                    
+                    $portfolios[] = $p->getData();
+                    $unsettled_cash += $p->get('unsettled_cash');
+                    if (!$advisor_instance) {
+                        echo "NO INSTANCE!";
+                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
+                    }
+            }
+            
+            $custodian = $p->get('origination');
+        }
+    }
+    
+    if($contact_instance) {//If there is a contact instance to do anything with
+        if(!$advisor_instance)
+            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
+            
+            $household_instance = null;
+            if (reset($contact_instance)->get('account_id'))
+                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+    }
+    
+    $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
+    $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
+    
+    $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
+    
+    $colors = PortfolioInformation_Module_Model::GetAllChartColors();
+    $current_user = Users_Record_Model::getCurrentUserModel();
+    $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
+    $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
+    
+    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
+    
+    $data = $advisor_instance->getData();
+    $has_advisor = 0;
+    if(strlen($data['user_name']) > 0)
+        $has_advisor = 1;
         
-        if(is_array($assigned_to))
-            $assigned_to = $assigned_to[0];
-            
-            $account_number = $request->get("account_number");
-            
-            $total_weight = 0;
-            if(!is_array($account_number))
-                $accounts = explode(",", $request->get("account_number"));
-                else {
-                    $accounts = $account_number;
-                }
-                $accounts = array_unique($accounts);
-                
-                if(strlen($request->get('report_end_date')) > 1) {
-                    $end_date = $request->get("report_end_date");
-                }
-                else {
-                    $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
-                }
-                
-                $tmp_end_date = date("Y-m-d", strtotime($end_date));
-                if (sizeof($accounts) > 0) {
-                    PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-                    $categories = array("aclass");
-                    $fields = array("symbol", "security_type", "account_number", "cusip", "description", "quantity", "price", "market_value");//, "weight", "current_value");
-                    $totals = array("market_value");
-                    $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
-                    $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
-                    $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
-                    
-                    $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
-                    PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-                    
-                    global $adb;
-                    $query = "SELECT @global_total as global_total";
-                    $result = $adb->pquery($query, array());
-                    if($adb->num_rows($result) > 0) {
-                        $global_total = $adb->query_result($result, 0, 'global_total');
-                    }
-                    /*
-                     PortfolioInformation_HoldingsReport_Model::GenerateAssetClassTables($accounts);
-                     $categories = array("aclass");
-                     $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
-                     $totals = array("current_value", "weight");
-                     $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
-                     $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable();
-                     $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
-                     #            print_r($estimateTable['table_categories']);
-                     #            echo "<br /><br />";
-                     $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
-                     PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-                     
-                     global $adb;
-                     $query = "SELECT @global_total as global_total";
-                     $result = $adb->pquery($query, array());
-                     if($adb->num_rows($result) > 0){
-                     $global_total = $adb->query_result($result, 0, 'global_total');
-                     }*/
-                };
-                
-                $contact_instance = null;
-                $custodian = null;
-                if(is_array($accounts)){
-                    $portfolios = array();
-                    $unsettled_cash = 0;
-                    foreach($accounts AS $k => $v) {
-                        $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                        if($crmid) {
-                            $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                            $contact_id = $p->get('contact_link');
-                            if ($contact_id)
-                                $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                                
-                                $portfolios[] = $p->getData();
-                                $unsettled_cash += $p->get('unsettled_cash');
-                                if (!$advisor_instance) {
-                                    echo "NO INSTANCE!";
-                                    $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                                }
-                        }
-                        
-                        $custodian = $p->get('origination');
-                    }
-                }
-                
-                if($contact_instance) {//If there is a contact instance to do anything with
-                    if(!$advisor_instance)
-                        $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                        
-                        $household_instance = null;
-                        if (reset($contact_instance)->get('account_id'))
-                            $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-                }
-                
-                $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
-                $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
-                
-                $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
-                
-                $colors = PortfolioInformation_Module_Model::GetAllChartColors();
-                $current_user = Users_Record_Model::getCurrentUserModel();
-                $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
-                $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
-                
-                $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
-                
-                $data = $advisor_instance->getData();
-                $has_advisor = 0;
-                if(strlen($data['user_name']) > 0)
-                    $has_advisor = 1;
-                    
-                    $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
-                    $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
-                    $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
-                    
-                    $toc = array();
-                    $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-                    $toc[] = array("title" => "#2", "name" => "Asset Allocation");
-                    
-                    $output["UNSETTLED_CASH"] = $unsettled_cash;
-                    $output["MARGIN_BALANCE"] = $margin_balance;
-                    $output["NET_CREDIT_DEBIT"] = $net_credit_debit;
-                    
-                    $output["DATE"] = date("F d, Y");
-                    $output["DATE_OPTIONS"] = $options;
-                    $output["SHOW_END_DATE"] = 1;;
-                    $output["END_DATE"] = $end_date;
-                    $output["CATEGORY_TOTALS"] = $category_totals;
-                    $output["ESTIMATE_TABLE"] = $estimateTable;
-                    $output["DYNAMIC_PIE"] = json_encode($estimatePie);
-                    $output["GLOBAL_TOTAL"] = array("global_total" => $global_total);
-                    $output["TRAILING_AUM"] = json_encode($trailing_aum);
-                    $output["TRAILING_REVENUE"] = json_encode($trailing_revenue);
-                    $output["RANDOM"] = rand(1,100000);
-                    
-                    return $output;
+    $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
+    $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
+    $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
+    
+    $toc = array();
+    $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+    $toc[] = array("title" => "#2", "name" => "Asset Allocation");
+    
+    $output["UNSETTLED_CASH"] = $unsettled_cash;
+    $output["MARGIN_BALANCE"] = $margin_balance;
+    $output["NET_CREDIT_DEBIT"] = $net_credit_debit;
+    
+    $output["DATE"] = date("F d, Y");
+    $output["DATE_OPTIONS"] = $options;
+    $output["SHOW_END_DATE"] = 1;;
+    $output["END_DATE"] = $end_date;
+    $output["CATEGORY_TOTALS"] = $category_totals;
+    $output["ESTIMATE_TABLE"] = $estimateTable;
+    $output["DYNAMIC_PIE"] = json_encode($estimatePie);
+    $output["GLOBAL_TOTAL"] = array("global_total" => $global_total);
+    $output["TRAILING_AUM"] = json_encode($trailing_aum);
+    $output["TRAILING_REVENUE"] = json_encode($trailing_revenue);
+    $output["RANDOM"] = rand(1,100000);
+    
+    return $output;
 }
 function LoadGainLoss($input_array){
     
@@ -2928,48 +2938,49 @@ function LoadGainLoss($input_array){
     if($input_array['show_reports'] == 'Accounts')
         $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
         
-        $account_number = array_merge($account,$accountIdNo);
-        $account_number = array_unique($account_number);
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    $overviewReportParams['account_number'] = $account_number;
+    $overviewReportParams['calling_module'] = "PortfolioInformation";
+    $overviewReportParams['calling_record'] = $input_array['ID'];
+    
+    $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
+    
+    $calling_module = $request->get('calling_module');
+    $calling_record = $request->get('calling_record');
+    $output = array();
+    
+    if(strlen($request->get("account_number") > 0)){
         
-        $overviewReportParams['account_number'] = $account_number;
-        $overviewReportParams['calling_module'] = "PortfolioInformation";
-        $overviewReportParams['calling_record'] = $input_array['ID'];
+        $accounts = $request->get("account_number");
+        $accounts = array_unique($accounts);
         
-        $request = new Vtiger_Request($overviewReportParams, $overviewReportParams);
-        
-        $calling_module = $request->get('calling_module');
-        $calling_record = $request->get('calling_record');
-        $output = array();
-        
-        if(strlen($request->get("account_number") > 0)){
-            
-            $accounts = $request->get("account_number");
-            $accounts = array_unique($accounts);
-            
-            foreach($accounts AS $k => $v){
-                PortfolioInformation_Module_Model::AutoGenerateTransactionsForGainLossReport($v);
-            }
-            PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);
-            
-            $categories = array("security_symbol");
-            $fields = array('description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held');//, 'system_generated');//, "weight", "current_value");
-            $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
-            $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
-            $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);
-            
-            $comparison_table['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("COMPARISON", $totals);
-            
-            $add_on_fields = array("description", "ugl", "ugl_percent");
-            $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("COMPARISON", $categories, $totals, $add_on_fields);
-            
-            PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $comparison_table, $category_totals);
-            
-            $output["COMPARISON_TABLE"] = $comparison_table;
-            $output["ACCOUNT_NUMBER"] = $request->get("account_number");
-            $output["CALLING_RECORD"] = $calling_record;
-            
+        foreach($accounts AS $k => $v){
+            PortfolioInformation_Module_Model::AutoGenerateTransactionsForGainLossReport($v);
         }
-        return $output;
+        PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);
+        
+        $categories = array("security_symbol");
+        //$fields = array('description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held');//, 'system_generated');//, "weight", "current_value");
+        $fields = array('account_number', 'description', 'trade_date', 'security_price', 'transaction_activity', 'quantity', 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
+        $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
+        $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
+        $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);
+        
+        $comparison_table['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("COMPARISON", $totals);
+        
+        $add_on_fields = array("description", "ugl", "ugl_percent");
+        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("COMPARISON", $categories, $totals, $add_on_fields);
+        
+        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $comparison_table, $category_totals);
+        
+        $output["COMPARISON_TABLE"] = $comparison_table;
+        $output["ACCOUNT_NUMBER"] = $request->get("account_number");
+        $output["CALLING_RECORD"] = $calling_record;
+        
+    }
+    return $output;
 }
 
 function LoadOmniIntervals($account_number){
@@ -3025,4 +3036,180 @@ function LoadOmniIntervalsDaily($account_number){
     
     return $output;
     
+}
+
+function LoadGHReportActual($input_array){
+    
+    $account = getContactAccessibleAccounts($input_array['ID']);
+    $accountIdNo = array();
+    if($input_array['show_reports'] == 'Accounts')
+        $accountIdNo = getContactAccessibleAccounts($input_array['accountid']);
+        
+    $account_number = array_merge($account,$accountIdNo);
+    $account_number = array_unique($account_number);
+    
+    require_once("libraries/Reporting/ReportCommonFunctions.php");
+    require_once("libraries/Reporting/ReportPerformance.php");
+    require_once("libraries/Reporting/ReportHistorical.php");
+    require_once("libraries/reports/new/holdings_report.php");
+    
+    if(isset($input_array['report_start_date'])) {
+        $start_date = $input_array['report_start_date'];
+    } else {
+        $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['start'];
+    }
+    
+    if(isset($input_array['report_end_date'])){
+        $end_date = $input_array['report_end_date'];
+    } else {
+        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2017", false)['end'];
+    }
+    
+    if(!is_array($account_number))
+        $accounts = explode(",",$account_number);
+    else {
+        $accounts = $account_number;
+    }
+    $accounts = array_unique($accounts);
+    
+    $calling_record = $input_array['calling_record'];
+    
+    $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
+    $tmp_end_date = date("Y-m-d", strtotime("last day of " . $end_date));
+    
+    $start_date = date("F Y", strtotime($start_date));
+    $end_date = date("F Y", strtotime($end_date));
+    
+    PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+    
+    $ytd_performance = new Performance_Model($accounts, $tmp_start_date, $tmp_end_date);
+    
+    if (sizeof($accounts) > 0) {
+        PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
+        $categories = array("estimatedtype");
+        $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+        $totals = array("current_value", "weight");
+        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
+        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
+        $holdings_pie = PortfolioInformation_Reports_Model::GetPieFromTable();
+        
+        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+        $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
+        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("Estimator", $categories, $totals);
+        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
+        
+        global $adb;
+        $query = "SELECT @global_total as global_total";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $global_total = $adb->query_result($result, 0, 'global_total');
+        }
+    }
+    
+    $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $tmp_end_date);
+    $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $tmp_end_date);
+    $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $tmp_end_date);
+    
+    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
+    
+    $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
+    $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+    
+    $output = array();
+    
+    if(is_array($accounts)){
+        $portfolios = array();
+        foreach($accounts AS $k => $v) {
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+            if($crmid) {
+                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                $portfolios[] = $p->getData();
+            }
+        }
+        $output["portfolio_data"] = $portfolios;
+    }
+    
+    if($calling_record) {
+        $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
+        $prepared_by = PortfolioInformation_Module_Model::GetPreparedByFormattedByRecordID($calling_record);
+        $record = VTiger_Record_Model::getInstanceById($calling_record);
+        $data = $record->getData();
+        $module = $record->getModule();
+        if($module->getName() == "Accounts") {
+            $policy = $data['cf_2525'];//Investment Policy Statement
+            $output["Policy"] = $policy;
+        }
+        $output["PreparedFor"] = $prepared_for;
+        $output["PreparedBy"] = $prepared_by;
+    }
+    
+    
+    $output["ytdperformance"] = $ytd_performance;
+    $output["holdingspievalues"] = json_encode($new_pie);
+    $output["holdingspiearray"] = $new_pie;
+    $output["globaltotal"] = $global_total;
+    $output["unsettled_cash"] = $unsettled_cash;
+    $output["settled_total"] = $global_total+$unsettled_cash;
+    $output["date_options"] = $options;
+    $output["show_start_date"] = 1;
+    $output["show_end_date"] = 1;
+    $output["start_date"] = $start_date;
+    $output["end_date"] = $end_date;
+    $output['ytd_individual_performance_summed'] = $ytd_performance->GetIndividualSummedBalance();
+    
+    if(!empty($output['ytd_individual_performance_summed'])){
+        foreach($output['ytd_individual_performance_summed'] as $account_number=>$v){
+            $output[$account_number]['EstimatedTotal'] = $output['ytd_individual_performance_summed'][$account_number]['income_div_interest']->amount;
+        }
+    }
+    
+    $output['ytd_begin_values'] = $ytd_performance->GetIndividualBeginValues();
+    $output['ytd_end_values'] = $ytd_performance->GetIndividualEndValues();
+    $output['ytd_appreciation'] = $ytd_performance->GetIndividualCapitalAppreciation();
+    $output['ytd_appreciation_percent'] = $ytd_performance->GetIndividualCapitalAppreciationPercent();
+    $output['ytd_twr'] = $ytd_performance->GetIndividualTWR();
+    $output['ytd_performance_summed'] = $ytd_performance->GetPerformanceSummed();
+    $output['GetDividendAccrualAmount'] = $ytd_performance->GetDividendAccrualAmount();
+    $output['GetStartDate'] = $ytd_performance->GetStartDate();
+    $output['GetEndDate'] = $ytd_performance->GetEndDate();
+    $output['GetBeginningValuesSummed'] = $ytd_performance->GetBeginningValuesSummed();
+    $output['GetEndingValuesSummed'] = $ytd_performance->GetEndingValuesSummed();
+    $output['GetBenchmark'] = $ytd_performance->GetBenchmark();
+    $output['GetIndexSP'] = $ytd_performance->GetIndex("S&P 500");
+    $output['GetIndexAGG'] = $ytd_performance->GetIndex("AGG");
+    $output['GetIndexEEM'] = $ytd_performance->GetIndex("EEM");
+    $output['GetIndexMSCI_EAFE'] = $ytd_performance->GetIndex("MSCI_EAFE");
+    $output['GetTWR'] = $ytd_performance->GetTWR();
+    $output['GetDVG'] = $ytd_performance->GetIndex("DVG");
+    $output['GetGSPC'] = $ytd_performance->GetIndex("GSPC");
+    $output['GetSP500BDT'] = $ytd_performance->GetIndex("SP500BDT");
+    $output['GetIDCOTCTR'] = $ytd_performance->GetIndex("IDCOTCTR");
+    $output['GetEstimatedTotal'] = $output['ytd_performance_summed']['income_div_interest']->amount;
+    
+    $output['GetStartDateMDY'] = $ytd_performance->GetStartDateMDY();
+    $output['GetEndDateMDY'] = $ytd_performance->GetEndDateMDY();
+    
+    $current_user = Users_Record_Model::getCurrentUserModel();
+    $output['UserData'] =  $current_user->getData();
+    $output["PrepareDate"] = date("F d, Y");
+    $logo = $current_user->getImageDetails();
+    if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
+        if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
+            $logo = $logo['user_logo'][0];
+            $logo = $logo['path']."_".$logo['name'];
+        } else
+            $logo = 0;
+    } else
+        $logo = "";
+        
+    if($logo == "_" || $logo == "")
+        $logo = "test/logo/Omniscient Logo small.png";
+        
+    global $site_URL;
+    $output["Logo"] = $site_URL.$logo;
+        
+    if(isset($input_array['selectedDate']))
+        $output['selectedDate'] = $input_array['selectedDate'];
+        
+    return $output;
 }

@@ -53,9 +53,10 @@
     										<?php foreach($DYNAHEADINGS as $a=>$heading){
     											if($a != 'heading'){?>
     												<td style="<?php echo isset($DYNARULES[$a]['cat_td_style'])?$DYNARULES[$a]['cat_td_style']:'';?>">
-    													<?php if($CatArray['totals'][$a] != ''){
+    													<?php 
+    													if($CatArray['totals'][$a] != ''){
     														if(is_numeric($CatArray['totals'][$a])){?>
-    															<span style="<?php echo str_replace("bold", "600", $DYNARULES[$a]['cat_span_style']);?>"><?php echo $DYNARULES[$a]['cat_prefix'].number_format($CatArray['totals'][$a].$DYNARULES[$a]['cat_suffix'],2);?></span>
+    															<span style="<?php echo str_replace("bold", "600", $DYNARULES[$a]['cat_span_style']);?>"><?php echo $DYNARULES[$a]['cat_prefix'].number_format($CatArray['totals'][$a].$DYNARULES[$a]['cat_suffix'],2);if($a == 'ugl_percent'){echo"%";}?></span>
     														<?php }else{?>
     														<span style="<?php echo str_replace("bold", "600", $DYNARULES[$a]['cat_span_style']);?>"><?php echo $DYNARULES[$a]['cat_prefix'].$CatArray['totals'][$a].$DYNARULES[$a]['cat_suffix'];?></span>
     													<?php }}?>
@@ -80,11 +81,12 @@
     															$DYNARULES[$k]['value_as_data']=$v;}?>>
     														<?php 
     															$value = $v.$DYNARULES[$k]['suffix'];
-    															if($k != 'description' && $k != 'trade_date' && $k != 'days_held' && $k != 'system_generated' && $k != 'account_number'){
+    															if($k != 'description' && $k != 'trade_date' && $k != 'days_held' && $k != 'system_generated' && $k != 'account_number' && $k != 'transaction_activity'){
     																$value = number_format($v.$DYNARULES[$k]['suffix'],2);
+    																if($k == 'ugl_percent'){$value .= "%";}
     															}
     														?>																
-    														<span style="<?php echo str_replace("bold", "600",  $DYNARULES[$k]['value_span_style']);?>"><?php echo $DYNARULES[$k]['prefix'].$value;?></span>
+    														<span style="<?php echo str_replace("bold", "600",  $DYNARULES[$k]['value_span_style']);?>"><?php echo $DYNARULES[$k]['prefix'].$value; ?></span>
     													</td>
     											   <?php }
     												$COUNTER = $COUNTER+1;?>

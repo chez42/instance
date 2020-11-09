@@ -22,23 +22,26 @@ trait tPositions{
         if(!empty($tmp_accounts)){
             $questions = generateQuestionMarks($tmp_accounts);
             $params[] = $tmp_accounts;
-            $query = "SELECT account_number, security_symbol FROM vtiger_positioninformation WHERE account_number IN ({$questions})";
+            $query = "SELECT account_number, TRIM(security_symbol) AS security_symbol FROM vtiger_positioninformation WHERE account_number IN ({$questions})";
             $result = $adb->pquery($query, $params);
             if($adb->num_rows($result) > 0){
                 while ($r = $adb->fetchByAssoc($result)) {//When pulling our symbols, make them compatible with what the custodian table has
                     if(array_key_exists($r['security_symbol'], $this->symbol_replacements))//If we have TDCASH for example, match it to 'Cash' on the custodian
-                        $existing_positions[$r['account_number']][] = $this->symbol_replacements[$r['security_symbol']];
+                        $existing_positions[trim($r['account_number'])][] = $this->symbol_replacements[$r['security_symbol']];
                     else
-                        $existing_positions[$r['account_number']][] = $r['security_symbol'];
+                        $existing_positions[trim($r['account_number'])][] = $r['security_symbol'];
                 }
             }
         }
         $this->custodian_positions = $custodian_positions;
         $this->existing_positions = $existing_positions;
+
         foreach($tmp_accounts AS $k => $v){
             if(empty($this->existing_positions[$v]))//If we don't do this, the array_diff below fails because positions[$x] doesn't exist, this creates it
                 $this->existing_positions[$v] = array();
+
             $tmp = array_udiff($this->custodian_positions[$v], $this->existing_positions[$v], 'strcasecmp');
+
             if(!empty($tmp)) {
                 $this->missing_positions[$v] = $tmp;//Missing positions now holds any symbols we don't have that the custodian does
             }

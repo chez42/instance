@@ -636,11 +636,11 @@ Vtiger_List_Js("Settings_Users_List_Js",{
 				delete currentSearchParams[fieldName];
 				if(fieldName == 'first_name') {
 					//To add both lastname and email for search , since all those three are combined to show in list view 
-					var combinedFields = new Array('last_name','email1');
-
-					for (var index in combinedFields) {
-						delete currentSearchParams[combinedFields[index]];
-					}
+//					var combinedFields = new Array('last_name','email1');
+//
+//					for (var index in combinedFields) {
+//						delete currentSearchParams[combinedFields[index]];
+//					}
 				}
 			}
 
@@ -687,16 +687,16 @@ Vtiger_List_Js("Settings_Users_List_Js",{
 				listSearchParams[1] = new Array();
 				listSearchParams[1].push(searchInfo);
 				//To add both lastname and email for search , since all those three are combined to show in list view 
-				var combinedFields = new Array('last_name','email1');
-
-				for (var index in combinedFields) {
-					var searchInfo = new Array();
-					searchInfo.push(combinedFields[index]);
-					searchInfo.push(searchOperator);
-					searchInfo.push(searchValue);
-					
-					listSearchParams[1].push(searchInfo);
-				}
+//				var combinedFields = new Array('last_name','email1');
+//
+//				for (var index in combinedFields) {
+//					var searchInfo = new Array();
+//					searchInfo.push(combinedFields[index]);
+//					searchInfo.push(searchOperator);
+//					searchInfo.push(searchValue);
+//					
+//					listSearchParams[1].push(searchInfo);
+//				}
 
 			}else{
 				searchParams.push(searchInfo);
