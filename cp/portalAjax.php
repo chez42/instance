@@ -24,7 +24,7 @@
 				
 				//$params = $account_number;
 				
-				if($loadReport == 'ghreport' || $loadReport == 'gh2report' || $loadReport == 'assetclassreport'){
+				if($loadReport == 'ghreport' || $loadReport == 'gh2report' || $loadReport == 'assetclassreport' || $loadReport == 'ghreportactual'){
 					
 					//$params = array("account_number" => $account_number);
 					
