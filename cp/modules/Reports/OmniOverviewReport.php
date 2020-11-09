@@ -70,9 +70,9 @@ $individual_summary = $data['individual_summary'];
 				<thead>
 					<tr>
 						<th>Performance</th>
-						<?php echo "<th>Trailing 3 (" . $t3Performance['start_date']." to ". $t3Performance['end_date'] .")</th>"; ?>
-						<?php echo "<th>Year to Date (" . $t6Performance['start_date']." to ". $t6Performance['end_date'] .")</th>"; ?>
-						<?php echo "<th>Trailing 12 (" . $t12Performance['start_date']." to ". $t12Performance['end_date'] .")</th>"; ?>
+						<?php echo "<th>Trailing 3 (" . $t3Performance['user_start_date']." to ". $t3Performance['user_end_date'] .")</th>"; ?>
+						<?php echo "<th>Year to Date (" . $t6Performance['user_start_date']." to ". $t6Performance['user_end_date'] .")</th>"; ?>
+						<?php echo "<th>Trailing 12 (" . $t12Performance['user_start_date']." to ". $t12Performance['user_end_date'] .")</th>"; ?>
 					</tr>
 				</thead>
 				<tbody>
@@ -217,7 +217,7 @@ $individual_summary = $data['individual_summary'];
 				</thead>
 				<tbody>
 					<tr>
-						<?php echo "<td colspan='9'>Trailing 3 (" . $t3Performance['start_date']." to ". $t3Performance['end_date'] .")</th>"; ?>
+						<?php echo "<td colspan='9'>Trailing 3 (" . date('M y',strtotime($t3Performance['start_date']))." to ". date('M y',strtotime($t3Performance['end_date'])) .")</th>"; ?>
 					</tr>
 					<?php
 						$t3_individual_performance_summed = $individual_summary['t3']['individual_performance_summed'];
@@ -240,7 +240,7 @@ $individual_summary = $data['individual_summary'];
 						}
 					?>
 					<tr>
-						<?php echo "<td colspan='9'>Year to Date (" . $t6Performance['start_date']." to ". $t6Performance['end_date'] .")</th>"; ?>
+						<?php echo "<td colspan='9'>Year to Date (" . date('M y',strtotime($t6Performance['start_date']))." to ". date('M y',strtotime($t6Performance['end_date'])) .")</th>"; ?>
 					</tr>
 					<?php
 						$t6_individual_performance_summed = $individual_summary['t6']['individual_performance_summed'];
@@ -263,7 +263,7 @@ $individual_summary = $data['individual_summary'];
 						}
 					?>
 					<tr>
-						<?php echo "<td colspan='9'>Trailing 12 (" . $t12Performance['start_date']." to ". $t12Performance['end_date'] .")</th>"; ?>
+						<?php echo "<td colspan='9'>Trailing 12 (" . date('M y',strtotime($t12Performance['start_date']))." to ". date('M y',strtotime($t12Performance['end_date'])) .")</th>"; ?>
 					</tr>
 					<?php
 						$t12_individual_performance_summed = $individual_summary['t12']['individual_performance_summed'];
