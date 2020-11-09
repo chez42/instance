@@ -304,6 +304,8 @@ class cFidelityPositions extends cCustodian {
         global $adb;
         $params = array();
         $params[] = $account_number;
+        $query = "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED";
+        $adb->pquery($query, array(), true);
 
         $query = "UPDATE vtiger_positioninformation p 
                   JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
