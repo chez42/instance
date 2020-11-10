@@ -1,5 +1,5 @@
 <?php
-class cFidelityQuickAccess{
+class cSchwabQuickAccess{
     public function PullPositions(array $account_number){
         /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
         $position_fields = array( "account_number", "account_type", "cusip", "symbol", "SUM(trade_date_quantity) AS trade_date_quantity", "SUM(settle_date_quantity) AS settle_date_quantity",
