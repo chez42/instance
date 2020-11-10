@@ -23,8 +23,8 @@ $adb->pquery($query, array());
 /*Positions asset allocation widget calculations*/
 StatusUpdate::UpdateMessage("TDUPDATER", "Closing positions based on their portfolio");
 PortfolioInformation_TotalBalances_Model::ClosePositionsBasedOnTheirPortfolio();
-StatusUpdate::UpdateMessage("TDUPDATER", "Calculating asset allocation values");
-PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
+#StatusUpdate::UpdateMessage("TDUPDATER", "Calculating asset allocation values");
+#PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
 StatusUpdate::UpdateMessage("TDUPDATER", "Updating asset allocation users table");
 PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
 StatusUpdate::UpdateMessage("TDUPDATER", "Pulling rep code list");

@@ -199,4 +199,13 @@ class cFileHandling{
         $query = "INSERT IGNORE INTO live_omniscient.vtiger_good_rep_codes SELECT rep_code FROM custodian_omniscient.file_locations WHERE currently_active = 1";
         $adb->pquery($query, array());
     }
+
+    static public function GetCustodianFromRepCode($rep_code){
+        global $adb;
+        $query = "SELECT custodian FROM custodian_omniscient.file_locations WHERE rep_code = ?";
+        $result = $adb->pquery($query, array($rep_code), true);
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, "custodian");
+        return null;
+    }
 }
