@@ -163,6 +163,8 @@ class cTDPositions extends cCustodian {
                         $this->UpdatePositionsUsingcTDPositionsData($tmp);
                     }
                 }
+                StatusUpdate::UpdateMessage("TDUPDATER", "Calculating Asset Allocation For {$k}");
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
             }
         }
     }
