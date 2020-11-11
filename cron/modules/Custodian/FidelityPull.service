@@ -75,7 +75,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (FIDELITY)");
         "fund_load_percent", "interest_amount", "postage_fee", "reg_rep1", "reg_rep2", "service_fee", "short_term_redemption_fee",
         "state_tax_amount", "transaction_code_description", "transaction_key_mnemonic", "f.price AS price", "security_price_adjustment", "quantity");
 
-$start = $month = strtotime('2019-01-01');
+$start = $month = strtotime('2020-10-01');
 $end = strtotime(date("Y-m-d"));
 while($month < strtotime("+1 month", $end)) {
     $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions", "custodian_portfolios_fidelity",

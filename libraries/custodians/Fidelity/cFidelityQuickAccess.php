@@ -53,4 +53,57 @@ class cFidelityQuickAccess{
 
 #        include("cron/modules/Custodian/FidelityPull.service");
     }
+
+    public function PullPortfolios(array $account_number){
+        /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        //Pull portfolio and balance information for the specified rep codes
+        $fidelity = new cFidelityPortfolios("FIDELITY", "custodian_omniscient", "portfolios",
+            "custodian_portfolios_fidelity", "custodian_balances_fidelity", array());
+        $fidelity->SetAccountNumbers($account_number);
+        $data = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $missing = $fidelity->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
+        if(!empty($missing))
+            $fidelity->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
+
+        $existing = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
+        $fidelity->UpdatePortfoliosFromPortfolioData($existing);
+        /*********END OF STEP 1********/
+    }
+
+    public function PullTransactions(array $account_number){
+        StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Starting Transactions (FIDELITY) Individual");
+        $fields = array("f.transaction_id", "f.account_number", "f.symbol", "f.cusip", "m.operation", "amount", "production_number", "omniscient_negative_category", "omniscient_category", "buy_sell_indicator",
+            "omniscient_negative_activity", "omniscient_activity", "m.description AS description", "commission", "key_code_description", "service_charge_misc_fee",
+            "option_symbol", "account_type_description", "f.comment", "comment2", "div_payable_date", "div_record_date", "fund_load_override",
+            "fund_load_percent", "interest_amount", "postage_fee", "reg_rep1", "reg_rep2", "service_fee", "short_term_redemption_fee",
+            "state_tax_amount", "transaction_code_description", "transaction_key_mnemonic", "f.price AS price", "security_price_adjustment", "quantity");
+
+        $start = strtotime('2020-10-01');
+        $end = strtotime(date("Y-m-d"));
+
+        $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions", "custodian_portfolios_fidelity",
+            "custodian_transactions_fidelity", array(), $fields);
+        $fidelity->SetAccountNumbers($account_number);
+        $fidelity->GetTransactionsDataBetweenDates($start, $end);
+        $missing = $fidelity->GetMissingCRMTransactions();
+        if(!empty($missing))
+            $fidelity->CreateNewTransactionsFromTransactionData($missing);
+
+/*        while($month < strtotime("+1 month", $end)) {
+            $fidelity = new cFidelityTransactions("Fidelity", "custodian_omniscient", "transactions", "custodian_portfolios_fidelity",
+                "custodian_transactions_fidelity", array(), $fields);
+            $fidelity->SetAccountNumbers($account_number);
+            $s = date("Y-m-d", $month);
+            $e = date("Y-m-d", strtotime("+1 month", $month));
+
+            $fidelity->GetTransactionsDataBetweenDates($s, $e);
+            $missing = $fidelity->GetMissingCRMTransactions();
+            echo 'tester';exit;
+            $fidelity->CreateNewTransactionsFromTransactionData($missing);
+            $month = strtotime("+1 month", $month);
+        }*/
+
+        StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Finished Transactions (FIDELITY)");
+    }
 }

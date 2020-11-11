@@ -329,8 +329,9 @@ class cFidelityPositions extends cCustodian {
                         $this->UpdatePositionsUsingcFidelityPositionsData($tmp);
                     }
                 }
-                StatusUpdate::UpdateMessage("TDUPDATER", "Calculating Asset Allocation For {$k}");
+                StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Calculating Asset Allocation For {$k}");
                 PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Finished Calculating Asset Allocation For {$k}");
             }
         }
     }
