@@ -84,7 +84,7 @@ class cFidelityPortfolioData{
         $this->address2_type_indicator = $data['personal']['address2_type_indicator'];
         $this->agency = $data['personal']['agency'];
         $this->all_cost_basis_known = $data['personal']['all_cost_basis_known'];
-        $this->as_of_date = $data['personal']['as_of_date'];
+#        $this->as_of_date = $data['personal']['as_of_date'];
         $this->ats = $data['personal']['ats'];
         $this->ats_pi_indicator = $data['personal']['ats_pi_indicator'];
         $this->ats_tla_indicator = $data['personal']['ats_tla_indicator'];
@@ -249,6 +249,14 @@ class cFidelityPortfolios extends cCustodian {
             $this->SetupPortfolioComparisons();
         }
     }
+
+    public function SetAccountNumbers(array $account_numbers){
+        parent::SetAccountNumbers($account_numbers);
+        $this->GetPortfolioPersonalData();
+        $this->GetPortfolioBalanceData();
+        $this->SetupPortfolioComparisons();
+    }
+
 
     public function GetPortfolioPersonalData(){
         global $adb;

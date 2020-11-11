@@ -275,6 +275,7 @@ class cTDPortfolios extends cCustodian {
                     $tmp = new cTDPortfolioData($data);
                     $this->UpdatePortfolios($tmp);
                 }
+#                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
             }
         }
     }
