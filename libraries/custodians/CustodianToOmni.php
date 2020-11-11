@@ -28,6 +28,9 @@ class CustodianToOmni{
         }
     }
 
+    /**
+     * Pull the latest positions from Custodian Omniscient and insert them into Omniscient
+     */
     public function UpdatePositions(){
         switch(strtoupper($this->custodian)){
             CASE "TD":
@@ -41,6 +44,48 @@ class CustodianToOmni{
             CASE "SCHWAB":
                 $tmp = new cSchwabQuickAccess();
                 $tmp->PullPositions(array($this->account_number));
+                break;
+            case "PERSHING":
+#                $tmp = new cPershingQuickAccess();
+#                $tmp->PullPositions(array($this->account_number));
+                break;
+        }
+    }
+
+    public function UpdatePortfolios(){
+        switch(strtoupper($this->custodian)){
+            CASE "TD":
+                $tmp = new cTDQuickAccess();
+                $tmp->PullPortfolios(array($this->account_number));
+                break;
+            CASE "FIDELITY":
+                $tmp = new cFidelityQuickAccess();
+                $tmp->PullPortfolios(array($this->account_number));
+                break;
+            CASE "SCHWAB":
+                $tmp = new cSchwabQuickAccess();
+                $tmp->PullPortfolios(array($this->account_number));
+                break;
+            case "PERSHING":
+#                $tmp = new cPershingQuickAccess();
+#                $tmp->PullPositions(array($this->account_number));
+                break;
+        }
+    }
+
+    public function UpdateTransactions(){
+        switch(strtoupper($this->custodian)){
+            CASE "TD":
+                $tmp = new cTDQuickAccess();
+                $tmp->PullTransactions(array($this->account_number));
+                break;
+            CASE "FIDELITY":
+                $tmp = new cFidelityQuickAccess();
+                $tmp->PullTransactions(array($this->account_number));
+                break;
+            CASE "SCHWAB":
+                $tmp = new cSchwabQuickAccess();
+                $tmp->PullTransactions(array($this->account_number));
                 break;
             case "PERSHING":
 #                $tmp = new cPershingQuickAccess();
