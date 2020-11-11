@@ -37,7 +37,9 @@ class PortfolioInformation_HistoricalInformation_View extends Vtiger_Detail_View
 		$account_numbers = array_unique($account_numbers);
 		foreach($account_numbers AS $k => $v){
             $tmp = new CustodianToOmni($v);
+            $tmp->UpdatePortfolios();
             $tmp->UpdatePositions();
+            $tmp->UpdateTransactions();
         }
 
 		$margin_balance = PortfolioInformation_HoldingsReport_Model::GetMarginBalanceTotal($account_numbers);
