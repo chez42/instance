@@ -94,10 +94,34 @@
                             <div class="row" style = "margin-top:30px;">
                                 <div class="col-sm-12" style = "text-align:center;padding-right:30px;">
                                 	{if $OFFICE_ACTIVE}
-                                		<button class="btn green officeLogin oauthLogin" data-url="{$AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Office365</button>&nbsp;&nbsp;
+                                		<button class="btn green officeLogin oauthLogin" data-url="{$AUTH_URL}" type="button" style = "padding:0px;background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">
+                                			<div class="officeIcon pull-left" style="padding:6px;background-color:white;border-bottom-left-radius:10px!important;border-top-left-radius:10px!important;">
+	                                			<svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 278050 333334" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd">
+	                                				<path fill="#ea3e23" d="M278050 305556l-29-16V28627L178807 0 448 66971l-448 87 22 200227 60865-23821V80555l117920-28193-17 239519L122 267285l178668 65976v73l99231-27462v-316z"></path>
+	                            				</svg>
+                            				</div>
+                            				<div class="officetext" style="padding: 6px;padding-left: 40px;">
+                                				Sign In With Office365
+                            				</div>
+                            			</button>&nbsp;&nbsp;
                                 	{/if}
                                 	{if $GOOGLE_ACTIVE}
-                                		<button class="btn green googleLogin oauthLogin" data-url="{$GOOGLE_AUTH_URL}" type="button" style = "background:#DD4B39;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">Sign In With Google</button>
+                                		<button class="btn green googleLogin oauthLogin" data-url="{$GOOGLE_AUTH_URL}" type="button" style = "padding:0px;background:#0098CF;border-color:rgba(0,0,0,0.2);border-radius:10px !important; font-weight:600; color:#FFFFFF !important">
+                                			<div class="googleIcon pull-left" style="padding:6px;background-color:white;border-bottom-left-radius:10px!important;border-top-left-radius:10px!important;">
+												<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48" class="abcRioButtonSvg">
+													<g>
+														<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>	
+														<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+														<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+														<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+														<path fill="none" d="M0 0h48v48H0z"></path>
+													</g>
+												</svg>
+											</div>
+											<div class="googletext" style="padding: 6px;padding-left: 40px;">
+                                				Sign In With Google
+                            				</div>
+                            			</button>
                             		{/if}
                                 </div>
                             </div>

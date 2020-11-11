@@ -21,14 +21,28 @@
 			{if !$IS_SYNC_READY}
 				<div class="row">
 					<div class="col-sm-4 col-xs-4 pull-right">
-						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" {*style = "padding-left:59px;"*} data-url='{$AUTH_URL}'>{vtranslate('Sign in with Office365', $MODULE)}</a>
+						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style="font-size:1.1rem;padding-left:40px;" data-url='{$AUTH_URL}'>
+							<div class="officeIcon" style="padding:6px;background-color:white;">
+                    			<svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 278050 333334" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd">
+                    				<path fill="#ea3e23" d="M278050 305556l-29-16V28627L178807 0 448 66971l-448 87 22 200227 60865-23821V80555l117920-28193-17 239519L122 267285l178668 65976v73l99231-27462v-316z"></path>
+                				</svg>
+            				</div>
+							{vtranslate('Sign in with Office365', $MODULE)}
+						</a>
 					</div>
 				</div>
 			{else}
 				<div class="row">
 				
 					<div class="col-sm-3 col-xs-3 pull-right">
-						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" {*style = "padding-left:59px;"*} data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'> {vtranslate('Revoke Access', $MODULE)} </a>
+						<a id="authorizeButton" class="btn btn-block btn-social btn-lg btn-google-plus" style="font-size:1.05rem;padding-left:40px;" data-url='index.php?module={$MODULE}&view=List&operation=changeUser&sourcemodule={$SOURCEMODULE}'> 
+							<div class="officeIcon pull-left" style="padding:6px;background-color:white;">
+                    			<svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 278050 333334" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd">
+                    				<path fill="#ea3e23" d="M278050 305556l-29-16V28627L178807 0 448 66971l-448 87 22 200227 60865-23821V80555l117920-28193-17 239519L122 267285l178668 65976v73l99231-27462v-316z"></path>
+                				</svg>
+            				</div>
+							{vtranslate('Revoke Access', $MODULE)} 
+						</a>
 					</div>
 				</div>
 			{/if}
