@@ -3207,6 +3207,18 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 //        echo "SELECT * FROM custodian_balances_{$custodian} WHERE account_number = '{$account_number}'";
     }
 
+    static public function GetRepCodeFromAccountNumber($account_number){
+        global $adb;
+        $query = "SELECT cf.production_number FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  WHERE account_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, "production_number");
+        }
+        return null;
+    }
+
     static public function GetRepCodeListFromUsersTable(){
         global $adb;
         $query = "SELECT REPLACE(advisor_control_number, ' ', '') AS advisor_control_number

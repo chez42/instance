@@ -438,7 +438,7 @@ class cFidelityPortfolios extends cCustodian {
                     p.death_benefit_amount=?, p.policy_account_value=?, 
                     p.cash_surrender_value=?, p.loan_balance=?, p.regulatory_net_worth=?, 
                     cf.cf_2549 = CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END, cf.account_registration = ?, 
-                    cf.stated_net_worth = ?, cf.custodian_source = ?, p.accountclosed = 0 
+                    cf.stated_net_worth = ?, cf.custodian_source = ? 
                     WHERE account_number = ?";
         $adb->pquery($query, $params, true);
     }
