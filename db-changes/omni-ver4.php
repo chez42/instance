@@ -745,6 +745,9 @@ if(!$adb->num_rows($useridField)){
 
 $adb->pquery("UPDATE vtiger_settings_field SET active = '1' WHERE name = 'LBL_CUSTOMER_PORTAL' AND linkto = 'index.php?module=CustomerPortal&parent=Settings&view=Index'");
 
+
+
+
 $module = Vtiger_Module::getInstance("PortfolioInformation");
 $blockInstance = Vtiger_Block::getInstance('Portfolio Information',$module);
 $fieldInstance = Vtiger_Field::getInstance('billingspecificationid', $module);
@@ -757,4 +760,45 @@ if(!$fieldInstance){
     $field->columntype = 'INT(19)';
     $blockInstance->addField($field);
     $field->setrelatedmodules(array('BillingSpecifications'));
+}
+
+$module = Vtiger_Module::getInstance("BillingSpecifications");
+$blockInstance = Vtiger_Block::getInstance('Pro Rate Flows',$module);
+if (!$blockInstance) {
+    $blockInstance = new Vtiger_Block();
+    $blockInstance->label = 'Pro Rate Flows';
+    $module->addBlock($blockInstance);
+}
+
+$fieldInstance = Vtiger_Field::getInstance('proratefromdate', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'proratefromdate';
+    $field->label = 'From';
+    $field->uitype = 5;
+    $field->typeofdata = 'D~O';
+    $field->columntype = 'DATE';
+    $blockInstance->addField($field);
+}
+
+$fieldInstance = Vtiger_Field::getInstance('proratetodate', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'proratetodate';
+    $field->label = 'To';
+    $field->uitype = 5;
+    $field->typeofdata = 'D~O';
+    $field->columntype = 'DATE';
+    $blockInstance->addField($field);
+}
+
+$fieldInstance = Vtiger_Field::getInstance('prorateamount', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'prorateamount';
+    $field->label = 'Exclude Flows Under';
+    $field->uitype = 71;
+    $field->typeofdata = 'N~O';
+    $field->columntype = 'DECIMAL(25, 8)';
+    $blockInstance->addField($field);
 }
