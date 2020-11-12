@@ -361,7 +361,7 @@ class cFidelityPositions extends cCustodian {
                   SET  p.quantity = ?, p.current_value = ?, p.description = m.security_name, 
                        p.last_price = m.security_price * mcf.security_price_adjustment, pcf.last_update = ?, 
                        pcf.security_type = m.securitytype, pcf.base_asset_class = mcf.aclass, pcf.custodian = 'Fidelity', 
-                       p.unrealized_gain_loss = ?, p.cost_basis = ?, 
+                       p.unrealized_gain_loss = ?, p.cost_basis = ?, position_closed = 0,
                        p.gain_loss_percent = (? / ? * 100), pcf.custodian_source = ?
                   WHERE p.security_symbol = ? AND account_number=?";
         $adb->pquery($query, $params, true);
