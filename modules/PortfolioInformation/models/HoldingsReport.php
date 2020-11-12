@@ -201,7 +201,7 @@ class PortfolioInformation_HoldingsReport_Model extends Vtiger_Module {
                      JOIN vtiger_modsecuritiescf mscf ON mscf.modsecuritiesid = ms.modsecuritiesid
                      JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
                      WHERE account_number IN ({$questions})
-                     AND current_value != 0 AND e.deleted = 0 AND cf.closed_account != 1";
+                     AND current_value != 0 AND e.deleted = 0";// AND cf.closed_account != 1";
             $adb->pquery($query, $accounts);
 
             $query = "SET @global_total = (SELECT SUM(current_value) FROM Estimator)";
