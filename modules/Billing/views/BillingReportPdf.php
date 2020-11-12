@@ -75,143 +75,146 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     if($logo['user_logo'][0] && !empty($logo['user_logo'][0])){
                         $logo = $logo['user_logo'][0];
                         $logo = rtrim($site_URL,'/').'/'.$logo['path']."_".$logo['name'];
-                    } 
-                } 
+                    }
+                }
                 if(empty($logo))
                     $logo = $companyLogo;
-                
-                $totalValue = '299625.64';
-                
-                $conQuery = $adb->pquery("SELECT * FROM vtiger_contactdetails
+                    
+                    $totalValue = '299625.64';
+                    
+                    $conQuery = $adb->pquery("SELECT * FROM vtiger_contactdetails
                 INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
                 INNER JOIN vtiger_contactaddress ON vtiger_contactaddress.contactaddressid = vtiger_contactdetails.contactid
                 WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.contactid = ?",
-                    array($portData['contact_link']));
-                
-                $conData = array();
-                $fullName = '';
-                if($adb->num_rows($conQuery)){
-                    $conData = $adb->query_result_rowdata($conQuery);
-                    $fullName = $conData['firstname'].' '.$conData['lastname'];
-                }
-                
-                $billingSpec = $adb->pquery("SELECT * FROM vtiger_billingspecifications
-                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billingspecifications.billingspecificationsid
-                WHERE vtiger_crmentity.deleted = 0 AND vtiger_billingspecifications.billingspecificationsid = ?",
-                    array($portData['billingspecifications']));
-                
-                $billingData = array();
-                $feeRate = '';
-                
-                if($adb->num_rows($billingSpec)){
+                        array($portData['contact_link']));
                     
-                    $billingData = $adb->query_result_rowdata($billingSpec);
-                    $frequency = $billingData['billing_frequency'];
-                    
-                    $year = date('Y');
-                    $type = $billingData['billing_type'];
-                    $amountValue = $billingData['value'];
-                    $feeamount = $billingData['value'];
-                    $totalDays = '';
-                    $start_date = ''; 
-                    $end_date = '';
-                    
-                    if($frequency == 'Quaterly'){
-                        
-                        if(date('m') <= '3'){
-                            
-                            $start_date = date('d-m-Y',strtotime("01-01-".$year));
-                            $end_date = date('d-m-Y',strtotime("31-03-".$year));
-                            $totalDays = date('t', strtotime('01-01-'.$year)) + date('t', strtotime('01-02-'.$year)) + date('t', strtotime('01-03-'.$year));
-                            
-                        }else if(date('m') > '3' && date('m') <= '6'){
-                            
-                            $start_date = date('d-m-Y',strtotime("01-04-".$year));
-                            $end_date = date('d-m-Y',strtotime("30-06-".$year));
-                            $totalDays = date('t', strtotime('01-04-'.$year)) + date('t', strtotime('01-05-'.$year)) + date('t', strtotime('01-06-'.$year));
-                            
-                        }else if(date('m') > '6' && date('m') <= '9'){
-                            
-                            $start_date = date('d-m-Y',strtotime("01-07-".$year));
-                            $end_date = date('d-m-Y',strtotime("30-09-".$year));
-                            $totalDays = date('t', strtotime('01-07-'.$year)) + date('t', strtotime('01-08-'.$year)) + date('t', strtotime('01-09-'.$year));
-                            
-                        }else if(date('m') > '9'){
-                            
-                            $start_date = date('d-m-Y',strtotime("01-10-".$year));
-                            $end_date = date('d-m-Y',strtotime("31-12-".$year));
-                            $totalDays = date('t', strtotime('01-10-'.$year)) + date('t', strtotime('01-11-'.$year)) + date('t', strtotime('01-12-'.$year));
-                            
-                        }
-                        
-                        $feeRate = '1/4';
-                        
-                        if($type == 'Fixed Rate'){
-                            $amountValue = ($totalValue * $amountValue)/100;
-                        }
-                        
-                    }else if ($frequency == 'Monthly'){
-                        
-                        $start_date = date('01-m-Y');
-                        $end_date = date('t-m-Y');
-                        $feeRate = '1/12';
-                        $totalDays = date('t', strtotime($start_date));
-                        
-                        if($type == 'Fixed Rate'){
-                            $amountValue = ($totalValue * $amountValue)/100;
-                        }
+                    $conData = array();
+                    $fullName = '';
+                    if($adb->num_rows($conQuery)){
+                        $conData = $adb->query_result_rowdata($conQuery);
+                        $fullName = $conData['firstname'].' '.$conData['lastname'];
                     }
                     
-                    $transactionData = array();
+                    $billingSpec = $adb->pquery("SELECT * FROM vtiger_billingspecifications
+                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billingspecifications.billingspecificationsid
+                WHERE vtiger_crmentity.deleted = 0 AND vtiger_billingspecifications.billingspecificationsid = ?",
+                        array($portData['billingspecificationid']));
                     
-                    if($type == 'Fixed Rate'){
+                    $billingData = array();
+                    $feeRate = '';
+                    
+                    if($adb->num_rows($billingSpec)){
                         
-                        if($start_date)
-                            $start_date = DateTimeField::convertToDBFormat($start_date);
+                        $billingData = $adb->query_result_rowdata($billingSpec);
+                        $frequency = $billingData['billing_frequency'];
                         
-                        $transaction = $adb->pquery("SELECT * FROM vtiger_transactions 
+                        $year = date('Y');
+                        $type = $billingData['billing_type'];
+                        $amountValue = $billingData['value'];
+                        $feeamount = $billingData['value'];
+                        $totalDays = '';
+                        $start_date = '';
+                        $end_date = '';
+                        
+                        $proStartDate = $billingData['proratefromdate'];
+                        $proEndDate = $billingData['proratetodate'];
+                        $proAmount = $billingData['prorateamount'];
+                        
+                        if($frequency == 'Quaterly'){
+                            
+                            if(date('m') <= '3'){
+                                
+                                $start_date = date('d-m-Y',strtotime("01-01-".$year));
+                                $end_date = date('d-m-Y',strtotime("31-03-".$year));
+                                $totalDays = date('t', strtotime('01-01-'.$year)) + date('t', strtotime('01-02-'.$year)) + date('t', strtotime('01-03-'.$year));
+                                
+                            }else if(date('m') > '3' && date('m') <= '6'){
+                                
+                                $start_date = date('d-m-Y',strtotime("01-04-".$year));
+                                $end_date = date('d-m-Y',strtotime("30-06-".$year));
+                                $totalDays = date('t', strtotime('01-04-'.$year)) + date('t', strtotime('01-05-'.$year)) + date('t', strtotime('01-06-'.$year));
+                                
+                            }else if(date('m') > '6' && date('m') <= '9'){
+                                
+                                $start_date = date('d-m-Y',strtotime("01-07-".$year));
+                                $end_date = date('d-m-Y',strtotime("30-09-".$year));
+                                $totalDays = date('t', strtotime('01-07-'.$year)) + date('t', strtotime('01-08-'.$year)) + date('t', strtotime('01-09-'.$year));
+                                
+                            }else if(date('m') > '9'){
+                                
+                                $start_date = date('d-m-Y',strtotime("01-10-".$year));
+                                $end_date = date('d-m-Y',strtotime("31-12-".$year));
+                                $totalDays = date('t', strtotime('01-10-'.$year)) + date('t', strtotime('01-11-'.$year)) + date('t', strtotime('01-12-'.$year));
+                                
+                            }
+                            
+                            $feeRate = '1/4';
+                            
+                            if($type == 'Fixed Rate'){
+                                $amountValue = ($totalValue * $amountValue)/100;
+                            }
+                            
+                        }else if ($frequency == 'Monthly'){
+                            
+                            $start_date = date('01-m-Y');
+                            $end_date = date('t-m-Y');
+                            $feeRate = '1/12';
+                            $totalDays = date('t', strtotime($start_date));
+                            
+                            if($type == 'Fixed Rate'){
+                                $amountValue = ($totalValue * $amountValue)/100;
+                            }
+                        }
+                        
+                        $transactionData = array();
+                        
+                        if($type == 'Fixed Rate'){
+                            
+                            $transaction = $adb->pquery("SELECT * FROM vtiger_transactions
                         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
                         INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
                         WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
                         AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds')
-                        AND vtiger_transactions.trade_date BETWEEN ? AND ?",
-                        array($portData['account_number'],$start_date, date('Y-m-d')));
-                       
-                        if($adb->num_rows($transaction)){
+                        AND vtiger_transactions.trade_date BETWEEN ? AND ?
+                        AND vtiger_transactionscf.net_amount > ?",
+                                array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                             
-                            for($t=0;$t<$adb->num_rows($transaction);$t++){
+                            
+                            if($adb->num_rows($transaction)){
                                 
-                                $transaction_data = $adb->query_result_rowdata($transaction,$t);
-                                
-                                $date1=date_create($transaction_data['trade_date']);
-                                $date2=date_create(date('Y-m-d'));
-                                $diff=date_diff($date1,$date2);
-                                $diffDays = $diff->days;
-                                
-                                $transactionAmount = ($diffDays/$totalDays*$feeamount)/100;
-                                
-                                $totalAmount = number_format($transaction_data['net_amount'],2);
-                                if($transaction_data['transaction_activity'] == 'Withdrawal of funds'){
-                                    $totalAmount = '-'.number_format($transaction_data['net_amount'],2);
+                                for($t=0;$t<$adb->num_rows($transaction);$t++){
+                                    
+                                    $transaction_data = $adb->query_result_rowdata($transaction,$t);
+                                    
+                                    $date1=date_create($transaction_data['trade_date']);
+                                    $date2=date_create(date('Y-m-d'));
+                                    $diff=date_diff($date1,$date2);
+                                    $diffDays = $diff->days;
+                                    
+                                    $transactionAmount = ($diffDays/$totalDays*$feeamount)/100;
+                                    
+                                    $totalAmount = number_format($transaction_data['net_amount'],2);
+                                    if($transaction_data['transaction_activity'] == 'Withdrawal of funds'){
+                                        $totalAmount = '-'.number_format($transaction_data['net_amount'],2);
+                                    }
+                                    
+                                    $transactionData[] = array(
+                                        'trade_date' => $transaction_data['trade_date'],
+                                        'diff_days' => $diffDays,
+                                        'totalAmount' => $totalAmount,
+                                        'totalDays' => $totalDays,
+                                        'transactionamount' => $transactionAmount,
+                                        'transactiontype' => $transaction_data['transaction_activity'],
+                                        'trans_fee' => $feeamount
+                                    );
+                                    
                                 }
-                                
-                                $transactionData[] = array(
-                                    'trade_date' => $transaction_data['trade_date'],
-                                    'diff_days' => $diffDays,
-                                    'totalAmount' => $totalAmount,
-                                    'totalDays' => $totalDays,
-                                    'transactionamount' => $transactionAmount,
-                                    'transactiontype' => $transaction_data['transaction_activity'],
-                                    'trans_fee' => $feeamount
-                                );
-                            
                             }
                         }
+                        
                     }
                     
-                }
-                
-                $html.="<br>
+                    $html.="<br>
                 <br>
                 <br>
         		<div class='row'>
@@ -343,17 +346,17 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                     x
                                 </div>
                                 <div class='col-xs-3'>
-                                    $".$transdata['totalAmount']." = 
+                                    $".$transdata['totalAmount']." =
                                 </div>
                                 <div class='col-xs-3 text-center'>
                                     $".number_format($transdata['transactionamount']*$transdata['totalAmount'], 2)."
                                 </div>
-                            </div>";    
+                            </div>";
                         }
                         $html .= "<div class='row'>
                             <div class='col-xs-9'>
                             </div>
-                            <div class='col-xs-3 text-center'>  
+                            <div class='col-xs-3 text-center'>
                                 <strong>---------</strong>
                             </div>
                         </div>
@@ -368,7 +371,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         <div class='row'>
                             <div class='col-xs-9'>
                             </div>
-                            <div class='col-xs-3 text-center'>  
+                            <div class='col-xs-3 text-center'>
                                 <strong>---------</strong>
                             </div>
                         </div>
@@ -378,7 +381,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             </div>
                             <div class='col-xs-3 text-center'>
                                 $".number_format($addFeeTrans+$amountValue,2)."
-                            </div
+                            </div>
                         </div>";
                         $amountValue = $addFeeTrans+$amountValue;
                     }
@@ -412,15 +415,17 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
             		</div>
             		<div class='col-xs-1'></div>
         		</div>
+				</div>
                 <div class='page-break' style='page-break-before: always !important;'></div>";
-                
+                    
             }
             
         }
         
         $html.="</body>
         </html>";
-       
+        
+        
         $fileDir = 'cache/';
         $bodyFileName = $fileDir.'billingStatement.html';
         $fb = fopen($bodyFileName, 'w');
