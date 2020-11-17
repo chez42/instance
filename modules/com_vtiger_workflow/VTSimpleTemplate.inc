@@ -192,7 +192,7 @@ class VTSimpleTemplate{
 											$parts = explode('x', $wsId);
 											$recordId = $parts[1];
 											$moduleName = $this->parent->getModuleName();
-											return rtrim('/', $site_URL)."/modules/Emails/actions/EmailRedirect.php?applicationKey=$application_unique_key&redirectUrl=".urlencode(rtrim('/', $site_URL)."/index.php?module=$moduleName&view=Detail&record=$recordId");
+											return "$site_URL/modules/Emails/actions/EmailRedirect.php?applicationKey=$application_unique_key&redirectUrl=".urlencode("$site_URL/index.php?module=$moduleName&view=Detail&record=$recordId");
 			case 'portaldetailviewurl'	: 	$wsId = $this->parent->getId();
 											$parts = explode('x', $wsId);
 											$recordId = $parts[1];
