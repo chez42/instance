@@ -700,7 +700,7 @@ class Vtiger_Functions {
 	}
 
 	static function getMergedDescriptionCustomVars($fields, $description, $recordId = '', $module = '') {
-		global $site_URL, $PORTAL_URL;
+	    global $site_URL, $PORTAL_URL, $application_unique_key;
 		foreach ($fields['custom'] as $columnname) {
 			$token_data = '$custom-' . $columnname . '$';
 			$token_value = '';
@@ -714,7 +714,7 @@ class Vtiger_Functions {
 				case 'portalurl'		:	$token_value = $PORTAL_URL;
 											break;
 				case 'crmdetailviewurl'	:	if($module !== 'Users') {
-											$token_value = $site_URL."/index.php?module=$module&view=Detail&record=$recordId";
+				    $token_value = rtrim('/',$site_URL).'/modules/Emails/actions/EmailRedirect.php?applicationKey='.$application_unique_key.'&redirectUrl='.urlencode(rtrim('/', $site_URL)."/index.php?module=$module&view=Detail&record=$recordId");
 											} else {
 											  $token_value = $token_data;
 										  }
