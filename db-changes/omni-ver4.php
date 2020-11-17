@@ -802,3 +802,45 @@ if(!$fieldInstance){
     $field->columntype = 'DECIMAL(25, 8)';
     $blockInstance->addField($field);
 }
+
+$instance_module_obj = Vtiger_Module::getInstance("Instances");
+if($instance_module_obj){
+	$blockInstance = Vtiger_Block::getInstance('LBL_INSTANCES_INFORMATION',$instance_module_obj);
+	$fieldInstance = Vtiger_Field::getInstance('master_password', $instance_module_obj);
+	if(!$fieldInstance){
+		$field = new Vtiger_Field();
+		$field->name = 'master_password';
+		$field->label = 'Master Password';
+		$field->uitype = 2;
+		$field->typeofdata = 'V~O';
+		$field->columntype = 'VARCHAR(255)';
+		$blockInstance->addField($field);
+	}
+
+	$functionPath = "modules/Instances/InstancesHandler.php";
+	$functiponName = "SyncMasterPasswordInInstance";
+	$checkMeth = $adb->pquery("SELECT * FROM com_vtiger_workflowtasks_entitymethod
+	WHERE function_path = ? AND function_name = ?",array($functionPath, $functiponName));
+	if(!$adb->num_rows($checkMeth)){
+		require_once 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+		$emm = new VTEntityMethodManager($adb);
+		$emm->addEntityMethod("Instances", "Sync Master Password In Instance", $functionPath, $functiponName);
+	}
+}
+
+if(!$instance_module_obj){
+	$operation = array('name'=>'sync_master_password',
+		'path'=>'include/Webservices/SyncMasterPassword.php',
+		'method'=>'vtws_sync_master_password',
+		'type'=>'POST',
+		'params'=>array(array('name'=>'element','type'=>'encoded'))
+	);
+	$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+	if (!$adb->num_rows($rs)) {
+		$operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+		$sequence = 1;
+		foreach ($operation['params'] as $param) {
+			vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+		}
+	}
+}
