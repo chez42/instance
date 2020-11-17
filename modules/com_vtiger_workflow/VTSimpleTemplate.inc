@@ -160,7 +160,7 @@ class VTSimpleTemplate{
 
 	function getMetaValue($fieldname){
 		require_once 'config.inc.php';
-		global $site_URL, $PORTAL_URL, $current_user, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID;
+		global $site_URL, $PORTAL_URL, $current_user, $HELPDESK_SUPPORT_NAME, $HELPDESK_SUPPORT_EMAIL_ID, $application_unique_key;
 		switch($fieldname){
 			case 'date'					:   $ownerId = $this->getOwnerId();
 											$ownerObject = new Users();
@@ -192,7 +192,7 @@ class VTSimpleTemplate{
 											$parts = explode('x', $wsId);
 											$recordId = $parts[1];
 											$moduleName = $this->parent->getModuleName();
-											return "$site_URL/index.php?module=$moduleName&view=Detail&record=$recordId";
+											return "$site_URL/modules/Emails/actions/EmailRedirect.php?applicationKey=$application_unique_key&redirectUrl=".urlencode("$site_URL/index.php?module=$moduleName&view=Detail&record=$recordId");
 			case 'portaldetailviewurl'	: 	$wsId = $this->parent->getId();
 											$parts = explode('x', $wsId);
 											$recordId = $parts[1];
