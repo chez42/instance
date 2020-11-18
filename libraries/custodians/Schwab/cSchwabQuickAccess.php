@@ -15,7 +15,7 @@ class cSchwabQuickAccess{
             "registration", "security_asset_class", "security_group", "security_id", "security_type_description", "st_shares",
             "SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount", "unsettled_cash", "file_date", "insert_date");
 
-        $positions = new cFidelityPositions("FIDELITY", "custodian_omniscient", "positions",
+        $positions = new cSchwabPositions("SCHWAB", "custodian_omniscient", "positions",
             "custodian_portfolios_fidelity", "custodian_positions_fidelity", array(), array(), true, $position_fields);
         $positions->SetAccountNumbers($account_number);
 
