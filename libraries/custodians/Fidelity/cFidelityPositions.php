@@ -345,7 +345,10 @@ class cFidelityPositions extends cCustodian {
         $params = array();
         $params[] = $data->trade_date_quantity;
         $params[] = $data->closing_market_value;
+        $params[] = $data->description;
         $params[] = $data->as_of_date;
+        $params[] = 'Other';
+        $params[] = 'Other';
         $params[] = $data->unrealized_gain_loss_amount;
         $params[] = $data->cost;
         $params[] = $data->unrealized_gain_loss_amount;
@@ -358,9 +361,10 @@ class cFidelityPositions extends cCustodian {
                   JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
                   JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol
                   JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid
-                  SET  p.quantity = ?, p.current_value = ?, p.description = m.security_name, 
+                  SET  p.quantity = ?, p.current_value = ?, p.description = CASE WHEN m.security_name IS NULL OR m.security_name = '' THEN ? ELSE m.security_name END, 
                        p.last_price = m.security_price * mcf.security_price_adjustment, pcf.last_update = ?, 
-                       pcf.security_type = m.securitytype, pcf.base_asset_class = mcf.aclass, pcf.custodian = 'Fidelity', 
+                       pcf.security_type = CASE WHEN m.securitytype IS NULL OR m.securitytype = '' THEN ? ELSE m.security_name END, 
+                       pcf.base_asset_class = CASE WHEN mcf.aclass IS NULL OR mcf.aclass = '' THEN ? ELSE mcf.aclass END, pcf.custodian = 'Fidelity', 
                        p.unrealized_gain_loss = ?, p.cost_basis = ?, position_closed = 0,
                        p.gain_loss_percent = (? / ? * 100), pcf.custodian_source = ?
                   WHERE p.security_symbol = ? AND account_number=?";

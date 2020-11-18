@@ -3077,7 +3077,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 
     static public function TDBalanceCalculationsMultiple(array $account_number, $sdate, $edate){
         global $adb, $dbconfig;
-        $db_name = 'live_omniscient';//$dbconfig['db_name'];
+        $db_name = $dbconfig['db_name'];
 
         $begin = new DateTime($sdate);
         $end = new DateTime($edate);

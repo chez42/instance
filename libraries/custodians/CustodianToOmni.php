@@ -42,8 +42,8 @@ class CustodianToOmni{
                 $tmp->PullPositions(array($this->account_number));
                 break;
             CASE "SCHWAB":
-                $tmp = new cSchwabQuickAccess();
-                $tmp->PullPositions(array($this->account_number));
+#                $tmp = new cSchwabQuickAccess();
+#                $tmp->PullPositions(array($this->account_number));
                 break;
             case "PERSHING":
 #                $tmp = new cPershingQuickAccess();
@@ -63,8 +63,8 @@ class CustodianToOmni{
                 $tmp->PullPortfolios(array($this->account_number));
                 break;
             CASE "SCHWAB":
-                $tmp = new cSchwabQuickAccess();
-                $tmp->PullPortfolios(array($this->account_number));
+#                $tmp = new cSchwabQuickAccess();
+#                $tmp->PullPortfolios(array($this->account_number));
                 break;
             case "PERSHING":
 #                $tmp = new cPershingQuickAccess();

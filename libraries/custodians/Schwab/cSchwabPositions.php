@@ -326,6 +326,7 @@ class cSchwabPositions extends cCustodian {
                         $this->UpdatePositionsUsingcSchwabPositionsData($tmp);
                     }
                 }
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
             }
         }
     }
@@ -340,6 +341,7 @@ class cSchwabPositions extends cCustodian {
         $params[] = $data->quantity_settled_and_unsettled;
         $params[] = $data->market_value_settled_and_unsettled;
         $params[] = $data->last_price;
+        $params[] = $data->date;
         $params[] = "SCHWAB";
         $params[] = $data->account_number;
         $params[] = $data->symbol;
@@ -349,7 +351,7 @@ class cSchwabPositions extends cCustodian {
                   LEFT JOIN vtiger_modsecurities m ON m.security_symbol = p.security_symbol
                   LEFT JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
                   SET p.quantity = ?, p.current_value = ?, p.last_price = ?,
-                      cf.last_update = NOW(), cf.custodian_source = ?, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass
+                      cf.last_update = ?, cf.custodian_source = ?, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass
                   WHERE account_number = ? AND p.security_symbol = ?";
         $adb->pquery($query, $params, true);
     }

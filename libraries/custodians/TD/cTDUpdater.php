@@ -25,5 +25,7 @@ class cTDUpdater{
 
     public function UpdateAll(){
         include("cron/modules/Custodian/TDPull.service");
+#        include("cron/modules/Custodian/FidelityPull.service");
+#        include("cron/modules/Custodian/SchwabPull.service");
     }
 }
