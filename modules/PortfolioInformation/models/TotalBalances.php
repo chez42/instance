@@ -147,12 +147,9 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         return 0;
     }
 
-    static public function WriteAndUpdateAssetAllocationUserDaily($date = null){
+    static public function WriteAndUpdateAssetAllocationUserDaily(){
         global $adb;
         $ids = GetAllActiveUserIDs();
-        if($date == null)
-            $date = date('Y-m-d');
-#250-246-3811
 
 #        set_error_handler("exception_error_handler");
         foreach($ids AS $k => $v){
@@ -165,10 +162,12 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
                               SELECT {$v}, SUM(value) AS value, ach.base_asset_class, as_of_date
                               FROM vtiger_asset_class_history ach
                               WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                              AND account_number IN ({$questions}) AND as_of_date = ? AND value != 0
+                              AND account_number IN ({$questions}) 
+                              AND as_of_date = (SELECT MAX(as_of_date) FROM vtiger_asset_class_history WHERE account_number IN ({$questions})) 
+                              AND value != 0
                               GROUP BY base_asset_class
                               ON DUPLICATE KEY UPDATE value=VALUES(value)";
-                    $adb->pquery($query, array($account_numbers, $date), true);
+                    $adb->pquery($query, array($account_numbers, $account_numbers), true);
                 }
             }catch(Exception $e){
                 StatusUpdate::UpdateMessage("TDUPDATER", "Error Encountered");

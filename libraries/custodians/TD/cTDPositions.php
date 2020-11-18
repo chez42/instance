@@ -14,7 +14,7 @@ class cTDPositionsData{
         $this->amount = $data['amount'];
         $this->filename = $data['filename'];
         $this->quantity_amount_combo = $data['quantity'] + $data['amount'];
-        $this->insert_date = $data['insert_date'];
+        $this->insert_date = $data['date'];
     }
 }
 
@@ -163,8 +163,9 @@ class cTDPositions extends cCustodian {
                         $this->UpdatePositionsUsingcTDPositionsData($tmp);
                     }
                 }
-                StatusUpdate::UpdateMessage("TDUPDATER", "Calculating Asset Allocation For {$k}");
+                StatusUpdate::UpdateMessage("SCHWABUPDATER", "Calculating Asset Allocation For {$k}");
                 PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                StatusUpdate::UpdateMessage("SCHWABUPDATER", "Finished Calculating Asset Allocation For {$k}");
             }
         }
     }
@@ -235,7 +236,7 @@ class cTDPositions extends cCustodian {
 
         $query = "UPDATE vtiger_positioninformation p 
                   JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  SET p.quantity = 0, p.current_value = 0 
+                  SET p.quantity = 0, p.current_value = 0, pcf.last_update = null
                   WHERE account_number = ?";
         $adb->pquery($query, $params, true);
     }
