@@ -844,3 +844,123 @@ if(!$instance_module_obj){
 		}
 	}
 }
+
+$instance_module_obj = Vtiger_Module::getInstance("Instances");
+
+if($instance_module_obj){
+	
+    $blockInstance = Vtiger_Block::getInstance('LBL_INSTANCES_INFORMATION',$instance_module_obj);
+    
+	$fieldInstance = Vtiger_Field::getInstance('instance_logo', $instance_module_obj);
+    
+	if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'instance_logo';
+        $field->label = 'Login Page Logo';
+        $field->uitype = 69;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('instance_background', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'instance_background';
+        $field->label = 'Login Page Background';
+        $field->uitype = 69;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('copyright_text', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'copyright_text';
+        $field->label = 'Copyright Text';
+        $field->uitype = 2;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $blockInstance = Vtiger_Block::getInstance('Social Links',$instance_module_obj);
+    if (!$blockInstance) {
+        $blockInstance = new Vtiger_Block();
+        $blockInstance->label = 'Social Media Links';
+        $instance_module_obj->addBlock($blockInstance);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('facebook_link', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'facebook_link';
+        $field->label = 'Facebook Link';
+        $field->uitype = 17;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('twitter_link', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'twitter_link';
+        $field->label = 'Twitter Link';
+        $field->uitype = 17;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('linkedin_link', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'linkedin_link';
+        $field->label = 'LinkedIn link';
+        $field->uitype = 17;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('youtube_link', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'youtube_link';
+        $field->label = 'Youtube Link';
+        $field->uitype = 17;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('instagram_link', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'instagram_link';
+        $field->label = 'Instagram Link';
+        $field->uitype = 17;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+    }
+}
+
+if($instance_module_obj){
+    $operation = array('name'=>'get_instance_details',
+        'path'=>'include/Webservices/GetInstanceDetails.php',
+        'method'=>'vtws_get_instance_details',
+        'type'=>'POST',
+        'params'=>array(array('name'=>'element','type'=>'encoded'))
+    );
+    $rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+    if (!$adb->num_rows($rs)) {
+        $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type'], 1);
+        $sequence = 1;
+        foreach ($operation['params'] as $param) {
+            vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+        }
+    }
+}

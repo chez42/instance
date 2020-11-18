@@ -89,10 +89,51 @@ class Users_Login_View extends Vtiger_View_Controller {
 		$viewer->assign('MESSAGE', $message);
 		$viewer->assign('MAIL_STATUS', $mailStatus);
 		
+		global $site_URL;
+		
+		
+		/*$httpc = new Vtiger_Net_Client('http://localhost/Omni-Ver4/webservice.php');
+		$element = array();
+		$element['domain'] = rtrim($site_URL,'/');
+		
+		$params = array(
+		    "operation"=>'get_instance_details',
+		    "element" => json_encode($element)
+		);
+		
+		$response = $httpc->doPost($params);
+		
+		$response = json_decode($response, true);
+		
+		if(!empty($response['result'])){
+		    $data = $response['result'];
+		*/  
+		$data = array();
+		
+		$data['copyright'] = '2004-'.date("Y") . ' Omniscient CRM';
+		$data['facebook'] = 'https://facebook.com/omnisrv/';
+		$data['twitter'] = 'https://twitter.com/omnisrv';
+		$data['linkedin'] = 'https://linkedin.com/company/omnisrv';
+		$data['youtube'] = 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
+		$data['instagram'] = 'https://instagram.com/omnisrv';
+		$data['bgtype'] = '';
+		$data['logo'] = '';
+		$data['background'] = '';
+		
+		$viewer->assign('COPYRIGHT', $data['copyright']);
+		$viewer->assign('FACEBOOK_LINK', $data['facebook']);
+		$viewer->assign('TWITTER_LINK', $data['twitter']);
+		$viewer->assign('LINKEDIN_LINK', $data['linkedin']);
+		$viewer->assign('YOUTUBE_LINK', $data['youtube']);
+		$viewer->assign('INSTA_LINK', $data['instagram']);
+		
+		$viewer->assign('BGTYPE', $data['bgtype']);
+		$viewer->assign('LOGO', $data['logo']);
+		$viewer->assign('BACKGROUND', $data['background']);
+		//}
+		
 		$clientId = MailManager_Office365Config_Connector::$clientId;
 		$redriectUri = MailManager_Office365Config_Connector::$redirect_url;
-		
-		global $site_URL;
 		
 		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
 		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Office365Login", "ValidateLogin")));
