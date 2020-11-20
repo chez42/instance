@@ -229,18 +229,6 @@ class cTDPositions extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
-    public function ResetAccountPositions($account_number){
-        global $adb;
-        $params = array();
-        $params[] = $account_number;
-
-        $query = "UPDATE vtiger_positioninformation p 
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  SET p.quantity = 0, p.current_value = 0, pcf.last_update = null
-                  WHERE account_number = ?";
-        $adb->pquery($query, $params, true);
-    }
-
     /**
      * Update the position in the CRM using the cTDPositionsData class
      * @param cTDPositionsData $data

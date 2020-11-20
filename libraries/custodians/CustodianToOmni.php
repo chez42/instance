@@ -9,7 +9,7 @@ class CustodianToOmni{
     private $account_number;
     private $custodian;//used for accessing the custodian database
 
-    public function __construct($account_number){
+    public function __construct(string $account_number){
         $this->account_number = $account_number;
 
         switch(strtoupper(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($account_number))){
@@ -38,8 +38,8 @@ class CustodianToOmni{
                 $tmp->PullPositions(array($this->account_number));
                 break;
             CASE "FIDELITY":
-                $tmp = new cFidelityQuickAccess();
-                $tmp->PullPositions(array($this->account_number));
+#                $tmp = new cFidelityQuickAccess();
+#                $tmp->PullPositions(array($this->account_number));
                 break;
             CASE "SCHWAB":
 #                $tmp = new cSchwabQuickAccess();

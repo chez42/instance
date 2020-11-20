@@ -6,6 +6,7 @@ require_once("libraries/custodians/cCustodian.php");
  * This class allows the pulling of data from the custodian database
  */
 class cPershingPositions extends cCustodian {
+    use tPositions;
     private $positions_data;//Holds both personal and balance information
     private $symbol_replacements;//Holds key value pairing for replacing symbols.  IE:  "FIDELITYCASH" => "Cash" will replace "FIDELITYCASH" from the CRM with "Cash" while checking if it exists or not
     protected $columns;
@@ -206,18 +207,6 @@ class cPershingPositions extends cCustodian {
         $questions = generateQuestionMarks($params);
         $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
                   VALUES ({$questions})";
-        $adb->pquery($query, $params, true);
-    }
-
-    public function ResetAccountPositions($account_number){
-        global $adb;
-        $params = array();
-        $params[] = $account_number;
-
-        $query = "UPDATE vtiger_positioninformation p 
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  SET p.quantity = 0, p.current_value = 0 
-                  WHERE account_number = ?";
         $adb->pquery($query, $params, true);
     }
 
