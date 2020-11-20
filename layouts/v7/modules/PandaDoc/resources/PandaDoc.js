@@ -188,6 +188,7 @@ Vtiger.Class("PandaDoc_Js",{
 			);
 		}
 	},
+	
 	registerFillMailContentEvent: function (PandaDocForm) {
 		PandaDocForm.on('change', '#selected_contacts', function (e) {
 			var textarea = CKEDITOR.instances.envelope_content;
@@ -348,6 +349,82 @@ Vtiger.Class("PandaDoc_Js",{
 	    	$(html).insertAfter(container);
     	}
     },
+    
+    triggerPandaDocSdk : function(massurl){
+		
+    	var thisInstance = this;
+    	
+		var data = app.convertUrlToDataParams(massurl);
+		data['record'] = app.getRecordId();
+		data['srcmodule'] = app.getModuleName();
+
+		app.helper.showProgress();
+		
+		app.request.post({'data': data}).then(
+			
+			function (err, data) {
+				
+				app.helper.hideProgress();
+				
+				if (data) {
+					app.helper.showModal(data,{
+						'cb' : function(modalContainer){
+							var recipients ;
+							var token ;
+							var params= {
+								'record' : app.getRecordId(),
+								'source_module' : app.getModuleName()
+							};
+							thisInstance.getRecordDetails(params).then(
+								function(response){
+									token = response.token;
+									recipients = response.recipients;
+									
+									var editor = new PandaDoc.DocEditor();
+									editor.show({ 
+									    el: '#pandadoc-sdk',
+									    data: {
+									        tokens: token,
+									        recipients : recipients
+									    },
+									    cssClass: 'CUSTOM_CSS_CLASS',
+									    events: {
+									        onInit: function(){console.log('Init')},
+									        onDocumentCreated: function(){console.log('Created')},
+									        onDocumentSent: function(){console.log('Sent')},
+									        onClose: function(){console.log('Close')}
+									    }
+									});
+								},
+								function(error, err){
+
+								}
+							);
+						}
+					});
+				}
+			}
+		);
+		
+	},
+	
+	getRecordDetails : function(params) {
+		var aDeferred = jQuery.Deferred();
+		var url = "index.php?module=PandaDoc&action=GetData&record="+params['record']+"&source_module="+params['source_module'];
+		app.request.get({'url':url}).then(
+			function(error, data){
+				if(error == null) {
+					aDeferred.resolve(data);
+				} else {
+					//aDeferred.reject(data['message']);
+				}
+			},
+			function(error){
+				aDeferred.reject();
+			}
+			)
+		return aDeferred.promise();
+	},
 	
 },{
 	
@@ -379,6 +456,7 @@ Vtiger.Class("PandaDoc_Js",{
 //		this.registerEventsForConnect();
 		this.Class.ValidateToken();
 	},
+	
 	
 
 });
