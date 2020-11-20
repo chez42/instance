@@ -158,4 +158,19 @@ trait tPositions{
         $symbols = $this->GetRemappedSymbols($symbols);
         return $symbols;
     }
+
+    public function ResetAccountPositions($account_number){
+        global $adb;
+        $params = array();
+        $params[] = $account_number;
+
+        $query = "UPDATE vtiger_positioninformation p 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  SET p.quantity = 0, p.current_value = 0, pcf.last_update = null
+                  WHERE account_number = ?";
+        $adb->pquery($query, $params, true);
+
+        $query = "UPDATE vtiger_asset_class_totals SET value = 0 WHERE account_number = ?";
+        $adb->pquery($query, $params, true);
+    }
 }
