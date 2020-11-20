@@ -624,13 +624,12 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
     static public function CalculateAllAccountAssetAllocationValues(){
         global $adb;
         $query = "INSERT INTO vtiger_asset_class_totals
-                  SELECT account_number, SUM(p.current_value), cf.base_asset_class
+                  SELECT account_number, SUM(p.current_value), CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END
                   FROM vtiger_positioninformation p
                   JOIN vtiger_positioninformationcf cf USING (positioninformationid)
                   JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
                   LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
-                  WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                  AND e.deleted = 0 AND cf.last_update IS NOT NULL
+                  WHERE e.deleted = 0 AND cf.last_update IS NOT NULL
                   GROUP BY base_asset_class, account_number
                   ON DUPLICATE KEY UPDATE value=VALUES(value)";
         $adb->pquery($query, array());
@@ -642,13 +641,12 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
     static public function CalculateAllAccountAssetAllocationValuesForAccount($account_number){
         global $adb;
         $query = "INSERT INTO vtiger_asset_class_totals
-                  SELECT account_number, SUM(p.current_value), cf.base_asset_class
+                  SELECT account_number, SUM(p.current_value), CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END
                   FROM vtiger_positioninformation p
                   JOIN vtiger_positioninformationcf cf USING (positioninformationid)
                   JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
                   LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
-                  WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                  AND e.deleted = 0
+                  WHERE e.deleted = 0
                   AND p.account_number = ?
                   GROUP BY base_asset_class, account_number
                   ON DUPLICATE KEY UPDATE value=VALUES(value)";
