@@ -13,28 +13,25 @@
 
 <div id="AssetAllocationWidget">
 {*{if $SOURCE_MODULE eq "PortfolioInformation"}*}
-    <select id="reportselect">
+{*    <select id="reportselect">
         <option value="0" selected="selected">Report View...</option>
-        <option value="OmniOverview" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Overview</option>
-        <option value="AssetClassReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Asset Class Report</option>
-        <option value="GainLoss" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Gain/Loss</option>
-        <option value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Estimated Income)</option>
-        <option value="GHReportActual" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Actual Income)</option>
-        <option value="GH2Report" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GH2 Report</option>
-        <option value="GHXReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GHX Report</option>
-        <option value="LastYearIncome" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Income - Last Year</option>
-        <option value="OmniProjected" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Income Projected</option>
-        <option value="OmniIncome" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Income - Trailing 12</option>
-{*        <option value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">Annual Summary</option>*}
-        {*<option value="GH2Report" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH2 Report-P</option>*}
-        <option value="OmniIntervalsDaily" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Daily</option>
-        {*<option value="OmniIntervals" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Monthly</option>*}
-        <option value="MonthOverMonth" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Month Over Month</option>
+        <option class="selectedClick" value="OmniOverview" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Overview</option>
+        <option class="selectedClick" value="AssetClassReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Asset Class Report</option>
+        <option class="selectedClick" value="GainLoss" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Gain/Loss</option>
+        <option class="selectedClick" value="GHReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Estimated Income)</option>
+        <option class="selectedClick" value="GHReportActual" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">GH Report (Actual Income)</option>
+        <option class="selectedClick" value="GH2Report" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GH2 Report</option>
+        <option class="selectedClick" value="GHXReport" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER-L">GHX Report</option>
+        <option class="selectedClick" value="LastYearIncome" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Income - Last Year</option>
+        <option class="selectedClick" value="OmniProjected" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Income Projected</option>
+        <option class="selectedClick" value="OmniIncome" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}' data-orientation="LETTER">Income - Trailing 12</option>
+        <option class="selectedClick" value="OmniIntervalsDaily" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Intervals Daily</option>
+        <option class="selectedClick" value="MonthOverMonth" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>Month Over Month</option>
         {if $CURRENT_USER->isAdminUser()}
-            <option value="PortfoliosReset" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>--Portfolios Transaction Reset--</option>
+            <option class="selectedClick" value="PortfoliosReset" data-account='{$ACCOUNTS}' data-calling='{$CALLING_RECORD}'>--Portfolios Transaction Reset--</option>
         {/if}
     </select>
-
+*}
     <div class="pie_holder">
         <div id="revenuediv" style="text-align:center;">
             <h3>Asset Allocation</h3>
