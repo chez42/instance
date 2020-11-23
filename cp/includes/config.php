@@ -25,7 +25,12 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     if($_SESSION['portal_logo'] != '')
         $GLOBALS['portal_logo'] = $_SESSION['portal_logo'];
-    
+	
+	if($_SESSION['favicon'])
+		$GLOBALS['favicon'] = $_SESSION['favicon'];
+	else
+		$GLOBALS['favicon'] = 'images/favicon.ico';
+
 	$GLOBALS['portal_profile_image'] = $_SESSION['portal_profile_image'];
     
     $GLOBALS['user_basic_details'] = $_SESSION['data']['basic_details'];

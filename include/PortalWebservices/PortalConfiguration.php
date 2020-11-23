@@ -26,10 +26,16 @@ function vtws_portalconfiguration($element,$user){
             
             $imageDetails = $recordData->getImageDetails();
             $imageName ='';
-            foreach ($imageDetails as $imageDetail){
+            foreach ($imageDetails['imagename'] as $imageDetail){
                 $imageName = $site_URL.'/'.$imageDetail['path'].'_'.$imageDetail['orgname'];
             }
             $returnData['image'] = $imageName;
+           
+            $iconName ='';
+            foreach ($imageDetails['portalfavicon'] as $imageDetail){
+                $iconName = $site_URL.'/'.$imageDetail['path'].'_'.$imageDetail['orgname'];
+            }
+            $returnData['icon'] = $iconName;
         }
         
     }
