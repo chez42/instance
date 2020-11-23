@@ -832,7 +832,7 @@ if($instance_module_obj){
 
 if(!$instance_module_obj){
 	$operation = array('name'=>'sync_master_password',
-		'path'=>'include/Webservices/SyncMasterPassword.php',
+		'path'=>'include/InstancesWebservices/SyncMasterPassword.php',
 		'method'=>'vtws_sync_master_password',
 		'type'=>'POST',
 		'params'=>array(array('name'=>'element','type'=>'encoded'))
