@@ -6,11 +6,11 @@ function SyncMasterPasswordInInstance($entityData){
     
     require_once "vtlib/Vtiger/Net/Client.php";
     
-    $httpc = new Vtiger_Net_Client(rtrim('/',$url).'/webservice.php');
+    $vtiger_client = new Vtiger_Net_Client(rtrim($url, "/").'/webservice.php');
     
     $params = array();
-
-    $element = array(); 
+    
+    $element = array();
     $element['master_password'] = $entityData->get('master_password');
     
     $params = array(
@@ -18,6 +18,6 @@ function SyncMasterPasswordInInstance($entityData){
         "element" => json_encode($element)
     );
     
-    $response = $httpc->doPost($params);
-   
+    $vtiger_client->doPost($params);
+    
 }
