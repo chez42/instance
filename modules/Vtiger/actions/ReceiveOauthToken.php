@@ -163,24 +163,25 @@ class Vtiger_ReceiveOauthToken_Action {
            
             if($token['success']){
                 
-                $tQuery = $db->pquery("SELECT * FROM vtiger_pandadoc_configuration WHERE vtiger_pandadoc_configuration.userid =?", 
-                    array($current_user_id));
+                $tQuery = $db->pquery("SELECT * FROM vtiger_pandadoc_oauth 
+                WHERE vtiger_pandadoc_oauth.userid =?", 
+                array($current_user_id));
                 
                 if($db->num_rows($tQuery)){
                     
-                    $db->pquery("UPDATE vtiger_pandadoc_configuration SET access_token = ?, refresh_token = ?, token_type = ?, 
+                    $db->pquery("UPDATE vtiger_pandadoc_oauth SET access_token = ?, refresh_token = ?, token_type = ?, 
                     expires_in = ? WHERE userid = ?", array($token['access_token'], $token['refresh_token'], $token['token_type'],
                         $token['expire'], $current_user_id));
                     
-                }else{
+                } else {
                     
-                    $db->pquery("INSERT INTO vtiger_pandadoc_configuration(userid, access_token, refresh_token, token_type, expires_in) 
+                    $db->pquery("INSERT INTO vtiger_pandadoc_oauth(userid, access_token, refresh_token, token_type, expires_in) 
                     VALUES (?, ?, ?, ?, ?)",array($current_user_id, $token['access_token'], $token['refresh_token'], $token['token_type'],
-                        $token['expire']));
+                    $token['expire']));
                     
                 }
                 
-            }else{
+            } else {
                 
                 $error = true;
                 
@@ -460,7 +461,7 @@ class Vtiger_ReceiveOauthToken_Action {
             return array("success" => true, "access_token"=>$accessToken, 
             "refresh_token"=>$refreshToken, "token_type"=>$type, "expire"=>$expires);
         
-        }else {
+        } else {
             return array("success" => false);
         }
         

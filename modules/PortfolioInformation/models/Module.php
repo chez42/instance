@@ -3124,6 +3124,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 #        }
     }
 
+    static public function TDBalanceCalculationsAccount($account_number, $sdate, $edate, $earliest=false){
+        if($earliest == true)
+            $sdate = PortfolioInformation_Module_Model::GetEarliestTDPositionDate(array($account_number));
+
+        self::TDBalanceCalculationsMultiple(array($account_number), $sdate, $edate);
+    }
+
     protected function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
         global $adb;
         $params = array();
@@ -3371,5 +3378,33 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                       WHERE p.account_number IN ({$questions})";
             $adb->pquery($query, $params, true);
         }
+    }
+
+    static public function GetPortfolioToPositionDifferencesList(){
+        global $adb;
+
+        $query = "DROP TABLE IF EXISTS difference";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE difference
+                  SELECT p.account_number, p.total_value, SUM(act.value) AS PositionValue, p.origination,p.total_value - SUM(act.value) AS dif
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_asset_class_totals act USING(account_number)
+                  GROUP BY act.account_number";
+        $adb->pquery($query, array());
+
+        $query = "SELECT account_number, origination
+                  FROM difference 
+                  WHERE dif > 1 OR dif < -1";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0){
+            $differences = array();
+            while ($v = $adb->fetchByAssoc($result)) {
+                $differences[] = $v;
+            }
+            return $differences;
+        }
+        return null;
     }
 }

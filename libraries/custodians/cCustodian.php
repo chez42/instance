@@ -173,15 +173,14 @@ class cCustodian{
      */
     public function GetLatestPositionsDate($as_of_field="date"){
         global $adb;
-        $params = array();
         $accounts = array_slice($this->account_numbers, 0, 50);
         $questions = generateQuestionMarks($accounts);
-        $params[] = $accounts;
 
         $query = "SELECT MAX({$as_of_field}) AS date 
                   FROM {$this->database}.{$this->table} 
                   WHERE account_number IN ({$questions})";
-        $result = $adb->pquery($query, $params, true);
+
+        $result = $adb->pquery($query, array($accounts), true);
 
         if($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, 'date');

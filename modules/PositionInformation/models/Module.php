@@ -208,6 +208,18 @@ class PositionInformation_Module_Model extends Vtiger_Module_Model {
             return $adb->query_result($result, 0, 'total_value');
     }
 
+    static public function GetAssetClassHistoryValue($account_number, $date){
+        global $adb;
+        $account_number = str_replace('-', '', $account_number);
+        $query = "SELECT SUM(value) AS value FROM vtiger_asset_class_history h 
+				  WHERE account_number = ? AND as_of_date = ?";
+        $result = $adb->pquery($query, array($account_number, $date));
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'value');
+        else
+            return null;
+    }
+
     static public function GetPositionsForAccountNumber($account_number){
         global $adb;
         if(is_array($account_number)){

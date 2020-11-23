@@ -12,14 +12,14 @@ class PandaDoc_MassActionAjax_View extends Vtiger_IndexAjax_View {
     
     function __construct() {
         parent::__construct();
-        $this->exposeMethod('showSendEmailWithSdk');
+        $this->exposeMethod('sendPandaDocDocument');
     }
 	
 	function process(Vtiger_Request $request) {
-		$mode = $request->get('mode');
 	
-		$mode = $request->get('mode');
-		if(!empty($mode) && $mode == 'showSendEmailWithSdk') {
+	    $mode = $request->get('mode');
+	
+		if($mode == 'sendPandaDocDocument') {
 		    $this->invokeExposedMethod($mode, $request);
 		    return;
 		} 
@@ -149,14 +149,14 @@ class PandaDoc_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	}
 	
 	
-	function showSendEmailWithSdk(Vtiger_Request $request){
+	function sendPandaDocDocument(Vtiger_Request $request){
 	    
 	    $viewer = $this->getViewer($request);
 	    $moduleName = $request->getModule();
 	    
 	    $viewer->assign('MODULE', $moduleName);
 	    
-	    echo $viewer->view('PandadocSdkForm.tpl', $moduleName, true);
+	    echo $viewer->view('PandadocForm.tpl', $moduleName, true);
 	    
 	}
 	
