@@ -158,16 +158,17 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
                 $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
                 if(count($account_numbers) > 0) {
                     $questions = generateQuestionMarks($account_numbers);
-                    $query = "INSERT INTO vtiger_asset_class_history_daily_users
-                              SELECT {$v}, SUM(value) AS value, ach.base_asset_class, as_of_date
-                              FROM vtiger_asset_class_history ach
-                              WHERE base_asset_class IS NOT NULL AND base_asset_class != ''
-                              AND account_number IN ({$questions}) 
-                              AND as_of_date = (SELECT MAX(as_of_date) FROM vtiger_asset_class_history WHERE account_number IN ({$questions})) 
+                    $query = "DELETE FROM vtiger_asset_class_totals_users WHERE user_id = ?";
+                    $adb->pquery($query, array($v));
+
+                    $query = "INSERT INTO vtiger_asset_class_totals_users
+                              SELECT {$v}, SUM(value) AS value, CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END 
+                              FROM vtiger_asset_class_totals ach
+                              WHERE account_number IN ({$questions})  
                               AND value != 0
                               GROUP BY base_asset_class
                               ON DUPLICATE KEY UPDATE value=VALUES(value)";
-                    $adb->pquery($query, array($account_numbers, $account_numbers), true);
+                    $adb->pquery($query, array($account_numbers), true);
                 }
             }catch(Exception $e){
                 StatusUpdate::UpdateMessage("TDUPDATER", "Error Encountered");

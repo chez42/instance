@@ -299,18 +299,6 @@ class cSchwabPositions extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
-    public function ResetAccountPositions($account_number){
-        global $adb;
-        $params = array();
-        $params[] = $account_number;
-
-        $query = "UPDATE vtiger_positioninformation p 
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  SET p.quantity = 0, p.current_value = 0 
-                  WHERE account_number = ?";
-        $adb->pquery($query, $params, true);
-    }
-
     /**
      * Auto updates the position's based on the data loaded into the $position_data member.
      * @param array $account_numbers
