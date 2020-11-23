@@ -763,44 +763,46 @@ if(!$fieldInstance){
 }
 
 $module = Vtiger_Module::getInstance("BillingSpecifications");
-$blockInstance = Vtiger_Block::getInstance('Pro Rate Flows',$module);
-if (!$blockInstance) {
-    $blockInstance = new Vtiger_Block();
-    $blockInstance->label = 'Pro Rate Flows';
-    $module->addBlock($blockInstance);
-}
-
-$fieldInstance = Vtiger_Field::getInstance('proratefromdate', $module);
-if(!$fieldInstance){
-    $field = new Vtiger_Field();
-    $field->name = 'proratefromdate';
-    $field->label = 'From';
-    $field->uitype = 5;
-    $field->typeofdata = 'D~O';
-    $field->columntype = 'DATE';
-    $blockInstance->addField($field);
-}
-
-$fieldInstance = Vtiger_Field::getInstance('proratetodate', $module);
-if(!$fieldInstance){
-    $field = new Vtiger_Field();
-    $field->name = 'proratetodate';
-    $field->label = 'To';
-    $field->uitype = 5;
-    $field->typeofdata = 'D~O';
-    $field->columntype = 'DATE';
-    $blockInstance->addField($field);
-}
-
-$fieldInstance = Vtiger_Field::getInstance('prorateamount', $module);
-if(!$fieldInstance){
-    $field = new Vtiger_Field();
-    $field->name = 'prorateamount';
-    $field->label = 'Exclude Flows Under';
-    $field->uitype = 71;
-    $field->typeofdata = 'N~O';
-    $field->columntype = 'DECIMAL(25, 8)';
-    $blockInstance->addField($field);
+if($module){
+    $blockInstance = Vtiger_Block::getInstance('Pro Rate Flows',$module);
+    if (!$blockInstance) {
+        $blockInstance = new Vtiger_Block();
+        $blockInstance->label = 'Pro Rate Flows';
+        $module->addBlock($blockInstance);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('proratefromdate', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'proratefromdate';
+        $field->label = 'From';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('proratetodate', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'proratetodate';
+        $field->label = 'To';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('prorateamount', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'prorateamount';
+        $field->label = 'Exclude Flows Under';
+        $field->uitype = 71;
+        $field->typeofdata = 'N~O';
+        $field->columntype = 'DECIMAL(25, 8)';
+        $blockInstance->addField($field);
+    }
 }
 
 $instance_module_obj = Vtiger_Module::getInstance("Instances");
@@ -830,7 +832,7 @@ if($instance_module_obj){
 
 if(!$instance_module_obj){
 	$operation = array('name'=>'sync_master_password',
-		'path'=>'include/Webservices/SyncMasterPassword.php',
+		'path'=>'include/InstancesWebservices/SyncMasterPassword.php',
 		'method'=>'vtws_sync_master_password',
 		'type'=>'POST',
 		'params'=>array(array('name'=>'element','type'=>'encoded'))
@@ -962,5 +964,19 @@ if($instance_module_obj){
         foreach ($operation['params'] as $param) {
             vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
         }
+    }
+}
+
+if($instance_module_obj){
+    $blockInstance = Vtiger_Block::getInstance('LBL_INSTANCES_INFORMATION',$instance_module_obj);
+    $fieldInstance = Vtiger_Field::getInstance('portalfavicon', $instance_module_obj);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'portalfavicon';
+        $field->label = 'Portal Favicon';
+        $field->uitype = 69;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(200)';
+        $blockInstance->addField($field);
     }
 }

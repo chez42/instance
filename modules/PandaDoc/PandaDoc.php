@@ -20,12 +20,8 @@ class PandaDoc extends Vtiger_CRMEntity {
             $adb->pquery("DELETE FROM vtiger_settings_field WHERE name=?", array($displayLabel));
             
             $tab_id = Vtiger_Functions::getModuleId('Contacts');
-            $linkurl = 'javascript:PandaDoc_Js.triggerPandaDocEmail("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailForm")';
-            Vtiger_Link::deleteLink($tab_id, 'DETAILVIEW', 'Send with PandaDoc', $linkurl);
-            
-            $tab_id = Vtiger_Functions::getModuleId('Contacts');
-            $linkurl = 'javascript:PandaDoc_Js.triggerPandaDocSdk("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailWithSdk")';
-            Vtiger_Link::deleteLink($tab_id, 'DETAILVIEW', 'Send with PandaDoc', $linkurl);
+            $linkurl = 'javascript:PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")';
+            Vtiger_Link::deleteLink($tab_id, 'DETAILVIEW', 'Send Document with PandaDoc', $linkurl);
             
             $tab_id = Vtiger_Functions::getModuleId('PandaDoc');
             $linkurl = 'layouts/v7/modules/PandaDoc/resources/PandaDoc.js';
@@ -35,13 +31,9 @@ class PandaDoc extends Vtiger_CRMEntity {
             Vtiger_Link::deleteLink($tab_id, 'HEADERCSS', 'PandaDocCSS', $linkurl);
             
             $linkurl = 'modules/PandaDoc/resources/pandadoc-js-sdk.min.js';
-            Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'PandaDocJS', $linkurl);
+            Vtiger_Link::deleteLink($tab_id, 'HEADERSCRIPT', 'PandaDocSDKJS', $linkurl);
             
             Vtiger_Cron::deregister('PandaDoc');
-            
-            $tab_id = Vtiger_Functions::getModuleId('Contacts');
-            $linkurl = 'javascript:PandaDoc_Js.triggerPandaDocEmailList("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailFormList")';
-            Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Send with PandaDoc', $linkurl);
             
             
         } else if($eventType == 'module.enabled') {
@@ -76,20 +68,13 @@ class PandaDoc extends Vtiger_CRMEntity {
         $linkurl = 'modules/PandaDoc/resources/pandadoc-js-sdk.min.js';
         $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
         if(!$adb->num_rows($result)){
-            Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'PandaDocJS', $linkurl, '', '0', '', '', '');
+            Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'PandaDocSDKJS', $linkurl, '', '0', '', '', '');
         }
         
         
         $tab_id = Vtiger_Functions::getModuleId('Contacts');
         
-        /*$linkurl = 'javascript:PandaDoc_Js.triggerPandaDocEmail("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailForm")';
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
-        if(!$adb->num_rows($result)){
-            Vtiger_Link::addLink($tab_id, 'DETAILVIEWBASIC', 'Send with PandaDoc', $linkurl, '', '0', '', '', '');
-        }
-        */
-        
-        $linkurl = 'javascript:PandaDoc_Js.triggerPandaDocSdk("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailWithSdk")';
+        $linkurl = 'javascript:PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")';
         $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
         if(!$adb->num_rows($result)){
             Vtiger_Link::addLink($tab_id, 'DETAILVIEW', 'Send Document with PandaDoc', $linkurl, '', '0', '', '', '');
@@ -105,26 +90,19 @@ class PandaDoc extends Vtiger_CRMEntity {
         $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
         VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,$displayLabel,'','', 'index.php?parent=Settings&module=PandaDoc&view=Settings'));
         
-        /*$linkurl = 'javascript:PandaDoc_Js.triggerPandaDocEmailList("index.php?module=PandaDoc&view=MassActionAjax&mode=showSendEmailFormList")';
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ? 
-        AND tabid = ?",array($linkurl, $tab_id));
-        if(!$adb->num_rows($result)){
-            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Send with PandaDoc', $linkurl, '', '0', '', '', '');
-        }*/
-        
         Vtiger_Cron::register('PandaDoc', 'cron/modules/PandaDoc/SyncPandaDocFiles.service', 0);
     
     }
     
     function PandaDocTables($adb){
         
-        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_pandadoc_configuration (
-            userid INT(19) NULL ,
-            access_token TEXT NULL ,
-            refresh_token TEXT NULL ,
-            token_type VARCHAR(250) NULL ,
-            expires_in VARCHAR(250) NULL );
-        ");
+        $adb->pquery("CREATE TABLE `vtiger_pandadoc_oauth` (
+ `userid` int(19) DEFAULT NULL,
+ `access_token` text,
+ `refresh_token` text,
+ `token_type` varchar(250) DEFAULT NULL,
+ `expires_in` varchar(250) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1)");
         
         /*$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_sync_pandadoc_records (
             userid INT(11) NULL ,
