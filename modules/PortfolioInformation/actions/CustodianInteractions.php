@@ -25,12 +25,19 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
                 include("cron/modules/InstanceOnly/HomepageWidgets.service");
                 break;
             case "PullRecalculate":{
-                $custodian = $request->get('custodian');
-
-                $updateClass = "c".$custodian."Updater";
-                $update = new $updateClass(array());
-                $update->UpdateAll();
-
+                $cust = $request->get('custodian');
+                switch(strtoupper($cust)){
+                    case "ALL":
+                        $custodians = array("TD", "Fidelity", "Schwab", "Pershing");
+                        break;
+                    default:
+                        $custodians = array($cust);
+                }
+                foreach($custodians AS $k => $custodian){
+                    $updateClass = "c".$custodian."Updater";
+                    $update = new $updateClass(array());
+                    $update->UpdateAll();
+                }
             }break;
             case "GetUpdateStatus":{
                 echo StatusUpdate::ReadMessage("TDUPDATER");
