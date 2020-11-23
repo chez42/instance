@@ -229,18 +229,6 @@ class cTDPositions extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
-    public function ResetAccountPositions($account_number){
-        global $adb;
-        $params = array();
-        $params[] = $account_number;
-
-        $query = "UPDATE vtiger_positioninformation p 
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  SET p.quantity = 0, p.current_value = 0, pcf.last_update = null
-                  WHERE account_number = ?";
-        $adb->pquery($query, $params, true);
-    }
-
     /**
      * Update the position in the CRM using the cTDPositionsData class
      * @param cTDPositionsData $data
@@ -270,7 +258,7 @@ class cTDPositions extends cCustodian {
                                                                                 THEN mcf.security_price_adjustment ELSE 1 END 
                                                                                 * CASE WHEN m.asset_backed_factor > 0 
                                                                                 THEN m.asset_backed_factor ELSE 1 END,
-              p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = mcf.aclass, cf.custodian = 'TD',
+              p.description = m.security_name, cf.security_type = m.securitytype, cf.base_asset_class = CASE WHEN mcf.aclass IS NULL OR mcf.aclass = '' THEN 'Other' ELSE mcf.aclass END, cf.custodian = 'TD',
               p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment > 0 THEN mcf.security_price_adjustment ELSE 1 END,
               cf.last_update = ?, cf.custodian_source = ?, cf.position_closed = 0
               WHERE account_number = ? AND p.security_symbol = ?";
