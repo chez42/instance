@@ -51,7 +51,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (SCHWAB)");
 
 
 
-$start = $month = strtotime('2019-01-01');
+$start = $month = date("Y-m-d", strtotime("-7 days"));
 $end = strtotime(date("Y-m-d"));
 while($month < strtotime("+1 month", $end))
 {
