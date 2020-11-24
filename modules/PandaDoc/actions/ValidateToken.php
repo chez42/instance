@@ -120,7 +120,7 @@ class PandaDoc_ValidateToken_Action extends Vtiger_Action_Controller{
         $current_user_id = $current_user->id;
         
         $tQuery = $adb->pquery("SELECT * FROM vtiger_pandadoc_oauth WHERE 
-        vtiger_pandadoc_configuration.userid =?", array($current_user_id));
+        vtiger_pandadoc_oauth.userid =?", array($current_user_id));
         
         if($adb->num_rows($tQuery)){
             

@@ -686,6 +686,9 @@ function SyncTicketCommentsWithHQ( $entityData ){
     
     $comData['ticket_no'] = $data['ticket_no'];
     
+    $host_parts = explode(".", $_SERVER['HTTP_HOST']);
+    $comData['source'] = $host_parts[0];
+    
     $params = array("sessionName"=>$sessionId, "operation"=>'sync_ticket_and_comment', "element" => json_encode($comData));
     
     $response = $httpc->doPost($params);

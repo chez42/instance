@@ -12,7 +12,8 @@ function vtws_save_tickets_and_comments($element,$user){
         
         $ticket = $adb->pquery("SELECT * FROM vtiger_troubletickets
 		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
-		WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.referenceid = ?",array($ticketId));
+		WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.referenceid = ?
+        AND vtiger_crmentity.source = ?",array($ticketId, $element['source']));
         
         if($adb->num_rows($ticket)){
             
@@ -48,7 +49,8 @@ function vtws_save_tickets_and_comments($element,$user){
        
         $ticket = $adb->pquery("SELECT * FROM vtiger_troubletickets
 		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_troubletickets.ticketid
-		WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.referenceid = ?",array($element['ticket_no']));
+		WHERE vtiger_crmentity.deleted = 0 AND vtiger_troubletickets.referenceid = ?
+        AND vtiger_crmentity.source=?",array($element['ticket_no'], $element['source'] ));
         
         if($adb->num_rows($ticket)){
             
