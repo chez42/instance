@@ -893,3 +893,8 @@ tbody .ps__thumb-y{
 .stellarnav li li.has-sub > a:after {border-left: 6px solid <?= $text_contrast_menu ?> !important;}
 .stellarnav li a {color: <?= $text_contrast_menu ?> !important;}
 .stellarnav li {background-color:<?= $menu_color ?>; border:<?= $menu_color ?>;}
+
+.input-group-addon i  {
+	color: <?= $text_contrast ?> !important;
+    background-color: <?= $main_bg_color ?>;
+}

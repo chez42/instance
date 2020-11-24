@@ -96,13 +96,12 @@ class PandaDoc extends Vtiger_CRMEntity {
     
     function PandaDocTables($adb){
         
-        $adb->pquery("CREATE TABLE `vtiger_pandadoc_oauth` (
- `userid` int(19) DEFAULT NULL,
- `access_token` text,
- `refresh_token` text,
- `token_type` varchar(250) DEFAULT NULL,
- `expires_in` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1)");
+        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_pandadoc_oauth (
+         userid int(19) DEFAULT NULL,
+         access_token text,
+         refresh_token text,
+         token_type varchar(250) DEFAULT NULL,
+         expires_in varchar(250) DEFAULT NULL)");
         
         /*$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_sync_pandadoc_records (
             userid INT(11) NULL ,
