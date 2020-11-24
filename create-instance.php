@@ -66,8 +66,6 @@
 
 			$newInstanceInfo['root_directory'] = $base_path . "/" . $instance_name . "/";
 
-			system("unzip /var/www/sites/360vew/git-ignore-files.zip -d " . $base_path . "/" . $instance_name);
-			
 			system("/usr/bin/bash /var/www/sites/fixperms.sh " . $instance_name);
 			
 			echo "Permissions run<br />";
@@ -83,6 +81,8 @@
 			//copy_files("/var/www/sites/storage/.htaccess","/var/www/sites/{$instance_name}/storage/.htaccess");
 			
 			createConfigurationFiles($newInstanceInfo);
+			
+			system("unzip /var/www/sites/360vew/git-ignore-files.zip -d " . $base_path . "/" . $instance_name);
 			
 			$response = array("SUCCESS" => "Instance Set UP Successfully " . $newInstanceInfo['site_url']);
 
