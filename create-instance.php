@@ -82,6 +82,8 @@
 			
 			createConfigurationFiles($newInstanceInfo);
 			
+			system("unzip /var/www/sites/360vew/git-ignore-files.zip -d " . $base_path . "/" . $instance_name);
+			
 			$response = array("SUCCESS" => "Instance Set UP Successfully " . $newInstanceInfo['site_url']);
 
         }
