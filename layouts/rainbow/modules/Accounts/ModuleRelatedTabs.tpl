@@ -18,7 +18,15 @@
 					{assign var=RELATED_TAB_LABEL value={vtranslate('SINGLE_'|cat:$MODULE_NAME, $MODULE_NAME)}|cat:" "|cat:$RELATEDLINK_LABEL}
 				<li class="tab-item {if $RELATED_TAB_LABEL==$SELECTED_TAB_LABEL}active{/if}" data-url="{$RELATEDLINK_URL}&tab_label={$RELATED_TAB_LABEL}&app={$SELECTED_MENU_CATEGORY}" data-label-key="{$RELATEDLINK_LABEL}" data-link-key="{$RELATED_LINK->get('linkKey')}" >
 					<a href="{$RELATEDLINK_URL}&tab_label={$RELATEDLINK_LABEL}&app={$SELECTED_MENU_CATEGORY}" class="textOverflowEllipsis">
-						<span class="tab-label">{vtranslate($RELATEDLINK_LABEL,{$MODULE_NAME})}</span>
+						<span class="tab-label">
+							{if $RELATEDLINK_LABEL eq 'LBL_UPDATES'}
+								<span class="module-icon"><img src="layouts/rainbow/icons/Updates.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+							{else if $RELATEDLINK_LABEL eq 'LBL_JOURNAL'}
+								<span class="module-icon"><img src="layouts/rainbow/icons/Journals.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+							{else}
+								{vtranslate($RELATEDLINK_LABEL,{$MODULE_NAME})}
+							{/if}
+						</span>
 					</a>
 				</li>
 			{/foreach}
@@ -43,29 +51,55 @@
 						data-module="{$RELATEDMODULENAME}" data-relation-id="{$RELATED_LINK->getId()}" {if $RELATEDMODULENAME eq "ModComments"} title {else} title="{$DETAILVIEWRELATEDLINKLBL}"{/if} {if $RELATEDFIELDNAME}data-relatedfield ="{$RELATEDFIELDNAME}"{/if} >
 						<a href="index.php?{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" class="textOverflowEllipsis" displaylabel="{$DETAILVIEWRELATEDLINKLBL}" recordsCount="" {if $RELATEDMODULENAME neq "ModComments"}tippytitle data-tippy-content="{$DETAILVIEWRELATEDLINKLBL}"{/if}>
 							{if $RELATEDMODULENAME eq "ModComments"}
-								<span class="tab-label" ><i class="fa fa-comments-o" aria-hidden="true"></i></span>&nbsp;
+								<span class="tab-label" >{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+									<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+								</span>&nbsp;
 									{else}
-								<span class="tab-icon">
+								<span class="tab-icon tab-label">
 									{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
 									{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
 									{if $RELATEDMODULENAME eq 'PortfolioInformation'}
-										<i class="fa fa-line-chart" aria-hidden="true"></i>
+										<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+										{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
 									{else if $RELATEDMODULENAME eq 'Connection'}
-										<i class="fa fa-users" aria-hidden="true"></i>
+										<span class="module-icon"><img src="layouts/rainbow/icons/Connection.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+										{*<i class="fa fa-users" aria-hidden="true"></i>*}
 									{else if $RELATEDMODULENAME eq 'ModComments'}
-										<i class="fa fa-comments-o" aria-hidden="true"></i>
+										<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+										{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
 									{else if $RELATEDMODULENAME eq 'RingCentral'}
 										<i class="fa fa-phone-square" aria-hidden="true"></i>
 									{else if $RELATEDMODULENAME eq 'Task'}
-										<i class="fa fa-tasks" aria-hidden="true"></i>
+										<span class="module-icon"><img src="layouts/rainbow/icons/Task.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+										{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
 									{else if $RELATEDMODULENAME eq 'Timecontrol'}
 										<i class="fa fa-hourglass" aria-hidden="true"></i>
-									{else if $RELATEDMODULENAME eq 'EmailTemplates' || $RELATEDMODULENAME eq 'CalendarTemplate'}
+									{else if $RELATEDMODULENAME eq 'EmailTemplates'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Documents'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'HelpDesk'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Instances'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Instances.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'ModSecurities'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Notifications'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Notifications.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'PositionInformation'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'QuotingTool'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Transactions'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Transactions.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Contacts'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'CalendarTemplate'}
 										<i class="fa fa-fast-forward" aria-hidden="true"></i>
 									{else if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
-										<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
+										<i class="material-icons">{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
 									{else}
-										<i class="material-icons" >folder</i>
+										<i class="material-icons">folder</i>
 									{/if}
 									{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>*}
 									{*{$RELATED_MODULE_MODEL->getModuleIcon()}*}
