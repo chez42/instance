@@ -36,6 +36,11 @@
 					{assign var=COUNTER value=0}
 					<table class="table table-bordered modulesTable">
 						<tr>
+							<style>
+								span.module-icon :not(.material-icons) {
+									filter:none !important;
+								}
+							</style>
 							{foreach item=MODULE_MODEL key=MODULE_ID from=$ALL_MODULES}
 								{assign var=MODULE_NAME value=$MODULE_MODEL->get('name')}
 								{assign var=MODULE_ACTIVE value=$MODULE_MODEL->isActive()}
@@ -55,26 +60,49 @@
 											{/if}
 												
 											{if $MODULE_NAME eq 'PortfolioInformation'}
-												<i style="line-height: 28px;font-size: 20px;" class="fa fa-line-chart" aria-hidden="true"></i>
+												<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$MODULE_LABEL}"></span>
+												{*<i style="line-height: 28px;font-size: 20px;" class="fa fa-line-chart" aria-hidden="true"></i>*}
 											{else if $MODULE_NAME eq 'Connection'}
-												<i style="line-height: 28px;font-size: 20px;" class="fa fa-users" aria-hidden="true"></i>
+												<span class="module-icon"><img src="layouts/rainbow/icons/Connection.png" title="{$MODULE_LABEL}"></span>
+												{*<i style="line-height: 28px;font-size: 20px;" class="fa fa-users" aria-hidden="true"></i>*}
 											{else if $MODULE_NAME eq 'ModComments'}
-												<i style="line-height: 28px;font-size: 20px;" class="fa fa-comments-o" aria-hidden="true"></i>
+												<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$MODULE_LABEL}"></span>
+												{*<i style="line-height: 28px;font-size: 20px;" class="fa fa-comments-o" aria-hidden="true"></i>*}
 											{else if $MODULE_NAME eq 'RingCentral'}
 												<i style="line-height: 28px;font-size: 20px;" class="fa fa-phone-square" aria-hidden="true"></i>
 											{else if $MODULE_NAME eq 'Task'}
-												<i style="line-height: 28px;font-size: 20px;" class="fa fa-tasks" aria-hidden="true"></i>
+												<span class="module-icon"><img src="layouts/rainbow/icons/Task.png" title="{$MODULE_LABEL}"></span>
+												{*<i style="line-height: 28px;font-size: 20px;" class="fa fa-tasks" aria-hidden="true"></i>*}
 											{else if $MODULE_NAME eq 'Timecontrol'}
 												<i style="line-height: 28px;font-size: 20px;" class="fa fa-hourglass" aria-hidden="true"></i>
-											{else if $MODULE_NAME eq 'EmailTemplates' || $moduleName eq 'CalendarTemplate'}
+											{else if $MODULE_NAME eq 'CalendarTemplate'}
 												<i style="line-height: 28px;font-size: 20px;" class="fa fa-fast-forward" aria-hidden="true"></i>
+											{else if $MODULE_NAME eq 'EmailTemplates'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'Documents'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'HelpDesk'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'Instances'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Instances.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'ModSecurities'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'Notifications'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Notifications.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'PositionInformation'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'QuotingTool'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'Transactions'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Transactions.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'Contacts'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$MODULE_LABEL}"></span>
 											{else if vimage_path($MODULE_NAME|cat:'.png') != false}
-												
 												<i class="ti-{strtolower($MODULE_LABEL)} alignMiddle" alt="{$MODULE_LABEL}" title="{$MODULE_LABEL}" ></i>
 											{else}
 												<i class="ti-folder alignMiddle" alt="{$MODULE_LABEL}" title="{$MODULE_LABEL}"></i>
 											{/if}	
-
+											
 										</span>
 										<span class="col-lg-7 moduleName {if !$MODULE_ACTIVE} dull {/if}"><h5>{$MODULE_LABEL}</h5></span>
 											{assign var=SETTINGS_LINKS value=$MODULE_MODEL->getSettingLinks()}
