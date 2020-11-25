@@ -91,35 +91,42 @@ class Users_Login_View extends Vtiger_View_Controller {
 		
 		global $site_URL;
 		
-		
-		/*$httpc = new Vtiger_Net_Client('http://localhost/Omni-Ver4/webservice.php');
-		$element = array();
-		$element['domain'] = rtrim($site_URL,'/');
-		
-		$params = array(
-		    "operation"=>'get_instance_details',
-		    "element" => json_encode($element)
-		);
-		
-		$response = $httpc->doPost($params);
-		
-		$response = json_decode($response, true);
-		
-		if(!empty($response['result'])){
-		    $data = $response['result'];
-		*/  
-		$data = array();
-		
-		$data['copyright'] = '2004-'.date("Y") . ' Omniscient CRM';
-		$data['facebook'] = 'https://facebook.com/omnisrv/';
-		$data['twitter'] = 'https://twitter.com/omnisrv';
-		$data['linkedin'] = 'https://linkedin.com/company/omnisrv';
-		$data['youtube'] = 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
-		$data['instagram'] = 'https://instagram.com/omnisrv';
-		$data['bgtype'] = '';
-		$data['logo'] = '';
-		$data['background'] = '';
-		
+        $host_parts = explode(".", $_SERVER['HTTP_HOST']);
+        
+        if($host_parts[0] == 'hq' || $host_parts[0] == 'crm4'){
+            
+            $data = array();
+            
+            $data['copyright'] = '2004-'.date("Y") . ' Omniscient CRM';
+            $data['facebook'] = 'https://facebook.com/omnisrv/';
+            $data['twitter'] = 'https://twitter.com/omnisrv';
+            $data['linkedin'] = 'https://linkedin.com/company/omnisrv';
+            $data['youtube'] = 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
+            $data['instagram'] = 'https://instagram.com/omnisrv';
+            $data['bgtype'] = '';
+            $data['logo'] = '';
+            $data['background'] = '';
+            
+        }else{
+            
+            $httpc = new Vtiger_Net_Client('https://hq.360vew.com/webservice.php');
+            $element = array();
+            $element['domain'] = rtrim($site_URL,'/');
+            
+            $params = array(
+                "operation"=>'get_instance_details',
+                "element" => json_encode($element)
+            );
+            
+            $response = $httpc->doPost($params);
+            
+            $response = json_decode($response, true);
+            
+            if(!empty($response['result'])){
+                $data = $response['result'];
+            }
+            
+        }
 		$viewer->assign('COPYRIGHT', $data['copyright']);
 		$viewer->assign('FACEBOOK_LINK', $data['facebook']);
 		$viewer->assign('TWITTER_LINK', $data['twitter']);
