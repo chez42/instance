@@ -20,6 +20,9 @@
 				    display: inline-block;
 				    float: none;
 			    }
+			    [class^="vicon-"], [class*=" vicon-"] {
+			    	font-size: unset !important;
+			    }
 			</style>
 			
 <div class="listViewPageDiv detailViewContainer col-sm-12" id="listViewContent">
@@ -68,7 +71,49 @@
 									</span>
 									{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 									<span>
-										<span class="marginRight10px marginTop5px pull-left">{$moduleModel->getModuleIcon()}</span>
+										<span class="marginRight10px marginTop5px pull-left">
+											{if $moduleName eq 'PortfolioInformation'}
+												<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
+												{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
+											{else if $moduleName eq 'Connection'}
+												<span class="module-icon"><img src="layouts/rainbow/icons/Connection.png" title="{$translatedModuleLabel}"></span>
+												{*<i class="fa fa-users" aria-hidden="true"></i>*}
+											{else if $moduleName eq 'ModComments'}
+												<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$translatedModuleLabel}"></span>
+												{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+											{else if $moduleName eq 'RingCentral'}
+												<i class="fa fa-phone-square module-icon" style="font-size:1em !important;" aria-hidden="true"></i>
+											{else if $moduleName eq 'Task'}
+												<span class="module-icon"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
+												{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
+											{else if $moduleName eq 'Timecontrol'}
+												<i class="fa fa-hourglass module-icon" style="font-size:1em !important;" aria-hidden="true"></i>
+											{else if $moduleName eq 'EmailTemplates'}
+												<span class="module-icon"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'CalendarTemplate'}
+												<i class="fa fa-fast-forward module-icon" style="font-size:1em !important;" aria-hidden="true"></i>
+											{else if $moduleName eq 'Documents'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'HelpDesk'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'Instances'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Instances.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'ModSecurities'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'Notifications'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Notifications.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'PositionInformation'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'QuotingTool'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'Transactions'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Transactions.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'Contacts'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$translatedModuleLabel}"></span>
+											{else}
+												{$moduleModel->getModuleIcon()}
+											{/if}
+										</span>
 									</span>
 									<div class="textOverflowEllipsis marginTop5px textAlignLeft" title="{$translatedModuleLabel}">{$translatedModuleLabel}</div>
 								</div>

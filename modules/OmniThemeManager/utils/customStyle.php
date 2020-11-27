@@ -175,6 +175,12 @@ else $menu_type = "top-menu-dropdown";
 $field_label_color = $params["field-labels-color"];
 $field_label_font_color = $params["field-labels-font-color"];
 
+if($text_contrast_menu == '#ffffff')$icon = 'invert(1) !important;';
+else $icon = 'none';
+
+if($menu_color == '#ffffff')$iconHover = 'invert(1) !important;';
+else $iconHover = 'brightness(0.5) !important';
+
 ?>
 
 
@@ -897,4 +903,16 @@ tbody .ps__thumb-y{
 .input-group-addon i  {
 	color: <?= $text_contrast ?> !important;
     background-color: <?= $main_bg_color ?>;
+}
+
+span.module-icon :not(.material-icons){
+	filter:  <?= $icon ?>;
+}
+
+.fasksecond li.with-childs ul a:hover, .faskfirst li a:hover span.module-icon  {
+    filter:  <?= $iconHover ?>;
+}
+
+.sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a.active span.module-icon {
+    filter:  <?= $iconHover ?>;
 }
