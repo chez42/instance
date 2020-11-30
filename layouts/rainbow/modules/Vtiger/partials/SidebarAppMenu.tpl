@@ -60,28 +60,23 @@
 	                    </li>
                         
                         <li class="nav-small-cap hide">APPS</li>
-                        <!-- <li class="active"> <a class="has-arrow waves-effect waves-dark" href="#" aria-expanded="false"><i class="material-icons">dashboard</i><span class="hide-menu">Dashboard <span class="label label-rouded label-themecolor pull-right">4</span></span></a>
-                            <ul aria-expanded="true" class="collapse in">
-                                <li class="active"><a href="index.html" class="active"><i class="fa fa-dashboard"></i> Minimal </a></li>
-                                <li><a href="index2.html">Analytical</a></li>
-                                <li><a href="index3.html">Demographical</a></li>
-                                <li><a href="index4.html">Modern</a></li>
-                            </ul>
-                        </li>
-                        -->
                         
                         {assign var=USER_PRIVILEGES_MODEL value=Users_Privileges_Model::getCurrentUserPrivilegesModel()}
 						{assign var=HOME_MODULE_MODEL value=Vtiger_Module_Model::getInstance('Home')}
 						{assign var=DASHBOARD_MODULE_MODEL value=Vtiger_Module_Model::getInstance('Dashboard')}
 			
-							{if $USER_PRIVILEGES_MODEL->hasModulePermission($DASHBOARD_MODULE_MODEL->getId())}
-								<li class="{if $MODULE eq "Home"}active{/if}"> <a class=" waves-effect waves-dark" href="{$HOME_MODULE_MODEL->getDefaultUrl()}" ><i class="material-icons">dashboard</i><span class="hide-menu" style="text-transform: uppercase">{vtranslate('LBL_DASHBOARD',$MODULE)} </span></a>
-                        </li>
-							{/if}
-							{assign var=APP_GROUPED_MENU value=Settings_MenuEditor_Module_Model::getAllVisibleModules()}
-							{assign var=APP_LIST value=Vtiger_MenuStructure_Model::getAppMenuList()}
-							
-							{if $MODULE eq "Home"}
+						{if $USER_PRIVILEGES_MODEL->hasModulePermission($DASHBOARD_MODULE_MODEL->getId())}
+							<li class="{if $MODULE eq "Home"}active{/if}"> 
+								<a class=" waves-effect waves-dark" href="{$HOME_MODULE_MODEL->getDefaultUrl()}" >
+									<i class="material-icons">dashboard</i>
+									<span class="hide-menu" style="text-transform: uppercase">{vtranslate('LBL_DASHBOARD',$MODULE)} </span>
+								</a>
+                    		</li>
+						{/if}
+						{assign var=APP_GROUPED_MENU value=Settings_MenuEditor_Module_Model::getAllVisibleModules()}
+						{assign var=APP_LIST value=Vtiger_MenuStructure_Model::getAppMenuList()}
+						
+						{if $MODULE eq "Home"}
 							{assign var=SELECTED_MENU_CATEGORY value='Dashboard'}
 							{/if}
 							
@@ -99,44 +94,92 @@
 										{include file="modules/Vtiger/partials/ModuleIcons.tpl"|myclayout_path}
 									
 								<li class="with-childs {if $SELECTED_MENU_CATEGORY eq $APP_NAME}active{/if}"> <a class="has-arrow waves-effect waves-dark " href="#" aria-expanded="{if $SELECTED_MENU_CATEGORY eq $APP_NAME}true{else}false{/if}">
-								<i class="app-icon-list fa {$APP_IMAGE_MAP.$APP_NAME}" ></i><span class="hide-menu">{vtranslate("$APP_NAME")}</span></a>
-                            
-                            <ul aria-expanded="{if $SELECTED_MENU_CATEGORY eq $APP_NAME}true{else}false{/if}" class="collapse {if $SELECTED_MENU_CATEGORY eq $APP_NAME}in{/if}" style="padding-left:0px;padding-top:4px;">
-	                            {foreach item=moduleModel key=moduleName from=$APP_GROUPED_MENU[$APP_NAME]}
-	                            {assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
-								
-                                <li><a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
-									<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
-								<span class="hide-menu"> {$translatedModuleLabel}</span></a></li>
-                                {/foreach}
-                            </ul>
-                            
-                        </li>
-                        
+									<i class="app-icon-list fa {$APP_IMAGE_MAP.$APP_NAME}" ></i><span class="hide-menu">{vtranslate("$APP_NAME")}</span></a>
+		                            
+		                            <ul aria-expanded="{if $SELECTED_MENU_CATEGORY eq $APP_NAME}true{else}false{/if}" class="collapse {if $SELECTED_MENU_CATEGORY eq $APP_NAME}in{/if}" style="padding-left:0px;padding-top:4px;">
+			                            {foreach item=moduleModel key=moduleName from=$APP_GROUPED_MENU[$APP_NAME]}
+				                            {assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 											
-								{/if}
-							{/foreach}
+			                                <li>
+			                                	<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
+													{if $moduleName eq 'PortfolioInformation'}
+														<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
+														{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
+													{else if $moduleName eq 'Connection'}
+														<span class="module-icon"><img src="layouts/rainbow/icons/Connection.png" title="{$translatedModuleLabel}"></span>
+														{*<i class="fa fa-users" aria-hidden="true"></i>*}
+													{else if $moduleName eq 'ModComments'}
+														<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$translatedModuleLabel}"></span>
+														{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+													{else if $moduleName eq 'RingCentral'}
+														<i class="fa fa-phone-square module-icon" aria-hidden="true"></i>
+													{else if $moduleName eq 'Task'}
+														<span class="module-icon"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
+														{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
+													{else if $moduleName eq 'Timecontrol'}
+														<i class="fa fa-hourglass module-icon" aria-hidden="true"></i>
+													{else if $moduleName eq 'EmailTemplates'}
+														<span class="module-icon"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'CalendarTemplate'}
+														<i class="fa fa-fast-forward module-icon" aria-hidden="true"></i>
+													{else if $moduleName eq 'Documents'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'HelpDesk'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Instances'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Instances.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'ModSecurities'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Notifications'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Notifications.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'PositionInformation'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'QuotingTool'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Transactions'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Transactions.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Contacts'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$translatedModuleLabel}"></span>
+													{else}
+														<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
+													{/if}
+													<span class="hide-menu"> {$translatedModuleLabel}</span>
+												</a>
+											</li>
+		                                {/foreach}
+		                            </ul>
+	                        	</li>
+							{/if}
+						{/foreach}
                         
                         <li class="nav-small-cap hide">TOOLS & SETTINGS</li>
-                                               
                        
 						{*assign var=MAILMANAGER_MODULE_MODEL value=Vtiger_Module_Model::getInstance('MailManager')}
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($MAILMANAGER_MODULE_MODEL->getId())}
-							
-							<li class="{if $MODULE eq "MailManager"}active{/if}"> <a class=" waves-effect waves-dark" href="index.php?module=MailManager&view=List" ><i class="app-icon-list material-icons">email</i><span class="hide-menu"> {vtranslate('MailManager')}</span></a>
-                        </li>
+							<li class="{if $MODULE eq "MailManager"}active{/if}"> 
+								<a class=" waves-effect waves-dark" href="index.php?module=MailManager&view=List" >
+									<i class="app-icon-list material-icons">email</i>
+									<span class="hide-menu"> {vtranslate('MailManager')}</span>
+								</a>
+                        	</li>
 						{/if*}
 						{assign var=DOCUMENTS_MODULE_MODEL value=Vtiger_Module_Model::getInstance('Documents')}
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($DOCUMENTS_MODULE_MODEL->getId())}
 							
-							<li class="{if $MODULE eq "Documents"}active{/if}"> <a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" ><i class="app-icon-list material-icons">file_download</i><span class="hide-menu"> {vtranslate('Documents')}</span></a>
+							<li class="{if $MODULE eq "Documents"}active{/if}"> 
+								<a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" >
+									{*<i class="app-icon-list material-icons">file_download</i>*}
+									<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{vtranslate('Documents')}"></span>
+									<span class="hide-menu"> {vtranslate('Documents')}</span>
+								</a>
                         </li>
 						{/if}
 						{assign var=TASK_MODULE_MODEL value=Vtiger_Module_Model::getInstance('Task')}
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($TASK_MODULE_MODEL->getId())}
 							<li class="{if $MODULE eq "Task"}active{/if}"> 
 								<a class=" waves-effect waves-dark" href="index.php?module=Task&view=List" >
-									<i class="fa fa-tasks" aria-hidden="true"></i>
+									{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
+									<span class="module-icon"><img src="layouts/rainbow/icons/Task.png" title="{vtranslate('Task')}"></span>
 									<span class="hide-menu"> {vtranslate('Task')}</span>
 								</a>
                         	</li>
@@ -145,7 +188,8 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($COMMENTS_MODULE_MODEL->getId())}
 							<li class="{if $MODULE eq "ModComments"}active{/if}"> 
 								<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" >
-									<i class="fa fa-comments-o" aria-hidden="true"></i>
+									{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+									<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{vtranslate('ModComments')}"></span>
 									<span class="hide-menu"> {vtranslate('ModComments')}</span>
 								</a>
                         	</li>
@@ -281,7 +325,10 @@
 			{if $USER_PRIVILEGES_MODEL->hasModulePermission($DOCUMENTS_MODULE_MODEL->getId())}
 				<div class="menu-item app-item app-item-misc" data-default-url="index.php?module=Documents&view=List">
 					<div class="menu-items-wrapper">
-						<span class="app-icon-list"><i class="material-icons">file_download</i></span>
+						<span class="app-icon-list">
+							{*<i class="material-icons">file_download</i>*}
+							<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{vtranslate('Documents')}"></span>
+						</span>
 						<span class="app-name textOverflowEllipsis"> {vtranslate('Documents')}</span>
 					</div>
 				</div>
