@@ -199,7 +199,7 @@ jQuery.Class("DynamicPie_Js",{
         chart.numberFormatter = {precision:2, decimalSeparator:".", thousandsSeparator:","};
         chart.labelRadius = -30;
         chart.radius = 125;
-        chart.labelText = "[[percents]]%";
+        chart.labelText = "[[]]";//[[percents]]%";
         chart.textColor= "#FFFFFF";
         chart.color = "#FFFFFF";
         chart.depth3D = 14;
@@ -217,9 +217,9 @@ jQuery.Class("DynamicPie_Js",{
             legend.maxColumns = 1;
             legend.position = "right";
             legend.marginRight = 20;
-            legend.valueText = "$[[value]]";
+            legend.valueText = "$[[value]] ([[percents]]%)";
 //            legend.valueText = "";
-            legend.valueWidth = 100;
+            legend.valueWidth = 150;
             legend.switchable = false;
             legend.labelText = "[[title]]";
             chart.addLegend(legend);//, 'report_top_pie_legend');
