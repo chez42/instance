@@ -21,7 +21,9 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
 
 	public static function GetCrmidFromSymbol($symbol){
 	    global $adb;
-	    $query = "SELECT modsecuritiesid FROM vtiger_modsecurities WHERE security_symbol = ?";
+	    $query = "SELECT modsecuritiesid FROM vtiger_modsecurities 
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modsecurities.modsecuritiesid
+        WHERE vtiger_crmentity.deleted = 0 AND security_symbol = ?";
 	    $result = $adb->pquery($query, array($symbol));
 	    if($adb->num_rows($result) > 0)
 	        return $adb->query_result($result, 0, 'modsecuritiesid');
