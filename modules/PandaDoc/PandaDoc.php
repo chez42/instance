@@ -97,18 +97,18 @@ class PandaDoc extends Vtiger_CRMEntity {
     function PandaDocTables($adb){
         
         $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_pandadoc_oauth (
-         userid int(19) DEFAULT NULL,
-         access_token text,
-         refresh_token text,
-         token_type varchar(250) DEFAULT NULL,
-         expires_in varchar(250) DEFAULT NULL)");
+         `userid` int(19) DEFAULT NULL,
+         `access_token` text,
+         `refresh_token` text,
+         `token_type` varchar(250) DEFAULT NULL,
+         `expires_in` varchar(250) DEFAULT NULL) ENGINE=InnoDB DEFAULT CHARSET=latin1");
         
-        /*$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_sync_pandadoc_records (
-            userid INT(11) NULL ,
-            documentid VARCHAR(250) NULL,
-            contactid INT(19) NULL,
-            status VARCHAR(255) NULL );");
-        */
+        $adb->pquery("CREATE TABLE IF NOT EXISTS `vtiger_pandadocdocument_reference` (
+ `crm_reference` varchar(100) DEFAULT NULL,
+ `userid` int(11) DEFAULT NULL,
+ UNIQUE KEY `crmid` (`crm_reference`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+        
     }
     
 }
