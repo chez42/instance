@@ -14,25 +14,18 @@ include_once('libraries/reports/new/nCommon.php');
 class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-/*        $trade = new Trading_Ameritrade_Model();
-        $url = "https://veoapi.advisorservices.com/InstitutionalAPIv2/api";
-        $positions = $trade->GetPositions($url, "B");
-        foreach($positions->model->getPositionsJson->position AS $k => $v){
-            ModSecurities_Module_Model::UpdateSecurityInformationTD($v);
-        }*/
-#        ModSecurities_Module_Model::SetSecurityTypeFromDescriptionMapping("TD");//This is totally separate from what was just done above.  This uses the security name to update preferred stock, or whatever else is defined in the table
-/*
-		$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCrmid($request->get('record'));
-		ModSecurities_Module_Model::FillSecurityBenchmarks($accounts);
-
-		foreach($accounts AS $k => $v){
-		    PortfolioInformation_Module_Model::TestPositionsAgainstTotalForAccount($v);
-			PortfolioInformation_Module_Model::RecalculatePortfolio($v);
-		}*/
         return parent::preProcess($request);
+        $account_numbers = GetAccountNumbersFromRecord($request->get('calling_record'));
+        $account_numbers = array_unique($account_numbers);
+
+        foreach($account_numbers AS $k => $v){
+            $tmp = new CustodianToOmni($v);
+            $tmp->UpdatePortfolios();
+            $tmp->UpdatePositions();
+        }
     }
 
-    public function process(Vtiger_Request $request){
+    public function process(Vtiger_Request $request){echo 'sup';exit;
 		$crmid = $request->get('record');
 		$record = Vtiger_Record_Model::getInstanceById($crmid, 'PortfolioInformation');
 		$custodian = $record->get("origination");
