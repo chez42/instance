@@ -1040,3 +1040,20 @@ if($instance_module_obj){
         $blockInstance->addField($field);
     }
 }
+
+$operation = array('name'=>'get_related_positions',
+    'path'=>'include/PortalWebservices/GetPositions.php',
+    'method'=>'vtws_get_positions',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type']);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
+
+$adb->pquery("UPDATE vtiger_field SET displaytype=1 WHERE tabid = 29 AND fieldname LIKE '%appointment_url%'");
