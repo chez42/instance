@@ -31,6 +31,7 @@ function vtws_save_tickets_and_comments($element,$user){
         $helpDesk->column_fields['ticketpriorities'] = $element['ticketpriorities'];
         $helpDesk->column_fields['cf_658'] = $element['cf_658'];
         $helpDesk->column_fields['cf_646'] = $element['cf_646'];
+        $helpDesk->column_fields['ticketcategories'] = $element['ticketcategories'];
         
         $helpDesk->column_fields['source'] = $element['source'];
         

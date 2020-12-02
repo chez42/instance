@@ -117,6 +117,54 @@ if(isset($_SESSION['ID'])){
 	    
 	    echo fetchTicketDocuments($ticket_docs);
 	    
+	}else if($_GET['module'] == 'Position'){
+	    
+	    $element = array('ID' => $customer_id, 'accounts' => $_GET['account'], 'pageLimit' => $pageLimit, 'startIndex' => $startIndex);
+	    
+	    $postParams = array(
+	        'operation'=>'get_related_positions',
+	        'sessionName'=>$session_id,
+	        'element'=>json_encode($element)
+	    );
+	    
+	    $response = postHttpRequest($ws_url, $postParams);
+	    
+	    $response = json_decode($response,true);
+	    
+	    if(!empty($response['result']['count'])){
+	        
+	        $total_records = $response['result']['count'];
+	        
+	        foreach ($response['result']['data'] as $index => $position){
+	            
+	            $row_data = array(
+	                $position['description'],
+	                $position['account_number'],
+	                $position['quantity'],
+	                '$'.number_format($position['last_price'],2),
+	                '$'.number_format($position['current_value'],2),
+	                $position['weight']?$position['weight']:0,
+	                $position['security_type'],
+	                $position['base_asset_class'],
+	                $position['last_update'],
+	                $position['security_symbol']
+	                
+	            );
+	            array_push($data, $row_data);
+	        }
+	    }
+	    
+	    $result = array(
+	        'draw' => $draw,
+	        'recordsTotal' => $total_records,
+	        'recordsFiltered' => $total_records,
+	        'data'=> $data
+	    );
+	    
+	    $_SESSION['ticket_detail_navigation'] = $ticketIds;
+	    
+	    echo json_encode($result);
+	    
 	}
 	
     
