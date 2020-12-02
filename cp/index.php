@@ -103,9 +103,9 @@
                 .center {
                     position: absolute;
                     top: 50%;
-                    left: 50%;
-                    margin-left: -50px;
-                    color: red;
+                    left: 15%;//50%;
+                    //margin-left: -50px;
+                    //color: red;
                 }
            </style>
            
@@ -312,7 +312,7 @@
                                     		<div class = "kt-widget1__item">
                                     			<div class = "kt-widget1__info">
                                     				<h3 class = "kt-widget1__title">
-                                    					<?php echo ($reportData['account_number'])?$reportData['account_number']:'N/A';?>
+                                    					<a style="color:#595d6e;" href="<?php if($reportData['account_number']){?>positions.php?account=<?php echo $reportData['account_number'];}else{echo '#';}?>"><?php echo ($reportData['account_number'])?$reportData['account_number']:'N/A';?></a>
                                     				</h3>
                                     			</div>
                                     			<span class = "kt-widget1__number kt-font-brand">
@@ -450,7 +450,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                             			<input type="hidden" id="ticket_status" value='<?php echo json_encode($ticketStatus);?>' />
-                            			<?php if(!empty($ticketStatus)){?>
+                            			<?php if(empty($ticketStatus)){?>
                                 			<div id="ticketStatusWidget" class="row">
                                 				<div class="col-md-12">
             										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
@@ -463,7 +463,9 @@
                                                 </div>
                     						</div>
                         				<?php }else{?>
-                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        					<div class="fullscreenDiv"> 
+                        						<span class="center">No Tickes found. <a href='#' class="createTicket">Create</a> Tickets</span>
+                    						</div>
                         				<?php }?>
                         			</div>
                         		
@@ -488,7 +490,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_time" value='<?php echo json_encode($ticketTime);?>' />
-                            			<?php if(!empty($ticketTime)){?>
+                            			<?php if(empty($ticketTime)){?>
                                 			<div id="ticketTimeWidget" class="row">
                                     			<div class="col-md-12">
             										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
@@ -500,7 +502,9 @@
                                                 </div>
                     						</div>
                         				<?php }else{?>
-                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        					<div class="fullscreenDiv"> 
+                        						<span class="center">No Tickes found. <a href='#' class="createTicket">Create</a> Tickets</span>
+                    						</div>
                         				<?php }?>
                         			</div>
                         		</div>
@@ -526,7 +530,9 @@
                             			<?php if(!empty($ticketProgress)){?>
                                 			<div id="ticket_progress" data-vals='<?php echo $ticketProgress;?>' style="min-height:200px;"></div>
                         				<?php }else{?>
-                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        					<div class="fullscreenDiv"> 
+												<span class="center">No Tickes found. <a href='#' class="createTicket">Create</a> Tickets</span>
+											</div>
                         				<?php }?>
                         			</div>
                         		</div>
@@ -550,7 +556,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_type" value='<?php echo json_encode($ticketType);?>' />
-                            			<?php if(!empty($ticketType)){?>
+                            			<?php if(empty($ticketType)){?>
                         					<div id="ticketCatWidget" class="row">
                         						<div class="col-md-12">
             										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
@@ -562,7 +568,9 @@
                                                 </div>
                     						</div>
                         				<?php }else{?>
-                        					<div class="fullscreenDiv"> <strong class="center">No Data Available!</strong></div>
+                        					<div class="fullscreenDiv"> 
+                        						<span class="center">No Tickes found. <a href='#' class="createTicket">Create</a> Tickets</span>
+											</div>
                         				<?php }?>
                         			</div>
                         		</div>
@@ -579,6 +587,116 @@
 		    		</div>
         		<?php }?>
 			</div>
+			
+						<div class="modal fade" id="createTicketModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        
+                        <form class="form-horizontal recordEditView" id="createticket" method="post" action="" novalidate="novalidate">
+					
+        					<div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Create Ticket</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                </button>
+                            </div>
+                    
+                			<div class="modal-body">
+                				<div class="row">
+                    				<div class="col-md-8">
+                						<div class="form-group validate is-invalid">
+                							<label class="control-label">Title</label>
+                							<input type="text" class="form-control" name="ticket_title" id="ticket_title" placeholder="Enter Title" >
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                				<div class="row">
+                					<div class="col-md-8">
+                						<div class="form-group">
+                							<label class="control-label">Category </label>
+                							<select class="form-control" id="ticketcategories" name="ticketcategories">
+                    							<option value="">Select an Option</option>
+                    							<option value="Accounting">Accounting</option>
+                    							<option value="Finance">Finance</option>
+                    							<option value="CRM system">CRM system</option>
+                    							<option value="Portfolio accounting">Portfolio accounting</option>
+                    							<option value="Data Reconciliation">Data Reconciliation</option>
+                    							<option value="Development">Development</option>
+                    							<option value="Tax prep">Tax prep</option>
+                    							<option value="Valuation Services">Valuation Services</option>
+                    							<option value="General">General</option>
+                    							<option value="IT Support">IT Support</option>
+                    							<option value="Transitions">Transitions</option>
+                    							<option value="HR">HR</option>
+                    							<option value="Account maintenance">Account maintenance</option>
+                    							<option value="Administrative">Administrative</option>
+                    							<option value="Marketing services">Marketing services</option>
+                    							<option value="Onboarding Projects">Onboarding Projects</option>
+                    							<option value="Financial Planning">Financial Planning</option>
+                    							<option value="Financing">Financing</option>
+                    							<option value="Billing">Billing</option>
+                    							<option value="Performance">Performance</option>
+                    							<option value="Client Invoicing">Client Invoicing</option>
+                    							<option value="Trading Fees">Trading Fees</option>
+                    							<option value="Platform Billing">Platform Billing</option>
+                    						</select>
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                				<div class="row">
+                					<div class="col-md-8">
+                						<div class="form-group">
+                							<label class="control-label">Priority</label>
+                							<select class="form-control" id="ticketpriorities" name="ticketpriorities">
+                    							<option value="">Select an Option</option>
+                    							<option value="Minor">Minor</option>
+                    							<option value="Low">Low</option>
+                    							<option value="Normal">Normal</option>
+                    							<option value="High">High</option>
+                    							<option value="Critical">Critical</option>
+                    							<option value="Urgent">Urgent</option>
+                    						</select>
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                				<div class="row">
+                					<div class="col-md-8">
+                						<div class="form-group">
+                							<label class="control-label">Description</label>
+                							<textarea class="form-control" name="description" id="description" placeholder="Description" ></textarea>
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                				<div class="row">
+                					<div class="col-md-8">
+                						<div class="form-group">
+                							<label class="control-label">Due date</label>
+                							<div class="input-group date">
+                								<input type="text" class="form-control" name="cf_656"  id="kt_datepicker_3">
+            									<div class="input-group-append">
+            										<span class="input-group-text">
+            											<i class="la la-calendar"></i>
+            										</span>
+            									</div>
+            								</div>
+<!--                 							<input class="form-control"  type="text" id="kt_datepicker_3"  name="cf_656"> -->
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                			</div>
+                    	
+                			<div class="modal-footer quickCreateActions">
+                    			<button class="btn" type="reset" data-dismiss="modal">Cancel</button>
+                    			<button class="btn btn-success" type="submit"><strong>Save</strong></button>
+                        	</div>
+                		</form>
+                    </div>
+                </div>
+            </div>
 		</div>
 	
 	
@@ -603,6 +721,8 @@
     <script src="assets/js/gridstack.js" type="text/javascript"></script>
     
     <script src="assets/js/gridstack.jQueryUI.js" type="text/javascript"></script>
+    
+    <script src="assets/js/pages/crud/forms/widgets/bootstrap-datepicker.js" type="text/javascript"></script>
     
     <script type="text/javascript">
     
@@ -967,7 +1087,48 @@
 				});
 			});
     	});
-    	
+
+    	jQuery(document).on('click','.createTicket',function(){
+  			$('#createTicketModal').modal('show');
+  		});
+    	jQuery(document).ready(function() {
+
+    		var validator = $('#createticket').validate({
+        	    rules : {
+        	    	 ticket_title : "required",
+        	    	 description : "required",
+        	    	 ticketpriorities : "required"
+        	    },
+        	});
+		
+        	jQuery('#createticket').on('submit', function (e) {
+
+    	        e.preventDefault();
+    	        
+    	        if (validator.form()) {
+    	        	$('#createticket').waitMe({effect : 'orbit',text : 'Please wait...' });
+        	        $.ajax({
+        	            type: "POST",
+        	            url: 'save-ticket.php',
+        	            data: jQuery('#createticket').serialize(), 
+        	            success: function(result)
+        	            {
+            	            
+        	            	var data = JSON.parse(result);
+        	            	if(data.success){
+        	            		toastr.info('Ticket Created Successfully');
+        	            		$('#createticket').waitMe('hide');
+        	            		$("#createTicketModal").modal('hide');
+        	            		location.reload();
+        	            	}
+        	            	
+        	            }
+        	        });
+    	        }
+    	        
+    	    });
+    	    
+    	});
     </script>
     <div class="add_doc_modal"></div>
 	</body>
