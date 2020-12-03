@@ -46,7 +46,7 @@ class Documents_DetailView_Model extends Vtiger_DetailView_Model {
 			}
     	
     
-    		if ($recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I' && count($recordModel->getFileDetails())) {
+			if (Users_Privileges_Model::isPermitted('Documents', 'Download') && $recordModel->get('filestatus') && $recordModel->get('filename') && $recordModel->get('filelocationtype') === 'I' && count($recordModel->getFileDetails())) {
     			
 				$basicActionLink = array(
     					'linktype' => 'DETAILVIEW',
