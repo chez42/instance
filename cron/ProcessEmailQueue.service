@@ -1,0 +1,170 @@
+<?php
+ 	
+ 	include_once "includes/main/WebUI.php";
+ 	
+	global $adb;
+	
+	$queue = $adb->pquery("SELECT vtiger_email_queue.* FROM vtiger_email_queue
+	INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_email_queue.emailid
+	WHERE vtiger_crmentity.deleted = 0");
+	
+	if($adb->num_rows($queue)){
+	
+		for($q = 0; $q < $adb->num_rows($queue); $q++){
+		
+			$emailData = $adb->query_result_rowdata($queue, $q);
+			
+			$emailRecordModel = Vtiger_Record_Model::getInstanceById($emailData['emailid']);
+			
+			if($emailData['from_serveremailid']){
+		    	$emailRecordModel->set('from_serveremailid', $emailData['from_serveremailid']);
+			}
+			
+			$selectedFields = json_decode(html_entity_decode($emailData['selected_fields']), true);
+			
+			$sourceModule = $emailData['source_module'];
+			
+			$selectIds = getRecordsListFromRequest($emailData);
+			
+			$to = array();
+			
+			$toMailInfo = array();
+			
+			$toMailNamesList = array();
+			
+			foreach($selectIds as $recordId) {
+				
+				$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
+				
+				if($recordModel) {
+					
+					if($recordModel->get('emailoptout')) {
+						continue;
+					}
+					
+					foreach($selectedFields as $selectedFieldJson) {
+						
+						$selectedFieldInfo = Zend_Json::decode($selectedFieldJson);
+						
+						if(!empty($selectedFieldInfo['basefield'])) {
+							$refField = $selectedFieldInfo['basefield'];
+							$refModule = getTabModuleName($selectedFieldInfo['module_id']);
+							$fieldName = $selectedFieldInfo['field'];
+							$refFieldValue = $recordModel->get($refField);
+							if(!empty($refFieldValue)) {
+								try {
+									$refRecordModel = Vtiger_Record_Model::getInstanceById($refFieldValue, $refModule);
+									$emailValue = $refRecordModel->get($fieldName);
+									$moduleLabel = $refModule;
+								} catch(Exception $e) {
+									continue;
+								}
+							}
+						} else {
+							$fieldName = $selectedFieldInfo['field'];
+							$emailValue = $recordModel->get($fieldName);
+							$moduleLabel = $sourceModule;
+						}
+						if(!empty($emailValue)) {
+							$to[] = $emailValue;
+							$toMailInfo[$recordId][] = $emailValue;
+							$toMailNamesList[$recordId][] = array('label' => decode_html($recordModel->get('label')).' : '.vtranslate('SINGLE_'.$moduleLabel, $moduleLabel), 'value' => $emailValue);
+						}
+					}
+				}
+			}
+			if(is_array($to)) {
+				$to = implode(',',$to);
+			}
+			$emailRecordModel->set('mode', 'edit');
+			$emailRecordModel->set('toMailNamesList',$toMailNamesList);
+			$emailRecordModel->set('saved_toid', $to);
+			$emailRecordModel->set('toemailinfo', $toMailInfo);
+			foreach($toMailInfo as $recordId=>$emailValueList) {
+				if(getSalesEntityType($recordId) == 'Users'){
+					$parentIds .= $recordId.'@-1|';
+				}else{
+					$parentIds .= $recordId.'@1|';
+				}
+			}
+			$emailRecordModel->set('parent_id', $parentIds);
+			
+			$emailRecordModel->save();
+			
+			$emailRecordId = $emailRecordModel->getId();
+			
+			foreach ($toMailInfo as $recordId => $emailValueList) {
+				$relatedModule = getSalesEntityType($recordId);
+				if (!empty($relatedModule) && $relatedModule != 'Users') {
+					$relatedModuleModel = Vtiger_Module_Model::getInstance($relatedModule);
+					$relationModel = Vtiger_Relation_Model::getInstance($relatedModuleModel, $emailRecordModel->getModule());
+					if ($relationModel) {
+						$relationModel->addRelation($recordId, $emailRecordId);
+					}
+				}
+			}
+			
+			$myids = explode("|", $parentIds); 
+			for ($i = 0; $i < (count($myids) - 1); $i++) {
+				$realid = explode("@", $myids[$i]);
+				$mycrmid = $realid[0];
+				
+				if ($realid[1] == -1) {
+					$del_q = 'delete from vtiger_salesmanactivityrel where smid=? and activityid=?';
+					$adb->pquery($del_q, array($mycrmid, $emailRecordId));
+					$mysql = 'insert into vtiger_salesmanactivityrel values(?,?)';
+				} else {
+					$del_q = 'delete from vtiger_seactivityrel where crmid=? and activityid=?';
+					$adb->pquery($del_q, array($mycrmid, $emailRecordId));
+					$mysql = 'insert into vtiger_seactivityrel values(?,?)';
+				}
+				$params = array($mycrmid, $emailRecordId);
+				$adb->pquery($mysql, $params);
+			}
+				
+			$status = $emailRecordModel->send();
+			
+			if($status){
+				$adb->pquery("DELETE FROM vtiger_email_queue 
+				WHERE emailid=?",array($emailData['emailid']));
+			}
+		}
+	
+	}
+	
+	function getRecordsListFromRequest($emailData) {
+	
+		$cvId = $emailData['cvid'];
+		$selectedIds = $emailData['selected_ids'] != 'all' ? json_decode(html_entity_decode($emailData['selected_ids']),true) : $emailData['selected_ids'];
+		$excludedIds = json_decode(html_entity_decode($emailData['excluded_ids']),true);
+
+		if(!empty($selectedIds) && $selectedIds != 'all') {
+			if(!empty($selectedIds) && count($selectedIds) > 0) {
+				return $selectedIds;
+			}
+		}
+		
+		$searchParams = json_decode(html_entity_decode($emailData['serch_params']),true);
+		$otherField = json_decode(html_entity_decode($emailData['other_data']),true);
+		
+		if($selectedIds == 'all'){
+			
+			$customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+			
+			if($customViewModel) {
+				$searchKey = $otherField['search_key'];
+				$searchValue = $otherField['search_value'];
+				$operator = $otherField['operator'];
+				if(!empty($operator)) {
+					$customViewModel->set('operator', $operator);
+					$customViewModel->set('search_key', $searchKey);
+					$customViewModel->set('search_value', $searchValue);
+				}
+				
+				$customViewModel->set('search_params',$searchParams);
+				
+				return $customViewModel->getRecordIds($excludedIds);
+			}
+		}
+		return array();
+	}
