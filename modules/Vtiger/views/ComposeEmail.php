@@ -153,6 +153,12 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$fallBack = false;
 		if (!empty($selectedFields)) {
 			if($request->get('emailSource') == 'ListView') {
+			    if(count($selectIds) > 20){
+			        
+			        $viewer->assign('TOEMAILCOUNT', count($selectIds));
+			        $viewer->assign('SELECTED_FIELDS', $selectedFields);
+			        
+			    }else{
 				$sourceModule = $request->get('source_module');
 				foreach($selectIds as $recordId) {
 					$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $sourceModule);
@@ -185,6 +191,7 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 								$to[] = $emailValue;
 								$toMailInfo[$recordId][] = $emailValue;
 								$toMailNamesList[$recordId][] = array('label' => decode_html($recordModel->get('label')).' : '.vtranslate('SINGLE_'.$moduleLabel, $moduleLabel), 'value' => $emailValue);
+    							}
 							}
 						}
 					}

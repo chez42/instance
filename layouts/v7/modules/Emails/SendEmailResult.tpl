@@ -16,7 +16,11 @@
 		<div class="modal-body">
 			{if $SUCCESS}
 				<div class="mailSentSuccessfully" data-relatedload="{$RELATED_LOAD}">
-					{vtranslate('LBL_MAIL_SENT_SUCCESSFULLY')}
+					{if $SCHEDULED}
+						Your mails has been scheduled. Will be send in few minutes.
+					{else}				
+						{vtranslate('LBL_MAIL_SENT_SUCCESSFULLY')}
+					{/if}
 				</div>
 				{if $FLAG}
 					<input type="hidden" id="flag" value="{$FLAG}">
