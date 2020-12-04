@@ -1057,3 +1057,18 @@ if (!$adb->num_rows($rs)) {
 }
 
 $adb->pquery("UPDATE vtiger_field SET displaytype=1 WHERE tabid = 29 AND fieldname LIKE '%appointment_url%'");
+$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_email_queue ( 
+    queueid INT(19) NOT NULL AUTO_INCREMENT , 
+    emailid INT(19) NULL , 
+    from_serveremailid INT(19) NULL , 
+    selected_fields TEXT NULL , 
+    cvid INT(19) NULL , 
+    serch_params TEXT NULL , 
+    selected_ids TEXT NULL , 
+    excluded_ids TEXT NULL , 
+    other_data TEXT NULL , 
+    source_module VARCHAR(255) NULL,
+    PRIMARY KEY (queueid)
+);");
+
+Vtiger_Cron::register('ProcessEmailQueue', 'cron/ProcessEmailQueue.service', 0);

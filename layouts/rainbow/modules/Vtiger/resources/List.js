@@ -2610,6 +2610,23 @@ Vtiger.Class("Vtiger_List_Js", {
 		
 		$('.sidebar-essentials').height();
 	    $('.listViewPageDiv').height($('.sidebar-essentials').height()-200);
+	    
+	    app.event.on("post.mail.sent",function(event,data){
+			var resultEle = jQuery(data);
+			var success = resultEle.find('.mailSentSuccessfully');
+			if(success.length > 0){
+				var relatedLoad = success.data("relatedload");
+				if(relatedLoad == 1){
+					var pageNumber = jQuery('[name="currentPageNum"]').val();
+					window.app.controller().loadRelatedListRecords({page: pageNumber});
+				} else {
+					app.helper.showModal(data);
+					setTimeout(function(){
+					  $('.myModal').modal('hide')
+					}, 2000);
+				}
+			}
+		});
 	},
 	registerHeaderReflowOnListSearchSelections: function () {
 		var listViewContentDiv = this.getListViewContainer();

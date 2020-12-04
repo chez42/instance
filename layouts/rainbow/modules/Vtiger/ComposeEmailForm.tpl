@@ -14,8 +14,8 @@
             <form class="form-horizontal" id="massEmailForm" method="post" action="index.php" enctype="multipart/form-data" name="massEmailForm">
                 {include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE={vtranslate('LBL_COMPOSE_EMAIL', $MODULE)}}
                 <div class="modal-body">
-                    <input type="hidden" name="selected_ids" value='{ZEND_JSON::encode($SELECTED_IDS)}' />
-                    <input type="hidden" name="excluded_ids" value='{ZEND_JSON::encode($EXCLUDED_IDS)}' />
+                    <input type="hidden" name="selected_ids" value={ZEND_JSON::encode($SELECTED_IDS)} />
+                    <input type="hidden" name="excluded_ids" value={ZEND_JSON::encode($EXCLUDED_IDS)} />
                     <input type="hidden" name="viewname" value="{$VIEWNAME}" />
                     <input type="hidden" name="module" value="{$MODULE}"/>
                     <input type="hidden" name="mode" value="massSave" />
@@ -79,7 +79,14 @@
                                 {if !empty($TO)}
                                     {assign var=TO_EMAILS value=","|implode:$TO}
                                 {/if}
-                                <input id="emailField" style="width:100%" name="toEmail" type="text" class="autoComplete sourceField select2" data-rule-required="true" data-rule-multiEmails="true" value="{$TO_EMAILS}" placeholder="{vtranslate('LBL_TYPE_AND_SEARCH',$MODULE)}">
+                                
+                                {if !$TOEMAILCOUNT}
+                                	<input id="emailField" style="width:100%" name="toEmail" type="text" class="autoComplete sourceField select2" data-rule-required="true" data-rule-multiEmails="true" value="{$TO_EMAILS}" placeholder="{vtranslate('LBL_TYPE_AND_SEARCH',$MODULE)}">
+                            	{else}
+                            		<strong>{$TOEMAILCOUNT} records </strong>selected for sending email.
+                            		<input type="hidden" name="selectedfields" value='{ZEND_JSON::encode($SELECTED_FIELDS)}'>
+                            	{/if}
+                            	
                             </div>
                             <div class="col-lg-4 insertTemplate">
                                 <button id="selectEmailTemplate" class="btn btn-success pull-right" data-url="module=EmailTemplates&view=Popup">{vtranslate('LBL_SELECT_EMAIL_TEMPLATE',$MODULE)}</button>
