@@ -384,7 +384,7 @@ jQuery.Class("Emails_MassEdit_Js",{
 		var toEmailInfo = JSON.parse(container.find('[name="toemailinfo"]').val());
 		var toEmails = container.find('[name="toEmail"]').val();
 		var toFieldValues = Array();
-		if (toEmails.length > 0) {
+		if (toEmails && toEmails.length > 0) {
 			toFieldValues = toEmails.split(',');
 		}
 		

@@ -5,6 +5,7 @@ use garethp\ews\API;
 use garethp\ews\API\Type;
 use garethp\ews\API\Type\ConnectingSIDType;
 use garethp\ews\API\Type\ExchangeImpersonation;
+use garethp\ews\MailAPI;
 
 class MSExchange_MSExchange_Model{
     
@@ -248,4 +249,109 @@ class MSExchange_MSExchange_Model{
             return false;
         }
     }
+    
+    
+    function sendMailUsingEws($mailer){
+        
+        
+        global $adb;
+        
+        $host = $mailer->type;
+        $username = $mailer->Username;
+        $password = $mailer->Password;
+        
+        
+        $setFrom = new  Type\EmailAddressType();
+        $setFrom->setName($mailer->FromName);
+        $setFrom->setEmailAddress($mailer->From);
+        
+        $from = new Type\SingleRecipientType();
+        $from->setMailbox($setFrom);
+        
+        $api = MailAPI::withUsernameAndPassword($host, $username, $password);
+        
+        $message = new Type\MessageType();
+        $message->setFrom($from);
+        $message->setBody($mailer->Body);
+        $message->setSubject($mailer->Subject);
+        
+        $emails = $mailer->to;
+        $toemails = array();
+        foreach($emails as $email){
+            foreach($email as $toemail){
+                if($toemail){
+                    $toemails[] = $toemail;
+                }
+            }
+        }
+        
+        $emails = $mailer->cc;
+        $ccMails = array();
+        foreach($emails as $email){
+            foreach($email as $ccemail){
+                if($ccemail){
+                    $ccMails[] = $ccemail;
+                }
+            }
+        }
+        
+        $emails = $mailer->bcc;
+        $bccMails = array();
+        foreach($emails as $email){
+            foreach($email as $bccemail){
+                if($bccemail){
+                    $bccMails[] = $bccemail;
+                }
+            }
+        }
+        $attachments = array();
+        foreach ($mailer->attachment as $key => $filePath) {
+            $attachments[] = array(
+                'Name' => $filePath[2],
+                'Content' => file_get_contents($filePath[0])
+            );
+        }
+        if(empty($attachments)){
+            $attachments[] = array(
+                'Name' => '',
+                'Content' => ''
+            );
+        }
+        
+        $message->setToRecipients($toemails);
+        $message->setCcRecipients($ccMails);
+        $message->setBccRecipients($bccMails);
+        
+        $emails = $mailer->ReplyTo;
+        $recipients = array();
+        foreach($emails as $email){
+            $recipients[] = $email;
+        }
+        
+        $message->setReplyTo($recipients);
+        
+        $mailId = $return = $api->sendMail($message, array('MessageDisposition' => 'SaveOnly'));
+        
+        $api->getClient()->CreateAttachment(array (
+            'ParentItemId' => $mailId->toArray(),
+            'Attachments' => array (
+                'FileAttachment' => $attachments,
+            ),
+        ));
+        
+        $mailId = $api->getItem($mailId)->getItemId();
+        
+        $status = $api->getClient()->SendItem(array (
+            'SaveItemToFolder' => true,
+            'ItemIds' => array (
+                'ItemId' => $mailId->toArray()
+            )
+        ));
+        
+        if($status && $status->getResponseClass() == 'Success')
+            return true;
+            else
+                return false;
+    }
+    
 }
