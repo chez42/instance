@@ -18,6 +18,8 @@
         <input type="button" id="ClearReconciledTransactions" value="Clear Reconciled Transactions" title="Clear Reconciled Transactions" />
         <h2>Long Running Scripts</h2>
         <input type="button" id="RecalculateAllHistoricalBalances" value="Recalculate All Historical Balances" title="Recalculate All Historical Balances (All rep codes in the instance, this takes awhile!)" />
+        <input type="button" id="RecalculateXBalances" value="Recalculate Balances Back <X> Days" title="Recalculate Balances Back <X> Days" />
+        <input type="text" id="numDays" value="10" />
     </div>
 </div>
 {*
