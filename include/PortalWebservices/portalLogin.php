@@ -211,6 +211,15 @@ function vtws_portallogin($element,$user){
                 
                 $resultData['data']  = $list[0];
                 
+                $t_module = Vtiger_Module_Model::getInstance('HelpDesk');
+                $field = Vtiger_Field_Model::getInstance('ticketcategories', $t_module);
+                $PicklistValues = $field->getPicklistValues();
+                $resultData['ticketcategories'] = $PicklistValues;
+                
+                $field = Vtiger_Field_Model::getInstance('ticketpriorities', $t_module);
+                $PicklistValues = $field->getPicklistValues();
+                $resultData['ticketpriorities'] = $PicklistValues;
+                
                 $finalRes = array('success'=>true, 'data' => $resultData);
                 
             } else {
