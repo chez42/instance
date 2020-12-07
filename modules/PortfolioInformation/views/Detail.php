@@ -14,8 +14,7 @@ include_once('libraries/reports/new/nCommon.php');
 class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-        return parent::preProcess($request);
-        $account_numbers = GetAccountNumbersFromRecord($request->get('calling_record'));
+        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
         $account_numbers = array_unique($account_numbers);
 
         foreach($account_numbers AS $k => $v){
@@ -23,6 +22,8 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
             $tmp->UpdatePortfolios();
             $tmp->UpdatePositions();
         }
+
+        return parent::preProcess($request);
     }
 
     public function process(Vtiger_Request $request){
