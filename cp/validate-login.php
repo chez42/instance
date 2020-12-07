@@ -74,6 +74,10 @@ if(!empty($_REQUEST)) {
         
         $_SESSION['chat_widget_code'] = $data['chatWidgetCode'];
         
+        $_SESSION['ticketcategories'] = $data['ticketcategories'];
+        
+        $_SESSION['ticketpriorities'] = $data['ticketpriorities'];
+        
         $result = true;
        // header("Location: index.php");
         

@@ -101,13 +101,26 @@ $ticketTime = $_REQUEST['tickettime'];
                 				<div class="row">
                 					<div class="col-md-8">
                 						<div class="form-group">
+                							<label class="control-label">Category </label>
+                							<select class="form-control" id="ticketcategories" name="ticketcategories">
+                    							<option value="">Select an Option</option>
+                    							<?php foreach($_SESSION['ticketcategories'] as $catVal => $catName){?>
+                    								<option value="<?php echo $catVal;?>"><?php echo $catName;?></option>
+                    							<?php }?>
+                    						</select>
+                							<div class="help-block with-errors"></div>
+                						</div>
+                					</div>
+                				</div>
+                				<div class="row">
+                					<div class="col-md-8">
+                						<div class="form-group">
                 							<label class="control-label">Priority</label>
                 							<select class="form-control" id="ticketpriorities" name="ticketpriorities">
                     							<option value="">Select an Option</option>
-                    							<option value="Low">Low</option>
-                    							<option value="Normal">Normal</option>
-                    							<option value="High">High</option>
-                    							<option value="Urgent">Urgent</option>
+                    							<?php foreach($_SESSION['ticketpriorities'] as $priVal => $priName){?>
+                    								<option value="<?php echo $priVal;?>"><?php echo $priName;?></option>
+                    							<?php }?>
                     						</select>
                 							<div class="help-block with-errors"></div>
                 						</div>
@@ -293,7 +306,7 @@ $ticketTime = $_REQUEST['tickettime'];
             	            
         	            	var data = JSON.parse(result);
         	            	if(data.success){
-        	            		toastr.info('Password Changed Successfully');
+        	            		toastr.info('Ticket Created Successfully');
         	            		$('#createticket').waitMe('hide');
         	            		$("#createTicketModal").modal('hide');
         	            		location.reload();
