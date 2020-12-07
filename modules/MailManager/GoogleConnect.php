@@ -17,7 +17,7 @@ $auth_url = "https://accounts.google.com/o/oauth2/auth?response_type=code&access
 $auth_url .= "&client_id=".urlencode($clientId);
 $auth_url .= "&redirect_uri=".urlencode($redirectUri);
 $auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, $_SESSION['authenticated_user_id'], "Google", "MailManager")));
-$auth_url .= '&scope=' . urlencode('https://mail.google.com/ https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify');
+$auth_url .= '&scope=' . urlencode('https://mail.google.com/ ');
 $auth_url .= '&prompt='. urlencode('select_account consent');
 
 header('Location: ' . $auth_url);

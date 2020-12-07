@@ -947,7 +947,7 @@ if($instance_module_obj){
         $blockInstance->addField($field);
     }
     
-    $blockInstance = Vtiger_Block::getInstance('Social Links',$instance_module_obj);
+    $blockInstance = Vtiger_Block::getInstance('Social Media Links',$instance_module_obj);
     if (!$blockInstance) {
         $blockInstance = new Vtiger_Block();
         $blockInstance->label = 'Social Media Links';
