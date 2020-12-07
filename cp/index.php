@@ -450,7 +450,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                             			<input type="hidden" id="ticket_status" value='<?php echo json_encode($ticketStatus);?>' />
-                            			<?php if(empty($ticketStatus)){?>
+                            			<?php if(!empty($ticketStatus)){?>
                                 			<div id="ticketStatusWidget" class="row">
                                 				<div class="col-md-12">
             										<div class="ticket_status_pie_holder" style="width:300px; display:block; float:left;">
@@ -490,7 +490,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_time" value='<?php echo json_encode($ticketTime);?>' />
-                            			<?php if(empty($ticketTime)){?>
+                            			<?php if(!empty($ticketTime)){?>
                                 			<div id="ticketTimeWidget" class="row">
                                     			<div class="col-md-12">
             										<div class="ticket_time_pie_holder" style="width:300px; display:block; float:left;">
@@ -556,7 +556,7 @@
                         			
                         			<div class=" kt-portlet__body kt-portlet__body--fit dashboardWidgetContent ">
                         				<input type="hidden" id="ticket_type" value='<?php echo json_encode($ticketType);?>' />
-                            			<?php if(empty($ticketType)){?>
+                            			<?php if(!empty($ticketType)){?>
                         					<div id="ticketCatWidget" class="row">
                         						<div class="col-md-12">
             										<div class="ticket_cat_pie_holder" style="width:300px; display:block; float:left;">
@@ -616,29 +616,9 @@
                 							<label class="control-label">Category </label>
                 							<select class="form-control" id="ticketcategories" name="ticketcategories">
                     							<option value="">Select an Option</option>
-                    							<option value="Accounting">Accounting</option>
-                    							<option value="Finance">Finance</option>
-                    							<option value="CRM system">CRM system</option>
-                    							<option value="Portfolio accounting">Portfolio accounting</option>
-                    							<option value="Data Reconciliation">Data Reconciliation</option>
-                    							<option value="Development">Development</option>
-                    							<option value="Tax prep">Tax prep</option>
-                    							<option value="Valuation Services">Valuation Services</option>
-                    							<option value="General">General</option>
-                    							<option value="IT Support">IT Support</option>
-                    							<option value="Transitions">Transitions</option>
-                    							<option value="HR">HR</option>
-                    							<option value="Account maintenance">Account maintenance</option>
-                    							<option value="Administrative">Administrative</option>
-                    							<option value="Marketing services">Marketing services</option>
-                    							<option value="Onboarding Projects">Onboarding Projects</option>
-                    							<option value="Financial Planning">Financial Planning</option>
-                    							<option value="Financing">Financing</option>
-                    							<option value="Billing">Billing</option>
-                    							<option value="Performance">Performance</option>
-                    							<option value="Client Invoicing">Client Invoicing</option>
-                    							<option value="Trading Fees">Trading Fees</option>
-                    							<option value="Platform Billing">Platform Billing</option>
+                    							<?php foreach($_SESSION['ticketcategories'] as $catVal => $catName){?>
+                    								<option value="<?php echo $catVal;?>"><?php echo $catName;?></option>
+                    							<?php }?>
                     						</select>
                 							<div class="help-block with-errors"></div>
                 						</div>
@@ -650,12 +630,9 @@
                 							<label class="control-label">Priority</label>
                 							<select class="form-control" id="ticketpriorities" name="ticketpriorities">
                     							<option value="">Select an Option</option>
-                    							<option value="Minor">Minor</option>
-                    							<option value="Low">Low</option>
-                    							<option value="Normal">Normal</option>
-                    							<option value="High">High</option>
-                    							<option value="Critical">Critical</option>
-                    							<option value="Urgent">Urgent</option>
+                    							<?php foreach($_SESSION['ticketpriorities'] as $priVal => $priName){?>
+                    								<option value="<?php echo $priVal;?>"><?php echo $priName;?></option>
+                    							<?php }?>
                     						</select>
                 							<div class="help-block with-errors"></div>
                 						</div>
