@@ -54,6 +54,15 @@ jQuery.Class("FileAdministration_Module_Js",{
             });
             UpdateStatus('TDBALANCEUPDATE', '.calculation-status');
         });
+
+        $("#RecalculateXBalances").click(function(e){
+            var numDays = $("#numDays").val();
+            $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'RecalculateXBalances', days:numDays}, function(response) {
+
+            });
+//            UpdateStatus('TDBALANCEUPDATE', '.calculation-status');
+        });
+
     },
 
     parseButton : function(value, data, cell, row, options){
