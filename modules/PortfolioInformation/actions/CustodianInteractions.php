@@ -10,6 +10,9 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
 #                PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2012-01-01', date("Y-m-d"), true);
                 PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, '2012-01-01', date("Y-m-d"), true);
                 break;
+            case "RecalculateXBalances":
+
+                break;
             case "ParseData":
                 $parseID = $request->get('parseID');
                 $parse_type = $request->get("parse_type");
