@@ -1507,7 +1507,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 	    		if (params) {
 	    			app.helper.showProgress();
 	    			app.request.get({url: url, data: params}).then(function (error, data) {
-	    				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+	    				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 	    				app.helper.loadPageContentOverlay(data, overlayParams).then(function (container) {
 	    					app.event.trigger('post.relatedlistViewMassEdit.loaded', container);
 	    					
@@ -1688,7 +1688,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 					function (err, data) {
 						app.helper.hideProgress();
 						if (data) {
-							var overlayParams = {'backdrop': 'static', 'keyboard': false};
+							var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 							app.helper.loadPageContentOverlay(data, overlayParams).then(function (modal) {
 								var docusignForm = jQuery('#massSaveSendEnvelope');
 								if(docusignForm.length){
