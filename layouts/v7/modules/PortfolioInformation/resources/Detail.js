@@ -2561,7 +2561,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
                     app.helper.showProgress();
                     app.request.get({data: params}).then(function(err, response) {
                         app.helper.hideProgress();
-                        var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
+                        var overlayParams = {/*'backdrop' : 'static', */'keyboard' : false};
                         app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
                             var detailjs = Vtiger_Detail_Js.getInstanceByModuleName(params.module);
                             detailjs.showScroll(jQuery('.overlayDetail .modal-body'));
@@ -2624,7 +2624,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
         app.helper.showProgress();
         app.request.get({data: params}).then(function(err, response) {
             app.helper.hideProgress();
-            var overlayParams = {'backdrop': 'static', 'keyboard': false};
+            var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
             app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
                 var height = jQuery(window).height() - jQuery('.app-fixed-navbar').height() - jQuery('.overlayFooter').height() - 80;
 
