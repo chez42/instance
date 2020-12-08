@@ -916,3 +916,7 @@ span.module-icon :not(.material-icons){
 .sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a.active span.module-icon {
     filter:  <?= $iconHover ?>;
 }
+
+.vt-notification .notificationHeader .close, .webui-popover-inner .close{
+	color : #f00 !important;
+}
