@@ -512,9 +512,9 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	    
 	    $accessibleUser = array();
 	    
-	    if(!$this->isAdminUser()){
-	        
-	        $accessible_lists = $this->get("accessible_ids");
+	    $accessible_lists = $this->get("accessible_ids");
+	    
+	    if(!$this->isAdminUser() && $accessible_lists){
 	        
 	        if($accessible_lists){
 	            $accessible_lists = explode(" |##| ", $accessible_lists);
