@@ -271,6 +271,42 @@ function current_date_time(){
     return date('Y-m-d H:i:s');
 }
 
+function calculate_age($arr){
+    //Two Input timediffdays
+    if(count($arr)>1){
+        $operand1 = explode(' ',trim($arr[0]));
+        $operand2 = explode(' ',trim($arr[1]));
+        //If both inputs are datetime
+        if($operand1[1] && $operand2[1]){
+            $timediff  = __vt_time_diff($arr);
+        }else{
+            //If one of input is date then ignore time part
+            $storedTimeZone = date_default_timezone_get();
+            date_default_timezone_set(vglobal('default_timezone'));
+            $arr[0]=$operand1[1]?DateTimeField::convertToUserTimeZone($arr[0])->format('Y-m-d'):$operand1[0];
+            $arr[1]=$operand2[1]?DateTimeField::convertToUserTimeZone($arr[1])->format('Y-m-d'):$operand2[0];
+            date_default_timezone_set($storedTimeZone);
+            $timediff  = __vt_time_diff($arr);
+        }
+        //One input timediffdays
+    }else{
+        $operand1 = explode(' ',trim($arr[0]));
+        $operand2=$arr[0];
+        if($operand1[1]){
+            $arr[0]=date('Y-m-d H:i:s'); // Current DateTime- user timezone
+            $arr[1]=$operand2;
+            $timediff  = __vt_time_diff($arr);
+        }else{
+            $arr[0]=date('Y-m-d'); // Current date - user timezone
+            $arr[1]=$operand1[0];
+            $timediff  = __vt_time_diff($arr);
+        }
+    }
+    $days_diff = round($timediff / (60 * 60 * 24))/365;
+    return (INT)$days_diff;
+    
+}
+
 /** END * */
 class VTFieldExpressionEvaluater{
 	function __construct($expr){
