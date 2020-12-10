@@ -917,6 +917,6 @@ span.module-icon :not(.material-icons){
     filter:  <?= $iconHover ?>;
 }
 
-.vt-notification .notificationHeader .close, .webui-popover-inner .close{
+.close{
 	color : #f00 !important;
 }
