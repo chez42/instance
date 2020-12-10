@@ -329,7 +329,7 @@ class Vtiger_JournalExportData_Action extends Vtiger_RelatedMass_Action {
         $listQuery .= " UNION ";
         
         $listQuery .= " SELECT DISTINCT  vtiger_crmentity.createdtime as createddate,
-        vtiger_crmentity.setype as module, vtiger_activity.subject as subject,
+        vtiger_crmentity.setype as module, concat(vtiger_activity.activitytype,' : ',vtiger_activity.subject) as subject,
         vtiger_crmentity.description,
         vtiger_activity.status as status, vtiger_crmentity.smownerid as creator
         FROM vtiger_activity ";
