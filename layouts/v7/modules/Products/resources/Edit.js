@@ -408,6 +408,22 @@ Vtiger_Edit_Js("Products_Edit_Js", {
 				self.checkMoreCurrenciesUI(e, form);
 			}
 		})
+		
+		if(app.getViewName() == 'List'){
+			jQuery('#massEdit').on('change', '.unitPrice', function(e){
+				var unitPrice = jQuery('input.unitPrice', jQuery('#massEdit'));
+				if (unitPrice.length > 0) {
+					self.getMoreCurrenciesUI().then(function(data) {
+						var form = jQuery('#massEdit');
+						var unitPriceValue = unitPrice.val();
+						var baseCurrencyName = form.find('[name="base_currency"]').val();
+						form.find('[name="' + baseCurrencyName + '"]').val(unitPriceValue);
+						form.find('#requstedUnitPrice').attr('name', baseCurrencyName).val(unitPriceValue);
+					});
+				}
+			});
+		}
+            	
 	},
 	checkMoreCurrenciesUI: function(e, form) {
 		var thisInstance = this;

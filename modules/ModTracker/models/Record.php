@@ -360,7 +360,7 @@ class ModTracker_Record_Model extends Vtiger_Record_Model {
         $listQuery .= " UNION ";
         
         $listQuery .= " SELECT DISTINCT vtiger_crmentity.crmid, vtiger_crmentity.createdtime as createddate, 
-        vtiger_crmentity.setype as module, vtiger_activity.subject as subject, 
+        vtiger_crmentity.setype as module, concat('<b>',vtiger_activity.activitytype,' :</b> ',vtiger_activity.subject) as subject, 
         vtiger_activity.status as status, vtiger_crmentity.description as description,
         vtiger_crmentity.smownerid as creator  
         FROM vtiger_activity ";

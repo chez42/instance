@@ -1012,3 +1012,6 @@ $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_email_queue (
 );");
 
 Vtiger_Cron::register('ProcessEmailQueue', 'cron/ProcessEmailQueue.service', 0);
+
+$adb->pquery("UPDATE vtiger_field SET masseditable = 2 WHERE fieldname = ? AND tabid = ?",
+    array('unit_price', getTabid('Products')));
