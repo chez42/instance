@@ -37,6 +37,13 @@ class Products_MassActionAjax_View extends Vtiger_MassActionAjax_View {
 			}
 			$taxDetails[$taxkey] = $taxInfo;
 		}
+		
+		$baseCurrenctDetails = $recordModel->getBaseCurrencyDetails();
+		
+		$viewer->assign('BASE_CURRENCY_NAME', 'curname' . $baseCurrenctDetails['currencyid']);
+		$viewer->assign('BASE_CURRENCY_ID', $baseCurrenctDetails['currencyid']);
+		$viewer->assign('BASE_CURRENCY_SYMBOL', $baseCurrenctDetails['symbol']);
+		
 
 		$viewer->assign('TAXCLASS_DETAILS', $taxDetails);
 		$viewer->assign('MASS_EDIT_FIELD_DETAILS', $fieldInfo);
