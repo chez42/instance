@@ -94,8 +94,8 @@ class Products extends CRMEntity {
 				$this->insertPriceInformation('vtiger_productcurrencyrel', 'Products');
 			}
 		}
-
-		if($_REQUEST['action'] == 'SaveAjax' && isset($_REQUEST['base_currency']) && isset($_REQUEST['unit_price'])){
+		
+		if(($_REQUEST['action'] == 'SaveAjax' || $_REQUEST['action'] == 'MassEditSave') && isset($_REQUEST['base_currency']) && isset($_REQUEST['unit_price'])){
 			$this->insertPriceInformation('vtiger_productcurrencyrel', 'Products');
 		}
 		// Update unit price value in vtiger_productcurrencyrel
@@ -201,7 +201,7 @@ class Products extends CRMEntity {
 			$requestPrice = CurrencyField::convertToDBFormat($_REQUEST['unit_price'], null, true);
 			$actualPrice = CurrencyField::convertToDBFormat($_REQUEST[$cur_valuename], null, true);
 			$isQuickCreate = false;
-			if($_REQUEST['action']=='SaveAjax' && isset($_REQUEST['base_currency']) && $_REQUEST['base_currency'] == $cur_valuename){
+			if(($_REQUEST['action']=='SaveAjax' || $_REQUEST['action'] == 'MassEditSave') && isset($_REQUEST['base_currency']) && $_REQUEST['base_currency'] == $cur_valuename){
 				$actualPrice = $requestPrice;
 				$isQuickCreate = true;
 			}
