@@ -35,7 +35,7 @@ function vtws_save_tickets_and_comments($element,$user){
         
         $helpDesk->column_fields['source'] = $element['source'];
         
-        $helpDesk->save('HelpDesk');
+        $helpDesk->saveentity('HelpDesk');
         
         
         if($helpDesk->id){
@@ -61,7 +61,7 @@ function vtws_save_tickets_and_comments($element,$user){
             $modComments->column_fields['commentcontent'] = $element['commentcontent'];
             $modComments->column_fields['related_to'] = $id;
             $modComments->column_fields['userid'] = $element['userid'];
-            $modComments->save('ModComments');
+            $modComments->saveentity('ModComments');
             
             return $modComments->id;
             

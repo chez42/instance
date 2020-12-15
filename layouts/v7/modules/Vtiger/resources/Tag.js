@@ -9,6 +9,10 @@
 
 Vtiger.Class("Vtiger_Tag_Js",{},{
     
+	existingTags : [],
+	
+	newTags : [],
+	
     editTagTemplate : '<div class="popover" role="tooltip"><div class="arrow"></div>\n\
                                 <form onsubmit="return false;">\n\
                                     <div class="popover-content"></div>\n\
@@ -131,113 +135,117 @@ Vtiger.Class("Vtiger_Tag_Js",{},{
         var self = this;
         var showTagModal = container.find('.showAllTagContainer').clone(true);
         app.helper.showModal(showTagModal.find('.modal-dialog'),{'cb' : function(modalContainer){
+        	self.registerAutoCompleteFields(modalContainer);
+            var registerShowAllTagEvents = function(modalContainer) {
+                var currentTagsSelected = new Array();
+                var currentTagHolder = modalContainer.find('.currentTag');
+                var currentTagMenuHolder = modalContainer.find(".currentTagMenu");
+                var currentTagScroll = modalContainer.find('.currentTagScroll');
+                var deletedTags = new Array();
                 
-                var registerShowAllTagEvents = function(modalContainer) {
-                    var currentTagsSelected = new Array();
-                    var currentTagHolder = modalContainer.find('.currentTag');
-                    var currentTagMenuHolder = modalContainer.find(".currentTagMenu");
-                    var currentTagScroll = modalContainer.find('.currentTagScroll');
-                    var deletedTags = new Array();
+                if(currentTagHolder.find(".tag").length <= 0){ 
+                   currentTagHolder.find(".noTagsPlaceHolder").show();
+                }
+                
+                if(currentTagMenuHolder.find(".tag").length <= 1){ 
+                   currentTagMenuHolder.find(".noTagExistsPlaceHolder").show();
+                }else{
+                    currentTagMenuHolder.find(".noTagExistsPlaceHolder").hide();
+                }
+                
+                modalContainer.find('.dropdown-menu').on('click',function(e){
+                    e.stopPropagation();
+               });
+               
+               app.helper.showVerticalScroll(modalContainer.find('.dropdown-menu .scrollable'));
+               
+                modalContainer.find('.currentTagMenu').off('click', 'li > a').on('click', 'li > a',function(e){   
+                    var element = jQuery(e.currentTarget);
+                    var selectedTag = jQuery(element.html());
+                    selectedTag.append('<i class="editTag fa fa-pencil"></i><i class="deleteTag fa fa-times"></i>');
+                    currentTagsSelected.push(selectedTag.data('id'));
+                    element.remove();
+                    currentTagHolder.append(selectedTag);
+                    currentTagHolder.find(".noTagsPlaceHolder").hide();
                     
-                    if(currentTagHolder.find(".tag").length <= 0){ 
-                       currentTagHolder.find(".noTagsPlaceHolder").show();
+                    if(currentTagMenuHolder.find(".tag").length <= 1){
+                        currentTagMenuHolder.find(".noTagExistsPlaceHolder").show();
                     }
-                    
-                    if(currentTagMenuHolder.find(".tag").length <= 1){ 
-                       currentTagMenuHolder.find(".noTagExistsPlaceHolder").show();
-                    }else{
-                        currentTagMenuHolder.find(".noTagExistsPlaceHolder").hide();
-                    }
-                    
-                    modalContainer.find('.dropdown-menu').on('click',function(e){
-                        e.stopPropagation();
-                   });
-                   
-                   app.helper.showVerticalScroll(modalContainer.find('.dropdown-menu .scrollable'));
-                   
-                    modalContainer.find('.currentTagMenu').off('click', 'li > a').on('click', 'li > a',function(e){   
-                        var element = jQuery(e.currentTarget);
-                        var selectedTag = jQuery(element.html());
-                        selectedTag.append('<i class="editTag fa fa-pencil"></i><i class="deleteTag fa fa-times"></i>');
-                        currentTagsSelected.push(selectedTag.data('id'));
-                        element.remove();
-                        currentTagHolder.append(selectedTag);
-                        currentTagHolder.find(".noTagsPlaceHolder").hide();
-                        
-                        if(currentTagMenuHolder.find(".tag").length <= 1){
-                            currentTagMenuHolder.find(".noTagExistsPlaceHolder").show();
-                        }
-                    });
-                    
+                });
+                
 
-                    app.helper.showScroll(currentTagHolder,{alwaysVisible:false});
-                    
-                    modalContainer.find('.currentTagSelector').instaFilta({
-                        targets : '.currentTagMenu  li',
-                        sections : '.currentTagMenu ul',
-                        scope : modalContainer, 
-                        hideEmptySections : true,
-                        beginsWith : false, 
-                        caseSensitive : false, 
-                        typeDelay : 0
-                     });
-                     
-                    var tagInputEle = modalContainer.find('input[name="createNewTag"]');
+                app.helper.showScroll(currentTagHolder,{alwaysVisible:false});
+                
+                modalContainer.find('.currentTagSelector').instaFilta({
+                    targets : '.currentTagMenu  li',
+                    sections : '.currentTagMenu ul',
+                    scope : modalContainer, 
+                    hideEmptySections : true,
+                    beginsWith : false, 
+                    caseSensitive : false, 
+                    typeDelay : 0
+                 });
+                 
+                var tagInputEle = modalContainer.find('input[name="createNewTag"]');
 //                    var params = {tags : [], tokenSeparators: [","]};
 //                    vtUtils.showSelect2ElementView(tagInputEle, params);
-                    
-                    var form = modalContainer.find('form');
-                    form.off('submit').on('submit',function(e){
-                        e.preventDefault();
-                        var modalContainerClone = modalContainer.clone(true);
-                        app.helper.hideModal();
                 
-                        if(typeof callerParams == 'undefined') {
-                            var saveParams = {};
-                        }else{
-                            var saveParams = callerParams;
-                        }
-                        var saveTagList = {};
-                        saveTagList['existing'] = currentTagsSelected;
-                        saveTagList['new'] = tagInputEle.val().split(',');
-                        saveTagList['deleted'] = deletedTags;
-                        saveParams['tagsList'] = saveTagList;
-                       
-                        var formData = form.serializeFormData();
-                        saveParams['newTagType'] = formData['visibility'];
-                        self.saveTag(saveParams).then(function(data){
-                            app.event.trigger('post.MassTag.save', modalContainerClone, data);
-                        }, function(error){
-                            //app.helper.showAlertBox({'message' : error})
-                        })
-                        return false;
-                    }); 
+                var form = modalContainer.find('form');
+                form.off('submit').on('submit',function(e){
+                    e.preventDefault();
+                    var modalContainerClone = modalContainer.clone(true);
+                    app.helper.hideModal();
+            
+                    if(typeof callerParams == 'undefined') {
+                        var saveParams = {};
+                    }else{
+                        var saveParams = callerParams;
+                    }
+                  
+                    var saveTagList = {};
+//                        saveTagList['existing'] = currentTagsSelected;
+//                        saveTagList['new'] = tagInputEle.val().split(',');
+//                        saveTagList['deleted'] = deletedTags;
+                    saveTagList['existing'] = self.existingTags;
+                    saveTagList['new'] = self.newTags;
+                    saveParams['tagsList'] = saveTagList;
                     
-                    modalContainer.off('click', '.deleteTag').on('click', '.deleteTag', function(e){
-                        var currenttarget = jQuery(e.currentTarget);
-                        var currentTagHolder = currenttarget.closest(".currentTag");
-                        var tag = currenttarget.closest('.tag');
-                        var deletedTagId = tag.data('id');
-                        
-                        var index = currentTagsSelected.indexOf(deletedTagId);
-                        //if the tag is currently selected then remove it from currently selected list
-                        if(index >= 0) {
-                            currentTagsSelected.splice(index, 1);
-                        }else{
-                            deletedTags.push(deletedTagId);
-                        }
-                        var tagInfo = {
-                            'id' : deletedTagId
-                        };
-                        self.removeTagsFromShowTagContainer(new Array(tagInfo),modalContainer);
-                        
-                        if(currentTagHolder.find(".tag").length <= 0){
-                            currentTagHolder.find(".noTagsPlaceHolder").show();
-                        }
-                    });
-                     
-                }
-                registerShowAllTagEvents(modalContainer);
+                   
+                    var formData = form.serializeFormData();
+                    saveParams['newTagType'] = formData['visibility'];
+                    self.saveTag(saveParams).then(function(data){
+                        app.event.trigger('post.MassTag.save', modalContainerClone, data);
+                    }, function(error){
+                        //app.helper.showAlertBox({'message' : error})
+                    })
+                    return false;
+                }); 
+                
+                modalContainer.off('click', '.deleteTag').on('click', '.deleteTag', function(e){
+                    var currenttarget = jQuery(e.currentTarget);
+                    var currentTagHolder = currenttarget.closest(".currentTag");
+                    var tag = currenttarget.closest('.tag');
+                    var deletedTagId = tag.data('id');
+                    
+                    var index = currentTagsSelected.indexOf(deletedTagId);
+                    //if the tag is currently selected then remove it from currently selected list
+                    if(index >= 0) {
+                        currentTagsSelected.splice(index, 1);
+                    }else{
+                        deletedTags.push(deletedTagId);
+                    }
+                    var tagInfo = {
+                        'id' : deletedTagId
+                    };
+                    self.removeTagsFromShowTagContainer(new Array(tagInfo),modalContainer);
+                    
+                    if(currentTagHolder.find(".tag").length <= 0){
+                        currentTagHolder.find(".noTagsPlaceHolder").show();
+                    }
+                });
+                 
+            }
+            registerShowAllTagEvents(modalContainer);
         }});
     },
     
@@ -337,6 +345,78 @@ Vtiger.Class("Vtiger_Tag_Js",{},{
         this.registerShowMassTagListener();
         this.registerEditTagEvents();
         this.registerViewAllTagsListener();
-    }
+    },
+    
+	
+	registerAutoCompleteFields : function(container) {
+		var thisInstance = this;
+		var lastResults = [];
+		thisInstance.existingTags = [];
+		thisInstance.newTags = [];
+	
+		var options = JSON.parse(container.find('.availabletags').val());
+		
+		$.each(options, function(i, val){
+			lastResults.push(val.text);
+		});
+		
+		container.find('#tagField').select2({ 
+			
+			tags : true, 
+			
+			tokenSeparators: [","],
+			
+			data : options,
+			
+			createSearchChoice : function(term) {
+				if(jQuery.inArray( term, lastResults ) == -1)
+					return { id: term, text: term };
+			},
+			
+		}).on("change", function (selectedData) {
+			
+			var addedElement = selectedData.added;
+			
+			if($(this).attr('id') == 'tagField'){
+				if (typeof addedElement != 'undefined') {
+					
+					if (typeof addedElement.value != 'undefined') {
+						thisInstance.existingTags.push(addedElement.value);
+					}else{
+						thisInstance.newTags.push(addedElement.id);
+					}
+					
+				}
+	
+				var removedElement = selectedData.removed;
+				if (typeof removedElement != 'undefined') {
+
+					if (typeof removedElement.value != 'undefined') {
+						
+						var ele = thisInstance.existingTags;
+						var removeItem = removedElement.value;
+
+						ele = jQuery.grep(ele, function(value) {
+						  return value != removeItem;
+						});
+						thisInstance.existingTags = ele;
+						
+					}else{
+						
+						var ele = thisInstance.newTags;
+						var removeItem = removedElement.id;
+
+						ele = jQuery.grep(ele, function(value) {
+						  return value != removeItem;
+						});
+						thisInstance.newTags = ele;
+						
+					}
+					
+				}
+			}
+		});
+	},
+	
 });
 
