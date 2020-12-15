@@ -840,6 +840,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				container.find('.emailDetails').popover({html: true});
 				self.updateUnreadCount("-"+unreadCount, jQuery(parentEle).data('folder'));
 				self.loadContentsInIframe(container.find('#mmBody'));
+				self.registerEventForSaveDocument();
 			});
 		});
 	},
@@ -2686,5 +2687,62 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	    	
     	});
     },
+    
+    registerEventForSaveDocument : function(){
+		
+		jQuery('.saveasdocument').on('click', function(){
+			
+			var attId = $(this).data('id');
+			var attName = $(this).data('name');
+			
+			var params = {};
+			params['module'] = "MailManager";
+			params['action'] = "DownloadFile";
+			params['attid'] = attId;
+			params['mode'] = 'saveAsDocument';
+			params['attname'] = attName;
+			
+			app.helper.showProgress();
+			app.request.post({data:params}).then(function(err,data){
+				app.helper.hideProgress();
+				if(err === null){
+					if(data.success)
+						app.helper.showSuccessNotification({message:data.message});
+					else
+						app.helper.showErrorNotification({message:data.message});
+				}
+			});
+			
+		});
+		
+		jQuery('.previewdocument').on('click', function(){
+			
+			var attId = $(this).data('id');
+			var attName = $(this).data('name');
+			
+			var params = {};
+			params['module'] = "MailManager";
+			params['action'] = "DownloadFile";
+			params['attid'] = attId;
+			params['mode'] = "previewDocument";
+			params['attname'] = attName;
+			
+			app.helper.showProgress();
+			var modalParams = {
+				cb: function (modalContainer) {
+					//modalContainer.find('.viewer').zoomer();
+				},
+				'ignoreScroll' : true
+			};
+			app.request.post({data: params}).then(function (err, res) {
+				app.helper.hideProgress();
+				//app.helper.hideModal();
+				app.helper.showModal(res, modalParams);
+			});
+			
+			
+		});
+		
+	},
 	
 });
