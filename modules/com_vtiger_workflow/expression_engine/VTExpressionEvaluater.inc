@@ -332,7 +332,8 @@ class VTFieldExpressionEvaluater{
 				'add_time' => '__vt_add_time',
 				'sub_time' => '__vt_sub_time',
 				'power'	   => '__vt_power',
-		        'current_datetime' => 'current_date_time'
+		        'current_datetime' => 'current_date_time',
+		        'calculate_age' => 'calculate_age'
 		);
 
 		$this->operations = array_merge($this->functions, $this->operators);
