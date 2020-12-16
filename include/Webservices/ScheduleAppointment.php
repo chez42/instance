@@ -158,6 +158,7 @@
             $date = $element['date'];
             $type = $element['meetingType'];
             $time = json_decode($element['selectedSlotsString'],true);
+            $location = $element['location'];
             
             $start_time = $time[0]['start'];
             $end_time = date('H:i', strtotime($start_time) + ($slot * 60));
@@ -206,6 +207,7 @@
             $event->column_fields['description'] = $notes;
             $event->column_fields['sendnotification'] = ($confirmation == 'on') ? 1 : 0;
             $event->column_fields['visibility'] = 'Private';
+            $event->column_fields['location'] = $location;
 			$event->column_fields['eventstatus'] = 'Planned';
             $event->save('Events');
             
@@ -263,7 +265,12 @@
 			    }
 			}
 			
-			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, '1hr' => $hr_1, 'disableDays' => $disableDays, 'dateformat' => $dateFormat);
+			$t_module = Vtiger_Module_Model::getInstance('Events');
+			$field = Vtiger_Field_Model::getInstance('activitytype', $t_module);
+			$activityValues = $field->getPicklistValues();
+			
+			$result = array('success'=>true, 'logo' => $logo, '15min' => $min_15, '30min' => $min_30, 
+			    '1hr' => $hr_1, 'disableDays' => $disableDays, 'dateformat' => $dateFormat, 'activitytype' => $activityValues);
         
 		}
 		
