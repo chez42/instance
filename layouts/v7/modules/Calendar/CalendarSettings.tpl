@@ -38,7 +38,7 @@
 								{elseif $FIELD_NAME eq 'hidecompletedevents'}
 									{assign var=HIDE_COMPLETED_EVENTS_MODEL value=$FIELD_MODEL}
 								{/if}
-								{if $FIELD_NAME neq 'callduration' && $FIELD_NAME neq 'othereventduration' && $FIELD_NAME neq 'defaulteventstatus' && $FIELD_NAME neq 'defaultactivitytype' && $FIELD_NAME neq 'hidecompletedevents'}
+								{if $FIELD_NAME neq 'callduration' && $FIELD_NAME neq 'othereventduration' && $FIELD_NAME neq 'defaulteventstatus' && $FIELD_NAME neq 'defaultactivitytype' && $FIELD_NAME neq 'hidecompletedevents' && $FIELD_NAME neq 'appointment_url'}
 									<div class="form-group">
 										<label class="fieldLabel col-lg-4 col-sm-4 col-xs-4">{vtranslate($FIELD_MODEL->get('label'),$TRANSLATION_MODULE)}</label>
 										<div class="fieldValue col-lg-8 col-sm-8 col-xs-8">
