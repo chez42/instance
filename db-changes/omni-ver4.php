@@ -1015,3 +1015,5 @@ Vtiger_Cron::register('ProcessEmailQueue', 'cron/ProcessEmailQueue.service', 0);
 
 $adb->pquery("UPDATE vtiger_field SET masseditable = 2 WHERE fieldname = ? AND tabid = ?",
     array('unit_price', getTabid('Products')));
+
+$adb->pquery("UPDATE `vtiger_entityname` SET `fieldname` = 'name' WHERE `vtiger_entityname`.`tabid` = ?",array(getTabid('BillingSpecifications')));
