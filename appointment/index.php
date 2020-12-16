@@ -52,6 +52,8 @@ else if($dateFormat == 'dd-mm-yyyy')
 else if($dateFormat == 'yyyy-mm-dd')
     $dateFormat = 'Y-m-d';
 
+$activityType = $response['result']['activitytype'];
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -244,20 +246,25 @@ else if($dateFormat == 'yyyy-mm-dd')
     							disabled="disabled" />
     						<input type="text" id="userName" name="userName"
     							placeholder='Name' class="required me-disable"
-    							disabled="disabled" /> <input type="text" id="email"
+    							disabled="disabled" /> 
+							<input type="text" id="email"
     							name="email" placeholder='Email' class="required me-disable"
-    							disabled="disabled" /> <input type="text" id="phoneNumber"
+    							disabled="disabled" /> 
+							<input type="text" id="phoneNumber"
     							name="phoneNumber" placeholder='Phone Number' class="required me-disable"
     							disabled="disabled" />
     							
-    							<select class="form-control meetingtypes" style="border: 1px solid #74B9EF;height:37px" title='Meeting Type' name="meetingType" id="meetingType">
-    							 	<option selected disabled>Meeting Type</option>
-                            		<option value="Meeting">Meeting</option>
-                            		<option value=" Call"> Call</option>
-<!--                             		<option value=" Skype"> Skype</option> -->
-<!--                             		<option value=" Google Hangouts"> Google Hangouts</option> -->
-                            	</select>
-    					
+    						<input type="text" id="location" name="location"
+    							placeholder='Location' class="required me-disable"
+    							disabled="disabled" />
+    								
+							<select class="form-control meetingtypes" style="border: 1px solid #74B9EF;height:37px" title='Meeting Type' name="meetingType" id="meetingType">
+						 		<?php foreach($activityType as $actKey => $actVal){?>
+						 			<option value="<?php echo $actKey?>" <?php if(strtolower($actKey) == 'call'){?>selected<?php }?>><?php echo $actVal;?></option>
+						 		<?php }?>
+                        	</select>
+                            	
+							
     						<div class="clearfix"></div>
     						<input type="checkbox" id="confirmation" name="confirmation"  checked
     							class="me-disable" disabled="disabled" style="margin-top: 10px;" /> <label
