@@ -240,7 +240,7 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			case 'e' : $operator = '=';
 		}
 
-		if(!empty($operator) && !empty($conditions['fieldname']) && !empty($conditions['value'])) {
+		if(!empty($operator) && !empty($conditions['fieldname']) /*&& !empty($conditions['value'])*/) {
 			$conditionQuery = ' '.$conditions['fieldname'].$operator.'\'' .$conditions['value'].'\' ';
 		}
 		return $conditionQuery;

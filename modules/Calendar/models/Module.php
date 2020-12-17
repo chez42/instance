@@ -678,7 +678,7 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 		foreach($eventTypePicklistValues as $picklistValue=>$picklistLabel) {
 			$eventsModuleConditions[$picklistLabel] = array('fieldname' => 'activitytype','operator' => 'e','value'=>$picklistValue);
 		}
-
+		$eventsModuleConditions['isEmpty'] = array('fieldname' => 'activitytype','operator' => 'e','value'=>'');
 		$conditions = array(
 			'Events' => $eventsModuleConditions
 		);
