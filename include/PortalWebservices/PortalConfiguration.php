@@ -15,7 +15,7 @@ function vtws_portalconfiguration($element,$user){
         if($adb->num_rows($portalData)){
             
             $returnData['user'] = $adb->query_result($portalData, 0, 'portal_user');
-            $returnData['name'] = $adb->query_result($portalData, 0, 'portal_name');
+            $returnData['name'] = $adb->query_result($portalData, 0, 'company_name');
             $returnData['url'] = $adb->query_result($portalData, 0, 'domain');
             $returnData['accesskey'] = $adb->query_result($portalData, 0, 'portal_access_key');
             
