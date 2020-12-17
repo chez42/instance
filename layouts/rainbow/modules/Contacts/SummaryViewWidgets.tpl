@@ -91,27 +91,31 @@
 <div class="middle-block col-lg-4">
 	{if $RECORD->getField('mailingstreet')->get('fieldvalue') neq '' or $RECORD->getField('mailingcity')->get('fieldvalue') neq ''}
 	<div class="summaryWidgetContainer">
-	<iframe class="mapIframe" width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAnSgEdBwrlr3f1rJtXLa7iSiMrgVjeSGY&q=
-	{if $RECORD->getField('mailingstreet')->get('fieldvalue') neq ''}
-		{$RECORD->getField('mailingstreet')->get('fieldvalue')}
-		{if $RECORD->getField('mailingpobox')->get('fieldvalue') neq ''}
-		 {$RECORD->getField('mailingpobox')->get('fieldvalue')}
+	{capture assign="parameter"}
+		{if $RECORD->getField('mailingstreet')->get('fieldvalue') neq ''}
+			{$RECORD->getField('mailingstreet')->get('fieldvalue')}
+			{if $RECORD->getField('mailingpobox')->get('fieldvalue') neq ''}
+			 {$RECORD->getField('mailingpobox')->get('fieldvalue')}
+			{/if}
+			, 
 		{/if}
-		,%20
-	{/if}
-	{if $RECORD->getField('mailingcity')->get('fieldvalue') neq ''}
-		{$RECORD->getField('mailingcity')->get('fieldvalue')}
-		{if $RECORD->getField('mailingstate')->get('fieldvalue') neq ''}
-			%20({$RECORD->getField('mailingstate')->get('fieldvalue')}) 
+		{if $RECORD->getField('mailingcity')->get('fieldvalue') neq ''}
+			{$RECORD->getField('mailingcity')->get('fieldvalue')}
+			{if $RECORD->getField('mailingstate')->get('fieldvalue') neq ''}
+				 ({$RECORD->getField('mailingstate')->get('fieldvalue')}) 
+			{/if}
 		{/if}
-	{/if}
+		
+		{if $RECORD->getField('mailingzip')->get('fieldvalue') neq ''}
+			, {$RECORD->getField('mailingzip')->get('fieldvalue')}
+		{/if}
+		{if $RECORD->getField('mailingcountry')->get('fieldvalue') neq ''}
+			, {$RECORD->getField('mailingcountry')->get('fieldvalue')}
+		{/if}
+	{/capture} 
 	
-	{if $RECORD->getField('mailingzip')->get('fieldvalue') neq ''}
-		,%20{$RECORD->getField('mailingzip')->get('fieldvalue')}
-	{/if}
-	{if $RECORD->getField('mailingcountry')->get('fieldvalue') neq ''}
-		,%20{$RECORD->getField('mailingcountry')->get('fieldvalue')}
-	{/if}
+	<iframe class="mapIframe" width="100%" height="200" frameborder="0" style="border:0" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAnSgEdBwrlr3f1rJtXLa7iSiMrgVjeSGY&q=
+	{rawurlencode($parameter)}
 	" allowfullscreen></iframe>
 	
 	<div style="text-align: center">
