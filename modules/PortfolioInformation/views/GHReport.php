@@ -103,7 +103,7 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
             if (sizeof($accounts) > 0) {
                 PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
                 $categories = array("estimatedtype");
-                $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+                $fields = array("security_symbol", "account_type", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
                 $totals = array("current_value", "weight");
                 $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
                 $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
