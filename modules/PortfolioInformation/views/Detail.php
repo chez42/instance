@@ -14,14 +14,21 @@ include_once('libraries/reports/new/nCommon.php');
 class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
+        $portfolio = Vtiger_Record_Model::getInstanceById($request->get('record'));
+        $account_numbers = array($portfolio->get('account_number'));
         $account_numbers = array_unique($account_numbers);
 
-        foreach($account_numbers AS $k => $v){
-            $tmp = new CustodianToOmni($v);
-            $tmp->UpdatePortfolios();
-            $tmp->UpdatePositions();
-        }
+        PortfolioInformation_Module_Model::UpdateAccountDataFromCustodian($account_numbers);
+
+/*        $copy = new CustodianToOmniTransfer($account_numbers);
+        $symbols = cFidelityPositions::GetSymbolListFromCustodian($account_numbers);
+        $missing_symbols = ModSecurities_Module_Model::GetMissingSymbolsFromList($symbols);
+
+#        $symbols = cTDPositions::GetSymbolListFromCustodian($account_numbers);
+#        print_r($symbols);exit;
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+        $copy->UpdatePositions();*/
 
         return parent::preProcess($request);
     }
