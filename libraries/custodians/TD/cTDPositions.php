@@ -294,4 +294,249 @@ class cTDPositions extends cCustodian {
         $this->GetPositionsData();
         $this->SetupPositionComparisons();
     }
+
+    static public function UpdateAllCRMPositionsAtOnce(){
+        global $adb;
+echo "THIS IS NOT READY YET!!!";
+return;
+        $query = "DROP TABLE IF EXISTS UpdatePositions";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE UpdatePositions LIKE custodian_omniscient.custodian_positions_td";
+        $adb->pquery($query, array());
+
+        $query = "INSERT INTO UpdatePositions 
+                  SELECT * FROM custodian_omniscient.custodian_positions_td pos
+                  WHERE date=(SELECT MAX(date) FROM custodian_omniscient.custodian_positions_td)";
+        $adb->pquery($query, array());
+
+        $query = "UPDATE UpdatePositions SET symbol = 'TDCASH' WHERE symbol = 'Cash'";
+        $adb->pquery($query, array());
+
+        $query = "SELECT p.positioninformationid, f.quantity + f.amount AS quantity, (f.quantity + f.amount) * m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END * CASE WHEN m.asset_backed_factor > 0 THEN m.asset_backed_factor ELSE 1 END AS current_value,
+                         sec.description, m.securitytype, mcf.aclass, 'TD' AS custodian, 
+                         m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END AS last_price, 
+                         f.date, f.filename
+                  FROM UpdatePositions f
+                  LEFT JOIN custodian_omniscient.custodian_securities_td sec ON f.symbol = sec.symbol 
+                  JOIN vtiger_positioninformation p ON f.symbol = p.security_symbol AND f.account_number = p.account_number 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  WHERE f.account_number = p.account_number";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_positioninformation p 
+                      JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                      SET p.quantity = ?, p.current_value = ?, p.description = ?, p.last_price = ?, pcf.last_update = ?, pcf.custodian_source = ?
+                      WHERE p.positioninformationid = ?";
+            if($adb->num_rows($result) > 0){
+                while($v = $adb->fetchByAssoc($result)){
+                    $data = array($v['quantity'], $v['current_value'], $v['description'], $v['last_price'], $v['date'],
+                        $v['filename'], $v['positioninformationid']);
+                    $adb->pquery($query, $data);
+                }
+            }
+        }
+
+/*
+        $query = "UPDATE UpdatePositions f
+                  LEFT JOIN custodian_omniscient.custodian_securities_td sec ON f.symbol = sec.symbol 
+                  JOIN vtiger_positioninformation p ON f.symbol = p.security_symbol AND f.account_number = p.account_number 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  SET p.quantity = f.quantity + f.amount, 
+                  p.current_value = (f.quantity + f.amount) * m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END * CASE WHEN m.asset_backed_factor > 0 THEN m.asset_backed_factor ELSE 1 END, 
+                  p.description = sec.description, pcf.security_type = m.securitytype, pcf.base_asset_class =  mcf.aclass, pcf.custodian = 'TD', 
+                  p.last_price = m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END, 
+                  pcf.last_update = f.date, 
+                  pcf.custodian_source = f.filename 
+                  WHERE f.account_number = p.account_number";
+        $adb->pquery($query, array());
+
+        $query = "UPDATE UpdatePositions f 
+                  JOIN vtiger_positioninformation p ON f.account_number = p.account_number 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  SET p.quantity = 0, p.current_value = 0 
+                  WHERE pcf.last_update != f.date";
+        $adb->pquery($query, array());
+*/
+    }
+
+    static public function UpdateAllCRMPositionsAtOnceForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "UPDATE vtiger_positioninformation p 
+                  SET p.quantity = 0, p.current_value = 0
+                  WHERE account_number IN ({$questions})";
+        $adb->pquery($query, array($account_number));
+
+
+        $query = "SELECT MAX(last_position_date) AS last_position_date
+                  FROM vtiger_portfolioinformation por
+                  JOIN vtiger_portfolioinformationcf porcf ON por.portfolioinformationid = porcf.portfolioinformationid
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = porcf.production_number
+                  WHERE account_number IN ({$questions})";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0) {
+            $latest_date = $adb->query_result($result, 0, 'last_position_date');
+        }
+
+        $query = "SELECT p.positioninformationid, f.quantity + f.amount AS quantity, (f.quantity + f.amount) * m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END * CASE WHEN m.asset_backed_factor > 0 THEN m.asset_backed_factor ELSE 1 END AS current_value,
+                         sec.description, m.securitytype, mcf.aclass, 'TD' AS custodian, 
+                         m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END AS last_price, 
+                         f.date, f.filename
+                  FROM custodian_omniscient.custodian_positions_td f
+                  LEFT JOIN custodian_omniscient.custodian_securities_td sec ON f.symbol = sec.symbol 
+                  JOIN vtiger_positioninformation p ON CASE WHEN f.symbol = 'CASH' THEN 'TDCASH' ELSE f.symbol END = p.security_symbol AND f.account_number = p.account_number 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  WHERE f.account_number IN ({$questions})
+                  AND f.date = ?";
+        $result = $adb->pquery($query, array($account_number, $latest_date));
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_positioninformation p 
+                      JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                      SET p.quantity = ?, p.current_value = ?, p.description = ?, p.last_price = ?, cf.last_update = ?, cf.custodian_source = ?
+                      WHERE p.positioninformationid = ?";
+
+            while($v = $adb->fetchByAssoc($result)){
+                $data = array($v['quantity'], $v['current_value'], $v['description'], $v['last_price'], $v['date'],
+                              $v['filename'], $v['positioninformationid']);
+                $adb->pquery($query, $data);
+            }
+        }
+    }
+
+    static public function GetLatestPositionDateForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "SELECT MAX(last_position_date) AS last_position_date
+                  FROM vtiger_portfolioinformation por
+                  JOIN vtiger_portfolioinformationcf porcf ON por.portfolioinformationid = porcf.portfolioinformationid
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = porcf.production_number
+                  WHERE account_number IN ({$questions})";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0) {
+            $latest_date = $adb->query_result($result, 0, 'last_position_date');
+            return $latest_date;
+        }
+
+        return null;
+    }
+
+    static public function CreateNewPositionsForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $latest_date = cTDPositions::GetLatestPositionDateForAccounts($account_number);
+
+        $query = "SELECT pos.symbol, pos.account_number, sec.description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+                  FROM custodian_omniscient.custodian_positions_td pos
+                  LEFT JOIN custodian_omniscient.custodian_securities_td sec ON pos.symbol = sec.symbol
+                  WHERE (account_number, pos.symbol) NOT IN (SELECT account_number, CASE WHEN security_symbol = 'TDCASH' THEN 'Cash' ELSE security_symbol END as security_symbol
+                                                             FROM vtiger_positioninformation 
+                                                             WHERE security_symbol != '' 
+                                                             AND account_number IN ({$questions}))
+                  AND pos.date = ?
+                  AND pos.symbol != '' 
+                  AND pos.account_number IN ({$questions})
+                  GROUP BY pos.symbol, account_number";
+        $result = $adb->pquery($query, array($account_number, $latest_date, $account_number));
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol']), true);
+
+                $query = "INSERT INTO vtiger_positioninformation (positioninformationid, security_symbol, description, account_number)
+                          VALUES(?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol'], $v['description'], $v['account_number']), true);
+
+                $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+                          VALUES(?)";
+                $adb->pquery($query, array($v['crmid']), true);
+            }
+        }
+
+
+        /*        $query = "DROP TABLE IF EXISTS CreatePositions";
+                $adb->pquery($query, array(), true);
+
+                $query = "DROP TABLE IF EXISTS LatestPositions";
+                $adb->pquery($query, array(), true);
+
+                $query = "CREATE TEMPORARY TABLE LatestPositions
+                          SELECT symbol, account_number, date
+                          FROM custodian_omniscient.custodian_positions_td
+                          WHERE date=(SELECT MAX(date) FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}))
+                          AND account_number IN ({$questions})
+                          GROUP BY account_number, symbol";
+                $adb->pquery($query, $params, true);
+
+                $query = "UPDATE LatestPositions
+                          SET symbol = 'TDCASH'
+                          WHERE symbol = 'Cash'";
+                $adb->pquery($query, array(), true);
+
+                $query = "CREATE TEMPORARY TABLE CreatePositions
+                          SELECT pos.symbol, pos.account_number, sec.description, 0 AS crmid
+                          FROM LatestPositions pos
+                          LEFT JOIN custodian_omniscient.custodian_securities_td sec ON pos.symbol = sec.symbol
+                          WHERE (account_number, pos.symbol) NOT IN (SELECT account_number, security_symbol FROM vtiger_positioninformation WHERE security_symbol != '')
+                          AND pos.date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}))
+                          AND pos.symbol != '' GROUP BY pos.symbol, account_number";
+                $adb->pquery($query, array($account_number), true);
+
+                $query = "UPDATE CreatePositions
+                          SET crmid = IncreaseAndReturnCrmEntitySequence()";
+                $adb->pquery($query, array(), true);
+
+
+        $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                  SELECT crmid, 1, 1, 1, 'PositionInformation', NOW(), NOW(), symbol FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_positioninformation (positioninformationid, security_symbol, description, account_number)
+                  SELECT crmid, symbol, description, account_number FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+                  SELECT crmid FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+        */
+    }
+
+    /**
+     * Returns a list of symbols that belong to the passed in accounts
+     * @param array $account_numbers
+     */
+    static public function GetSymbolListFromCustodian(array $account_numbers, $max_only=true){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT symbol 
+                  FROM custodian_omniscient.custodian_positions_td 
+                  WHERE account_number IN ({$questions}) 
+                  AND date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_td WHERE account_number IN ({$questions}))
+                  GROUP BY symbol";
+
+        $result = $adb->pquery($query, array($account_numbers, $account_numbers), true);
+        if($adb->num_rows($result) > 0){
+            $symbols = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[] = $v['symbol'];
+            }
+            return $symbols;
+        }
+        return null;
+    }
 }

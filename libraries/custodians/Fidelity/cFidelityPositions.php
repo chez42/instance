@@ -218,10 +218,30 @@ class cFidelityPositions extends cCustodian {
     }
 
     /*This may be better suited to do during parsing!*/
-    public function CreateCashPosition(){
+    static public function CreateCashPosition(){
         global $adb;
-        $query = "CALL EXTRA_CASH_POSITIONS_FIDELITY();";
-        $adb->pquery($query, array());
+
+        $query = "SELECT account_number, 1, '\$CASH' AS cusip, '\$CASH' AS symbol, unsettled_cash + margin_balance AS trade_date_quantity, 1 AS close_price, 'Free Cash' AS description, as_of_date, 
+	                     unsettled_cash + margin_balance AS closing_market_value, unsettled_cash + margin_balance AS unrealized_gain_loss_amount
+	              FROM custodian_omniscient.custodian_balances_fidelity b
+	              WHERE b.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_balances_fidelity)";
+
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $query = "INSERT INTO custodian_positions_fidelity (account_number, account_type, cusip, symbol, trade_date_quantity,
+                                                                    close_price, description, as_of_date, closing_market_value, unrealized_gain_loss_amount)
+                          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                          ON DUPLICATE KEY UPDATE account_type = 1, trade_date_quantity = VALUES(trade_date_quantity), 
+				                          closing_market_value = VALUES(closing_market_value),
+				                          unrealized_gain_loss_amount = VALUES(unrealized_gain_loss_amount)";
+                $adb->pquery($query, array($v));
+            }
+        }
+
+#CALL EXTRA_CASH_POSITIONS_FIDELITY();
+#        $query = "CALL custodian_omniscient.EXTRA_CASH_POSITIONS_FIDELITY();";
+#        $adb->pquery($query, array());
     }
     /**
      * Auto creates the position's based on the data loaded into the $positions_data member.  If the position exists in this data, it will be created
@@ -370,4 +390,254 @@ class cFidelityPositions extends cCustodian {
         $this->SetupPositionComparisons();
     }
 
+    static public function UpdateAllCRMPositionsAtOnce(){
+        global $adb;
+        $query = "DROP TABLE IF EXISTS UpdatePositions";
+        $adb->pquery($query, array(), true);
+#        echo date("Y-m-d H:i:s") . '<br />';
+
+        $query = "CREATE TEMPORARY TABLE UpdatePositions LIKE custodian_omniscient.custodian_positions_fidelity";
+        $adb->pquery($query, array(), true);
+#        echo date("Y-m-d H:i:s") . '<br />';
+
+        $query = "CALL custodian_omniscient.EXTRA_CASH_POSITIONS_FIDELITY();";
+        $adb->pquery($query, array(), true);
+#        echo date("Y-m-d H:i:s") . '<br />';
+
+        $query = "INSERT INTO UpdatePositions 
+                  SELECT account_number, account_type, cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, description, as_of_date, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date 
+                  FROM custodian_omniscient.custodian_positions_fidelity WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity) GROUP BY account_number, symbol";
+        $adb->pquery($query, array(), true);
+#        echo date("Y-m-d H:i:s") . '<br />';
+
+        //Reset positions to 0 for accounts
+        $query = "UPDATE vtiger_positioninformation p 
+                  JOIN UpdatePositions f ON f.account_number = p.account_number 
+                  SET p.quantity = 0, p.current_value = 0";
+        $adb->pquery($query, array(), true);
+#        echo date("Y-m-d H:i:s") . '<br />';
+
+        $query = "UPDATE UpdatePositions f 
+                  JOIN vtiger_positioninformation p ON f.symbol = p.security_symbol 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  SET p.quantity = f.trade_date_quantity, p.current_value = f.closing_market_value, p.description = m.security_name, 
+                  p.last_price = m.security_price * mcf.security_price_adjustment, pcf.last_update = f.as_of_date, 
+                  pcf.security_type = m.securitytype, pcf.base_asset_class =  mcf.aclass, pcf.custodian = 'Fidelity', 
+                  p.unrealized_gain_loss = f.unrealized_gain_loss_amount, p.cost_basis = f.cost, p.gain_loss_percent = (f.unrealized_gain_loss_amount / f.cost * 100), pcf.custodian_source = f.filename
+                  WHERE f.account_number = p.account_number";
+        $adb->pquery($query, array(), true);
+#       echo date("Y-m-d H:i:s") . '<br />';
+    }
+
+    static public function ExtraCashPositionsFidelityAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "CREATE TEMPORARY TABLE extra_cash_positions (account_number VARCHAR(200) PRIMARY KEY,
+                                                               extra_cash DECIMAL(10, 2),
+                                                               security_symbol VARCHAR(200),
+                                                               positioninformationid INT)";
+        $adb->pquery($query, array());
+
+        $query = "SELECT p.account_number, unsettled_cash + margin_balance + net_credit_debit AS EXTRA_CASH, pinf.security_symbol, pinf.positioninformationid AS crmid
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  LEFT JOIN vtiger_positioninformation pinf ON pinf.account_number = p.account_number AND pinf.security_symbol = '\$CASH'
+                  WHERE p.accountclosed = 0 AND e.deleted = 0 AND p.account_number IN ({$questions})
+                  GROUP BY account_number";
+        $result = $adb->pquery($query, array($account_number));
+
+        /**NEEDS TO BE VERIFIED STILL**/
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                if($v['crmid'] == null OR $v['crmid'] == '') {
+                    $position = Vtiger_Record_Model::getCleanInstance("PositionInformation");
+                    $data = $position->getData();
+                    $data['security_symbol'] = '$CASH';
+                    $data['description'] = "Free Cash";
+                    $position->set('mode', 'create');
+                    $position->save();
+                }
+            }
+        }
+    }
+
+    static public function UpdateAllCRMPositionsAtOnceForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+
+        self::ExtraCashPositionsFidelityAccounts($account_number);
+
+        $query = "SELECT f.account_number, account_type, f.cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, f.description, as_of_date, m.securitytype, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, f.maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, f.security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date,
+                         m.security_price * mcf.security_price_adjustment AS last_price, (f.unrealized_gain_loss_amount / f.cost * 100) AS gain_loss_percent, mcf.aclass, p.positioninformationid
+                  FROM custodian_omniscient.custodian_positions_fidelity f
+                  JOIN vtiger_positioninformation p ON p.account_number = f.account_number AND p.security_symbol = f.symbol
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions})) 
+                  AND f.account_number IN ({$questions})
+                  GROUP BY f.account_number, f.symbol";
+        $result = $adb->pquery($query, array($account_number, $account_number));
+
+        if($adb->num_rows($result) > 0){
+            self::ResetAccountPositions($account_number);
+            while($v = $adb->fetchByAssoc($result)){
+                $params = array();
+                $params[] = $v['trade_date_quantity'];
+                $params[] = $v['closing_market_value'];
+                $params[] = $v['security_name'];
+                $params[] = $v['last_price'];
+                $params[] = $v['as_of_date'];
+                $params[] = $v['securitytype'];
+                $params[] = $v['aclass'];
+                $params[] = $v['Fidelity'];
+                $params[] = $v['unrealized_gain_loss_amount'];
+                $params[] = $v['cost'];
+                $params[] = $v['gain_loss_percent'];
+                $params[] = $v['filename'];
+                $params[] = $v['positioninformationid'];
+
+                $query = "UPDATE vtiger_positioninformation p 
+                          JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                          SET p.quantity = ?, p.current_value = ?, p.description = ?, 
+                          p.last_price = ?, pcf.last_update = ?, 
+                          pcf.security_type = ?, pcf.base_asset_class = ?, pcf.custodian = ?, 
+                          p.unrealized_gain_loss = ?, p.cost_basis = ?, p.gain_loss_percent = ?, pcf.custodian_source = ?
+                          WHERE p.positioninformationid = ?";
+                $adb->pquery($query, $params);
+            }
+        }
+    }
+
+    static public function CreateNewPositionsForAccounts(array $account_number)
+    {
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "SELECT symbol, account_number, description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+                  FROM custodian_omniscient.custodian_positions_fidelity pos
+                  WHERE account_number IN ({$questions})
+                  AND (account_number, symbol) NOT IN (SELECT account_number, security_symbol 
+                                                       FROM vtiger_positioninformation 
+                                                       WHERE security_symbol != '' 
+                                                       AND account_number IN ({$questions}))
+                  AND pos.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions}))
+                  AND pos.symbol != '' 
+                  GROUP BY symbol, account_number";
+        $adb->pquery($query, array($account_number, $account_number, $account_number), true);
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol']), true);
+
+                $query = "INSERT INTO vtiger_positioninformation (positioninformationid, security_symbol, description, account_number)
+                          VALUES(?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol'], $v['description'], $v['account_number']), true);
+
+                $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+                          VALUES(?)";
+                $adb->pquery($query, array($v['crmid']), true);
+            }
+        }
+
+        /*
+        $query = "DROP TABLE IF EXISTS CreatePositions";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE CreatePositions
+                  SELECT symbol, account_number, description, 0 AS crmid 
+                  FROM custodian_omniscient.custodian_positions_fidelity pos
+                  WHERE account_number IN ({$questions})
+                  AND (account_number, symbol) NOT IN (SELECT account_number, security_symbol FROM vtiger_positioninformation WHERE security_symbol != '' AND account_number IN ({$questions}))
+                  AND pos.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions}))
+                  AND pos.symbol != '' 
+                  GROUP BY symbol, account_number";
+        $adb->pquery($query, array($account_number, $account_number, $account_number), true);
+
+        $query = "UPDATE CreatePositions SET crmid = IncreaseAndReturnCrmEntitySequence()";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                  SELECT crmid, 1, 1, 1, 'PositionInformation', NOW(), NOW(), symbol FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_positioninformation (positioninformationid, security_symbol, description, account_number)
+                  SELECT crmid, symbol, description, account_number FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+                  SELECT crmid FROM CreatePositions";
+        $adb->pquery($query, array(), true);
+        */
+    }
+
+    /**
+     * Returns a list of symbols that belong to the passed in accounts
+     * @param array $account_numbers
+     */
+    static public function GetSymbolListFromCustodian(array $account_numbers){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT symbol 
+                  FROM custodian_omniscient.custodian_positions_fidelity 
+                  WHERE account_number IN ({$questions}) 
+                  GROUP BY symbol";
+
+        $result = $adb->pquery($query, array($account_numbers), true);
+        if($adb->num_rows($result) > 0){
+            $symbols = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[] = $v['symbol'];
+            }
+            return $symbols;
+        }
+    }
+
+    static public function UpdateAllSymbolsAtOnce(array $symbols){
+        global $adb;
+        $questions = generateQuestionMarks($symbols);
+        $params = array();
+        $params[] = $symbols;
+
+
+        $query = "DROP TABLE IF EXISTS UpdatePositions";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE UpdatePositions LIKE custodian_positions_fidelity";
+        $adb->pquery($query, array());
+
+        $query = "CALL EXTRA_CASH_POSITIONS_FIDELITY();";
+        $adb->pquery($query, array());
+
+        $query = "INSERT INTO UpdatePositions 
+                  SELECT account_number, account_type, cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, description, as_of_date, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date 
+                  FROM custodian_positions_fidelity WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_positions_fidelity) GROUP BY account_number, symbol";
+        $adb->pquery($query, array());
+
+            //Reset positions to 0 for accounts
+        $query = "UPDATE vtiger_positioninformation p 
+                  JOIN UpdatePositions f ON f.account_number = p.account_number 
+                  SET p.quantity = 0, p.current_value = 0";
+        $adb->pquery($query, array());
+
+        $query = "UPDATE UpdatePositions f 
+                  JOIN vtiger_positioninformation p ON f.symbol = p.security_symbol 
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  SET p.quantity = f.trade_date_quantity, p.current_value = f.closing_market_value, p.description = m.security_name, 
+                      p.last_price = m.security_price * mcf.security_price_adjustment, pcf.last_update = f.as_of_date, 
+                      pcf.security_type = m.securitytype, pcf.base_asset_class =  mcf.aclass, pcf.custodian = 'Fidelity', 
+                      p.unrealized_gain_loss = f.unrealized_gain_loss_amount, p.cost_basis = f.cost, p.gain_loss_percent = (f.unrealized_gain_loss_amount / f.cost * 100), pcf.custodian_source = f.filename 
+                  WHERE f.account_number = p.account_number";
+        $adb->pquery($query, $params);
+    }
 }
