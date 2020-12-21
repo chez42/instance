@@ -14,7 +14,10 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (FIDELITY)");
     $missing = $fidelity->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
     $fidelity->CreateNewPortfoliosFromPortfolioData($missing);//Create the accounts that are missing into the CRM
     $existing = $fidelity->GetExistingCRMAccounts();//Get accounts already in the CRM
-    $fidelity->UpdatePortfoliosFromPortfolioData($existing);
+#    $fidelity->UpdatePortfoliosFromPortfolioData($existing);
+
+    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($existing);
+
 /*********END OF STEP 1********/
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securities (FIDELITY)");
@@ -64,8 +67,11 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Getting Symbols List Old and New (FI
     if(!empty($missing_securities))
         $securities->CreateNewSecuritiesFromSecurityData($missing_securities);//Create new securities from the missing list
     $securities->UpdateSecuritiesFromSecuritiesData($symbols);//Update the defined symbols in the CRM (only has access to the ones passed in the constructor)
-    $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
-    $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+    $positions->GetAccountNumbers();
+#    $positions->ManualSetupPositionComparisons();//Needed because there may be new positions
+#    $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
+    cFidelityPositions::UpdateAllCRMPositionsAtOnceForAccounts($existing);
+
 /*********END OF STEP 2********/
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (FIDELITY)");

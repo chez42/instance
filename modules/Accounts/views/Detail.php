@@ -23,11 +23,7 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
         $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
         $account_numbers = array_unique($account_numbers);
 
-        foreach($account_numbers AS $k => $v){
-            $tmp = new CustodianToOmni($v);
-            $tmp->UpdatePortfolios();
-            $tmp->UpdatePositions();
-        }
+        PortfolioInformation_Module_Model::UpdateAccountDataFromCustodian($account_numbers);
     }
 
 

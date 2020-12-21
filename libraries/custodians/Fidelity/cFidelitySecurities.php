@@ -317,4 +317,91 @@ class cFidelitySecurities extends cCustodian {
             return date("Y-m-d", strtotime($date));
         return null;
     }
+
+    static public function CreateNewSecurities(array $symbols){
+        global $adb;
+        $questions = generateQuestionMarks($symbols);
+
+        $query = "DROP TABLE IF EXISTS CreateSecurities";
+        $adb->pquery($query, array(), true);
+
+        $query = "SELECT symbol, description, 0 AS crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
+                  FROM custodian_omniscient.custodian_securities_fidelity sec
+                  LEFT JOIN vtiger_global_asset_class_mapping m ON m.fidelity_asset_class_code = sec.asset_class_type_code
+                  WHERE symbol IN ({$questions})
+                  AND symbol != ''";
+        $adb->pquery($query, array($symbols), true);
+
+        $securities_result = $adb->pquery($query, array($symbols), true);
+        if($adb->num_rows($securities_result) > 0) {
+            while($v = $adb->fetchByAssoc($securities_result)) {
+                $new_id_result = $adb->pquery("SELECT IncreaseAndReturnCrmEntitySequence() AS crmid", array());
+                $id = $adb->query_result($new_id_result, 0, 'crmid');
+
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES (?, 1, 1, 1, 'ModSecurities', NOW(), NOW(), ?)";
+                $adb->pquery($query, array($id,$v['description']), true);
+
+                $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name, security_price)
+                          VALUES (?, ?, ?, ?)";
+                $adb->pquery($query, array($id, $v['symbol'], $v['description'], $v['price']), true);
+
+                $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, security_price_adjustment)
+                          VALUES (?, ?)";
+                $adb->pquery($query, array($id, $v['multiplier']), true);
+            }
+        }
+/*        $query = "UPDATE CreateSecurities SET crmid = IncreaseAndReturnCrmEntitySequence()";
+        $adb->pquery($query, array(), true);
+/*
+        $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                  SELECT crmid, 1, 1, 1, 'ModSecurities', NOW(), NOW(), description 
+                  FROM CreateSecurities";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name)
+                  SELECT crmid, symbol, description 
+                  FROM CreateSecurities";
+        $adb->pquery($query, array(), true);
+
+        $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net)
+                  SELECT crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
+                  FROM CreateSecurities";
+        $adb->pquery($query, array(), true);
+*/
+    }
+
+    static public function UpdateAllSymbolsAtOnce(array $symbols){
+        global $adb;
+        $questions = generateQuestionMarks($symbols);
+
+        $query = "SELECT f.cusip, f.symbol, f.description, pr.price, map.multiplier, f.close_price,
+                         CASE WHEN cf.aclass = '' AND cf.ignore_auto_update = 0 THEN map.omni_base_asset_class ELSE cf.aclass END AS asset_class, 
+                         m.securitytype = map.security_type, f.interest_rate, f.maturity_date, 'Fidelity' AS provider,
+                         NOW() AS last_update, CASE WHEN f.interest_rate > 0 THEN f.interest_rate ELSE cf.interest_rate END AS interest_rate,
+                         CASE WHEN f.interest_frequency = 'A' THEN 'annual' WHEN f.interest_frequency = 'M' THEN 'monthly' WHEN f.interest_frequency = 'S' THEN 'SemiAnnual' WHEN f.interest_frequency = 'Q' THEN 'quarterly' ELSE m.pay_frequency END AS pay_frequency,
+                         NOW() AS modified_time, f.filename AS source, m.modsecuritiesid
+                  FROM custodian_omniscient.custodian_securities_fidelity f 
+                  JOIN vtiger_modsecurities m ON m.security_symbol = f.symbol 
+                  JOIN vtiger_modsecuritiescf cf ON m.modsecuritiesid = cf.modsecuritiesid 
+                  JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid 
+                  JOIN securities_mapping_fidelity map ON map.type = f.type AND map.asset_class_code = f.asset_class_code AND map.asset_class_type_code = f.asset_class_type_code 
+                  JOIN custodian_omniscient.custodian_prices_fidelity pr ON pr.symbol = f.symbol AND pr.price_date = (SELECT MAX(price_date) FROM custodian_omniscient.custodian_prices_fidelity WHERE symbol = f.symbol) 
+                  WHERE f.symbol IN ({$questions})";
+        $result = $adb->pquery($query, array($symbols), true);
+
+        $query = "UPDATE vtiger_modsecurities m
+                  JOIN vtiger_modsecuritiescf cf ON m.modsecuritiesid = cf.modsecuritiesid
+                  JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid
+                  SET cf.cusip = ?, m.security_symbol = ?, m.security_name = ?, m.security_price = ?,
+                      cf.security_price_adjustment = ?, m.security_price = ?, cf.aclass = ?,
+                      m.interest_rate = ?, m.maturity_date = ?, cf.provider = ?, m.last_update = ?,
+                      cf.interest_rate = ?,
+                      m.pay_frequency = ?,
+                      e.modifiedtime = ?, m.source = ? 
+                  WHERE m.modsecuritiesid = ?";
+        while($v = $adb->fetchByAssoc($result)){
+            $adb->pquery($query, $v, true);
+        }
+    }
 }

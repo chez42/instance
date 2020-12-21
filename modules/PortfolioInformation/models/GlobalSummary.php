@@ -623,6 +623,21 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
      */
     static public function CalculateAllAccountAssetAllocationValues(){
         global $adb;
+        $query = "SELECT account_number, SUM(p.current_value) AS val, CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END AS base_asset_class
+                  FROM vtiger_positioninformation p
+                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
+                  LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
+                  WHERE e.deleted = 0 AND cf.last_update IS NOT NULL
+                  GROUP BY base_asset_class, account_number";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $query = "INSERT INTO vtiger_asset_class_totals VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)";
+            while($x = $adb->fetchByAssoc($result)) {
+                $adb->pquery($query, array($x['account_number'], $x['val'], $x['base_asset_class']));
+            }
+        }
+        /*
         $query = "INSERT INTO vtiger_asset_class_totals
                   SELECT account_number, SUM(p.current_value), CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END
                   FROM vtiger_positioninformation p
@@ -632,13 +647,31 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
                   WHERE e.deleted = 0 AND cf.last_update IS NOT NULL
                   GROUP BY base_asset_class, account_number
                   ON DUPLICATE KEY UPDATE value=VALUES(value)";
-        $adb->pquery($query, array());
+        $adb->pquery($query, array());*/
     }
 
     /**
      * Calculate the asset allocation for all accounts and insert them into the vtiger_asset_class_history table
      */
     static public function CalculateAllAccountAssetAllocationValuesForAccount($account_number){
+        global $adb;
+        $query = "SELECT account_number, SUM(p.current_value) AS val, CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END AS base_asset_class AS base_asset_class
+                  FROM vtiger_positioninformation p
+                  JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
+                  LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
+                  WHERE e.deleted = 0 AND cf.last_update IS NOT NULL
+                  AND p.account_number = ?
+                  GROUP BY base_asset_class, account_number";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0){
+            $query = "INSERT INTO vtiger_asset_class_totals VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)";
+            while($x = $adb->fetchByAssoc($result)) {
+                $adb->pquery($query, array($x['account_number'], $x['val'], $x['base_asset_class']));
+            }
+        }
+#        echo 'sup';exit;
+        /*
         global $adb;
         $query = "INSERT INTO vtiger_asset_class_totals
                   SELECT account_number, SUM(p.current_value), CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END
@@ -651,6 +684,7 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
                   GROUP BY base_asset_class, account_number
                   ON DUPLICATE KEY UPDATE value=VALUES(value)";
         $adb->pquery($query, array($account_number));
+        */
     }
 
     /**

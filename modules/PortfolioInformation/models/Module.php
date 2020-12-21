@@ -1319,7 +1319,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                   AND transaction_type IN ({$questions})
                   AND trade_date < ?
                   AND e.deleted = 0";
-        $adb->pquery($query, $params, true);
+        $adb->pquery($query, $params);
     }
 
     /**
@@ -1742,7 +1742,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 #        $query = "CALL CALCULATE_MONTHLY_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
         $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
 //        $query = "CALL TWR_INTERVALS_CALCULATED(\"{$questions}\", ?, ?)";
-        $adb->pquery($query, array($accounts, $start_date, $end_date), true);
+        $adb->pquery($query, array($accounts, $start_date, $end_date));
 
         $query = "SELECT * FROM tmpDailyPreTWR ORDER BY intervalenddate ASC";
         $result = $adb->pquery($query, array());
@@ -2983,7 +2983,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 			      WHERE IntervalEndDate >= ?
                   AND AccountNumber = ?
 			      ORDER BY IntervalEndDate ASC LIMIT 1";
-        $result = $adb->pquery($query, array($date, $account_number), true);
+        $result = $adb->pquery($query, array($date, $account_number));
         if($adb->num_rows($result) > 0){
             return $adb->query_result($result, 0, "intervalbeginvalue");
         }
@@ -2998,7 +2998,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 			      WHERE IntervalEndDate < ?
                   AND AccountNumber = ?
 			      ORDER BY IntervalEndDate DESC LIMIT 1";
-        $result = $adb->pquery($query, array($date, $account_number), true);
+        $result = $adb->pquery($query, array($date, $account_number));
         if($adb->num_rows($result) > 0){
             return $adb->query_result($result, 0, "intervalendvalue");
         }
@@ -3012,7 +3012,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 			      WHERE IntervalEndDate <= ?
                   AND AccountNumber = ?
 			      ORDER BY IntervalEndDate DESC LIMIT 1";
-        $result = $adb->pquery($query, array($date, $account_number), true);
+        $result = $adb->pquery($query, array($date, $account_number));
         if($adb->num_rows($result) > 0){
             return $adb->query_result($result, 0, "intervalendvalue");
         }
@@ -3032,7 +3032,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $query = "CALL custodian_omniscient.TD_BALANCES_FROM_POSITIONS_INDIVIDUAL(?, ?, ?)";
         foreach ($period as $dt) {
             $d = $dt->format("Y-m-d");
-            $adb->pquery($query, array($account_number, $d, $db_name), true);
+            $adb->pquery($query, array($account_number, $d, $db_name));
 #            echo "Check for {$account_number}, {$d} -- {$db_name}<br />";
         }
     }
@@ -3065,7 +3065,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 #            echo $query . '<br />';
 ##            $adb->pquery($query, array());
 
-            $adb->pquery($query, array($d, $db_name), true);
+            $adb->pquery($query, array($d, $db_name));
 #            echo $query . '<br />' . $d . '<br />' . $db_name;exit;
 #            $q = "SELECT * FROM AccountValues;";
 #            $result = $adb->pquery($q, array());
@@ -3093,7 +3093,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 #            echo $query . '<br />';
 ##            $adb->pquery($query, array());
             StatusUpdate::UpdateMessage("TDBALANCEUPDATE", "Calculating Balances for {$d}");
-            $adb->pquery($query, array($account_number, $d, $db_name), true);
+            $adb->pquery($query, array($account_number, $d, $db_name));
 #            echo $query . '<br />' . $d . '<br />' . $db_name;exit;
 #            $q = "SELECT * FROM AccountValues;";
 #            $result = $adb->pquery($q, array());
@@ -3141,7 +3141,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $query = "SELECT account_number 
                   FROM custodian_omniscient.custodian_portfolios_{$custodian} 
                   WHERE rep_code IN ({$questions})";
-        $result = $adb->pquery($query, $params, true);
+        $result = $adb->pquery($query, $params);
         if($adb->num_rows($result) > 0)
             while($r = $adb->fetchByAssoc($result)){
                 $account_numbers[] = $r['account_number'];
@@ -3308,13 +3308,13 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             return;
         $questions = generateQuestionMarks($account_numbers);
         $query = "DELETE FROM intervals_daily WHERE accountnumber IN ({$questions})";
-        $adb->pquery($query, array($account_numbers), true);
+        $adb->pquery($query, array($account_numbers));
 
         $query = "DELETE FROM vtiger_interval_calculations WHERE account_number IN ({$questions})";
-        $adb->pquery($query, array($account_numbers), true);
+        $adb->pquery($query, array($account_numbers));
 
         $query = "DELETE FROM vtiger_asset_class_history WHERE account_number IN ({$questions})";
-        $adb->pquery($query, array($account_numbers), true);
+        $adb->pquery($query, array($account_numbers));
     }
 
     //TODO Need this finished.. It is to figured out portfolios not linked to contact
@@ -3376,7 +3376,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                       JOIN vtiger_positioninformationcf poscf ON poscf.positioninformationid = pos.positioninformationid
                       SET p.total_value = 0, p.market_value = 0, p.cash_value = 0, pos.quantity = 0, pos.current_value = 0
                       WHERE p.account_number IN ({$questions})";
-            $adb->pquery($query, $params, true);
+            $adb->pquery($query, $params);
         }
     }
 
@@ -3406,5 +3406,19 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             return $differences;
         }
         return null;
+    }
+
+    static public function UpdateAccountDataFromCustodian(array $account_number){
+###        self::TDBalanceCalculationsMultiple($account_number, "2020-12-14", "2020-12-17");
+        $copy = new CustodianToOmniTransfer($account_number);
+#        $accounts = $copy->GetAccounts();
+
+#echo 'start ' . date("Y-m-d H:i:s") . '<br />';
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+#        $copy->UpdateSecurities();
+        $copy->CreatePositions();
+#        $copy->UpdatePositions();
+#echo 'end ' . date("Y-m-d H:i:s") . '<br />';
     }
 }
