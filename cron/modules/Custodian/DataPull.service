@@ -1,0 +1,17 @@
+<?php
+require_once("libraries/custodians/cCustodian.php");
+require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+include_once("include/utils/omniscientCustom.php");
+
+StatusUpdate::UpdateMessage("CRONUPDATER", "Beginning Safe Process");
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+cTDPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+cFidelityPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+#echo 'now check for 678498025';exit;
+$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+$copy = new CustodianToOmniTransfer($accounts);
+$copy->UpdatePortfolios();
+$copy->CreateSecurities();
+$copy->CreatePositions();
+StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Safe Process");

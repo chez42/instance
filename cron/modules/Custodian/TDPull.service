@@ -10,7 +10,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
 
     /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
     //Pull portfolio and balance information for the specified rep codes
-    $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
+/*    $td = new cTDPortfolios("TD", "custodian_omniscient", "portfolios",
                             "custodian_portfolios_td", "custodian_balances_td", $rep_codes);
         $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
     $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
@@ -20,7 +20,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (TD)");
     /*********END OF STEP 1********/
 
     /***STEP 2 - CREATE AND UPDATE POSITIONS/SECURITIES WORKING***/
-    //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
+/*    //Pull all specified position data.  Auto setup will pull all info and set it up for us.  If there are memory issues due to too much data
     //then account numbers will need to be set manually and auto setup turned off.  We can then use the GetPositionsData function (follow the
     //constructor for an example on how to load.  This could be done in a loop setting <x> number of account numbers at a time
     StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions (TD)");
