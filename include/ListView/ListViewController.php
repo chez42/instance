@@ -812,14 +812,15 @@ class ListViewController {
 	                            $currencyInfo = getInventoryCurrencyInfo($module, $recordId);
 	                            $currencySymbol = $currencyInfo['currency_symbol'];
 	                        }
-	                        $value = CurrencyField::convertToUserFormat($value, null, true);
-	                        $row['currencySymbol'] = $currencySymbol;
+	                        $value = $currencySymbol.CurrencyField::convertToUserFormat($value, null, true);
+	                        //$row['currencySymbol'] = $currencySymbol;
 	                        //							$value = CurrencyField::appendCurrencySymbol($currencyValue, $currencySymbol);
 	                    } else {
 	                        if (!empty($value)) {
-	                            $value = CurrencyField::convertToUserFormat($value);
 	                            $userCurrencyInfo = getCurrencySymbolandCRate($this->user->currency_id);
-	                            $row['userCurrencySymbol'] = $userCurrencyInfo['symbol'];
+	                            //$row['userCurrencySymbol'] = $userCurrencyInfo['symbol'];
+	                            $value = $userCurrencyInfo['symbol'].CurrencyField::convertToUserFormat($value);
+	                            
 	                        }
 	                    }
 	                }
