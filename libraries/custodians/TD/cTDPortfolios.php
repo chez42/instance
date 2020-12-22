@@ -329,6 +329,42 @@ class cTDPortfolios extends cCustodian {
         return $data;
     }
 
+
+    static public function CreateNewPortfoliosForRepCodes($rep_codes){
+        global $adb;
+        $custodian_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
+        $crm_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+        $new = array_diff($custodian_accounts, $crm_accounts);
+        if(!empty($new)){
+            $questions = generateQuestionMarks($new);
+            $query = "SELECT p.account_number, 'TD' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.first_name, p.last_name, 
+                             p.street, p.address2, p.address3, p.address4, p.address5, p.address6, p.city, p.state, p.zip, p.account_type, 
+                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code
+                          FROM custodian_omniscient.custodian_portfolios_td p 
+                          LEFT JOIN custodian_omniscient.custodian_portfolio_custom_properties cust ON p.account_number = cust.account_number 
+                          WHERE p.account_number IN ({$questions})";
+            $result = $adb->pquery($query, array($new));
+
+            if($adb->num_rows($result) > 0){
+                while($v = $adb->fetchByAssoc($result)){
+                    $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name)
+                              VALUES (?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['rep_code'], $v['street'], $v['address2'], $v['address3'], $v['address4'], $v['address5'],
+                                               $v['address6'], $v['city'], $v['state'], $v['zip'], $v['system_generated']));
+                }
+            }
+        }
+    }
+
     static public function UpdateAllPortfoliosForAccounts(array $account_number){
         global $adb;
         $questions = generateQuestionMarks($account_number);

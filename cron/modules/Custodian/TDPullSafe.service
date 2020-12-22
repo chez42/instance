@@ -4,9 +4,13 @@ require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
 include_once("libraries/statusupdates/StatusUpdate.php");
 
+echo "Process Start " . date("Y-m-d H:i:s") . '<br />';
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Safe Process (TD)");
 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+cTDPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+cFidelityPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+#echo 'now check for 678498025';exit;
 $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
 
 $copy = new CustodianToOmniTransfer($accounts);
@@ -15,6 +19,9 @@ $copy->CreateSecurities();
 $copy->CreatePositions();
 StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Safe Process (TD)");
 
+echo 'dun';exit;
+echo "Process Transactions " . date("Y-m-d H:i:s") . '<br />';
+echo 'no trans';exit;
 /***STEP 3 - CREATE TRANSACTIONS WORKING***/
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (TD)");
 
@@ -60,3 +67,5 @@ StatusUpdate::UpdateMessage("TDUPDATER", "finished");
     $transactions->CreateNewTransactionsFromTransactionData($missing);
     /*********END OF STEP 3********/
 #}
+
+echo "Process End " . date("Y-m-d H:i:s") . '<br />';
