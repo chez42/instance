@@ -529,7 +529,7 @@ class cFidelityPositions extends cCustodian {
                   AND pos.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions}))
                   AND pos.symbol != '' 
                   GROUP BY symbol, account_number";
-        $adb->pquery($query, array($account_number, $account_number, $account_number), true);
+        $result = $adb->pquery($query, array($account_number, $account_number, $account_number), true);
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){

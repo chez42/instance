@@ -385,7 +385,7 @@ class cFidelitySecurities extends cCustodian {
                   JOIN vtiger_modsecurities m ON m.security_symbol = f.symbol 
                   JOIN vtiger_modsecuritiescf cf ON m.modsecuritiesid = cf.modsecuritiesid 
                   JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid 
-                  JOIN securities_mapping_fidelity map ON map.type = f.type AND map.asset_class_code = f.asset_class_code AND map.asset_class_type_code = f.asset_class_type_code 
+                  JOIN custodian_omniscient.securities_mapping_fidelity map ON map.type = f.type AND map.asset_class_code = f.asset_class_code AND map.asset_class_type_code = f.asset_class_type_code 
                   JOIN custodian_omniscient.custodian_prices_fidelity pr ON pr.symbol = f.symbol AND pr.price_date = (SELECT MAX(price_date) FROM custodian_omniscient.custodian_prices_fidelity WHERE symbol = f.symbol) 
                   WHERE f.symbol IN ({$questions})";
         $result = $adb->pquery($query, array($symbols), true);

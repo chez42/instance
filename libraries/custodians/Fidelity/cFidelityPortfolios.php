@@ -499,6 +499,47 @@ class cFidelityPortfolios extends cCustodian {
         }
     }
 
+    static public function CreateNewPortfoliosForRepCodes($rep_codes){
+        global $adb;
+        $custodian_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes("Fidelity", $rep_codes);
+        $crm_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+        $new = array_diff($custodian_accounts, $crm_accounts);
+
+        if(!empty($new)){
+            $questions = generateQuestionMarks($new);
+
+            $query = "SELECT p.account_number, p.account_name, p.t_account, p.registration, p.disposal_method, p.s_corp_indicator, 
+                             'Fidelity' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.production_number, f.as_of_date, f.net_worth, f.buying_power, 
+                             f.cash_available_to_withdraw, (f.net_worth-f.cash_available_to_withdraw) AS market_value, f.cash_available_to_borrow, 
+                             f.money_market_available, f.core_cash_market_value, f.unsettled_cash, f.dividend_accrual, NOW() AS generatedtime, 
+                             p.rep_code 
+                      FROM custodian_omniscient.custodian_portfolios_fidelity p 
+                      LEFT JOIN custodian_omniscient.custodian_balances_fidelity f ON f.account_number = p.account_number 
+                                                              AND f.as_of_date = (SELECT MAX(b.as_of_date) 
+                                                                                  FROM custodian_omniscient.custodian_balances_fidelity b 
+                                                                                  WHERE account_number IN ({$questions})) 
+                      WHERE f.account_number IN ({$questions})";
+            $result = $adb->pquery($query, array($new, $new));
+
+            if($adb->num_rows($result) > 0){
+                while($v = $adb->fetchByAssoc($result)){
+                    $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, total_value, market_value, cash_value)
+                              VALUES(?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['net_worth'], $v['market_value'], $v['cash_available_to_withdraw']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, unsettled_cash, dividend_accrual, production_number)
+                              VALUES (?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['unsettled_cash'], $v['dividend_accrual'], $v['production_number']));
+                }
+            }
+        }
+    }
+
     static public function UpdateAllPortfoliosForAccounts(array $account_number){
         global $adb;
         $questions = generateQuestionMarks($account_number);
