@@ -275,13 +275,13 @@
 							{foreach key=BLOCK_NAME item=BLOCKS_DATA from=$JSON_DATA}
 								{if $BLOCKS_DATA}
 									<div>
-										<h4>{$BLOCKS_DATA[0].heading}</h4>
+										<!-- <h4>{$BLOCKS_DATA[0].heading}</h4> -->
 										<ul class="bxslider">
 											{foreach item=BLOCK_DATA from=$BLOCKS_DATA}
 												<li class="slide">
 													{assign var=ALL_BLOCKS_COUNT value=$ALL_BLOCKS_COUNT+1}
 													{if $BLOCK_DATA.image}
-														<div class="col-lg-4" style="min-height: 100px;"><img src="{$BLOCK_DATA.image}" style="width: 100%;height: 100%;margin-top: 10px;"/></div>
+														<div class="col-lg-4"><img src="{$BLOCK_DATA.image}" style="width:100%;height: 150px;margin-top: 10px;"/></div>
 														<div class="col-lg-8">
 													{else}
 														<div class="col-lg-12">
