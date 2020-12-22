@@ -78,6 +78,23 @@ class CustodianToOmniTransfer{
         }
     }
 
+    public function CreatePortfolios(){
+        foreach($this->account_numbers AS $k => $v){
+            switch (strtoupper($k)) {
+                CASE "TD":
+                    cTDPortfolios::UpdateAllPortfoliosForAccounts($v);
+                    break;
+                CASE "FIDELITY":
+                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
+                    break;
+                CASE "SCHWAB":
+                    break;
+                case "PERSHING":
+                    break;
+            }
+        }
+    }
+
     /**
      * Pull the latest portfolios from Custodian Omniscient and insert them into Omniscient
      */

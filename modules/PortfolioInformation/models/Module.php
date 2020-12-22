@@ -3131,7 +3131,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         self::TDBalanceCalculationsMultiple(array($account_number), $sdate, $edate);
     }
 
-    protected function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
+    static public function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
         global $adb;
         $params = array();
         $questions = generateQuestionMarks($rep_codes);

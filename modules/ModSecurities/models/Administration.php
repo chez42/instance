@@ -18,19 +18,19 @@ class ModSecurities_Administration_Model extends Vtiger_Module{
 
     static public function UpdateSchwabMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE securities_mapping_schwab SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.securities_mapping_schwab SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
     static public function UpdateFidelityMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE securities_mapping_fidelity SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.securities_mapping_fidelity SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
     static public function UpdateTDMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE securities_mapping_td SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.securities_mapping_td SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
