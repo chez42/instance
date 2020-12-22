@@ -214,10 +214,30 @@ class Settings_ExtensionStore_Extension_Model extends Vtiger_Base_Model {
 
 	public function getNews() {
 		$news = array();
-		$connector = $this->getConnector();
-		if ($connector) {
-			$news = $connector->getNews();
+		
+		$contents = file_get_contents("https://omnisrv.com/wp-json/wp/v2/posts?_embed&per_page=5&categories=732&order=desc");
+		$contents = json_decode($contents, true);
+		
+		if(!empty($contents)){
+		    
+		    $news['success'] = 1;
+		    
+		    foreach($contents as $feature){
+		        
+		        $news['result'][] = array(
+		            "type" => "feature", 
+		            "title" => $feature['title']['rendered'], 
+		            "summary" => substr(str_replace(
+		            array('[vc_row]','[vc_column]','[vc_column_text]', '[/vc_row]',
+		                '[/vc_column]','[/vc_column_text]'), '', preg_replace( "/\r|\n/", "", strip_tags($feature['content']['rendered']))), 0, 1500) . '...',
+		            'urlalt' => 'Read more',
+		            'url' => $feature['link'], 
+		            'image' => isset($feature['_embedded']['wp:featuredmedia'][0]['source_url'])?$feature['_embedded']['wp:featuredmedia'][0]['source_url']:''
+		        );
+		    }
 		}
+		
+		
 		return $news;
 	}
 
