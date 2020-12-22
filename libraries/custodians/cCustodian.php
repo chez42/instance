@@ -237,4 +237,24 @@ class cCustodian{
             return true;
         return false;
     }
+
+    static public function UpdateLatestPositionsTable($custodian, $date_field){
+        global $adb;
+        $query = "SELECT rep_code, MAX({$date_field}) AS as_of_date
+                  FROM custodian_omniscient.custodian_portfolios_{$custodian} por
+                  JOIN custodian_omniscient.custodian_positions_{$custodian} pos ON por.account_number = pos.account_number
+                  WHERE rep_code IS NOT NULL AND rep_code != ''
+                  AND {$date_field} > (NOW() - INTERVAL 7 DAY)
+                  GROUP BY rep_code
+                  ORDER BY as_of_date DESC";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $query = "INSERT INTO custodian_omniscient.latestpositiondates VALUES (?, ?)
+                      ON DUPLICATE KEY UPDATE last_position_date = VALUES(last_position_date)";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, array($v['rep_code'], $v['as_of_date']));
+#                echo "Updated " . $v['rep_code'] . " to " . $v['as_of_date'] . '<br />';
+            }
+        }
+    }
 }
