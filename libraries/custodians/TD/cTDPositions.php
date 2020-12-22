@@ -379,7 +379,7 @@ return;
                   FROM vtiger_portfolioinformation por
                   JOIN vtiger_portfolioinformationcf porcf ON por.portfolioinformationid = porcf.portfolioinformationid
                   JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = porcf.production_number
-                  WHERE account_number IN ({$questions})";
+                  WHERE account_number IN ({$questions}) LIMIT 1";
         $result = $adb->pquery($query, array($account_number));
 
         if($adb->num_rows($result) > 0) {
