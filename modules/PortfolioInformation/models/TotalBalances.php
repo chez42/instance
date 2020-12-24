@@ -86,13 +86,19 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         foreach($ids AS $k => $v){
             $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
             $questions = generateQuestionMarks($account_numbers);
-            $query = "INSERT INTO daily_user_total_balances
-                          SELECT {$v}, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW()
+            $query = "SELECT {$v} AS user_id, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW() AS calculated_date
                           FROM consolidated_balances
                           WHERE account_number IN({$questions}) AND as_of_date >= ?
-                          GROUP BY as_of_date
-                      ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
-            $adb->pquery($query, array($account_numbers, $date));
+                          GROUP BY as_of_date";
+            $result = $adb->pquery($query, array($account_numbers, $date));
+
+            if($adb->num_rows($result) > 0){
+                $query = "INSERT INTO daily_user_total_balances VALUES (?, ?, ?, ?, ?)
+                          ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
+                while($c = $adb->fetchByAssoc($result)) {
+                    $adb->pquery($query, array($c));
+                }
+            }
         }
     }
 
@@ -106,13 +112,19 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         foreach($ids AS $k => $v){
             $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
             $questions = generateQuestionMarks($account_numbers);
-            $query = "INSERT INTO daily_user_total_balances
-                          SELECT {$v}, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW()
+            $query = "SELECT {$v} AS user_id, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW() AS calculated_date
                           FROM consolidated_balances
                           WHERE account_number IN({$questions}) AND as_of_date >= ?
-                          GROUP BY as_of_date
-                      ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
-            $adb->pquery($query, array($account_numbers, $date));
+                          GROUP BY as_of_date";
+            $result = $adb->pquery($query, array($account_numbers, $date));
+
+            if($adb->num_rows($result) > 0){
+                $query = "INSERT INTO daily_user_total_balances VALUES (?, ?, ?, ?, ?)
+                          ON DUPLICATE KEY UPDATE total_balance = VALUES(total_balance), num_accounts = VALUES(num_accounts)";
+                while($c = $adb->fetchByAssoc($result)) {
+                    $adb->pquery($query, array($c));
+                }
+            }
         }
     }
 
@@ -151,7 +163,6 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         global $adb;
         $ids = GetAllActiveUserIDs();
 
-#        set_error_handler("exception_error_handler");
         foreach($ids AS $k => $v){
             try {
                 StatusUpdate::UpdateMessage("TDUPDATER", "Updating user id {$v}");
@@ -161,14 +172,18 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
                     $query = "DELETE FROM vtiger_asset_class_totals_users WHERE user_id = ?";
                     $adb->pquery($query, array($v));
 
-                    $query = "INSERT INTO vtiger_asset_class_totals_users
-                              SELECT {$v}, SUM(value) AS value, CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END 
+                    $query = "SELECT {$v} AS user_id, SUM(value) AS value, CASE WHEN base_asset_class IS NULL OR base_asset_class = '' THEN 'Other' ELSE base_asset_class END AS base_asset_class 
                               FROM vtiger_asset_class_totals ach
                               WHERE account_number IN ({$questions})  
                               AND value != 0
-                              GROUP BY base_asset_class
-                              ON DUPLICATE KEY UPDATE value=VALUES(value)";
-                    $adb->pquery($query, array($account_numbers), true);
+                              GROUP BY base_asset_class";
+                    $result = $adb->pquery($query, array($account_numbers));
+                    if($adb->num_rows($result) > 0){
+                        $query = "INSERT INTO vtiger_asset_class_totals_users VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE value=VALUES(value)";
+                        while($c = $adb->fetchByAssoc($result)){
+                            $adb->pquery($query, array($c));
+                        }
+                    }
                 }
             }catch(Exception $e){
                 StatusUpdate::UpdateMessage("TDUPDATER", "Error Encountered");

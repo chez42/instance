@@ -3131,7 +3131,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         self::TDBalanceCalculationsMultiple(array($account_number), $sdate, $edate);
     }
 
-    protected function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
+    static public function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
         global $adb;
         $params = array();
         $questions = generateQuestionMarks($rep_codes);
@@ -3383,28 +3383,67 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     static public function GetPortfolioToPositionDifferencesList(){
         global $adb;
 
-        $query = "DROP TABLE IF EXISTS difference";
-        $adb->pquery($query, array());
-
-        $query = "CREATE TEMPORARY TABLE difference
-                  SELECT p.account_number, p.total_value, SUM(act.value) AS PositionValue, p.origination,p.total_value - SUM(act.value) AS dif
+        $query = "SELECT p.account_number, CASE WHEN p.total_value IS NULL THEN 0 ELSE p.total_value END AS total_value, 
+                                           CASE WHEN SUM(pos.current_value) IS NULL THEN 0 ELSE SUM(pos.current_value) END AS PositionValue, 
+                                           p.origination, CASE WHEN p.total_value IS NULL THEN 0 ELSE p.total_value END - CASE WHEN SUM(pos.current_value) IS NULL THEN 0 ELSE SUM(pos.current_value) END AS dif
                   FROM vtiger_portfolioinformation p
-                  JOIN vtiger_asset_class_totals act USING(account_number)
-                  GROUP BY act.account_number";
-        $adb->pquery($query, array());
-
-        $query = "SELECT account_number, origination
-                  FROM difference 
-                  WHERE dif > 1 OR dif < -1";
+                  JOIN vtiger_positioninformation pos USING (account_number)
+                  GROUP BY p.account_number";
         $result = $adb->pquery($query, array());
 
-        if($adb->num_rows($result) > 0){
+        if($adb->num_rows($result )> 0){
             $differences = array();
-            while ($v = $adb->fetchByAssoc($result)) {
-                $differences[] = $v;
+            while($v = $adb->fetchByAssoc($result)){
+                $dif = abs($v['positionvalue']) - abs($v['total_value']);
+                if( $dif > 10){
+                    $differences[] = $v;
+                }
             }
             return $differences;
         }
         return null;
+    }
+
+    protected function GetConsolidatedBalances(array $account_number, $sdate, $edate, $custodian, $value_field, $date_field){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $sdate;
+        $params[] = $edate;
+        $params[] = $account_number;
+
+        $query = "SELECT account_number, {$value_field} AS account_value, {$date_field} AS as_of_date
+                  FROM custodian_omniscient.custodian_balances_{$custodian} WHERE {$date_field} BETWEEN ? AND ? 
+                  AND account_number IN ({$questions}) ";
+        $result = $adb->pquery($query, $params);
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[] = $v;
+            }
+            return $data;
+        }
+        return array();
+    }
+
+    static public function ConsolidatedBalances(array $account_number, $sdate, $edate){
+        global $adb;
+        $td = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'td', 'account_value', 'as_of_date');
+        $fidelity = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'fidelity', 'net_worth', 'as_of_date');
+        $schwab = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'schwab', 'account_value', 'as_of_date');
+        $pershing = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'pershing', 'net_worth', 'date');
+
+        $values = array_merge($td, $fidelity, $schwab, $pershing);
+
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
     }
 }
