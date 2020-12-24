@@ -3446,4 +3446,14 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             }
         }
     }
+
+    static public function UpdateAccountDataFromCustodian(array $account_number){
+        $copy = new CustodianToOmniTransfer($account_number);
+
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+#        $copy->UpdateSecurities();
+        $copy->CreatePositions();
+#        $copy->UpdatePositions();m
+    }
 }
