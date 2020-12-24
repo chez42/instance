@@ -32,33 +32,34 @@ class Users_Login_View extends Vtiger_View_Controller {
 		}
 	}
 
-	public function preProcessTplName(Vtiger_Request $request) {
-	    return 'CustomHeader.tpl';
-	}
+// 	public function preProcessTplName(Vtiger_Request $request) {
+// 	    return 'CustomHeader.tpl';
+// 	}
 	
 	function process (Vtiger_Request $request) {
 		$finalJsonData = array();
 
 		$modelInstance = Settings_ExtensionStore_Extension_Model::getInstance();
-		$news = array(); //$modelInstance->getNews();
+		$news = $modelInstance->getNews();
 
 		if ($news && $news['result']) {
 			$jsonData = $news['result'];
 			$oldTextLength = vglobal('listview_max_textlength');
 			foreach ($jsonData as $blockData) {
-				if ($blockData['type'] === 'feature') {
-					$blockData['heading'] = "What's new in Vtiger Cloud";
-				} else if ($blockData['type'] === 'news') {
+// 				if ($blockData['type'] === 'feature') {
+// 					$blockData['heading'] = "What's new in Vtiger Cloud";
+// 				} else if ($blockData['type'] === 'news') {
 					$blockData['heading'] = "Latest News";
-					$blockData['image'] = '';
-				}
+// 					$blockData['image'] = '';
+// 				}
 
 				vglobal('listview_max_textlength', 80);
 				$blockData['displayTitle'] = textlength_check($blockData['title']);
 
 				vglobal('listview_max_textlength', 200);
 				$blockData['displaySummary'] = textlength_check($blockData['summary']);
-				$finalJsonData[$blockData['type']][] = $blockData;
+				//$finalJsonData[$blockData['type']][] = $blockData;
+				$finalJsonData['news'][] = $blockData;
 			}
 			vglobal('listview_max_textlength', $oldTextLength);
 		}
