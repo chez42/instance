@@ -704,7 +704,7 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 	function getCommentEnabledRelatedEntityIds($modulename, $recordId) {
 		$user = Users_Record_Model::getCurrentUserModel();
 		$relatedModuleRecordIds = array();
-		$restrictedFieldnames = array('modifiedby', 'created_user_id', 'assigned_user_id');
+		$restrictedFieldnames = array('modifiedby', 'created_user_id', 'assigned_user_id', 'creator');
 		$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $modulename);
 		$moduleInstance = Vtiger_Module_Model::getInstance($modulename);
 		$referenceFieldsModels = $moduleInstance->getFieldsByType('reference');

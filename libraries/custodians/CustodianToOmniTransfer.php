@@ -79,6 +79,7 @@ class CustodianToOmniTransfer{
     }
 
     public function CreatePortfolios(){
+        return;//Currently not used, the code below is a copy of UpdatePortfolios
         foreach($this->account_numbers AS $k => $v){
             switch (strtoupper($k)) {
                 CASE "TD":
