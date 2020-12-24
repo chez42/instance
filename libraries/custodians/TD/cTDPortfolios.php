@@ -3,9 +3,9 @@ require_once("libraries/custodians/cCustodian.php");
 
 class cTDPortfolioData{
     public $account_number, $custodian, $first_name, $last_name, $account_type,
-           $account_value, $money_market;//PortfolioInformation
+        $account_value, $money_market;//PortfolioInformation
     public $as_of_date, $street, $address2, $address3, $address4, $address5, $address6, $city, $state, $zip, $rep_code,
-           $master_rep_code, $omni_code;//PortfolioInformationCF
+        $master_rep_code, $omni_code;//PortfolioInformationCF
 
     public function __construct($data){
         $this->rep_code = $data['personal']['rep_code'];
@@ -323,9 +323,109 @@ class cTDPortfolios extends cCustodian {
         if($adb->num_rows($result) > 0){
             while($r = $adb->fetchByAssoc($result)){
                 $data[$r['account_number']] = array("account_value" => $r['account_value'],
-                                                    "as_of_date" => $r['as_of_date']);
+                    "as_of_date" => $r['as_of_date']);
             }
         }
         return $data;
+    }
+
+
+    static public function CreateNewPortfoliosForRepCodes($rep_codes){
+        global $adb;
+        $custodian_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes("TD", $rep_codes);
+        $crm_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+        $new = array_diff($custodian_accounts, $crm_accounts);
+        if(!empty($new)){
+            $questions = generateQuestionMarks($new);
+            $query = "SELECT p.account_number, 'TD' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.first_name, p.last_name, 
+                             p.street, p.address2, p.address3, p.address4, p.address5, p.address6, p.city, p.state, p.zip, p.account_type, 
+                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code
+                          FROM custodian_omniscient.custodian_portfolios_td p 
+                          LEFT JOIN custodian_omniscient.custodian_portfolio_custom_properties cust ON p.account_number = cust.account_number 
+                          WHERE p.account_number IN ({$questions})";
+            $result = $adb->pquery($query, array($new));
+
+            if($adb->num_rows($result) > 0){
+                while($v = $adb->fetchByAssoc($result)){
+                    $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name)
+                              VALUES (?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['rep_code'], $v['street'], $v['address2'], $v['address3'], $v['address4'], $v['address5'],
+                        $v['address6'], $v['city'], $v['state'], $v['zip'], $v['system_generated']));
+                }
+            }
+        }
+    }
+
+    static public function UpdateAllPortfoliosForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "UPDATE vtiger_portfolioinformation p 
+                  SET p.total_value = 0, p.money_market_funds = 0, p.market_value = 0
+                  WHERE account_number IN ({$questions})";
+        $adb->pquery($query, array($account_number));
+
+        /*        $query = "DROP TABLE IF EXISTS MaxAccounts";
+                $adb->pquery($query, array());
+
+                $query = "CREATE TEMPORARY TABLE MaxAccounts
+                          SELECT account_number, as_of_date
+                          FROM custodian_omniscient.custodian_balances_td
+                          WHERE as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_balances_td WHERE account_number IN ({$questions}))
+                          AND account_number IN ({$questions})";
+                $adb->pquery($query, array($account_number, $account_number), true);
+        echo 'done';exit;*/
+
+        $query = "SELECT f.account_value, f.money_market, 0 AS market_value, f.as_of_date, f2.street, f2.address2, f2.address3, f2.address4, 
+                  f2.address5, f2.address6, f2.city, f2.state, f2.zip, f2.account_type, f2.rep_code, f2.master_rep_code, f2.omni_code, 
+                  0 as accountclosed, p.portfolioinformationid
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                  JOIN custodian_omniscient.custodian_balances_td f ON f.account_number = p.account_number 
+                  JOIN custodian_omniscient.custodian_portfolios_td f2 ON f2.account_number = f.account_number
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number
+                  WHERE f.as_of_date = lpd.last_position_date";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_portfolioinformation p 
+                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                      SET p.total_value = ?, p.money_market_funds = ?, p.market_value = ?, cf.stated_value_date = ?, 
+                          cf.address1 = ?, cf.address2 = ?, cf.address3 = ?, cf.address4 = ?, cf.address5 = ?, 
+                          cf.address6 = ?, cf.city = ?, cf.state = ?, cf.zip = ?, p.account_type = ?, 
+                          cf.production_number = ?, cf.master_production_number = ?, cf.omniscient_control_number = ?, p.accountclosed = ?
+                      WHERE p.portfolioinformationid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, $v);
+            }
+        }
+
+        /*
+                $query = "UPDATE vtiger_portfolioinformation p
+                          JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                          JOIN custodian_omniscient.custodian_balances_td f ON f.account_number = p.account_number
+                          JOIN custodian_omniscient.custodian_portfolios_td f2 ON f2.account_number = f.account_number
+                          SET p.total_value = f.account_value, p.money_market_funds = f.money_market, p.market_value = 0, cf.stated_value_date = f.as_of_date,
+                          cf.address1 = f2.street, cf.address2 = f2.address2, cf.address3 = f2.address3, cf.address4 = f2.address4, cf.address5 = f2.address5,
+                          cf.address6 = f2.address6, cf.city = f2.city, cf.state = f2.state, cf.zip = f2.zip, p.account_type = f2.account_type,
+                          cf.production_number = f2.rep_code, cf.master_production_number = f2.master_rep_code, cf.omniscient_control_number = f2.omni_code, p.accountclosed = 0
+                          WHERE f.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_balances_td WHERE account_number IN ({$questions}))";
+                          */
+#        $adb->pquery($query, array($account_number), true);
+    }
+
+    static public function UpdateAllPortfolios(){
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        self::UpdateAllPortfoliosForAccounts($accounts);
     }
 }
