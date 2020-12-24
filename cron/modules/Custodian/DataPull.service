@@ -1,0 +1,30 @@
+<?php
+require_once("libraries/custodians/cCustodian.php");
+require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+include_once("include/utils/omniscientCustom.php");
+
+$start = date('Y-m-d', strtotime('-5 days'));
+$finish = date('Y-m-d');
+
+echo date("Y-m-d H:i:s") . ' - start it all - <br />';
+StatusUpdate::UpdateMessage("CRONUPDATER", "Beginning Safe Process");
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+cTDPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+echo date("Y-m-d H:i:s") . ' - portfolios created TD - <br />';
+cFidelityPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+echo date("Y-m-d H:i:s") . ' - portfolios created Fidelity - <br />';
+#echo 'now check for 678498025';exit;
+$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+echo date("Y-m-d H:i:s") . ' - Accounts organized - <br />';
+
+$copy = new CustodianToOmniTransfer($accounts);
+$copy->UpdatePortfolios();
+echo date("Y-m-d H:i:s") . ' - Portfolios Updated - <br />';
+$copy->CreateSecurities();
+echo date("Y-m-d H:i:s") . ' - Securities Updated - <br />';
+$copy->CreatePositions();
+echo date("Y-m-d H:i:s") . ' - Positions Updated - <br />';
+
+PortfolioInformation_Module_Model::ConsolidatedBalances($accounts, $start, $finish);
+echo date("Y-m-d H:i:s") . ' - Balances Consolidated - <br />';
+StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Safe Process");

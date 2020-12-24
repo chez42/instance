@@ -17,11 +17,10 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
         $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
         $account_numbers = array_unique($account_numbers);
 
-        foreach($account_numbers AS $k => $v){
-            $tmp = new CustodianToOmni($v);
-            $tmp->UpdatePortfolios();
-            $tmp->UpdatePositions();
-        }
+        $copy = new CustodianToOmniTransfer($account_numbers);
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+        $copy->CreatePositions();
 
         return parent::preProcess($request);
     }
