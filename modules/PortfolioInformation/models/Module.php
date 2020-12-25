@@ -3380,30 +3380,6 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
-    static public function GetPortfolioToPositionDifferencesList(){
-        global $adb;
-
-        $query = "SELECT p.account_number, CASE WHEN p.total_value IS NULL THEN 0 ELSE p.total_value END AS total_value, 
-                                           CASE WHEN SUM(pos.current_value) IS NULL THEN 0 ELSE SUM(pos.current_value) END AS PositionValue, 
-                                           p.origination, CASE WHEN p.total_value IS NULL THEN 0 ELSE p.total_value END - CASE WHEN SUM(pos.current_value) IS NULL THEN 0 ELSE SUM(pos.current_value) END AS dif
-                  FROM vtiger_portfolioinformation p
-                  JOIN vtiger_positioninformation pos USING (account_number)
-                  GROUP BY p.account_number";
-        $result = $adb->pquery($query, array());
-
-        if($adb->num_rows($result )> 0){
-            $differences = array();
-            while($v = $adb->fetchByAssoc($result)){
-                $dif = abs($v['positionvalue']) - abs($v['total_value']);
-                if( $dif > 10){
-                    $differences[] = $v;
-                }
-            }
-            return $differences;
-        }
-        return null;
-    }
-
     protected function GetConsolidatedBalances(array $account_number, $sdate, $edate, $custodian, $value_field, $date_field){
         global $adb;
         $questions = generateQuestionMarks($account_number);
@@ -3425,6 +3401,34 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
             return $data;
         }
         return array();
+    }
+
+    static public function ConsolidatedBalancesTD(array $account_number, $sdate, $edate){
+        global $adb;
+        $values = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'td', 'account_value', 'as_of_date');
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
+    }
+
+    static public function ConsolidatedBalancesFidelity(array $account_number, $sdate, $edate){
+        global $adb;
+        $values = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'fidelity', 'net_worth', 'as_of_date');
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
     }
 
     static public function ConsolidatedBalances(array $account_number, $sdate, $edate){
