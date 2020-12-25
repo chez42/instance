@@ -554,10 +554,11 @@ class cFidelityPortfolios extends cCustodian {
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
                   JOIN custodian_omniscient.custodian_balances_fidelity f ON f.account_number = p.account_number 
                   LEFT JOIN custodian_omniscient.custodian_portfolios_fidelity pf ON pf.account_number = f.account_number 
-                  LEFT JOIN custodian_omniscient.portfolios_mapping_fidelity pmap ON pmap.fidelity_type = pf.registration 
+                  LEFT JOIN custodian_omniscient.portfolios_mapping_fidelity pmap ON pmap.fidelity_type = pf.registration
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number 
                   WHERE f.account_number IN ({$questions}) 
-                  AND f.as_of_date = (SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_balances_fidelity WHERE account_number IN ({$questions}))";
-        $result = $adb->pquery($query, array($account_number, $account_number), true);
+                  AND f.as_of_date = lpd.last_position_date";
+        $result = $adb->pquery($query, array($account_number), true);#21,826,709.36
 
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_portfolioinformation p 

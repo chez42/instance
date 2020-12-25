@@ -642,15 +642,19 @@ class PortfolioInformation_GlobalSummary_Model extends Vtiger_Module {
     /**
      * Calculate the asset allocation for all accounts and insert them into the vtiger_asset_class_history table
      */
-    static public function CalculateAllAccountAssetAllocationValuesForAccount($account_number){
+    static public function CalculateAllAccountAssetAllocationValuesForAccount(array $account_number){
+        if(empty($account_number))
+            return null;
+
         global $adb;
+        $questions = generateQuestionMarks($account_number);
         $query = "SELECT account_number, SUM(p.current_value), CASE WHEN base_asset_class IS NULL OR base_asset_class ='' THEN 'Other' ELSE base_asset_class END
                   FROM vtiger_positioninformation p
                   JOIN vtiger_positioninformationcf cf USING (positioninformationid)
                   JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
                   LEFT JOIN vtiger_chart_colors cc ON cc.title = cf.base_asset_class
                   WHERE e.deleted = 0
-                  AND p.account_number = ?
+                  AND p.account_number IN ({$questions})
                   GROUP BY base_asset_class, account_number";
         $result = $adb->pquery($query, array($account_number));
 
