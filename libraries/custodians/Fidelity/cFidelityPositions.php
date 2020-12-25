@@ -336,7 +336,7 @@ class cFidelityPositions extends cCustodian {
                     }
                 }
                 StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Calculating Asset Allocation For {$k}");
-                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount(array($k));
                 StatusUpdate::UpdateMessage("FIDELITYUPDATER", "Finished Calculating Asset Allocation For {$k}");
             }
         }
@@ -638,6 +638,6 @@ class cFidelityPositions extends cCustodian {
                       pcf.security_type = m.securitytype, pcf.base_asset_class =  mcf.aclass, pcf.custodian = 'Fidelity', 
                       p.unrealized_gain_loss = f.unrealized_gain_loss_amount, p.cost_basis = f.cost, p.gain_loss_percent = (f.unrealized_gain_loss_amount / f.cost * 100), pcf.custodian_source = f.filename 
                   WHERE f.account_number = p.account_number";
-        $adb->pquery($query, $params);
+        $adb->pquery($query, $params, true);
     }
 }

@@ -314,7 +314,7 @@ class cSchwabPositions extends cCustodian {
                         $this->UpdatePositionsUsingcSchwabPositionsData($tmp);
                     }
                 }
-                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount(array($k));
             }
         }
     }

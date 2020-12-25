@@ -104,10 +104,12 @@ class CustodianToOmniTransfer{
         foreach($this->account_numbers AS $k => $v){
             switch (strtoupper($k)) {
                 CASE "TD":
-                    cTDPortfolios::UpdateAllPortfoliosForAccounts($v);
+                    cTDPortfolios::UpdateAllPortfoliosForAccounts($this->account_numbers[TD]);
+#                    cTDPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 CASE "FIDELITY":
-                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
+                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($this->account_numbers[FIDELITY]);
+#                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 CASE "SCHWAB":
                     break;

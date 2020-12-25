@@ -164,7 +164,7 @@ class cTDPositions extends cCustodian {
                     }
                 }
                 StatusUpdate::UpdateMessage("SCHWABUPDATER", "Calculating Asset Allocation For {$k}");
-                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount(array($k));
                 StatusUpdate::UpdateMessage("SCHWABUPDATER", "Finished Calculating Asset Allocation For {$k}");
             }
         }
@@ -412,6 +412,7 @@ return;
                 $adb->pquery($query, $data);
             }
         }
+        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($account_number);
     }
 
     static public function GetLatestPositionDateForAccounts(array $account_number){
