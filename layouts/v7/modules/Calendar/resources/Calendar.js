@@ -1084,7 +1084,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 //since support for multiple calendar views for events is enabled
 		this.updateAllEventsOnCalendar();
 	},
-	validateAndSaveEvent: function (modalContainer) {
+	validateAndSaveEvent: function (modalContainer, view) {
 		var thisInstance = this;
 		var params = {
 			submitHandler: function (form) {
@@ -1101,6 +1101,10 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				}
 				
 				var formData = jQuery(form).serialize();
+				
+				if(view == 'AllDay')
+					formData += '&all_day_event=1';
+				
 				app.helper.showProgress();
 				app.request.post({data: formData}).then(function (err, data) {
 					app.helper.hideProgress();
@@ -1119,8 +1123,8 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		};
 		modalContainer.find('form').vtValidate(params);
 	},
-	registerCreateEventModalEvents: function (modalContainer) {
-		this.validateAndSaveEvent(modalContainer);
+	registerCreateEventModalEvents: function (modalContainer, view) {
+		this.validateAndSaveEvent(modalContainer, view);
 	},
 	setStartDateTime: function (modalContainer, startDateTime) {
 		var startDateElement = modalContainer.find('input[name="date_start"]');
@@ -1151,7 +1155,10 @@ Vtiger.Class("Calendar_Calendar_Js", {
 					thisInstance.setStartDateTime(modalContainer, startDateTime);
 				}
 				if (moduleName === 'Events') {
-					thisInstance.registerCreateEventModalEvents(form.closest('.modal'));
+					if(view == 'AllDay' && form.find('[type="checkbox"][name="all_day_event"]').length)
+						form.find('[type="checkbox"][name="all_day_event"]').prop('checked', true);
+					 
+					thisInstance.registerCreateEventModalEvents(form.closest('.modal'), view);
 				}
 			});
 		}
@@ -1203,7 +1210,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				});
 	},
 	showCreateTaskModal: function () {
-		this.showCreateModal('Calendar');
+		this.showCreateModal('Events');
 	},
 	showCreateEventModal: function (startDateTime) {
 		this.showCreateModal('Events', startDateTime);
@@ -1239,7 +1246,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			if (date.hasTime() || view.type == 'month') {
 				this.showCreateEventModal(date);
 			} else {
-				this.showCreateModal('Calendar', date);
+				this.showCreateModal('Events', date, 'AllDay');
 			}
 		}
 	},
