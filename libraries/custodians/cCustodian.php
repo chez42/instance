@@ -246,8 +246,9 @@ class cCustodian{
                   WHERE rep_code IS NOT NULL AND rep_code != ''
                   AND pos.{$date_field} > (NOW() - INTERVAL 7 DAY)
                   GROUP BY rep_code
-                  ORDER BY pos.as_of_date DESC";
+                  ORDER BY pos.{$date_field} DESC";
         $result = $adb->pquery($query, array());
+
         if($adb->num_rows($result) > 0){
             $query = "INSERT INTO custodian_omniscient.latestpositiondates VALUES (?, ?)
                       ON DUPLICATE KEY UPDATE last_position_date = VALUES(last_position_date)";
