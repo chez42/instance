@@ -35,7 +35,7 @@
 					{assign var=EDITVIEW_PERMITTED value=isPermitted('Task', 'EditView', $RECORD->get('crmid'))}
 					{assign var=DETAILVIEW_PERMITTED value=isPermitted('Task', 'DetailView', $RECORD->get('crmid'))}
 					{assign var=DELETE_PERMITTED value=isPermitted('Task', 'Delete', $RECORD->get('crmid'))}
-					<div class="activityEntries">
+					<div class="activityEntries activities">
 						<input type="hidden" class="activityId" value="{$RECORD->getId()}"/>
 						<input type="hidden" class="activityModule" value="{$RECORD->getModuleName()}"/>
 						<div class='media'>
