@@ -459,7 +459,7 @@ class cSchwabPortfolios extends cCustodian {
         $questions = generateQuestionMarks($account_number);
         $query = "SELECT f.taxpayer_first_name, CASE WHEN f.taxpayer_last_name = '' THEN f.account_title_line1 ELSE f.taxpayer_last_name END AS taxpayer_last_name, 
                          f.description, f.address1, f.address2, f.address3, f.address4, f.account_title_line1, f.account_title_line2, f.account_mailing_state,
-                         f.account_mailing_city, f.account_mailing_zip, f.account_title_line3, f.account_title_line3, f.rep_code, f.date_opened,
+                         f.account_mailing_city, f.account_mailing_zip, f.account_title_line3, f.account_title_line3, f.account_title_line3 AS accounttype, f.rep_code, f.date_opened,
                          CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END AS omniscient_type, f.master_rep_code,
                          f.omni_code, f.email_address,
                          bal.account_value, bal.net_mv_positions, bal.cash_balance, bal.net_credit_debit, bal.margin_balance, bal.available_to_pay,
@@ -472,7 +472,6 @@ class cSchwabPortfolios extends cCustodian {
                   LEFT JOIN portfolios_mapping_schwab pmap ON pmap.schwab_code = f.account_registration
                   WHERE p.account_number IN ({$questions})";
         $result = $adb->pquery($query, array($account_number));
-
 
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_portfolioinformation p 

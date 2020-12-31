@@ -53,6 +53,15 @@ class cIntegrity{
 #        PortfolioInformation_Module_Model::ConsolidatedBalances($this->fidelityAccounts, $start, $end);
     }
 
+    private function FixSchwab($start, $end){
+        $copy = new CustodianToOmniTransfer($this->schwabAccounts);
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+        $copy->CreatePositions();
+
+#        PortfolioInformation_Module_Model::ConsolidatedBalances($this->fidelityAccounts, $start, $end);
+    }
+
     public function RepairDifferences(){
         $end = date('Y-m-d');
         $start = date('Y-m-d', strtotime('-4 days'));
@@ -65,6 +74,7 @@ class cIntegrity{
                     $this->FixFidelity($start, $end);
                     break;
                 case "SCHWAB":
+                    $this->FixSchwab($start, $end);
                     break;
                 case "PERSHING":
                     break;
