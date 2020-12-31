@@ -420,4 +420,75 @@ class cSchwabPortfolios extends cCustodian {
             }
         }
     }
+
+    static public function CreateNewPortfoliosForRepCodes($rep_codes){
+        global $adb;
+        $custodian_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes("Schwab", $rep_codes);
+        $crm_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+        $new = array_diff($custodian_accounts, $crm_accounts);
+
+        if(!empty($new)) {
+            $questions = generateQuestionMarks($new);
+
+            $query = "SELECT p.account_number, 'Schwab' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.description, p.rep_code, p.master_rep_code, NOW() AS generated_time
+                      FROM custodian_omniscient.custodian_portfolios_schwab p 
+                      WHERE p.account_number NOT IN ({$questions})";
+            $result = $adb->pquery($query, array($new));
+
+            if($adb->num_rows($result) > 0) {
+                while ($v = $adb->fetchByAssoc($result)) {
+                    $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generated_time'], $v['generated_time'], $v['account_number']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination)
+                              VALUES (?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, description, production_number, master_production_number)
+                              VALUES (?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['description'], $v['rep_code'], $v['master_rep_code']));
+                }
+            }
+        }
+    }
+
+    static public function UpdateAllPortfoliosForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $query = "SELECT f.taxpayer_first_name, CASE WHEN f.taxpayer_last_name = '' THEN f.account_title_line1 ELSE f.taxpayer_last_name END AS taxpayer_last_name, 
+                         f.description, f.address1, f.address2, f.address3, f.address4, f.account_title_line1, f.account_title_line2, f.account_mailing_state,
+                         f.account_mailing_city, f.account_mailing_zip, f.account_title_line3, f.account_title_line3, f.rep_code, f.date_opened,
+                         CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END AS omniscient_type, f.master_rep_code,
+                         f.omni_code, f.email_address,
+                         bal.account_value, bal.net_mv_positions, bal.cash_balance, bal.net_credit_debit, bal.margin_balance, bal.available_to_pay,
+                         bal.as_of_date, bal.filename, 0 AS accountclosed, p.portfolioinformationid
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid) 
+                  JOIN custodian_omniscient.custodian_portfolios_schwab f ON f.account_number = p.account_number
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number
+                  JOIN custodian_omniscient.custodian_balances_schwab bal ON bal.account_number = p.account_number AND bal.as_of_date = lpd.last_position_date
+                  LEFT JOIN portfolios_mapping_schwab pmap ON pmap.schwab_code = f.account_registration
+                  WHERE p.account_number IN ({$questions})";
+        $result = $adb->pquery($query, array($account_number));
+
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_portfolioinformation p 
+                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                      SET p.first_name = ?, p.last_name = ?, cf.description = ?, cf.address1 = ?, cf.address2 = ?, cf.address3 = ?,
+                          cf.address4 = ?, cf.account_title1 = ?, cf.account_title2 = ?, cf.state = ?, cf.city = ?, cf.zip = ?, 
+                          cf.account_title3 = ?, p.account_type = ?, cf.production_number = ?, cf.custodian_inception = ?, 
+                          cf.cf_2549 = ?, 
+                          cf.master_production_number = ?, cf.omniscient_control_number = ?, cf.email_address = ?,
+                          p.total_value = ?, cf.securities = ?, cf.cash = ?, cf.net_credit_debit = ?, 
+                          p.margin_balance = ?, p.available_to_pay = ?, cf.stated_value_date = ?, 
+                          cf.custodian_source = ?, p.accountclosed = ?
+                      WHERE p.portfolioinformationid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, $v);
+            }
+        }
+    }
 }
