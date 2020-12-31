@@ -435,13 +435,19 @@ class cFidelityPositions extends cCustodian {
         global $adb;
         $questions = generateQuestionMarks($account_number);
 
-        $query = "CREATE TEMPORARY TABLE extra_cash_positions (account_number VARCHAR(200) PRIMARY KEY,
-                                                               extra_cash DECIMAL(10, 2),
-                                                               security_symbol VARCHAR(200),
-                                                               positioninformationid INT)";
-        $adb->pquery($query, array());
-
-        $query = "SELECT p.account_number, unsettled_cash + margin_balance + net_credit_debit AS EXTRA_CASH, pinf.security_symbol, pinf.positioninformationid AS crmid
+        foreach($account_number AS $k => $v){
+            if(!self::DoesPositionExistInCRM($v, '$CASH')){
+                $position = Vtiger_Record_Model::getCleanInstance("PositionInformation");
+                $data = $position->getData();
+                $data['security_symbol'] = '$CASH';
+                $data['description'] = "Free Cash";
+                $data['account_number'] = $v;
+                $position->setData($data);
+                $position->set('mode', 'create');
+                $position->save();
+            }
+        }
+/*        $query = "SELECT p.account_number, unsettled_cash + margin_balance + net_credit_debit AS EXTRA_CASH, pinf.security_symbol, pinf.positioninformationid AS crmid
                   FROM vtiger_portfolioinformation p
                   JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
                   JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
@@ -450,7 +456,6 @@ class cFidelityPositions extends cCustodian {
                   GROUP BY account_number";
         $result = $adb->pquery($query, array($account_number));
 
-        /**NEEDS TO BE VERIFIED STILL**/
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
                 if($v['crmid'] == null OR $v['crmid'] == '') {
@@ -458,11 +463,12 @@ class cFidelityPositions extends cCustodian {
                     $data = $position->getData();
                     $data['security_symbol'] = '$CASH';
                     $data['description'] = "Free Cash";
+                    $data['account_number'] = $v['account_number'];
                     $position->set('mode', 'create');
                     $position->save();
                 }
             }
-        }
+        }*/
     }
 
     static public function UpdateAllCRMPositionsAtOnceForAccounts(array $account_number){
@@ -599,45 +605,5 @@ class cFidelityPositions extends cCustodian {
             }
             return $symbols;
         }
-    }
-
-    static public function UpdateAllSymbolsAtOnce(array $symbols){
-        global $adb;
-        $questions = generateQuestionMarks($symbols);
-        $params = array();
-        $params[] = $symbols;
-
-
-        $query = "DROP TABLE IF EXISTS UpdatePositions";
-        $adb->pquery($query, array());
-
-        $query = "CREATE TEMPORARY TABLE UpdatePositions LIKE custodian_positions_fidelity";
-        $adb->pquery($query, array());
-
-        $query = "CALL EXTRA_CASH_POSITIONS_FIDELITY();";
-        $adb->pquery($query, array());
-
-        $query = "INSERT INTO UpdatePositions 
-                  SELECT account_number, account_type, cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, description, as_of_date, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date 
-                  FROM custodian_positions_fidelity WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_positions_fidelity) GROUP BY account_number, symbol";
-        $adb->pquery($query, array());
-
-            //Reset positions to 0 for accounts
-        $query = "UPDATE vtiger_positioninformation p 
-                  JOIN UpdatePositions f ON f.account_number = p.account_number 
-                  SET p.quantity = 0, p.current_value = 0";
-        $adb->pquery($query, array());
-
-        $query = "UPDATE UpdatePositions f 
-                  JOIN vtiger_positioninformation p ON f.symbol = p.security_symbol 
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
-                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
-                  SET p.quantity = f.trade_date_quantity, p.current_value = f.closing_market_value, p.description = m.security_name, 
-                      p.last_price = m.security_price * mcf.security_price_adjustment, pcf.last_update = f.as_of_date, 
-                      pcf.security_type = m.securitytype, pcf.base_asset_class =  mcf.aclass, pcf.custodian = 'Fidelity', 
-                      p.unrealized_gain_loss = f.unrealized_gain_loss_amount, p.cost_basis = f.cost, p.gain_loss_percent = (f.unrealized_gain_loss_amount / f.cost * 100), pcf.custodian_source = f.filename 
-                  WHERE f.account_number = p.account_number";
-        $adb->pquery($query, $params, true);
     }
 }

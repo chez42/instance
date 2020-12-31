@@ -39,25 +39,25 @@ class PortfolioInformation_Administration_Model extends Vtiger_Module{
 
     static public function UpdateSchwabMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE schwabmapping SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.schwabmapping SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
     static public function UpdateFidelityMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE fidelitymapping SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.fidelitymapping SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
     static public function UpdatePershingMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE pershingmapping SET {$field} = ? WHERE source_code = ?";
+        $query = "UPDATE custodian_omniscient.pershingmapping SET {$field} = ? WHERE source_code = ?";
         $adb->pquery($query, array($value, $id));
     }
 
     static public function UpdateTDMappingField($id, $field, $value){
         global $adb;
-        $query = "UPDATE tdmapping SET {$field} = ? WHERE id = ?";
+        $query = "UPDATE custodian_omniscient.tdmapping SET {$field} = ? WHERE id = ?";
         $adb->pquery($query, array($value, $id));
     }
 
@@ -86,7 +86,7 @@ class PortfolioInformation_Administration_Model extends Vtiger_Module{
     static public function GetSchwabTransactionMapping(){
         global $adb;
         $tenant = self::$tenant;
-        $query = "SELECT id, source_code, type_code, subtype_code, direction, transaction_activity, schwab_category, omniscient_category, omniscient_activity, operation FROM schwabmapping ORDER BY ISNULL(schwab_category), source_code";
+        $query = "SELECT id, source_code, type_code, subtype_code, direction, transaction_activity, schwab_category, omniscient_category, omniscient_activity, operation FROM custodian_omniscient.schwabmapping ORDER BY ISNULL(schwab_category), source_code";
         $result = $adb->pquery($query, array());
         $rows = array();
         if($adb->num_rows($result) > 0){
@@ -100,7 +100,7 @@ class PortfolioInformation_Administration_Model extends Vtiger_Module{
 
     static public function GetTDTransactionMapping(){
         global $adb;
-        $query = "SELECT id, transaction_type, transaction_activity, omniscient_category, omniscient_activity, operation FROM tdmapping";
+        $query = "SELECT id, transaction_type, transaction_activity, omniscient_category, omniscient_activity, operation FROM custodian_omniscient.tdmapping";
         $result = $adb->pquery($query, array());
         $rows = array();
         if($adb->num_rows($result) > 0){
@@ -114,7 +114,7 @@ class PortfolioInformation_Administration_Model extends Vtiger_Module{
 
     static public function GetFidelityTransactionMapping(){
         global $adb;
-        $query = "SELECT id, description, code_description, omniscient_category, omniscient_activity, operation FROM fidelitymapping ORDER BY id";
+        $query = "SELECT id, description, code_description, omniscient_category, omniscient_activity, operation FROM custodian_omniscient.fidelitymapping ORDER BY id";
         $result = $adb->pquery($query, array());
         $rows = array();
         if($adb->num_rows($result) > 0){
@@ -128,7 +128,7 @@ class PortfolioInformation_Administration_Model extends Vtiger_Module{
 
     static public function GetPershingTransactionMapping(){
         global $adb;
-        $query = "SELECT source_code, description, omniscient_category, omniscient_activity, operation FROM pershingmapping";
+        $query = "SELECT source_code, description, omniscient_category, omniscient_activity, operation FROM custodian_omniscient.pershingmapping";
         $result = $adb->pquery($query, array());
         $rows = array();
         if($adb->num_rows($result) > 0){
