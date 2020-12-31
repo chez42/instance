@@ -67,7 +67,7 @@ class ModSecurities_Administration_Model extends Vtiger_Module{
     static public function GetSchwabSecuritiesMapping(){
         global $adb;
         $query = "SELECT id, code, description, omni_base_asset_class, security_type, security_type2, domestic_international, style, size_capitalization, multiplier 
-                  FROM securities_mapping_schwab";
+                  FROM custodian_omniscient.securities_mapping_schwab";
         $result = $adb->pquery($query, array());
         $rows = array();
         if($adb->num_rows($result) > 0){

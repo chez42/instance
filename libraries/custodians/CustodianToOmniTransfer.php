@@ -71,6 +71,8 @@ class CustodianToOmniTransfer{
                     cFidelityPositions::UpdateAllCRMPositionsAtOnceForAccounts($v);
                     break;
                 CASE "SCHWAB":
+                    cSchwabPositions::CreateNewPositionsForAccounts($v);
+                    cSchwabPositions::UpdateAllCRMPositionsAtOnceForAccounts($v);
                     break;
                 case "PERSHING":
                     break;
@@ -89,6 +91,7 @@ class CustodianToOmniTransfer{
                     cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 CASE "SCHWAB":
+                    cSchwabPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 case "PERSHING":
                     break;
@@ -112,6 +115,7 @@ class CustodianToOmniTransfer{
 #                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 CASE "SCHWAB":
+                    cSchwabPortfolios::UpdateAllPortfoliosForAccounts($this->account_numbers[FIDELITY]);
                     break;
                 case "PERSHING":
                     break;
@@ -150,6 +154,17 @@ class CustodianToOmniTransfer{
                     break;
 
                 CASE "SCHWAB":
+                    $symbols = cSchwabPositions::GetSymbolListFromCustodian($v);//Get a list of existing positions
+
+                    if(empty($symbols))
+                        return;
+
+                    $missing_symbols = ModSecurities_Module_Model::GetMissingSymbolsFromList($symbols);//Get list of securities that don't exist in the CRM but do have positions
+                    if(!empty($missing_symbols)) {
+                        cSchwabSecurities::CreateNewSecurities($missing_symbols);//Create securities in the CRM
+                    }
+                    cSchwabSecurities::UpdateAllSymbolsAtOnce($symbols);
+
                     break;
                 case "PERSHING":
                     break;

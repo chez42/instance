@@ -726,8 +726,6 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
-
-
     /**
      * Get a list of account numbers whether or not they have been marked closed/deleted
      * @param $ccn
@@ -753,7 +751,31 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             }
             return $t;
         }
-        return 0;
+        return null;
+    }
+
+    /**
+     * Get a list of account numbers whether or not they have been marked closed/deleted
+     * @param $ccn
+     * @param null $limit
+     * @return array|int
+     */
+    static public function GetAllAccountNumbersInCRM($ccn, $limit = null)
+    {
+        global $adb;
+
+        $query = "SELECT account_number FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid";
+        $result = $adb->pquery($query, array());
+
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $t[] = $v['account_number'];
+            }
+            return $t;
+        }
+        return null;
     }
 
     static public function GetAccountNumbersFromRepCode($ccn, $limit = null)

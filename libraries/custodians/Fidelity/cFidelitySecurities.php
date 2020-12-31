@@ -322,10 +322,7 @@ class cFidelitySecurities extends cCustodian {
         global $adb;
         $questions = generateQuestionMarks($symbols);
 
-        $query = "DROP TABLE IF EXISTS CreateSecurities";
-        $adb->pquery($query, array(), true);
-
-        $query = "SELECT symbol, description, 0 AS crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
+        $query = "SELECT symbol, description, IncreaseAndReturnCrmEntitySequence() AS crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
                   FROM custodian_omniscient.custodian_securities_fidelity sec
                   LEFT JOIN vtiger_global_asset_class_mapping m ON m.fidelity_asset_class_code = sec.asset_class_type_code
                   WHERE symbol IN ({$questions})
@@ -335,40 +332,19 @@ class cFidelitySecurities extends cCustodian {
         $securities_result = $adb->pquery($query, array($symbols), true);
         if($adb->num_rows($securities_result) > 0) {
             while($v = $adb->fetchByAssoc($securities_result)) {
-                $new_id_result = $adb->pquery("SELECT IncreaseAndReturnCrmEntitySequence() AS crmid", array());
-                $id = $adb->query_result($new_id_result, 0, 'crmid');
-
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES (?, 1, 1, 1, 'ModSecurities', NOW(), NOW(), ?)";
-                $adb->pquery($query, array($id,$v['description']), true);
+                $adb->pquery($query, array($v['crmid'], $v['description']), true);
 
                 $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name, security_price)
                           VALUES (?, ?, ?, ?)";
-                $adb->pquery($query, array($id, $v['symbol'], $v['description'], $v['price']), true);
+                $adb->pquery($query, array($v['crmid'], $v['symbol'], $v['description'], $v['price']), true);
 
                 $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, security_price_adjustment)
                           VALUES (?, ?)";
-                $adb->pquery($query, array($id, $v['multiplier']), true);
+                $adb->pquery($query, array($v['crmid'], $v['multiplier']), true);
             }
         }
-/*        $query = "UPDATE CreateSecurities SET crmid = IncreaseAndReturnCrmEntitySequence()";
-        $adb->pquery($query, array(), true);
-/*
-        $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
-                  SELECT crmid, 1, 1, 1, 'ModSecurities', NOW(), NOW(), description 
-                  FROM CreateSecurities";
-        $adb->pquery($query, array(), true);
-
-        $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name)
-                  SELECT crmid, symbol, description 
-                  FROM CreateSecurities";
-        $adb->pquery($query, array(), true);
-
-        $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net)
-                  SELECT crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
-                  FROM CreateSecurities";
-        $adb->pquery($query, array(), true);
-*/
     }
 
     static public function UpdateAllSymbolsAtOnce(array $symbols){
