@@ -115,7 +115,7 @@ class CustodianToOmniTransfer{
 #                    cFidelityPortfolios::UpdateAllPortfoliosForAccounts($v);
                     break;
                 CASE "SCHWAB":
-                    cSchwabPortfolios::UpdateAllPortfoliosForAccounts($this->account_numbers[FIDELITY]);
+                    cSchwabPortfolios::UpdateAllPortfoliosForAccounts($this->account_numbers[SCHWAB]);
                     break;
                 case "PERSHING":
                     break;
