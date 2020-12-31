@@ -30,7 +30,7 @@ Vtiger.Class("Settings_Vtiger_PortalConfiguration_Js",{},{
 		});
 		
 		var selectElement = form.find('select').addClass('select2');
-		vtUtils.showSelect2ElementView(selectElement,{maximumSelectionSize: 15});
+		vtUtils.showSelect2ElementView(selectElement);
 		var chozenChoiceElement = jQuery("#s2id_fieldsList").find('ul.select2-choices');
 		chozenChoiceElement.sortable({
 			'containment': chozenChoiceElement,
