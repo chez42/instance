@@ -1017,3 +1017,5 @@ $adb->pquery("UPDATE vtiger_field SET masseditable = 2 WHERE fieldname = ? AND t
     array('unit_price', getTabid('Products')));
 
 $adb->pquery("UPDATE `vtiger_entityname` SET `fieldname` = 'name' WHERE `vtiger_entityname`.`tabid` = ?",array(getTabid('BillingSpecifications')));
+
+$adb->pquery("ALTER TABLE vtiger_organizationdetails ADD google_login INT(3) NULL, ADD office_login INT(3) NULL;");
