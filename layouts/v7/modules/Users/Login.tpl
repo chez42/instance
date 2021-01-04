@@ -141,7 +141,7 @@
 						</div>
 						
 						<div id="loginFormDiv">
-							<form method="POST" action="index.php" >
+							<form class="login-form" method="POST" action="index.php" >
 								<input type="hidden" name="module" value="Users"/>
 								<input type="hidden" name="action" value="Login"/>
 								<div class="form-group">
@@ -419,6 +419,34 @@
 									}
 				};
 				jQuery('.scrollContainer').mCustomScrollbar(params);
+				
+			   $('.oauthLogin').on('click', function(){
+	            	console.log('test');
+	            	var url = $(this).data('url');
+	            	
+	            	var win= window.open(url,'','height=600,width=600,channelmode=1');
+					
+					window.RefreshPage = function(code, module) {
+						
+						var data = [];
+						$.each($('.login-form').serializeArray(), function(i, field){
+						    data[field.name] = field.value;
+						});
+						data['code'] = code;
+						
+						$.ajax({
+			    			type: "POST",
+			    			url:'index.php?'+$('.login-form').serialize()+'&code='+code+'&source='+module,
+			    			error: function(errorThrown) {
+			    				console.log(errorThrown)
+			    			},
+			    			success: function(url) {
+			    				window.location = url;
+			    			}
+			    		});
+					}
+	            	
+	            });
 			});
 		</script>
 		</div>
