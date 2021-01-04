@@ -58,6 +58,9 @@ jQuery.Class("GHReport_Js",{
 
         var colorSet = new am4core.ColorSet();
         var colors = [];
+
+        if(chartData === null) { return; }
+
         $.each(chartData,function(){
             var element = jQuery(this);
             colors.push(element["0"].color);
