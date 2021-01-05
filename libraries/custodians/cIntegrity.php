@@ -5,6 +5,7 @@ class cIntegrity{
 
     public function __construct(array $account){
         if(empty($account)) {
+            return;
             $differences = $this->GetPortfolioToPositionDifferencesList();
         }
         else {
