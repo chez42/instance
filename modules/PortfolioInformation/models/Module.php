@@ -751,7 +751,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             }
             return $t;
         }
-        return null;
+        return array();
     }
 
     /**
