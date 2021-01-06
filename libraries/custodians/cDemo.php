@@ -21,8 +21,19 @@ class cDemo{
         return $this->mapping;
     }
 
+    public function IsAccountMapped($account_number){
+        global $adb;
+        $query = "SELECT COUNT(*) AS counter FROM custodian_omniscient.demo_account_mapping WHERE real_number = ?";
+        $result = $adb->pquery($query, array($account_number));
+        if($adb->num_rows($result) > 0) {
+            if($adb->query_result($result, 0, 'counter') > 0)
+                return true;
+            return false;
+        }
+        return false;
+    }
 
-    public function CopyPortfolios(string $custodian, array $account_number, string $rep_code){
+    public function CopyPortfolios(string $custodian, array $account_number, string $replacement_repcode){
         global $adb;
         $params = array();
         $params[] = $account_number;
@@ -36,19 +47,20 @@ class cDemo{
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                $questions = generateQuestionMarks($v);
-                $query = "INSERT INTO custodian_omniscient.custodian_portfolios_{$custodian} VALUES ({$questions}) 
-                          ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
+                if($this->IsAccountMapped($v['account_number'])) {
+                    $questions = generateQuestionMarks($v);
+                    $query = "INSERT INTO custodian_omniscient.custodian_portfolios_{$custodian} VALUES ({$questions}) 
+                              ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
 
-                $real_account = $v['account_number'];
-                $mapped_account = $this->mapping[$real_account];
-                $v['account_number'] = $mapped_account;//Replace the account number with the mapped one
-                $v['rep_code'] = $rep_code;//Replace the rep code with the passed in one
-                $adb->pquery($query, array($v), true);
+                    $real_account = $v['account_number'];
+                    $mapped_account = $this->mapping[$real_account];
+                    $v['account_number'] = $mapped_account;//Replace the account number with the mapped one
+                    $v['rep_code'] = $replacement_repcode;//Replace the rep code with the passed in one
+                    $adb->pquery($query, array($v));
+                }
             }
         }
     }
-
 
     public function CopyBalances(string $custodian, array $account_number, $sdate = null, $edate = null, $date_field = "as_of_date"){
         global $adb;
@@ -73,15 +85,17 @@ class cDemo{
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                $questions = generateQuestionMarks($v);
-                $query = "INSERT INTO custodian_omniscient.custodian_balances_{$custodian} VALUES ({$questions})
-                          ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
+                if($this->IsAccountMapped($v['account_number'])) {
+                    $questions = generateQuestionMarks($v);
+                    $query = "INSERT INTO custodian_omniscient.custodian_balances_{$custodian} VALUES ({$questions})
+                              ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
 
-                $real_account = $v['account_number'];
-                $mapped_account = $this->mapping[$real_account];
-                $v['account_number'] = $mapped_account;
+                    $real_account = $v['account_number'];
+                    $mapped_account = $this->mapping[$real_account];
+                    $v['account_number'] = $mapped_account;
 
-                $adb->pquery($query, array($v));
+                    $adb->pquery($query, array($v));
+                }
             }
         }
     }
@@ -121,15 +135,17 @@ class cDemo{
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                $questions = generateQuestionMarks($v);
-                $query = "INSERT INTO custodian_omniscient.custodian_positions_{$custodian} VALUES ({$questions})
-                          ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
+                if($this->IsAccountMapped($v['account_number'])) {
+                    $questions = generateQuestionMarks($v);
+                    $query = "INSERT INTO custodian_omniscient.custodian_positions_{$custodian} VALUES ({$questions})
+                              ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
 
-                $real_account = $v['account_number'];
-                $mapped_account = $this->mapping[$real_account];
-                $v['account_number'] = $mapped_account;
+                    $real_account = $v['account_number'];
+                    $mapped_account = $this->mapping[$real_account];
+                    $v['account_number'] = $mapped_account;
 
-                $adb->pquery($query, array($v));
+                    $adb->pquery($query, array($v));
+                }
             }
         }
     }
@@ -157,15 +173,17 @@ class cDemo{
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                $questions = generateQuestionMarks($v);
-                $query = "INSERT INTO custodian_omniscient.custodian_transactions_{$custodian} VALUES ({$questions})
-                          ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
+                if($this->IsAccountMapped($v['account_number'])) {
+                    $questions = generateQuestionMarks($v);
+                    $query = "INSERT INTO custodian_omniscient.custodian_transactions_{$custodian} VALUES ({$questions})
+                              ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
 
-                $real_account = $v['account_number'];
-                $mapped_account = $this->mapping[$real_account];
-                $v['account_number'] = $mapped_account;
-                $v['transaction_id'] = '777' . $v['transaction_id'];
-                $adb->pquery($query, array($v));
+                    $real_account = $v['account_number'];
+                    $mapped_account = $this->mapping[$real_account];
+                    $v['account_number'] = $mapped_account;
+                    $v['transaction_id'] = '777' . $v['transaction_id'];
+                    $adb->pquery($query, array($v));
+                }
             }
         }
     }
