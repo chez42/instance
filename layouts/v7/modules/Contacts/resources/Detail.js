@@ -220,7 +220,7 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 			}
 			
 			var fieldValue = ajaxEditNewValue;
-			console.log(previousValue+'---'+ajaxEditNewValue);
+			
 			if(previousValue == ajaxEditNewValue) {
 				currentTdElement.find('.editPortalAction').removeClass('hide');
 				currentTdElement.find('.editPortal').addClass('hide').removeClass('ajaxEditPortal');
@@ -488,8 +488,88 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 		var form = this.getForm();
 		this._super();
 		this.registerAjaxPreSaveEvents(form);
+		jQuery(document).find(".portalSwitch").bootstrapSwitch();
 		this.registerInlineEditForPortalBlock();
 		this.registerAjaxPortalEditCancelEvent();
 		this.registerAjaxPortalEditSaveEvent();
-	}
+		this.registerEventForChangePortalModuleState();
+	},
+	
+	loadSelectedTabContents: function(tabElement, urlAttributes){
+		var self = this;
+		var detailViewContainer = this.getDetailViewContainer();
+		var url = tabElement.data('url');
+		if(url){
+			self.loadContents(url,urlAttributes).then(function(data){
+				self.deSelectAllrelatedTabs();
+				self.markRelatedTabAsSelected(tabElement);
+				var container = jQuery('.relatedContainer');
+				app.event.trigger("post.relatedListLoad.click",container.find(".searchRow"));
+				// Added this to register pagination events in related list
+				var relatedModuleInstance = self.getRelatedController();
+				//Summary tab is clicked
+				if(tabElement.data('linkKey') == self.detailViewSummaryTabLabel) {
+					self.registerSummaryViewContainerEvents(detailViewContainer);
+					self.registerEventForPicklistDependencySetup(self.getForm());
+				}
+
+				//Detail tab is clicked
+				if(tabElement.data('linkKey') == self.detailViewDetailTabLabel) {
+					self.triggerDetailViewContainerEvents(detailViewContainer);
+					self.registerEventForPicklistDependencySetup(self.getForm());
+				}
+
+				// Registering engagement events if clicked tab is History
+				if(tabElement.data('labelKey') == self.detailViewHistoryTabLabel){
+					var engagementsContainer = jQuery(".engagementsContainer");
+					if(engagementsContainer.length > 0){
+						app.event.trigger("post.engagements.load");
+					}
+				}
+
+				relatedModuleInstance.initializePaginationEvents();
+				
+				if(!container.length){
+					var joucontainer = jQuery('.journalsrelatedContainer');
+					if(joucontainer.length){
+						var instance =   Vtiger_Journal_Js.getInstance();
+						instance.registerEvents();
+					}
+				}
+				//prevent detail view ajax form submissions
+				jQuery('form#detailView').on('submit', function(e) {
+					e.preventDefault();
+				});
+				if(!jQuery(document).find('.bootstrapSwitch').length && jQuery(document).find(".portalSwitch").length)
+					jQuery(document).find(".portalSwitch").bootstrapSwitch();
+			});
+		}
+	},
+	
+   registerEventForChangePortalModuleState: function () {
+	   var self = this;
+		var detailViewContainer = this.getDetailViewContainer();
+        jQuery(detailViewContainer).on('switchChange.bootstrapSwitch', ".portalSwitch", function (e) {
+            var currentElement = jQuery(e.currentTarget);
+            
+            if(currentElement.val() == '1'){
+                currentElement.attr('value','0');
+            } else {
+                currentElement.attr('value','1');
+            }
+            
+           
+            var fieldNameValueMap = {};
+			fieldNameValueMap['value'] = currentElement.val();
+			fieldNameValueMap['field'] = currentElement.attr('name');
+			
+			app.helper.showProgress();
+			self.savePortalFieldValues(fieldNameValueMap).then(function(err, response) {
+				app.helper.hideProgress();
+				if (err == null) {
+					//console.log(response)
+				}
+			});
+        });
+    },
 })

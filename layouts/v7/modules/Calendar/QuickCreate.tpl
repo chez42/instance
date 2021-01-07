@@ -12,7 +12,7 @@
 		<script type="{$jsModel->getType()}" src="{$jsModel->getSrc()}"></script>
 	{/foreach}
 	<div class="modal-dialog modal-lg">
-		<div class="modal-content" style='width: 525px;left:23%;'>
+		<div class="modal-content" >
 			<form class="form-horizontal recordEditView" id="QuickCreate" name="QuickCreate" method="post" action="index.php">
 				{if $MODE eq 'edit' && !empty($RECORD_ID)}
 					{assign var=HEADER_TITLE value={vtranslate('LBL_EDITING', $MODULE)}|cat:" "|cat:{vtranslate('SINGLE_'|cat:$MODULE, $MODULE)}}
