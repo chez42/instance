@@ -227,9 +227,9 @@ class Settings_ExtensionStore_Extension_Model extends Vtiger_Base_Model {
 		        $news['result'][] = array(
 		            "type" => "feature", 
 		            "title" => $feature['title']['rendered'], 
-		            "summary" => substr(str_replace(
+		            "summary" => str_replace(
 		            array('[vc_row]','[vc_column]','[vc_column_text]', '[/vc_row]',
-		                '[/vc_column]','[/vc_column_text]'), '', preg_replace( "/\r|\n/", "", strip_tags($feature['content']['rendered']))), 0, 1500) . '...',
+		                '[/vc_column]','[/vc_column_text]'), '', preg_replace( "/\r|\n/", "", strip_tags($feature['content']['rendered']))) ,
 		            'urlalt' => 'Read more',
 		            'url' => $feature['link'], 
 		            'image' => isset($feature['_embedded']['wp:featuredmedia'][0]['source_url'])?$feature['_embedded']['wp:featuredmedia'][0]['source_url']:''

@@ -51,7 +51,7 @@
 							<div class='row'>
 								
 								<div class='media-body col-lg-7 col-md-7 col-sm-7 col-xs-7' style="margin-left:20px;">
-									<div class="summaryViewEntries" style="font-weight:bold;font-size: 16px;">
+									<div class="summaryViewEntries" style="font-weight:bold;font-size: 16px;word-break: break-all;">
 										{if $DETAILVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getDetailViewUrl()}" title="{$RECORD->get('subject')}">{$RECORD->get('subject')}</a>{else}{$RECORD->get('subject')}{/if}&nbsp;&nbsp;
 										{if $EDITVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getEditViewUrl()}&sourceModule={$SOURCE_MODEL->getModuleName()}&sourceRecord={$SOURCE_MODEL->getId()}&relationOperation=true" class="fieldValue"><i class="summaryViewEdit material-icons text-info" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}">create</i></a>{/if}&nbsp;
 										{if $DELETE_PERMITTED == 'yes'}<a onclick="Vtiger_Detail_Js.deleteRelatedActivity(event);" data-id="{$RECORD->getId()}" data-recurring-enabled="{$RECORD->isRecurringEnabled()}" class="fieldValue"><i class="summaryViewEdit material-icons text-warning " title="{vtranslate('LBL_DELETE',$MODULE_NAME)}">delete</i></a>{/if}
