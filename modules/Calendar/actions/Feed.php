@@ -207,9 +207,9 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			        $contactLink = '';
 			        $parentLink = '';
 			        if($contact)
-			            $contactLink = '<a target="_blank" href="index.php?module=Contacts&view=Detail&record='.$contact.'">'.getContactName($contact).'</a>, ';
+			            $contactLink = '<a target="_blank" style="background-color:#efef39 !important;" href="index.php?module=Contacts&view=Detail&record='.$contact.'">'.getContactName($contact).'</a>, ';
 			        if($parent)
-			            $parentLink = '<a target="_blank" href="index.php?module='.getSalesEntityType($parent).'&view=Detail&record='.$parent.'">'.Vtiger_Functions::getCRMRecordLabel($parent).'</a>';
+			            $parentLink = '<a target="_blank" style="background-color:#efef39 !important;" href="index.php?module='.getSalesEntityType($parent).'&view=Detail&record='.$parent.'">'.Vtiger_Functions::getCRMRecordLabel($parent).'</a>';
 			            
 			            $item['relatedToLinks'] = $item['title'].' - ('.decode_html(vtranslate($status,'Task')).') '.$openDays.' '.$contactLink.$parentLink;
 			            $item['status'] = $status;
@@ -359,7 +359,7 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			    if($db->num_rows($relQuery)){
 			        $relLabel = $db->query_result($relQuery, 0, 'label').', ';
 			        $relId = $db->query_result($relQuery, 0, 'crmid');
-			        $relLink = '<a target="_blank" href="index.php?module='.getSalesEntityType($relId).'&view=Detail&record='.$relId.'">'.$db->query_result($relQuery, 0, 'label').'</a>, ';
+			        $relLink = '<a target="_blank" style="background-color:#efef39 !important;" href="index.php?module='.getSalesEntityType($relId).'&view=Detail&record='.$relId.'">'.$db->query_result($relQuery, 0, 'label').'</a>, ';
 			    }
 			    $cntQuery = $db->pquery("SELECT CONCAT(vtiger_contactdetails.firstname, ' ', vtiger_contactdetails.lastname) as contactname, 
                 vtiger_contactdetails.contactid FROM vtiger_cntactivityrel
@@ -375,7 +375,7 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			            }
 		                $cntLabels .=  $db->query_result($cntQuery, $con, 'contactname');
 		                $cntId = $db->query_result($cntQuery, $con, 'contactid');
-		                $contactLinks .= '<a target="_blank" href="index.php?module=Contacts&view=Detail&record='.$cntId.'">'.$db->query_result($cntQuery, $con, 'contactname').'</a>';
+		                $contactLinks .= '<a target="_blank" style="background-color:#efef39 !important;" href="index.php?module=Contacts&view=Detail&record='.$cntId.'">'.$db->query_result($cntQuery, $con, 'contactname').'</a>';
 			        }
 			    }
 			    $item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($record['eventstatus'],'Calendar')).') '.$relLabel.$cntLabels;
