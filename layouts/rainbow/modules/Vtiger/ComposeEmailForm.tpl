@@ -43,11 +43,11 @@
                      <div class="row">
 		                <div class="col-lg-12">
 		                    <div class="col-lg-2">
-		                        <span class="pull-right">From &nbsp;{if $SITE_URL neq 'crm4.omnisrv.com'}<span class="redColor">*</span>{/if}</span>
+		                        <span class="pull-right">From &nbsp;{if $SITE_URL neq 'crm4.omnisrv.com' && $SITE_URL neq 'lh.360vew.com'}<span class="redColor">*</span>{/if}</span>
 		                    </div>
 		                    <div class="col-lg-6">
-		                        <select class="from_field select2" name="from_serveremailid" {if $SITE_URL neq 'crm4.omnisrv.com'}data-rule-required="true"{/if} style="width:100%;">
-			                        {if $SITE_URL eq 'crm4.omnisrv.com'}
+		                        <select class="from_field select2" name="from_serveremailid" {if $SITE_URL neq 'crm4.omnisrv.com' && $SITE_URL neq 'lh.360vew.com'}data-rule-required="true"{/if} style="width:100%;">
+			                        {if $SITE_URL eq 'crm4.omnisrv.com'  || $SITE_URL eq 'lh.360vew.com'}
 			                        	<option value="" >System Mail</option>
 			                        {else}
 			                        	<option value="" ></option>
