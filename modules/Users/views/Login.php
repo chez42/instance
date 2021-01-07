@@ -96,17 +96,41 @@ class Users_Login_View extends Vtiger_View_Controller {
         
         if($host_parts[0] == 'hq' || $host_parts[0] == 'crm4'){
             
+            global $adb, $site_URL;
+            
+            $loginQuery = $adb->pquery('SELECT * FROM vtiger_login_page_settings');
+            
+            if($adb->num_rows($loginQuery)){
+                
+                $logo = $site_URL.'/'.$adb->query_result($loginQuery, 0, 'login_logo');
+                $background = $site_URL.'/'.$adb->query_result($loginQuery, 0, 'login_background');
+                
+                $mime = vtlib_mime_content_type($adb->query_result($loginQuery, 0, 'login_background'));
+                if(strstr($mime, "video/")){
+                    $bgtype = 'video';
+                }else if(strstr($mime, "image/")){
+                    $bgtype = 'image';
+                }
+                
+                $copyright = $adb->query_result($loginQuery, 0, 'copyright_text');
+                $facebook = $adb->query_result($loginQuery, 0, 'facebook_link');
+                $twitter = $adb->query_result($loginQuery, 0, 'twitter_link');
+                $linkedin = $adb->query_result($loginQuery, 0, 'linkedin_link');
+                $youtube = $adb->query_result($loginQuery, 0, 'youtube_link');
+                $instagram = $adb->query_result($loginQuery, 0, 'instagram_link');
+                
+            }
             $data = array();
             
-            $data['copyright'] = '2004-'.date("Y") . ' Omniscient CRM';
-            $data['facebook'] = 'https://facebook.com/omnisrv/';
-            $data['twitter'] = 'https://twitter.com/omnisrv';
-            $data['linkedin'] = 'https://linkedin.com/company/omnisrv';
-            $data['youtube'] = 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
-            $data['instagram'] = 'https://instagram.com/omnisrv';
-            $data['bgtype'] = '';
-            $data['logo'] = '';
-            $data['background'] = '';
+            $data['copyright'] = $copyright ? $copyright : '2004-'.date("Y") . ' Omniscient CRM';
+            $data['facebook'] = $facebook ? $facebook : 'https://facebook.com/omnisrv/';
+            $data['twitter'] = $twitter ? $twitter : 'https://twitter.com/omnisrv';
+            $data['linkedin'] = $linkedin ? $linkedin : 'https://linkedin.com/company/omnisrv';
+            $data['youtube'] = $youtube ? $youtube : 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
+            $data['instagram'] = $instagram ? $instagram : 'https://instagram.com/omnisrv';
+            $data['bgtype'] = $bgtype ? $bgtype : '';
+            $data['logo'] = $logo ? $logo : '';
+            $data['background'] = $background ? $background : '';
             
         }else{
             
