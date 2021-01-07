@@ -96,17 +96,41 @@ class Users_Login_View extends Vtiger_View_Controller {
         
         if($host_parts[0] == 'hq' || $host_parts[0] == 'crm4'){
             
+            global $adb, $site_URL;
+            
+            $loginQuery = $adb->pquery('SELECT * FROM vtiger_login_page_settings');
+            
+            if($adb->num_rows($loginQuery)){
+                
+                $logo = $site_URL.'/'.$adb->query_result($loginQuery, 0, 'login_logo');
+                $background = $site_URL.'/'.$adb->query_result($loginQuery, 0, 'login_background');
+                
+                $mime = vtlib_mime_content_type($adb->query_result($loginQuery, 0, 'login_background'));
+                if(strstr($mime, "video/")){
+                    $bgtype = 'video';
+                }else if(strstr($mime, "image/")){
+                    $bgtype = 'image';
+                }
+                
+                $copyright = $adb->query_result($loginQuery, 0, 'copyright_text');
+                $facebook = $adb->query_result($loginQuery, 0, 'facebook_link');
+                $twitter = $adb->query_result($loginQuery, 0, 'twitter_link');
+                $linkedin = $adb->query_result($loginQuery, 0, 'linkedin_link');
+                $youtube = $adb->query_result($loginQuery, 0, 'youtube_link');
+                $instagram = $adb->query_result($loginQuery, 0, 'instagram_link');
+                
+            }
             $data = array();
             
-            $data['copyright'] = '2004-'.date("Y") . ' Omniscient CRM';
-            $data['facebook'] = 'https://facebook.com/omnisrv/';
-            $data['twitter'] = 'https://twitter.com/omnisrv';
-            $data['linkedin'] = 'https://linkedin.com/company/omnisrv';
-            $data['youtube'] = 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
-            $data['instagram'] = 'https://instagram.com/omnisrv';
-            $data['bgtype'] = '';
-            $data['logo'] = '';
-            $data['background'] = '';
+            $data['copyright'] = $copyright ? $copyright : '2004-'.date("Y") . ' Omniscient CRM';
+            $data['facebook'] = $facebook ? $facebook : 'https://facebook.com/omnisrv/';
+            $data['twitter'] = $twitter ? $twitter : 'https://twitter.com/omnisrv';
+            $data['linkedin'] = $linkedin ? $linkedin : 'https://linkedin.com/company/omnisrv';
+            $data['youtube'] = $youtube ? $youtube : 'https://www.youtube.com/channel/UC53BQe0wPV9_TYohwQl2E0g';
+            $data['instagram'] = $instagram ? $instagram : 'https://instagram.com/omnisrv';
+            $data['bgtype'] = $bgtype ? $bgtype : '';
+            $data['logo'] = $logo ? $logo : '';
+            $data['background'] = $background ? $background : '';
             
         }else{
             
@@ -140,42 +164,48 @@ class Users_Login_View extends Vtiger_View_Controller {
 		$viewer->assign('BACKGROUND', $data['background']);
 		//}
 		
-		$clientId = MailManager_Office365Config_Connector::$clientId;
-		$redriectUri = MailManager_Office365Config_Connector::$redirect_url;
+		$companyDetails = Settings_Vtiger_CompanyDetails_Model::getInstance();
 		
-		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
-		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Office365Login", "ValidateLogin")));
-		$auth_url .= '&scope=' . urlencode('User.Read offline_access');
-
-		$viewer->assign('AUTH_URL', $auth_url);
-		
-		$officeModuleModel = Vtiger_Module_Model::getInstance('Office365');
-		$moduleActive = '';
-		if(!empty($officeModuleModel))
-		    $moduleActive = $officeModuleModel->isActive();
+		if($companyDetails->get('office_login')){
+		    
+    		$clientId = MailManager_Office365Config_Connector::$clientId;
+    		$redriectUri = MailManager_Office365Config_Connector::$redirect_url;
+    		
+    		$auth_url = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=".urlencode($redriectUri)."&client_id=".urlencode($clientId);
+    		$auth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "Office365Login", "ValidateLogin")));
+    		$auth_url .= '&scope=' . urlencode('User.Read offline_access');
+    
+    		$viewer->assign('AUTH_URL', $auth_url);
+    		
+    		$moduleActive = '';
+    		
+    		if($clientId)
+    		    $moduleActive = true;
+    		
+    	    $viewer->assign('OFFICE_ACTIVE', $moduleActive);
+    	    
+		}
 	    
-	    $viewer->assign('OFFICE_ACTIVE', $moduleActive);
-	    
-	    
-	    $googleClientId = Google_Config_Connector::$clientId;
-	    
-	    $googleRedirectUri = Google_Config_Connector::$redirect_url;
-	    
-	    $googleauth_url = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline";
-	    $googleauth_url .= "&client_id=".urlencode($googleClientId);
-	    $googleauth_url .= "&redirect_uri=".urlencode($googleRedirectUri);
-	    $googleauth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "GoogleLogin", "ValidateLogin")));
-	    $googleauth_url .= '&scope=' . urlencode('https://www.googleapis.com/auth/userinfo.email');
-	    $googleauth_url .= '&prompt='. urlencode('select_account consent');
-	    
-	    $viewer->assign('GOOGLE_AUTH_URL', $googleauth_url);
-	    
-	    $googleModuleModel = Vtiger_Module_Model::getInstance('Google');
-	    $googleModuleActive = '';
-	    if(!empty($googleModuleModel))
-	        $googleModuleActive = $googleModuleModel->isActive();
-	        
-        $viewer->assign('GOOGLE_ACTIVE', $googleModuleActive);
+		if($companyDetails->get('google_login')){
+    	    $googleClientId = Google_Config_Connector::$clientId;
+    	    
+    	    $googleRedirectUri = Google_Config_Connector::$redirect_url;
+    	    
+    	    $googleauth_url = "https://accounts.google.com/o/oauth2/auth?response_type=code&access_type=offline";
+    	    $googleauth_url .= "&client_id=".urlencode($googleClientId);
+    	    $googleauth_url .= "&redirect_uri=".urlencode($googleRedirectUri);
+    	    $googleauth_url .= '&state=' . base64_encode(implode('||', array($site_URL, '', "GoogleLogin", "ValidateLogin")));
+    	    $googleauth_url .= '&scope=' . urlencode('https://www.googleapis.com/auth/userinfo.email');
+    	    $googleauth_url .= '&prompt='. urlencode('select_account consent');
+    	    
+    	    $viewer->assign('GOOGLE_AUTH_URL', $googleauth_url);
+    	    
+    	    $googleModuleActive = '';
+    	    if($googleClientId)
+    	        $googleModuleActive = true;
+    	        
+            $viewer->assign('GOOGLE_ACTIVE', $googleModuleActive);
+		}
 		
 		$viewer->view('Login.tpl', 'Users');
 	}

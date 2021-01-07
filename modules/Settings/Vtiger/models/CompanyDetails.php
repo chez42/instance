@@ -31,6 +31,8 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'fax' => 'text',
 		'website' => 'text',
 		'vatid' => 'text',
+	    'google_login' => 'checkbox',
+	    'office_login' => 'checkbox',
 	    'brochure' => 'file'
 	);
 
@@ -46,6 +48,8 @@ class Settings_Vtiger_CompanyDetails_Model extends Settings_Vtiger_Module_Model 
 		'phone' => 'text',
 		'fax' => 'text',
 		'vatid' => 'text',
+	    'google_login' => 'checkbox',
+	    'office_login' => 'checkbox',
 	    'brochure' => 'file'
 	);
 
