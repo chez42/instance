@@ -73,6 +73,14 @@
 													{/foreach}
 												</table>
 											</td>
+										{else if $FIELD eq 'google_login' || $FIELD eq 'office_login' }
+											<td class="{$WIDTHTYPE}" style="word-wrap:break-word;">
+												{if $MODULE_MODEL->get($FIELD)}
+													Yes
+												{else}
+												 	No
+												{/if}
+											</td>
 										{else}
 											<td class="{$WIDTHTYPE}" style="word-wrap:break-word;">
 												{if $FIELD eq 'address'} {decode_html($MODULE_MODEL->get($FIELD))|nl2br} {else} {decode_html($MODULE_MODEL->get($FIELD))} {/if}
@@ -143,6 +151,9 @@
 												</button>
 											</span>
 					                    </div>
+			                    {else if $FIELD eq 'google_login' || $FIELD eq 'office_login' }
+			                    	<input type="hidden"  class="inputElement" name="{$FIELD}" {if $MODULE_MODEL->get($FIELD)} checked {/if} value='0'/>
+			                    	<input type="checkbox"  class="inputElement" name="{$FIELD}" {if $MODULE_MODEL->get($FIELD)} checked {/if} value='1'/>
 								{else}
 									<input type="text" {if $FIELD eq 'organizationname'} data-rule-required="true" {/if} class="inputElement" name="{$FIELD}" value="{$MODULE_MODEL->get($FIELD)}"/>
 								{/if}

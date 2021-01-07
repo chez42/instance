@@ -93,15 +93,55 @@
 		    list-style: none;
 		    margin-right: 1em;
 		}
-	    {if $BGTYPE eq 'image'}
-			body{
-				background-image: url({$BACKGROUND});
-				background-repeat: no-repeat;
-			    background-position: center right;
-			    background-size: 50% 100%;
-			    background-attachment: fixed;
+		.app-footer { 
+			position:fixed; 
+			bottom:0px;
+		}
+		
+		@media (min-width: 576px) { 
+			.app-footer { 
+				width:50%;
 			}
+		}
+		
+		@media (min-width: 768px) {
+			.app-footer { 
+				width:50%;
+			}
+		}
+		
+		{if $BGTYPE eq 'image'}
+			
+			@media (min-width: 992px) { 
+				body{
+					background-image: url({$BACKGROUND});
+					background-repeat: no-repeat;
+				    background-position: center right;
+				    background-size: 50% 100%;
+				    background-attachment: fixed;
+				}
+				.app-footer { 
+					width:50%;
+				}
+			}
+
+			@media (min-width: 1200px) { 
+				body{
+					background-image: url({$BACKGROUND});
+					background-repeat: no-repeat;
+				    background-position: center right;
+				    background-size: 50% 100%;
+				    background-attachment: fixed;
+				}
+				.app-footer { 
+					width:50%;
+				}
+			}
+			
 		{/if}
+		
+		
+	    
 		#myVideo {
 		  position: fixed;
 		  right: 0;
@@ -125,7 +165,7 @@
 		<div class="row">
 
 			<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 left">
-				<div class="login-heading">
+				<div class="login-heading" style = "padding-top:80px;padding-bottom:15px;">
                     {if $LOGO}
 	        			<img class="login-logo center" src="{$LOGO}" style="width: 100%;" />
 	        		{else}
@@ -141,7 +181,7 @@
 						</div>
 						
 						<div id="loginFormDiv">
-							<form method="POST" action="index.php" >
+							<form class="login-form" method="POST" action="index.php" >
 								<input type="hidden" name="module" value="Users"/>
 								<input type="hidden" name="action" value="Login"/>
 								<div class="form-group">
@@ -213,6 +253,7 @@
 	        			</button>
 	        		{/if}
 				</div>
+				<br><br>
 				<div class="app-footer text-center" id="footer">
 					{if $COPYRIGHT}
 		          		<div class="login-copyright " style = "padding-top:5px;">
@@ -278,24 +319,26 @@
 										<!-- <h4>{$BLOCKS_DATA[0].heading}</h4> -->
 										<ul class="bxslider">
 											{foreach item=BLOCK_DATA from=$BLOCKS_DATA}
-												<li class="slide">
+												<li class="slide" style = "color:black;">
 													{assign var=ALL_BLOCKS_COUNT value=$ALL_BLOCKS_COUNT+1}
-													{if $BLOCK_DATA.image}
-														<div class="col-lg-4"><img src="{$BLOCK_DATA.image}" style="width:100%;height: 150px;margin-top: 10px;"/></div>
-														<div class="col-lg-8">
-													{else}
-														<div class="col-lg-12">
-													{/if}
-													<div title="{$BLOCK_DATA.summary}">
-														<h3><b>{$BLOCK_DATA.displayTitle}</b></h3>
-														{$BLOCK_DATA.displaySummary}<br><br>
-														<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>
+													<div class="col-lg-12">
+													
+														<div title="{$BLOCK_DATA.summary}">
+															<h4 style = "font-size:20px;line-height:30px;font-weight:600;">{$BLOCK_DATA.displayTitle}</h4>
+															<div style = "font-size:13px;line-height:25px;">{$BLOCK_DATA.summary}</div>
+															{*<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>*}
+														</div>
+													
 													</div>
 													{if $BLOCK_DATA.image}
-														</div>
-													{else}
+														<div class="col-lg-12" style = "margin-bottom:10px;">
+															<img src="{$BLOCK_DATA.image}" style="width:60%;height: 250px;margin-top: 10px;"/>
 														</div>
 													{/if}
+													
+													
+													
+													
 												</li>
 											{/foreach}
 										</ul>
@@ -419,6 +462,34 @@
 									}
 				};
 				jQuery('.scrollContainer').mCustomScrollbar(params);
+				
+			   $('.oauthLogin').on('click', function(){
+	            	console.log('test');
+	            	var url = $(this).data('url');
+	            	
+	            	var win= window.open(url,'','height=600,width=600,channelmode=1');
+					
+					window.RefreshPage = function(code, module) {
+						
+						var data = [];
+						$.each($('.login-form').serializeArray(), function(i, field){
+						    data[field.name] = field.value;
+						});
+						data['code'] = code;
+						
+						$.ajax({
+			    			type: "POST",
+			    			url:'index.php?'+$('.login-form').serialize()+'&code='+code+'&source='+module,
+			    			error: function(errorThrown) {
+			    				console.log(errorThrown)
+			    			},
+			    			success: function(url) {
+			    				window.location = url;
+			    			}
+			    		});
+					}
+	            	
+	            });
 			});
 		</script>
 		</div>

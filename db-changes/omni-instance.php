@@ -1077,3 +1077,35 @@ $adb->pquery("UPDATE vtiger_field SET masseditable = 2 WHERE fieldname = ? AND t
     array('unit_price', getTabid('Products')));
 
 $adb->pquery("UPDATE `vtiger_entityname` SET `fieldname` = 'name' WHERE `vtiger_entityname`.`tabid` = ?",array(getTabid('BillingSpecifications')));
+
+$adb->pquery("ALTER TABLE vtiger_organizationdetails ADD google_login INT(3) NULL, ADD office_login INT(3) NULL;");
+$instance = Vtiger_Module_Model::getInstance('Instances');
+
+if(!empty($instance)){
+    $quickCreateMenu = $adb->pquery("SELECT * FROM vtiger_settings_field WHERE name = ? AND linkto = ?",
+        array('Login Page Settings', 'index.php?parent=Settings&module=Vtiger&view=LoginPageSettings'));
+    if(!$adb->num_rows($quickCreateMenu)){
+        
+        $blockid = $adb->query_result(
+            $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_CONFIGURATION'",array()),0, 'blockid');
+        
+        $sequence = (int)$adb->query_result($adb->pquery("SELECT max(sequence)
+    			as sequence FROM vtiger_settings_field WHERE blockid=?",array($blockid)),
+            0, 'sequence') + 1;
+            
+            $fieldid = $adb->getUniqueId('vtiger_settings_field');
+            $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
+        VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,'Login Page Settings','','', 'index.php?parent=Settings&module=Vtiger&view=LoginPageSettings'));
+            
+    }
+    
+    $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_login_page_settings (
+    login_logo TEXT NULL ,
+    login_background TEXT NULL ,
+    copyright_text VARCHAR(255) NULL ,
+    facebook_link VARCHAR(255) NULL ,
+    twitter_link VARCHAR(255) NULL ,
+    linkedin_link VARCHAR(255) NULL ,
+    youtube_link VARCHAR(255) NULL ,
+    instagram_link VARCHAR(255) NULL );");
+}

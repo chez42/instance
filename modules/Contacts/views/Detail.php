@@ -46,6 +46,27 @@ class Contacts_Detail_View extends Accounts_Detail_View {
 		return parent::showModuleDetailView($request);
 	}
 	
+	public function getHeaderScripts(Vtiger_Request $request) {
+	    $headerScriptInstances = parent::getHeaderScripts($request);
+	    $moduleName = $request->getModule();
+	    
+	    $jsFileNames = array(
+	        '~/libraries/jquery/bootstrapswitch/js/bootstrap-switch.min.js',
+	    );
+	    
+	    $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
+	    $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
+	    return $headerScriptInstances;
+	}
 	
+	public function getHeaderCss(Vtiger_Request $request) {
+	    $headerCssInstances = parent::getHeaderCss($request);
+	    $cssFileNames = array(
+	        '~/libraries/jquery/bootstrapswitch/css/bootstrap3/bootstrap-switch.min.css',
+	    );
+	    $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
+	    $headerCssInstances = array_merge($headerCssInstances, $cssInstances);
+	    return $headerCssInstances;
+	}
 	
 }
