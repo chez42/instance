@@ -155,7 +155,7 @@ jQuery.Class("BalanceDetails_Js",{
 
             document.getElementById("lyr").addEventListener("click", function() {
                 SetButtonColor($(this), 'lightgreen');
-                zoomToDatesCustom("2019-01-01", "2019-12-31");
+                zoomToDatesCustom("2020-01-01", "2020-12-31");
             });
 
             document.getElementById("b1m").addEventListener("click", function() {
