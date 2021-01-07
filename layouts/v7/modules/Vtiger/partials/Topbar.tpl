@@ -104,7 +104,7 @@
 																	</ul>
 																</div>
 															{else}
-																<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-lg-4{/if} {if $moduleModel->getName() eq 'Campaigns' || $moduleModel->getName() eq 'ProjectTask' || $moduleModel->getName() eq 'ProjectMilestone'}hide {/if}">
+																<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-lg-4{/if} ">
 																	<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
 																	   data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
 																		{$moduleModel->getModuleIcon()}

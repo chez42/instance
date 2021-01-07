@@ -385,7 +385,7 @@
 																	<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModuleSubmenu dropdown-toggle" data-name="{$moduleModel->getName()}" data-toggle="dropdown" 
 																	   data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
 																		
-																		<i class="material-icons pull-left">{$iconsarray[{strtolower($moduleName)}]}</i>
+																		<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Documents.png" title="{$translatedModuleLabel}"></span>
 																		<span class="quick-create-module">
 																			{vtranslate($singularLabel,$moduleName)}
 																			<i class="fa fa-caret-down quickcreateMoreDropdownAction"></i>
@@ -412,7 +412,7 @@
 																	data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
 																		
 																		
-																		<i class="fa fa-tasks" aria-hidden="true"></i>
+																		<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
 																		<span class="quick-create-module">{vtranslate($singularLabel,$moduleName)}</span>
 																	
 																	</a>
@@ -420,13 +420,53 @@
 																</div>
 															{else}
 															
-																<div class="{if $hideDiv} create_restricted_{$moduleModel->getName()} hide {else} col-lg-4 {/if} {if $moduleModel->getName() eq 'Campaigns' || $moduleModel->getName() eq 'ProjectTask' || $moduleModel->getName() eq 'ProjectMilestone'} hide {/if}">
+																<div class="{if $hideDiv} create_restricted_{$moduleModel->getName()} hide {else} col-lg-4 {/if} ">
 																	
 																	<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
 																	data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
+																			
+																		{if $moduleName eq 'PortfolioInformation'}
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
+																			{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
+																		{else if $moduleName eq 'Connection'}
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Connection.png" title="{$translatedModuleLabel}"></span>
+																			{*<i class="fa fa-users" aria-hidden="true"></i>*}
+																		{else if $moduleName eq 'ModComments'}
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/ModComments.png" title="{$translatedModuleLabel}"></span>
+																			{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+																		{else if $moduleName eq 'RingCentral'}
+																			<i class="fa fa-phone-square module-icon" aria-hidden="true"></i>
+																		{else if $moduleName eq 'Task'}
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
+																			{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
+																		{else if $moduleName eq 'Timecontrol'}
+																			<i class="fa fa-hourglass module-icon" aria-hidden="true"></i>
+																		{else if $moduleName eq 'EmailTemplates'}
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'CalendarTemplate'}
+																			<i class="fa fa-fast-forward module-icon" aria-hidden="true"></i>
+																		{else if $moduleName eq 'Documents'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Documents.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'HelpDesk'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'Instances'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Instances.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'ModSecurities'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'Notifications'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Notifications.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'PositionInformation'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'QuotingTool'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'Transactions'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Transactions.png" title="{$translatedModuleLabel}"></span>
+																		{else if $moduleName eq 'Contacts'} 
+																			<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Contacts.png" title="{$translatedModuleLabel}"></span>
+																		{else}
+																			<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
+																		{/if}
 																		
-																		
-																		<i class="material-icons pull-left">{$iconsarray[{strtolower($moduleName)}]}</i>
 																		<span class="quick-create-module">{vtranslate($singularLabel,$moduleName)}</span>
 																	
 																	</a>
@@ -619,7 +659,7 @@
 													<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-xs-12{/if} dropdown">
 														<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModuleSubmenu dropdown-toggle" data-name="{$moduleModel->getName()}" data-toggle="dropdown" 
 														   data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
-															<i class="material-icons pull-left">{$iconsarray[{strtolower($moduleName)}]}</i>
+															<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
 															
 															<span class="quick-create-module">
 																{vtranslate($singularLabel,$moduleName)}
@@ -646,7 +686,47 @@
 													<div class="{if $hideDiv}create_restricted_{$moduleModel->getName()} hide{else}col-xs-12{/if}">
 														<a id="menubar_quickCreate_{$moduleModel->getName()}" class="quickCreateModule" data-name="{$moduleModel->getName()}"
 														   data-url="{$moduleModel->getQuickCreateUrl()}" href="javascript:void(0)">
-															<i class="material-icons pull-left">{$iconsarray[{strtolower($moduleName)}]}</i>
+															{if $moduleName eq 'PortfolioInformation'}
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
+																{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
+															{else if $moduleName eq 'Connection'}
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Connection.png" title="{$translatedModuleLabel}"></span>
+																{*<i class="fa fa-users" aria-hidden="true"></i>*}
+															{else if $moduleName eq 'ModComments'}
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/ModComments.png" title="{$translatedModuleLabel}"></span>
+																{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+															{else if $moduleName eq 'RingCentral'}
+																<i class="fa fa-phone-square module-icon" aria-hidden="true"></i>
+															{else if $moduleName eq 'Task'}
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Task.png" title="{$translatedModuleLabel}"></span>
+																{*<i class="fa fa-tasks" aria-hidden="true"></i>*}
+															{else if $moduleName eq 'Timecontrol'}
+																<i class="fa fa-hourglass module-icon" aria-hidden="true"></i>
+															{else if $moduleName eq 'EmailTemplates'}
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/EmailTemplates.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'CalendarTemplate'}
+																<i class="fa fa-fast-forward module-icon" aria-hidden="true"></i>
+															{else if $moduleName eq 'Documents'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Documents.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'HelpDesk'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/HelpDesk.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'Instances'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Instances.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'ModSecurities'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/ModSecurities.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'Notifications'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Notifications.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'PositionInformation'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/PositionInformation.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'QuotingTool'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/QuotingTool.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'Transactions'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Transactions.png" title="{$translatedModuleLabel}"></span>
+															{else if $moduleName eq 'Contacts'} 
+																<span class="module-icon quickcreate"><img src="layouts/rainbow/icons/Contacts.png" title="{$translatedModuleLabel}"></span>
+															{else}
+																<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
+															{/if}
 															<span class="quick-create-module">{vtranslate($singularLabel,$moduleName)}</span>
 														</a>
 													</div>
