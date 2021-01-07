@@ -100,13 +100,13 @@
 		
 		@media (min-width: 576px) { 
 			.app-footer { 
-				width:100%;
+				width:50%;
 			}
 		}
 		
 		@media (min-width: 768px) {
 			.app-footer { 
-				width:100%;
+				width:50%;
 			}
 		}
 		
@@ -253,6 +253,7 @@
 	        			</button>
 	        		{/if}
 				</div>
+				<br><br>
 				<div class="app-footer text-center" id="footer">
 					{if $COPYRIGHT}
 		          		<div class="login-copyright " style = "padding-top:5px;">
@@ -324,13 +325,13 @@
 													
 														<div title="{$BLOCK_DATA.summary}">
 															<h4 style = "font-size:20px;line-height:30px;font-weight:600;">{$BLOCK_DATA.displayTitle}</h4>
-															<div style = "font-size:13px;line-height:25px;">{$BLOCK_DATA.displaySummary}</div>
-															<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>
+															<div style = "font-size:13px;line-height:25px;">{$BLOCK_DATA.summary}</div>
+															{*<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>*}
 														</div>
 													
 													</div>
 													{if $BLOCK_DATA.image}
-														<div class="col-lg-12" style = "text-align:center;margin-bottom:10px;">
+														<div class="col-lg-12" style = "margin-bottom:10px;">
 															<img src="{$BLOCK_DATA.image}" style="width:60%;height: 250px;margin-top: 10px;"/>
 														</div>
 													{/if}
