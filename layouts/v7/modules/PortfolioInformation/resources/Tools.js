@@ -134,7 +134,7 @@ jQuery.Class("Tools_Js",{
         });
 
         $("#select_start_date").datepicker({
-            defaultDate: "01/01/2019",
+            defaultDate: "01/01/2020",
             changeMonth: true,
             changeYear: true,
             numberOfMonths: 3,
