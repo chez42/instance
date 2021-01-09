@@ -2535,6 +2535,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $day = "";
         if (!$month_only)
             $day = "d/";
+        $date = date("Y");
 
         switch ($option_value) {
             case "current":
@@ -2565,6 +2566,10 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2019"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2019"));
                 break;
+            case "2020":
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2020"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2020"));
+                break;
             case "trailing_12":
                 $dateReturn['start'] = date("Y-m-d", strtotime("today -1 year"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("today"));
@@ -2573,9 +2578,14 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['start'] = date("Y-m-d", strtotime("today -6 months"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("today"));
                 break;
+            case $date:
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st {$date}"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st {$date}"));
+                break;
             case "custom":
-                $dateReturn['start'] = "";
-                $dateReturn['end'] = "";
+                $date = date("Y");
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st {$date}"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st {$date}"));
                 break;
             default:
                 $dateReturn['end'] = date("m/{$day}Y");
@@ -2995,6 +3005,31 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         #schwab = as_of_date
         #td = as_of_date
         #pershing = date
+    }
+
+    static public function GetLatestBalanceForAccount($account_number){
+        global $adb;
+
+        $custodian = self::GetCustodianFromAccountNumber($account_number);
+        switch(strtoupper($custodian)){
+            case "TD":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "FIDELITY":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "SCHWAB":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "PERSHING":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            default:
+                return 0;
+                break;
+        }
+
+        return null;
     }
 
     static public function GetIntervalBeginValueForDate($account_number, $date){

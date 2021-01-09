@@ -32,6 +32,104 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        include("cron/modules/Custodian/TDPull.service");
+        echo 'done2';exit;
+
+        $demo = new cDemo();
+        $mapped_accounts = $demo->GetMappedAccounts();
+        foreach($mapped_accounts AS $k => $v){
+            $account_numbers[] = $k;
+        }
+
+        $start = date("Y-m-01");
+        $end = date("Y-m-d");
+        //We want to set the rep_code as DEMO_UNEDITED so the names and addresses can be randomized.  This will replace the rep code to DEMO
+/*        $demo->CopyPortfolios("TD", $account_numbers, "DEMO_UNEDITED");
+        $demo->CopyBalances("TD", $account_numbers, $start, $end);
+        $demo->CopyPositions("TD", $account_numbers, $start, $end);
+        $demo->CopyTransactions("TD", $account_numbers, $start, $end);*/
+        $demo->UpdateCustodianWithFakeName('TD');
+
+        /*
+        foreach($mapped_accounts AS $k => $v){
+            $account_numbers[] = $v['']
+        }
+        print_r($demo);*/
+        echo 'check for accounts 4';
+        exit;
+
+        include("modules/PortfolioInformation/cron/MonthlyRevenue.service");
+        echo 'done';exit;
+        include("cron/modules/Custodian/DataPull.service");
+        echo 'done2';exit;
+
+        $account_numbers = array('13163366');
+        $copy = new CustodianToOmniTransfer($account_numbers);
+#        $copy->UpdatePortfolios();
+#        $copy->CreateSecurities();
+        $copy->CreatePositions();
+
+#        cSchwabTransactions::CreateNewTransactionsForAccounts($account_numbers);
+
+        echo 'done';exit;
+
+        $dif = 0;
+        $integrity = new cIntegrity(array());
+        $differences = $integrity->GetDifferences();
+        foreach($differences AS $k => $v){
+            $dif += $v['dif'];
+        }
+
+print_r($differences);
+
+        echo "Difference Total: " . $dif;
+
+echo 'done';exit;
+
+        include("cron/modules/InstanceOnly/Integrity.service");
+        echo 'done';exit;
+
+        $integrity = new cIntegrity(array());
+        $differences = $integrity->GetDifferences();
+        print_r($differences);
+        echo 'done';exit;
+        $differences = PortfolioInformation_Module_Model::GetPortfolioToPositionDifferencesList();
+        $tdAccounts = array();
+
+        foreach($differences AS $k => $v) {
+            if(strtoupper($v['origination']) == 'TD')
+                $tdAccounts[] = $v['account_number'];
+        }
+
+        $end = date('Y-m-d');
+        $start = date('Y-m-d', strtotime('-4 days'));
+        PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($tdAccounts, $start, $end);
+
+        $copy = new CustodianToOmniTransfer($tdAccounts);
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+        $copy->CreatePositions();
+
+        PortfolioInformation_Module_Model::ConsolidatedBalances($tdAccounts, $start, $end);
+
+        echo 'done';exit;
+
+
+        include("cron/modules/Custodian/DataPull.service");
+        echo 'done';exit;
+        $differences = PortfolioInformation_Module_Model::GetPortfolioToPositionDifferencesList();
+        $tdAccounts = array();
+
+        foreach($differences AS $k => $v) {
+            if(strtoupper($v['origination']) == 'TD')
+                $tdAccounts[] = $v['account_number'];
+        }
+
+
+        print_r($tdAccounts);exit;
+        include("cron/modules/InstanceOnly/TDIntegrity.service");
+        echo 'done';exit;
+
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsers(5000);
         echo 'Check widget!';exit;
 
