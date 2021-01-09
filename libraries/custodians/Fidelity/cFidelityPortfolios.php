@@ -616,4 +616,19 @@ class cFidelityPortfolios extends cCustodian {
         $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
         self::UpdateAllPortfoliosForAccounts($accounts);
     }
+
+    static public function GetLatestBalance($account_number){
+        global $adb;
+        $query = "SELECT * 
+                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  WHERE account_number = ?
+                  ORDER BY as_of_date 
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'net_worth');
+        }
+        return null;
+    }
 }

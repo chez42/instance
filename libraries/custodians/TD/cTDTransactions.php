@@ -85,7 +85,6 @@ class cTDTransactions extends cCustodian
         $this->columns = $columns;
         if(!empty($rep_codes)) {
             $this->SetRepCodes($rep_codes);
-
         }
     }
     /**
@@ -120,7 +119,7 @@ class cTDTransactions extends cCustodian
             }
         }
 
-        $this->SetupTransactionComparisons($start, $end);
+        $this->SetupTransactionComparisons($date, $date);
         return $this->transactions_data;
     }
 
