@@ -3007,6 +3007,31 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         #pershing = date
     }
 
+    static public function GetLatestBalanceForAccount($account_number){
+        global $adb;
+
+        $custodian = self::GetCustodianFromAccountNumber($account_number);
+        switch(strtoupper($custodian)){
+            case "TD":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "FIDELITY":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "SCHWAB":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "PERSHING":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            default:
+                return 0;
+                break;
+        }
+
+        return null;
+    }
+
     static public function GetIntervalBeginValueForDate($account_number, $date){
         global $adb;
 
