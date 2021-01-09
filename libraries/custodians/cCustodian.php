@@ -238,16 +238,23 @@ class cCustodian{
         return false;
     }
 
-    static public function UpdateLatestPositionsTable($custodian, $date_field){
+    static public function UpdateLatestPositionsTable($custodian, $date_field, $rep_code = null){
         global $adb;
-        $query = "SELECT rep_code, MAX(pos.{$date_field}) AS as_of_date
+        $params = array();
+        if($rep_code != null){
+            $and = " AND por.rep_code = ? ";
+            $params[] = $rep_code;
+        }
+
+        $query = "SELECT por.rep_code, MAX(pos.{$date_field}) AS as_of_date
                   FROM custodian_omniscient.custodian_portfolios_{$custodian} por
                   JOIN custodian_omniscient.custodian_positions_{$custodian} pos ON por.account_number = pos.account_number
-                  WHERE rep_code IS NOT NULL AND rep_code != ''
+                  WHERE por.rep_code IS NOT NULL AND por.rep_code != ''
                   AND pos.{$date_field} > (NOW() - INTERVAL 7 DAY)
-                  GROUP BY rep_code
+                  {$and}
+                  GROUP BY por.rep_code
                   ORDER BY pos.{$date_field} DESC";
-        $result = $adb->pquery($query, array());
+        $result = $adb->pquery($query, $params);
 
         if($adb->num_rows($result) > 0){
             $query = "INSERT INTO custodian_omniscient.latestpositiondates VALUES (?, ?)

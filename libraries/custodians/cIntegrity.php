@@ -100,7 +100,8 @@ class cIntegrity{
             $differences = array();
             while($v = $adb->fetchByAssoc($result)){
                 $dif = abs($v['positionvalue']) - abs($v['total_value']);
-                if( $dif > 10){
+                $latest_balance = PortfolioInformation_Module_Model::GetLatestBalanceForAccount($v['account_number']);
+                if( $dif > 10 || ((int)$latest_balance == (int)$v['positionvalue'])){
                     $differences[] = $v;
                 }
             }

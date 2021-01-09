@@ -228,10 +228,11 @@ Array (
 
         $query = "UPDATE custodian_omniscient.custodian_portfolios_td 
                   SET first_name = ?, last_name = ?, company_name = ?, street = ?, 
-                      city = ?, state = ?, zip = ?, rep_code = ?
+                      city = ?, state = ?, zip = ?, rep_code = ?, advisor_id = ?
                   WHERE account_number = ?";
+
         $adb->pquery($query, array($fake['first_name'], $fake['last_name'], $fake['company_name'], $fake['address'],
-                                   $fake['city'], $fake['state'], $fake['zip'], $data['replace'], $data['account_number']));
+                                   $fake['city'], $fake['state'], $fake['zip'], $data['replace'], $data['replace'], $data['account_number']));
 
     }
 
