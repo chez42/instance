@@ -1,0 +1,18 @@
+<?php
+
+$demo = new cDemo();
+$mapped_accounts = $demo->GetMappedAccounts();
+
+foreach($mapped_accounts AS $k => $v){
+    $account_numbers[] = $k;
+}
+
+$start = date("Y-m-01");
+$end = date("Y-m-d");
+//We want to set the rep_code as DEMO_UNEDITED so the names and addresses can be randomized.  This will replace the rep code to DEMO
+$demo->CopyPortfolios("TD", $account_numbers, "DEMO_UNEDITED");
+$demo->CopyBalances("TD", $account_numbers, $start, $end);
+$demo->CopyPositions("TD", $account_numbers, $start, $end);
+$demo->CopyTransactions("TD", $account_numbers, $start, $end);
+$demo->UpdateCustodianWithFakeName('TD');
+cCustodian::UpdateLatestPositionsTable('TD', 'date', 'DEMO');
