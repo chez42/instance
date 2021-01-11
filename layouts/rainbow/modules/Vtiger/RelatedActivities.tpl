@@ -50,7 +50,7 @@
 						<input type="hidden" class="activityId" value="{$RECORD->get('activityid')}"/>
 							<div class='row'>
 								
-								<div class='media-body col-lg-7 col-md-7 col-sm-7 col-xs-7' style="margin-left:20px;">
+								<div class='media-body col-lg-6 col-md-6 col-sm-6 col-xs-6' style="margin-left:20px;">
 									<div class="summaryViewEntries" style="font-weight:bold;font-size: 16px;word-break: break-all;">
 										{if $DETAILVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getDetailViewUrl()}" title="{$RECORD->get('subject')}">{$RECORD->get('subject')}</a>{else}{$RECORD->get('subject')}{/if}&nbsp;&nbsp;
 										{if $EDITVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getEditViewUrl()}&sourceModule={$SOURCE_MODEL->getModuleName()}&sourceRecord={$SOURCE_MODEL->getId()}&relationOperation=true" class="fieldValue"><i class="summaryViewEdit material-icons text-info" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}">create</i></a>{/if}&nbsp;
@@ -71,7 +71,7 @@
 								<span title="{Vtiger_Util_Helper::formatDateTimeIntoDayString("$START_DATE $START_TIME")}">{Vtiger_Util_Helper::formatDateIntoStrings($START_DATE, $START_TIME)}</span>
 							</div>
 
-							<div class='col-lg-4 col-md-4 col-sm-4 col-xs-4 activityStatus' style='line-height: 0px;padding-right:30px;'>
+							<div class='col-lg-5 col-md-5 col-sm-5 col-xs-5 activityStatus' style='line-height: 0px;padding-right:0px;'>
 								<div class="row">
 									{if $RECORD->get('activitytype') eq 'Task'}
 										{assign var=MODULE_NAME value=$RECORD->getModuleName()}
@@ -119,13 +119,21 @@
 											{if $EDITVIEW_PERMITTED == 'yes'}
 												<span class="editStatus cursorPointer"><i class="material-icons text-info" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}">create</i></span>
 												<span class="edit hide">
-													{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('eventstatus'))}
-													{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
-													{if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
-														<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}[]' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
-													{else}
-														<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
-													{/if}
+													<div class="row">
+														<div class="pull-left col-xl-8">
+															{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('eventstatus'))}
+															{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
+															{if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
+																<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}[]' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
+															{else}
+																<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
+															{/if}
+														</div>
+														<div class="btn-group pull-left col-xl-4">
+													        <button style="height: 26px;" class="button btn-success saveStatus" type="button" name="save"><i class="ti-check"></i></button>
+													        <button style="height: 26px;" class="button btn-danger cancelStatus" type="button" name="Cancel"><i class="ti-close"></i></button>
+													    </div>
+												    </div>
 												</span>
 											</div>
 										{/if}
