@@ -1049,3 +1049,5 @@ if(!empty($instance)){
     youtube_link VARCHAR(255) NULL ,
     instagram_link VARCHAR(255) NULL );");
 }
+
+$adb->pquery("ALTER TABLE vtiger_wsapp_recordmapping CHANGE serverid serverid VARCHAR(100)");
