@@ -28,7 +28,7 @@
 					<div class="col-xs-6 pull-right paddingTop5 paddingLeft0">
 						<div style="text-align: right;">
 							{if in_array($MODULE_NAME, $PRIVATE_COMMENT_MODULES)}
-								<div class="" style="margin: 7px 0;display:none;">
+								<div class="" style="margin: 7px 0;">
 									<label>
 										<input type="checkbox" id="is_private" style="margin:2px 0px -2px 0px">&nbsp;&nbsp;{vtranslate('LBL_INTERNAL_COMMENT')}
 									</label>&nbsp;&nbsp;
@@ -127,15 +127,18 @@
 													{assign var="FILE_NAME" value=$FILE_DETAIL['trimmedFileName']}
 													{if !empty($FILE_NAME)}
 														<div class="commentAttachmentName">
-															<div class="filePreview clearfix">
-																<span class="fa fa-paperclip cursorPointer" ></span>&nbsp;&nbsp;
-																<a class="previewfile" onclick="Vtiger_Detail_Js.previewFile(event,{$COMMENT->get('id')},{$FILE_DETAIL['attachmentId']});" data-filename="{$FILE_NAME}" href="javascript:void(0)" name="viewfile" style="color: blue;">
-																	<span title="{$FILE_DETAIL['rawFileName']}" style="line-height:1.5em;">{$FILE_NAME}</span>&nbsp
-																</a>&nbsp;
-																<a name="downloadfile" href="{$FILE_DETAIL['url']}" style="color: blue;">
-																	<i title="{vtranslate('LBL_DOWNLOAD_FILE',$MODULE_NAME)}" class="hide fa fa-download alignMiddle" ></i>
-																</a>
-															</div>
+															{assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'DownloadDocuments')}
+                           									{if $IS_DOWNLOAD_PERMITTED}
+																<div class="filePreview clearfix">
+																	<span class="fa fa-paperclip cursorPointer" ></span>&nbsp;&nbsp;
+																	<a class="previewfile" onclick="Vtiger_Detail_Js.previewFile(event,{$COMMENT->get('id')},{$FILE_DETAIL['attachmentId']});" data-filename="{$FILE_NAME}" href="javascript:void(0)" name="viewfile" style="color: blue;">
+																		<span title="{$FILE_DETAIL['rawFileName']}" style="line-height:1.5em;">{$FILE_NAME}</span>&nbsp
+																	</a>&nbsp;
+																	<a name="downloadfile" href="{$FILE_DETAIL['url']}" style="color: blue;">
+																		<i title="{vtranslate('LBL_DOWNLOAD_FILE',$MODULE_NAME)}" class="hide fa fa-download alignMiddle" ></i>
+																	</a>
+																</div>
+															{/if}
 														</div>
 													{/if}
 												{/foreach}
