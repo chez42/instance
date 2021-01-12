@@ -2027,7 +2027,63 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					});
 				}
 			}
-			app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+			//app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+			summaryViewContainer.on('click','.cancelStatus', function(){
+				editElement.addClass('hide');
+				detailViewElement.removeClass('hide');
+				currentTarget.show();
+			});
+			
+			summaryViewContainer.on('click','.saveStatus', function(){
+				var fieldnameElement = jQuery('.fieldname', editElement);
+				var fieldName = fieldnameElement.val();
+				var fieldElement = jQuery('[name="'+ fieldName +'"]', editElement);
+				var previousValue = fieldnameElement.data('prevValue');
+				var ajaxEditNewValue = fieldElement.find('option:selected').val();
+				var translatedValue = fieldElement.find('option:selected').text();
+
+				var select2Element = fieldElement.parent().find('.select2-container');
+				if(ajaxEditNewValue == '') {
+					vtUtils.showValidationMessage(select2Element, app.vtranslate('JS_REQUIRED_FIELD'));
+					app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+					return;
+				} else {
+					vtUtils.hideValidationMessage(select2Element);
+				}
+
+				if(previousValue == ajaxEditNewValue) {
+					editElement.addClass('hide');
+					detailViewElement.removeClass('hide');
+					currentTarget.show();
+				} else {
+					var activityDiv = currentDiv.closest('.activities');
+					var activityId = activityDiv.find('.activityId').val();
+					var moduleName = activityDiv.find('.activityModule').val();
+					var activityType = activityDiv.find('.activityType').val();
+
+					currentTarget.closest('.summaryWidgetContainer').waitMe({effect : 'orbit',text : 'Please wait...'});
+					editElement.addClass('hide');
+					var params = {
+						action : 'SaveAjax',
+						record : activityId,
+						field : fieldName,
+						value : ajaxEditNewValue,
+						module : moduleName,
+						activitytype : activityType,
+						calendarModule : moduleName,
+						origin : 'SummaryWidget'
+					};
+					
+					app.request.post({"data":params}).then(
+						function(err,data) {
+							currentTarget.closest('.summaryWidgetContainer').waitMe('hide');
+							detailViewElement.removeClass('hide');
+							currentTarget.show();
+							detailViewElement.html(translatedValue);
+							fieldnameElement.data('prevValue', ajaxEditNewValue);
+					});
+				}
+			});
 		});
 	},
 
