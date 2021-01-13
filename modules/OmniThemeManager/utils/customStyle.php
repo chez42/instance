@@ -905,7 +905,7 @@ tbody .ps__thumb-y{
     background-color: <?= $main_bg_color ?>;
 }
 
-span.module-icon :not(.material-icons,.module-icon.quickcreate){
+span.module-icon :not(.material-icons){
 	filter:  <?= $icon ?>;
 }
 
@@ -919,4 +919,8 @@ span.module-icon :not(.material-icons,.module-icon.quickcreate){
 
 .close{
 	color : #f00 !important;
+}
+
+span.module-icon.quickcreate :not(.material-icons){
+	filter : unset !important;
 }
