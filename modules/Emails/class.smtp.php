@@ -128,11 +128,29 @@ class SMTP {
     }
 
     // connect to the smtp server
-    $this->smtp_conn = @fsockopen($host,    // the host of the server
+    /*$this->smtp_conn = @fsockopen($host,    // the host of the server
                                  $port,    // the port to use
                                  $errno,   // error number if any
                                  $errstr,  // error message if any
                                  $tval);   // give up after ? secs
+	*/
+	
+	$options = array(
+		'ssl' => array(
+			'verify_peer' => false,
+		)
+	);
+	$socket_context = stream_context_create($options);
+	$this->smtp_conn = stream_socket_client(
+		$host . ':' . $port,
+		$errno,
+		$errstr,
+		$tval,
+		STREAM_CLIENT_CONNECT,
+		$socket_context
+	);							 
+								 
+								 
     // verify we connected properly
     if(empty($this->smtp_conn)) {
       $this->error = array("error" => "Failed to connect to server",
@@ -146,8 +164,8 @@ class SMTP {
 
     // SMTP server can take longer to respond, give longer timeout for first read
     // Windows does not have support for this timeout function
-    if(substr(PHP_OS, 0, 3) != "WIN")
-     socket_set_timeout($this->smtp_conn, $tval, 0);
+    //if(substr(PHP_OS, 0, 3) != "WIN")
+     //socket_set_timeout($this->smtp_conn, $tval, 0);
 
     // get any announcement
     $announce = $this->get_lines();
