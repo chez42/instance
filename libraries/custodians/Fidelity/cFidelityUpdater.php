@@ -30,6 +30,6 @@ class cFidelityUpdater{
     }
 
     public function UpdateAll(){
-        include("cron/modules/Custodian/FidelityPull.service");
+        include("cron/modules/Custodian/DataPull.service");
     }
 }
