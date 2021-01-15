@@ -1111,3 +1111,5 @@ if(!empty($instance)){
 }
 
 $adb->pquery("ALTER TABLE vtiger_wsapp_recordmapping CHANGE serverid serverid VARCHAR(100)");
+
+$adb->pquery("ALTER TABLE vtiger_google_sync ADD nextsynctoken TEXT NULL;");

@@ -51,11 +51,11 @@ class Google_Index_View extends Vtiger_ExtensionViews_View {
 		if($oauth2->hasStoredToken()) {
 			$controller = new Google_Contacts_Controller($user);
 			$connector = $controller->getTargetConnector();
-			try {
-				$contactGroups = $connector->pullGroups();
-			} catch(Exception $e) {
+// 			try {
+// 				$contactGroups = $connector->pullGroups();
+// 			} catch(Exception $e) {
 				$contactGroups = array();
-			}
+// 			}
 			$isSyncReady = true;
 		}
 
