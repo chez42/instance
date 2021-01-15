@@ -665,18 +665,6 @@ Class Google_Contacts_Connector extends WSAPP_TargetConnector {
     public function push($records, $user = false) {
         if(!$user) $user = Users_Record_Model::getCurrentUserModel();
         
-        if(!isset($this->selectedGroup))
-            $this->selectedGroup = Google_Utils_Helper::getSelectedContactGroupForUser($user);
-            
-        if($this->selectedGroup != '' && $this->selectedGroup != 'all') {
-            if($this->selectedGroup == 'none') return array();
-            if(!isset($this->groups)) {
-                $this->groups = $this->pullGroups(TRUE);
-            }
-            if(!in_array($this->selectedGroup, $this->groups['entry']))
-                return array();
-        }
-        
         $updateRecords = $deleteRecords = $addRecords = array();
         foreach($records as $record) {
             if ($record->getMode() == WSAPP_SyncRecordModel::WSAPP_UPDATE_MODE) {
