@@ -67,7 +67,7 @@ class Office365_Setting_View extends Vtiger_PopupAjax_View {
         if($oauth2->hasStoredToken()) {
             $controller = new Google_Contacts_Controller($user);
             $connector = $controller->getTargetConnector();
-            $groups = $connector->pullGroups();
+            $groups = array();//$connector->pullGroups();
             $isSyncReady = 'yes';
         }
         $targetFields = $connector->getFields();
