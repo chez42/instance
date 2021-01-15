@@ -355,9 +355,10 @@ class cTDPortfolios extends cCustodian {
             $questions = generateQuestionMarks($new);
             $query = "SELECT p.account_number, 'TD' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.first_name, p.last_name, 
                              p.street, p.address2, p.address3, p.address4, p.address5, p.address6, p.city, p.state, p.zip, p.account_type, 
-                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code
+                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code, u.id AS userid
                           FROM custodian_omniscient.custodian_portfolios_td p 
                           LEFT JOIN custodian_omniscient.custodian_portfolio_custom_properties cust ON p.account_number = cust.account_number 
+                          JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',rep_code,'%')
                           WHERE p.account_number IN ({$questions})";
             $result = $adb->pquery($query, array($new));
 
@@ -365,7 +366,7 @@ class cTDPortfolios extends cCustodian {
                 while($v = $adb->fetchByAssoc($result)){
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+                    $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
 
                     $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name)
                               VALUES (?, ?, ?, ?, ?, ?)";
