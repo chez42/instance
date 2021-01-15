@@ -540,4 +540,142 @@ return;
         }
         return null;
     }
+
+    static public function GetFirstPositionDate(array $account_numbers){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT account_number, MIN(date) AS date
+                  FROM custodian_omniscient.custodian_positions_td 
+                  WHERE account_number IN ({$questions})
+                  GROUP BY account_number
+                  ORDER BY date ASC";
+        $result = $adb->pquery($query, array($account_numbers));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[$v['account_number']] = $v['date'];
+            }
+            return $data;
+        }
+        return null;
+    }
+
+    static public function GetAllPositionDates(array $account_numbers){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT account_number, date
+                  FROM custodian_omniscient.custodian_positions_td 
+                  WHERE account_number IN ({$questions})
+                  GROUP BY account_number, date 
+                  ORDER BY date ASC";
+        $result = $adb->pquery($query, array($account_numbers));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[$v['account_number']][] = $v['date'];
+            }
+            return $data;
+        }
+        return null;
+    }
+
+    /**
+     * This is extremely specific.  This is not <= date, but requires a specific date to check against.  Request a saturday or holiday, you won't
+     * get a response
+     * @param array $account_number
+     * @param $date
+     * @return array|null
+     */
+    static public function GetPositionDataAsOfDate(array $account_number, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        //TODO Add a function get latest position date as of provide date here!!
+        $query = "SELECT pos.symbol, quantity, amount, account_number, 
+                         pos.date, pr.price, CASE WHEN pr.factor = 0 OR pr.factor IS NULL THEN 1 ELSE pr.factor END AS factor, 
+                         mcf.aclass, mcf.security_sector, mcf.cusip, m.security_name, m.securitytype
+                  FROM custodian_omniscient.custodian_positions_td pos 
+                  LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pos.symbol = pr.symbol AND pos.date = pr.date
+                  LEFT JOIN vtiger_modsecurities m ON pos.symbol = m.security_symbol
+                  LEFT JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  WHERE account_number IN ({$questions}) 
+                  AND pos.date=? 
+                  GROUP BY pos.symbol, pos.account_number";
+        $result = $adb->pquery($query, array($account_number, $date));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                if(strtolower($v['symbol']) == 'cash' || strtolower($v['symbol'] == ''))
+                    $v['symbol'] = 'TDCASH';
+                if($v['price'] == null || $v['price'] == 0)
+                    $v['price'] = 1;
+                if($v['factor'] == null || $v['factor'] == 0)
+                    $v['factor'] = 1;
+                if($v['security_price_adjustment'] == 0)
+                    $v['security_price_adjustment'] = 1;
+
+                $v['market_value'] = ($v['quantity'] + $v['amount']) * $v['price'] * $v['security_price_adjustment'] * $v['factor'];
+                $data[$v['account_number']][] = $v;
+            }
+            return $data;
+        }
+
+        return null;
+    }
+
+    /**
+     * This gets the positions for every single day it was provided via files.  If a day is skipped, its because the file didn't come in
+     * get a response
+     * @param array $account_number
+     * @param $date
+     * @return array|null
+     */
+    static public function GetPositionEntireHistory(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        //TODO Add a function get latest position date as of provide date here!!
+        $query = "SELECT pos.symbol, quantity, amount, account_number, 
+                         pos.date, pr.price, CASE WHEN pr.factor = 0 OR pr.factor IS NULL THEN 1 ELSE pr.factor END AS factor, 
+                         mcf.aclass, mcf.security_sector, mcf.cusip, m.security_name, m.securitytype
+                  FROM custodian_omniscient.custodian_positions_td pos 
+                  LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pos.symbol = pr.symbol AND pos.date = pr.date
+                  LEFT JOIN vtiger_modsecurities m ON pos.symbol = m.security_symbol
+                  LEFT JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  WHERE account_number IN ({$questions}) 
+                  GROUP BY pos.symbol, pos.account_number";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                if(strtolower($v['symbol']) == 'cash' || strtolower($v['symbol'] == ''))
+                    $v['symbol'] = 'TDCASH';
+                if($v['price'] == null || $v['price'] == 0)
+                    $v['price'] = 1;
+                if($v['factor'] == null || $v['factor'] == 0)
+                    $v['factor'] = 1;
+                if($v['security_price_adjustment'] == 0)
+                    $v['security_price_adjustment'] = 1;
+
+                $v['market_value'] = ($v['quantity'] + $v['amount']) * $v['price'] * $v['security_price_adjustment'] * $v['factor'];
+                $data[$v['account_number']][] = $v;
+            }
+            return $data;
+        }
+        return null;
+    }
 }
