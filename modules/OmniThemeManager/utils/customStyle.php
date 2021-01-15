@@ -920,3 +920,7 @@ span.module-icon :not(.material-icons){
 .close{
 	color : #f00 !important;
 }
+
+span.module-icon.quickcreate :not(.material-icons){
+	filter : unset !important;
+}

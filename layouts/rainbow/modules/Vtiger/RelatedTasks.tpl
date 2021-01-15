@@ -41,9 +41,9 @@
 						<div class='media'>
 							<div class='row'>
 								<div class='media-left module-icon col-lg-1 col-md-1 col-sm-1 textAlignCenter'>
-									<span class='vicon-task'></span>
+									<span class='vicon-task' style="padding: 5px !important;"></span>
 								</div>
-								<div class='media-body col-lg-7 col-md-7 col-sm-7'>
+								<div class='media-body col-lg-6 col-md-6 col-sm-6'>
 									<div class="summaryViewEntries">
 										{if $DETAILVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getDetailViewUrl()}" title="{$RECORD->get('subject')}">{$RECORD->get('subject')}</a>{else}{$RECORD->get('subject')}{/if}&nbsp;&nbsp;
 										{if $EDITVIEW_PERMITTED == 'yes'}<a href="{$RECORD->getEditViewUrl()}&sourceModule={$SOURCE_MODEL->getModuleName()}&sourceRecord={$SOURCE_MODEL->getId()}&relationOperation=true" class="fieldValue"><i class="summaryViewEdit fa fa-pencil" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}"></i></a>{/if}&nbsp;
@@ -52,7 +52,7 @@
 								<span><strong title="{Vtiger_Util_Helper::formatDateTimeIntoDayString("$DUE_DATE")}">{Vtiger_Util_Helper::formatDateIntoStrings($DUE_DATE)}</strong></span>
 							</div>
 
-							<div class='col-lg-4 col-md-4 col-sm-4 activityStatus' style='line-height: 0px;padding-right:30px;'>
+							<div class='col-lg-5 col-md-5 col-sm-5 activityStatus' style='line-height: 0px;padding-right:0px;'>
 								<div class="row">
 									
 										{assign var=MODULE_NAME value=$RECORD->getModuleName()}
@@ -81,10 +81,10 @@
 															<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->get('fieldvalue')}' />
 														</div>
 														<div class="btn-group pull-left col-xl-4">
-													    	<button style="height: 26px;" class="button btn-success btn-small saveStatus" type="button" name="save"><i class="fa fa-check"></i></button>
-    														<button style="height: 26px;" class="button btn-danger btn-small cancelStatus" type="button" name="Cancel"><i class="fa fa-close"></i></button>
+													        <button style="height: 26px;" class="button btn-success saveStatus" type="button" name="save"><i class="ti-check"></i></button>
+													        <button style="height: 26px;" class="button btn-danger cancelStatus" type="button" name="Cancel"><i class="ti-close"></i></button>
 													    </div>
-													</div>
+												    </div>
 												</span>
 											{/if}
 										</div>
