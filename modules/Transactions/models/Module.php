@@ -381,4 +381,75 @@ class Transactions_Module_Model extends Vtiger_Module_Model {
                   WHERE account_number IN({$questions})";
         $adb->pquery($query, array($account_numbers));
     }
+
+    static public function GetTransactionCount(array $account_numbers){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT account_number, COUNT(*) as count
+                  FROM vtiger_transactions 
+                  WHERE account_number IN ({$questions})";
+        $result = $adb->pquery($query, array($account_numbers));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[$v['account_number']] = $v['count'];
+            }
+            return $data;
+        }
+        return null;
+    }
+
+    /**
+     * Get all CRM transactions up until the given date for the passed in accounts.  Returns an array key with account number, value is transactions
+     * @param array $account_number
+     * @param $date
+     * @return array|null
+     */
+    static public function GetTransactionDataUpUntilDate(array $account_number, $date, array $transaction_type = null, array $transaction_activity = null){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $params = array();
+        $params[] = $account_number;
+        $params[] = $date;
+
+        if($transaction_type != null){
+            $questionType = generateQuestionMarks($transaction_type);
+            $type = " AND transaction_type IN ({$questionType}) ";
+            $params[] = $transaction_type;
+        }
+
+        if($transaction_activity != null){
+            $questionType = generateQuestionMarks($transaction_activity);
+            $activity = " AND transaction_activity IN (?) ";
+            $params[] = $transaction_activity;
+        }
+
+        //TODO Add a function get latest position date as of provide date here!!
+        $query = "SELECT t.account_number, t.security_symbol, t.quantity, t.operation, CONCAT(t.operation, cf.net_amount) AS net_amount
+                  FROM vtiger_transactions t 
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  WHERE account_number IN ({$questions}) 
+                  AND trade_date <= ?
+                  {$type} 
+                  {$activity}";
+        $result = $adb->pquery($query, $params);
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $v['net_amount'] = $v['net_amount'];
+                $data[$v['account_number']][$v['security_symbol']][] = $v;
+            }
+            return $data;
+        }
+
+        return null;
+    }
 }
