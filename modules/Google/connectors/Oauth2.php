@@ -41,7 +41,7 @@ class Google_Oauth2_Connector {
     protected $approval_prompt = 'force';
 
     protected $scopes = array(
-        'Contacts' => 'https://www.google.com/m8/feeds',
+        'Contacts' => 'https://www.googleapis.com/auth/contacts',
         'Calendar' => 'https://www.googleapis.com/auth/calendar',
     );
     

@@ -16,7 +16,7 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <string> id
      */
     public function getId() {
-        return $this->data['entity']['id']['$t'];
+        return $this->data['entity']['resourceName'];
     }
 
     /**
@@ -24,11 +24,11 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <date> modified time 
      */
     public function getModifiedTime() {
-        return $this->vtigerFormat($this->data['entity']['updated']['$t']);
+        return $this->vtigerFormat($this->data['entity']['metadata']['sources'][0]['updateTime']);
     }
     
     function getNamePrefix() {
-        $namePrefix = $this->data['entity']['gd$name']['gd$namePrefix']['$t'];
+        $namePrefix = $this->data['entity']['names'][0]['honorificPrefix'];
         return $namePrefix;
     }
 
@@ -37,7 +37,7 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <string> $first name
      */
     function getFirstName() {
-        $fname = $this->data['entity']['gd$name']['gd$givenName']['$t'];
+        $fname = $this->data['entity']['names'][0]['givenName'];
         return $fname;
     }
 
@@ -46,7 +46,7 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <string> Last name
      */
     function getLastName() {
-        $lname = $this->data['entity']['gd$name']['gd$familyName']['$t'];
+        $lname = $this->data['entity']['names'][0]['familyName'];
         return $lname;
     }
 
@@ -55,15 +55,11 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <array> emails
      */
     function getEmails() {
-        $arr = $this->data['entity']['gd$email'];
+        $arr = $this->data['entity']['emailAddresses'];
         $emails = array();
         if (is_array($arr)) {
             foreach ($arr as $email) {
-                if(isset($email['rel']))
-                    $labelEmail = parse_url($email['rel'], PHP_URL_FRAGMENT);
-                else
-                    $labelEmail = $email['label'];
-                $emails[$labelEmail] = $email['address'];
+                $emails[$email['type']] = $email['value'];
             }
         }
         return $emails;
@@ -74,16 +70,12 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <array> phone numbers
      */
     function getPhones() {
-        $arr = $this->data['entity']['gd$phoneNumber'];
+        $arr = $this->data['entity']['phoneNumbers'];
         $phones = array();
         if(is_array($arr)) {
             foreach ($arr as $phone) {
-                $phoneNo = $phone['$t'];
-                if(isset($phone['rel']))
-                    $labelPhone = parse_url($phone['rel'], PHP_URL_FRAGMENT);
-                else
-                    $labelPhone = $phone['label'];
-                $phones[$labelPhone] = $phoneNo;
+                $phoneNo = $phone['canonicalForm'];
+                $phones[$phone['type']] = $phoneNo;
             }
         }
         return $phones;
@@ -94,24 +86,21 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
      * @return <array> Addresses
      */
     function getAddresses() {
-        $arr = $this->data['entity']['gd$structuredPostalAddress'];
+        $arr = $this->data['entity']['addresses'];
         $addresses = array();
         if(is_array($arr)) {
             foreach ($arr as $address) {
                 $structuredAddress = array(
-                    'street' => $address['gd$street']['$t'],
-                    'pobox' => $address['gd$pobox']['$t'],
-                    'postcode' => $address['gd$postcode']['$t'],
-                    'city' => $address['gd$city']['$t'],
-                    'region' => $address['gd$region']['$t'],
-                    'country' => $address['gd$country']['$t'],
-                    'formattedAddress' => $address['gd$formattedAddress']['$t']
+                    'street' => $address['streetAddress'].' '.$address['extendedAddress'],
+                    'pobox' => $address['poBox'],
+                    'postcode' => $address['postalCode'],
+                    'city' => $address['city'],
+                    'region' => $address['region'],
+                    'country' => $address['country'],
+                    'formattedAddress' => $address['formattedValue']
                 );
-                if(isset($address['rel']))
-                    $labelAddress = parse_url($address['rel'], PHP_URL_FRAGMENT);
-                else
-                    $labelAddress = $address['label'];
-                $addresses[$labelAddress] = $structuredAddress;
+                
+                $addresses[$address['type']] = $structuredAddress;
             }
         }
         return $addresses;
@@ -119,7 +108,7 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
     
     function getUserDefineFieldsValues() {
         $fieldValues = array();
-        $userDefinedFields = $this->data['entity']['gContact$userDefinedField'];
+        $userDefinedFields = $this->data['entity']['userDefined'];
         if(is_array($userDefinedFields) && count($userDefinedFields)) {
             foreach($userDefinedFields as $userDefinedField) {
                 $fieldName = $userDefinedField['key'];
@@ -130,32 +119,30 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
     }
     
     function getUrlFields() {
-        $websiteFields = $this->data['entity']['gContact$website'];
+        
+        $websiteFields = $this->data['entity']['urls'];
         $urls = array();
         if(is_array($websiteFields)) {
             foreach($websiteFields as $website) {
-                $url = $website['href'];
-                if(isset($website['rel'])) 
-                    $fieldName = $website['rel'];
-                else
-                    $fieldName = $website['label'];
-                $urls[$fieldName] = $url;
+                $url = $website['value'];
+                $urls[$website['type']] = $url;
             }
         }
         return $urls;
     }
     
     function getBirthday() {
-        return $this->data['entity']['gContact$birthday']['when'];
+        return DateTimeField::convertToDBFormat(date('m-d-Y',strtotime($this->data['entity']['birthdays'][0]['text'])));
     }
     
     function getTitle() {
-        return $this->data['entity']['gd$organization'][0]['gd$orgTitle']['$t'];
+        return $this->data['entity']['organizations'][0]['title'];
     }
     
     function getAccountName($userId) {
         $description = false;
-        $orgName = $this->data['entity']['gd$organization'][0]['gd$orgName']['$t'];
+        
+        $orgName = $this->data['entity']['organizations'][0]['name'];
         if(empty($orgName)) {
             $contactsModel = Vtiger_Module_Model::getInstance('Contacts');
             $accountFieldInstance = Vtiger_Field_Model::getInstance('account_id', $contactsModel);
@@ -211,7 +198,7 @@ class Google_Contacts_Model extends WSAPP_SyncRecordModel {
     }
     
     function getDescription() {
-        return $this->data['entity']['content']['$t'];
+        return $this->data['entity']['biographies']['0']['value'];
     }
 
     /**
