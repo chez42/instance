@@ -57,6 +57,9 @@
                 <table id="listview-table"  class="table listview-table">
                     <thead>
                         <tr class="listViewHeaders">
+                         	<th class="{$WIDTHTYPE}" style="padding-left: 10px!important;">
+                         		<a href="javascript:void(0);" class="noSorting"></a>
+                            </th>
                             <th class="{$WIDTHTYPE}">
                                 <a href="javascript:void(0);" class="noSorting">{vtranslate('LBL_SENDER_NAME')}</a>
                             </th>
@@ -88,6 +91,67 @@
                     {foreach item=RELATED_RECORD from=$RELATED_RECORDS}
                         {assign var=EMAIL_FLAG value=$RELATED_RECORD->getEmailFlag()}
                         <tr class="listViewEntries" data-id='{$RELATED_RECORD->getId()}' data-emailflag='{$EMAIL_FLAG}' name="emailsRelatedRecord">
+                            <td class="{$WIDTHTYPE}" style="padding-left: 10px!important;">
+                                <div class="pull-left">
+                                    <span class="actionImages">
+                                        <a name="emailsDetailView" data-id='{$RELATED_RECORD->getId()}'><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="fa fa-bars"></i></a>&nbsp;&nbsp;
+                                        {if $RELATED_RECORD->getEmailFlag() eq 'SAVED'}
+                                        	<a name="emailsEditView"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="fa fa-pencil"></i></a>	&nbsp;&nbsp;
+                                        {/if}
+                                        {if $IS_DELETABLE}
+                                        	<a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="vicon-linkopen"></i></a>&nbsp;&nbsp;
+                                        {/if}
+                                       	{if count($RELATED_RECORD->getAttachmentDetails()) gt 0}
+                                       		<span class="dropdown" onclick="Vtiger_RelatedList_Js.mouseLeaveEvent()" style="cursor:pointer;">
+												<span href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
+													<i class="fa fa-ellipsis-v moreaction"></i>
+												</span>
+												<ul class="dropdown-menu" style="min-width: 250px !important;">
+													{assign var=imageFileTypes value=array('image/gif','image/png','image/jpeg')}
+													{assign var=videoFileTypes value=array('video/mp4','video/ogg','audio/ogg','video/webm')}
+		
+													{foreach item=ATTACHMENT_DETAILS from=$RELATED_RECORD->getAttachmentDetails()}
+														<li style="margin:5px !important;">
+															{assign var=parts value=explode('.',$ATTACHMENT_DETAILS['attachment'])}
+															{assign var=extn value='txt'}
+															{if count($parts) > 1}
+																{$extn = end($parts)}
+															{/if}
+															
+															{assign var=PREVIEW value=''}
+															{if in_array($ATTACHMENT_DETAILS['type'], $videoFileTypes)}
+																{$PREVIEW = 1}
+															{else if in_array($ATTACHMENT_DETAILS['type'], $imageFileTypes)}
+																{$PREVIEW = 1}
+															{else if $extn == 'pdf'}
+																{$PREVIEW = 1}
+															{/if}
+															
+															
+															<span style="word-break: break-all !important;">
+																{assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
+																{if $IS_DOWNLOAD_PERMITTED}
+																	<a class="noemailpreview" {if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
+																		href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
+																	{else} 
+																		href="index.php?module=Emails&action=DownloadFile&attachment_id={$ATTACHMENT_DETAILS['fileid']}" 
+																	{/if} title="Save on desktop"><i class="fa fa-desktop"> </i></a>&nbsp;
+																{/if}
+																	<a class="noemailpreview saveasdocument" href="javascript:void(0);" onclick="Vtiger_RelatedList_Js.saveasdocument({$ATTACHMENT_DETAILS['fileid']})" id="saveasdocument" data-id="{$ATTACHMENT_DETAILS['fileid']}" title="Save as document"><i class="fa fa-download alignMiddle"></i></a>&nbsp;
+																{if $PREVIEW eq 1}
+																	<a class="noemailpreview previewdocument" href="javascript:void(0);" onclick="Vtiger_RelatedList_Js.previewdocument({$ATTACHMENT_DETAILS['fileid']})" id="previewdocument" data-id="{$ATTACHMENT_DETAILS['fileid']}" title="Preview"><i class="fa fa-picture-o alignMiddle"></i></a>&nbsp;
+																{/if}
+																&nbsp;
+																{$ATTACHMENT_DETAILS['attachment']}
+															</span> 
+														</li>
+													{/foreach}
+												</ul>
+											</span>
+                                       	{/if}
+                                    </span>
+                                </div>
+                            </td>
                             <td class="{$WIDTHTYPE}">
                                 <a>{$RELATED_RECORD->getSenderName($MODULE, $PARENT_RECORD->getId())}</a>
                             </td>
@@ -119,17 +183,6 @@
                                 <span class="label {if $EMAIL_FLAG eq 'SAVED'}label-info{else if $EMAIL_FLAG eq 'SENT'}label-success{else}label-warning{/if}">
                                     {vtranslate($EMAIL_FLAG)}
                                 </span>
-                                <div class="pull-right actions">
-                                    <span class="actionImages">
-                                            <a name="emailsDetailView" data-id='{$RELATED_RECORD->getId()}'><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="fa fa-bars"></i></a>&nbsp;&nbsp;
-                                            {if $RELATED_RECORD->getEmailFlag() eq 'SAVED'}
-                                            <a name="emailsEditView"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="fa fa-pencil"></i></a>	&nbsp;&nbsp;
-                                            {/if}
-                                            {if $IS_DELETABLE}
-                                            <a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="vicon-linkopen"></i></a>
-                                            {/if}
-                                    </span>
-                                </div>
                             </td>
                         </tr>
                     {/foreach}

@@ -1053,3 +1053,10 @@ if(!empty($instance)){
 $adb->pquery("ALTER TABLE vtiger_wsapp_recordmapping CHANGE serverid serverid VARCHAR(100)");
 
 $adb->pquery("ALTER TABLE vtiger_google_sync ADD nextsynctoken TEXT NULL;");
+$adb->pquery("ALTER TABLE vtiger_pandadocdocument_reference ADD crmid INT(19) NULL");
+$query = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid =?",
+    array( getTabid('Contacts'), getTabid('PandaDoc')));
+if(!$adb->num_rows($query)){
+    $moduleInstance = Vtiger_Module::getInstance("Contacts");
+    $moduleInstance->setRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc',Array(), 'get_pandadoc_documents');
+}
