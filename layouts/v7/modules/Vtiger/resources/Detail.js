@@ -975,10 +975,16 @@ Vtiger.Class("Vtiger_Detail_Js",{
 		params['parentId'] = parentId;
 		params['relatedLoad'] = true;
 
-		detailContentsHolder.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"]',function(e){
+		detailContentsHolder.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"], :not(.noemailpreview)',function(e){
 			e.stopPropagation();
 			var element = jQuery(e.currentTarget);
+			
+			var target = jQuery(e.target).parent().parent();
+			
 			var recordId = element.data('id');
+	
+			if (!target.hasClass('dropdown') && recordId){ 
+				
 			if(element.data('emailflag') == 'SAVED') {
 				var mode = 'emailEdit';
 			} else {
@@ -1012,6 +1018,12 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					});
 				}
 			});
+				
+			}else if(target.hasClass('dropdown')){
+				
+				target.addClass('open');
+				
+			}
 		})
 
 		detailContentsHolder.on('click','[name="emailsEditView"]',function(e){
