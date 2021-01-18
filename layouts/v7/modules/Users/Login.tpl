@@ -332,7 +332,7 @@
 													</div>
 													{if $BLOCK_DATA.image}
 														<div class="col-lg-12" style = "margin-bottom:10px;">
-															<img src="{$BLOCK_DATA.image}" style="width:60%;height: 250px;margin-top: 10px;"/>
+															<img src="{$BLOCK_DATA.image}" style="width:60%;height: 100%;margin-top: 10px;object-fit:contain;"/>
 														</div>
 													{/if}
 													
