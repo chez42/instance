@@ -969,43 +969,54 @@ Vtiger.Class("Vtiger_Detail_Js",{
 		params['parentId'] = parentId;
 		params['relatedLoad'] = true;
 
-		detailContentsHolder.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"]',function(e){
+		detailContentsHolder.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"], :not(.noemailpreview)',function(e){
 			e.stopPropagation();
 			var element = jQuery(e.currentTarget);
+			var target = jQuery(e.target).parent().parent();
+			
 			var recordId = element.data('id');
-			if(element.data('emailflag') == 'SAVED') {
-				var mode = 'emailEdit';
-			} else {
-				mode = 'emailPreview';
-				params['parentModule'] = app.getModuleName();
-			}
-			params['mode'] = mode;
-			params['record'] = recordId;
-			app.helper.showProgress();
-			app.request.post({data:params}).then(function(err,data){
-				app.helper.hideProgress();
-				if(err === null){
-					var dataObj = jQuery(data);
-					var descriptionContent = dataObj.find('#iframeDescription').val();
-					var overlayParams = {/*'backdrop' : 'static',*/ 'keyboard' : false};
-					app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
-						if(mode === 'emailEdit'){
-							var editInstance = new Emails_MassEdit_Js();
-							editInstance.registerEvents();
-						}else {
-							app.event.trigger('post.EmailPreview.load',null);
-						}
-						jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
-						jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height()-70);
-						jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
-							e.preventDefault();
-							var url = jQuery(e.currentTarget).attr('href');
-							window.open(url, '_blank');
-						});
-						//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
-					});
+			if (!target.hasClass('dropdown') && recordId){ 
+				
+				if(element.data('emailflag') == 'SAVED') {
+					var mode = 'emailEdit';
+				} else {
+					mode = 'emailPreview';
+					params['parentModule'] = app.getModuleName();
 				}
-			});
+				params['mode'] = mode;
+				params['record'] = recordId;
+				app.helper.showProgress();
+				app.request.post({data:params}).then(function(err,data){
+					app.helper.hideProgress();
+					if(err === null){
+						var dataObj = jQuery(data);
+						var descriptionContent = dataObj.find('#iframeDescription').val();
+						var overlayParams = {/*'backdrop' : 'static',*/ 'keyboard' : false};
+						app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
+							if(mode === 'emailEdit'){
+								var editInstance = new Emails_MassEdit_Js();
+								editInstance.registerEvents();
+							}else {
+								app.event.trigger('post.EmailPreview.load',null);
+							}
+							jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
+							jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height()-70);
+							jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
+								e.preventDefault();
+								var url = jQuery(e.currentTarget).attr('href');
+								window.open(url, '_blank');
+							});
+							//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
+						});
+					}
+				});
+				
+			}else if(target.hasClass('dropdown')){
+				
+				target.addClass('open');
+				
+			}
+			
 		})
 
 		detailContentsHolder.on('click','[name="emailsEditView"]',function(e){
