@@ -35,7 +35,7 @@ class ReconcileTransactions{
         $type_questions = generateQuestionMarks($this->types);
         $query = "CREATE TEMPORARY TABLE ReleventTransactions
                   WITH DATA AS (
-                  SELECT t.account_number, t.transactionsid, CASE WHEN t.security_symbol = '' OR transaction_type IN ('Income', 'Expense') THEN '{$this->cashname}' ELSE t.security_symbol END AS security_symbol, 
+                  SELECT t.account_number, t.transactionsid, CASE WHEN t.security_symbol = '' AND transaction_type IN ('Flow', 'Income', 'Expense') THEN '{$this->cashname}' ELSE t.security_symbol END AS security_symbol, 
                          CONCAT(t.operation, t.quantity) AS quantity, t.operation, t.trade_date, 
                          CONCAT(t.operation, cf.net_amount) AS net_amount, transaction_type, transaction_activity
                   FROM vtiger_transactions t 
@@ -66,7 +66,7 @@ class ReconcileTransactions{
         return null;
     }
 
-    public function GetSymbolQuantitiesAsOfDate(array $symbols, $date){
+    public function GetSymbolQuantitiesSummedAsOfDate(array $symbols, $date){
         global $adb;
         $questions = generateQuestionMarks($symbols);
         $data = array();
@@ -85,5 +85,9 @@ class ReconcileTransactions{
             return $data;
         }
         return null;
+    }
+
+    public function CompareQuantiesToPositions(array $positions){
+
     }
 }

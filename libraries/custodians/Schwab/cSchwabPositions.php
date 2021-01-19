@@ -481,61 +481,6 @@ class cSchwabPositions extends cCustodian {
                                            $v['positioninformationid']));
             }
         }
-
-/*
-SELECT symbol, pos.account_number, security_description_line1 AS description, 1 AS crmid
-FROM custodian_omniscient.custodian_positions_schwab pos
-JOIN custodian_omniscient.custodian_portfolios_schwab por ON por.account_number = pos.account_number
-JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = por.rep_code
-WHERE pos.account_number IN ('13163366')
-        AND (pos.account_number, symbol) NOT IN (SELECT account_number, security_symbol
-			       FROM vtiger_positioninformation
-			       WHERE security_symbol != ''
-        AND account_number IN ('13163366'))
-AND pos.date = lpd.last_position_date
-        AND pos.symbol != ''
-GROUP BY symbol, pos.account_number;*/
-
-        $query = "SELECT f.account_number, account_type, f.cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, f.description, as_of_date, m.securitytype, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, f.maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, f.security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date,
-                         m.security_price * mcf.security_price_adjustment AS last_price, (f.unrealized_gain_loss_amount / f.cost * 100) AS gain_loss_percent, mcf.aclass, p.positioninformationid
-                  FROM custodian_omniscient.custodian_positions_fidelity f
-                  JOIN vtiger_positioninformation p ON p.account_number = f.account_number AND p.security_symbol = f.symbol
-                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
-                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
-                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
-                  WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions})) 
-                  AND f.account_number IN ({$questions})
-                  GROUP BY f.account_number, f.symbol";
-        $result = $adb->pquery($query, array($account_number, $account_number));
-
-        if($adb->num_rows($result) > 0){
-            self::ResetAccountPositions($account_number);
-            while($v = $adb->fetchByAssoc($result)){
-                $params = array();
-                $params[] = $v['trade_date_quantity'];
-                $params[] = $v['closing_market_value'];
-                $params[] = $v['security_name'];
-                $params[] = $v['last_price'];
-                $params[] = $v['as_of_date'];
-                $params[] = $v['securitytype'];
-                $params[] = $v['aclass'];
-                $params[] = $v['Fidelity'];
-                $params[] = $v['unrealized_gain_loss_amount'];
-                $params[] = $v['cost'];
-                $params[] = $v['gain_loss_percent'];
-                $params[] = $v['filename'];
-                $params[] = $v['positioninformationid'];
-
-                $query = "UPDATE vtiger_positioninformation p 
-                          JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
-                          SET p.quantity = ?, p.current_value = ?, p.description = ?, 
-                          p.last_price = ?, pcf.last_update = ?, 
-                          pcf.security_type = ?, pcf.base_asset_class = ?, pcf.custodian = ?, 
-                          p.unrealized_gain_loss = ?, p.cost_basis = ?, p.gain_loss_percent = ?, pcf.custodian_source = ?
-                          WHERE p.positioninformationid = ?";
-                $adb->pquery($query, $params);
-            }
-        }
     }
 
     static public function CreateNewPositionsForAccounts(array $account_number)
