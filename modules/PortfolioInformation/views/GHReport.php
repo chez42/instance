@@ -240,9 +240,9 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
     public function GeneratePDF($content, $logo = false, $orientation = 'LETTER', $calling_record){
         #       $pdf = new cNewPDFGenerator('c',$orientation,'8','Arial');
         $pdf = new cMpdf7(['orientation' => 'P', 'margin-top' => '200mm', 'margin-header' => '0', 'border' => '0', ]);
-        if($logo)
-            $pdf->logo = $logo;
-
+        //if($logo)
+        //   $pdf->logo = $logo;
+        
         $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
         $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');

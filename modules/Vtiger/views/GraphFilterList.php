@@ -168,8 +168,16 @@ class Vtiger_GraphFilterList_View extends Vtiger_Index_View{
                 $searchParmams[$fieldName] = $fieldSearchInfo;
 			}
 		}
-
-
+        
+        if($request->get('contactage') && $moduleName == 'Transactions'){
+            $listViewModel->set('contactage', $request->get('contactage'));
+            $listViewModel->set('start', $request->get('start'));
+            $listViewModel->set('end', $request->get('end'));
+            
+            $viewer->assign('CONTACTAGE', $request->get('contactage'));
+            $viewer->assign('STARTDATE', $request->get('start'));
+            $viewer->assign('ENDDATE', $request->get('end'));
+        }
 		if(!$this->listViewHeaders){
 			$this->listViewHeaders = $listViewModel->getListViewHeaders();
 		}
