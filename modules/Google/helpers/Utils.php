@@ -19,7 +19,7 @@ class Google_Utils_Helper {
      * @param <sting> $sourceModule module to which sync time should be stored
      * @param <date> $modifiedTime Max modified time of record that are sync 
      */
-    public static function updateSyncTime($sourceModule, $modifiedTime = false, $user = false) {
+    public static function updateSyncTime($sourceModule, $modifiedTime = false, $user = false, $nextSyncToken=false) {
         $db = PearDatabase::getInstance();
         self::intialiseUpdateSchema();
         if(!$user)
@@ -29,10 +29,10 @@ class Google_Utils_Helper {
         }
         if (!self::getSyncTime($sourceModule, $user)) {
             if ($modifiedTime) {    
-                $db->pquery('INSERT INTO vtiger_google_sync (googlemodule,user,synctime,lastsynctime) VALUES (?,?,?,?)', array($sourceModule, $user->id, $modifiedTime, date('Y-m-d H:i:s')));
+                $db->pquery('INSERT INTO vtiger_google_sync (googlemodule,user,synctime,lastsynctime,nextsynctoken) VALUES (?,?,?,?,?)', array($sourceModule, $user->id, $modifiedTime, date('Y-m-d H:i:s'), $nextSyncToken));
             }
         } else {
-            $db->pquery('UPDATE vtiger_google_sync SET synctime = ?,lastsynctime = ? WHERE user=? AND googlemodule=?', array($modifiedTime, date('Y-m-d H:i:s'), $user->id, $sourceModule));
+            $db->pquery('UPDATE vtiger_google_sync SET synctime = ?,lastsynctime = ?, nextsynctoken = ? WHERE user=? AND googlemodule=?', array($modifiedTime, date('Y-m-d H:i:s'), $nextSyncToken, $user->id, $sourceModule));
         }
     }
 
@@ -363,5 +363,19 @@ class Google_Utils_Helper {
         }
         
         return false;
+    }
+    
+    public static function getNextSyncToken($sourceModule, $user = false) {
+        $db = PearDatabase::getInstance();
+        self::intialiseUpdateSchema();
+        if(!$user)
+            $user = Users_Record_Model::getCurrentUserModel();
+            $result = $db->pquery('SELECT nextsynctoken FROM vtiger_google_sync WHERE user=? AND googlemodule=?', array($user->id, $sourceModule));
+            if ($result && $db->num_rows($result) > 0) {
+                $row = $db->fetch_array($result);
+                return $row['nextsynctoken'];
+            } else {
+                return false;
+            }
     }
 }
