@@ -94,17 +94,17 @@
                             <td class="{$WIDTHTYPE}" style="padding-left: 10px!important;">
                                 <div class="pull-left">
                                     <span class="actionImages">
-                                        <a name="emailsDetailView" data-id='{$RELATED_RECORD->getId()}'><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="fa fa-bars"></i></a>&nbsp;&nbsp;
+                                        <a name="emailsDetailView" data-id='{$RELATED_RECORD->getId()}'><i title="{vtranslate('LBL_SHOW_COMPLETE_DETAILS', $MODULE)}" class="fa fa-bars"></i></a>&nbsp;
                                         {if $RELATED_RECORD->getEmailFlag() eq 'SAVED'}
-                                        	<a name="emailsEditView"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="fa fa-pencil"></i></a>	&nbsp;&nbsp;
+                                        	<a name="emailsEditView"><i title="{vtranslate('LBL_EDIT', $MODULE)}" class="fa fa-pencil"></i></a>	&nbsp;
                                         {/if}
                                         {if $IS_DELETABLE}
-                                        	<a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="vicon-linkopen"></i></a>&nbsp;&nbsp;
+                                        	<a class="relationDelete"><i title="{vtranslate('LBL_UNLINK', $MODULE)}" class="vicon-linkopen"></i></a>&nbsp;
                                         {/if}
                                        	{if count($RELATED_RECORD->getAttachmentDetails()) gt 0}
                                        		<span class="dropdown" onclick="Vtiger_RelatedList_Js.mouseLeaveEvent()" style="cursor:pointer;">
 												<span href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">
-													<i class="fa fa-ellipsis-v moreaction"></i>
+													<i class="fa fa-paperclip moreaction"></i>
 												</span>
 												<ul class="dropdown-menu" style="min-width: 250px !important;">
 													{assign var=imageFileTypes value=array('image/gif','image/png','image/jpeg')}
