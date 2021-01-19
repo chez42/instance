@@ -197,16 +197,18 @@ Vtiger.Class('Vtiger_ListSidebar_Js',{},{
                 contentEle.find('.editFilter').css("display", "none");
                 contentEle.find('.deleteFilter').css("display","none");
             }
+            
             if (!jQuery(ele).data('editable')) {
-                contentEle.find('.editFilter').remove();
+                contentEle.find('.editFilter').css("display", "none");
             } else {
-                contentEle.find('.editFilter').removeClass('disabled');
+                contentEle.find('.editFilter').css("display", "block");
             }
             if (!jQuery(ele).data('deletable')) {
-                contentEle.find('.deleteFilter').remove();
+                contentEle.find('.deleteFilter').css("display","none");
             } else {
-                contentEle.find('.deleteFilter').removeClass('disabled');
+                contentEle.find('.deleteFilter').css("display","block");
             } 
+            
             var options = {
                 html: true,
                 placement: 'left',

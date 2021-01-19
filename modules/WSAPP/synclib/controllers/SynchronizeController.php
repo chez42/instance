@@ -78,7 +78,7 @@ abstract class WSAPP_SynchronizeController {
 		$syncStateModel = $this->getSyncStateModel($this->sourceConnector);
 		$sourceRecords = $this->sourceConnector->pull($syncStateModel, $this->user);
 		foreach($sourceRecords as $record){
-			$record->setSyncIdentificationKey(uniqid());
+			$record->setSyncIdentificationKey(uniqid(rand(), true));
 		}
 		$transformedRecords = $this->targetConnector->transformToTargetRecord($sourceRecords, $this->user);
 		$targetRecords = $this->targetConnector->push($transformedRecords, $this->user);
@@ -113,7 +113,7 @@ abstract class WSAPP_SynchronizeController {
 		$syncStateModel = $this->getSyncStateModel($this->targetConnector);
 		$targetRecords = $this->targetConnector->pull($syncStateModel, $this->user);
 		foreach($targetRecords as $record){
-			$record->setSyncIdentificationKey(uniqid());
+		    $record->setSyncIdentificationKey(uniqid(rand(), true));
 		}
 		
 		$transformedRecords = $this->targetConnector->transformToSourceRecord($targetRecords, $this->user);
