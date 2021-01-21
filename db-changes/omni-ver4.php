@@ -1060,3 +1060,14 @@ if(!$adb->num_rows($query)){
     $moduleInstance = Vtiger_Module::getInstance("Contacts");
     $moduleInstance->setRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc',Array(), 'get_pandadoc_documents');
 }
+
+
+$adb->pquery("UPDATE vtiger_field SET tablename=? WHERE tabid=?
+AND columnname IN ('description', 'smownerid', 'createdtime', 'modifiedtime', 'source', 'starred')",
+array('vtiger_notifications', getTabid('Notifications')));
+
+$adb->pquery("ALTER TABLE vtiger_notifications
+ADD starred VARCHAR(100) NULL, ADD modifiedtime DATETIME NOT NULL,
+ADD createdtime DATETIME NOT NULL, ADD smownerid INT(19) NOT NULL,
+ADD deleted INT(1) NOT NULL DEFAULT '0', ADD description TEXT NULL,
+ADD source VARCHAR(100) NULL");
