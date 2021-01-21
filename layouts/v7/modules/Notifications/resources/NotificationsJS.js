@@ -6,7 +6,29 @@
  * All Rights Reserved.
  * ****************************************************************************** */
 
-Vtiger.Class("NotificationsJS", {}, {
+Vtiger.Class("NotificationsJS", {
+	
+	deleteNotification : function(recordId, ele){
+		var params = {
+			module : app.getModuleName(),
+			record : recordId,
+			action : 'delete'
+		};
+		app.request.post({data: params}).then(
+			function(err, response) {
+                if (!err) {
+                	if(response.success){
+                		$(ele).closest('.maindiv').remove();
+                		app.helper.showSuccessNotification({message:app.vtranslate('Notification deleted successfully.')});
+                	}else{
+                		app.helper.showErrorNotification({title: 'Error', message: 'Unable to delete the notification plz try again later.'});
+                	}
+                }
+			}
+		);
+	}
+	
+}, {
 	
     addHeaderIcon: function () {
         var thisInstance = this;
@@ -379,7 +401,7 @@ Vtiger.Class("NotificationsJS", {}, {
 		
 		var thisInstance = this;
 		
-		$('#notificationsBody [data-module="Events"]').each(function(){
+		$(document).find('#notificationsBody [data-module="Events"]').each(function(){
 			
 			var element = $(this);
 			element.popover('destroy');
@@ -485,19 +507,59 @@ Vtiger.Class("NotificationsJS", {}, {
 			}
 			)
 		return aDeferred.promise();
+	},
+	
+	registerEventForLoadMore : function(){
+		var thisInstance = this;
+		jQuery(document).on('click', '.loadMoreNotifications', function(){
+			var listViewContainer = jQuery('#notificationListContainer');
+			
+			var nextPageExist = listViewContainer.find('#nextPageExist').val();
+			var pageNumber = listViewContainer.find('#pageNumber').val();
+			var viewid = listViewContainer.find('#cvid').val();
+			var nextPageNumber = parseInt(parseFloat(pageNumber)) + 1;
+			
+			if ( nextPageExist) {
+				var params = {
+					'module' : app.getModuleName(),
+					'action' : 'ActionAjax',
+					'mode'	 : 'loadMoreNotifications',
+					'page'	 : nextPageNumber,
+					'viewid' : viewid,
+				};
+				params.list_headers = listViewContainer.find('[name="list_headers"]').val();
+				app.helper.showProgress();
+				app.request.post({data: params}).then(
+					function(err, response) {
+		                if (!err) {
+		                	app.helper.hideProgress();
+		                	if(response.success){
+		                		listViewContainer.find('.mainList').append(response.data);
+		                		if(response.nextpage){
+		                			listViewContainer.find('#pageNumber').val(nextPageNumber);
+		                		}else{
+		                			listViewContainer.find('.loadMoreNotifications').prop('disabled', true);
+		                		} 
+		                		thisInstance.registerEventForMouse();
+		                	}
+		                		
+		                }
+					}
+				);
+			}
+		})
 	}
     
 });
 
 jQuery(document).ready(function() {
-	
+	var instance = new NotificationsJS();
     setTimeout(function () {
     	//setInterval(function(){
-	    	var instance = new NotificationsJS();
 	        instance.registerEvents();
     	//}, 5000);
     }, 1000);
-    
+    instance.registerEventForLoadMore();
 });
 
 function clickToOk(btnOK){
