@@ -118,7 +118,7 @@ function createNotificationForPortalComments($entityData){
         $notifications->column_fields['notification_type'] = $type;
         
         $notifications->column_fields['description'] = $description;
-        if($entityData->get('customer'))
+        if(!$entityData->get('customer'))
             $notifications->column_fields['source'] = 'PORTAL';
         $notifications->column_fields['related_record'] = $entityId;
         $notifications->save('Notifications');
@@ -179,7 +179,7 @@ function createNotificationForPortalDocuments($entityData){
         $notifications->column_fields['title'] = $title;
         $notifications->column_fields['notification_type'] = 'Upload New Document';
         
-        if($entityData->get('from_portal'))
+        if(!$entityData->get('from_portal'))
             $notifications->column_fields['source'] = 'PORTAL';
         $notifications->column_fields['related_record'] = $entityId;
         $notifications->save('Notifications');
