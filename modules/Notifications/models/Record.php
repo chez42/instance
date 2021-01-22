@@ -19,12 +19,11 @@ class Notifications_Record_Model extends Vtiger_Record_Model
         $instances = array();
         $query = "SELECT * FROM vtiger_notifications AS notifications";
         $query .= Users_Privileges_Model::getNonAdminAccessControlQuery('Notifications');
-        $query .= "WHERE (notifications.notification_status <> ? || notifications.notification_status IS NULL) 
-                    AND (notifications.smownerid = ? OR notifications.smownerid IN 
+        $query .= "WHERE (notifications.smownerid = ? OR notifications.smownerid IN 
                   (SELECT groupid FROM vtiger_users2group AS users2group WHERE users2group.userid = ?))
-                   AND notifications.source = 'PORTAL'
-                   GROUP BY notifications.notificationsid ORDER BY  notifications.notificationsid " . $sortBy . " ;";
-        $rs = $db->pquery($query, array(self::NOTIFICATION_STATUS_YES, $userId, $userId));
+                   AND (notifications.source != 'PORTAL' OR notifications.source IS NULL) 
+                   GROUP BY notifications.notificationsid ORDER BY  notifications.notificationsid " . $sortBy . " LIMIT 20;";
+        $rs = $db->pquery($query, array($userId, $userId));
         
         if ($db->num_rows($rs)) {
             while ($data = $db->fetch_array($rs)) {
@@ -43,8 +42,7 @@ class Notifications_Record_Model extends Vtiger_Record_Model
         $query .= "WHERE (notifications.notification_status <> ? || notifications.notification_status IS NULL) 
                     AND (notifications.smownerid = ? OR notifications.smownerid IN 
                  (SELECT groupid FROM vtiger_users2group AS users2group WHERE users2group.userid = ?))
-                 AND notifications.source = 'PORTAL' 
-                 GROUP BY notifications.crmid;";
+                 AND (notifications.source != 'PORTAL' OR notifications.source IS NULL);";
         $rs = $db->pquery($query, array($alias_total, self::NOTIFICATION_STATUS_YES, $userId, $userId));
         $total = 0;
         if ($db->num_rows($rs) && ($data = $db->fetch_array($rs))) {
@@ -56,9 +54,11 @@ class Notifications_Record_Model extends Vtiger_Record_Model
      
     public static function updateNotificationStatus($id, $status)
     {
+        global $current_user;
         $db = PearDatabase::getInstance();
-        $sql = "UPDATE vtiger_notifications SET notification_status = ? WHERE notificationsid = ?";
-        $params = array($status, $id);
+        $sql = "UPDATE vtiger_notifications SET notification_status = ? WHERE smownerid = ? 
+        AND (source != 'PORTAL' OR source IS NULL)";
+        $params = array($status, $current_user->id);
         $result = $db->pquery($sql, $params);
         return $result ? true : false;
     }

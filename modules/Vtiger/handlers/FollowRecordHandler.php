@@ -98,7 +98,7 @@ class FollowRecordHandler extends VTEventHandler {
                                     $notifications->column_fields['title'] = $subject;
                                     $notifications->column_fields['notification_type'] = 'Follow Record';
                                     
-                                    $notifications->column_fields['source'] = 'PORTAL';
+                                    //$notifications->column_fields['source'] = 'PORTAL';
                                     $notifications->save('Notifications');
 
 									

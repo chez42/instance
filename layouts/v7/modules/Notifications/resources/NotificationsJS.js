@@ -140,6 +140,8 @@ Vtiger.Class("NotificationsJS", {
                         
 						jQuery('.discardall').hide();
                         
+						jQuery('#notificationFooter').hide();
+						
 						return;
 						
                     } else {
@@ -200,7 +202,7 @@ Vtiger.Class("NotificationsJS", {
 	                        	'<div class="pull-left" style="margin: 7px 4px 0px 2px !important;">'+
 	                        		moduleIcon+'</div><div><span class="notification_full_name" title="'+item['title']+'"> ' +item['title']+ '&nbsp;</span>'+
 	                        	' <span class="notification_description" title="'+item['description']+'">' +item['description'].substring(0, 25)+ '...&nbsp;</span>'+			
-	                            '              <span class="notification_createdtime pull-right" title="' + item['createdtime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
+	                            '              <span class="notification_createdtime pull-right" title="' + item['createdDateTime'] + '">' + item['createdtime'] + '&nbsp;</span>' +
 	                            '           </div> </div>' +
 	                            '       </div>' +
 	                            '   </a>' +
@@ -548,6 +550,51 @@ Vtiger.Class("NotificationsJS", {
 				);
 			}
 		})
+	},
+	
+	registerEventForShowMore : function(){
+		
+		jQuery(document).on('click', '.toggleNotification', function(){
+			
+			var toggleElement = jQuery('<div><a class="pull-right toggleNotification" style="color: blue;"><small></small></a><div>');
+			var ele = $(this).closest('.notification_description');
+			
+			var fullComment = vtUtils.linkifyStr(ele.data('fullcomment'));
+			
+			if ($(this).hasClass('showMore')) {
+				toggleElement.find('small').text(ele.data('less'));
+				ele.html(fullComment+toggleElement.clone().html());
+			} else {
+				var maxLength = 150;
+				toggleElement.find('small').text(ele.data('more'));
+				toggleElement.find('.toggleComment').addClass('showMore');
+				ele.html(vtUtils.htmlSubstring(fullComment, maxLength)+"..."+toggleElement.clone().html());
+			}
+			
+		});
+		
+	},
+	
+	registerEventForOpenNotifications : function(){
+		var instance = this;
+		jQuery(document).on('click', '.notification_bell', function(){
+			var params = {
+					'module': 'Notifications',
+					'action': 'ActionAjax',
+					'mode': 'markNotificationRead',
+				};
+				
+				app.request.post({data: params}).then(
+					function(err, response) {
+						if (!err) {
+							 jQuery('.notification_bell').attr('data-before',0);
+						} else {
+							app.helper.showErrorNotification({title: 'Error', message: err.message});
+						}
+						
+					}
+				);
+		});
 	}
     
 });
@@ -560,6 +607,8 @@ jQuery(document).ready(function() {
     	//}, 5000);
     }, 1000);
     instance.registerEventForLoadMore();
+    instance.registerEventForShowMore();
+    instance.registerEventForOpenNotifications();
 });
 
 function clickToOk(btnOK){
@@ -570,8 +619,7 @@ function clickToOk(btnOK){
 	
 	var params = {
 		'module': 'Notifications',
-		'action': 'ActionAjax',
-		'mode': 'markNotificationRead',
+		'action': 'delete',
 		'record': id
 	};
 	var instance = new NotificationsJS();
@@ -579,7 +627,7 @@ function clickToOk(btnOK){
 	app.request.post({data: params}).then(
 		function(err, response) {
 			if (!err) {
-				instance.updateTotalCounter(notificationLink);
+				//instance.updateTotalCounter(notificationLink);
                 app.helper.showSuccessNotification({message:'Notification has been acknowledged'},{offset:{y: 450}});
 			} else {
 				app.helper.showErrorNotification({title: 'Error', message: err.message});
