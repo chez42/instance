@@ -58,11 +58,10 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
             }
             $relatedRecordModel = Vtiger_Record_Model::getInstanceById($relatedId);
             
-            $createdDateTime = $calendarDatetimeUIType->getDisplayValue($n->get("createdtime"));
-            list($createdDate, $createdTime) = explode(" ", $createdDateTime);
-            if ($currentUser->get("hour_format") == "12") {
-                $createdTime = Vtiger_Time_UIType::getTimeValueInAMorPM($createdTime);
-            }
+            $createdDateTime = Vtiger_Util_Helper::formatDateTimeIntoDayString($n->get("createdtime"));
+            
+            $createdDate = Vtiger_Util_Helper::formatDateDiffInStrings($n->get("createdtime"));
+            
             $relatedModule = '';
             if(getSalesEntityType($n->get('related_record')) == 'Documents'){
                 $docRecord = Vtiger_Record_Model::getInstanceById($n->get('related_record'));
@@ -102,13 +101,13 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
             $items[] = array("id" => $n->get("notificationsid"), "notificationno" => $n->get("notificationno"), 
                 "description" => $n->get('notification_type') != 'Follow Record' ? html_entity_decode($n->get("description")) : 'N/A', 
                 "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png", 
-                "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl, 
+                "createdtime" => $createdDate , "createdDateTime" => $createdDateTime, "full_name" => $fullName, "link" => $detailUrl, 
                 "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$n->get('related_record'), 
                 "relatedToModule" => $relatedToModule, "accepted" => $accepted, "title"=>$n->get('title'), "type"=>$n->get('notification_type'));
         }
         
         $data["items"] = $items;
-        $data["count"] = count($items);
+        $data["count"] = Notifications_Record_Model::countNotificationsByUser($currentUser->getId());
         $response->setResult($data);
         $response->emit();
     }
@@ -116,9 +115,10 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
     public function markNotificationRead(Vtiger_Request $request)
     {
         $response = new Vtiger_Response();
-        $record = $request->get("record");
+        
         $module = $request->getModule();
-        $updated = Notifications_Record_Model::updateNotificationStatus($record, Notifications_Record_Model::NOTIFICATION_STATUS_YES);
+        
+        $updated = Notifications_Record_Model::updateNotificationStatus(Notifications_Record_Model::NOTIFICATION_STATUS_YES);
         if (!$updated) {
             $code = 200;
             $response->setError($code, vtranslate("Unable to change notification status", $module));
@@ -307,7 +307,14 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
                             '.$moduleIcon.'
                         </div>
                         <span class="notification_full_name">'.$title.'</span>
-                        <span class="notification_description">'.$LIST_DATA['description'].' </span>
+                        <span class="notification_description" data-fullComment="'.htmlspecialchars($LIST_DATA['description']).'" data-shortComment="'.htmlspecialchars(mb_substr($LIST_DATA['description'], 0, 150)).'..." data-more="'.vtranslate('LBL_SHOW_MORE',$MODULE).'" data-less="'.vtranslate('LBL_SHOW',$MODULE).' '.vtranslate('LBL_LESS',$MODULE).'">';
+                        if( strlen($LIST_DATA['description']) > 150){
+                            $html .= mb_substr(trim($LIST_DATA['description']),0,150).'...
+								<a class="pull-right toggleNotification showMore" style="color: blue;"><small>'.vtranslate('LBL_SHOW_MORE',$MODULE).'</small></a>';
+                        }else{
+                            $html .= $LIST_DATA['description'];
+						}
+						$html .= '</span>
                         <br><br><span>'.$reply.'</span>
                     </div>
                     <div class="col-sm-2 col-xs-2" style="font-size:small !important;">
