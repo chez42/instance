@@ -188,7 +188,7 @@ class Notifications_ListView_Model extends Vtiger_ListView_Model {
 	        $items = array("id" => $rawData["notificationsid"], "notificationno" => $rawData["notificationno"],
 	            "description" => $rawData['notification_type'] != 'Follow Record' ? html_entity_decode($rawData["description"]) : 'N/A',
 	            "thumbnail" => "layouts/vlayout/skins/images/summary_Leads.png",
-	            "createdtime" => $createdDate . " " . $createdTime, "full_name" => $fullName, "link" => $detailUrl,
+	            "createdtime" => $createdDate, "full_name" => $fullName, "link" => $detailUrl,
 	            "rel_id" => $relatedId, "relatedModule" => $relatedModule, "relatedRecord"=>$rawData['related_record'],
 	            "relatedToModule" => $relatedToModule, "accepted" => $accepted, "title"=>$rawData['title'], "type"=>$rawData['notification_type']);
 	        
@@ -205,6 +205,7 @@ class Notifications_ListView_Model extends Vtiger_ListView_Model {
 	    $query = str_replace("AND vtiger_notifications.notificationsid > 0", " ", $query);
 	    $query = str_replace("vtiger_crmentity.deleted", "vtiger_notifications.deleted", $query);
 	    $query .= ' AND vtiger_notifications.smownerid='.$current_user->id;
+	    $query .= ' AND (vtiger_notifications.source != "PORTAL" OR vtiger_notifications.source IS NULL) ';
 	    
 	    return $query;
 	}
