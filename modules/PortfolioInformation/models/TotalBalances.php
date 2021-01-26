@@ -110,6 +110,10 @@ class PortfolioInformation_TotalBalances_Model extends Vtiger_Module{
         $ids = GetAllActiveUserIDs();
         $date = date('Y-m-d', strtotime("-{$days} days"));
         foreach($ids AS $k => $v){
+            //First delete anything belonging to the user for the passed in date, it is about to be recalculated
+            $query = "DELETE FROM daily_user_total_balances WHERE user_id = ? AND as_of_date >= ?";
+            $adb->pquery($query, array($v, $date));
+
             $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
             $questions = generateQuestionMarks($account_numbers);
             $query = "SELECT {$v} AS user_id, SUM(account_value) AS total_value, COUNT(account_number) AS num_accounts, as_of_date, NOW() AS calculated_date

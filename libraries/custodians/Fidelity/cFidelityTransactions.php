@@ -390,4 +390,117 @@ class cFidelityTransactions extends cCustodian
                           WHERE account_number = ? AND p.security_symbol = ?";
                 $adb->pquery($query, $params, true);*/
     }
+
+    static public function CreateNewTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
+        global $adb;
+
+        $q1 = array();
+        $q1[] = $account_number;
+        if($sdate && $edate){
+            $and = " AND trade_date BETWEEN ? AND ? ";
+            $q1[] = $sdate;
+            $q1[] = $edate;
+        }
+        $account_questions = generateQuestionMarks($account_number);
+        $query = "SELECT cloud_transaction_id 
+                  FROM vtiger_transactions 
+                  WHERE origination = 'Fidelity'
+                  AND account_number IN ({$account_questions})
+                  {$and} ";
+
+        $result = $adb->pquery($query, $q1);
+        $params = array();
+        $cloud_ids = array();
+        $transaction_ids = "";
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $cloud_ids[] = $v['cloud_transaction_id'];
+            }
+            $cloud_id_questions = generateQuestionMarks($cloud_ids);
+            $transaction_ids = " t.transaction_id NOT IN ({$cloud_id_questions}) ";
+            $params[] = $cloud_ids;
+        }
+
+        $params[] = $account_number;
+
+        if($sdate && $edate){
+            $params[] = $sdate;
+            $params[] = $edate;
+        }
+
+        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, m.omniscient_category, m.omniscient_activity, t.transaction_id, t.account_number, t.account_source, 
+                         t.account_type_code, t.account_type_description, t.amount, t.broker_code, t.buy_sell_indicator, t.certificate_fee, 
+                         t.comment, t.comment2, t.commission, t.core_fund_indicator, t.cusip, t.custom_short_name, t.div_payable_date, 
+                         t.div_record_date, t.dtc_code, t.entry_date, t.exchange, t.exchange_code, t.fbsi_short_name, t.fee_amount, t.floor_symbol, 
+                         t.fprs_txn_code, t.fprs_tsn_code_description, t.fund_load_override, t.fund_load_percent, t.fund_number, t.interest_amount, 
+                         t.key_code, t.money_source_id, t.money_source, t.net_amount, t.order_action, t.plan_name, t.plan_number, t.postage_fee, 
+                         t.price, t.primary_account_owner, t.principal_amount, t.product_name, t.product_type, t.quantity, t.reference_number, 
+                         t.reg_rep1, t.reg_rep2, t.registration, t.sec_fee, t.security_description, t.security_group, t.security_id, t.service_fee, 
+                         t.settlement_date, t.short_term_redemption_fee, t.source_destination, t.state_tax_amount, t.symbol, t.trade_date, t.transaction_code, 
+                         t.transaction_code_description, t.transaction_key_mnemonic, t.transaction_key_code_description, t.transaction_security_type, 
+                         t.transaction_security_type_code, t.trust_income, t.trust_principal, t.file_date, t.filename, t.insert_date,
+                         pr.price
+                  FROM custodian_omniscient.custodian_transactions_fidelity t 
+                  JOIN custodian_omniscient.fidelitymapping m ON m.id = t.transaction_key_mnemonic 
+                  LEFT JOIN custodian_omniscient.custodian_positions_fidelity pos ON t.symbol = pos.symbol AND t.trade_date = pos.as_of_date AND t.account_number = pos.account_number
+                  LEFT JOIN custodian_omniscient.custodian_prices_fidelity pr ON pr.symbol = t.symbol AND pr.price_id = (SELECT price_id FROM custodian_omniscient.custodian_prices_fidelity WHERE symbol = t.symbol AND price_date <= t.trade_date ORDER BY price_date DESC LIMIT 1)
+                  JOIN live_omniscient.vtiger_modsecurities ms ON ms.security_symbol = t.symbol
+                  LEFT JOIN live_omniscient.vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
+                  WHERE {$transaction_ids} 
+                  AND t.account_number IN ({$account_questions})
+                  {$and}
+                  GROUP BY transaction_id";
+        $result = $adb->pquery($query, $params, true);
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
+
+                /*SPECIAL RULES FOR FIDELITY*/
+                $v['calculated_amount'] = $v['quantity'] * $v['pricing_factor'] * $v['close_price'];
+                if($v['amount'] == 0) {
+                    $v['amount'] = $v['calculated_amount'];
+                    $v['amount_calculated'] = 1;
+                }
+                $v['operation'] = '';
+                if($v['amount'] < 0){
+                    $v['operation'] = '-';
+                    $v['amount'] = ABS($v['amount']);
+                }
+
+                /*SPECIAL RULES END*/
+
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) 
+                          VALUES (?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+                $adb->pquery($query, array($v['crmid'], 1, $v['ownerid'], 1, 'Transactions', $v['comment']), true);
+
+
+                $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['symbol'], $v['price'], $v['quantity'], $v['trade_date'],
+                                           'Fidelity', $v['transaction_id']), true);
+
+                $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, 
+                                 net_amount, principal, broker_fee, other_fee, description, 
+                                 comment, cusip, filename, commission, transaction_key_code_description, 
+                                 service_charge_misc_fee, option_symbol, account_type_description, comment2, dividend_payable_date,
+                                 dividend_record_date, fund_load_override, fund_load_percent, interest_amount, postage_fee,
+                                 registered_rep1, registered_rep2, short_term_redemption_fee, state_tax_amount, transaction_code_description,
+                                 key_mnemonic_description)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 
+                                  ?, ?, ?, ?, ?, ?, ?,
+                                  ?, ?, ?, ?, ?,
+                                  ?, ?, ?, ?, ?,
+                                  ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], 'Fidelity', $v['omniscient_category'], $v['omniscient_activity'], $v['amount'],
+                    $v['principal_amount'], $v['service_fee'], $v['fee_amount'], $v['security_description'],
+                    $v['comment'], $v['cusip'], $v['filename'], $v['commission'], $v['transaction_key_code_description'],
+                    $v['service_charge_misc_fee'], $v['option_symbol'], $v['account_type_description'], $v['comment2'], $v['div_payable_date'],
+                    $v['div_record_date'], $v['fund_load_override'], $v['fund_load_percent'], $v['interest_amount'], $v['postage_fee'],
+                    $v['reg_rep1'], $v['reg_rep2'], $v['short_term_redemption_fee'], $v['state_tax_amount'], $v['transaction_code_description'],
+                    $v['transaction_key_mnemonic']), true);
+            }
+        }
+    }
 }
