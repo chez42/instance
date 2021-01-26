@@ -6,7 +6,7 @@ class cIntegrity{
     public function __construct(array $account){
         if(empty($account)) {
             return;
-            $differences = $this->GetPortfolioToPositionDifferencesList();
+            #$differences = $this->GetPortfolioToPositionDifferencesList();
         }
         else {
             $differences = $this->GetPortfolioToPositionDifferencesListForAccounts($account);
@@ -50,6 +50,7 @@ class cIntegrity{
         $copy->UpdatePortfolios();
         $copy->CreateSecurities();
         $copy->CreatePositions();
+        $copy->CreateTransactions();
 
 #        PortfolioInformation_Module_Model::ConsolidatedBalances($this->fidelityAccounts, $start, $end);
     }

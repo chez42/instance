@@ -2329,6 +2329,106 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
+    static public function DeleteIntervals(array $account_numbers, $sdate, $edate){
+        global $adb;
+        if(empty($account_numbers))
+            return;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "DELETE FROM intervals_daily 
+                  WHERE accountnumber IN ({$questions}) 
+                  AND intervalenddate BETWEEN ? AND ?";
+        $adb->pquery($query, array($account_numbers, $sdate, $edate));
+    }
+
+    static public function CalculateDailyIntervals(array $account_numbers, $sdate, $edate){
+        global $adb;
+        if(empty($account_numbers))
+            return;
+#        self::DeleteIntervals($account_numbers, $sdate, $edate);
+
+        foreach($account_numbers AS $account_number){
+            $tmp = new CustodianClassMapping($account_number);
+            $begin = new DateTime($sdate);
+            $end = new DateTime($edate);
+            $earliest = $tmp->portfolios::GetEarliestBalanceAndDate(array($account_number));
+            $earliest = new DateTime($earliest[$account_number]['as_of_date']);
+
+            if(empty($earliest))
+                return;
+
+            if($earliest > $begin)
+                $begin = $earliest;
+
+            $interval = DateInterval::createFromDateString('1 day');
+            $period = new DatePeriod($begin, $interval, $end);
+            foreach ($period as $dt) {
+                $tokenDate = $dt->format("Y-m-d");
+                $start = $tmp->portfolios::GetBeginningBalanceAsOfDate(array($account_number), $tokenDate);
+                $end = $tmp->portfolios::GetEndingBalanceAsOfDate(array($account_number), $tokenDate);
+
+
+                if(empty($start) && !empty($end)){
+                    $start[$account_number]['value'] = 0;
+                    $start[$account_number]['date'] = $end[$account_number]['date'];
+                }elseif(empty($end)){//If end date has no value, leave, there is nothing to enter
+                    return;
+                }
+
+            $query = "SELECT SUM(CONCAT(operation, ABS(net_amount))) AS amount, transaction_type, transaction_activity, trade_date, operation
+                      FROM vtiger_transactions t
+                      JOIN vtiger_transactionscf cf USING (transactionsid)
+                      JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                      WHERE account_number = ? 
+                      AND trade_date > ? 
+                      AND trade_date <= ?
+                      AND e.deleted = 0
+                      GROUP BY transaction_type, transaction_activity";
+
+            $result = $adb->pquery($query, array($account_number, $start['date'], $end['date']));
+
+
+
+/*
+
+                print_r($start);
+                echo '<br /><br />';
+                print_r($end);exit;
+/*
+                if(empty($start[$account_number]['date']) && !empty($end[$account_number]['date']) )
+
+IF @beginningDate IS NULL AND @endingDate IS NOT NULL THEN SET @beginningDate := inStartDate - INTERVAL 1 DAY; END IF;#@beginningDate = inStartDate;
+IF @beginningNet IS NULL THEN SET @beginningNet := 0; END IF;
+   IF @beginningDate >= @endingDate THEN LEAVE this_proc; END IF;
+   IF @beginningDate IS NULL THEN LEAVE this_proc; END IF;
+   IF @endingDate IS NULL THEN LEAVE this_proc; END IF;
+
+
+#                $iStart = $begin->format("Y-m-d");
+#                $iEnd = $end->format("Y-m-d");
+
+*/
+
+#                echo $iStart . " started with: "; print_r($iStart); echo " AND ended with "; print_r($iEnd); echo '<br /><br />';
+            }
+/*            $tmp = new CustodianClassMapping($account_number);
+            $start = $tmp->portfolios::GetBeginningBalanceAsOfDate(array($account_number), $sdate);
+            $end = $tmp->portfolios::GetEndingBalanceAsOfDate(array($account_number), $sdate);
+            if(empty($start) && !empty($end)){//This is the first day that has a value, so it started with $0
+                $start[$account_number]['value'] = 0;
+                $start[$account_number]['date'] = $sdate;
+            }
+*/
+
+#            $start = $tmp->portfolios::GetEarliestBalanceAndDate(array($account_number));
+
+#            print_r($start);
+#            echo '<br /><br />';
+#            print_r($end);
+        }
+    }
+
     static public function IsPerformanceDisabled($account_number)
     {
         global $adb;
@@ -2483,15 +2583,42 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
 
     static public function UpdateContactFees(){
         global $adb;
-        $query = "CALL UPDATE_CONTACT_MANAGEMENT_FEES()";
-        $adb->pquery($query, array());
+        $query = "SELECT contactid, SUM(pcf.ytd_management_fees) AS ytd_management_fees, SUM(p.annual_management_fee) AS annual_management_fee 
+                  FROM vtiger_contactscf ccf
+                  JOIN vtiger_portfolioinformation p ON p.contact_link = ccf.contactid
+                  JOIN vtiger_portfolioinformationcf pcf ON pcf.portfolioinformationid = p.portfolioinformationid
+                  GROUP BY contactid";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_contactscf 
+                      SET ytd_management_fees = ?, annual_management_fee = ?, management_fee_update = NOW()
+                      WHERE contactid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, array($v['ytd_management_fees'], $v['annual_management_fee'], $v['contactid']));
+            }
+        }
     }
 
     static public function UpdateHouseholdFees()
     {
         global $adb;
-        $query = "CALL UPDATE_HOUSEHOLD_MANAGEMENT_FEES()";
-        $adb->pquery($query, array());
+        $query = "SELECT accountid, SUM(pcf.ytd_management_fees) AS ytd_management_fees, SUM(p.annual_management_fee) AS annual_management_fee 
+                  FROM vtiger_accountscf ccf
+                  JOIN vtiger_portfolioinformation p ON p.household_account = ccf.accountid
+                  JOIN vtiger_portfolioinformationcf pcf ON pcf.portfolioinformationid = p.portfolioinformationid
+                  GROUP BY accountid";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_accountscf 
+                      SET ytd_management_fees = ?, trailing_fees = ?, management_fee_update = NOW()
+                      WHERE accountid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, array($v['ytd_management_fees'], $v['annual_management_fee'], $v['accountid']));
+            }
+        }
+#        global $adb;
+#        $query = "CALL UPDATE_HOUSEHOLD_MANAGEMENT_FEES()";
+#        $adb->pquery($query, array());
     }
 
     static public function UpdateYTDManagementFees()
@@ -2772,7 +2899,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
      * @param $account_number
      */
     static public function CreateTransactionsForPositionsThatHaveNone($account_number){
-        global $adb;
+        global $adb;return;
         $query = "SELECT * FROM vtiger_positioninformation p
                   JOIN vtiger_positioninformationcf cf USING (positioninformationid)
                   WHERE account_number IN (?)
@@ -2802,7 +2929,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     }
 
     static public function AutoGenerateTransactionsForGainLossReport($account_number){
-        global $adb;
+        global $adb;return;
         PortfolioInformation_Module_Model::CreateTransactionsForPositionsThatHaveNone($account_number);
         PortfolioInformation_GainLoss_Model::CreateGainLossTables($account_number);
 

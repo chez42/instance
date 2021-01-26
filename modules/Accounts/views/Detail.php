@@ -28,6 +28,8 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
 
         if(!empty($differences))
             $integrity->RepairDifferences();
+
+        cFidelityTransactions::CreateNewTransactionsForAccounts($account_numbers);
     }
 
 
