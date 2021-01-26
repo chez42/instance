@@ -348,18 +348,36 @@ class cTDTransactions extends cCustodian
         $adb->pquery($query, $params, true);
     }
 
-    public function UpdateAllTransactionsOperations(array $account_number){
+    static public function UpdateAllTransactionsOperations(array $account_number){
         global $adb;
         $params = array();
-        if(isset($account_number)){
+        if(!empty($account_number)){
             $questions = generateQuestionMarks($account_number);
             $where = " WHERE account_number IN (?) ";
             $params[] = $questions;
         }
         $query = "UPDATE vtiger_transactions t
-                  JOIN {$this->database}.custodian_transactions_td ct ON t.cloud_transaction_id = ct.transaction_id
-                  JOIN {$this->database}.tdmapping m ON m.id = ct.transaction_code
+                  JOIN custodian_omniscient.custodian_transactions_td ct ON t.cloud_transaction_id = ct.transaction_id
+                  JOIN custodian_omniscient.tdmapping m ON m.id = ct.transaction_code
                   SET t.operation = m.operation
+                  {$where}";
+        $adb->pquery($query, $params, true);
+    }
+
+    static public function UpdateAllTransactionsMapping(array $account_number){
+        global $adb;
+        $params = array();
+        if(!empty($account_number)){
+            $questions = generateQuestionMarks($account_number);
+            $where = " WHERE t.account_number IN (?) ";
+            $params[] = $questions;
+        }
+        $query = "UPDATE vtiger_transactions t
+                  JOIN vtiger_transactionscf cf USING (transactionsid)
+                  JOIN custodian_omniscient.custodian_transactions_td ct ON t.cloud_transaction_id = ct.transaction_id
+                  JOIN custodian_omniscient.tdmapping m ON m.id = ct.transaction_code
+                  SET t.operation = m.operation, cf.transaction_type = m.omniscient_category, 
+                      cf.transaction_activity = m.omniscient_activity
                   {$where}";
         $adb->pquery($query, $params, true);
     }
