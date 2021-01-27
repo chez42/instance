@@ -1131,3 +1131,281 @@ ADD starred VARCHAR(100) NULL, ADD modifiedtime DATETIME NOT NULL,
 ADD createdtime DATETIME NOT NULL, ADD smownerid INT(19) NOT NULL,
 ADD deleted INT(1) NOT NULL DEFAULT '0', ADD description TEXT NULL,
 ADD source VARCHAR(100) NULL");
+
+
+$adb->pquery("UPDATE vtiger_tab SET isentitytype = '1' WHERE vtiger_tab.name = 'Billing';");
+
+$moduleInstance = Vtiger_Module::getInstance('Billing');
+
+if ($moduleInstance){
+    
+    $moduleInstance->initTables();
+    
+    $blockInstance = Vtiger_Block::getInstance('LBL_'. strtoupper($moduleInstance->name) . '_INFORMATION', $moduleInstance);
+    if (!$blockInstance) {
+        $blockInstance = new Vtiger_Block();
+        $blockInstance->label = 'LBL_'. strtoupper($moduleInstance->name) . '_INFORMATION';
+        $moduleInstance->addBlock($blockInstance);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('billingno', $moduleInstance);
+    if (!$fieldInstance) {
+        $field1  = new Vtiger_Field();
+        $field1->name = 'billingno';
+        $field1->label= 'Billing No';
+        $field1->uitype= 4;
+        $field1->column = $field1->name;
+        $field1->columntype = 'VARCHAR(255)';
+        $field1->typeofdata = 'V~O';
+        $blockInstance->addField($field1);
+        $moduleInstance->setEntityIdentifier($field1);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('start_date', $moduleInstance);
+    if (!$fieldInstance) {
+        $field2  = new Vtiger_Field();
+        $field2->name = 'start_date';
+        $field2->label= 'Start Date';
+        $field2->uitype= 5;
+        $field2->column = $field2->name;
+        $field2->columntype = 'DATE';
+        $field2->typeofdata = 'D~O';
+        $blockInstance->addField($field2);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('end_date', $moduleInstance);
+    if (!$fieldInstance) {
+        $field3  = new Vtiger_Field();
+        $field3->name = 'end_date';
+        $field3->label= 'End Date';
+        $field3->uitype= 5;
+        $field3->column = $field3->name;
+        $field3->columntype = 'DATE';
+        $field3->typeofdata = 'D~O';
+        $blockInstance->addField($field3);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('portfolio_amount', $moduleInstance);
+    if (!$fieldInstance) {
+        $field4  = new Vtiger_Field();
+        $field4->name = 'portfolio_amount';
+        $field4->label= 'Portfolio Amount';
+        $field4->uitype= 71;
+        $field4->column = $field4->name;
+        $field4->columntype = 'DECIMAL(25,8)';
+        $field4->typeofdata = 'N~O';
+        $blockInstance->addField($field4);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('portfolioid', $moduleInstance);
+    if (!$fieldInstance) {
+        $field5  = new Vtiger_Field();
+        $field5->name = 'portfolioid';
+        $field5->label= 'Portfolio';
+        $field5->uitype= 10;
+        $field5->column = $field5->name;
+        $field5->columntype = 'INT(19)';
+        $field5->typeofdata = 'I~O';
+        $blockInstance->addField($field5);
+        $field5->setrelatedmodules(array('PortfolioInformation'));
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('billingspecificationid', $moduleInstance);
+    if (!$fieldInstance) {
+        $field6  = new Vtiger_Field();
+        $field6->name = 'billingspecificationid';
+        $field6->label= 'Billing Specification';
+        $field6->uitype= 10;
+        $field6->column = $field6->name;
+        $field6->columntype = 'INT(19)';
+        $field6->typeofdata = 'I~O';
+        $blockInstance->addField($field6);
+        $field6->setrelatedmodules(array('BillingSpecifications'));
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('feeamount', $moduleInstance);
+    if (!$fieldInstance) {
+        $field7  = new Vtiger_Field();
+        $field7->name = 'feeamount';
+        $field7->label= 'Fee Amount';
+        $field7->uitype= 71;
+        $field7->column = $field7->name;
+        $field7->columntype = 'DECIMAL(25,8)';
+        $field7->typeofdata = 'N~O';
+        $blockInstance->addField($field7);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('assigned_user_id', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield1 = new Vtiger_Field();
+        $mfield1->name = 'assigned_user_id';
+        $mfield1->label = 'Assigned To';
+        $mfield1->table = 'vtiger_crmentity';
+        $mfield1->column = 'smownerid';
+        $mfield1->uitype = 53;
+        $mfield1->typeofdata = 'V~M';
+        $blockInstance->addField($mfield1);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('createdtime', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield2 = new Vtiger_Field();
+        $mfield2->name = 'createdtime';
+        $mfield2->label= 'Created Time';
+        $mfield2->table = 'vtiger_crmentity';
+        $mfield2->column = 'createdtime';
+        $mfield2->uitype = 70;
+        $mfield2->typeofdata = 'DT~O';
+        $mfield2->displaytype= 2;
+        $blockInstance->addField($mfield2);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('modifiedtime', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield3 = new Vtiger_Field();
+        $mfield3->name = 'modifiedtime';
+        $mfield3->label= 'Modified Time';
+        $mfield3->table = 'vtiger_crmentity';
+        $mfield3->column = 'modifiedtime';
+        $mfield3->uitype = 70;
+        $mfield3->typeofdata = 'DT~O';
+        $mfield3->displaytype= 2;
+        $blockInstance->addField($mfield3);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('source', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield4 = new Vtiger_Field();
+        $mfield4->name = 'source';
+        $mfield4->label = 'Source';
+        $mfield4->table = 'vtiger_crmentity';
+        $mfield4->displaytype = 2; // to disable field in Edit View
+        $mfield4->quickcreate = 3;
+        $mfield4->masseditable = 0;
+        $blockInstance->addField($mfield4);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('starred', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield5 = new Vtiger_Field();
+        $mfield5->name = 'starred';
+        $mfield5->label = 'starred';
+        $mfield5->table = 'vtiger_crmentity_user_field';
+        $mfield5->displaytype = 6;
+        $mfield5->uitype = 56;
+        $mfield5->typeofdata = 'C~O';
+        $mfield5->quickcreate = 3;
+        $mfield5->masseditable = 0;
+        $blockInstance->addField($mfield5);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('tags', $moduleInstance);
+    if (!$fieldInstance) {
+        $mfield6 = new Vtiger_Field();
+        $mfield6->name = 'tags';
+        $mfield6->label = 'tags';
+        $mfield6->displaytype = 6;
+        $mfield6->columntype = 'VARCHAR(1)';
+        $mfield6->quickcreate = 3;
+        $mfield6->masseditable = 0;
+        $blockInstance->addField($mfield6);
+    }
+    
+    $filter1 = new Vtiger_Filter();
+    $filter1->name = 'All';
+    $filter1->isdefault = true;
+    $moduleInstance->addFilter($filter1);
+    $filter1->addField($field1)->addField($field2, 1)->addField($field3, 2)->addField($mfield1, 3);
+    
+    // Sharing Access Setup
+    $moduleInstance->setDefaultSharing();
+    
+    // Webservice Setup
+    $moduleInstance->initWebservice();
+    
+    echo "OK\n";
+    
+}
+
+$module = Vtiger_Module::getInstance("BillingSpecifications");
+if(!empty($module)){
+    
+    $adb->pquery("ALTER TABLE vtiger_billingspecifications CHANGE value amount_value VARCHAR(250)");
+    
+    $adb->pquery("UPDATE vtiger_field SET fieldname='amount_value', columnname='amount_value' WHERE tabid=? AND fieldname='value' AND columnname='value'",
+        array(getTabid('BillingSpecifications')));
+    
+    $blockInstance = Vtiger_Block::getInstance('LBL_BILLINGSPECIFICATIONS_INFORMATION',$module);
+    $fieldInstance = Vtiger_Field::getInstance('beginning_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'beginning_date';
+        $field->label = 'Beginning Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('ending_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'ending_date';
+        $field->label = 'Ending Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('beginning_price_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'beginning_price_date';
+        $field->label = 'Beginning Price Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('ending_price_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'ending_price_date';
+        $field->label = 'Ending Price Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+}
+
+$module = Vtiger_Module::getInstance("Billing");
+if(!empty($module)){
+    
+    $blockInstance = Vtiger_Block::getInstance('LBL_BILLING_INFORMATION',$module);
+    $fieldInstance = Vtiger_Field::getInstance('beginning_price_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'beginning_price_date';
+        $field->label = 'Beginning Price Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('ending_price_date', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'ending_price_date';
+        $field->label = 'Ending Price Date';
+        $field->uitype = 5;
+        $field->typeofdata = 'D~O';
+        $field->columntype = 'DATE';
+        $blockInstance->addField($field);
+    }
+    
+}

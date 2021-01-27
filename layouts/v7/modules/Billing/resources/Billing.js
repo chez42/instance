@@ -26,5 +26,35 @@ Vtiger.Class("Billing_Js",{
 		
 	},
 	
+	tiggerBillingSepcifications : function(url){
+		
+		app.helper.showProgress();
+		app.request.get({url: url}).then(function (error, data) {
+			app.helper.hideProgress();
+			if (!error) {
+				app.helper.showModal(data, {
+                    'cb' : function(modalContainer) {
+                    	var getListForm = jQuery('#getPortfolioViews');
+                    	getListForm.vtValidate({
+							submitHandler: function (form) {
+								var formData = jQuery(form).serializeFormData();
+								
+								app.helper.showProgress();
+								
+								app.request.post({'data': formData}).then(function (err, data) {
+									if (err == null) {
+										app.helper.hideProgress();
+										app.helper.hideModal();
+										window.location.href = data.link;
+									}
+								});
+							}
+						});
+                    }
+                });
+			}
+		});
+		
+	}
 	
 },{});
