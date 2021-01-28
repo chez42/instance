@@ -329,14 +329,19 @@ class Vtiger_Cron {
 		global $adb;
 
 		$instances = array();
-		if($byStatus == 0) {
-			$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE status <> ? ORDER BY SEQUENCE',array(self::$STATUS_DISABLED   ));
+		
+		/*if($byStatus == 0) {
+			$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE status <> ? and status <> ? 
+            ORDER BY SEQUENCE',array(self::$STATUS_DISABLED, self::$STATUS_RUNNING));
 			//AND v4only = 1
-		}
-		else {
+		} else {
 			$result = self::querySilent('SELECT * FROM vtiger_cron_task ORDER BY SEQUENCE');
 			//WHERE v4only = 1
-		}
+		}*/
+		
+		$result = self::querySilent('SELECT * FROM vtiger_cron_task WHERE status <> ? and status <> ?
+        ORDER BY SEQUENCE',array(self::$STATUS_DISABLED, self::$STATUS_RUNNING));
+		
 		if ($result && $adb->num_rows($result)) {
 			while ($row = $adb->fetch_array($result)) {
 				$instances[] = new Vtiger_Cron($row);
