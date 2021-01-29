@@ -21,6 +21,9 @@ function GetLastDayOfMonth($date){
  * @param type $crmid
  */
 function GetAccountNumbersFromRecord($crmid){
+    if(!$crmid)
+        return;
+
     global $adb;
     $query = "SELECT 
                 CASE (SELECT setype FROM vtiger_crmentity WHERE crmid=?)
@@ -50,15 +53,17 @@ function GetAccountNumbersFromRecord($crmid){
 			$accounts = array_merge($accounts, $extra);
     }
 
-    $query = "SELECT account_number 
-              FROM vtiger_portfolioinformation p
-              JOIN vtiger_portfolioinformationcf cf ON (p.portfolioinformationid = cf.portfolioinformationid)
-              JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
-              WHERE contact_link = ? AND p.accountclosed = 0 AND e.deleted = 0";
-    $result = $adb->pquery($query, array($crmid));
-    if($adb->num_rows($result) > 0){
-        while($v = $adb->fetch_array($result))
-            $accounts[] = $v['account_number'];
+    if($crmid != null AND $crmid != 0) {
+        $query = "SELECT account_number 
+                  FROM vtiger_portfolioinformation p
+                  JOIN vtiger_portfolioinformationcf cf ON (p.portfolioinformationid = cf.portfolioinformationid)
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid
+                  WHERE contact_link = ? OR p.portfolioinformationid = ? AND p.accountclosed = 0 AND e.deleted = 0";// AND contact_link IS NOT NULL AND contact_link != ''";
+        $result = $adb->pquery($query, array($crmid, $crmid));
+        if ($adb->num_rows($result) > 0) {
+            while ($v = $adb->fetch_array($result))
+                $accounts[] = $v['account_number'];
+        }
     }
 
     $focus = CRMEntity::getInstance('Accounts');

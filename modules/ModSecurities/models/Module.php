@@ -21,7 +21,9 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
 
 	public static function GetCrmidFromSymbol($symbol){
 	    global $adb;
-	    $query = "SELECT modsecuritiesid FROM vtiger_modsecurities WHERE security_symbol = ?";
+	    $query = "SELECT modsecuritiesid FROM vtiger_modsecurities 
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_modsecurities.modsecuritiesid
+        WHERE vtiger_crmentity.deleted = 0 AND security_symbol = ?";
 	    $result = $adb->pquery($query, array($symbol));
 	    if($adb->num_rows($result) > 0)
 	        return $adb->query_result($result, 0, 'modsecuritiesid');
@@ -1073,5 +1075,60 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
                       cf.security_sector = cf2.security_sector
                       {$where}";
         $adb->pquery($query, $params);
+    }
+
+    /**
+     * Return list of securities that should exist but don't
+     * @param $symbols
+     * @return array|null
+     */
+    static public function GetMissingSymbolsFromList(array $symbols){
+        global $adb;
+        $query = "DROP TABLE IF EXISTS SymbolList";
+        $adb->pquery($query, array());
+
+        $query = "CREATE TEMPORARY TABLE SymbolList(symbol VARCHAR(250) PRIMARY KEY)";
+        $adb->pquery($query, array());
+
+        foreach($symbols AS $k => $v){
+            $query = "INSERT INTO SymbolList VALUES(?)";
+            $adb->pquery($query, array($v));
+        }
+        $query = "SELECT symbol FROM SymbolList WHERE symbol NOT IN (SELECT security_symbol FROM vtiger_modsecurities)";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $symbols = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[] = $v['symbol'];
+            }
+            return $symbols;
+        }
+        return null;
+    }
+
+    static public function GetSecuritySymbolsForAccounts(array $account_numbers){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+        $params[] = $account_numbers;
+
+        $query = "SELECT security_symbol 
+                  FROM vtiger_modsecurities 
+                  WHERE security_symbol IN (SELECT security_symbol 
+                                            FROM vtiger_positioninformation 
+                                            WHERE account_number IN ({$questions}))";
+        $adb->pquery($query, $params, true);
+
+        $query = "SELECT symbol FROM SymbolList WHERE symbol NOT IN (SELECT security_symbol FROM vtiger_modsecurities)";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            $symbols = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[] = $v['symbol'];
+            }
+            return $symbols;
+        }
+        return null;
     }
 }

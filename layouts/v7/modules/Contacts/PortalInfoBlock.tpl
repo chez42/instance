@@ -14,7 +14,7 @@
 		<td class="fieldLabel textOverflowEllipsis text-left">
 			<b>{vtranslate('LBL_MODULE', $MODULE)}</b>
 		</td>
-		<td class="fieldLabel textOverflowEllipsis text-center">
+		<td class="fieldLabel textOverflowEllipsis text-center"{if !$REPORT_PERMISSION} style = "display:none;" {/if}>
 			&nbsp;
 		</td>
 		<td class="fieldLabel textOverflowEllipsis text-center">
@@ -44,7 +44,7 @@
 		{if $MODULE_NAME neq 'Reports'}		
 		<tr>
 			<td class="fieldLabel textOverflowEllipsis text-left">{vtranslate($MODULE_NAME, 'Settings:CustomerPortal')}</td>
-			<td class="fieldLabel textOverflowEllipsis text-center"></td>
+			<td class="fieldLabel textOverflowEllipsis text-center" {if !$REPORT_PERMISSION} style = "display:none;" {/if}></td>
 			<td class="fieldValue text-center">
 				{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_visible]" value="0" />*}
 				<input type="checkbox" {if $MODULE_NAME eq 'Reports'} id="portal_reports" {/if} name="portalModulesInfo[{$NAME_MODULE}_visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
@@ -58,7 +58,7 @@
 				{/if}
 			</td>
 			<td class="fieldValue text-center">
-				{if $MODULE_NAME neq 'Accounts' && $MODULE_NAME neq 'Tickets'}
+				{if $MODULE_NAME neq 'Accounts' }
 					{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="0" />*}
 					<input type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
 				{/if}

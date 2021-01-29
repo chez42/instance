@@ -22,7 +22,7 @@ Vtiger_List_Js("Calendar_List_Js", {
 		if (params) {
 			app.helper.showProgress();
 			app.request.get({url: url, data: params}).then(function (error, data) {
-				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 				app.helper.loadPageContentOverlay(data, overlayParams).then(function (container) {
 					app.event.trigger('post.listViewMassEdit.loaded', container);
 				})
@@ -49,7 +49,7 @@ Vtiger_List_Js("Calendar_List_Js", {
 			
 			app.helper.showProgress();
 			app.request.get({url: url, data: params}).then(function (error, data) {
-				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 				app.helper.loadPageContentOverlay(data, overlayParams).then(function (container) {
 					app.event.trigger('post.listViewMassEdit.loaded', container);
 				})

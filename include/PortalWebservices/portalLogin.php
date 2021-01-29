@@ -90,14 +90,9 @@ function vtws_portallogin($element,$user){
                         if($adb->num_rows($selectedPortalInfo)){
                             $selectedPortalModulesInfo = $adb->query_result_rowdata($selectedPortalInfo);
                         }else{
-                            $defaultPortalInfo = $adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = ?",array($resultData["ownerId"]));
-                            if($adb->num_rows($defaultPortalInfo)){
+                            $globalPortalInfo =$adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = 0");
+                            if($adb->num_rows($globalPortalInfo))
                                 $selectedPortalModulesInfo = $adb->query_result_rowdata($defaultPortalInfo);
-                            }else{
-                                $globalPortalInfo =$adb->pquery("SELECT * FROM vtiger_default_portal_permissions WHERE userid = 0");
-                                if($adb->num_rows($globalPortalInfo))
-                                    $selectedPortalModulesInfo = $adb->query_result_rowdata($defaultPortalInfo);
-                            }
                         }
                     }
                     
@@ -210,6 +205,15 @@ function vtws_portallogin($element,$user){
                 }
                 
                 $resultData['data']  = $list[0];
+                
+                $t_module = Vtiger_Module_Model::getInstance('HelpDesk');
+                $field = Vtiger_Field_Model::getInstance('ticketcategories', $t_module);
+                $PicklistValues = $field->getPicklistValues();
+                $resultData['ticketcategories'] = $PicklistValues;
+                
+                $field = Vtiger_Field_Model::getInstance('ticketpriorities', $t_module);
+                $PicklistValues = $field->getPicklistValues();
+                $resultData['ticketpriorities'] = $PicklistValues;
                 
                 $finalRes = array('success'=>true, 'data' => $resultData);
                 

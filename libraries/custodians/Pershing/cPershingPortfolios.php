@@ -85,4 +85,19 @@ class cPershingPortfolios extends cCustodian {
         return $this->portfolio_data;
     }
 
+    static public function GetLatestBalance($account_number){
+        global $adb;
+        $query = "SELECT * 
+                  FROM custodian_omniscient.custodian_balances_pershing 
+                  WHERE account_number = ?
+                  ORDER BY as_of_date 
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'net_amount');
+        }
+        return null;
+    }
+
 }

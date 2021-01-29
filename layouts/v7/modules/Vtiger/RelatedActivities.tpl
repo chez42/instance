@@ -105,13 +105,21 @@
 											{if $EDITVIEW_PERMITTED == 'yes'}
 												<span class="editStatus cursorPointer"><i class="fa fa-pencil" title="{vtranslate('LBL_EDIT',$MODULE_NAME)}"></i></span>
 												<span class="edit hide">
-													{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('eventstatus'))}
-													{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
-													{if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
-														<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}[]' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
-													{else}
-														<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
-													{/if}
+													<div class="row">
+														<div class="pull-left col-xl-8">
+															{assign var=FIELD_VALUE value=$FIELD_MODEL->set('fieldvalue', $RECORD->get('eventstatus'))}
+															{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE_NAME) FIELD_MODEL=$FIELD_MODEL USER_MODEL=$USER_MODEL MODULE=$MODULE_NAME OCCUPY_COMPLETE_WIDTH='true'}
+															{if $FIELD_MODEL->getFieldDataType() eq 'multipicklist'}
+																<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}[]' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
+															{else}
+																<input type="hidden" class="fieldname" value='{$FIELD_MODEL->get('name')}' data-prev-value='{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'))}' />
+															{/if}
+														</div>
+														<div class="btn-group pull-left col-xl-4">
+													    	<button style="height: 26px;" class="button btn-success btn-small saveStatus" type="button" name="save"><i class="fa fa-check"></i></button>
+    														<button style="height: 26px;" class="button btn-danger btn-small cancelStatus" type="button" name="Cancel"><i class="fa fa-close"></i></button>
+													    </div>
+													</div>
 												</span>
 											</div>
 										{/if}

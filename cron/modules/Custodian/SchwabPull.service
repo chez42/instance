@@ -8,7 +8,7 @@ $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Portfolios (SCHWAB)");
 /***STEP 1 - CREATE AND UPDATE PORTFOLIOS WORKING -- REQUIRES advisor_control_number or fails because smownerid can't be null***/
 //Pull portfolio and balance information for the specified rep codes
-$td = new cSchwabPortfolios("SCHWAB", "custodian_omniscient", "portfolios",
+/*$td = new cSchwabPortfolios("SCHWAB", "custodian_omniscient", "portfolios",
     "custodian_portfolios_schwab", "custodian_balances_schwab ", $rep_codes);
 $data = $td->GetExistingCRMAccounts();//Get accounts already in the CRM
 $missing = $td->GetMissingCRMAccounts();//Compare CRM accounts to Custodian accounts and return what the CRM doesn't have
@@ -19,7 +19,7 @@ $td->UpdatePortfoliosFromPortfolioData($existing);//Update the existing accounts
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Pulling Custodian Positions/Securities (SCHWAB)");
 /******SCHWAB POSITIONS******/
-$positions = new cSchwabPositions("SCHWAB", "custodian_omniscient", "positions",
+/*$positions = new cSchwabPositions("SCHWAB", "custodian_omniscient", "positions",
     "custodian_portfolios_schwab", "custodian_positions_schwab",
     $rep_codes, array());
 
@@ -47,9 +47,10 @@ if(!empty($missing_positions))
 
 $positions->UpdatePositionsFromPositionsData($positions->GetCustodianPositions());//Update the positions with the latest data
 /***********END SCHWAB POSITIONS*/
+
+
+
 StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (SCHWAB)");
-
-
 
 $start = $month = date("Y-m-d", strtotime("-7 days"));
 $end = strtotime(date("Y-m-d"));

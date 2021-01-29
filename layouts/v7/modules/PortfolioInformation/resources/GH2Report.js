@@ -44,7 +44,10 @@ jQuery.Class("GH2Report_Js",{
 
         var colorSet = new am4core.ColorSet();
         var colors = [];
-        $.each(chartData,function(){
+
+        if(chartData === null) { return; }
+
+        $.each(chartData,function(key, value){
             var element = jQuery(this);
             colors.push(element["0"].color);
         });
@@ -86,6 +89,9 @@ jQuery.Class("GH2Report_Js",{
 
         var colorSet = new am4core.ColorSet();
         var colors = [];
+
+        if(chartData === null) { return; }
+
         $.each(chartData,function(){
             var element = jQuery(this);
             colors.push(element["0"].color);

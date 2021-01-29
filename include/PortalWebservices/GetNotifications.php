@@ -61,9 +61,8 @@
             }
             
             $notifySql = "SELECT DISTINCT * FROM vtiger_notifications
-            INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notifications.notificationsid
-            WHERE (notification_status <> 'OK' || notification_status IS NULL) AND vtiger_crmentity.deleted = 0 AND vtiger_notifications.related_to IN 
-            ('" . implode("','", $ticketIds) . "','".$id."') AND vtiger_crmentity.source <> 'PORTAL' ORDER BY vtiger_crmentity.createdtime DESC";
+            WHERE (notification_status <> 'OK' || notification_status IS NULL) AND vtiger_notifications.related_to IN 
+            ('" . implode("','", $ticketIds) . "','".$id."') AND vtiger_notifications.source = 'PORTAL' ORDER BY vtiger_notifications.createdtime DESC";
             
             $notifyResult = $adb->pquery($notifySql);
             $html = ''; 
