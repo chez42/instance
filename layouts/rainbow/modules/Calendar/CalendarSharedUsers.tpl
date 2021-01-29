@@ -9,7 +9,7 @@
 {* modules/Calendar/views/ViewTypes.php *}
 {strip}
 <style>
-	.mCustomScrollBox:not(.modelContainer .mCustomScrollBox) {
+	.mCustomScrollBox:not(.modelContainer .mCustomScrollBox, .myModal .mCustomScrollBox) {
 		max-height: min-content !important;
 	}
 </style>
