@@ -146,7 +146,7 @@
 												&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 											</td>
 											{if $FIELD_MODEL->get('uitype') neq '83'}
-												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'}  {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'}  {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 													{if $NUM_OF_COL gt 2}
 														<div class="customtab-columns-{$NUM_OF_COL}">
 													{/if}
@@ -258,7 +258,7 @@
 														&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 													</td>
 													{if $FIELD_MODEL->get('uitype') neq '83'}
-														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 											                {if $NUM_OF_COL gt 2}
 											                	<div class="customtab-columns-{$NUM_OF_COL}">
 															{/if}	

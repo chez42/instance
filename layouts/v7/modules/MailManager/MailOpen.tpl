@@ -122,13 +122,58 @@
 						{assign var=ATTACHID value=$ATTACHVALUE['attachid']}
                         <span>
                             <i class="fa {$MAIL->getAttachmentIcon($ATTACHVALUE['path'])}"></i>&nbsp;&nbsp;
-                            <a href="index.php?module={$MODULE}&view=Index&_operation=mail&_operationarg=attachment_dld&_muid={$MAIL->muid()}&_atid={$ATTACHID}&_atname={$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}">
+                            {*<a href="index.php?module={$MODULE}&view=Index&_operation=mail&_operationarg=attachment_dld&_muid={$MAIL->muid()}&_atid={$ATTACHID}&_atname={$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}">
                                 {$ATTACHNAME}
-                            </a>
+                            </a>*}
+                            {$ATTACHNAME}
+                            
                             <span>&nbsp;&nbsp;({$ATTACHVALUE['size']})</span>
-                            <a href="index.php?module={$MODULE}&view=Index&_operation=mail&_operationarg=attachment_dld&_muid={$MAIL->muid()}&_atid={$ATTACHID}&_atname={$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}">
+                            {assign var=imageFileTypes value=array('image/gif','image/png','image/jpeg')}
+							{assign var=videoFileTypes value=array('video/mp4','video/ogg','audio/ogg','video/webm')}
+                            {assign var=AttachmentType value= mime_content_type($ATTACHVALUE['path'])}
+                            {assign var=parts value=explode('.',$ATTACHNAME)}
+							{assign var=extn value='txt'}
+							{if count($parts) > 1}
+								{$extn = end($parts)}
+							{/if}
+							
+							{assign var=PREVIEW value=''}
+							{if in_array($AttachmentType, $videoFileTypes)}
+								{$PREVIEW = 1}
+							{else if in_array($AttachmentType, $imageFileTypes)}
+								{$PREVIEW = 1}
+							{else if $extn == 'pdf'}
+								{$PREVIEW = 1}
+							{/if}
+							&nbsp; &nbsp; 
+                            <span class="more dropdown action" style="cursor:pointer;">
+								<span href="javascript:;" class="dropdown-toggle" data-toggle="dropdown">
+									<i class="fa fa-ellipsis-v icon"></i>
+								</span>
+								<ul class="dropdown-menu">
+									{assign var="IS_DOWNLOAD_PERMITTED" value=Users_Privileges_Model::isPermitted('Documents', 'Download')}
+									{if $IS_DOWNLOAD_PERMITTED}
+										<li>
+											<a	{if array_key_exists('docid',$ATTACHMENT_DETAILS)} 
+												href="index.php?module=Documents&action=DownloadFile&record={$ATTACHMENT_DETAILS['docid']}&fileid={$ATTACHMENT_DETAILS['fileid']}" 
+											{else} 
+												href="index.php?module=MailManager&action=DownloadFile&attachment_id={$MAIL->muid()}&_atname={$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}" 
+											{/if}>Save on desktop</a>
+										</li>
+									{/if}
+									<li>
+										<a class="saveasdocument" href="javascript:void(0);" id="saveasdocument" data-id="{$MAIL->muid()}" data-name="{$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}" >Save as document</a>
+									</li>
+									{if $PREVIEW eq 1}
+										<li>
+											<a class="previewdocument" href="javascript:void(0);" id="previewdocument" data-id="{$MAIL->muid()}" data-name="{$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}" >Preview</a>
+										</li>
+									{/if}
+								</ul>
+							</span>
+                            {*<a href="index.php?module={$MODULE}&view=Index&_operation=mail&_operationarg=attachment_dld&_muid={$MAIL->muid()}&_atid={$ATTACHID}&_atname={$DOWNLOAD_LINK|@escape:'htmlall':'UTF-8'}">
                                 &nbsp;&nbsp;<i class="fa fa-download"></i>
-                            </a>
+                            </a>*}
                         </span>
                         <br>
                     {/if}

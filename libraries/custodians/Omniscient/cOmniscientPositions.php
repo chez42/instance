@@ -220,7 +220,7 @@ class cFidelityPositions extends cCustodian {
     /*This may be better suited to do during parsing!*/
     public function CreateCashPosition(){
         global $adb;
-        $query = "CALL EXTRA_CASH_POSITIONS_FIDELITY();";
+        $query = "CALL custodian_omniscient.EXTRA_CASH_POSITIONS_FIDELITY();";
         $adb->pquery($query, array());
     }
     /**

@@ -1,0 +1,26 @@
+<?php
+
+$differences = PortfolioInformation_Module_Model::GetPortfolioToPositionDifferencesList();
+$tdAccounts = array();
+
+foreach($differences AS $k => $v) {
+    switch(strtoupper($v['origination'])){
+        case "TD":
+            $tdAccounts[] = $v['account_number'];
+            break;
+    }
+}
+
+$end = date('Y-m-d');
+$start = date('Y-m-d', strtotime('-4 days'));
+PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($tdAccounts, $start, $end);
+
+$copy = new CustodianToOmniTransfer($tdAccounts);
+$copy->UpdatePortfolios();
+$copy->CreateSecurities();
+$copy->CreatePositions();
+
+PortfolioInformation_Module_Model::ConsolidatedBalances($tdAccounts, $start, $end);
+
+
+include("cron/modules/InstanceOnly/HomepageWidgets.service");

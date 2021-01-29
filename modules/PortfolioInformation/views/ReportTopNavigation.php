@@ -3,6 +3,7 @@ require_once("include/utils/omniscientCustom.php");
 require_once("libraries/reports/cReports.php");
 require_once("libraries/reports/pdf/cPDFDBAccess.php");
 require_once("libraries/reports/new/nExpense.php");
+include_once('libraries/reports/new/nCommon.php');
 
 class PortfolioInformation_ReportTopNavigation_View extends Vtiger_BasicAjax_View{
     
@@ -14,7 +15,7 @@ class PortfolioInformation_ReportTopNavigation_View extends Vtiger_BasicAjax_Vie
 
         $instance = $request->get('instance');
         $acct = $request->get('acct');
-
+/*$report
         $report = new cReports($instance, $acct);
         $account_numbers_pid = GetPortfolioAccountNumbersFromPids($report->pids);
         $account_numbers_ssn = GetPortfolioAccountNumbersFromSSN($report->ssn);
@@ -38,14 +39,14 @@ class PortfolioInformation_ReportTopNavigation_View extends Vtiger_BasicAjax_Vie
             }
         }
 
-        $account_numbers = array_unique($account_numbers);
+        $account_numbers = array_unique($account_numbers);*/
 
 /*        if(is_array($account_numbers))
             $account_numbers = array_merge($account_numbers, $account_numbers_ssn, $account_numbers_contact);
        else
             $account_numbers = $account_numbers_ssn;
 */
-
+        $account_numbers = GetAccountNumbersFromRecord($acct);
         $questions = generateQuestionMarks($account_numbers);
         $totals = array();
         $live_accounts = array();

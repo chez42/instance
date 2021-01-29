@@ -48,7 +48,7 @@
                                                     </h5>
                                                 </div>
                                             </div>
-                                            <div id="{$MODULE_NAME}_FieldInfo" class="{$MODULE_NAME}_FieldInfo accordion-body collapse fieldInfo {if $CONVERT_LEAD_FIELDS['Accounts'] && $MODULE_NAME == "Accounts"} in {elseif !$CONVERT_LEAD_FIELDS['Accounts'] && $MODULE_NAME == "Contacts"} in {/if}">
+                                            <div id="{$MODULE_NAME}_FieldInfo" class="{$MODULE_NAME}_FieldInfo accordion-body collapse fieldInfo {if ($CONVERT_LEAD_FIELDS['Accounts'] && $MODULE_NAME == "Accounts") || ($CONVERT_LEAD_FIELDS['Contacts'] && $MODULE_NAME == "Contacts")} in  {/if}">
                                                 <hr>
                                                 {foreach item=FIELD_MODEL from=$MODULE_FIELD_MODEL}
                                                     <div class="row">

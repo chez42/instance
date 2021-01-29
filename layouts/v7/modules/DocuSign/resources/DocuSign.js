@@ -92,7 +92,7 @@ Vtiger.Class("DocuSign_Js",{
 						
 						if (data) {
 							
-							var overlayParams = {'backdrop': 'static', 'keyboard': false};
+							var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 							app.helper.loadPageContentOverlay(data, overlayParams).then(function (modal) {
 								var docusignForm = jQuery('#massSaveSendEnvelope');
 								if(docusignForm.length){

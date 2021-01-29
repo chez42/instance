@@ -1,6 +1,7 @@
 <style>
 	.portalTable>tbody>tr>td{
 		padding: 8px;
+		border: 1px solid !important;
 	}
 </style>
 <table class="portalTable" border="1" style="width:100%;">
@@ -14,7 +15,7 @@
 			<td class="fieldLabel textOverflowEllipsis text-left">
 				<b>{vtranslate('LBL_MODULE', $MODULE)}</b>
 			</td>
-			<td class="fieldLabel textOverflowEllipsis text-center">
+			<td class="fieldLabel textOverflowEllipsis text-center" {if !$REPORT_PERMISSION} style = "display:none;" {/if}>
 				&nbsp;
 			</td>
 			<td class="fieldLabel textOverflowEllipsis text-center">
@@ -43,9 +44,11 @@
 					<td class="fieldValue textOverflowEllipsis text-left">
 						{vtranslate($MODULE_NAME, 'Settings:CustomerPortal')}
 					</td>
-					<td> &nbsp;</td>
+					<td {if !$REPORT_PERMISSION} style = "display:none;" {/if}> &nbsp;</td>
 					<td class="fieldValue text-center">
-						<span class="portalFieldValue">
+					
+						<input style="opacity: 0;" {if $VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_visible]" id="portalModulesInfo[{$NAME_MODULE}_visible]">
+						<!-- <span class="portalFieldValue">
 							{if $VISIBLE eq '1'} Yes {else} No {/if}
 						</span>
 						<span class="action pull-right">
@@ -58,10 +61,15 @@
 						<span class="hide editPortal">
 							<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_visible]" data-displayvalue="{if $VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
 							<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
-						</span>
+						</span> -->
 					</td>
 					<td class="fieldValue text-center">
-						<span class="portalFieldValue">
+						{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports'}
+							&nbsp;
+						{else}
+							<input style="opacity: 0;" {if $EDIT_RECORDS == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]">
+						{/if}
+						<!-- <span class="portalFieldValue">
 							{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports'}
 								&nbsp;
 							{else if $EDIT_RECORDS == '1'} 
@@ -82,10 +90,16 @@
 								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_edit_records]" data-displayvalue="{if $EDIT_RECORDS == '1'}Yes{else}No{/if}" data-type="boolean" />
 								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
 							{/if}
-						</span>
+						</span> -->
 					</td>
 					<td class="fieldValue text-center">
-						<span class="portalFieldValue">
+						
+						{if $MODULE_NAME eq 'Accounts'}
+							&nbsp;
+						{else}
+							<input style="opacity: 0;" {if $RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" id="portalModulesInfo[{$NAME_MODULE}_record_across_org]">
+						{/if}
+						<!-- <span class="portalFieldValue">
 							{if $MODULE_NAME eq 'Accounts'}
 								&nbsp;
 							{else if $RECORD_VISIBLE == '1'} 
@@ -108,7 +122,7 @@
 								<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" data-displayvalue="{if $RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean"/>
 								<input type="checkbox" class="inputElement" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="1" {if $RECORD_VISIBLE == '1'} checked {/if}/>
 							{/if}
-						</span>
+						</span> -->
 					</td>
 				</tr>
 			{/if}
@@ -145,7 +159,8 @@
 									{vtranslate($ReportModules, $MODULE)}
 								</td>
 								<td class="fieldValue text-center">
-									<span class="portalFieldValue">
+									<input style="opacity: 0;" {if $REPORT_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_visible]" id="portalModulesInfo[{$NAME_REPORT}_visible]">
+									<!-- <span class="portalFieldValue">
 										{if $REPORT_VISIBLE == '1'} 
 											{vtranslate('LBL_YES', $MODULE_NAME)}
 										{else} 
@@ -162,11 +177,12 @@
 									<span class="hide editPortal">
 										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_REPORT}_visible]" data-displayvalue="{if $REPORT_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
 										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_visible]" value="1" {if $REPORT_VISIBLE == '1'} checked {/if}/>
-									</span>
+									</span> -->
 								</td>
 								<td>&nbsp;</td>
 								<td class="fieldValue text-center">
-									<span class="portalFieldValue">
+									<input style="opacity: 0;" {if $REPORT_RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" id="portalModulesInfo[{$NAME_REPORT}_record_across_org]">
+									<!--<span class="portalFieldValue">
 										{if $REPORT_RECORD_VISIBLE == '1'} 
 											{vtranslate('LBL_YES', $MODULE_NAME)}
 										{else} 
@@ -183,7 +199,7 @@
 									<span class="hide editPortal">
 										<input type="hidden" class="fieldBasicData" data-name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" data-displayvalue="{if $REPORT_RECORD_VISIBLE == '1'}Yes{else}No{/if}" data-type="boolean" />
 										<input type="checkbox" class="inputElement" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="1" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if}/>
-									<span>
+									<span>-->
 								</td>
 								
 							</tr>

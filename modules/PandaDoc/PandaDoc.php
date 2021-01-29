@@ -19,9 +19,9 @@ class PandaDoc extends Vtiger_CRMEntity {
             
             $adb->pquery("DELETE FROM vtiger_settings_field WHERE name=?", array($displayLabel));
             
-            $tab_id = Vtiger_Functions::getModuleId('Contacts');
-            $linkurl = 'javascript:PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")';
-            Vtiger_Link::deleteLink($tab_id, 'DETAILVIEW', 'Send Document with PandaDoc', $linkurl);
+            //$tab_id = Vtiger_Functions::getModuleId('Contacts');
+            //$linkurl = 'javascript:PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")';
+            //Vtiger_Link::deleteLink($tab_id, 'DETAILVIEW', 'Send Document with PandaDoc', $linkurl);
             
             $tab_id = Vtiger_Functions::getModuleId('PandaDoc');
             $linkurl = 'layouts/v7/modules/PandaDoc/resources/PandaDoc.js';
@@ -33,8 +33,14 @@ class PandaDoc extends Vtiger_CRMEntity {
             $linkurl = 'modules/PandaDoc/resources/pandadoc-js-sdk.min.js';
             Vtiger_Link::deleteLink($tab_id, 'HEADERSCRIPT', 'PandaDocSDKJS', $linkurl);
             
-            Vtiger_Cron::deregister('PandaDoc');
+            //Vtiger_Cron::deregister('PandaDoc');
             
+            $query = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid =?",
+                array( getTabid('Contacts'), getTabid('PandaDoc')));
+            if($adb->num_rows($query)){
+                $moduleInstance = Vtiger_Module::getInstance("Contacts");
+                $moduleInstance->unsetRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc', 'get_pandadoc_documents');
+            }
             
         } else if($eventType == 'module.enabled') {
             
@@ -72,13 +78,13 @@ class PandaDoc extends Vtiger_CRMEntity {
         }
         
         
-        $tab_id = Vtiger_Functions::getModuleId('Contacts');
+        /* $tab_id = Vtiger_Functions::getModuleId('Contacts');
         
         $linkurl = 'javascript:PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")';
         $result = $adb->pquery("select * from vtiger_links where linkurl = ? AND tabid = ?",array($linkurl, $tab_id));
         if(!$adb->num_rows($result)){
             Vtiger_Link::addLink($tab_id, 'DETAILVIEW', 'Send Document with PandaDoc', $linkurl, '', '0', '', '', '');
-        }
+        } */
         
         $blockid = $adb->query_result(
             $adb->pquery("SELECT blockid FROM vtiger_settings_blocks WHERE label='LBL_OTHER_SETTINGS'",array()),0, 'blockid');
@@ -90,25 +96,33 @@ class PandaDoc extends Vtiger_CRMEntity {
         $adb->pquery("INSERT INTO vtiger_settings_field (fieldid,blockid,sequence,name,iconpath,description,linkto)
         VALUES (?,?,?,?,?,?,?)", array($fieldid, $blockid,$sequence,$displayLabel,'','', 'index.php?parent=Settings&module=PandaDoc&view=Settings'));
         
-        Vtiger_Cron::register('PandaDoc', 'cron/modules/PandaDoc/SyncPandaDocFiles.service', 0);
+        //Vtiger_Cron::register('PandaDoc', 'cron/modules/PandaDoc/SyncPandaDocFiles.service', 0);
     
+        $query = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid =?",
+            array( getTabid('Contacts'), getTabid('PandaDoc')));
+        if(!$adb->num_rows($query)){
+            $moduleInstance = Vtiger_Module::getInstance("Contacts");
+            $moduleInstance->setRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc',Array(), 'get_pandadoc_documents');
+        }
     }
     
     function PandaDocTables($adb){
         
-        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_pandadoc_oauth (
-         userid int(19) DEFAULT NULL,
-         access_token text,
-         refresh_token text,
-         token_type varchar(250) DEFAULT NULL,
-         expires_in varchar(250) DEFAULT NULL)");
+        $adb->pquery("CREATE TABLE IF NOT EXISTS `vtiger_pandadoc_oauth` (
+         `userid` int(19) DEFAULT NULL,
+         `access_token` text,
+         `refresh_token` text,
+         `token_type` varchar(250) DEFAULT NULL,
+         `expires_in` varchar(250) DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
         
-        /*$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_sync_pandadoc_records (
-            userid INT(11) NULL ,
-            documentid VARCHAR(250) NULL,
-            contactid INT(19) NULL,
-            status VARCHAR(255) NULL );");
-        */
+        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_pandadocdocument_reference (
+         crm_reference varchar(100) DEFAULT NULL,
+         userid int(11) DEFAULT NULL,
+         crmid INT(19) NULL,
+         UNIQUE KEY crmid (crm_reference)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1");
+        
     }
     
 }

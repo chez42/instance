@@ -306,6 +306,49 @@ class Vtiger_Tag_Model extends Vtiger_Base_Model {
 		$result = $db->pquery($checkQuery, array($tagId, $userIdToExclude));
 		return $db->num_rows($result) > 0 ? true : false;
 	}
+	
+	public function allTagResult($value = false){
+	    
+	    global $adb, $current_user;
+	    
+	    $record = $value;
+	    
+	    $params = array();
+	    
+	    $query = "SELECT * FROM vtiger_freetags";
+	    
+	    if($record)
+            $query .=" LEFT JOIN vtiger_freetagged_objects ON vtiger_freetagged_objects.tag_id = vtiger_freetags.id ";
+            
+        $query .= " WHERE owner=? ";
+        
+        $params[] = $current_user->id;
+	    
+	    if($record){
+	       $query .= " AND vtiger_freetagged_objects.object_id!=?";
+	       $params[] = $record;
+	    }
+	    
+	    $result = $adb->pquery($query, $params);
+	    $tagList = array();
+	    
+	    if($adb->num_rows($result)){
+	        for($i=0;$i<$adb->num_rows($result);$i++){
+	            $tagData = $adb->query_result_rowdata($result, $i);
+	            $tagList[] = array(
+	                'id' =>  $tagData['id'],
+	                'text' => $tagData['tag'],
+	                'value' => $tagData['id'],
+	                'name' => $tagData['tag'],
+	                'label' => $tagData['tag']
+	            );
+	        }
+	    }
+	    
+	    return $tagList;
+	    
+	}
+	
 }
 
 ?>

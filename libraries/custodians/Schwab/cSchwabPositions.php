@@ -314,7 +314,7 @@ class cSchwabPositions extends cCustodian {
                         $this->UpdatePositionsUsingcSchwabPositionsData($tmp);
                     }
                 }
-                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($k);
+                PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount(array($k));
             }
         }
     }
@@ -344,4 +344,249 @@ class cSchwabPositions extends cCustodian {
         $adb->pquery($query, $params, true);
     }
 
+    static public function GetSymbolListFromCustodian(array $account_numbers, $max_only=true){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT symbol 
+                  FROM custodian_omniscient.custodian_positions_schwab 
+                  WHERE account_number IN ({$questions}) 
+                  AND date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_schwab WHERE account_number IN ({$questions}))
+                  GROUP BY symbol";
+
+        $result = $adb->pquery($query, array($account_numbers, $account_numbers), true);
+        if($adb->num_rows($result) > 0){
+            $symbols = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $symbols[] = $v['symbol'];
+            }
+            return $symbols;
+        }
+        return null;
+    }
+
+    /**
+     * Return cash value information for passed in account number.  This is needed because Schwab doesn't actually give us cash as a position...
+     * And why would they when everyone else does.  This also writes the balance date value as position in Schwab if it doesn't already exist
+     * @param String $account_number
+     * @param null $date_override
+     * @return array|mixed|null
+     */
+    static public function GetCashValueForAccount(String $account_number, $date_override = null){
+        global $adb;
+        $params = array();
+
+        if($date_override == null)
+            $date = 'lpd.last_position_date';//Use the latest date
+        else {
+            $date = '?';
+            $params[] = $date_override;
+        }
+        $params[] = $account_number;
+
+        $query = "SELECT s.account_number, '\$CASH' AS symbol, 'CASH' AS account_type, (s.margin_balance + s.net_credit_debit) AS quantity, as_of_date, 
+                         '\$CASH' AS ticker_symbol, '\$CASH' AS industry_ticker_symbol, '\$CASH' AS cusip, 'Free Cash' AS description, 1 AS price, 
+                         NOW() AS security_price_update_date, (s.margin_balance + s.net_credit_debit) AS quantity_settled_and_unsettled, 
+                         (s.margin_balance + s.net_credit_debit) AS market_value_settled_and_unsettled, 'CASH' AS accounting_rule_code,
+                         NOW() AS insert_date, cf.production_number
+                  FROM custodian_omniscient.custodian_balances_schwab s
+                  JOIN vtiger_portfolioinformation p ON p.account_number = s.account_number
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number
+                  WHERE s.as_of_date = {$date}
+                  AND s.account_number = ?";
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0){
+            $query = "INSERT INTO custodian_omniscient.custodian_positions_schwab (account_number, symbol, account_type, quantity, date, ticker_symbol, 
+						                                      industry_ticker_symbol, cusip, security_description_line1, 
+						                                      closing_price, security_price_update_date, quantity_settled_and_unsettled, 
+						                                      market_value_settled_and_unsettled, accounting_rule_code, insert_date)
+                      VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                      ON DUPLICATE KEY UPDATE account_type = VALUES(account_type)";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, array($v['account_number'], $v['symbol'], $v['account_type'], $v['quantity'], $v['as_of_date'], $v['ticker_symbol'],
+                                           $v['industry_ticker_symbol'], $v['cusip'], $v['security_description_line1'], $v['closing_price'], $v['security_price_update_date'],
+                                           $v['quantity_settled_and_unsettled'], $v['market_value_settled_and_unsettled'], $v['accounting_rule_code'], $v['insert_date']), true);
+                return $v;
+            }
+        }
+        return null;
+    }
+
+    static public function ExtraCashPositionsSchwabAccounts(array $account_number){
+        foreach($account_number AS $k => $v){
+            if(!self::DoesPositionExistInCRM($v, '$CASH')){
+                $position = Vtiger_Record_Model::getCleanInstance("PositionInformation");
+                $data = $position->getData();
+                $data['security_symbol'] = '$CASH';
+                $data['description'] = "Free Cash";
+                $data['account_number'] = $v;
+                $position->setData($data);
+                $position->set('mode', 'create');
+                $position->save();
+            }
+        }
+    }
+
+    static public function UpdateAllCRMPositionsAtOnceForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+
+        foreach($account_number AS $k => $v){
+            $cash = self::GetCashValueForAccount($v);//This returns the cash value or each account, but also creates the cash position in schwab if it doesn't already exist
+        }
+
+        $query = "SELECT pos.symbol, pos.account_number, por.account_type, long_short, SUM(pos.quantity) AS quantity, date, pos.filename, original_symbol, pos.record_type, 
+                         pos.custodian_id, pos.master_account_number, pos.master_account_name, pos.business_date, product_code, product_category_code, 
+                         pos.tax_code, legacy_security_type, ticker_symbol, pos.industry_ticker_symbol, pos.cusip, schwab_security_number, pos.item_issue_id, 
+                         rule_set_suffix_id, pos.isin, pos.sedol, pos.options_display_symbol, security_description_line1, security_description_line2, 
+                         security_description_line3, security_description_line4, pos.underlying_ticker_symbol, pos.underlying_industry_ticker_symbol, 
+                         pos.underlying_cusip, underlying_schwab_security, underlying_item_issue_id, underlying_rule_set_suffix_id, pos.underlying_isin, 
+                         underlying_sedol, money_market_code, dividend_reinvest, capital_gains_reinvest, pos.closing_price, 
+                         security_price_update_date, SUM(quantity_settled_and_unsettled) AS quantity_settled_and_unsettled, long_short_indicator, 
+                         SUM(market_value_settled_and_unsettled) AS market_value_settled_and_unsettled, accounting_rule_code, SUM(quantity_settled) AS quantity_settled, SUM(quantity_unsettled_long) AS quantity_unsettled_long, 
+                         SUM(quantity_unsettled_short) AS quantity_unsettled_short, version_marker1, pos.tips_factor, pos.asset_backed_factor, version_marker2, 
+                         pos.closing_price_unfactored, pos.factor, pos.factor_date, pos.file_date, pos.insert_date, pinfo.positioninformationid, ms.securitytype, 
+                         mscf.aclass
+                  FROM custodian_omniscient.custodian_positions_schwab pos
+                  JOIN custodian_omniscient.custodian_portfolios_schwab por ON por.account_number = pos.account_number
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = por.rep_code
+                  JOIN vtiger_positioninformation pinfo ON pinfo.account_number = pos.account_number AND pinfo.security_symbol = pos.symbol
+                  JOIN vtiger_modsecurities ms ON ms.security_symbol = pinfo.security_symbol
+                  JOIN vtiger_modsecuritiescf mscf USING (modsecuritiesid)
+                  WHERE date = lpd.last_position_date
+                  AND pos.account_number IN ({$questions})
+                  GROUP BY pos.account_number, pos.symbol";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_positioninformation p
+                      JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                      LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                      LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                      SET p.quantity = ?, 
+                          p.current_value = ?, 
+                          p.description = ?, 
+                          p.last_price = ?, 
+                          pcf.last_update = ?, 
+                          pcf.custodian_source = ?, 
+                          pcf.custodian = ?, 
+                          pcf.security_type = ?, 
+                          pcf.base_asset_class = ?
+                      WHERE p.positioninformationid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, array($v['quantity'], $v['market_value_settled_and_unsettled'], $v['security_description_line1'],
+                                           $v['closing_price'], $v['date'], $v['filename'], 'Schwab', $v['securitytype'], $v['aclass'],
+                                           $v['positioninformationid']));
+            }
+        }
+
+/*
+SELECT symbol, pos.account_number, security_description_line1 AS description, 1 AS crmid
+FROM custodian_omniscient.custodian_positions_schwab pos
+JOIN custodian_omniscient.custodian_portfolios_schwab por ON por.account_number = pos.account_number
+JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = por.rep_code
+WHERE pos.account_number IN ('13163366')
+        AND (pos.account_number, symbol) NOT IN (SELECT account_number, security_symbol
+			       FROM vtiger_positioninformation
+			       WHERE security_symbol != ''
+        AND account_number IN ('13163366'))
+AND pos.date = lpd.last_position_date
+        AND pos.symbol != ''
+GROUP BY symbol, pos.account_number;*/
+
+        $query = "SELECT f.account_number, account_type, f.cusip, symbol, SUM(trade_date_quantity) AS trade_date_quantity, SUM(settle_date_quantity) AS settle_date_quantity, close_price, f.description, as_of_date, m.securitytype, current_factor, original_face_amount, factored_clean_price, factored_indicator, security_type_code, option_symbol, registered_rep_1, registered_rep_2, filename, zero_percent_shares, one_percent_shares, two_percent_shares, three_percent_shares, account_source, account_type_description, accrual_amount, asset_class_type_code, capital_gain_instruction_long_term, capital_gain_instruction_short_term, clean_price, SUM(closing_market_value) AS closing_market_value, core_fund_indicator, cost, cost_basis_indicator, cost_basis_per_share, cost_method, current_face, custom_short_name, dividend_instruction, exchange, fbsi_short_name, floor_symbol, fund_number, host_type_code, lt_shares, f.maturity_date, money_source_id, money_source, operation_code, plan_name, plan_number, pool_id, position_type, pricing_factor, primary_account_owner, product_name, product_type, registration, security_asset_class, security_group, f.security_id, security_type_description, st_shares, SUM(unrealized_gain_loss_amount) AS unrealized_gain_loss_amount, unsettled_cash, file_date, insert_date,
+                         m.security_price * mcf.security_price_adjustment AS last_price, (f.unrealized_gain_loss_amount / f.cost * 100) AS gain_loss_percent, mcf.aclass, p.positioninformationid
+                  FROM custodian_omniscient.custodian_positions_fidelity f
+                  JOIN vtiger_positioninformation p ON p.account_number = f.account_number AND p.security_symbol = f.symbol
+                  JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid
+                  LEFT JOIN vtiger_modsecurities m ON p.security_symbol = m.security_symbol 
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON m.modsecuritiesid = mcf.modsecuritiesid 
+                  WHERE as_of_date=(SELECT MAX(as_of_date) FROM custodian_omniscient.custodian_positions_fidelity WHERE account_number IN ({$questions})) 
+                  AND f.account_number IN ({$questions})
+                  GROUP BY f.account_number, f.symbol";
+        $result = $adb->pquery($query, array($account_number, $account_number));
+
+        if($adb->num_rows($result) > 0){
+            self::ResetAccountPositions($account_number);
+            while($v = $adb->fetchByAssoc($result)){
+                $params = array();
+                $params[] = $v['trade_date_quantity'];
+                $params[] = $v['closing_market_value'];
+                $params[] = $v['security_name'];
+                $params[] = $v['last_price'];
+                $params[] = $v['as_of_date'];
+                $params[] = $v['securitytype'];
+                $params[] = $v['aclass'];
+                $params[] = $v['Fidelity'];
+                $params[] = $v['unrealized_gain_loss_amount'];
+                $params[] = $v['cost'];
+                $params[] = $v['gain_loss_percent'];
+                $params[] = $v['filename'];
+                $params[] = $v['positioninformationid'];
+
+                $query = "UPDATE vtiger_positioninformation p 
+                          JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
+                          SET p.quantity = ?, p.current_value = ?, p.description = ?, 
+                          p.last_price = ?, pcf.last_update = ?, 
+                          pcf.security_type = ?, pcf.base_asset_class = ?, pcf.custodian = ?, 
+                          p.unrealized_gain_loss = ?, p.cost_basis = ?, p.gain_loss_percent = ?, pcf.custodian_source = ?
+                          WHERE p.positioninformationid = ?";
+                $adb->pquery($query, $params);
+            }
+        }
+    }
+
+    static public function CreateNewPositionsForAccounts(array $account_number)
+    {
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        self::ExtraCashPositionsSchwabAccounts($account_number);
+
+        $query = "SELECT pos.symbol, pos.account_number, security_description_line1 AS description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+                  FROM custodian_omniscient.custodian_positions_schwab pos 
+                  JOIN custodian_omniscient.custodian_portfolios_schwab por ON por.account_number = pos.account_number
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = por.rep_code
+                  WHERE pos.account_number IN ({$questions}) 
+                  AND (pos.account_number, pos.symbol) NOT IN (SELECT account_number, security_symbol 
+                                                       FROM vtiger_positioninformation 
+                                                       WHERE security_symbol != '' 
+                                                       AND account_number IN ({$questions})) 
+                  AND pos.date = lpd.last_position_date 
+                  AND pos.symbol != '' 
+                  GROUP BY pos.symbol, pos.account_number";
+        $result = $adb->pquery($query, array($account_number, $account_number), true);
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol']), true);
+
+                $query = "INSERT INTO vtiger_positioninformation (positioninformationid, security_symbol, description, account_number)
+                          VALUES(?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol'], $v['description'], $v['account_number']), true);
+
+                $query = "INSERT INTO vtiger_positioninformationcf (positioninformationid)
+                          VALUES(?)";
+                $adb->pquery($query, array($v['crmid']), true);
+            }
+        }
+    }
 }
+
+/*
+        $query = "SELECT account_number, '\$CASH' AS symbol, 'CASH' AS account_type, (margin_balance + net_credit_debit) AS quantity, as_of_date,
+                         '\$CASH' AS ticker_symbol, '\$CASH' AS industry_ticker_symbol, '\$CASH' AS cusip, 'Free Cash' AS description, 1 AS price,
+                         NOW() AS security_price_update_date, (margin_balance + net_credit_debit) AS quantity_settled_and_unsettled,
+                         (margin_balance + net_credit_debit) AS market_value_settled_and_unsettled, 'CASH' AS accounting_rule_code,
+                         NOW() AS insert_date, cf.production_number
+                  FROM custodian_omniscient.custodian_balances_schwab s
+                  JOIN vtiger_portfolioinformation p ON p.account_number = s.account_number
+                  JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number
+                  WHERE s.as_of_date = lpd.last_position_date
+                  AND s.account_number IN ({$questions})";
+ */
