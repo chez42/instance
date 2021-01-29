@@ -38,8 +38,8 @@ class CustodianToOmni{
                 $tmp->PullPositions(array($this->account_number));
                 break;
             CASE "FIDELITY":
-#                $tmp = new cFidelityQuickAccess();
-#                $tmp->PullPositions(array($this->account_number));
+                $tmp = new cFidelityQuickAccess();
+                $tmp->PullPositions(array($this->account_number));
                 break;
             CASE "SCHWAB":
 #                $tmp = new cSchwabQuickAccess();

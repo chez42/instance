@@ -19,7 +19,7 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
         $linkId = $request->get('linkid');
         $data = $request->get('data');
         
-        $moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+        $moduleModel = Vtiger_Module_Model::getInstance('Transactions');
         
         $trade_date= array();
         
@@ -92,7 +92,8 @@ class Contacts_ClientDistribution_Dashboard extends Vtiger_IndexAjax_View {
             $row = $db->query_result_rowdata($result, $i);
             $tmp['title'] = $row['cf_3266'];
             $tmp['value'] = $row['totalamount'];
-            $tmp['url'] = $listViewUrl.$this->getSearchParams($row['cf_3266']).'&nolistcache=1';
+            //$tmp['url'] = $listViewUrl.$this->getSearchParams($row['cf_3266']).'&nolistcache=1';
+            $tmp['url'] = $listViewUrl.'&start='.$startDate.'&end='.$endDate.'&contactage='.$row['cf_3266'].'&nolistcache=1';
             $data[] = $tmp;
         }
         

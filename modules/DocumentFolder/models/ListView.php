@@ -130,9 +130,9 @@ class DocumentFolder_ListView_Model extends Vtiger_ListView_Model {
 	    
 	    $listQuery = parent::getQuery();
 	    
-	    $listQuerycom = explode("WHERE",$listQuery);
+// 	    $listQuerycom = explode("WHERE",$listQuery);
 	    
-	    $listQuery = implode("WHERE vtiger_crmentity.smcreatorid = ".$current_user->id." AND",$listQuerycom);
+// 	    $listQuery = implode("WHERE vtiger_crmentity.smcreatorid = ".$current_user->id." AND",$listQuerycom);
 	    
 	    return $listQuery;
 	}

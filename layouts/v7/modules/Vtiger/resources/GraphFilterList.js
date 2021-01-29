@@ -58,7 +58,7 @@ Vtiger_List_Js("Vtiger_GraphFilterList_Js", {
 		if (params) {
 			app.helper.showProgress();
 			app.request.get({url: url, data: params}).then(function (error, data) {
-				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 				app.helper.loadPageContentOverlay(data, overlayParams).then(function (container) {
 					app.event.trigger('post.listViewMassEdit.loaded', container);
 				})
@@ -185,6 +185,13 @@ Vtiger_List_Js("Vtiger_GraphFilterList_Js", {
 		params.starFilterMode = container.find('.starFilter li.active a').data('type');
 		params.list_headers = container.find('[name="list_headers"]').val();
 		params.tag = container.find('[name="tag"]').val();
+		
+		if(module == 'Transactions'){
+			params.contactage = container.find('[name="contactage"]').val();
+			params.start	  = container.find('[name="start"]').val();
+			params.end		  = container.find('[name="end"]').val();
+		}
+		
 		return params;
 	},
 	

@@ -14,7 +14,7 @@
 					<div class="kt-login__wrapper">
 						<div class="kt-login__content">
 							<a class="kt-login__logo" href="#">
-								<img src="<?php echo $portal_logo;?>">
+								<img src="<?php echo $portal_logo;?>" style="width:100% !important;">
 							</a>
 							<h3 class="kt-login__title"><?php echo $portal_main_title;?></h3>
 							<span class="kt-login__desc" >

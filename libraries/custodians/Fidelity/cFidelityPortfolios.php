@@ -498,4 +498,137 @@ class cFidelityPortfolios extends cCustodian {
             }
         }
     }
+
+    static public function CreateNewPortfoliosForRepCodes($rep_codes){
+        global $adb;
+        $custodian_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes("Fidelity", $rep_codes);
+        $crm_accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+        $new = array_diff($custodian_accounts, $crm_accounts);
+
+        if(!empty($new)){
+            $questions = generateQuestionMarks($new);
+
+            $query = "SELECT p.account_number, p.account_name, p.t_account, p.registration, p.disposal_method, p.s_corp_indicator, 
+                             'Fidelity' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.production_number, f.as_of_date, f.net_worth, f.buying_power, 
+                             f.cash_available_to_withdraw, (f.net_worth-f.cash_available_to_withdraw) AS market_value, f.cash_available_to_borrow, 
+                             f.money_market_available, f.core_cash_market_value, f.unsettled_cash, f.dividend_accrual, NOW() AS generatedtime, 
+                             p.rep_code 
+                      FROM custodian_omniscient.custodian_portfolios_fidelity p
+                      JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = p.rep_code 
+                      LEFT JOIN custodian_omniscient.custodian_balances_fidelity f ON f.account_number = p.account_number 
+                                                                                   AND f.as_of_date = lpd.last_position_date 
+                      WHERE p.account_number IN ({$questions})";
+            $result = $adb->pquery($query, array($new));
+
+            if($adb->num_rows($result) > 0){
+                while($v = $adb->fetchByAssoc($result)){
+                    $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, total_value, market_value, cash_value)
+                              VALUES(?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['net_worth'], $v['market_value'], $v['cash_available_to_withdraw']));
+
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, unsettled_cash, dividend_accrual, production_number)
+                              VALUES (?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['unsettled_cash'], $v['dividend_accrual'], $v['production_number']));
+                }
+            }
+        }
+    }
+
+    static public function UpdateAllPortfoliosForAccountsPersonalOnly(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "SELECT pf.primary_account_owner, pf.primary_owner_first_name,
+                         CASE WHEN pf.primary_owner_last_name = '' THEN pf.primary_account_owner ELSE pf.primary_owner_last_name END AS last_name,
+                         pf.address1_line1, pf.address1_line2, pf.address1_line3, pf.address2_line1, pf.address2_line2, pf.address2_line3, 
+                         pf.city1, pf.state1, pf.zip_code1, pf.establishment_date, pf.rep_code, pf.master_rep_code, pf.rep_code_multiple,
+                         p.portfolioinformationid
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid  
+                  LEFT JOIN custodian_omniscient.custodian_portfolios_fidelity pf ON pf.account_number = p.account_number 
+                  LEFT JOIN custodian_omniscient.portfolios_mapping_fidelity pmap ON pmap.fidelity_type = pf.registration
+                  WHERE pf.account_number IN ({$questions})";
+        $result = $adb->pquery($query, array($account_number), true);#21,826,709.36
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_portfolioinformation p 
+                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                      SET cf.description = ?, p.first_name = ?,
+                      p.last_name = ?, cf.address1 = ?, cf.address2 = ?, cf.address3 = ?, cf.address4 = ?, cf.address5 = ?, 
+                      cf.address6 = ?, cf.city = ?, cf.state = ?, cf.zip = ?, cf.custodian_inception = ?, cf.production_number = ?,
+                      cf.master_production_number = ?, cf.rep_code_multiple = ?
+                    WHERE p.portfolioinformationid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, $v, true);
+            }
+        }
+    }
+
+    static public function UpdateAllPortfoliosForAccountsBalancesOnly(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "SELECT f.net_worth, f.as_of_date, (f.net_worth - f.cash_available_to_withdraw) AS securities, f.cash_available_to_withdraw,
+                     f.cash_available_to_withdraw AS cash_available_to_withdraw2, f.unsettled_cash, f.short_market_value, f.short_balance, 
+                     f.dividend_accrual, CASE WHEN pf.production_number IS NOT NULL AND pf.production_number != '' THEN pf.production_number ELSE cf.production_number END AS production_number, 
+                     f.cash_available_to_borrow, f.cash_available_to_withdraw AS cash_available_to_withdraw3, f.money_market_available, f.outstanding_calls, 
+                     f.margin_balance, f.core_cash_market_value, f.margin_market_value, f.trade_date_legal_balance, f.face_amount, f.death_benefit_amount,
+                     f.policy_account_value, f.cash_surrender_value, f.loan_balance, f.regulatory_net_worth, CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END AS omniscient_type, 
+                     pf.registration, f.net_worth AS net_worth2, f.filename, 0 AS accountclosed,
+                     p.portfolioinformationid
+                  FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                  JOIN custodian_omniscient.custodian_balances_fidelity f ON f.account_number = p.account_number 
+                  LEFT JOIN custodian_omniscient.custodian_portfolios_fidelity pf ON pf.account_number = f.account_number 
+                  LEFT JOIN custodian_omniscient.portfolios_mapping_fidelity pmap ON pmap.fidelity_type = pf.registration
+                  JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number 
+                  WHERE f.account_number IN ({$questions}) 
+                  AND f.as_of_date = lpd.last_position_date";
+        $result = $adb->pquery($query, array($account_number), true);#21,826,709.36
+
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_portfolioinformation p 
+                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                      SET p.total_value = ?, cf.stated_value_date = ?, cf.securities = ?, cf.cash = ?, p.cash_value = ?, cf.unsettled_cash = ?, 
+                      cf.short_market_value = ?, cf.short_balance = ?, cf.dividend_accrual = ?, cf.production_number = ?, 
+                      p.cash_available_to_borrow = ?, p.cash_available_to_withdraw = ?, p.money_market_funds = ?, p.outstanding_calls = ?, p.margin_balance = ?, p.core_cash_market_value = ?, 
+                      p.margin_market_value = ?, p.trade_date_legal_balance = ?, p.face_amount = ?, p.death_benefit_amount = ?, p.policy_account_value = ?, 
+                      p.cash_surrender_value = ?, p.loan_balance = ?, p.regulatory_net_worth = ?, cf.cf_2549 = ?, cf.account_registration = ?, 
+                      cf.stated_net_worth = ?, cf.custodian_source = ?, p.accountclosed = ?
+                    WHERE p.portfolioinformationid = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $adb->pquery($query, $v, true);
+            }
+        }
+    }
+
+    static public function UpdateAllPortfoliosForAccounts(array $account_number){
+        self::UpdateAllPortfoliosForAccountsPersonalOnly($account_number);
+        self::UpdateAllPortfoliosForAccountsBalancesOnly($account_number);
+    }
+
+    static public function UpdateAllPortfolios(){
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        self::UpdateAllPortfoliosForAccounts($accounts);
+    }
+
+    static public function GetLatestBalance($account_number){
+        global $adb;
+        $query = "SELECT * 
+                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  WHERE account_number = ?
+                  ORDER BY as_of_date 
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($account_number));
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'net_worth');
+        }
+        return null;
+    }
 }

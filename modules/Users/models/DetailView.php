@@ -45,12 +45,12 @@ class Users_DetailView_Model extends Vtiger_DetailView_Model {
 					'linkurl' => $recordModel->getPreferenceEditViewUrl(),
 					'linkicon' => ''
 				),
-			    array(
+			    /*array(
 			        'linktype' => 'DETAILVIEWPREFERENCE',
 			        'linklabel' => 'Default Portal Permissions',
 			        'linkurl' => 'Settings_Users_PreferenceDetail_Js.updatePortalPermissions("index.php?module=Users&view=DefaultPortalPermission")',
 			        'linkicon' => ''
-			    )
+			    )*/
 			);
 
 			foreach ($detailViewPreferenceLinks as $detailViewLink) {

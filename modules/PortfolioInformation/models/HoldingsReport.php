@@ -179,8 +179,8 @@ class PortfolioInformation_HoldingsReport_Model extends Vtiger_Module {
     static public function GenerateAssetClassTables($accounts){
         global $adb;
 
-        $query = "DROP TABLE IF EXISTS Estimator";
-        $adb->pquery($query, array());
+#        $query = "DROP TABLE IF EXISTS Estimator";
+#        $adb->pquery($query, array());
 
         $query = "DROP TABLE IF EXISTS PieTable";
         $adb->pquery($query, array());
@@ -193,22 +193,43 @@ class PortfolioInformation_HoldingsReport_Model extends Vtiger_Module {
         if($accounts) {
             $questions = generateQuestionMarks($accounts);
 
-            $query = "CREATE TEMPORARY TABLE Estimator
-                     SELECT p.security_symbol, p.account_number, mscf.cusip, p.description, p.quantity, p.last_price, p.weight, p.current_value, aclass 
-                     FROM vtiger_positioninformation p
-                     JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                     JOIN vtiger_modsecurities ms ON ms.security_symbol = p.security_symbol
-                     JOIN vtiger_modsecuritiescf mscf ON mscf.modsecuritiesid = ms.modsecuritiesid
-                     JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
-                     WHERE account_number IN ({$questions})
-                     AND current_value != 0 AND e.deleted = 0";// AND cf.closed_account != 1";
-            $adb->pquery($query, $accounts);
-
-            $query = "SET @global_total = (SELECT SUM(current_value) FROM Estimator)";
+            $query = "CREATE TEMPORARY TABLE Estimator(account_number VARCHAR(250),
+                                                        security_symbol VARCHAR(250), 
+                                                        cusip VARCHAR(250),
+                                                        description VARCHAR(5000), 
+                                                        quantity DECIMAL(10,2), 
+                                                        last_price DECIMAL(10,2), 
+                                                        weight DECIMAL(10,2), 
+                                                        current_value DECIMAL(10,2), 
+                                                        aclass VARCHAR(250),
+                                                        PRIMARY KEY (account_number, security_symbol))";
             $adb->pquery($query, array());
 
-            $query = "UPDATE Estimator SET weight = current_value/@global_total*100";
-            $adb->pquery($query, array());
+            $query = "SELECT p.account_number, p.security_symbol, mscf.cusip, p.description, p.quantity, p.last_price, p.weight, 
+                             p.current_value, aclass
+                      FROM vtiger_positioninformation p
+                      JOIN vtiger_positioninformationcf cf USING (positioninformationid)
+                      JOIN vtiger_modsecurities ms ON ms.security_symbol = p.security_symbol
+                      JOIN vtiger_modsecuritiescf mscf ON mscf.modsecuritiesid = ms.modsecuritiesid
+                      JOIN vtiger_crmentity e ON e.crmid = p.positioninformationid
+                      WHERE account_number IN ({$questions})
+                      AND current_value != 0 AND e.deleted = 0";
+            $result = $adb->pquery($query, $accounts);
+
+            if($adb->num_rows($result) > 0){
+                $query = "INSERT INTO Estimator VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                while($v = $adb->fetchByAssoc($result)){
+                    $adb->pquery($query, array($v));
+                }
+            }
+
+            $query = "SELECT SUM(current_value) as total_value FROM Estimator";
+            if($adb->num_rows($result) > 0){
+                $total_value = $adb->query_result($result, 0, 'total_value');
+            }
+
+            $query = "UPDATE Estimator SET weight = current_value/?";
+            $adb->pquery($query, array($total_value));
 
             $query = "CREATE TEMPORARY TABLE PieTable
                       SELECT aclass AS title, SUM(current_value) AS value, c.color

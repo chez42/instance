@@ -389,4 +389,82 @@ class cSchwabSecurities extends cCustodian {
             return date("Y-m-d", strtotime($date));
         return null;
     }
+
+    static public function CreateNewSecurities(array $symbols){
+        global $adb;
+        $questions = generateQuestionMarks($symbols);
+
+        $query = "SELECT f.cusip, CASE WHEN symbol IS NULL OR symbol = '' THEN cusip ELSE symbol END AS symbol, f.security_description_line1 AS description,
+                         map.multiplier, f.closing_price, map.security_type, map.omni_base_asset_class AS aclass, NOW() AS last_update,
+                         f.strike_price_amount, f.option_expiration_date, f.option_root_symbol, f.option_call_or_put_code, f.interest_rate,
+                         f.product_code, f.maturity_date, 'Schwab' AS origination, IncreaseAndReturnCrmEntitySequence() AS crmid, f.filename
+                  FROM custodian_omniscient.custodian_securities_schwab f
+                  LEFT JOIN custodian_omniscient.securities_mapping_schwab map ON map.code = f.product_code
+                  WHERE symbol IN ({$questions})
+                  OR CUSIP IN ({$questions})
+                  GROUP BY symbol
+                  ORDER BY last_update DESC";
+        $securities_result = $adb->pquery($query, array($symbols, $symbols), true);
+
+        if($adb->num_rows($securities_result) > 0) {
+            while($v = $adb->fetchByAssoc($securities_result)) {
+                if($v['aclass'] == NULL || TRIM($v['aclass']) == '')//This is during creation, so if we have nothing at least show something
+                    $v['aclass'] = 'Funds';
+
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES (?, 1, 1, 1, 'ModSecurities', NOW(), NOW(), ?)";
+                $adb->pquery($query, array($v['crmid'], $v['description']));
+
+                $query = "INSERT INTO vtiger_modsecurities (modsecuritiesid, security_symbol, security_name, description1, security_price, 
+                                                            securitytype, last_update, strike_price, opt_expr_date, interest_rate,
+                                                            prod_code, maturity_date, source)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['symbol'], $v['description'], $v['description'], $v['closing_price'], $v['security_type'], $v['last_update'],
+                                           $v['strike_price_amount'], $v['option_expiration_date'], $v['interest_rate'], $v['product_code'], $v['maturity_date'],
+                                           $v['filename']));
+
+                $query = "INSERT INTO vtiger_modsecuritiescf (modsecuritiesid, cusip, aclass, option_root_symbol, option_call_put, provider, security_price_adjustment, interest_rate)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($v['crmid'], $v['cusip'], $v['aclass'], $v['option_root_symbol'], $v['option_call_or_put_code'], $v['origination'], $v['multiplier'], $v['interest_rate']));
+            }
+        }
+    }
+
+    static public function UpdateAllSymbolsAtOnce(array $symbols){
+        global $adb;
+        $questions = generateQuestionMarks($symbols);
+
+        $query = "SELECT f.cusip, CASE WHEN symbol IS NULL OR symbol = '' THEN cusip ELSE symbol END AS symbol, f.security_description_line1 AS description,
+                         map.multiplier, f.closing_price, map.security_type, map.omni_base_asset_class AS aclass, NOW() AS last_update,
+                         f.strike_price_amount, f.option_expiration_date, f.option_root_symbol, f.option_call_or_put_code, f.interest_rate,
+                         f.product_code, f.maturity_date, 'Schwab' AS origination, IncreaseAndReturnCrmEntitySequence() AS crmid, f.filename, m.modsecuritiesid
+                  FROM custodian_omniscient.custodian_securities_schwab f
+                  LEFT JOIN custodian_omniscient.securities_mapping_schwab map ON map.code = f.product_code
+                  JOIN vtiger_modsecurities m ON m.security_symbol = f.symbol
+                  WHERE symbol IN ({$questions})
+                  OR CUSIP IN ({$questions})
+                  GROUP BY symbol
+                  ORDER BY last_update DESC";
+        $result = $adb->pquery($query, array($symbols, $symbols), true);
+
+        if($adb->num_rows($result) > 0) {
+            $query = "UPDATE vtiger_modsecurities m
+                      JOIN vtiger_modsecuritiescf cf ON m.modsecuritiesid = cf.modsecuritiesid
+                      JOIN vtiger_crmentity e ON e.crmid = m.modsecuritiesid
+                      SET cf.cusip = ?, m.security_name = ?, m.security_price = ?,
+                          cf.security_price_adjustment = ?, 
+                          cf.aclass = CASE WHEN cf.aclass IS NULL OR cf.aclass = '' THEN ? ELSE cf.aclass END,
+                          m.interest_rate = ?, m.maturity_date = ?, cf.provider = ?, m.last_update = ?,
+                          cf.interest_rate = ?,
+                          e.modifiedtime = ?, m.source = ? 
+                      WHERE m.modsecuritiesid = ?";
+            while($v = $adb->fetchByAssoc($result)) {
+                if($v['aclass'] == NULL || TRIM($v['aclass']) == '')//This is during creation, so if we have nothing at least show something
+                    $v['aclass'] = 'Funds';
+                $adb->pquery($query, array($v['cusip'], $v['description'], $v['closing_price'], $v['multiplier'], $v['aclass'], $v['interest_rate'],
+                                           $v['maturity_date'], $v['origination'], $v['last_update'], $v['interest_rate'], $v['last_update'],
+                                           $v['origination'], $v['modsecuritiesid']));
+            }
+        }
+    }
 }

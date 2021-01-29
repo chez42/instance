@@ -36,6 +36,13 @@
 	<input type="hidden" name="viewType" value="{$VIEWTYPE}" />
 	<input type="hidden" name="app" id="appName" value="{$SELECTED_MENU_CATEGORY}">
 	<input type="hidden" id="isExcelEditSupported" value="{if $MODULE_MODEL->isExcelEditAllowed()}yes{else}no{/if}" />
+	
+	{if $MODULE eq 'Transactions' && $CONTACTAGE}
+		<input type="hidden" name="contactage" value="{$CONTACTAGE}" />
+		<input type="hidden" name="start" value="{$STARTDATE}" />
+		<input type="hidden" name="end" value="{$ENDDATE}" />
+	{/if}
+	
 	{if !empty($PICKIST_DEPENDENCY_DATASOURCE)}
 		<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE)}' />
 	{/if}

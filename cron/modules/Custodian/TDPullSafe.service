@@ -1,0 +1,71 @@
+<?php
+require_once("libraries/custodians/cCustodian.php");
+require_once('modules/ModSecurities/actions/ConvertCustodian.php');
+include_once("include/utils/omniscientCustom.php");
+include_once("libraries/statusupdates/StatusUpdate.php");
+
+echo "Process Start " . date("Y-m-d H:i:s") . '<br />';
+
+StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Safe Process (TD)");
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+cTDPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+cFidelityPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing TD portfolios
+#echo 'now check for 678498025';exit;
+$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+
+$copy = new CustodianToOmniTransfer($accounts);
+$copy->UpdatePortfolios();
+$copy->CreateSecurities();
+$copy->CreatePositions();
+StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Safe Process (TD)");
+
+echo 'dun';exit;
+echo "Process Transactions " . date("Y-m-d H:i:s") . '<br />';
+echo 'no trans';exit;
+/***STEP 3 - CREATE TRANSACTIONS WORKING***/
+StatusUpdate::UpdateMessage("CRONUPDATER", "Starting Transactions (TD)");
+
+$fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+    "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+    "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+    "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+$start = $month = strtotime('2019-01-01');
+$end = strtotime(date("Y-m-d"));
+while($month < strtotime("+1 month", $end))
+{
+    $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+        "custodian_portfolios_td", "custodian_transactions_td",
+        $rep_codes, $fields);
+
+    $s = date("Y-m-d", $month);
+    $e = date("Y-m-d", strtotime("+1 month", $month));
+    $transactions->GetTransactionsDataBetweenDates($s, $e);
+    $missing = $transactions->GetMissingCRMTransactions();
+    $transactions->CreateNewTransactionsFromTransactionData($missing);
+    StatusUpdate::UpdateMessage("TDUPDATER", "Transactions Finished Creating for {$month}");
+
+    //            echo date('Y-m-d', $month), PHP_EOL;
+    #            echo "Start: {$s}, End: {$e}<br />";
+    #            echo "Start: " . date("Y-m-d", $month) . " End " . date("Y-m-d", strtotime("+1 month", $month)) . '<br />';
+    $month = strtotime("+1 month", $month);
+}
+/*********END OF STEP 3********/
+StatusUpdate::UpdateMessage("CRONUPDATER", "finished");
+StatusUpdate::UpdateMessage("TDUPDATER", "finished");
+/***STEP 3 - CREATE TRANSACTIONS WORKING***/
+/*    $fields = array("t.transaction_id", "t.advisor_rep_code", "t.file_date", "t.account_number", "t.transaction_code", "t.cancel_status_flag",
+        "t.symbol", "t.security_code", "t.trade_date", "t.quantity", "t.net_amount", "t.principal", "t.broker_fee", "t.other_fee",
+        "t.settle_date", "t.from_to_account", "t.account_type", "t.accrued_interest", "t.comment", "t.closing_method",
+        "t.filename", "t.insert_date", "t.dupe_saver_id", "mscf.security_price_adjustment", "m.omniscient_category", "m.omniscient_activity", "m.operation");
+
+    $transactions = new cTDTransactions("TD", "custodian_omniscient", "transactions",
+                                        "custodian_portfolios_td", "custodian_transactions_td",
+                                        $rep_codes, $fields);
+    $transactions->GetTransactionsDataBetweenDates('2019-01-01', date("Y-m-d"));
+    $missing = $transactions->GetMissingCRMTransactions();
+    $transactions->CreateNewTransactionsFromTransactionData($missing);
+    /*********END OF STEP 3********/
+#}
+
+echo "Process End " . date("Y-m-d H:i:s") . '<br />';

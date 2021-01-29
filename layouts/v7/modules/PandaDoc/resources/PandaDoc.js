@@ -153,8 +153,57 @@ Vtiger.Class("PandaDoc_Js",{
 	
 },{
 	
+	registerEventsForUserPrefrence : function(){
+		var self = this;
+		
+		if(app.getModuleName() == 'Users' && app.getViewName() == 'PreferenceDetail'){
+			
+			var params = {};
+			
+			params.module = 'PandaDoc';
+			params.action = 'GetUserActions';
+			params.mode = 'checkConnection';
+			params.record = app.getRecordId();
+			
+			app.request.post({data:params}).then(function(err,data){
+				if(err === null) {
+					if(data.success){
+						
+						var buttonContainer = jQuery('.detailViewContainer');
+						
+						buttonContainer.find('ul.dropdown-menu').append('<li class=  "pandadisconnectbtn"><a href = "#">Revoke Pandadoc Access</a></li>');
+						
+						self.registerEventForDisconnectButton();
+					}
+				}
+			});
+		}
+	},
+
+	registerEventForDisconnectButton : function(){
+		var self = this;
+		$(document).on('click', '.pandadisconnectbtn', function(){
+			var btn = this;
+			var params = {};
+			
+			params.module = 'PandaDoc';
+			params.action = 'GetUserActions';
+			params.mode = 'revokeToken';
+			params.record = app.getRecordId();
+			
+			app.request.post({data:params}).then(function(err,data){
+				if(err === null) {
+					if(data.success)
+						$(btn).remove();
+				}
+			});
+			
+		});
+	},
+	
 	registerEvents : function(){
 		this.Class.ValidateToken();
+		this.registerEventsForUserPrefrence();
 	},
 });
 

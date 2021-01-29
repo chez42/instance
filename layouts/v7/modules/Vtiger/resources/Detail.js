@@ -978,40 +978,56 @@ Vtiger.Class("Vtiger_Detail_Js",{
 		detailContentsHolder.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"]',function(e){
 			e.stopPropagation();
 			var element = jQuery(e.currentTarget);
-			var recordId = element.data('id');
-			if(element.data('emailflag') == 'SAVED') {
-				var mode = 'emailEdit';
-			} else {
-				mode = 'emailPreview';
-				params['parentModule'] = app.getModuleName();
-			}
-			params['mode'] = mode;
-			params['record'] = recordId;
-			app.helper.showProgress();
-			app.request.post({data:params}).then(function(err,data){
-				app.helper.hideProgress();
-				if(err === null){
-					var dataObj = jQuery(data);
-					var descriptionContent = dataObj.find('#iframeDescription').val();
-					var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
-					app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
-						if(mode === 'emailEdit'){
-							var editInstance = new Emails_MassEdit_Js();
-							editInstance.registerEvents();
-						}else {
-							app.event.trigger('post.EmailPreview.load',null);
+			
+			var target = jQuery(e.target).parent().parent();
+			
+			if(!jQuery(e.target).parent().hasClass('noemailpreview')){
+				
+				var recordId = element.data('id');
+				
+				if (!target.hasClass('dropdown') && recordId){ 
+					
+					if(element.data('emailflag') == 'SAVED') {
+						var mode = 'emailEdit';
+					} else {
+						mode = 'emailPreview';
+						params['parentModule'] = app.getModuleName();
+					}
+					params['mode'] = mode;
+					params['record'] = recordId;
+					app.helper.showProgress();
+					app.request.post({data:params}).then(function(err,data){
+						app.helper.hideProgress();
+						if(err === null){
+							var dataObj = jQuery(data);
+							var descriptionContent = dataObj.find('#iframeDescription').val();
+							var overlayParams = {/*'backdrop' : 'static',*/ 'keyboard' : false};
+							app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
+								if(mode === 'emailEdit'){
+									var editInstance = new Emails_MassEdit_Js();
+									editInstance.registerEvents();
+								}else {
+									app.event.trigger('post.EmailPreview.load',null);
+								}
+								jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
+								jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height()-70);
+								jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
+									e.preventDefault();
+									var url = jQuery(e.currentTarget).attr('href');
+									window.open(url, '_blank');
+								});
+								//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
+							});
 						}
-						jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
-						jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height()-70);
-						jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
-							e.preventDefault();
-							var url = jQuery(e.currentTarget).attr('href');
-							window.open(url, '_blank');
-						});
-						//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
 					});
+					
+				}else if(target.hasClass('dropdown')){
+					
+					target.addClass('open');
+					
 				}
-			});
+				
+			}
 		})
 
 		detailContentsHolder.on('click','[name="emailsEditView"]',function(e){
@@ -2027,7 +2043,63 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					});
 				}
 			}
-			app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+			//app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+			summaryViewContainer.on('click','.cancelStatus', function(){
+				editElement.addClass('hide');
+				detailViewElement.removeClass('hide');
+				currentTarget.show();
+			});
+			
+			summaryViewContainer.on('click','.saveStatus', function(){
+				var fieldnameElement = jQuery('.fieldname', editElement);
+				var fieldName = fieldnameElement.val();
+				var fieldElement = jQuery('[name="'+ fieldName +'"]', editElement);
+				var previousValue = fieldnameElement.data('prevValue');
+				var ajaxEditNewValue = fieldElement.find('option:selected').val();
+				var translatedValue = fieldElement.find('option:selected').text();
+
+				var select2Element = fieldElement.parent().find('.select2-container');
+				if(ajaxEditNewValue == '') {
+					vtUtils.showValidationMessage(select2Element, app.vtranslate('JS_REQUIRED_FIELD'));
+					app.helper.addClickOutSideEvent(currentDiv,callbackFunction);
+					return;
+				} else {
+					vtUtils.hideValidationMessage(select2Element);
+				}
+
+				if(previousValue == ajaxEditNewValue) {
+					editElement.addClass('hide');
+					detailViewElement.removeClass('hide');
+					currentTarget.show();
+				} else {
+					var activityDiv = currentDiv.closest('.activities');
+					var activityId = activityDiv.find('.activityId').val();
+					var moduleName = activityDiv.find('.activityModule').val();
+					var activityType = activityDiv.find('.activityType').val();
+
+					currentTarget.closest('.summaryWidgetContainer').waitMe({effect : 'orbit',text : 'Please wait...'});
+					editElement.addClass('hide');
+					var params = {
+						action : 'SaveAjax',
+						record : activityId,
+						field : fieldName,
+						value : ajaxEditNewValue,
+						module : moduleName,
+						activitytype : activityType,
+						calendarModule : moduleName,
+						origin : 'SummaryWidget'
+					};
+					
+					app.request.post({"data":params}).then(
+						function(err,data) {
+							currentTarget.closest('.summaryWidgetContainer').waitMe('hide');
+							detailViewElement.removeClass('hide');
+							currentTarget.show();
+							detailViewElement.html(translatedValue);
+							fieldnameElement.data('prevValue', ajaxEditNewValue);
+					});
+				}
+			});
 		});
 	},
 
@@ -2754,7 +2826,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					app.helper.showProgress();
 					app.request.get({data: params}).then(function(err, response) {
 						app.helper.hideProgress();
-						var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
+						var overlayParams = {/*'backdrop' : 'static', */'keyboard' : false};
 						app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
 							var detailjs = Vtiger_Detail_Js.getInstanceByModuleName(params.module);
 							detailjs.showScroll(jQuery('.overlayDetail .modal-body'));
@@ -2795,7 +2867,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					app.helper.showProgress();
 					app.request.get({data: params}).then(function(err, response) {
 						app.helper.hideProgress();
-						var overlayParams = {'backdrop' : 'static', 'keyboard' : false};
+						var overlayParams = {/*'backdrop' : 'static', */'keyboard' : false};
 						app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
 							var detailjs = Vtiger_Detail_Js.getInstanceByModuleName(params.module);
 							detailjs.showScroll(jQuery('.overlayDetail .modal-body'));
@@ -2858,7 +2930,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			app.helper.showProgress();
 		app.request.get({data: params}).then(function(err, response) {
 				app.helper.hideProgress();
-				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 				app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
 				var height = jQuery(window).height() - jQuery('.app-fixed-navbar').height() - jQuery('.overlayFooter').height() - 80;
 

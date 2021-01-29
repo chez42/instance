@@ -896,6 +896,10 @@ tbody .ps__thumb-y{
 	color: <?= $text_contrast_menu ?>;
 }
 
+.modal-overlay-footer .cancelLink{
+	color: <?= $text_contrast_menu ?>;
+}
+
 .stellarnav li li.has-sub > a:after {border-left: 6px solid <?= $text_contrast_menu ?> !important;}
 .stellarnav li a {color: <?= $text_contrast_menu ?> !important;}
 .stellarnav li {background-color:<?= $menu_color ?>; border:<?= $menu_color ?>;}
@@ -915,4 +919,12 @@ span.module-icon :not(.material-icons){
 
 .sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a:hover span.module-icon, .sidebar-nav ul li a.active span.module-icon {
     filter:  <?= $iconHover ?>;
+}
+
+.close{
+	color : #f00 !important;
+}
+
+span.module-icon.quickcreate :not(.material-icons){
+	filter : unset !important;
 }

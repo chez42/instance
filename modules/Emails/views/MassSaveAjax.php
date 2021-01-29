@@ -232,14 +232,37 @@ class Emails_MassSaveAjax_View extends Vtiger_Footer_View {
 			}
 			$success = true;
 			if($flag == 'SENT') {
-				$status = $recordModel->send();
-				if ($status === true) {
-					// This is needed to set vtiger_email_track table as it is used in email reporting
-					$recordModel->setAccessCountValue();
-				} else {
-					$success = false;
-					$message = $status;
-				}
+			    if(count($recordIds) > 20){
+			        
+			        $selectedFields = is_array($request->get('selectedfields')) ? json_encode($request->get('selectedfields')) : $request->get('selectedfields');
+			        $cvId = $request->get('viewname');
+			        $selectedIds = is_array($request->get('selected_ids')) ? json_encode($request->get('selected_ids')) : $request->get('selected_ids');
+			        $excludedIds = is_array($request->get('excluded_ids')) ? json_encode($request->get('excluded_ids')) : $request->get('excluded_ids');
+			        $searchParams = is_array($request->get('search_params')) ? json_encode($request->get('search_params')) : $request->get('search_params');
+			        $otherData = json_encode(array(
+			             'searchKey' => $request->get('search_key'),
+			             'searchValue' => $request->get('search_value'),
+			             'operator' => $request->get('operator')
+			        ));
+			        $adb->pquery("INSERT INTO vtiger_email_queue(emailid, from_serveremailid, selected_fields, cvid, serch_params, 
+                    selected_ids, excluded_ids, other_data, source_module) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			            array($recordModel->getId(), $request->get("from_serveremailid"), $selectedFields, $cvId, 
+			                $searchParams, $selectedIds, $excludedIds, $otherData, $request->get('source_module')));
+			        
+			        $viewer->assign('SCHEDULED', true);
+			        
+			    }else{
+			        
+    				$status = $recordModel->send();
+    				if ($status === true) {
+    					// This is needed to set vtiger_email_track table as it is used in email reporting
+    					$recordModel->setAccessCountValue();
+    				} else {
+    					$success = false;
+    					$message = $status;
+    				}
+    				
+			    }
 			}
 
 		} else {

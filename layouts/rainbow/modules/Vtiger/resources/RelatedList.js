@@ -24,7 +24,68 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 		
 	},
 	
+	saveasdocument : function(attId){
+		
+		var params = {};
+		params['module'] = "Emails";
+		params['action'] = "DownloadFile";
+		params['attid'] = attId;
+		params['mode'] = 'saveAsDocument';
+		params['parentrecord'] = app.getRecordId();
+		params['record'] = jQuery('[name="recordId"]').val();
+		
+		app.helper.showProgress();
+		app.request.post({data:params}).then(function(err,data){
+			app.helper.hideProgress();
+			if(err === null){
+				if(data.success)
+					app.helper.showSuccessNotification({message:data.message});
+				else
+					app.helper.showErrorNotification({message:data.message});
+			}
+		});
+		
+	},
 	
+	previewdocument : function(attId){
+		
+		var params = {};
+		params['module'] = "Emails";
+		params['action'] = "DownloadFile";
+		params['attid'] = attId;
+		params['mode'] = "previewDocument";
+		
+		app.helper.showProgress();
+		var modalParams = {
+			cb: function (modalContainer) {
+			},
+			'ignoreScroll' : true
+		};
+		app.request.post({data: params}).then(function (err, res) {
+			app.helper.hideProgress();
+			app.helper.showModal(res, modalParams);
+		});
+		
+	},
+	
+	mouseLeaveEvent : function(){
+
+		jQuery(document).find('[name="emailsRelatedRecord"]').mouseleave(function (e) {
+  			var currentDropDown = jQuery(e.currentTarget).find('.dropdown');
+  			setTimeout(function () {
+  				if (jQuery('.dropdown-menu:hover').length == 0) {
+  					if (currentDropDown.hasClass('open')) {
+  						currentDropDown.removeClass('open');
+  						//jQuery(e.currentTarget).find('.dropdown').trigger('click');
+  					}
+  					jQuery(e.currentTarget).removeClass('dropDownOpen');
+  				} else {
+  					jQuery(e.currentTarget).addClass('dropDownOpen');
+  				}
+  			}, 50);
+  		});
+		
+	}
 
 },{
 	
@@ -1507,7 +1568,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 	    		if (params) {
 	    			app.helper.showProgress();
 	    			app.request.get({url: url, data: params}).then(function (error, data) {
-	    				var overlayParams = {'backdrop': 'static', 'keyboard': false};
+	    				var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 	    				app.helper.loadPageContentOverlay(data, overlayParams).then(function (container) {
 	    					app.event.trigger('post.relatedlistViewMassEdit.loaded', container);
 	    					
@@ -1688,7 +1749,7 @@ jQuery.Class("Vtiger_RelatedList_Js",{
 					function (err, data) {
 						app.helper.hideProgress();
 						if (data) {
-							var overlayParams = {'backdrop': 'static', 'keyboard': false};
+							var overlayParams = {/*'backdrop': 'static', */'keyboard': false};
 							app.helper.loadPageContentOverlay(data, overlayParams).then(function (modal) {
 								var docusignForm = jQuery('#massSaveSendEnvelope');
 								if(docusignForm.length){

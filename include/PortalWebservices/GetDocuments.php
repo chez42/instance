@@ -3,13 +3,38 @@
 function vtws_getdocuments($element,$user){
     
     global $adb,$site_URL;
-
+    
     $foldersData = array();
     
     $html = '';
     
     if(isset($element['ID']) && $element['ID'] != ''){
         
+        $contactId = $element['ID'];
+        
+        $permission_result = $adb->pquery("SELECT * FROM `vtiger_contact_portal_permissions` inner join
+		vtiger_contactdetails on vtiger_contactdetails.contactid = vtiger_contact_portal_permissions.crmid
+		where crmid = ?", array($contactId));
+        
+        $ticket_across_org = 0;
+        
+        $contact_ids = array();
+        
+        $contact_ids[] = $contactId;
+        
+        if($adb->num_rows($permission_result)){
+            $documents_record_across_org = $adb->query_result($permission_result, 0, "documents_record_across_org");
+            $account_id = $adb->query_result($permission_result, 0, "accountid");
+            if($account_id && $documents_record_across_org){
+                $contact_ids[] = $account_id;
+                $contact_result = $adb->pquery("SELECT * FROM `vtiger_contactdetails`
+				inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+				where accountid = ? and deleted = 0", array($account_id));
+                for($i = 0; $i < $adb->num_rows($contact_result); $i++){
+                    $contact_ids[] = $adb->query_result($contact_result, $i, "contactid");
+                }
+            }
+        }
         
         $params = array();
         
@@ -61,26 +86,26 @@ function vtws_getdocuments($element,$user){
             
             if($element['folder_id'])
                 $folder_query .= ' INNER JOIN vtiger_documentfolder ON vtiger_documentfolder.documentfolderid = vtiger_notes.doc_folder_id';
-            
-            $folder_query .= ' where vtiger_senotesrel.crmid = ? ';
-           
-            if($element['folder_id']){
-                $folder_query .= ' AND vtiger_documentfolder.parent_id = '.$element['folder_id'];
-            }
-            
-			$folder_query .= ')';
-            
-            $params[] = $element['owner_id'];
-            $params[] = $element['ID'];
-            
-            
+                
+                $folder_query .= ' where vtiger_senotesrel.crmid IN (' . implode(',', $contact_ids) . ') ';
+                
+                if($element['folder_id']){
+                    $folder_query .= ' AND vtiger_documentfolder.parent_id = '.$element['folder_id'];
+                }
+                
+                $folder_query .= ')';
+                
+                $params[] = $element['owner_id'];
+                //$params[] = $element['ID'];
+                
+                
         } else {
             
             $folder_query .= ' AND (vtiger_documentfolder.documentfolderid in (select doc_folder_id from vtiger_notes
-			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid where vtiger_senotesrel.crmid = ?)
+			inner join vtiger_senotesrel on vtiger_senotesrel.notesid = vtiger_notes.notesid where vtiger_senotesrel.crmid IN (' . implode(',', $contact_ids) . ') )
             OR vtiger_documentfolder.folder_name = BINARY "Default")';
             
-            $params[] = $element['ID'];
+            //$params[] = $element['ID'];
             
         }
         
@@ -117,10 +142,10 @@ function vtws_getdocuments($element,$user){
             
             $document_query .= " AND (vtiger_notes.is_private != 1 OR vtiger_notes.is_private IS NULL) ";
             
-            $document_query .= " AND vtiger_notes.doc_folder_id = ? and vtiger_senotesrel.crmid = ? LIMIT ".$startIndex.",50";
+            $document_query .= " AND vtiger_notes.doc_folder_id = ? and vtiger_senotesrel.crmid IN (" . implode(',', $contact_ids) . ") LIMIT ".$startIndex.",50";
             
             
-            $document_result = $adb->pquery($document_query,array($element['folder_id'], $element['ID']));
+            $document_result = $adb->pquery($document_query,array($element['folder_id']));
             
             
             for($i=0; $i < $adb->num_rows($document_result); $i++){
@@ -164,7 +189,7 @@ function vtws_getdocuments($element,$user){
                     $fileType = 'doc File';
                     if($loctype == 'E')
                         $fileType = 'external File';
-                    $preview = false;
+                        $preview = false;
                 }
                 
                 
@@ -174,8 +199,8 @@ function vtws_getdocuments($element,$user){
 						<a href="javascript:void(0)" data-filelocationtype="' . $loctype .'" data-filename="'.$folder_data['fileName'].'" data-fileid="' . $docId . '">
 							'.substr($docName,0,20).'
 							<br>';
-                            if($preview){
-                                $html .= '<span class="document_preview" title="Preview" style="font-size:1.5em!important;">
+                if($preview){
+                    $html .= '<span class="document_preview" title="Preview" style="font-size:1.5em!important;">
     								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
     									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
     										<rect x="0" y="0" width="24" height="24"/>
@@ -184,8 +209,8 @@ function vtws_getdocuments($element,$user){
     									</g>
     								</svg>
     							</span>&nbsp;&nbsp;';
-                            }
-							$html .='<span class="document_download" title="Download" style="font-size:1.5em!important;">
+                }
+                $html .='<span class="document_download" title="Download" style="font-size:1.5em!important;">
 								<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 24 24" version="1.1" class="kt-svg-icon">
 									<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
 										<rect x="0" y="0" width="24" height="24"/>
@@ -202,10 +227,10 @@ function vtws_getdocuments($element,$user){
             
             if($adb->num_rows($document_result) >=50)
                 $value= '1';
-            else
-                $value ='0';
-                
-            $html .= '<input type="hidden" name="scrollevent" value="'.$value.'" />';
+                else
+                    $value ='0';
+                    
+                    $html .= '<input type="hidden" name="scrollevent" value="'.$value.'" />';
                     
         }
         
