@@ -418,137 +418,194 @@ class cTDTransactions extends cCustodian
         $adb->pquery($query, $params, true);*/
     }
 
-    static public function CreateNewTransactionsForAccounts(array $account_number){
+    static public function CreateNewTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
         global $adb;
 
-        $account_number = self::PrependZero($account_number);
+        $q1 = array();
+        $q1[] = $account_number;
+        if($sdate && $edate){
+            $and = " AND trade_date BETWEEN ? AND ? ";
+            $q1[] = $sdate;
+            $q1[] = $edate;
+        }
 
         $account_questions = generateQuestionMarks($account_number);
         $query = "SELECT cloud_transaction_id 
                   FROM vtiger_transactions 
-                  WHERE account_number IN ({$account_questions})";
-        $result = $adb->pquery($query, array($account_number));
+                  WHERE origination = 'TD'
+                  AND account_number IN ({$account_questions})
+                  {$and} ";
+
+        $result = $adb->pquery($query, $q1);
         $params = array();
         $cloud_ids = array();
         $transaction_ids = "";
 
-        $params[] = $account_number;
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
                 $cloud_ids[] = $v['cloud_transaction_id'];
             }
             $cloud_id_questions = generateQuestionMarks($cloud_ids);
-            $transaction_ids = " AND t.transaction_id NOT IN ({$cloud_id_questions}) ";
+            $transaction_ids = " t.transaction_id NOT IN ({$cloud_id_questions}) ";
             $params[] = $cloud_ids;
         }
 
-        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, transaction_id, advisor_rep_code, file_date, account_number, transaction_code, omniscient_category, omniscient_activity, cancel_status_flag, symbol, security_code, trade_date, 
-                         case when quantity = 0 THEN net_amount ELSE quantity END AS quantity, net_amount, 000000000.0000000 AS price, principal, broker_fee, other_fee, settle_date, from_to_account, account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id
-                  FROM custodian_transactions_td t
-                  JOIN custodian_omniscient.tdmapping m ON m.id = t.transaction_code
-                  WHERE t.account_number IN ({$account_questions})
-                        {$transaction_ids}";
-        $result = $adb->pquery($query, $params);
+        if(strlen($transaction_ids) == 0){
+            $transaction_ids = " t.transaction_id != 0 ";
+        }
+
+        $params[] = $account_number;
+
+        if($sdate && $edate){
+            $params[] = $sdate;
+            $params[] = $edate;
+        }
+
+        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, transaction_id, advisor_rep_code, file_date, account_number, transaction_code, omniscient_category, omniscient_activity, cancel_status_flag, symbol, security_code, trade_date, quantity, net_amount, 000000000.0000000 AS price, principal, broker_fee, other_fee, settle_date, from_to_account, account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id
+                  FROM custodian_transactions_td t 
+                  JOIN custodian_omniscient.tdmapping m ON m.id = t.transaction_code 
+                  WHERE {$transaction_ids}
+                  AND t.account_number IN ({$account_questions})
+                  {$and}
+                  GROUP BY transaction_id";
+        $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0) {
-            while ($v = $adb->fetchByAssoc($result)) {
-                switch($v['quantity']){
-                    case null:
-                    case 0:
-                        $v['price'] = 1;
-                    default:
-                        $v['price'] = $v['net_amount'] / $v['quantity'];
+            while ($x = $adb->fetchByAssoc($result)) {
+                $x['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($x['account_number']);
+
+                if (is_null($x['net_amount']))
+                    $x['net_amount'] = 0;
+
+                if (is_null($x['quantity']) || $x['quantity'] == 0)
+                    $x['quantity'] = $x['net_amount'];
+
+                if (!is_null($x['quantity']) && $x['quantity'] != 0)
+                    $x['price'] = $x['net_amount'] / $x['quantity'];
+
+                if (is_null($x['price']))
+                    $x['price'] = 1;
+
+                if ($x['net_amount'] == 0) {
+                    switch (strtoupper($x['transaction_code'])) {
+                        case 'REC':
+                        case 'DEL':
+                            $query = "SELECT pr.price, pr.price * security_price_adjustment * {$x['quantity']} AS net_amount
+                                  FROM custodian_omniscient.custodian_prices_td pr
+                                  JOIN vtiger_modsecurities m ON m.security_symbol = pr.symbol 
+                                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid) 
+                                  WHERE pr.symbol = ? 
+                                  AND pr.date = (SELECT date 
+                                                 FROM custodian_omniscient.custodian_prices_td 
+                                                 WHERE date < ? 
+                                                 AND symbol = ? 
+                                                 ORDER BY date DESC LIMIT 1)";
+                            $result = $adb->pquery($query, array($x['symbol'], $x['trade_date'], $x['symbol']));
+                            if ($adb->num_rows($result) > 0) {
+                                $x['price'] = $adb->query_result($result, 0, 'price');
+                                $x['net_amount'] = $adb->query_result($result, 0, 'net_amount');
+                            }
+                    }
                 }
+
+                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
+                          VALUES (?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+                $adb->pquery($query, array($x['crmid'], 1, $x['ownerid'], $x['ownerid'], 'Transactions', $x['comment']));
+
+                $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($x['crmid'], $x['account_number'], $x['symbol'], $x['price'], $x['quantity'], $x['trade_date'],
+                    'TD', $x['transaction_id']));
+
+                $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, rep_code, transaction_activity, net_amount, principal, broker_fee, other_fee, description, filename)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $adb->pquery($query, array($x['crmid'], 'TD', $x['omniscient_category'], $x['omniscient_activity'], $x['net_amount'], $x['principal'],
+                    $x['broker_fee'], $x['other_fee'], $x['comment'], $x['filename']));
             }
         }
-/*
-        query = "UPDATE CreateTransactions SET quantity = net_amount WHERE quantity = 0";
-        db.ExecuteUpdate(query, null);
+    }
 
-        query = "UPDATE CreateTransactions SET price = net_amount / quantity WHERE quantity != 0 AND quantity IS NOT NULL";
-        db.ExecuteUpdate(query, null);
+    static public function UpdateTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
+        global $adb;
 
-        query = "UPDATE CreateTransactions SET price = 1 WHERE price IS NULL";
-        db.ExecuteUpdate(query, null);
+        $q1 = array();
+        $q1[] = $account_number;
+        if($sdate && $edate){
+            $and = " AND t.trade_date BETWEEN ? AND ? ";
+            $q1[] = $sdate;
+            $q1[] = $edate;
+        }
 
-        query = "UPDATE CreateTransactions ct " +
-            "JOIN custodian_prices_td pr ON ct.symbol = pr.symbol AND pr.date = (SELECT date FROM custodian_omniscient.custodian_prices_td WHERE date < ct.trade_date AND symbol = ct.symbol ORDER BY date DESC LIMIT 1)" +
-            "JOIN " + vtigerDBName + ".vtiger_modsecurities ms ON ct.symbol = ms.security_symbol " +
-            "JOIN " + vtigerDBName + ".vtiger_modsecuritiescf mscf ON mscf.modsecuritiesid = ms.modsecuritiesid " +
-            "SET ct.price = pr.price, net_amount = pr.price * security_price_adjustment * ct.quantity " +
-            "WHERE transaction_code IN ('REC', 'DEL') AND (net_amount IS NULL OR net_amount = 0)";
-        db.ExecuteUpdate(query, null);
+        $account_questions = generateQuestionMarks($account_number);
+        $query = "SELECT cloud_transaction_id 
+                  FROM vtiger_transactions t
+                  WHERE origination = 'TD'
+                  AND account_number IN ({$account_questions})
+                  {$and} ";
 
-        query = "UPDATE CreateTransactions SET crmid = " + vtigerDBName + ".IncreaseAndReturnCrmEntitySequence()";
-        db.ExecuteUpdate(query, null);
-
-        query = "INSERT INTO " + vtigerDBName + ".vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)\n" +
-            "SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), comment FROM CreateTransactions";
-        db.ExecuteUpdate(query, null);
-
-        query = "INSERT INTO " + vtigerDBName + ".vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id)\n" +
-            "SELECT crmid, account_number, symbol, price, quantity, trade_date, 'TD', transaction_id FROM CreateTransactions";
-        db.ExecuteUpdate(query, null);
-
-        query = "INSERT INTO " + vtigerDBName + ".vtiger_transactionscf (transactionsid, custodian, transaction_type, rep_code, transaction_activity, net_amount, principal, broker_fee, other_fee, description, filename)\n" +
-            "SELECT crmid, 'TD', omniscient_category, advisor_rep_code, omniscient_activity, net_amount, principal, broker_fee, other_fee, comment, filename FROM CreateTransactions";
-        db.ExecuteUpdate(query, null);
-
-        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, 1 AS ownerid, 
-                         CASE WHEN m.omniscient_category > '' THEN m.omniscient_category ELSE t.transaction_category END AS transaction_type, 
-                         CASE WHEN m.omniscient_activity > '' THEN m.omniscient_activity ELSE m.transaction_activity END AS transaction_activity, 
-                         transaction_id, TRIM(LEADING '0' FROM t.account_number) AS account_number, trade_date, transaction_code, security_type, symbol, dollar_amount, t.account_type, ABS(quantity) AS quantity, 
-                         brokerage_fee, unit_cost, accrued_interest, broker_code, filename, custodian_id, master_account_number, master_account_name, business_date, 
-                         account_title_line1, account_title_line2, account_title_line3, account_registration, product_code, product_category_code, tax_code, 
-                         legacy_security_type, TRIM(ticker_symbol) AS ticker_symbol, industry_ticker_symbol, TRIM(cusip) AS cusip, schwab_security_number, item_issue_id, rule_set_suffix_id, isin, sedol, 
-                         options_display_symbol, underlying_ticker_symbol, underlying_industry_ticker_symbol, underlying_cusip, underlying_schwab_security_number, 
-                         underlying_item_issue_id, underlying_rule_set_suffix_id, underlying_isin, underlying_sedol, money_market_code, transaction_type_code, 
-                         transaction_subtype_code, transaction_category, transaction_source_code, transaction_source_code_description, transaction_detail_description, 
-                         action_code, transaction_cancel_code, settlement_date, transaction_date, exdividend_date, 
-                         CASE WHEN price = 0 AND closing_price = 0 THEN 1 WHEN price > 0 THEN price ELSE closing_price END AS price, 
-                         ABS(gross_amount) AS gross_amount, debit_credit_indicator, ABS(net_amount) AS net_amount, commission, exchange_processing_fee, broker_service_fee, 
-                         prime_broker_fee, trade_away_fee, redemption_fee, other_fee, federal_tefra_withholding, state_tax_withholding, 
-                         state_receiving_tax, accounting_rule_code, order_source_code, order_number, trade_order_entry_time_stamp, 
-                         trade_order_execution_time_stamp, broker_name, schwab_from_account, schwab_to_account, schwab1_check_number, 
-                         sweep_indicator, stock_exchange_code, interclass_exchange_code, distribution_rate, cash_in_lieu_share_quantity, 
-                         dividend_interest_share_quantity, cash_in_lieu_rate, asset_backed_factor, source_system, journal_type, 
-                         deposit_media, schwab_cashiering_unique_identifier, recipient_maker_name_line1, recipient_maker_name_line2, 
-                         recipient_maker_name_line3, frequency, disbursed_check_number, fed_reference_number, recipient_maker_account_number, 
-                         bank_account_type, bank_name_part1, bank_name_part2, bank_aba_number, intermediary_name, transaction_check_memo1, 
-                         transaction_check_memo2, retirement_federal_income_tax, retirement_state_income_tax, retirement_income_tax_state, 
-                         publication_time_stamp, version_marker1, tips_factor, closing_price, version_marker2, transaction_memo, 
-                         version_marker3, closing_price_unfactored, factor, factor_date, file_date, insert_date, CASE WHEN m.operation is null THEN '' ELSE m.operation END AS operation
-                  FROM custodian_omniscient.custodian_transactions_schwab t 
-                  JOIN custodian_omniscient.schwabmapping m ON m.source_code = t.transaction_source_code AND m.type_code = t.transaction_type_code AND m.subtype_code = t.transaction_subtype_code AND m.direction = t.debit_credit_indicator 
-                  WHERE t.dupe_flag = 2 {$transaction_ids}  
-                  AND t.account_number IN ({$account_questions})
-                  GROUP BY transaction_id";
-        $result = $adb->pquery($query, $params);
+        $result = $adb->pquery($query, $q1);
+        $params = array();
+        $cloud_ids = array();
+        $transaction_ids = "";
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
-                if($v['quantity'] == 0)
-                    $v['quantity'] = $v['gross_amount'];
-                $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
-                if($v['ticker_symbol'] == '' AND $v['cusip'] != '')
-                    $v['ticker_symbol'] = $v['ticker_symbol'] = $v['cusip'];
-                if($v['ticker_symbol'] == '' AND $v['cusip'] == '')
-                    $v['ticker_symbol'] = 'SCASH';
-
-                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
-                          VALUES (?, ?, ?, ?, 'Transactions', NOW(), NOW(), ?)";
-                $adb->pquery($query, array($v['crmid'], $v['ownerid'], $v['ownerid'], $v['ownerid'], $v['transaction_detail_description']));
-
-                $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['ticker_symbol'], $v['price'], $v['quantity'], $v['trade_date'], 'Schwab', $v['transaction_id'], $v['operation']));
-
-                $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, broker_fee, other_fee, schwab_direction, description, filename)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($v['crmid'], 'Schwab', $v['transaction_type'], $v['transaction_activity'], $v['gross_amount'], $v['broker_service_fee'] + $v['prime_broker_fee'],
-                    $v['commission'] + $v['other_fee'], $v['debit_credit_indicator'], $v['transaction_detail_description'], $v['filename']));
+                $cloud_ids[] = $v['cloud_transaction_id'];
             }
-        }*/
+            $cloud_id_questions = generateQuestionMarks($cloud_ids);
+            $transaction_ids = " f.transaction_id IN ({$cloud_id_questions}) ";
+            $params[] = $cloud_ids;
+        }
+
+        if(strlen($transaction_ids) == 0){
+            $transaction_ids = " f.transaction_id != 0 ";
+        }
+
+        $params[] = $account_number;
+
+        if($sdate && $edate){
+            $params[] = $sdate;
+            $params[] = $edate;
+        }
+
+        $query = "SELECT m.operation, cf.custodian_control_number, pcf.production_number, m.omniscient_category, m.omniscient_activity, 
+                         f.transaction_code, t.security_price, t.quantity, cf.net_amount, f.symbol, f.transaction_id, f.account_number,
+                         t.trade_date
+                  FROM vtiger_transactions t
+                  JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
+                  JOIN custodian_omniscient.custodian_transactions_td f ON f.transaction_id = t.cloud_transaction_id
+                  JOIN custodian_omniscient.tdmapping m ON m.id = f.transaction_code
+                  JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                  LEFT JOIN vtiger_modsecurities ms ON ms.security_symbol = f.symbol
+                  LEFT JOIN vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
+                  LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pr.symbol = f.symbol AND pr.date = t.trade_date
+                  LEFT JOIN vtiger_portfolioinformation p ON p.account_number = t.account_number
+                  LEFT JOIN vtiger_portfolioinformationcf pcf ON pcf.portfolioinformationid = p.portfolioinformationid
+                  WHERE {$transaction_ids}
+                  AND t.account_number IN ({$account_questions})
+                  {$and}
+                  GROUP BY f.transaction_id";
+        $result = $adb->pquery($query, $params, true);
+
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+                if($x['net_amount'] == '' || $x['net_amount'] == 0 || is_null($x['net_amount']))
+                    $x['net_amount'] = $x['security_price'] * $x['quantity'];
+
+                if(strtolower($x['transaction_activity']) == 'management fee' && is_null($x['net_maount']))
+                    $x['net_amount'] = $x['quantity'];
+
+                $query = "UPDATE vtiger_transactions t 
+                          JOIN vtiger_transactionscf cf USING (transactionsid)
+                          SET t.operation = ?, cf.custodian_control_number = ?, cf.transaction_type = ?, cf.transaction_activity = ?,
+                              cf.key_mnemonic_description = ?, cf.net_amount = ?
+                          WHERE t.cloud_transaction_id = ? AND t.account_number = ?";
+
+                $adb->pquery($query, array($x['operation'], $x['custodian_control_number'], $x['omniscient_category'], $x['omniscient_activity'],
+                                           $x['key_mnemonic_description'], $x['net_amount'],
+                                           $x['transaction_id'], $x['account_number']), true);
+            }
+        }
     }
 
     static public function GetTransactionCount(array $account_numbe){
