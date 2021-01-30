@@ -22,11 +22,14 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
         $integrity = new cIntegrity($account_number);
         $differences = $integrity->GetDifferences();
 
-        if(!empty($differences))
+        if(!empty($differences) && $differences['dif'] > 10)
             $integrity->RepairDifferences();
 
-        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
-        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
+        $tmp = new CustodianClassMapping($account_number);
+        $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+
+#        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
+#        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
 
         return parent::preProcess($request);
     }
