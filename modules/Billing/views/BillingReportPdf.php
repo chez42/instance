@@ -28,17 +28,13 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     function GenrateLink(Vtiger_Request $request) {
         
         $moduleName = $request->getModule();
-      
+        
         $viewer = $this->getViewer($request);
         $cvId = $request->get('viewid');
         
-        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
-        
-        $selectedIds = $customViewModel->getRecordIds(array(),'PortfolioInformation');
-        
         $result = array();
         
-        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&record='.implode(',',$selectedIds);
+        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&viewid='.$cvId;
         
         $response = new Vtiger_Response();
         $response->setResult($result);
@@ -48,7 +44,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     
     function DownloadStatement(Vtiger_Request $request){
         
-        $recordId = explode(',',$request->get('record'));
+        $cvId = $request->get('viewid');
+        
+        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+        
+        $recordId = $customViewModel->getRecordIds(array(),'PortfolioInformation');
         
         global $site_URL, $adb;
         $companyModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
@@ -132,7 +132,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     
                     $beginningPriceDate=$billingData['beginning_price_date'];
                     $endingPriceDate=$billingData['ending_price_date'];
-                    $priceDatediff=date_diff(date_create($beginningPriceDate), date_create($endingPriceDate));
+                    $priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
                     $totalDays = $priceDatediff->days;
                     
                     $account = new CustodianAccess($account_number);
@@ -160,13 +160,19 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     
                     if($type == 'Fixed Rate'){
                         
-                        $transaction = $adb->pquery("SELECT * FROM vtiger_transactions
-                        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
-                        INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
-                        WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-                        AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds')
-                        AND vtiger_transactions.trade_date BETWEEN ? AND ?
-                        AND vtiger_transactionscf.net_amount > ?",
+                        $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
+    					CASE
+    						WHEN (vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
+    						WHEN (vtiger_transactionscf.transaction_activity = 'Withdrawal of funds') then 'minus'
+                        END  AS transaction_status
+    					FROM vtiger_transactions
+    					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
+    					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
+    					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
+    					AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds', 'Receipt of securities')
+    					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
+    					AND vtiger_transactionscf.net_amount > ?
+    					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                         
                         
@@ -177,15 +183,15 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 $transaction_data = $adb->query_result_rowdata($transaction,$t);
                                 
                                 $date1=date_create($transaction_data['trade_date']);
-                                $date2=date_create(date('Y-m-d'));
-                                $diff=date_diff($date1,$date2);
-                                $diffDays = $diff->days;
+                                $date2=date_create($proEndDate);
+                                $diff=date_diff($date2, $date1);
+                                $diffDays = $diff->days + 1;
                                 
                                 $transactionAmount = ($diffDays/$totalDays*$feeamount);
                                 
-                                $totalAmount = number_format($transaction_data['net_amount'],2);
+                                $totalAmount = $transaction_data['totalamount'];
                                 if($transaction_data['transaction_activity'] == 'Withdrawal of funds'){
-                                    $totalAmount = '-'.number_format($transaction_data['net_amount'],2);
+                                    $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
                                 
                                 $transactionData[] = array(
@@ -202,7 +208,20 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         }
                     }
                     
-                    $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
+                    $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
+                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
+                    AND vtiger_billing.beginning_price_date = ?",
+                        array($portData['portfolioinformationid'],$beginningPriceDate));
+                    
+                    if($adb->num_rows($billingQuery)){
+                        $billingId = $adb->query_result($billingQuery, 0, 'billingid');
+                        $billingObj = Vtiger_Record_Model::getInstanceById($billingId);
+                        $billingObj->set('mode', 'edit');
+                    }else{
+                        $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
+                    }
+                    
                     $billingObj->set('start_date', $start_date);
                     $billingObj->set('end_date', $end_date);
                     $billingObj->set('portfolio_amount', $totalValue);
@@ -365,7 +384,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                     x
                                 </div>
                                 <div class='col-xs-3'>
-                                    $".$transdata['totalAmount']." =
+                                    $".number_format($transdata['totalAmount'],2)." =
                                 </div>
                                 <div class='col-xs-3 text-center'>
                                     $".number_format($transdata['transactionamount']*$transdata['totalAmount'], 2)."

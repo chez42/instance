@@ -1356,3 +1356,21 @@ if(!empty($module)){
     }
     
 }
+
+$adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_billing_capitalflows (
+            capitalflowsid INT(19) NOT NULL AUTO_INCREMENT ,
+            billingid INT(19) NULL ,
+            trade_date VARCHAR(255) NULL ,
+            diff_days VARCHAR(255) NULL ,
+            totalamount VARCHAR(255) NULL ,
+            totaldays VARCHAR(255) NULL ,
+            transactionamount VARCHAR(255) NULL ,
+            transactiontype VARCHAR(255) NULL ,
+            trans_fee VARCHAR(255) NULL ,
+            totaladjustment VARCHAR(255) NULL ,
+            PRIMARY KEY (capitalflowsid)
+        );");
+
+$tab_id = getTabid('PortfolioInformation');
+$linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLink");';
+Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
