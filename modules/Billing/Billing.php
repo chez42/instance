@@ -86,10 +86,6 @@ class Billing extends Vtiger_CRMEntity {
             $linkurl = 'layouts/v7/modules/Billing/resources/Billing.js';
             Vtiger_Link::deleteLink($tab_id, 'HEADERSCRIPT', 'BillingJS', $linkurl);
             
-            $tab_id = Vtiger_Functions::getModuleId('PortfolioInformation');
-            $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLink");';
-            Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
-            
         } else if($eventType == 'module.enabled') {
             
             $this->addLinks($adb,$displayLabel);
@@ -110,16 +106,6 @@ class Billing extends Vtiger_CRMEntity {
         $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
         if(!$adb->num_rows($result)){
             Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'BillingJS', $linkurl, '', '0', '', '', '');
-        }
-        
-        $tab_id = Vtiger_Functions::getModuleId('PortfolioInformation');
-        $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLink");';
-        
-        $result = $adb->pquery("select * from vtiger_links where linkurl = ?
-        AND tabid = ?",array($linkurl, $tab_id));
-        
-        if(!$adb->num_rows($result)){
-            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl, '', '0', '', '', '');
         }
         
     }
