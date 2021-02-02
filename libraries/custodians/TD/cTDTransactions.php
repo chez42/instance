@@ -1,6 +1,13 @@
 <?php
 
 require_once("libraries/custodians/cCustodian.php");
+require_once("libraries/Reporting/ReportCommonFunctions.php");
+
+spl_autoload_register(function ($className) {
+    if (file_exists("libraries/EODHistoricalData/$className.php")) {
+        include_once "libraries/EODHistoricalData/$className.php";
+    }
+});
 
 class cTDTransactionsData{
     /*CUSTODIAN_TRANSACTIONS_TD*/
@@ -471,26 +478,26 @@ class cTDTransactions extends cCustodian
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0) {
-            while ($x = $adb->fetchByAssoc($result)) {
-                $x['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($x['account_number']);
+            while ($v = $adb->fetchByAssoc($result)) {
+                $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
 
-                if (is_null($x['net_amount']))
-                    $x['net_amount'] = 0;
+                if (is_null($v['net_amount']))
+                    $v['net_amount'] = 0;
 
-                if (is_null($x['quantity']) || $x['quantity'] == 0)
-                    $x['quantity'] = $x['net_amount'];
+                if (is_null($v['quantity']) || $v['quantity'] == 0)
+                    $v['quantity'] = $v['net_amount'];
 
-                if (!is_null($x['quantity']) && $x['quantity'] != 0)
-                    $x['price'] = $x['net_amount'] / $x['quantity'];
+                if (!is_null($v['quantity']) && $v['quantity'] != 0)
+                    $v['price'] = $v['net_amount'] / $v['quantity'];
 
-                if (is_null($x['price']))
-                    $x['price'] = 1;
+                if (is_null($v['price']))
+                    $v['price'] = 1;
 
-                if ($x['net_amount'] == 0) {
-                    switch (strtoupper($x['transaction_code'])) {
+                if ($v['net_amount'] == 0) {
+                    switch (strtoupper($v['transaction_code'])) {
                         case 'REC':
                         case 'DEL':
-                            $query = "SELECT pr.price, pr.price * security_price_adjustment * {$x['quantity']} AS net_amount
+                            $query = "SELECT pr.price, pr.price * security_price_adjustment * {$v['quantity']} AS net_amount
                                   FROM custodian_omniscient.custodian_prices_td pr
                                   JOIN vtiger_modsecurities m ON m.security_symbol = pr.symbol 
                                   JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid) 
@@ -500,27 +507,27 @@ class cTDTransactions extends cCustodian
                                                  WHERE date < ? 
                                                  AND symbol = ? 
                                                  ORDER BY date DESC LIMIT 1)";
-                            $result = $adb->pquery($query, array($x['symbol'], $x['trade_date'], $x['symbol']));
+                            $result = $adb->pquery($query, array($v['symbol'], $v['trade_date'], $v['symbol']));
                             if ($adb->num_rows($result) > 0) {
-                                $x['price'] = $adb->query_result($result, 0, 'price');
-                                $x['net_amount'] = $adb->query_result($result, 0, 'net_amount');
+                                $v['price'] = $adb->query_result($result, 0, 'price');
+                                $v['net_amount'] = $adb->query_result($result, 0, 'net_amount');
                             }
                     }
                 }
 
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES (?, ?, ?, ?, ?, NOW(), NOW(), ?)";
-                $adb->pquery($query, array($x['crmid'], 1, $x['ownerid'], $x['ownerid'], 'Transactions', $x['comment']));
+                $adb->pquery($query, array($v['crmid'], 1, $v['ownerid'], $v['ownerid'], 'Transactions', $v['comment']));
 
                 $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id)
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($x['crmid'], $x['account_number'], $x['symbol'], $x['price'], $x['quantity'], $x['trade_date'],
-                    'TD', $x['transaction_id']));
+                $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['symbol'], $v['price'], $v['quantity'], $v['trade_date'],
+                    'TD', $v['transaction_id']));
 
                 $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, rep_code, transaction_activity, net_amount, principal, broker_fee, other_fee, description, filename)
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($x['crmid'], 'TD', $x['omniscient_category'], $x['omniscient_activity'], $x['net_amount'], $x['principal'],
-                    $x['broker_fee'], $x['other_fee'], $x['comment'], $x['filename']));
+                $adb->pquery($query, array($v['crmid'], 'TD', $v['omniscient_category'], $v['omniscient_activity'], $v['net_amount'], $v['principal'],
+                    $v['broker_fee'], $v['other_fee'], $v['comment'], $v['filename']));
             }
         }
     }
@@ -570,7 +577,7 @@ class cTDTransactions extends cCustodian
 
         $query = "SELECT m.operation, cf.custodian_control_number, pcf.production_number, m.omniscient_category, m.omniscient_activity, 
                          f.transaction_code, t.security_price, t.quantity, cf.net_amount, f.symbol, f.transaction_id, f.account_number,
-                         t.trade_date
+                         t.trade_date, mscf.security_price_adjustment AS pricing_factor
                   FROM vtiger_transactions t
                   JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
                   JOIN custodian_omniscient.custodian_transactions_td f ON f.transaction_id = t.cloud_transaction_id
@@ -588,12 +595,17 @@ class cTDTransactions extends cCustodian
         $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
-            while($x = $adb->fetchByAssoc($result)){
-                if($x['net_amount'] == '' || $x['net_amount'] == 0 || is_null($x['net_amount']))
-                    $x['net_amount'] = $x['security_price'] * $x['quantity'];
+            while($v = $adb->fetchByAssoc($result)){
+                if($v['net_amount'] == '' || $v['net_amount'] == 0 || is_null($v['net_amount']))
+                    $v['net_amount'] = $v['security_price'] * $v['quantity'];
 
-                if(strtolower($x['transaction_activity']) == 'management fee' && is_null($x['net_maount']))
-                    $x['net_amount'] = $x['quantity'];
+                if(strtolower($v['transaction_activity']) == 'management fee' && is_null($v['net_maount']))
+                    $v['net_amount'] = $v['quantity'];
+
+                if(strtoupper($v['omniscient_activity']) == "RECEIPT OF SECURITIES"){
+                    $v['price'] = $v['close_price'] = self::GetBestReceiptOfSecurityPrice($v['symbol'], $v['trade_date']);
+                    $v['net_amount'] = $v['quantity'] * $v['pricing_factor'] * $v['close_price'];
+                }
 
                 $query = "UPDATE vtiger_transactions t 
                           JOIN vtiger_transactionscf cf USING (transactionsid)
@@ -601,11 +613,26 @@ class cTDTransactions extends cCustodian
                               cf.key_mnemonic_description = ?, cf.net_amount = ?
                           WHERE t.cloud_transaction_id = ? AND t.account_number = ?";
 
-                $adb->pquery($query, array($x['operation'], $x['custodian_control_number'], $x['omniscient_category'], $x['omniscient_activity'],
-                                           $x['key_mnemonic_description'], $x['net_amount'],
-                                           $x['transaction_id'], $x['account_number']), true);
+                $adb->pquery($query, array($v['operation'], $v['custodian_control_number'], $v['omniscient_category'], $v['omniscient_activity'],
+                                           $v['key_mnemonic_description'], $v['net_amount'], $v['transaction_id'], $v['account_number']), true);
             }
         }
+    }
+
+    private function GetBestReceiptOfSecurityPrice($symbol, $date){
+        $price = cTDPrices::GetBestKnownPriceBeforeDate($symbol, $date);
+#        $price = cTDPrices::GetPriceAsOfDate($symbol, $date);
+
+        if($price == false){
+            $fix = new CustodianWriter();
+            $sdate = GetDateMinusMonthsSpecified($date, 1);
+            $edate = $date;
+            $fix->WriteEodToCustodian($symbol, $sdate, $edate, "TD");//Only update if there is no price for previous day
+        }else{
+            return $price;
+        }
+        $price = cTDPrices::GetBestKnownPriceBeforeDate($date, $symbol);
+        return $price;
     }
 
     static public function GetTransactionCount(array $account_numbe){
