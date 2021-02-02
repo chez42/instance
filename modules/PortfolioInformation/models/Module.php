@@ -2382,12 +2382,12 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
     {
         global $adb;
 
-        $query = "SELECT cf_2549 FROM vtiger_portfolioinformation p
+        $query = "SELECT account_type FROM vtiger_portfolioinformation p
                   JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid)
                   WHERE account_number=?";
         $result = $adb->pquery($query, array($account_number));
         if ($adb->num_rows($result) > 0)
-            return $adb->query_result($result, 0, 'cf_2549');
+            return $adb->query_result($result, 0, 'account_type');
         return ' -- ';
     }
 
