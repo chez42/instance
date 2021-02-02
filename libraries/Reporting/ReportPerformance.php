@@ -579,6 +579,9 @@ class Performance_Model extends Vtiger_Module {
                                                                           $this->individual_performance_summed[$v]['Flow']->amount -
                                                                           $this->individual_performance_summed[$v]['Reversal']->amount +
                                                                           $this->GetCommissionAmount($v);
+            
+            $this->individual_performance_summed[$v]['account_name'] = PortfolioInformation_Module_Model::GetAccountNameFromAccountNumber($v);
+            $this->individual_performance_summed[$v]['account_type'] = PortfolioInformation_Module_Model::GetAccountTypeFromAccountNumber($v);
         }
     }
 
