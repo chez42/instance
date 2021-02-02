@@ -26,6 +26,7 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
             $integrity->RepairDifferences();
 
         $tmp = new CustodianClassMapping($account_number);
+        $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
         $tmp->transactions::UpdateTransactionsForAccounts($account_number);
 
 #        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
