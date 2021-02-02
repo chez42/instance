@@ -1,7 +1,5 @@
 <?php
  	
- 	include_once "includes/main/WebUI.php";
- 	
 	global $adb;
 	
 	$queue = $adb->pquery("SELECT vtiger_email_queue.* FROM vtiger_email_queue
@@ -133,13 +131,19 @@
 	}
 	
 	function getRecordsListFromRequest($emailData) {
-	
+		global $adb;
 		$cvId = $emailData['cvid'];
 		$selectedIds = $emailData['selected_ids'] != 'all' ? json_decode(html_entity_decode($emailData['selected_ids']),true) : $emailData['selected_ids'];
 		$excludedIds = json_decode(html_entity_decode($emailData['excluded_ids']),true);
 
 		if(!empty($selectedIds) && $selectedIds != 'all') {
 			if(!empty($selectedIds) && count($selectedIds) > 0) {
+				
+				$result = $adb->pquery('select * from vtiger_crmentity where deleted = 0 and crmid IN('.  generateQuestionMarks($selectedIds).')', array($selectedIds));
+				$selectedIds =  array();
+				for($i = 0; $i < $adb->num_rows($result); $i++){
+					$selectedIds[] = $adb->query_result($result, $i, "crmid");
+				}
 				return $selectedIds;
 			}
 		}
