@@ -107,9 +107,9 @@
     </tr>
     <tr data-id="9" data-parent="8">
         <td style="font-weight:bold;">&nbsp;&nbsp;S&P 500</td>
-        <td style="text-align:right; font-weight:bold;">{$T3PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
-        <td style="text-align:right; font-weight:bold;">{$T6PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
-        <td style="text-align:right; font-weight:bold;">{$T12PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T3PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T6PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T12PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
     </tr>
     <tr data-id="10" data-parent="8">
         <td style="font-weight:bold;">&nbsp;&nbsp;AGG</td>
