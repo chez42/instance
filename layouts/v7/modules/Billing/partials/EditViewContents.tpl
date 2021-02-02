@@ -108,11 +108,9 @@
 				</div>
 			{/if}
 		{/foreach}
-		{if $smarty.get.view neq 'MassActionAjax'}
-			<div class="fieldBlockContainer" id="scheduleLineItemTab">
-				{include file="partials/EditLineItemBlock.tpl"|@vtemplate_path:'BillingSpecifications'}
-			</div>
-		{/if}
+		<div class="fieldBlockContainer" id="captialFlowsLineItemTab">
+			{include file="partials/EditLineItemBlock.tpl"|@vtemplate_path:'Billing'}
+		</div>
 	</div>
 	
 {/strip}

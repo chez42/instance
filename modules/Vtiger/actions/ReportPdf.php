@@ -11,7 +11,6 @@
 include_once("libraries/reports/new/nCommon.php");
 include_once("libraries/reports/new/nCombinedAccounts.php");
 
-
 class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     function checkPermission(Vtiger_Request $request) {
@@ -525,174 +524,174 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             if(is_array($assigned_to))
                 $assigned_to = $assigned_to[0];
+            
+            $pie_image = 0;
+            
+            $ispdf = $request->get('pdf');
+            
+            $viewer = $this->getViewer($request);
+            //$moduleName = $request->getModule();
+            $account_number = $accountNumbers;
+            
+            $total_weight = 0;
+            if(!is_array($account_number))
+                $accounts = explode(",", $accountNumbers);
+            else {
+                $accounts = $account_number;
+            }
+            $accounts = array_unique($accounts);
+            
+            if(strlen($request->get('asset_select_end_date')) > 1) {
+                $end_date = $request->get("asset_select_end_date");
+            }
+            else {
+                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
+            }
+            
+            $tmp_end_date = date("Y-m-d", strtotime($end_date));
+            if (sizeof($accounts) > 0) {
+                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+                $categories = array("aclass");
+                $fields = array("symbol", "security_type", "account_number", "description", "quantity", "price", "market_value");//, "weight", "current_value");"cusip",
+                $totals = array("market_value");
+                $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
+                $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
+                $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
                 
-                $pie_image = 0;
+                $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
+                PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
                 
-                $ispdf = $request->get('pdf');
+                global $adb;
+                $query = "SELECT @global_total as global_total";
+                $result = $adb->pquery($query, array());
+                if($adb->num_rows($result) > 0) {
+                    $global_total = $adb->query_result($result, 0, 'global_total');
+                }
                 
-                $viewer = $this->getViewer($request);
-                //$moduleName = $request->getModule();
-                $account_number = $accountNumbers;
-                
-                $total_weight = 0;
-                if(!is_array($account_number))
-                    $accounts = explode(",", $accountNumbers);
-                    else {
-                        $accounts = $account_number;
-                    }
-                    $accounts = array_unique($accounts);
-                    
-                    if(strlen($request->get('asset_select_end_date')) > 1) {
-                        $end_date = $request->get("asset_select_end_date");
-                    }
-                    else {
-                        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
-                    }
-                    
-                    $tmp_end_date = date("Y-m-d", strtotime($end_date));
-                    if (sizeof($accounts) > 0) {
-                        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-                        $categories = array("aclass");
-                        $fields = array("symbol", "security_type", "account_number", "cusip", "description", "quantity", "price", "market_value");//, "weight", "current_value");
-                        $totals = array("market_value");
-                        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
-                        $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
-                        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
-                        
-                        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
-                        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
-                        
-                        global $adb;
-                        $query = "SELECT @global_total as global_total";
-                        $result = $adb->pquery($query, array());
-                        if($adb->num_rows($result) > 0) {
-                            $global_total = $adb->query_result($result, 0, 'global_total');
-                        }
-                        
-                    };
-                    
-                    $contact_instance = null;
-                    $custodian = null;
-                    if(is_array($accounts)){
-                        $portfolios = array();
-                        $unsettled_cash = 0;
-                        foreach($accounts AS $k => $v) {
-                            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                            if($crmid) {
-                                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                                $contact_id = $p->get('contact_link');
-                                if ($contact_id)
-                                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                                    
-                                    $portfolios[] = $p->getData();
-                                    $unsettled_cash += $p->get('unsettled_cash');
-                                    if (!$advisor_instance) {
-                                        echo "NO INSTANCE!";
-                                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                                    }
+            };
+            
+            $contact_instance = null;
+            $custodian = null;
+            if(is_array($accounts)){
+                $portfolios = array();
+                $unsettled_cash = 0;
+                foreach($accounts AS $k => $v) {
+                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+                    if($crmid) {
+                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                        $contact_id = $p->get('contact_link');
+                        if ($contact_id)
+                            $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                            
+                            $portfolios[] = $p->getData();
+                            $unsettled_cash += $p->get('unsettled_cash');
+                            if (!$advisor_instance) {
+                                echo "NO INSTANCE!";
+                                $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
                             }
-                            
-                            $custodian = $p->get('origination');
-                        }
                     }
                     
-                    if($contact_instance) {
-                        if(!$advisor_instance)
-                            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                            
-                            $household_instance = null;
-                            if (reset($contact_instance)->get('account_id'))
-                                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-                    }
+                    $custodian = $p->get('origination');
+                }
+            }
+            
+            if($contact_instance) {
+                if(!$advisor_instance)
+                    $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
                     
-                    $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
-                    $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
-                    
-                    $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
-                    
-                    $colors = PortfolioInformation_Module_Model::GetAllChartColors();
-                    $current_user = Users_Record_Model::getCurrentUserModel();
-                    $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
-                    $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
-                    
-                    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
-                    
-                    $data = $advisor_instance->getData();
-                    $has_advisor = 0;
-                    if(strlen($data['user_name']) > 0)
-                        $has_advisor = 1;
+                    $household_instance = null;
+                    if (reset($contact_instance)->get('account_id'))
+                        $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+            }
+            
+            $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
+            $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
+            
+            $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
+            
+            $colors = PortfolioInformation_Module_Model::GetAllChartColors();
+            $current_user = Users_Record_Model::getCurrentUserModel();
+            $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
+            $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
+            
+            $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
+            
+            $data = $advisor_instance->getData();
+            $has_advisor = 0;
+            if(strlen($data['user_name']) > 0)
+                $has_advisor = 1;
                         
-                        $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
-                        $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
-                        $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
-                        
-                        $toc = array();
-                        $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-                        $toc[] = array("title" => "#2", "name" => "Asset Allocation");
-                        
-                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-                        $viewer->assign("MARGIN_BALANCE", $margin_balance);
-                        $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
-                        
-                        $viewer->assign("DATE", date("F d, Y"));
-                        $viewer->assign("ASSIGNED_TO", $assigned_to);
-                        $viewer->assign("HAS_ADVISOR", $has_advisor);
-                        $viewer->assign("CONTACTS", $contact_instance);
-                        $viewer->assign("REPORT_TYPE", "Client Statement");
-                        $viewer->assign("CURRENT_USER", $current_user);
-                        $viewer->assign("ADVISOR", $advisor_instance);
-                        $viewer->assign("HOUSEHOLD", $household_instance);
-                        $viewer->assign("MAILING_INFO", $mailing_info);
-                        $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
-                        $viewer->assign("PORTFOLIO_DATA", $portfolios);
-                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-                        $viewer->assign("PIE_IMAGE", $pie_image);
-                        $viewer->assign("DYNAMIC_PIE_FILE", $pie_image);
-                        $viewer->assign("COLORS", $colors);
-                        $viewer->assign("TOTAL_WEIGHT", $total_weight);
-                        $viewer->assign("CALLING_RECORD", $calling_record);
-                        $viewer->assign("TOC", $toc);
-                        $viewer->assign("ACCOUNTINFO", $account_info);
-                        $viewer->assign("ACCOUNTINFOTOTAL", $account_info_total);
-                        $viewer->assign("CATEGORIES", $categories);
-                        $viewer->assign("DATE_OPTIONS", $options);
-                        $viewer->assign("SHOW_END_DATE", 1);
-                        $viewer->assign("END_DATE", $end_date);
-                        $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
-                        $viewer->assign("MODULE", "PortfolioInformation");
-                        
-                        $viewer->assign("CATEGORY_TOTALS", $category_totals);
-                        $viewer->assign("ESTIMATE_TABLE", $estimateTable);
-                        $viewer->assign("DYNAMIC_PIE", json_encode($estimatePie));
-                        $viewer->assign("GLOBAL_TOTAL", array("global_total" => $global_total));
-                        $viewer->assign("TRAILING_AUM", json_encode($trailing_aum));
-                        $viewer->assign("TRAILING_REVENUE", json_encode($trailing_revenue));
-                        $viewer->assign("RANDOM", rand(1,100000));
-                        $viewer->assign("SITEURL", $site_URL);
-                        
-                        $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-                        $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
-                        
-                        $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AssetClassPie.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/DynamicHoldings.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
-                        
-                        $pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
+            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
+            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
+            
+            $toc = array();
+            $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+            $toc[] = array("title" => "#2", "name" => "Asset Allocation");
+            
+            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+            $viewer->assign("MARGIN_BALANCE", $margin_balance);
+            $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
+            
+            $viewer->assign("DATE", date("F d, Y"));
+            $viewer->assign("ASSIGNED_TO", $assigned_to);
+            $viewer->assign("HAS_ADVISOR", $has_advisor);
+            $viewer->assign("CONTACTS", $contact_instance);
+            $viewer->assign("REPORT_TYPE", "Client Statement");
+            $viewer->assign("CURRENT_USER", $current_user);
+            $viewer->assign("ADVISOR", $advisor_instance);
+            $viewer->assign("HOUSEHOLD", $household_instance);
+            $viewer->assign("MAILING_INFO", $mailing_info);
+            $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
+            $viewer->assign("PORTFOLIO_DATA", $portfolios);
+            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+            $viewer->assign("PIE_IMAGE", $pie_image);
+            $viewer->assign("DYNAMIC_PIE_FILE", $pie_image);
+            $viewer->assign("COLORS", $colors);
+            $viewer->assign("TOTAL_WEIGHT", $total_weight);
+            $viewer->assign("CALLING_RECORD", $calling_record);
+            $viewer->assign("TOC", $toc);
+            $viewer->assign("ACCOUNTINFO", $account_info);
+            $viewer->assign("ACCOUNTINFOTOTAL", $account_info_total);
+            $viewer->assign("CATEGORIES", $categories);
+            $viewer->assign("DATE_OPTIONS", $options);
+            $viewer->assign("SHOW_END_DATE", 1);
+            $viewer->assign("END_DATE", $end_date);
+            $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
+            $viewer->assign("MODULE", "PortfolioInformation");
+            
+            $viewer->assign("CATEGORY_TOTALS", $category_totals);
+            $viewer->assign("ESTIMATE_TABLE", $estimateTable);
+            $viewer->assign("DYNAMIC_PIE", json_encode($estimatePie));
+            $viewer->assign("GLOBAL_TOTAL", array("global_total" => $global_total));
+            $viewer->assign("TRAILING_AUM", json_encode($trailing_aum));
+            $viewer->assign("TRAILING_REVENUE", json_encode($trailing_revenue));
+            $viewer->assign("RANDOM", rand(1,100000));
+            $viewer->assign("SITEURL", $site_URL);
+            
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+            $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
+            
+            $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AssetClassPie.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/DynamicHoldings.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+            
+            $pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
 			<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
 			<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
 			<script type="text/javascript">';
                         
-                        if(!empty($estimatePie)){
-                            $pdf_content .= 'CreatePieWithDetails("dynamic_pie_holder", "estimate_pie_values");';
-                        }
-                        
-                        $pdf_content .= 'function CreatePieWithDetails(holder, value_source, showLegend){
+                if(!empty($estimatePie)){
+                    $pdf_content .= 'CreatePieWithDetails("dynamic_pie_holder", "estimate_pie_values");';
+                }
+                
+                $pdf_content .= 'function CreatePieWithDetails(holder, value_source, showLegend){
 					if($("#"+holder).length == 0)
 						return;
                             
@@ -725,26 +724,26 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				}
 			</script>';
                         
-                        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-                        
-                        if (!is_dir($fileDir)) {
-                            mkdir($fileDir);
-                        }
-                        
-                        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_Holdings";
-                        
-                        $bodyFileName = $fileDir.'/body_'.$name.'.html';
-                        $fb = fopen($bodyFileName, 'w');
-                        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-                        fwrite($fb, $b);
-                        fclose($fb);
-                        
-                        $footer ="<!doctype html>
+            $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+            
+            if (!is_dir($fileDir)) {
+                mkdir($fileDir);
+            }
+            
+            $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_Holdings";
+            
+            $bodyFileName = $fileDir.'/body_'.$name.'.html';
+            $fb = fopen($bodyFileName, 'w');
+            $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+            fwrite($fb, $b);
+            fclose($fb);
+            
+            $footer ="<!doctype html>
 				<html>
 					<head>
 						<meta charset='utf-8'>
@@ -779,9 +778,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;width:60%;'>
+							<!-- <div style='float:right;width:60%;'>
 								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
-							</div>
+							</div> -->
 						</div>
 					</body>
 				</html>";
@@ -814,6 +813,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         require_once("libraries/Reporting/ReportCommonFunctions.php");
         include_once("include/utils/omniscientCustom.php");
+        include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';
@@ -850,7 +850,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 PortfolioInformation_GainLoss_Model::CreateGainLossTables($accounts);//Create combined gain loss table
                 
                 $categories = array("security_symbol");
-                $fields = array('account_number', 'description', 'trade_date', "quantity", 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
+                $fields = array('account_number', 'description', 'trade_date', 'security_price', 'transaction_activity', 'quantity', 'position_current_value', 'net_amount', 'ugl', 'ugl_percent', 'days_held', 'system_generated', 'transactionsid');//, "weight", "current_value");
                 $totals = array("quantity", "net_amount", "position_current_value", "ugl");//Totals needs to have the same names as the fields to show up properly!!!
                 $hidden_row_fields = array("description");//We don't want description showing on every row, just the category row
                 $comparison_table = PortfolioInformation_Reports_Model::GetTable("Positions", "TEMPORARY_TRANSACTIONS", $fields, $categories, $hidden_row_fields);
@@ -872,8 +872,16 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
                 $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
                 
-                $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
+                $coverpage = new FormattedContactInfo($calling_record);
+                $coverpage->SetTitle("Gain/Loss");
+                $coverpage->SetLogo("layouts/hardcoded_images/lhimage.jpg");
+                $viewer->assign("COVERPAGE", $coverpage);
+                $viewer->assign("SITEURL", $site_URL);
+                
+                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/CoverPage.tpl',"PortfolioInformation");
+                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', "PortfolioInformation");
+                #$pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
+                #$pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GainLoss.tpl', "PortfolioInformation");
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
@@ -973,6 +981,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         require_once("libraries/Reporting/ReportPerformance.php");
         require_once("libraries/Reporting/ReportHistorical.php");
         require_once("libraries/reports/new//holdings_report.php");
+        require_once("modules/PortfolioInformation/models/NameMapper.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';
@@ -1010,6 +1019,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $accounts = array_unique($accounts);
                 
+                $map = new NameMapper();
+                $map->RenamePortfoliosBasedOnLinkedContact($accounts);
+                
                 if(strlen($request->get('select_start_date')) > 1) {
                     $start_date = $request->get("select_start_date");
                 }
@@ -1046,7 +1058,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                     $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);
                     PortfolioInformation_HoldingsReport_Model::GenerateEstimateTables($accounts);
                     $categories = array("estimatedtype");
-                    $fields = array("security_symbol", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
+                    $fields = array("security_symbol", "account_type", "account_number", "cusip", "description", "quantity", "last_price", "weight", "current_value");
                     $totals = array("current_value", "weight");
                     $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "Estimator", $fields, $categories);
                     $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("Estimator", $totals);
@@ -1253,9 +1265,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right;width:60%;'>
+							<!-- <div style='float:right;width:60%;'>
 								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
-							</div>
+							</div> -->
 						</div>
 					</body>
 				</html>";
@@ -1326,6 +1338,10 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
                 
+                $map = new NameMapper();
+                $map->RenamePortfoliosBasedOnLinkedContact($accounts);
+                
+                
                 $accounts = array_unique($accounts);
                 
                 if(strlen($request->get('select_start_date')) > 1) {
@@ -1348,14 +1364,14 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $start_date = date("Y-m-d", strtotime($start_date));
                 $end_date = date("Y-m-d", strtotime($end_date));
                 
-                PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date);
+                PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date, true);
                 
                 $tmp = array();
                 
                 foreach($accounts AS $k => $v){
                     if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
                         $query = "CALL TD_REC_TRANSACTIONS(?)";
-                        $adb->pquery($query, array($v));
+                        $adb->pquery($query, array($v), true);
                     };
                     if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
                         $tmp[] = $v;
@@ -1609,6 +1625,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         require_once("libraries/Reporting/ReportHistorical.php");
         require_once("libraries/reports/new/holdings_report.php");
         require_once("libraries/Reporting/ProjectedIncomeModel.php");
+        require_once("modules/PortfolioInformation/models/NameMapper.php");
+        include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';
@@ -1641,6 +1659,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
                 
                 $accounts = array_unique($accounts);
+                
+                $map = new NameMapper();
+                $map->RenamePortfoliosBasedOnLinkedContact($accounts);
                 
                 if(strlen($request->get('gh2_select_start_date')) > 1) {
                     $start_date =  $request->get("gh2_select_start_date");
@@ -1775,13 +1796,22 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
                 $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
                 
+                $coverpage = new FormattedContactInfo($calling_record);
+                $coverpage->SetTitle("Portfolio Review");
+                $coverpage->SetLogo(rtrim($site_URL, '/').'/'."layouts/hardcoded_images/lhimage.jpg");
+                
+                $viewer->assign("COVERPAGE", $coverpage);
+                
                 $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/lighthouse.tpl', $moduleName);
+                //$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
+                
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GH2ReportPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AllocationTypesPDF.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
                 $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+                
                 
                 $pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
 				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
@@ -2308,8 +2338,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $graph = $income->GenerateGraphForDates(GetFirstDayLastYear(), GetLastDayLastYear());
                 $combined = $income->GetCombinedSymbolsForDates(GetFirstDayLastYear(), GetLastDayLastYear());
                 
-                $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayLastYear(), GetLastDayLastMonth());
-                $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastMonth());
+                $year_end_totals = $income->CalculateCombineSymbolsYearEndToal(GetFirstDayLastYear(), GetLastDayLastYear());
+                $grand_total = $income->CalculateGrandTotal(GetFirstDayLastYear(), GetLastDayLastYear());
                 
                 $start_month = date("F, Y", strtotime(GetFirstDayLastYear()));
                 $end_month = date("F, Y", strtotime(GetLastDayLastYear()));
@@ -2466,9 +2496,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right; width:60%;'>
+							<!-- <div style='float:right; width:60%;'>
 								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
-							</div>
+							</div> -->
 						</div>
 					</body>
 				</html>";
@@ -2549,8 +2579,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                         
                         $returned = Date("Y-m-d", strtotime($data['last_eod']));
                         $compared = Date("Y-m-d", strtotime("-3 months"));
-                        if ($returned <= $compared)
-                            ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
+                        //if ($returned <= $compared)
+                        ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
                     }
                 }
                 
@@ -2940,9 +2970,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 								</p>
 							</div>
-							<div style='float:right; width:60%;'>
+							<!-- <div style='float:right; width:60%;'>
 								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;' width='40%'/>
-							</div>
+							</div> -->
 						</div>
 					</body>
 				</html>";
@@ -2977,39 +3007,39 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     /* function OmniIntervalsDaily(Vtiger_Request $request){
     
-    $moduleName = $request->getModule();
-    $recordIds = $this->getRecordsListFromRequest($request);
-    
-    $fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
-    $printed_date = date("mdY");
-    
-    foreach($recordIds as $recordId){
-    
-    $portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-    
-    global $adb, $dbconfig, $root_directory, $site_URL;
-    
-    if (!is_dir($fileDir)) {
-    mkdir($fileDir);
-    }
-    
-    $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GHX";
-    
-    $bodyFileName = $fileDir.'/body_'.$name.'.html';
-    $fb = fopen($bodyFileName, 'w');
-    $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-    fwrite($fb, $b);
-    fclose($fb);
-    
-    $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-    
-    $output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-    
-    //unlink($bodyFileName);
-    
-    }
-    $this->GeneratePDF($fileDir);
-    
+        $moduleName = $request->getModule();
+        $recordIds = $this->getRecordsListFromRequest($request);
+        
+        $fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
+        $printed_date = date("mdY");
+        
+        foreach($recordIds as $recordId){
+        
+        $portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+        
+        global $adb, $dbconfig, $root_directory, $site_URL;
+        
+        if (!is_dir($fileDir)) {
+            mkdir($fileDir);
+        }
+        
+        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GHX";
+        
+        $bodyFileName = $fileDir.'/body_'.$name.'.html';
+        $fb = fopen($bodyFileName, 'w');
+        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+        fwrite($fb, $b);
+        fclose($fb);
+        
+        $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+        
+        $output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+        
+        //unlink($bodyFileName);
+        
+        }
+        $this->GeneratePDF($fileDir);
+        
     }*/
     
     function MonthOverMonth(Vtiger_Request $request){
@@ -3052,7 +3082,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             if(is_array($assigned_to))
                 $assigned_to = $assigned_to[0];
-            
+                
             $ispdf = $request->get('pdf');
             
             $viewer = $this->getViewer($request);
@@ -3171,28 +3201,28 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
             fwrite($fb, $b);
             fclose($fb);
-                        
+            
             $footer ="<!doctype html>
 			<html>
 				<head>
 					<meta charset='utf-8'>
 					<script>
 						function substitutePdfVariables() {
-                        
+                            
 							function getParameterByName(name) {
 								var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
 								return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 							}
-                        
+                            
 							function substitute(name) {
 								var value = getParameterByName(name);
 								var elements = document.getElementsByClassName(name);
-                        
+                            
 								for (var i = 0; elements && i < elements.length; i++) {
 									elements[i].textContent = value;
 								}
 							}
-                        
+                            
 							['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
 								.forEach(function(param) {
 									substitute(param);
@@ -3207,9 +3237,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 								Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
 							</p>
 						</div>
-						<div style='float:right; width:60%;'>
+						<!-- <div style='float:right; width:60%;'>
 							<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'  width='40%'/>
-						</div>
+						</div> -->
 					</div>
 				</body>
 			</html>";
