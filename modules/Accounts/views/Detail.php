@@ -31,6 +31,7 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
                 $integrity->RepairDifferences();
 
             $tmp = new CustodianClassMapping(array($v));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($v));
             $tmp->transactions::UpdateTransactionsForAccounts(array($v));
         }
     }
