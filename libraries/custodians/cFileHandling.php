@@ -34,13 +34,17 @@ class cFileHandling{
                 $tmp->last_filename = $r['last_filename'];
                 $tmp->last_filedate = $r['last_filedate'];
                 $tmp->currently_active = $r['currently_active'];
-                $this->data[] = $tmp;
+                $this->data[$r['rep_code']] = $tmp;
             }
         }
     }
 
     public function GetFileLocations(){
         return $this->data;
+    }
+
+    public function GetFileLocationsWithoutKeys(){
+        return array_values($this->data);
     }
 
     public function GetLocationDataFromID($id){
@@ -99,7 +103,7 @@ class cFileHandling{
                 $tmp->last_filename = $r['last_filename'];
                 $tmp->last_filedate = $r['last_filedate'];
                 $tmp->currently_active = $r['currently_active'];
-                $data[] = $tmp;
+                $data[$r['rep_code']] = $tmp;
             }
         }
 
