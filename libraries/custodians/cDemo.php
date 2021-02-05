@@ -192,7 +192,7 @@ class cDemo{
         }
     }
 
-    public function GetFakeName(){
+    public function GetFakeName() {
         global $adb;
         $query = "SELECT first_name, last_name, company_name, address, city, county, state, zip, email, web
                   FROM custodian_omniscient.us_fake_address 
