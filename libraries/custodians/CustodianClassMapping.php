@@ -26,6 +26,10 @@ class CustodianClassMapping{
                 $this->securities = "cPershingSecurities"; $this->prices = "cPershingPrices";
                 $this->transactions = "cPershingTransactions";
                 break;
+            DEFAULT:
+                $this->portfolios = "cTDPortfolios"; $this->positions = "cTDPositions";
+                $this->securities = "cTDSecurities"; $this->prices = "cTDPrices";
+                $this->transactions = "cTDTransactions";
         }
     }
 }
