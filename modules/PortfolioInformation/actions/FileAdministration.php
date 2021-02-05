@@ -7,7 +7,7 @@ class PortfolioInformation_FileAdministration_Action extends Vtiger_BasicAjax_Ac
     public function process(Vtiger_Request $request)
     {
         $files = new cFileHandling();
-        $locations = $files->GetFileLocations();
+        $locations = $files->GetFileLocationsWithoutKeys();
 
 /*        $data = [
             [id=>1, name=>"Billy Bob", progress=>"12", gender=>"male", height=>1, col=>"red", dob=>"", driver=>1],
