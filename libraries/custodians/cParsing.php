@@ -43,7 +43,7 @@ class cParsing{
 ##        $file->moveto = str_ireplace("lanserver2n", "archive", $file->directory);
 #        $file->moveto = $file->directory . '/parsed';
         $tmp->moveto = str_ireplace("lanserver2n", "archive", $tmp->directory);
-        $tmp->newname = $tmp->basename . "_" . $tmp->createdDate . ".$" . $tmp->extension;
+        $tmp->newname = $tmp->basename . "_" . $tmp->createdDate . "." . $tmp->extension;
 
         return $tmp;
     }
@@ -140,8 +140,33 @@ class cParsing{
                 if($this->ConfirmDirectory($x['directory'], true)) {//The directory exists, so time to move the file
                     $parse_file = $x['directory'] . '/' . $x['filename'];
                     $archive_file = $x['new_directory'] . '/' . $x['new_filename'];
-                    rename($archive_file, $parse_file);
-                    $this->SetOriginalDate($parse_file, $x['created_date']);
+                    if(file_exists($archive_file)){
+                        $x = 1;
+                        $new_archive_file = $archive_file;
+                        while (file_exists($new_archive_file))
+                        {
+                            // get file extension
+                            $extension = pathinfo($new_archive_file, PATHINFO_EXTENSION);
+
+                            // get file's name
+                            $filename = pathinfo($new_archive_file, PATHINFO_FILENAME);
+
+                            // get file's directory
+                            $directory=dirname($new_archive_file);
+
+                            // add and combine the filename, iterator, extension
+                            $new_filename = $filename . '-' . $x . '.' . $extension;
+
+                            // add file name to the end of the path to place it in the new directory; the while loop will check it again
+                            $new_archive_file = $directory . $new_filename;
+
+                            $x++;
+                        }
+                        rename($new_archive_file, $parse_file);
+                    }
+                    else
+                        rename($archive_file, $parse_file);
+#                    $this->SetOriginalDate($parse_file, $x['created_date']);
                 }
             }
         }
