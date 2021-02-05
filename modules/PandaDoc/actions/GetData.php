@@ -133,8 +133,8 @@ class PandaDoc_GetData_Action extends Vtiger_GetData_Action {
             
             $reference = md5(strtotime(date("Y-m-d H:i:s")) . $current_user->id);
             
-            $adb->pquery("insert into vtiger_pandadocdocument_reference(crm_reference, userid)
-            values(?,?)", array($reference, $current_user->id));
+            $adb->pquery("insert into vtiger_pandadocdocument_reference(crm_reference, userid, crmid)
+            values(?,?,?)", array($reference, $current_user->id, $record));
             
             $response->setResult(array('success'=>true, 'token'=>array_map('decode_html',$token), 
             'recipients' => $recipients, "meta_data_value" => $meta_data_value, 
