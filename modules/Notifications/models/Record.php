@@ -52,7 +52,7 @@ class Notifications_Record_Model extends Vtiger_Record_Model
         return $total;
     }
      
-    public static function updateNotificationStatus($id, $status)
+    public static function updateNotificationStatus($status)
     {
         global $current_user;
         $db = PearDatabase::getInstance();
