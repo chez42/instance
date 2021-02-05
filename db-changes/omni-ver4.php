@@ -1376,3 +1376,17 @@ $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Bill
 Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
 
 $adb->pquery("ALTER TABLE vtiger_seproductsrel ADD quantity INT(19) NOT NULL DEFAULT '1'");
+
+$adb->pquery("UPDATE vtiger_field set presence=1 where fieldname=? and tabid=?",
+    array('nickname', getTabid('PortfolioInformation')));
+
+$notificationQuery = $adb->pquery("SELECT max(vtiger_notifications.notificationsid) as maxid FROM vtiger_notifications");
+$maxId = 0;
+if($adb->num_rows($notificationQuery))
+    $maxId = $adb->query_result($notificationQuery, 0, 'maxid');
+
+$notificationSeq = $adb->pquery("SELECT * FROM vtiger_notifications_seq");
+if($adb->num_rows($notificationSeq))
+    $adb->pquery("UPDATE vtiger_notifications_seq SET id=?",array($maxId+1));
+else
+    $adb->pquery("INSERT INTO vtiger_notifications_seq (id) VALUES (?)",array($maxId+1));
