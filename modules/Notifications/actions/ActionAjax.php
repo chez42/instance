@@ -256,10 +256,13 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
     public function loadMoreNotifications(Vtiger_Request $request){
         
         $moduleName = $request->getModule();
+        
         $cvId = $request->get('viewid');
         $listHeaders = $request->get('list_headers', array());
         
         $listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId, $listHeaders);
+        
+        $listViewModel->set('notificationtype', $request->get('type'));
         
         $pagingModel = new Vtiger_Paging_Model();
         $pagingModel->set('page', $request->get('page'));

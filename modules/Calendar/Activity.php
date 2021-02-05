@@ -435,7 +435,8 @@ function insertIntoRecurringTable(& $recurObj)
     				$notification->column_fields['title'] = $title;
     				$notification->column_fields['notification_type'] = 'Event Invitation';
     				
-    				$notification->column_fields['source'] = 'PORTAL'; 
+    				//$notification->column_fields['source'] = 'PORTAL'; 
+    				
     				$notification->save('Notifications');
     				
 			    }
