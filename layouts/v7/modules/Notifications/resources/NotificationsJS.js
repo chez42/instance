@@ -128,7 +128,7 @@ Vtiger.Class("NotificationsJS", {
                     jQuery('[name="notification_count"]').val(count);
                     jQuery('.notification_bell').attr('data-before',count);
 
-                    if (count == 0) {
+                    if (response.items.length == 0) {
                         notificationList.remove();
                         
 						var html = '<div id="notificationsBody" class="notifications noNotifications table-responsive" style="height:100px;">'+
@@ -521,6 +521,8 @@ Vtiger.Class("NotificationsJS", {
 			var viewid = listViewContainer.find('#cvid').val();
 			var nextPageNumber = parseInt(parseFloat(pageNumber)) + 1;
 			
+			var type = listViewContainer.find('.tab-item.active').data('id');
+			
 			if ( nextPageExist) {
 				var params = {
 					'module' : app.getModuleName(),
@@ -528,6 +530,7 @@ Vtiger.Class("NotificationsJS", {
 					'mode'	 : 'loadMoreNotifications',
 					'page'	 : nextPageNumber,
 					'viewid' : viewid,
+					'type'	 : type
 				};
 				params.list_headers = listViewContainer.find('[name="list_headers"]').val();
 				app.helper.showProgress();
@@ -536,7 +539,7 @@ Vtiger.Class("NotificationsJS", {
 		                if (!err) {
 		                	app.helper.hideProgress();
 		                	if(response.success){
-		                		listViewContainer.find('.mainList').append(response.data);
+		                		listViewContainer.find('.mainList').find('.'+type).append(response.data);
 		                		if(response.nextpage){
 		                			listViewContainer.find('#pageNumber').val(nextPageNumber);
 		                		}else{
@@ -549,6 +552,45 @@ Vtiger.Class("NotificationsJS", {
 					}
 				);
 			}
+		});
+		
+		jQuery(document).on('click', '.tab-item', function(){
+			var listViewContainer = jQuery('#notificationListContainer');
+			
+			var pageNumber = listViewContainer.find('#pageNumber').val();
+			var viewid = listViewContainer.find('#cvid').val();
+			var nextPageNumber = parseInt(parseFloat(1));
+			
+			var type = listViewContainer.find('.tab-item.active').data('id');
+			
+			var params = {
+				'module' : app.getModuleName(),
+				'action' : 'ActionAjax',
+				'mode'	 : 'loadMoreNotifications',
+				'page'	 : nextPageNumber,
+				'viewid' : viewid,
+				'type'	 : type
+			};
+			params.list_headers = listViewContainer.find('[name="list_headers"]').val();
+			app.helper.showProgress();
+			app.request.post({data: params}).then(
+				function(err, response) {
+	                if (!err) {
+	                	app.helper.hideProgress();
+	                	if(response.success){
+	                		listViewContainer.find('.mainList').find('.'+type).append(response.data);
+	                		if(response.nextpage){
+	                			listViewContainer.find('#pageNumber').val(nextPageNumber);
+	                			listViewContainer.find('.loadMoreNotifications').prop('disabled', false);
+	                		}else{
+	                			listViewContainer.find('.loadMoreNotifications').prop('disabled', true);
+	                		} 
+	                		thisInstance.registerEventForMouse();
+	                	}
+	                		
+	                }
+				}
+			);
 		})
 	},
 	

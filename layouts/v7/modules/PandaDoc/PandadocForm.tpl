@@ -5,7 +5,7 @@
     }
 </style>
 
-<div class='modal-dialog modal-lg'>
+<div class='fc-overlay-modal overlayDetail'>
 	<div class = "modal-content">
 		{assign var=TITLE value="{vtranslate('PandaDoc Document',$MODULE)}"}
         {include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$TITLE}
