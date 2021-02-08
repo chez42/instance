@@ -542,7 +542,7 @@ class cSchwabPortfolios extends cCustodian {
         $params[] = $edate;
 
         $query = "SELECT account_number, account_value AS value, as_of_date AS date
-                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  FROM custodian_omniscient.custodian_balances_schwab 
                   WHERE account_number IN ({$questions}) 
                   AND as_of_date BETWEEN ? AND ?
                   ORDER BY as_of_date";

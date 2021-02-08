@@ -110,6 +110,8 @@ class cIntervals{
     }
 
     public function CalculateIntervals($sdate, $edate){
+        global $adb;
+        $this->ResetIntervals(array($this->account_number));
         $this->SetAllGroupedTransactionsBetweenDates($sdate, $edate);
         $this->SetAllGroupedBalancesBetweenDates($sdate, $edate);
 
@@ -126,6 +128,7 @@ class cIntervals{
             $interval->expenseAmount = $this->CalculateDayType($balanceDay->date, 'expense');
             $interval->netFlowAmount = $this->CalculateDayType($balanceDay->date, 'flow');
             $interval->tradeAmount = $this->CalculateDayType($balanceDay->date, 'trade');
+            $interval->intervalType = 'Daily';
 
             if($interval->intervalBeginValue == 0)
                 $beginValue = 1;
@@ -137,6 +140,11 @@ class cIntervals{
                     ($interval->netFlowAmount + $interval->expenseAmount)) /
                 $beginValue;
 
+            if($interval->intervalBeginValue == 0 && $interval->netFlowAmount == 0)
+                $interval->netReturnAmount = 1;
+
+            $interval->investmentReturn = $interval->intervalEndValue - ($interval->netFlowAmount + $interval->expenseAmount) - $interval->intervalBeginValue;
+
             if($interval->netReturnAmount == 0)
                 $interval->netReturnAmount = 1;
 
@@ -144,12 +152,36 @@ class cIntervals{
             $this->lastDate = $balanceDay->date;
             $this->lastBalance = $balanceDay->value;
         }
-
+        $writer = "";
+        $counter = 0;
+        $params = array();
         foreach($this->intervals AS $k => $v){
-            print_r($v);
-            echo '<br />';
+            if($counter >= 100){
+                $writer = rtrim($writer, ', ');
+                $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType)
+                          VALUES {$writer}";
+                $adb->pquery($query, $params, true);
+                $counter = 0;
+                $writer = "";
+                $params = array();
+            }
+            $writer .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), ";
+            $params[] = array($v->accountNumber, $v->intervalBeginDate, $v->intervalBeginValue, $v->intervalEndDate, $v->intervalEndValue, $v->expenseAmount, $v->netFlowAmount, $v->tradeAmount ,$v->investmentReturn, $v->netReturnAmount, $v->intervalType);
+            $counter++;
+        }
+
+        if(!empty($params)) {
+            $writer = rtrim($writer, ', ');
+            $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType)
+                      VALUES {$writer}";
+            $adb->pquery($query, $params, true);
         }
 #        $data = $map->portfolios::GetBeginningBalanceAsOfDate(array($account_number), $date);
-
     }
 }
+
+/*
+class cIntervalData{public $accountNumber, $intervalBeginDate, $intervalEndDate, $intervalBeginValue, $intervalEndValue, $netFlowAmount,
+                           $netReturnAmount, $expenseAmount, $journalAmount, $tradeAmount, $intervalType, $investmentReturn;}
+
+ */
