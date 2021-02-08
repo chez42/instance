@@ -339,6 +339,9 @@ class Performance_Model extends Vtiger_Module {
         global $adb;
 
         foreach($this->account_numbers AS $k => $v){
+/*            $query = "SELECT accountnumber, netflowamount, intervalenddate";
+            $adb->pquery($query, array($v, $start_date, $end_date), true);
+            */
             $questions = generateQuestionMarks($v);
             $twr = 1;
             $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
