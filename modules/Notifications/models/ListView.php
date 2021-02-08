@@ -95,6 +95,8 @@ class Notifications_ListView_Model extends Vtiger_ListView_Model {
 	        $listQuery = $query[0];
 	        $listQuery .= " INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_notifications.related_to  ";
 	        $listQuery .= " WHERE ". $query[1] . " AND vtiger_crmentity.setype='Calendar' ";
+	    }else if($this->get('notificationtype') == 'followup'){
+	        $listQuery .= " AND vtiger_notifications.notification_type = 'Follow Record' ";
 	    }
 	    
 	    $sourceModule = $this->get('src_module');
