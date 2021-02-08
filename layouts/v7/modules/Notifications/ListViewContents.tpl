@@ -24,45 +24,55 @@
 		<input type='hidden' name="totalCount" value={$LISTVIEW_ENTRIES_COUNT}>
 		<input type="hidden" name="noOfEntries" value="{$LISTVIEW_ENTRIES_COUNT}" id="noOfEntries">
 		<input type="hidden" name="list_headers" value='{$LIST_HEADER_FIELDS}'/>
-		
+		<div class="col-sm-12 col-xs-12" style="padding-right: 0px;padding-left: 0px;">
+			<h4 class="display-inline-block">{vtranslate($MODULE, $MODULE)}</h4>
+		</div>
+		<div id= "customtabs" class="tabs col-sm-12 col-xs-12" style="padding-right:0px;padding-left:0px;margin-bottom:1rem;">
+			<div class="related-tabs">
+				<ul class="nav nav-tabs tab-links" role="tablist">
+					<li class="tab-item active" data-id="all">
+						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#all_notifications" role="tab">
+				    		<span class="tab-label">
+					    		<strong>
+									{vtranslate('All',{$MODULE_NAME})}
+								</strong>
+							</span>
+				    	</a>
+					</li>
+					<li class="tab-item" data-id="comments">
+						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#comments" role="tab">
+				    		<span class="tab-label">
+					    		<strong>
+									{vtranslate('Comments',{$MODULE_NAME})}
+								</strong>
+							</span>
+				    	</a>
+					</li>
+					<li class="tab-item" data-id="events">
+						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#events" role="tab">
+				    		<span class="tab-label">
+					    		<strong>
+									{vtranslate('Events',{$MODULE_NAME})}
+								</strong>
+							</span>
+				    	</a>
+					</li>
+					<li class="tab-item" data-id="followup">
+						<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#followup" role="tab">
+				    		<span class="tab-label">
+					    		<strong>
+									{vtranslate('Follow Up',{$MODULE_NAME})}
+								</strong>
+							</span>
+				    	</a>
+					</li>
+				</ul>
+			</div>
+		</div>
 		<div id="table-content" class="table-container" style="padding: 10px 0px 10px 0px !important;">
 			<div id="notificationsBody" class="mainList">
-				<div class="col-sm-12 col-xs-12">
-					<h4 class="display-inline-block">{vtranslate($MODULE, $MODULE)}</h4>
-				</div>
-				<div id= "customtabs" class="tabs col-sm-12 col-xs-12">
-					<div class="related-tabs">
-						<ul class="nav nav-tabs tab-links" role="tablist">
-							<li class="tab-item active" data-id="all">
-								<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#all_notifications" role="tab">
-						    		<span class="tab-label">
-							    		<strong>
-											{vtranslate('All',{$MODULE_NAME})}
-										</strong>
-									</span>
-						    	</a>
-							</li>
-							<li class="tab-item" data-id="comments">
-								<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#comments" role="tab">
-						    		<span class="tab-label">
-							    		<strong>
-											{vtranslate('Comments',{$MODULE_NAME})}
-										</strong>
-									</span>
-						    	</a>
-							</li>
-							<li class="tab-item" data-id="events">
-								<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#events" role="tab">
-						    		<span class="tab-label">
-							    		<strong>
-											{vtranslate('Events',{$MODULE_NAME})}
-										</strong>
-									</span>
-						    	</a>
-							</li>
-						</ul>
-					</div>
-				</div>
+				
+				
 				<div class = "tab-content col-sm-12 col-xs-12" style="margin-top:10px;">
 					<div class="active tab-pane all" id="all_notifications" >
 						{if $LISTVIEW_ENTRIES_COUNT}
@@ -133,6 +143,9 @@
 						
 					</div>
 					<div class="tab-pane events" id="events" >
+						
+					</div>
+					<div class="tab-pane followup" id="followup" >
 						
 					</div>
 				</div>
