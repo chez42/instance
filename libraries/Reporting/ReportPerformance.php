@@ -78,6 +78,8 @@ class Performance_Model extends Vtiger_Module {
     public function Performance_Model(array $account_numbers, $start_date, $end_date, $legacy=false){
         global $adb;
         $passed_in_date = $start_date;
+        if(empty($account_numbers))
+            return null;
         $this->account_numbers = $account_numbers;
 
         $questions = generateQuestionMarks($account_numbers);

@@ -1814,10 +1814,16 @@ class Accounts extends CRMEntity {
 
         include_once("include/utils/omniscientCustom.php");
 
-        $ssn = GetSSNsForHousehold($id);
+#        $ssn = GetSSNsForHousehold($id);
 
         $account_numbers = "";
+        $tmp = array_unique(GetAccountNumbersFromRecord($id));
 
+        if(!empty($tmp)){
+            $account_numbers = "'".implode("','",$tmp)."'";
+        }
+
+/*        echo $account_numbers;exit;
         if(!empty($ssn)){
 
             $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromSSN($ssn);
@@ -1830,7 +1836,7 @@ class Accounts extends CRMEntity {
 
                 $account_numbers = "'".implode("','",$account_numbers)."'";
             }
-        }
+        }*/
 
         $parenttab = getParentTab();
 

@@ -726,8 +726,6 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         return 0;
     }
 
-
-
     /**
      * Get a list of account numbers whether or not they have been marked closed/deleted
      * @param $ccn
@@ -753,7 +751,31 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
             }
             return $t;
         }
-        return 0;
+        return array();
+    }
+
+    /**
+     * Get a list of account numbers whether or not they have been marked closed/deleted
+     * @param $ccn
+     * @param null $limit
+     * @return array|int
+     */
+    static public function GetAllAccountNumbersInCRM($ccn, $limit = null)
+    {
+        global $adb;
+
+        $query = "SELECT account_number FROM vtiger_portfolioinformation p 
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid";
+        $result = $adb->pquery($query, array());
+
+        if ($adb->num_rows($result) > 0) {
+            foreach ($result AS $k => $v) {
+                $t[] = $v['account_number'];
+            }
+            return $t;
+        }
+        return null;
     }
 
     static public function GetAccountNumbersFromRepCode($ccn, $limit = null)
@@ -2513,6 +2535,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $day = "";
         if (!$month_only)
             $day = "d/";
+        $date = date("Y");
 
         switch ($option_value) {
             case "current":
@@ -2543,6 +2566,10 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2019"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2019"));
                 break;
+            case "2020":
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st 2020"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st 2020"));
+                break;
             case "trailing_12":
                 $dateReturn['start'] = date("Y-m-d", strtotime("today -1 year"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("today"));
@@ -2551,9 +2578,14 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
                 $dateReturn['start'] = date("Y-m-d", strtotime("today -6 months"));
                 $dateReturn['end'] = date("Y-m-d", strtotime("today"));
                 break;
+            case $date:
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st {$date}"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st {$date}"));
+                break;
             case "custom":
-                $dateReturn['start'] = "";
-                $dateReturn['end'] = "";
+                $date = date("Y");
+                $dateReturn['start'] = date("Y-m-d", strtotime("January 1st {$date}"));
+                $dateReturn['end'] = date("Y-m-d", strtotime("December 31st {$date}"));
                 break;
             default:
                 $dateReturn['end'] = date("m/{$day}Y");
@@ -2975,6 +3007,31 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         #pershing = date
     }
 
+    static public function GetLatestBalanceForAccount($account_number){
+        global $adb;
+
+        $custodian = self::GetCustodianFromAccountNumber($account_number);
+        switch(strtoupper($custodian)){
+            case "TD":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "FIDELITY":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "SCHWAB":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            case "PERSHING":
+                return cTDPortfolios::GetLatestBalance($account_number);
+                break;
+            default:
+                return 0;
+                break;
+        }
+
+        return null;
+    }
+
     static public function GetIntervalBeginValueForDate($account_number, $date){
         global $adb;
 
@@ -3131,7 +3188,7 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         self::TDBalanceCalculationsMultiple(array($account_number), $sdate, $edate);
     }
 
-    protected function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
+    static public function GetAccountNumbersFromCustodianUsingRepCodes($custodian, array $rep_codes){
         global $adb;
         $params = array();
         $questions = generateQuestionMarks($rep_codes);
@@ -3380,31 +3437,84 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         }
     }
 
-    static public function GetPortfolioToPositionDifferencesList(){
+    protected function GetConsolidatedBalances(array $account_number, $sdate, $edate, $custodian, $value_field, $date_field){
         global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $sdate;
+        $params[] = $edate;
+        $params[] = $account_number;
 
-        $query = "DROP TABLE IF EXISTS difference";
-        $adb->pquery($query, array());
-
-        $query = "CREATE TEMPORARY TABLE difference
-                  SELECT p.account_number, p.total_value, SUM(act.value) AS PositionValue, p.origination,p.total_value - SUM(act.value) AS dif
-                  FROM vtiger_portfolioinformation p
-                  JOIN vtiger_asset_class_totals act USING(account_number)
-                  GROUP BY act.account_number";
-        $adb->pquery($query, array());
-
-        $query = "SELECT account_number, origination
-                  FROM difference 
-                  WHERE dif > 1 OR dif < -1";
-        $result = $adb->pquery($query, array());
+        $query = "SELECT account_number, {$value_field} AS account_value, {$date_field} AS as_of_date
+                  FROM custodian_omniscient.custodian_balances_{$custodian} WHERE {$date_field} BETWEEN ? AND ? 
+                  AND account_number IN ({$questions}) ";
+        $result = $adb->pquery($query, $params);
 
         if($adb->num_rows($result) > 0){
-            $differences = array();
-            while ($v = $adb->fetchByAssoc($result)) {
-                $differences[] = $v;
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[] = $v;
             }
-            return $differences;
+            return $data;
         }
-        return null;
+        return array();
+    }
+
+    static public function ConsolidatedBalancesTD(array $account_number, $sdate, $edate){
+        global $adb;
+        $values = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'td', 'account_value', 'as_of_date');
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
+    }
+
+    static public function ConsolidatedBalancesFidelity(array $account_number, $sdate, $edate){
+        global $adb;
+        $values = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'fidelity', 'net_worth', 'as_of_date');
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
+    }
+
+    static public function ConsolidatedBalances(array $account_number, $sdate, $edate){
+        global $adb;
+        $td = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'td', 'account_value', 'as_of_date');
+        $fidelity = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'fidelity', 'net_worth', 'as_of_date');
+        $schwab = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'schwab', 'account_value', 'as_of_date');
+        $pershing = self::GetConsolidatedBalances($account_number, $sdate, $edate, 'pershing', 'net_worth', 'date');
+
+        $values = array_merge($td, $fidelity, $schwab, $pershing);
+
+        $query = "INSERT INTO consolidated_balances (account_number, account_value, as_of_date)
+                  VALUES (?, ?, ?)
+                  ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+
+        if(sizeof($values) > 0) {
+            foreach($values AS $k => $v){
+                $adb->pquery($query, array($v['account_number'], $v['account_value'], $v['as_of_date']));
+            }
+        }
+    }
+
+    static public function UpdateAccountDataFromCustodian(array $account_number){
+        $copy = new CustodianToOmniTransfer($account_number);
+
+        $copy->UpdatePortfolios();
+        $copy->CreateSecurities();
+#        $copy->UpdateSecurities();
+        $copy->CreatePositions();
+#        $copy->UpdatePositions();m
     }
 }

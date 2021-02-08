@@ -3,7 +3,7 @@
 	
 	include_once('includes/head.php');
 	
-	global $portal_title;
+	global $portal_title, $portal_subtitle, $portal_main_title;
 ?>
 
 	<div class="kt-grid kt-grid--ver kt-grid--root">
@@ -16,9 +16,9 @@
 							<a class="kt-login__logo" href="#">
 								<img src="<?php echo $portal_logo;?>" style="width:100% !important;">
 							</a>
-							<h3 class="kt-login__title"><?php echo 'OMNI Client Information Center';?></h3>
+							<h3 class="kt-login__title"><?php echo $portal_main_title;?></h3>
 							<span class="kt-login__desc" >
-								"Empowering our clients to focus on their clients."
+								<?php echo $portal_subtitle;?>
 							</span>
 							<div class="kt-login__actions" style = "display:none;">
 								<button type="button" id="kt_login_signup" class="btn btn-outline-brand btn-pill">Get An Account</button>

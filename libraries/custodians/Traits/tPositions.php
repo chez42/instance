@@ -161,16 +161,20 @@ trait tPositions{
 
     public function ResetAccountPositions($account_number){
         global $adb;
+        $questions = generateQuestionMarks($account_number);
         $params = array();
-        $params[] = $account_number;
+        if(is_array($account_number))
+            $params = $account_number;
+        else
+            $params[] = $account_number;
 
         $query = "UPDATE vtiger_positioninformation p 
                   JOIN vtiger_positioninformationcf pcf ON pcf.positioninformationid = p.positioninformationid 
                   SET p.quantity = 0, p.current_value = 0, pcf.last_update = null
-                  WHERE account_number = ?";
-        $adb->pquery($query, $params, true);
+                  WHERE account_number IN ({$questions})";
+        $adb->pquery($query, $params);
 
-        $query = "UPDATE vtiger_asset_class_totals SET value = 0 WHERE account_number = ?";
-        $adb->pquery($query, $params, true);
+        $query = "UPDATE vtiger_asset_class_totals SET value = 0 WHERE account_number IN ({$questions})";
+        $adb->pquery($query, $params);
     }
 }
