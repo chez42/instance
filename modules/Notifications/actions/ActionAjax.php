@@ -332,7 +332,13 @@ class Notifications_ActionAjax_Action extends Vtiger_Action_Controller
                     </div>
                 </div>';
             }
-        }
+        }else{
+            $html .= '<div class="emptyRecordsDiv">
+				<div class="text-center" style="padding-top: 12%;" >
+					You\'re all caught up!
+				</div>
+			</div>';
+            }
        
         $response = new Vtiger_Response();
         $response->setResult(array('success'=>true, 'nextpage' => $nextPage, 'data'=>$html));
