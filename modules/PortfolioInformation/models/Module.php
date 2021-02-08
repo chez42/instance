@@ -1572,7 +1572,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
     {
         foreach($accounts AS $k => $v){
             $intervals = new cIntervals($v);
-            $intervals->CalculateIntervals('1900-01-01', '2020-02-06');
+            $intervals->CalculateIntervals('1900-01-01', date("Y-m-d"));
         }
         return;
         global $adb, $dbconfig;
@@ -1684,12 +1684,8 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $and = "";
         $questions = generateQuestionMarks($accounts);
         $params = array();
-        /*
-                $params = self::CreateIntervalTempTable($accounts, $start, $end, $and);
+#        $params = self::CreateIntervalTempTable($accounts, $start, $end, $and);
 
-                $query = "SELECT AccountNumber, DATE_FORMAT(IntervalBeginDate, '%m-%d-%Y') AS IntervalBeginDateFormatted, DATE_FORMAT(IntervalEndDate, '%m-%d-%Y') AS IntervalEndDateFormatted, SUM(IntervalBeginValue) AS IntervalBeginValue, SUM(IntervalEndValue) AS IntervalEndValue, SUM(NetFlowAmount) AS NetFlowAmount, SUM(IntervalEndValue) - SUM(NetFlowAmount) - SUM(IntervalBeginValue) AS InvestmentReturn, (SUM(IntervalEndValue) - SUM(NetFlowAmount) - SUM(IntervalBeginValue)) / SUM(IntervalBeginValue) * 100 AS periodreturn
-                          FROM IntervalTemp
-                          WHERE AccountNumber IN ({$questions}) {$and} GROUP BY IntervalEndDate ORDER BY IntervalEndDate DESC";*/
         $query = "CALL MONTHLY_INTERVALS_CALCULATED(\"{$questions}\")";
         $adb->pquery($query, array($accounts));
 
@@ -2107,8 +2103,6 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         while ($counter < $max) {
             $tmp = $trade->GetAllAccounts("https://veoapi.advisorservices.com/InstitutionalAPIv2/api", null, $counter, $counter + $increment);
             foreach ($tmp['model']['getAccountsJson']['account'] AS $k => $v) {
-                print_r($v);
-                exit;
                 $types[$v['accountCategoryCode']] = 1;
             }
             $counter += $increment;

@@ -338,11 +338,33 @@ class Performance_Model extends Vtiger_Module {
     public function CalculateIndividualTWRCumulative($start_date, $end_date){
         global $adb;
 
+        $query = "SELECT netreturnamount 
+                  FROM intervals_daily 
+                  WHERE AccountNumber = ? 
+                  AND IntervalEndDate BETWEEN ? AND ?";
+
         foreach($this->account_numbers AS $k => $v){
+            $twr = 1;
+            $result = $adb->pquery($query, array($v, $start_date, $end_date));
+
+            if($adb->num_rows($result) > 0){
+                while($x = $adb->fetchByAssoc($result)){
+                    if($x['netreturnamount'] != 1)
+                        $twr *= ($x['netreturnamount'] + 1);
+                    else
+                        $twr *= $x['netreturnamount'];
+                }
+            }
+
+            if($twr != 1)
+                $this->individual_twr[$v] = ($twr - 1) * 100;
+            else
+                $this->individual_twr[$v] = 0;
+
 /*            $query = "SELECT accountnumber, netflowamount, intervalenddate";
             $adb->pquery($query, array($v, $start_date, $end_date), true);
             */
-            $questions = generateQuestionMarks($v);
+ /*           $questions = generateQuestionMarks($v);
             $twr = 1;
             $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
             $adb->pquery($query, array($v, $start_date, $end_date), true);
@@ -361,7 +383,7 @@ class Performance_Model extends Vtiger_Module {
             if($this->individual_twr[$v] >= 100 || $this->individual_twr[$v] <= -100){
                 $this->individual_twr[$v] = 0;
             }
-
+*/
         }
     }
 
