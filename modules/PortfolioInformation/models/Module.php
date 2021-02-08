@@ -3,6 +3,8 @@ include_once "include/utils/omniscientCustom.php";
 include_once("libraries/Stratifi/StratifiAPI.php");
 require_once("libraries/custodians/cCustodian.php");
 
+include_once("libraries/Reporting/Reporting.php");
+
 class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 {
     /**
@@ -1568,6 +1570,11 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
      */
     static public function CalculateDailyIntervalsForAccounts(array $accounts, $start = null, $end = null, $auto=false)
     {
+        foreach($accounts AS $k => $v){
+            $intervals = new cIntervals($v);
+            $intervals->CalculateIntervals('1900-01-01', '2020-02-06');
+        }
+        return;
         global $adb, $dbconfig;
         $db_name = $dbconfig['db_name'];
         if (!$start)
