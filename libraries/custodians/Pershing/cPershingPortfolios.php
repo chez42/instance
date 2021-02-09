@@ -87,7 +87,7 @@ class cPershingPortfolios extends cCustodian {
 
     static public function GetLatestBalance($account_number){
         global $adb;
-        $query = "SELECT * 
+        $query = "SELECT net_worth
                   FROM custodian_omniscient.custodian_balances_pershing 
                   WHERE account_number = ?
                   ORDER BY as_of_date 
@@ -95,9 +95,33 @@ class cPershingPortfolios extends cCustodian {
         $result = $adb->pquery($query, array($account_number));
 
         if($adb->num_rows($result) > 0){
-            return $adb->query_result($result, 0, 'net_amount');
+            return $adb->query_result($result, 0, 'net_worth');
         }
         return null;
+    }
+
+    static public function BalanceBetweenDates(array $account_number, $sdate, $edate){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $account_number;
+        $params[] = $sdate;
+        $params[] = $edate;
+
+        $query = "SELECT account_number, net_worth AS value, as_of_date AS date
+                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date BETWEEN ? AND ?
+                  ORDER BY as_of_date";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']][] = $r;
+            }
+        }
+        return $data;
     }
 
 }

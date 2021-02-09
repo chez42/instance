@@ -166,7 +166,10 @@ class cDemo{
 
         $questions = generateQuestionMarks($account_number);
 
-        $query = "SELECT * FROM custodian_omniscient.custodian_transactions_{$custodian}
+        $query = "SELECT advisor_rep_code, file_date, account_number, transaction_code, cancel_status_flag, symbol, 
+                         security_code, trade_date, quantity, net_amount, principal, broker_fee, other_fee, settle_date, from_to_account, 
+                         account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id 
+                  FROM custodian_omniscient.custodian_transactions_{$custodian}
                   WHERE account_number IN ({$questions})
                   {$and}";
         $result = $adb->pquery($query, $params);
@@ -175,20 +178,21 @@ class cDemo{
             while($v = $adb->fetchByAssoc($result)){
                 if($this->IsAccountMapped($v['account_number'])) {
                     $questions = generateQuestionMarks($v);
-                    $query = "INSERT INTO custodian_omniscient.custodian_transactions_{$custodian} VALUES ({$questions})
+                    $query = "INSERT INTO custodian_omniscient.custodian_transactions_{$custodian} (advisor_rep_code, file_date, account_number, transaction_code, cancel_status_flag, symbol, security_code, trade_date, quantity, net_amount, principal, broker_fee, other_fee, settle_date, from_to_account, account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id)
+                              VALUES ({$questions})
                               ON DUPLICATE KEY UPDATE account_number = VALUES(account_number)";
 
                     $real_account = $v['account_number'];
                     $mapped_account = $this->mapping[$real_account];
                     $v['account_number'] = $mapped_account;
-                    $v['transaction_id'] = '777' . $v['transaction_id'];
+                    $v['filename'] = "DEMO_".$v['filename'];
                     $adb->pquery($query, array($v));
                 }
             }
         }
     }
 
-    public function GetFakeName(){
+    public function GetFakeName() {
         global $adb;
         $query = "SELECT first_name, last_name, company_name, address, city, county, state, zip, email, web
                   FROM custodian_omniscient.us_fake_address 
@@ -208,19 +212,19 @@ class cDemo{
 
         }
     }
-/*Fake Data Example
-Array (
-[first_name] => Chauncey
-[last_name] => Motley
-[company_name] => Affiliated With Travelodge
-[address] => 63 E Aurora Dr
-[city] => Orlando
-[county] => Orange
-[state] => FL
-[zip] => 32804
-[email] => chauncey_motley@aol.com
-[web] => http://www.affiliatedwithtravelodge.com )
- */
+    /*Fake Data Example
+    Array (
+    [first_name] => Chauncey
+    [last_name] => Motley
+    [company_name] => Affiliated With Travelodge
+    [address] => 63 E Aurora Dr
+    [city] => Orlando
+    [county] => Orange
+    [state] => FL
+    [zip] => 32804
+    [email] => chauncey_motley@aol.com
+    [web] => http://www.affiliatedwithtravelodge.com )
+     */
 
     public function UpdateTDWithFakeData($data){
         global $adb;
@@ -232,7 +236,7 @@ Array (
                   WHERE account_number = ?";
 
         $adb->pquery($query, array($fake['first_name'], $fake['last_name'], $fake['company_name'], $fake['address'],
-                                   $fake['city'], $fake['state'], $fake['zip'], $data['replace'], $data['replace'], $data['account_number']));
+            $fake['city'], $fake['state'], $fake['zip'], $data['replace'], $data['replace'], $data['account_number']));
 
     }
 

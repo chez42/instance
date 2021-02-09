@@ -631,4 +631,81 @@ class cFidelityPortfolios extends cCustodian {
         }
         return null;
     }
+
+    /**
+     * Returns the earliest date and balance for passed in account numbers
+     * @param array $account_numbers
+     * @return array
+     */
+    static public function GetEarliestBalanceAndDate(array $account_numbers){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+
+        $query = "SELECT account_number, net_worth AS account_value, MIN(as_of_date) AS as_of_date
+                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  WHERE account_number IN ({$questions}) 
+                  GROUP BY account_number";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']] = array("account_value" => $r['account_value'],
+                    "as_of_date" => $r['as_of_date']);
+            }
+        }
+        return $data;
+    }
+
+    static public function BalanceBetweenDates(array $account_number, $sdate, $edate){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $account_number;
+        $params[] = $sdate;
+        $params[] = $edate;
+
+        $query = "SELECT account_number, net_worth AS value, as_of_date AS date
+                  FROM custodian_omniscient.custodian_balances_fidelity 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date BETWEEN ? AND ?
+                  ORDER BY as_of_date";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']][] = $r;
+            }
+        }
+        return $data;
+    }
+
+    static public function UpdatePortfoliosForAccounts(array $account_number){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+
+        $query = "SELECT * FROM custodian_omniscient.custodian_portfolios_fidelity f
+                  WHERE account_number IN ({$questions})";
+
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+
+            }
+        }
+/*
+JOIN vtiger_portfolioinformation p ON p.dashless = f.account_number
+JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+SET cf.description = f.primary_account_owner, p.first_name = f.primary_owner_first_name,
+p.last_name = CASE WHEN f.primary_owner_last_name = '' THEN f.primary_account_owner ELSE f.primary_owner_last_name END, cf.address1 = f.address1_line1, cf.address2 = f.address1_line2,
+cf.address3 = f.address1_line3, cf.address4 = f.address2_line1, cf.address5 = f.address2_line2,
+cf.address6 = f.address2_line3, cf.city = f.city1, cf.state = f.state1, cf.zip = f.zip_code1, cf.custodian_inception = f.establishment_date,
+cf.production_number = f.rep_code, cf.master_production_number = f.master_rep_code, cf.rep_code_multiple = f.rep_code_multiple,
+p.account_type = CASE WHEN f.registration = '' THEN p.account_type ELSE f.registration END,
+cf.email_address = f.primary_email, cf.omniscient_control_number = f.omni_code, cf.custodian_source = f.filename
+WHERE cf.freeze_personal = 0";
+*/
+    }
 }

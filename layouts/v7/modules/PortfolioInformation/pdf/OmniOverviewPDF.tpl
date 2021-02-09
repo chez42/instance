@@ -53,12 +53,12 @@
     {/foreach}
     <tr data-id="3" data-parent="">
         <td style="background-color:RGB(245, 245, 245); font-weight:bold;">Income</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t3_performance_summed.Income->amount|number_format:2:".":","}</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t6_performance_summed.Income->amount|number_format:2:".":","}</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t12_performance_summed.Income->amount|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t3_performance_summed.Income->amount+$t3_performance_summed.income_div_interest->amount)|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t6_performance_summed.Income->amount+$t6_performance_summed.income_div_interest->amount)|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t12_performance_summed.Income->amount+$t12_performance_summed.income_div_interest->amount)|number_format:2:".":","}</td>
     </tr>
     {foreach from=$TABLECATEGORIES key=k item=v}
-        {if $k eq 'Income'}
+        {if $k eq 'Income' OR $k eq 'income_div_interest'}
             {foreach from=$v item=val}
                 <tr data-parent="3">
                     <td>&nbsp;&nbsp;{$val}</td>
@@ -71,12 +71,12 @@
     {/foreach}
     <tr data-id="4" data-parent="">
         <td style="background-color:RGB(245, 245, 245); font-weight:bold;">Expenses</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t3_performance_summed.Expense->amount|number_format:2:".":","}</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t6_performance_summed.Expense->amount|number_format:2:".":","}</td>
-        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${$t12_performance_summed.Expense->amount|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t3_performance_summed.Expense->amount+$t3_performance_summed.Reversal->amount)|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t6_performance_summed.Expense->amount+$t6_performance_summed.Reversal->amount)|number_format:2:".":","}</td>
+        <td style="text-align:right; background-color:RGB(245, 245, 245); font-weight:bold;">${($t12_performance_summed.Expense->amount+$t12_performance_summed.Reversal->amount)|number_format:2:".":","}</td>
     </tr>
     {foreach from=$TABLECATEGORIES key=k item=v}
-        {if $k eq 'Expense'}
+        {if $k eq 'Expense' OR $k eq 'Reversal'}
             {foreach from=$v item=val}
                 <tr data-parent="4">
                     <td>&nbsp;&nbsp;{$val}</td>
@@ -107,9 +107,9 @@
     </tr>
     <tr data-id="9" data-parent="8">
         <td style="font-weight:bold;">&nbsp;&nbsp;S&P 500</td>
-        <td style="text-align:right; font-weight:bold;">{$T3PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
-        <td style="text-align:right; font-weight:bold;">{$T6PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
-        <td style="text-align:right; font-weight:bold;">{$T12PERFORMANCE->GetIndex("S&P 500")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T3PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T6PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
+        <td style="text-align:right; font-weight:bold;">{$T12PERFORMANCE->GetIndex("GSPC")|number_format:2:".":","}%</td>
     </tr>
     <tr data-id="10" data-parent="8">
         <td style="font-weight:bold;">&nbsp;&nbsp;AGG</td>

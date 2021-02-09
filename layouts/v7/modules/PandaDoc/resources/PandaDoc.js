@@ -63,8 +63,8 @@ Vtiger.Class("PandaDoc_Js",{
 					app.helper.hideProgress();
 				
 					if (data) {
-						app.helper.showModal(data,{
-							'cb' : function(modalContainer){
+						var overlayParams = {/*'backdrop' : 'static',*/ 'keyboard' : false};
+						app.helper.loadPageContentOverlay(data,overlayParams).then(function(){
 								
 								var recipients ;
 								var token ;
@@ -124,7 +124,7 @@ Vtiger.Class("PandaDoc_Js",{
 									},
 									function(error, err){}
 								);
-							}
+							//}
 						});
 					}
 				}
