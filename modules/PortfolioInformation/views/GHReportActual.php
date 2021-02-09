@@ -88,10 +88,10 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
 #                    exit;
 #                }
             }
-            if(empty($tmp)){
-                echo "No interval data available";
-                exit;
-            }
+#            if(empty($tmp)){
+#                echo "No interval data available";
+#                exit;
+#            }
             $accounts = $tmp;
 
             $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());

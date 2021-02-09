@@ -1761,6 +1761,47 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 
     static public function GetDailyIntervalsForAccountsPreCalculated(array $accounts, $start_date, $end_date){
         global $adb;
+        $questions = generateQuestionMarks($accounts);
+        $query = "SELECT SUM(intervalEndValue) / (SUM(intervalBeginValue) + (SUM(NetFlowAmount) + SUM(expenseamount))) AS netreturnamount, 
+                     SUM(investmentreturn) AS investmentreturn, IntervalEndDate,
+                     SUM(intervalBeginValue) AS intervalBeginValue, SUM(intervalEndValue) AS intervalEndValue,
+                     SUM(NetFlowAmount) AS netflowamount,
+                     SUM(expenseamount) AS expenseamount,
+                     SUM(incomeamount) AS incomeamount
+              FROM intervals_daily 
+              WHERE AccountNumber IN ({$questions}) 
+              AND IntervalEndDate BETWEEN ? AND ?
+              GROUP BY intervalEndDate";
+
+        $twr = 1;
+        $result = $adb->pquery($query, array($accounts, $start_date, $end_date));
+
+        if ($adb->num_rows($result) > 0) {
+            while ($x = $adb->fetchByAssoc($result)) {
+                if ($x['netreturnamount'] != 1) {
+                    $twr *= $x['netreturnamount'];
+#                    echo $x['intervalenddate'] . '... ' . $x['intervalbeginvalue'] . ' - ' . $x['netflowamount'] . ' - ' . $x['incomeamount'] . ' - ' . $x['expenseamount'] . ' - ' . $x['investmentreturn'] . ' - ' . $x['intervalendvalue'] . ' - ' . (($x['netreturnamount'] - 1) * 100) . ' -- ' . ($twr - 1) * 100 . '<br />';
+#                    echo $twr . ' - ' . $x['intervalenddate'] . ' = ' . ($twr-1)*100 . '(investment return - ' . $x['investmentreturn'] . ')<br />';
+                } else
+                    $twr *= $x['netreturnamount'];
+                $intervals[] = array("account_number" => $x['accountnumber'],
+                    "begin_date" => date("m-d-Y", strtotime($x['intervalbegindate'])),
+                    "end_date" => date("m-d-Y", strtotime($x['intervalenddate'])),
+                    "begin_value" => $x['intervalbeginvalue'],
+                    "end_value" => $x['intervalendvalue'],
+                    "net_flow" => $x['netflowamount'],
+                    "net_return" => $x['netreturnamount'],
+                    "expense_amount" => $x['expenseamount'],
+                    "incomeamount" => $x['incomeamount'],
+                    "investmentreturn" => $x['investmentreturn'],
+                    "net_return_percent" => ($x['netreturnamount']-1) * 100,
+                    "twr" => ($twr - 1) * 100);
+            }
+        }
+
+        return array_reverse($intervals);
+/*
+        global $adb;
         $twr = 1;
 
         $questions = generateQuestionMarks($accounts);
@@ -1793,7 +1834,7 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
                     "twr" => ($twr - 1) * 100);
             }
             return array_reverse($intervals);
-        }
+        }*/
     }
 
     static public function GetDailyIntervalsForAccounts(array $accounts)
