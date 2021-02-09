@@ -129,6 +129,24 @@ class PandaDoc_GetData_Action extends Vtiger_GetData_Action {
                 );
                 
             
+            }else if($sourceModule == 'Leads'){
+                
+                $meta_data_value = $data['lead_no'];
+                
+                $recipients[] = array(
+                    'first_name'=> $data['firstname'],
+                    
+                    'last_name'=> $data['lastname'],
+                    
+                    'email' => $data['email'],
+                    
+                    'phone' => $data['mobile'],
+                    
+                    'company' => $data['company'],
+                    
+                    'roleName' => "Client",
+                );
+                
             }
             
             $reference = md5(strtotime(date("Y-m-d H:i:s")) . $current_user->id);
