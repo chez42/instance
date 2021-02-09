@@ -27,7 +27,8 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
         $tmp = new CustodianClassMapping($account_number);
         $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
-        $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+            $tmp->transactions::UpdateTransactionsForAccounts($account_number);
 
 #        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
 #        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
