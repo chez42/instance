@@ -526,7 +526,7 @@ class cTDTransactions extends cCustodian
 
                 $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, rep_code, transaction_activity, net_amount, principal, broker_fee, other_fee, description, filename)
                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($v['crmid'], 'TD', $v['omniscient_category'], $v['omniscient_activity'], $v['net_amount'], $v['principal'],
+                $adb->pquery($query, array($v['crmid'], 'TD', $v['omniscient_category'], $v['advisor_rep_code'], $v['omniscient_activity'], $v['net_amount'], $v['principal'],
                     $v['broker_fee'], $v['other_fee'], $v['comment'], $v['filename']));
             }
         }
