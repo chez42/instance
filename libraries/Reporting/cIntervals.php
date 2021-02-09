@@ -137,7 +137,7 @@ class cIntervals{
                 $beginValue = $interval->intervalBeginValue;
 
             $interval->netReturnAmount = $interval->intervalEndValue /
-                                         ($interval->intervalBeginValue -
+                                         ($interval->intervalBeginValue +
                                          ($interval->netFlowAmount + $interval->expenseAmount));
 
             /*
