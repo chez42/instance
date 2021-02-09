@@ -349,6 +349,34 @@ class Performance_Model extends Vtiger_Module {
 
             if($adb->num_rows($result) > 0){
                 while($x = $adb->fetchByAssoc($result)){
+                    if($x['netreturnamount'] != 1) {
+                        $twr *= $x['netreturnamount'];
+                    }
+                    else
+                        $twr *= $x['netreturnamount'];
+                }
+            }
+
+            if($twr != 1)
+                $this->individual_twr[$v] = ($twr - 1) * 100;
+            else
+                $this->individual_twr[$v] = 0;
+
+
+
+/*        global $adb;
+
+        $query = "SELECT netreturnamount 
+                  FROM intervals_daily 
+                  WHERE AccountNumber = ? 
+                  AND IntervalEndDate BETWEEN ? AND ?";
+
+        foreach($this->account_numbers AS $k => $v){
+            $twr = 1;
+            $result = $adb->pquery($query, array($v, $start_date, $end_date));
+
+            if($adb->num_rows($result) > 0){
+                while($x = $adb->fetchByAssoc($result)){
                     if($x['netreturnamount'] != 1)
                         $twr *= ($x['netreturnamount'] + 1);
                     else
@@ -406,6 +434,38 @@ class Performance_Model extends Vtiger_Module {
     }*/
 
     public function CalculateCombinedTWRCumulative($start_date, $end_date){
+        global $adb;
+        $questions = generateQuestionMarks($this->account_numbers);
+        $query = "SELECT SUM(intervalEndValue) / (SUM(intervalBeginValue) + (SUM(NetFlowAmount) + SUM(expenseamount))) AS netreturnamount, 
+                         SUM(investmentreturn) AS investmentreturn, IntervalEndDate,
+                         SUM(intervalBeginValue) AS intervalBeginValue, SUM(intervalEndValue) AS intervalEndValue,
+                         SUM(NetFlowAmount) AS netflowamount,
+                         SUM(expenseamount) AS expenseamount,
+                         SUM(incomeamount) AS incomeamount
+                  FROM intervals_daily 
+                  WHERE AccountNumber IN ({$questions}) 
+                  AND IntervalEndDate BETWEEN ? AND ?
+                  GROUP BY intervalEndDate";
+
+        $twr = 1;
+        $result = $adb->pquery($query, array($this->account_numbers, $start_date, $end_date));
+
+        if ($adb->num_rows($result) > 0) {
+            while ($x = $adb->fetchByAssoc($result)) {
+                if ($x['netreturnamount'] != 1) {
+                    $twr *= $x['netreturnamount'];
+#                    echo $x['intervalenddate'] . '... ' . $x['intervalbeginvalue'] . ' - ' . $x['netflowamount'] . ' - ' . $x['incomeamount'] . ' - ' . $x['expenseamount'] . ' - ' . $x['investmentreturn'] . ' - ' . $x['intervalendvalue'] . ' - ' . (($x['netreturnamount']-1)*100) . ' -- ' . ($twr-1)*100 . '<br />';
+#                    echo $twr . ' - ' . $x['intervalenddate'] . ' = ' . ($twr-1)*100 . '(investment return - ' . $x['investmentreturn'] . ')<br />';
+                } else
+                    $twr *= $x['netreturnamount'];
+            }
+        }
+
+        if ($twr != 1)
+            $this->twr = ($twr - 1) * 100;
+        else
+            $this->twr = 0;
+/*
         global $adb;
         $twr = 1;
 

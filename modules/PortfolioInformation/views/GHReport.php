@@ -91,10 +91,10 @@ class PortfolioInformation_GHReport_View extends Vtiger_Index_View{
 #                    exit;
 #                }
             }
-            if(empty($tmp)){
-                echo "No interval data available";
-                exit;
-            }
+#            if(empty($tmp)){
+#                echo "No interval data available";
+#                exit;
+#            }
 
             $accounts = $tmp;
 
