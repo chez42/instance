@@ -639,11 +639,12 @@ return;
     /**
      * This gets the positions for every single day it was provided via files.  If a day is skipped, its because the file didn't come in
      * get a response
+     * Returns a 3D array by [account_number][date][<DATA>]
      * @param array $account_number
      * @param $date
      * @return array|null
      */
-    static public function GetPositionEntireHistory(array $account_number){
+    static public function GetPositionsEntireHistory(array $account_number){
         global $adb;
         $questions = generateQuestionMarks($account_number);
 
@@ -656,7 +657,7 @@ return;
                   LEFT JOIN vtiger_modsecurities m ON pos.symbol = m.security_symbol
                   LEFT JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
                   WHERE account_number IN ({$questions}) 
-                  GROUP BY pos.symbol, pos.account_number";
+                  GROUP BY pos.symbol, pos.account_number, pos.date";
         $result = $adb->pquery($query, array($account_number));
 
         if($adb->num_rows($result) > 0){
@@ -670,9 +671,11 @@ return;
                     $v['factor'] = 1;
                 if($v['security_price_adjustment'] == 0)
                     $v['security_price_adjustment'] = 1;
+                if($v['quantity'] == 0 AND $v['amount'] != 0)
+                    $v['quantity'] = $v['amount'];
 
                 $v['market_value'] = ($v['quantity'] + $v['amount']) * $v['price'] * $v['security_price_adjustment'] * $v['factor'];
-                $data[$v['account_number']][] = $v;
+                $data[$v['account_number']][$v['date']][] = $v;
             }
             return $data;
         }

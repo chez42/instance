@@ -47,6 +47,23 @@ class cFidelityPrices extends cCustodian
         return $this->prices_data;
     }
 
+    static public function GetBestKnownPriceBeforeDate($symbol, $date){
+        global $adb;
+
+        $query = "SELECT price 
+                  FROM custodian_omniscient.custodian_prices_fidelity 
+                  WHERE price_date < ?
+                  AND symbol = ?
+                  ORDER BY price_date
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $symbol), true);
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'price');
+        }
+        return false;
+    }
+
     /**
      * Returns an associative array of all requested prices between the given dates
      * @param string $table

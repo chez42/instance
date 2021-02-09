@@ -27,20 +27,21 @@ StatusUpdate::UpdateMessage("TDUPDATER", "Closing positions based on their portf
 #PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValues();
 StatusUpdate::UpdateMessage("TDUPDATER", "Updating asset allocation users table");
 
+$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+/*Fill in the consolidated balances table*/
+$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($accounts);
+
 $ids = GetAllActiveUserIDs();
 foreach($ids AS $k => $v) {//Loop through the users and place the position totals into the asset allocation chart
     $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersForSpecificUser($v, false);
     if(is_array($account_numbers)) {
-        PortfolioInformation_GlobalSummary_Model::CalculateAllAccountAssetAllocationValuesForAccount($account_numbers);
         PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
     }
 }
 
 #PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
 StatusUpdate::UpdateMessage("TDUPDATER", "Pulling rep code list");
-$rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
-/*Fill in the consolidated balances table*/
-$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
 $start = date('Y-m-d', strtotime('-7 days'));
 $finish = date('Y-m-d');
 #$questions = generateQuestionMarks($accounts);

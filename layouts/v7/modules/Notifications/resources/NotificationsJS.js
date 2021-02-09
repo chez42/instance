@@ -554,7 +554,7 @@ Vtiger.Class("NotificationsJS", {
 			}
 		});
 		
-		jQuery(document).on('click', '.tab-item', function(){
+		jQuery(document).on('click', '#notificationListContainer .tab-item', function(){
 			var listViewContainer = jQuery('#notificationListContainer');
 			
 			var pageNumber = listViewContainer.find('#pageNumber').val();

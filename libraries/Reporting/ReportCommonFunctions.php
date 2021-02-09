@@ -189,3 +189,37 @@ function IsTimeBetween($start_time, $end_time, $check_time){
 
     return false;
 }
+
+function DetermineIntervalStartDate($account_number, $sdate){
+    global $adb;
+    $questions = generateQuestionMarks($account_number);
+
+    $query = "SELECT DATE_ADD(MAX(intervalbegindate), INTERVAL 1 DAY) AS begin_date
+              FROM intervals_daily 
+              WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ?";
+    $result = $adb->pquery($query, array($account_number, $sdate));
+    if($adb->num_rows($result) > 0){
+        $result = $adb->query_result($result, 0, 'begin_date');
+        if(is_null($result))
+            return $sdate;
+        return $result;
+    }
+    return $sdate;
+}
+
+function DetermineIntervalEndDate($account_number, $edate){
+    global $adb;
+    $questions = generateQuestionMarks($account_number);
+
+    $query = "SELECT MAX(intervalenddate) AS end_date
+              FROM intervals_daily 
+              WHERE accountnumber IN ({$questions}) AND intervalenddate <= ?";
+    $result = $adb->pquery($query, array($account_number, $edate));
+    if($adb->num_rows($result) > 0){
+        $result = $adb->query_result($result, 0, 'end_date');
+        if(is_null($result))
+            return $edate;
+        return $result;
+    }
+    return $edate;
+}

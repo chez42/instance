@@ -80,6 +80,22 @@ class CustodianToOmniTransfer{
         }
     }
 
+    public function CreateTransactions(){
+        foreach($this->account_numbers AS $k => $v){
+            switch (strtoupper($k)) {
+                CASE "TD":
+                    break;
+                CASE "FIDELITY":
+                    cFidelityTransactions::CreateNewTransactionsForAccounts($v);
+                    break;
+                CASE "SCHWAB":
+                    break;
+                case "PERSHING":
+                    break;
+            }
+        }
+    }
+
     public function CreatePortfolios(){
         return;//Currently not used, the code below is a copy of UpdatePortfolios
         foreach($this->account_numbers AS $k => $v){
