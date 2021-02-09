@@ -302,6 +302,78 @@ class cTDPortfolios extends cCustodian {
         return $data;
     }
 
+    static public function GetBeginningBalanceAsOfDate(array $account_numbers, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+        $params[] = $date;
+
+        $query = "SELECT account_number, account_value AS value, as_of_date AS date
+                  FROM custodian_omniscient.custodian_balances_td 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date < ?
+                  ORDER BY as_of_date 
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']] = $r;
+            }
+        }
+        return $data;
+    }
+
+    static public function GetEndingBalanceAsOfDate(array $account_numbers, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_numbers);
+        $params = array();
+        $params[] = $account_numbers;
+        $params[] = $date;
+
+        $query = "SELECT account_number, account_value AS value, as_of_date AS date
+                  FROM custodian_omniscient.custodian_balances_td 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date <= ?
+                  ORDER BY as_of_date 
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']] = $r;
+            }
+        }
+        return $data;
+    }
+
+    static public function BalanceBetweenDates(array $account_number, $sdate, $edate){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $params = array();
+        $params[] = $account_number;
+        $params[] = $sdate;
+        $params[] = $edate;
+
+        $query = "SELECT account_number, account_value AS value, as_of_date AS date
+                  FROM custodian_omniscient.custodian_balances_td 
+                  WHERE account_number IN ({$questions}) 
+                  AND as_of_date BETWEEN ? AND ?
+                  ORDER BY as_of_date";
+        $result = $adb->pquery($query, $params);
+
+        $data = array();
+        if($adb->num_rows($result) > 0){
+            while($r = $adb->fetchByAssoc($result)){
+                $data[$r['account_number']][] = $r;
+            }
+        }
+        return $data;
+    }
+
     static public function GetLatestBalance($account_number){
         global $adb;
         $query = "SELECT * 

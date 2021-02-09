@@ -149,7 +149,7 @@
                     </table>
                 </td>
                 <td>
-                    <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 300px; width:450px;"></div>
+                    <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 300px;"></div>
                 </td>
             </tr>
         </table>

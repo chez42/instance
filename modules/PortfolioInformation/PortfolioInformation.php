@@ -28,52 +28,51 @@ class PortfolioInformation extends Vtiger_CRMEntity {
 
         var $customFieldTable = Array('vtiger_portfolioinformationcf', 'portfolioinformationid');
 
-        var $tab_name = Array('vtiger_crmentity', 'vtiger_portfolioinformation', 'vtiger_portfolioinformationcf', 'vtiger_pc_account_custom');
-
-        var $tab_name_index = Array(
+        /*var $tab_name = Array('vtiger_crmentity', 'vtiger_portfolioinformation', 'vtiger_portfolioinformationcf', 'vtiger_pc_account_custom');
+		*/
+		
+		var $tab_name = Array('vtiger_crmentity', 'vtiger_portfolioinformation', 'vtiger_portfolioinformationcf');
+		
+        /*var $tab_name_index = Array(
                 'vtiger_crmentity' => 'crmid',
                 'vtiger_portfolioinformation' => 'portfolioinformationid',
                 'vtiger_portfolioinformationcf'=>'portfolioinformationid',
                 'vtiger_contactdetails' => 'contactid',
-                'vtiger_pc_account_custom'=>'account_number');
+                'vtiger_pc_account_custom'=>'account_number');*/
+				
+		var $tab_name_index = Array(
+			'vtiger_crmentity' => 'crmid',
+			'vtiger_portfolioinformation' => 'portfolioinformationid',
+			'vtiger_portfolioinformationcf'=>'portfolioinformationid',
+        );
 
 /*var $related_module_table_index = array(
 		'account_number' => array('table_name' => 'vtiger_pc_account_custom', 'table_index' => 'account_number', 'rel_index' => 'account_number'),
 	);        */
         
         var $list_fields = Array (
-                // Format: Field Label => Array(tablename, columnname)
-                // tablename should not have prefix 'vtiger_'
-                'Summary' => Array('portfolioinformation', 'summary'),
-                'Contacts' => Array('contactdetails', 'contact_link'),
-                'Assigned To' => Array('crmentity','smownerid'),
-                'Nickname' => Array('pc_account_custom','nickname')
-        );
+			'Summary' => Array('portfolioinformation', 'summary'),
+			'Assigned To' => Array('crmentity','smownerid'),
+		);
         
         var $list_fields_name = Array (
-                // Format: Field Label => fieldname
-                'Account Number' => 'account_number',
-                'Assigned To' => 'assigned_user_id',
-                'Nickname' => 'account_number'
-        );
+			'Account Number' => 'account_number',
+			'Assigned To' => 'assigned_user_id',
+		);
 
         // Make the field link to detail view
         var $list_link_field = 'account_number';
 
         // For Popup listview and UI type support
         var $search_fields = Array(
-                // Format: Field Label => Array(tablename, columnname) 
-                // tablename should not have prefix 'vtiger_'
-                'Account Number' => Array('portfolioinformation', 'account_number'),
-                'Assigned To' => Array('crmentity','assigned_user_id'),
-                'Contact' => Array('contactdetails', 'contact_link'),
-                'Nickname' => Array('pc_account_custom', 'nickname')
-        );
+			'Account Number' => Array('portfolioinformation', 'account_number'),
+			'Assigned To' => Array('crmentity','assigned_user_id'),
+		);
+		
         var $search_fields_name = Array (
-                // Format: Field Label => fieldname 
-                'Account Number' => 'account_number',
-                'Assigned To' => 'assigned_user_id',
-        );
+			'Account Number' => 'account_number',
+			'Assigned To' => 'assigned_user_id',
+		);
 
         // For Popup window record selection
         var $popup_fields = Array ('account_number');

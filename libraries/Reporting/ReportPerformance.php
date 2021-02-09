@@ -3,40 +3,6 @@ require_once("libraries/Reporting/Indexing.php");
 require_once("libraries/Reporting/ProjectedIncomeModel.php");
 require_once("libraries/Reporting/ReportCommonFunctions.php");
 
-function DetermineIntervalStartDate($account_number, $sdate){
-    global $adb;
-    $questions = generateQuestionMarks($account_number);
-
-    $query = "SELECT DATE_ADD(MAX(intervalbegindate), INTERVAL 1 DAY) AS begin_date
-              FROM intervals_daily 
-              WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ?";
-    $result = $adb->pquery($query, array($account_number, $sdate));
-    if($adb->num_rows($result) > 0){
-        $result = $adb->query_result($result, 0, 'begin_date');
-        if(is_null($result))
-            return $sdate;
-        return $result;
-    }
-    return $sdate;
-}
-
-function DetermineIntervalEndDate($account_number, $edate){
-    global $adb;
-    $questions = generateQuestionMarks($account_number);
-
-    $query = "SELECT MAX(intervalenddate) AS end_date
-              FROM intervals_daily 
-              WHERE accountnumber IN ({$questions}) AND intervalenddate <= ?";
-    $result = $adb->pquery($query, array($account_number, $edate));
-    if($adb->num_rows($result) > 0){
-        $result = $adb->query_result($result, 0, 'end_date');
-        if(is_null($result))
-            return $edate;
-        return $result;
-    }
-    return $edate;
-}
-
 class IndividualPerformance{
     public $account_number, $amount, $transaction_type, $transaction_activity, $operation, $buy_sell_indicator, $disable_performance;
 }
@@ -372,8 +338,33 @@ class Performance_Model extends Vtiger_Module {
     public function CalculateIndividualTWRCumulative($start_date, $end_date){
         global $adb;
 
+        $query = "SELECT netreturnamount 
+                  FROM intervals_daily 
+                  WHERE AccountNumber = ? 
+                  AND IntervalEndDate BETWEEN ? AND ?";
+
         foreach($this->account_numbers AS $k => $v){
-            $questions = generateQuestionMarks($v);
+            $twr = 1;
+            $result = $adb->pquery($query, array($v, $start_date, $end_date));
+
+            if($adb->num_rows($result) > 0){
+                while($x = $adb->fetchByAssoc($result)){
+                    if($x['netreturnamount'] != 1)
+                        $twr *= ($x['netreturnamount'] + 1);
+                    else
+                        $twr *= $x['netreturnamount'];
+                }
+            }
+
+            if($twr != 1)
+                $this->individual_twr[$v] = ($twr - 1) * 100;
+            else
+                $this->individual_twr[$v] = 0;
+
+/*            $query = "SELECT accountnumber, netflowamount, intervalenddate";
+            $adb->pquery($query, array($v, $start_date, $end_date), true);
+            */
+ /*           $questions = generateQuestionMarks($v);
             $twr = 1;
             $query = "CALL CALCULATE_INTERVALS_FROM_DAILY_COMBINED(\"{$questions}\", ?, ?)";
             $adb->pquery($query, array($v, $start_date, $end_date), true);
@@ -392,7 +383,7 @@ class Performance_Model extends Vtiger_Module {
             if($this->individual_twr[$v] >= 100 || $this->individual_twr[$v] <= -100){
                 $this->individual_twr[$v] = 0;
             }
-
+*/
         }
     }
 
@@ -579,6 +570,9 @@ class Performance_Model extends Vtiger_Module {
                                                                           $this->individual_performance_summed[$v]['Flow']->amount -
                                                                           $this->individual_performance_summed[$v]['Reversal']->amount +
                                                                           $this->GetCommissionAmount($v);
+            
+            $this->individual_performance_summed[$v]['account_name'] = PortfolioInformation_Module_Model::GetAccountNameFromAccountNumber($v);
+            $this->individual_performance_summed[$v]['account_type'] = PortfolioInformation_Module_Model::GetAccountTypeFromAccountNumber($v);
         }
     }
 

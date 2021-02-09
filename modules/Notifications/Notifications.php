@@ -285,7 +285,7 @@ class Notifications extends Vtiger_CRMEntity
                     // fieldname are always assumed to be unique for a module
                     $column_clause .=  $fieldinfo['tablename'].'.'.$fieldinfo['columnname'].' AS '.$this->createColumnAliasForField($fieldinfo).',';
             }
-            $column_clause .= 'vtiger_notifications.deleted, vtiger_notifications.label';
+            $column_clause .= 'vtiger_notifications.deleted, vtiger_notifications.title';
             
             if (isset($required_tables['vtiger_notifications'])) {
                 $from_clause  = ' vtiger_notifications';

@@ -679,4 +679,8 @@ class cSchwabTransactions extends cCustodian
             }
         }
     }
+
+    static public function UpdateTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
+        return;
+    }
 }

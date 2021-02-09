@@ -19,7 +19,7 @@ spl_autoload_register(function ($className) {
         include_once "libraries/custodians/$className.php";
     }elseif (file_exists("libraries/custodians/Parsing/$className.php")){
         include_once "libraries/custodians/Parsing/$className.php";
-    }elseif (file_exists("libraries/custodians/Parsing/$className.php")){
+    }elseif (file_exists("libraries/custodians/$className.php")){
         include_once "libraries/custodians/$className.php";
     }
 });

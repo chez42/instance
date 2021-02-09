@@ -14,14 +14,24 @@ include_once('libraries/reports/new/nCommon.php');
 class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
-        $account_numbers = array_unique($account_numbers);
+        $portfolio = PortfolioInformation_Record_Model::getInstanceById($request->get('record'));
+        $account_number = array($portfolio->get('account_number'));
 
-        $integrity = new cIntegrity($account_numbers);
+#        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
+#        $account_numbers = array_unique($account_numbers);
+        $integrity = new cIntegrity($account_number);
         $differences = $integrity->GetDifferences();
 
-        if(!empty($differences))
+        if(!empty($differences) && $differences['dif'] > 10)
             $integrity->RepairDifferences();
+
+        $tmp = new CustodianClassMapping($account_number);
+        $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
+        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+            $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+
+#        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
+#        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
 
         return parent::preProcess($request);
     }
