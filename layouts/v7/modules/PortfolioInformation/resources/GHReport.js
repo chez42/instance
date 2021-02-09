@@ -45,7 +45,7 @@ jQuery.Class("GHReport_Js",{
         pieSeries.slices.template.stroke = am4core.color("#555354");
         pieSeries.dataFields.value = "value";
         pieSeries.dataFields.category = "title";
-        pieSeries.fontSize = 14;
+        pieSeries.fontSize = 12;
 
         pieSeries.slices.template.strokeWidth = 2;
         pieSeries.slices.template.strokeOpacity = 1;

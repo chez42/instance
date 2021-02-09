@@ -91,4 +91,38 @@ class cTDPrices extends cCustodian
     public function GetSavedPricingData(){
         return $this->prices_data;
     }
+
+    static public function GetBestKnownPriceBeforeDate($symbol, $date){
+        global $adb;
+
+        $query = "SELECT price 
+                  FROM custodian_omniscient.custodian_prices_td 
+                  WHERE date < ?
+                  AND symbol = ?
+                  ORDER BY date
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $symbol), true);
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'price');
+        }
+        return false;
+    }
+
+    static public function GetPriceAsOfDate($symbol, $date){
+        global $adb;
+
+        $query = "SELECT price 
+                  FROM custodian_omniscient.custodian_prices_td 
+                  WHERE date = ?
+                  AND symbol = ?
+                  ORDER BY date
+                  DESC LIMIT 1";
+        $result = $adb->pquery($query, array($date, $symbol), true);
+
+        if($adb->num_rows($result) > 0){
+            return $adb->query_result($result, 0, 'price');
+        }
+        return false;
+    }
 }
