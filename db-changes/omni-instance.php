@@ -794,6 +794,15 @@ if (!$adb->num_rows($office365_result)) {
     $moduleInstance->save();
 }
 
+$PandaDoc_result = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'PandaDoc'");
+if (!$adb->num_rows($PandaDoc_result)) {
+    $moduleInstance = new Vtiger_Module();
+    $moduleInstance->name = 'PandaDoc';
+    $moduleInstance->parent= 'Tools';
+    $moduleInstance->isentitytype = false;
+    $moduleInstance->save();
+}
+
 $modcomment_module_model = Vtiger_Module::getInstance("ModComments");
 $fieldInstance = Vtiger_Field_Model::getInstance('userid', $modcomment_module_model);
 $useridField = $adb->pquery("SELECT * FROM vtiger_def_org_field WHERE vtiger_def_org_field.fieldid = ?",
