@@ -42,6 +42,13 @@ class PandaDoc extends Vtiger_CRMEntity {
                 $moduleInstance->unsetRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc', 'get_pandadoc_documents');
             }
             
+            $query = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid =?",
+                array( getTabid('Leads'), getTabid('PandaDoc')));
+            if($adb->num_rows($query)){
+                $moduleInstance = Vtiger_Module::getInstance("Leads");
+                $moduleInstance->unsetRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc', 'get_pandadoc_documents');
+            }
+            
         } else if($eventType == 'module.enabled') {
             
             $this->addLinks($adb,$displayLabel);
@@ -104,6 +111,14 @@ class PandaDoc extends Vtiger_CRMEntity {
             $moduleInstance = Vtiger_Module::getInstance("Contacts");
             $moduleInstance->setRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc',Array(), 'get_pandadoc_documents');
         }
+        
+        $query = $adb->pquery("SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid =?",
+            array( getTabid('Leads'), getTabid('PandaDoc')));
+        if(!$adb->num_rows($query)){
+            $moduleInstance = Vtiger_Module::getInstance("Leads");
+            $moduleInstance->setRelatedList(Vtiger_Module::getInstance('PandaDoc'), 'PandaDoc',Array(), 'get_pandadoc_documents');
+        }
+        
     }
     
     function PandaDocTables($adb){
