@@ -1,7 +1,10 @@
 <style>
     iframe {
        width: 100%; 
-       height: 500px;
+       height: 800px;
+    }
+    .overlayDetail .modal-body {
+     	height: 90% !important;
     }
 </style>
 
