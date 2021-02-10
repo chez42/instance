@@ -153,7 +153,7 @@ class cIntervals{
 
             $interval->investmentReturn = $interval->intervalEndValue - ($interval->netFlowAmount + $interval->expenseAmount) - $interval->intervalBeginValue;
 
-            if($interval->netReturnAmount == 0)
+            if($interval->netReturnAmount == 0 || strtoupper($interval->netReturnAmount) == "NAN")
                 $interval->netReturnAmount = 1;
 
             $this->intervals[] = $interval;
