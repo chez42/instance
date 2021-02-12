@@ -18,7 +18,7 @@ Vtiger_Edit_Js("BillingSpecifications_Edit_Js",{
 		if(ele.val() == 'Fixed Rate' || ele.val() == 'Fixed Amount'){
 			jQuery(document).find('#scheduleLineItemTab').hide();			
 		}else{
-			jQuery(document).find('[name="value"]').prop('disabled', true);
+			jQuery(document).find('[name="amount_value"]').prop('disabled', true);
 			jQuery(document).find('#scheduleLineItemTab').show();
 
 		}
@@ -26,10 +26,10 @@ Vtiger_Edit_Js("BillingSpecifications_Edit_Js",{
 		ele.on('click',function(){
 			
 			if($(this).val() == 'Fixed Amount' || $(this).val() == 'Fixed Rate'){
-				jQuery(document).find('[name="value"]').prop('disabled', false);
+				jQuery(document).find('[name="amount_value"]').prop('disabled', false);
 				jQuery(document).find('#scheduleLineItemTab').hide();
 			}else{
-				jQuery(document).find('[name="value"]').prop('disabled', true);
+				jQuery(document).find('[name="amount_value"]').prop('disabled', true);
 				jQuery(document).find('#scheduleLineItemTab').show();
 			}
 			
