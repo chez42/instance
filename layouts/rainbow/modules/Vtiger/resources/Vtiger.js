@@ -1220,6 +1220,7 @@ Vtiger.Class('Vtiger_Index_Js', {
 		if (id && selectedName) {
 			if(!fieldDisplayElement.length) {
 				fieldElement.attr('value',id);
+				fieldElement.data('value', id);
 				fieldElement.val(selectedName);
 			} else {
 				fieldElement.val(id);

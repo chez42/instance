@@ -16,7 +16,6 @@ class PandaDoc_DownloadPandadocFile_Action extends Vtiger_Action_Controller {
     
     public function process(Vtiger_Request $request) {
         $moduleName = $request->getModule();
-        echo"<pre>";print_r($request);echo"</pre>";
         $this->downloadFile($request->get('record'), $request->get('name'));
         
     }
@@ -40,7 +39,7 @@ class PandaDoc_DownloadPandadocFile_Action extends Vtiger_Action_Controller {
     }
     
     public function downloadFile($attachmentId = false, $name=false) {
-      
+        
         global $adb, $current_user;
         
         $fileContent = false;
@@ -57,40 +56,40 @@ class PandaDoc_DownloadPandadocFile_Action extends Vtiger_Action_Controller {
             
             $token = $this->validateToken($token_data);
             
-            if(!$token)
-                continue;
+            if($token){
                 
-            $headers = array(
-                "Authorization: Bearer ".$token['access_token']
-            );
-          
-            $docFile = $this->documentDocument($headers, $attachmentId);
-            
-            $path = 'cache/'.$name.'.pdf';
-          
-            if($docFile){
-                file_put_contents($path, $docFile);
-           
-                while(ob_get_level()) {
-                    ob_end_clean();
-                }
-                $fileSize = filesize($path);
+                $headers = array(
+                    "Authorization: Bearer ".$token['access_token']
+                );
                 
-                $fileSize = $fileSize + ($fileSize % 1024);
-                $fileName = $name.'.pdf';
-                if (fopen($path.$savedFile, "r")) {
-                    $fileContent = fread(fopen($path, "r"), $fileSize);
-                    header("Content-type: application/pdf");
-                    header("Pragma: public");
-                    header("Cache-Control: private");
-                    header("Content-Disposition: attachment; filename=\"$fileName\"");
-                    header("Content-Description: PHP Generated Data");
-                    header("Content-Encoding: none");
+                $docFile = $this->documentDocument($headers, $attachmentId);
+                
+                $path = 'cache/'.$name.'.pdf';
+                
+                if($docFile){
+                    file_put_contents($path, $docFile);
+                    
+                    while(ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    $fileSize = filesize($path);
+                    
+                    $fileSize = $fileSize + ($fileSize % 1024);
+                    $fileName = $name.'.pdf';
+                    if (fopen($path, "r")) {
+                        $fileContent = fread(fopen($path, "r"), $fileSize);
+                        header("Content-type: application/pdf");
+                        header("Pragma: public");
+                        header("Cache-Control: private");
+                        header("Content-Disposition: attachment; filename=\"$fileName\"");
+                        header("Content-Description: PHP Generated Data");
+                        header("Content-Encoding: none");
+                    }
                 }
             }
             
         }
-       
+        
         echo $fileContent;
     }
     

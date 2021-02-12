@@ -55,14 +55,14 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
                 $start_date = $request->get("report_start_date");
             }
             else {
-                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
+                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['start'];
             }
 
             if(strlen($request->get('report_end_date')) > 1) {
                 $end_date = $request->get("report_end_date");
             }
             else {
-                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['end'];
+                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['end'];
             }
 
             $tmp_start_date = date("Y-m-d", strtotime("first day of " . $start_date));
@@ -88,10 +88,10 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
 #                    exit;
 #                }
             }
-            if(empty($tmp)){
-                echo "No interval data available";
-                exit;
-            }
+#            if(empty($tmp)){
+#                echo "No interval data available";
+#                exit;
+#            }
             $accounts = $tmp;
 
             $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());

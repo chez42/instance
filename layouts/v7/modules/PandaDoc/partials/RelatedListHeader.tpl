@@ -16,7 +16,9 @@
 					<button type="button" class="btn addButton btn-primary" onclick='PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")' >
 						Send Document
 					</button>
-						
+					<button type="button" class="btn addButton btn-primary" onclick='PandaDoc_Js.showTokenPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=showPandaDocTokens")' >
+						Show Tokens
+					</button>
 				</div>
 				&nbsp;
 			</div>
