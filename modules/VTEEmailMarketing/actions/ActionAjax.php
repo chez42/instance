@@ -26,6 +26,7 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
         $this->exposeMethod("duplicateTemplate");
         $this->exposeMethod("actionSchedulerOnDetailView");
         $this->exposeMethod("deleteRelatedRecord");
+        $this->exposeMethod("getEmailTemplates");
     }
     public function checkPermission(Vtiger_Request $request)
     {
@@ -66,7 +67,16 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
         $vteFromName = $request->get("vteFrom_Name");
         $vteFromEmail = $request->get("vteFrom_Email");
         $vteAssignedTo = $request->get("assignedTo");
-        $sender = $vteFromName . " (" . $vteFromEmail . ")";
+        
+        $result = $adb->pquery("SELECT * FROM vtiger_mail_accounts
+            WHERE vtiger_mail_accounts.account_id = ?",
+        array($request->get("from_serveremailid")));
+        
+        if($adb->num_rows($result)){
+            $vteFromEmail = $adb->query_result($result, 0, 'from_email');
+        }
+        
+        $sender =  $vteFromEmail;
         $idEmailMarketing = $request->get("idEmailMarketing");
         if ($idEmailMarketing) {
             $emailMarketingRecord = Vtiger_Record_Model::getInstanceById($idEmailMarketing);
@@ -257,7 +267,9 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
             $mailerInstance = Emails_Mailer_Model::getInstance();
         } else {
             $_REQUEST["from_serveremailid"] = $outgoingServer;
-            $mailerInstance = MultipleSMTP_Mailer_Model::getInstance();
+           // $mailerInstance = MultipleSMTP_Mailer_Model::getInstance();
+            $mailerInstance = Emails_Mailer_Model::getInstance();
+            $mailerInstance->initializeCustomSMTP($outgoingServer);
         }
         $templateEmail = self::getTemplateEmail($request->get("templateEmail"));
         $content = $templateEmail["content"];
@@ -269,8 +281,8 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
         $from_name = $request->get("from_name");
         $to = $request->get("to");
         $mailerInstance->AddAddress($to);
-        $mailerInstance->From = $from_email;
-        $mailerInstance->FromName = decode_html($from_name);
+        //$mailerInstance->From = $from_email;
+        //$mailerInstance->FromName = decode_html($from_name);
         $mailerInstance->Subject = strip_tags(decode_html($subject));
         $mailerInstance->Body = decode_emptyspace_html($processedContentWithURLS);
         $mailerInstance->Body = Emails_Mailer_Model::convertCssToInline($mailerInstance->Body);
@@ -280,7 +292,20 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
         $plainBody = strip_tags($plainBody);
         $plainBody = Emails_Mailer_Model::convertToAscii($plainBody);
         $mailerInstance->AltBody = $plainBody;
-        $status = $mailerInstance->send(true);
+        
+       // echo"<pre>";print_r($mailerInstance);echo"</pre>";
+        if($mailerInstance->type == 'Office365'){
+            $connector = new MailManager_Office365_Connector($mailerInstance->accountId, $mailerInstance->accessToken, $mailerInstance->refreshToken, $mailerInstance->Username);
+            $status = $connector->SendMail($mailerInstance);
+        }else if($mailerInstance->type == 'Google'){
+            $connector = new MailManager_GoogleConnector_Connector($mailerInstance->accountId, $mailerInstance->accessToken, $mailerInstance->refreshToken, $mailerInstance->Username);
+            $status = $connector->SendMail($mailerInstance);
+        }else if($mailerInstance->type == 'mail.omnisrv.com'){
+            $status = MSExchange_MSExchange_Model::sendMailUsingEws($mailerInstance);
+        }else{
+            $status = $mailerInstance->Send(true);
+        }
+       // $status = $mailerInstance->send(true);
         if ($status === true) {
             $message = "Email has been sent";
         } else {
@@ -452,6 +477,31 @@ class VTEEmailMarketing_ActionAjax_Action extends Vtiger_Action_Controller
         $response->setResult(true);
         $response->emit();
         
+    }
+    
+    function getEmailTemplates(){
+        
+        global $adb;
+        
+        $result = $adb->pquery("select * from vtiger_emailtemplates");
+        
+        $emailTemplates = array();
+        
+        if($adb->num_rows($result)){
+            
+            while($row = $adb->fetchByAssoc($result)){
+                
+                $emailTemplates[$row['templateid']] = decode_html($row['templatename']);
+                
+            }
+        }
+        
+        $data = array();
+        $data["success"] = true;
+        $data['result'] = $emailTemplates;
+        $response = new Vtiger_Response();
+        $response->setResult($data);
+        $response->emit();
     }
     
 }
