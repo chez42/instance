@@ -40,6 +40,7 @@ class VTEEmailMarketing_Save_Action extends Vtiger_Save_Action
     public function saveRecord($request)
     {
         global $adb;
+       
         if ($request->get("isCreate") == 1) {
             $idEmailMarketing = $request->get("idEmailMarketing");
             $templateId = $request->get("templateEmail");
@@ -55,13 +56,18 @@ class VTEEmailMarketing_Save_Action extends Vtiger_Save_Action
                 $scheduled = $adb->query_result($getSchedule, 0, "datetime");
                 $batch_delivery = $number_email . " emails every " . $frequency . " minutes";
             }
+            
             $subject = $this->getTemplateEmail($templateId);
+            
             if ($request->get("from_serveremailid")) {
-                $result = $adb->pquery("SELECT vte_multiple_smtp.*,vtiger_users.first_name,vtiger_users.last_name FROM vte_multiple_smtp \r\n                                        INNER JOIN vtiger_users ON vtiger_users.id = vte_multiple_smtp.userid WHERE vte_multiple_smtp.id =?", array($request->get("from_serveremailid")));
+                $result = $adb->pquery("SELECT vtiger_mail_accounts.*, vtiger_users.first_name, vtiger_users.last_name FROM vtiger_mail_accounts 
+                INNER JOIN vtiger_users ON vtiger_users.id = vtiger_mail_accounts.user_id                 
+                WHERE vtiger_mail_accounts.account_id = ?", 
+                    array($request->get("from_serveremailid")));
                 $first_name = $adb->query_result($result, 0, "first_name");
                 $last_name = $adb->query_result($result, 0, "last_name");
                 $server = $adb->query_result($result, 0, "server");
-                $mail = $adb->query_result($result, 0, "server_username");
+                $mail = $adb->query_result($result, 0, "account_name");
                 $name = $first_name ? $first_name . " " . $last_name : $last_name;
                 $smtp_server = (string) $name . " - " . $server . " - " . $mail;
             } else {
@@ -71,6 +77,7 @@ class VTEEmailMarketing_Save_Action extends Vtiger_Save_Action
                 $name = "System Outgoing Email Server";
                 $smtp_server = (string) $name . " - " . $server . " - " . $mail;
             }
+           
             $status = $request->get("status");
             if (!empty($idEmailMarketing)) {
                 $recordModel = Vtiger_Record_Model::getInstanceById($idEmailMarketing, "VTEEmailMarketing");
