@@ -112,6 +112,8 @@
 												<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$translatedModuleLabel}"></span>
 											{else if $moduleName eq 'PandaDoc'} 
 												<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$translatedModuleLabel}"></span>
+											{else if $moduleName eq 'VTEEmailMarketing'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/EmailMarketing.png" title="{$translatedModuleLabel}"></span>
 											{else}
 												{$moduleModel->getModuleIcon()}
 											{/if}
