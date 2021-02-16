@@ -198,6 +198,11 @@ class Performance_Model extends Vtiger_Module {
                       WHERE transaction_type = 'Income' 
                       AND (transaction_activity LIKE ('%dividend%') OR transaction_activity LIKE ('%interest%'));";
             $adb->pquery($query, array());
+
+            $query = "UPDATE performance SET amount = 0
+                      WHERE transaction_activity = 'Payment in lieu'";
+            $adb->pquery($query, array());
+
 #            $adb->pquery($query, array($account_numbers, $this->start_date, $this->end_date));
 
             $query = "CALL INDIVIDUAL_PERFORMANCE(\"{$questions}\", ?, ?)";
@@ -209,6 +214,10 @@ class Performance_Model extends Vtiger_Module {
             $query = "UPDATE individual_performance SET transaction_type = 'income_div_interest'
                       WHERE transaction_type = 'Income' 
                       AND (transaction_activity LIKE ('%dividend%') OR transaction_activity LIKE ('%interest%'));";
+            $adb->pquery($query, array());
+
+            $query = "UPDATE individual_performance SET amount = 0
+                      WHERE transaction_activity = 'Payment in lieu'";
             $adb->pquery($query, array());
 
             $performance_result = $adb->query("SELECT * FROM performance");
