@@ -95,7 +95,9 @@
 									{else if $RELATEDMODULENAME eq 'Contacts'} 
 										<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
 									{else if $RELATEDMODULENAME eq 'PandaDoc'} 
-										<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$translatedModuleLabel}"></span>
+										<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'VTEEmailMarketing'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/EmailMarketing.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
 									{else if $RELATEDMODULENAME eq 'CalendarTemplate'}
 										<i class="fa fa-fast-forward" aria-hidden="true"></i>
 									{else if $iconsarray[{strtolower($RELATEDMODULENAME)}]}

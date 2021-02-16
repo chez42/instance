@@ -188,7 +188,7 @@
 					</tbody>
 				</table>
 				<div class="text-center" style="width: 100%;padding-bottom:10px;">
-					<a style="" class="btn-emailtemplate-builder" data-toggle="modal" data-target="#mosaico">
+					{*<a style="" class="btn-emailtemplate-builder" data-toggle="modal" data-target="#mosaico">
 						Switch to Mosaico Email Template builder
 					</a>
 
@@ -225,11 +225,11 @@
 								</div>
 							</div>
 						</div>
-					</div>
+					</div>*}
 				</div>
 
 
-				<div class="row padding-bottom1per">
+				<div class="row padding-bottom1per" style="margin:10px;">
                     {assign var="TEMPLATE_CONTENT" value=$RECORD->get('body')}
 					<textarea id="templatecontent" name="templatecontent" {if $IS_SYSTEM_TEMPLATE_EDIT} data-rule-required="true" {/if} >
                     {if !empty($TEMPLATE_CONTENT)}

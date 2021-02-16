@@ -55,6 +55,8 @@ class PandaDoc_GetData_Action extends Vtiger_GetData_Action {
                     }
                 }else if($sourceModule == 'Accounts'){
                     $token['Company'.'.'.preg_replace('/[^A-Za-z0-9\-]/', '',vtranslate($fieldModel->get('label'), $sourceModule))] = $value;
+                }else if($sourceModule == 'Leads'){
+                    $token['Lead'.'.'.preg_replace('/[^A-Za-z0-9\-]/', '',vtranslate($fieldModel->get('label'), $sourceModule))] = $value;
                 }
             }
             

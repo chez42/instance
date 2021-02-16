@@ -95,7 +95,7 @@ Vtiger.Class("VTEEmailMarketing_Create_Js", {
     registerButtonNextStep3: function () {
         var thisInstance = this;
         var currentStep = thisInstance.getStepActive();
-        var nextStep = thisInstance.getStepActive() + 1;
+        var nextStep = thisInstance.getStepActive() + 2;
         var formCurrentStep = jQuery('#EmailMarketingStep' + currentStep);
         var formNextStep = jQuery('#EmailMarketingStep' + nextStep);
         if (nextStep <= 4) {
@@ -151,7 +151,8 @@ Vtiger.Class("VTEEmailMarketing_Create_Js", {
                         "vteFrom_Name": vteFrom_Name,
                         "vteFrom_Email": vteFrom_Email,
                         "idEmailMarketing": idEmailMarketing,
-                        "assignedTo": assignedTo
+                        "assignedTo": assignedTo,
+                        "from_serveremailid":from_serveremailid
                     };
                     AppConnector.request(postParams).then(
                         function (data) {
@@ -603,6 +604,7 @@ Vtiger.Class("VTEEmailMarketing_Create_Js", {
     registerEventNextStep2: function () {
         var thisInstance = this;
         jQuery('#EmailMarketingStep2').on('click', '.btnNext', function (e) {
+        	thisInstance.registerButtonNextStep3();return true;
             app.helper.showProgress();
             var container = thisInstance.getListViewContainer();
             var appName = container.find('#appName').val();
@@ -1573,7 +1575,7 @@ Vtiger.Class("VTEEmailMarketing_Create_Js", {
     },
     registerPreviewEmailTemplate: function () {
         var thisInstance = this;
-        jQuery('#PreviewEmailTemplate').on('click', function () {
+        jQuery(document).on('click', '#PreviewEmailTemplate', function () {
             var record = jQuery('input[name="templateEmail"]').val();
             var params = {
                 'module': 'EmailTemplates',
@@ -1888,11 +1890,84 @@ Vtiger.Class("VTEEmailMarketing_Create_Js", {
         this.registerEditTemplate();
         this.registerDuplicateTemplate();
         //Function step 3 End
-
+        this.registerRefreshEmailTemplateClickEvent();
+        this.registerEmailTemplateSelectEvent();
         //step4
         this.registerPaggingRecordVTEEmailMarketing();
 
 
+    },
+    
+registerEmailTemplateSelectEvent : function(){
+    	
+
+    	var thisInstance = this;
+        
+    	jQuery("#EmailMarketingStep1").on('change', '[name="templateEmail"]', function (e) {
+    		
+    		var selectedEmailTemplate = jQuery(e.currentTarget).val();
+    		
+    		jQuery("#EditView").find("[name='templateEmail']").val(selectedEmailTemplate);
+    		
+    		if(selectedEmailTemplate){
+    			jQuery(e.currentTarget).closest('tr').find('#PreviewEmailTemplate').removeClass('hide');
+    			thisInstance.registerPreviewEmailTemplate();
+    		}else{
+    			jQuery(e.currentTarget).closest('tr').find('#PreviewEmailTemplate').addClass('hide');
+    		}
+    		
+    	});
+        
+    },
+    
+    registerRefreshEmailTemplateClickEvent : function(){
+    	
+    	var thisInstance = this;
+        
+    	jQuery("#EmailMarketingStep1").on('click', '.refreshEmailTemplateDD', function (e) {
+        
+    		thisInstance.getEmailTemplates().then(function(response){
+    			
+    			var conditionList = response.result;
+    			
+    			var options = '<option value="">Select an Option</option>';
+    			
+    			for(var key in conditionList) {
+    			
+    				if(conditionList.hasOwnProperty(key)) {
+    					var conditionValue = key;
+    					var conditionLabel = conditionList[key];
+    					options += '<option value="'+conditionValue+'"';
+    					
+    					options += '>'+conditionLabel+'</option>';
+    				}
+    			}
+    			jQuery("select[name='templateEmail']").empty().html(options).trigger("liszt:updated");
+    		});
+        });
+    },
+    
+    getEmailTemplates : function(){
+    	
+    	var aDeferred = jQuery.Deferred();
+
+    	var params = {
+    		module : app.getModuleName(),
+    		action : 'ActionAjax',
+    		mode   : 'getEmailTemplates'
+    	};
+        
+        AppConnector.request(params).then(
+			function(data){
+				aDeferred.resolve(data.result);
+			},
+			function(error){
+				//TODO : Handle error
+				aDeferred.reject();
+			}
+        );
+        
+        return aDeferred.promise();
     }
 });
 

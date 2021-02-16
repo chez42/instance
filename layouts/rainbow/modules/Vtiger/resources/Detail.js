@@ -1468,9 +1468,9 @@ Vtiger.Class("Vtiger_Detail_Js",{
 				ajaxEditNewValue = fieldElement.data('value');
 				if(ajaxEditNewValue===undefined) ajaxEditNewValue = fieldElement.attr('value');
 				
-				var fht = $("<div />").append($("input.sourceField[name='account_id']").clone()).html();
-				var fobj = $($.parseHTML(fht)).attr("value");
-				ajaxEditNewValue = fobj;
+//				var fht = $("<div />").append($("input.sourceField[name='account_id']").clone()).html();
+//				var fobj = $($.parseHTML(fht)).attr("value");
+//				ajaxEditNewValue = fobj;
 
 			}
 

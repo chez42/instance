@@ -133,6 +133,48 @@ Vtiger.Class("PandaDoc_Js",{
 	
 	},
 	
+	showTokenPandaDocDocument :function(massurl){
+		var thisInstance = this;
+		
+    	if(!thisInstance.connected){
+			
+			app.helper.showConfirmationBox({'message': 'You have to connect your account with OmniCrm, Do you want to proceed?'}).then(
+				
+				function(data) {
+					
+					var url = decodeURIComponent(window.location.href.split('index.php', 1) + 'modules/PandaDoc/connect.php');
+					var win = window.open(url,'','height=600,width=600,channelmode=1');
+					window.RefreshPage = function() {
+						thisInstance.ValidateToken();
+					}
+					
+				},
+				
+				function(error, err) {}
+				
+			);
+		
+		} else {
+			var data = app.convertUrlToDataParams(massurl);
+			
+			data['record'] = app.getRecordId();
+		
+			data['source_module'] = app.getModuleName();
+
+			app.helper.showProgress();
+		
+			app.request.post({'data': data}).then(
+				function (err, data) {
+					app.helper.showModal(data);
+					app.helper.hideProgress();
+					
+				}
+			);
+			
+		}
+    	
+	},
+	
 	getRecordDetails : function(params) {
 		var aDeferred = jQuery.Deferred();
 		var url = "index.php?module=PandaDoc&action=GetData&record="+params['record']+"&source_module="+params['source_module'];
