@@ -35,7 +35,7 @@
                         <input type="hidden" value='{$ACCOUNT_NUMBER}' name="account_number" id="account_number" />
                         <input type="hidden" value="PortfolioInformation" name="module" />
                         <input type="hidden" value="" name="pie_image" id="pie_image" />
-                        <input type="hidden" value="GHReportActual name="view" />
+                        <input type="hidden" value=" name="view" />
                         <input type="hidden" value="{$ORIENTATION}" name="orientation" />
                         <input type="hidden" value="1" name="pdf" />
                         <input type="hidden" value="{$CALLING_RECORD}" name="calling_record" />
@@ -60,16 +60,9 @@
 <div id="GHReport_wrapper" class="GHReport_UI_Wrapper">
     <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
         <tr>
-            <td style="width:70%; vertical-align: top; border">
+            <td style="width:65%; vertical-align: top; border">
                 {if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}
-                <div class="btn-toolbar" style="float:right;">
-                    <span class="btn-group">
-                        <button class="btn ExportReport" style="background-color:#36A645; border-radius:5px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);"><strong>Print PDF</strong></button>
-                    </span>
-                </div>
             </td>
-        </tr>
-        <tr>
             {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
@@ -80,6 +73,11 @@
                 {else}
                     {$PREPARED_BY}
                 {/if}
+                <div class="btn-toolbar" style="float:right;">
+                    <span class="btn-group">
+                        <button class="btn ExportReport" style="background-color:#36A645; border-radius:5px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);"><strong>Print PDF</strong></button>
+                    </span>
+                </div>
             </td>
         </tr>
     </table>
@@ -149,7 +147,7 @@
                     </table>
                 </td>
                 <td>
-                    <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 300px; width:450px;"></div>
+                    <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 300px;"></div>
                 </td>
             </tr>
         </table>
@@ -160,18 +158,20 @@
             <thead>
             <tr style="background-color:RGB(245, 245, 245);">
                 <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:left; text-decoration:underline;">ACCOUNT NAME</th>
-                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:left; text-decoration:underline;">ACCT NUMBER</th>
+                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:12%; text-align:left; text-decoration:underline;">ACCT TYPE</th>
+                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:left; text-decoration:underline;">ACCT NUMBER</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">BEG.<br />BALANCE</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">CHANGE IN<br />VALUE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">END<br />BALANCE</th>
-                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">INCOME</th>
+                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline; padding-right:2%;">END<br />BALANCE</th>
+                <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">EST. INCOME</th>
             </tr>
             </thead>
             <tbody>
             {foreach from=$ytd_individual_performance_summed key=account_number item=v}
                 <tr {if $ytd_individual_performance_summed[$account_number]['Flow']->disable_performance eq 1} style="" {/if}>
                     <td style="font-size: 8pt; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
+                    <td style="font-size: 8pt; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['account_type']}</td>
                     <td style="font-size: 8pt; margin:0; padding:0;">**{$account_number|substr:5}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
                     <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
@@ -180,14 +180,14 @@
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
                     <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['change_in_value']|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0; padding-right:2%;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
-{*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>*}
+                    {*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>*}
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>
                 </tr>
             {/foreach}
             <tr>
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="2">&nbsp;</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="3">&nbsp;</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
@@ -195,10 +195,10 @@
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.change_in_value|number_format:0:".":","}</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double; padding-right:2%;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEstimatedIncome()->GetGrandTotal()|number_format:0:".":","}</td>
             </tr>
             </tbody>
         </table>
