@@ -26,7 +26,7 @@ class Performance_Model extends Vtiger_Module {
     private $beginning_values_summed, $ending_values_summed;
     private $start_date_changed = false;
     private $end_date_changed = false;
-    private $start_date, $end_date;
+    private $start_date, $end_date, $transaction_start_date, $transaction_end_date;
     private $performance;
     private $individual_performance_summed;
     private $individual_start_values, $individual_end_values;
@@ -48,6 +48,7 @@ class Performance_Model extends Vtiger_Module {
             return null;
         $this->account_numbers = $account_numbers;
 
+        $this->transaction_start_date = $start_date;
         $questions = generateQuestionMarks($account_numbers);
         #$start_date = GetDateMinusOneDay($start_date);
 
@@ -192,7 +193,7 @@ class Performance_Model extends Vtiger_Module {
 #                $adb->pquery($query, array($account_numbers, $override, $this->end_date));
 #            else
 
-            $adb->pquery($query, array($account_numbers, $this->start_date, $this->end_date));
+            $adb->pquery($query, array($account_numbers, $this->transaction_start_date, $this->end_date));
             $query = "UPDATE performance SET transaction_type = 'income_div_interest'
                       WHERE transaction_type = 'Income' 
                       AND (transaction_activity LIKE ('%dividend%') OR transaction_activity LIKE ('%interest%'));";
@@ -203,7 +204,7 @@ class Performance_Model extends Vtiger_Module {
 #            if($date_override)
 #                $adb->pquery($query, array($account_numbers, $override, $this->end_date));
 #            else
-                $adb->pquery($query, array($account_numbers, $this->start_date, $this->end_date));
+                $adb->pquery($query, array($account_numbers, $this->transaction_start_date, $this->end_date));
 
             $query = "UPDATE individual_performance SET transaction_type = 'income_div_interest'
                       WHERE transaction_type = 'Income' 

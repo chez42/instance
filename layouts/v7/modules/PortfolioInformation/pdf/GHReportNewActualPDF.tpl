@@ -49,8 +49,6 @@
             <td style="width:70%; vertical-align: top;">
                 {if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}
             </td>
-        </tr>
-        <tr>
             {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
