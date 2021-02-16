@@ -118,6 +118,23 @@ class VTEEmailMarketing_Edit_View extends Vtiger_Edit_View
         $viewer->assign("RELATION_ID", $relationId);
         $viewer->assign("RECORDMODEL", $recordModel);
         //$viewer->assign("FILTER", $filter);
+        
+        $emailTemplates = $this->getAllEmailTemplates();
+        $viewer->assign('EMAIL_TEMPLATES', $emailTemplates);
+        
+        $currentUser = Users_Record_Model::getCurrentUserModel();
+        $userId = $currentUser->getId();
+        $result = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=?", array($userId));
+        if ($adb->num_rows($result)) {
+            for($u=0;$u<$adb->num_rows($result);$u++){
+                $list_servers[$u]['account_id'] = $adb->query_result($result, $u, 'account_id');
+                $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'from_email');
+                $list_servers[$u]['default'] = $adb->query_result($result, $u, 'set_default');
+            }
+        }
+        
+        $viewer->assign('LIST_SERVERS', $list_servers);
+        
         $viewer->view("EditView.tpl", $moduleName);
     }
     public function editView(Vtiger_Request $request)
@@ -203,6 +220,20 @@ class VTEEmailMarketing_Edit_View extends Vtiger_Edit_View
                 $viewer->view("EditView.tpl", "Vtiger");
             }else{
                 global $adb;
+                $currentUser = Users_Record_Model::getCurrentUserModel();
+                $userId = $currentUser->getId();
+                $result = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=?", array($userId));
+                if ($adb->num_rows($result)) {
+                    for($u=0;$u<$adb->num_rows($result);$u++){
+                        $list_servers[$u]['account_id'] = $adb->query_result($result, $u, 'account_id');
+                        $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'from_email');
+                        $list_servers[$u]['default'] = $adb->query_result($result, $u, 'set_default');
+                    }
+                }
+                
+                $viewer->assign('LIST_SERVERS', $list_servers);
+                $emailTemplates = $this->getAllEmailTemplates();
+                $viewer->assign('EMAIL_TEMPLATES', $emailTemplates);
                 $template = $adb->pquery("SELECT template_email_id FROM vtiger_vteemailmarketing_schedule WHERE vteemailmarketingid = ?",
                     array($record));
                 if($adb->num_rows($template)){
@@ -231,7 +262,28 @@ class VTEEmailMarketing_Edit_View extends Vtiger_Edit_View
         $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
         return $headerScriptInstances;
     }
+    
+    function getAllEmailTemplates(){
+        
+        global $adb;
+        
+        $result = $adb->pquery("select * from vtiger_emailtemplates");
+        
+        $emailTemplates = array();
+        
+        if($adb->num_rows($result)){
+            
+            while($row = $adb->fetchByAssoc($result)){
+                
+                $emailTemplates[$row['templateid']] = decode_html($row['templatename']);
+                
+            }
+        }
+        
+        return $emailTemplates;
+    }
+    
 }
-echo "\n\n";
+
 
 ?>

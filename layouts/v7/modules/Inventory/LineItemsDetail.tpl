@@ -174,7 +174,7 @@
 
                         {if $QUANTITY_VIEWABLE}
                             <td>
-                                {$LINE_ITEM_DETAIL["qty$INDEX"]}
+                                {number_format($LINE_ITEM_DETAIL["qty$INDEX"],getCurrencyDecimalPlaces())}
                             </td>
                         {/if}
 

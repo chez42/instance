@@ -7701,8 +7701,9 @@ a[name~="relationEdit"], button[name~="relationEdit"] , a.relationDelete, a[name
  .btn:hover {background:rgba(44, 59, 73, 0.33);color:#fff;}
 
 input[type=checkbox]:checked::after, 
-#checkgreen{content: "\e64c";font-family: themify;color: blue;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
+#checkgreen{content: none;;font-family: themify;color: white;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
     line-height: 26px;}
+
 input[type=checkbox]:checked {border: 1px solid transparent!important;background: transparent!important;}
 
 .table-hover>tbody>tr{border-left:4px solid white ;}
@@ -9146,4 +9147,64 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 }
 .datepicker {
   z-index: 1100 !important;
+}
+
+
+.checkbox-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.checkbox-switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.checkbox-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .checkbox-slider {
+  background-color: #228B22;
+}
+
+input:focus + .checkbox-slider {
+  box-shadow: 0 0 1px #228B22;
+}
+
+input:checked + .checkbox-slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.checkbox-slider.checkbox-round {
+  border-radius: 34px !important;
+} 
+.checkbox-slider.checkbox-round:before {
+  border-radius: 50% !important;
 }

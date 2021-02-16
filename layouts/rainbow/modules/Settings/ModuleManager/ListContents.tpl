@@ -99,7 +99,9 @@
 											{else if $MODULE_NAME eq 'Contacts'} 
 												<span class="module-icon"><img src="layouts/rainbow/icons/Contacts.png" title="{$MODULE_LABEL}"></span>
 											{else if $MODULE_NAME eq 'PandaDoc'} 
-												<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$translatedModuleLabel}"></span>
+												<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$MODULE_LABEL}"></span>
+											{else if $MODULE_NAME eq 'VTEEmailMarketing'} 
+												<span class="module-icon"><img src="layouts/rainbow/icons/EmailMarketing.png" title="{$MODULE_LABEL}"></span>
 											{else if vimage_path($MODULE_NAME|cat:'.png') != false}
 												<i class="ti-{strtolower($MODULE_LABEL)} alignMiddle" alt="{$MODULE_LABEL}" title="{$MODULE_LABEL}" ></i>
 											{else}

@@ -13,13 +13,14 @@ class PandaDoc_MassActionAjax_View extends Vtiger_IndexAjax_View {
     function __construct() {
         parent::__construct();
         $this->exposeMethod('sendPandaDocDocument');
+        $this->exposeMethod("showPandaDocTokens");
     }
 	
 	function process(Vtiger_Request $request) {
 	
 	    $mode = $request->get('mode');
 	
-		if($mode == 'sendPandaDocDocument') {
+		if($mode == 'sendPandaDocDocument' || $mode == 'showPandaDocTokens') {
 		    $this->invokeExposedMethod($mode, $request);
 		    return;
 		} 
@@ -157,6 +158,59 @@ class PandaDoc_MassActionAjax_View extends Vtiger_IndexAjax_View {
 	    $viewer->assign('MODULE', $moduleName);
 	    
 	    echo $viewer->view('PandadocForm.tpl', $moduleName, true);
+	    
+	}
+	
+	function showPandaDocTokens(Vtiger_Request $request){
+	    
+	    $record = $request->get('record');
+	    
+	    $sourceModule = $request->get('source_module');
+	    
+	    $recordModel = Vtiger_Record_Model::getInstanceById($record, $sourceModule);
+	    
+	    $data = $recordModel->getData();
+	    
+	    $moduleModel = Vtiger_Module_Model::getInstance($sourceModule);
+	    
+	    $fields = $moduleModel->getFields();
+	    
+	    $token = array();
+	    
+	    $companyId = '';
+	    
+	    $recipients = array();
+	    
+	    foreach ($fields as $fieldName => $fieldModel){
+	        $value = $data[$fieldName];
+	        if($fieldModel->getFieldDataType() == 'reference'){
+	            $entityNames = getEntityName(getSalesEntityType($value), array($value));
+	            $value = $entityNames[$value];
+	        }
+	        if($fieldModel->getFieldDataType() == 'owner'){
+	            $entityNames = getEntityName('Users', array($value));
+	            $value = $entityNames[$value];
+	        }
+	        if($sourceModule == 'Contacts'){
+	            $token['Client'.'.'.preg_replace('/[^A-Za-z0-9\-]/', '',vtranslate($fieldModel->get('label'), $sourceModule))] = $value;
+	            if($fieldModel->getFieldDataType() == 'reference' && getSalesEntityType($data[$fieldName]) == 'Accounts'){
+	                $companyId = $data[$fieldName];
+	            }
+	        }else if($sourceModule == 'Accounts'){
+	            $token['Company'.'.'.preg_replace('/[^A-Za-z0-9\-]/', '',vtranslate($fieldModel->get('label'), $sourceModule))] = $value;
+	        }else if($sourceModule == 'Leads'){
+	            $token['Lead'.'.'.preg_replace('/[^A-Za-z0-9\-]/', '',vtranslate($fieldModel->get('label'), $sourceModule))] = $value;
+	        }
+	    }
+	    
+	   
+	    $viewer = $this->getViewer($request);
+	    $moduleName = $request->getModule();
+	   
+	    $viewer->assign('TOKENS', $token);
+	    $viewer->assign('MODULE', $moduleName);
+	    
+	    echo $viewer->view('PandadocTokens.tpl', $moduleName, true);
 	    
 	}
 	

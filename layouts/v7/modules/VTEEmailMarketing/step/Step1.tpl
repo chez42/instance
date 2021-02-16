@@ -22,16 +22,17 @@
                                     <span class="redColor">*</span></h5>
                             </td>
                             <td class="fieldValue">
-                                <select class="select2 inputElement" name="from_serveremailid" tabindex="-1" >
-                                    <option value="" selected="selected">{vtranslate('System Outgoing Email Server', $MODULE)}</option>
-                                    {*if $MULTIPLE_SMTP_ENABLE}
-                                        {foreach from=$RECORD_SMTP item=record_smtp}
-                                            <option value="{$record_smtp['id']}">{$record_smtp['first_name']} {$record_smtp['last_name']} - {$record_smtp['server']} - {$record_smtp['server_username']}</option>
+                                <select class="select2 inputElement" name="from_serveremailid" tabindex="-1" data-rule-required="true" >
+                                    <option value=""></option>
+                                   {if $LIST_SERVERS}
+                                        {foreach from=$LIST_SERVERS item=record_smtp}
+                                            <option value="{$record_smtp['account_id']}" {if $record_smtp['default'] == 0} selected {/if}>{$record_smtp['account_name']} </option>
                                         {/foreach}
-                                    {/if*}
+                                    {/if}
+                                    
                             </td>
                         </tr>
-                        <tr>
+                        {*<tr>
                             <td class="fieldLabel alignMiddle">
                             </td>
                             <td class="fieldValue">
@@ -60,7 +61,7 @@
                             <td class="fieldValue">
                                 <input type="email" name="vtefrom_email" style="padding: 3px 8px" class="inputElement" data-rule-required="true" value="{str_replace(')','',$FROMEMAILNAME[1])}" >
                             </td>
-                        </tr>
+                        </tr>*}
                         <tr>
                             <td class="fieldLabel alignMiddle">
                                 <h5 class="pull-right">{vtranslate('Assigned To', $MODULE)} <span
@@ -76,6 +77,28 @@
                                         {/foreach}
                                     {/if}
                                 {/foreach}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fieldLabel alignMiddle">
+                                <h5 class="pull-right">{vtranslate('Select Template', $MODULE)} <span class="redColor">*</span></h5>
+                            </td>
+                            <td class="fieldValue">
+                            	<div class="input-group">
+	                            	<select class="select2 inputElement select_email_template" id="select_email_template" name="templateEmail" data-rule-required="true" style="width:100% !important;"> 
+		                                <option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
+		                                {foreach item=EMAIL_TEMPLATE key=ETEMPLATEID from=$EMAIL_TEMPLATES}
+											<option value="{$ETEMPLATEID}">{$EMAIL_TEMPLATE}</option>
+										{/foreach}
+	                                </select>
+	                                <span class="input-group-addon" title="Select">
+	                                	<a target="_blank" href="index.php?module=EmailTemplates&view=Edit">
+	                                		<i class="fa fa-plus"></i>
+                                		</a>
+	                                </span>
+	                                <span class="input-group-addon" title="Select"><i class="fa fa-refresh refreshEmailTemplateDD" title="Refresh"></i></span>
+                                </div>
+                                &nbsp;&nbsp;<button class="btn btn-default hide" id="PreviewEmailTemplate" onclick="event.preventDefault();">Preview</button>
                             </td>
                         </tr>
                     </table>

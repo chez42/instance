@@ -464,7 +464,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec('wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "' .$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "' . $whtmltopdfPath.'" 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -1663,23 +1663,23 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 $map = new NameMapper();
                 $map->RenamePortfoliosBasedOnLinkedContact($accounts);
                 
-                if(strlen($request->get('gh2_select_start_date')) > 1) {
-                    $start_date =  $request->get("gh2_select_start_date");
-                }
-                else {
-                    $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
-                }
-                
-                if(strlen($request->get('gh2_select_end_date')) > 1) {
-                    $end_date = $request->get("gh2_select_end_date");
-                }
-                else {
-                    $end_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['end'];
-                }
+				
+				if(strlen($request->get('gh2_select_start_date')) > 1) {
+					$start_date =  $request->get("gh2_select_start_date");
+				} else {
+					$start_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['start'];
+				}
+
+				if(strlen($request->get('gh2_select_end_date')) > 1) {
+					$end_date = $request->get("gh2_select_end_date");
+				} else {
+					$end_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['end'];
+				}
+				
                 
                 $start_date = date("Y-m-d", strtotime($start_date));
-                $end_date = date("Y-m-d", strtotime($end_date));
-                
+				$end_date = date("Y-m-d", strtotime($end_date));
+
                 PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
                 
                 $tmp = array();
@@ -1977,7 +1977,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec('wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
