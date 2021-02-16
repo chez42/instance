@@ -12,11 +12,14 @@
 	<div class="relatedHeader">
 		<div class="btn-toolbar row">
 			<div class="col-lg-12 col-md-12 col-sm-12 btn-toolbar">
-				<div class="btn-group">
+				<div class="">
 					<button type="button" class="btn addButton btn-primary" onclick='PandaDoc_Js.sendPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=sendPandaDocDocument")' >
 						Send Document
 					</button>
-						
+					&nbsp;
+					<button type="button" class="btn addButton btn-primary" onclick='PandaDoc_Js.showTokenPandaDocDocument("index.php?module=PandaDoc&view=MassActionAjax&mode=showPandaDocTokens")' >
+						Show Tokens
+					</button>
 				</div>
 				&nbsp;
 			</div>

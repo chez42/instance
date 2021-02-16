@@ -83,93 +83,151 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 if(empty($logo))
                     $logo = $companyLogo;
                     
-                $account_number = $portData['account_number'];
-                
-                $conQuery = $adb->pquery("SELECT * FROM vtiger_contactdetails
-                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
-                INNER JOIN vtiger_contactaddress ON vtiger_contactaddress.contactaddressid = vtiger_contactdetails.contactid
-                WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.contactid = ?",
-                    array($portData['contact_link']));
-                
-                $conData = array();
-                $fullName = '';
-                if($adb->num_rows($conQuery)){
-                    $conData = $adb->query_result_rowdata($conQuery);
-                    $fullName = $conData['firstname'].' '.$conData['lastname'];
-                }
-                
-                $billingSpec = $adb->pquery("SELECT * FROM vtiger_billingspecifications
-                INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billingspecifications.billingspecificationsid
-                WHERE vtiger_crmentity.deleted = 0 AND vtiger_billingspecifications.billingspecificationsid = ?",
-                    array($portData['billingspecificationid']));
-                
-                $billingData = array();
-                $feeRate = '';
-                
-                $year = date('Y');
-                $type = '';
-                $amountValue = '';
-                $feeamount = '';
-                $totalDays = '';
-                $start_date = '';
-                $end_date = '';
-                $transactionData = array();
-                
-                if($adb->num_rows($billingSpec)){
+                    $account_number = $portData['account_number'];
                     
-                    $billingData = $adb->query_result_rowdata($billingSpec);
-                    $frequency = $billingData['billing_frequency'];
+                    $conQuery = $adb->pquery("SELECT * FROM vtiger_contactdetails
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_contactdetails.contactid
+                    INNER JOIN vtiger_contactaddress ON vtiger_contactaddress.contactaddressid = vtiger_contactdetails.contactid
+                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_contactdetails.contactid = ?",
+                        array($portData['contact_link']));
                     
-                    $type = $billingData['billing_type'];
-                    $amountValue = $billingData['amount_value'];
-                    $feeamount = $billingData['amount_value'];
-                    $start_date = $billingData['beginning_date'];
-                    $end_date = $billingData['ending_date'];
-                    
-                    $proStartDate = $billingData['proratefromdate'];
-                    $proEndDate = $billingData['proratetodate'];
-                    $proAmount = $billingData['prorateamount'];
-                    
-                    $beginningPriceDate=$billingData['beginning_price_date'];
-                    $endingPriceDate=$billingData['ending_price_date'];
-                    $priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
-                    $totalDays = $priceDatediff->days;
-                    
-                    $account = new CustodianAccess($account_number);
-                    
-                    $balance = $account->GetBalance($beginningPriceDate);
-                    
-                    $totalValue = $balance->value ? $balance->value : 0;
-                    
-                    if($frequency == 'Quaterly'){
-                        
-                        $feeRate = '1/4';
-                        $feeamount = ($feeamount/4)/100;
-                        if($type == 'Fixed Rate'){
-                            $amountValue = ($totalValue * $feeamount);
-                        }
-                        
-                    }else if ($frequency == 'Monthly'){
-                        
-                        $feeRate = '1/12';
-                        $feeamount = ($feeamount/12)/100;
-                        if($type == 'Fixed Rate'){
-                            $amountValue = ($totalValue * $feeamount);
-                        }
+                    $conData = array();
+                    $fullName = '';
+                    if($adb->num_rows($conQuery)){
+                        $conData = $adb->query_result_rowdata($conQuery);
+                        $fullName = $conData['firstname'].' '.$conData['lastname'];
                     }
                     
-                    if($type == 'Fixed Rate'){
+                    $billingSpec = $adb->pquery("SELECT * FROM vtiger_billingspecifications
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billingspecifications.billingspecificationsid
+                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_billingspecifications.billingspecificationsid = ?",
+                        array($portData['billingspecificationid']));
+                    
+                    $billingData = array();
+                    $feeRate = '';
+                    
+                    $year = date('Y');
+                    $type = '';
+                    $amountValue = '';
+                    $feeamount = '';
+                    $totalDays = '';
+                    $start_date = '';
+                    $end_date = '';
+                    $transactionData = array();
+                    
+                    if($adb->num_rows($billingSpec)){
+                        
+                        $billingData = $adb->query_result_rowdata($billingSpec);
+                        $frequency = $billingData['billing_frequency'];
+                        
+                        $type = $billingData['billing_type'];
+                        $amountValue = $billingData['amount_value'];
+                        $feeamount = $billingData['amount_value'];
+                        $start_date = $billingData['beginning_date'];
+                        $end_date = $billingData['ending_date'];
+                        
+                        $proStartDate = $billingData['proratefromdate'];
+                        $proEndDate = $billingData['proratetodate'];
+                        $proAmount = $billingData['prorateamount'];
+                        
+                        $beginningPriceDate=$billingData['beginning_price_date'];
+                        $endingPriceDate=$billingData['ending_price_date'];
+                        $priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
+                        $totalDays = $priceDatediff->days;
+                        
+                        $account = new CustodianAccess($account_number);
+                        
+                        $balance = $account->GetBalance($beginningPriceDate);
+                        
+                        $totalValue = $balance->value ? $balance->value : 0;
+                        
+                        $rangeArray = array();
+                        
+                        $arrayAmount = array();
+                        
+                        $resultantTaxAmount = 0;
+                        
+                        $finalSchedule = array();
+                        
+                        if($type == 'Schedule'){
+                            
+                            $range = $adb->pquery("SELECT * FROM vtiger_billing_range WHERE billingid = ?",
+                                array($portData['billingspecificationid']));
+                            
+                            if($adb->num_rows($range)){
+                                for($b=0;$b<$adb->num_rows($range);$b++){
+                                    $rangeData = $adb->query_result_rowdata($range, $b);
+                                    $rangeArray[] = array(
+                                        'amount_from' => $rangeData['from'],
+                                        'amount_to' => $rangeData['to'] ? $rangeData['to'] : $totalValue,
+                                        'value' => $rangeData['value']/100
+                                    );
+                                }
+                            }
+                            
+                            $remainingAmount      = $totalValue;
+                            
+                            foreach ($rangeArray as $key => $value) {
+                                $resultArray = array();
+                                if ($totalValue > $value['amount_to']) {
+                                    $sum                       = $value['amount_to'] - $value['amount_from'];
+                                    $resultArray['amount']     = $sum;
+                                    $resultArray['toAmount']   = $value['amount_to'];
+                                    $resultArray['percentage'] = $value['value'];
+                                    array_push($arrayAmount, $resultArray);
+                                    $remainingAmount = $remainingAmount - $sum;
+                                } else {
+                                    $resultArray['amount']     = $remainingAmount;
+                                    $resultArray['toAmount']   = $totalValue;
+                                    $resultArray['percentage'] = $value['value'];
+                                    array_push($arrayAmount, $resultArray);
+                                    break;
+                                }
+                            }
+                            
+                            foreach ($arrayAmount as $key => $value) {
+                                $cal                = (($value['amount'] * $value['percentage']));
+                                $finalSchedule[] = array(
+                                    'account' => $portData['account_number'],
+                                    'amount' => $value['toAmount'],
+                                    'feerate' => $value['percentage'],
+                                    'feeamount' => $cal
+                                );
+                                $feeamount = $value['percentage'];
+                            }
+                            
+                        }else{
+                            
+                            if($frequency == 'Quaterly'){
+                                
+                                $feeRate = '1/4';
+                                $feeamount = ($feeamount/4)/100;
+                                if($type == 'Fixed Rate'){
+                                    $amountValue = ($totalValue * $feeamount);
+                                }
+                                
+                            }else if ($frequency == 'Monthly'){
+                                
+                                $feeRate = '1/12';
+                                $feeamount = ($feeamount/12)/100;
+                                if($type == 'Fixed Rate'){
+                                    $amountValue = ($totalValue * $feeamount);
+                                }
+                            }
+                        }
+                        
+                        //if($type == 'Fixed Rate'){
                         
                         $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
     					CASE
     						WHEN (vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
-    						WHEN (vtiger_transactionscf.transaction_activity = 'Withdrawal of funds') then 'minus'
+    						WHEN (vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities') then 'minus'
                         END  AS transaction_status
     					FROM vtiger_transactions
     					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
     					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
     					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-    					AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds', 'Receipt of securities')
+    					AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities')
     					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
     					AND vtiger_transactionscf.net_amount > ?
     					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
@@ -190,7 +248,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 $transactionAmount = ($diffDays/$totalDays*$feeamount);
                                 
                                 $totalAmount = $transaction_data['totalamount'];
-                                if($transaction_data['transaction_activity'] == 'Withdrawal of funds'){
+                                if($transaction_data['transaction_activity'] == 'Withdrawal of funds' || $transaction_data['transaction_activity'] == 'Transfer of securities'){
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
                                 
@@ -206,53 +264,53 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 
                             }
                         }
-                    }
-                    
-                    $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
-                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
-                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
-                    AND vtiger_billing.beginning_price_date = ?",
-                        array($portData['portfolioinformationid'],$beginningPriceDate));
-                    
-                    if($adb->num_rows($billingQuery)){
-                        $billingId = $adb->query_result($billingQuery, 0, 'billingid');
-                        $billingObj = Vtiger_Record_Model::getInstanceById($billingId);
-                        $billingObj->set('mode', 'edit');
-                    }else{
-                        $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
-                    }
-                    
-                    $billingObj->set('start_date', $start_date);
-                    $billingObj->set('end_date', $end_date);
-                    $billingObj->set('portfolio_amount', $totalValue);
-                    $billingObj->set('portfolioid', $portData['portfolioinformationid']);
-                    $billingObj->set('billingspecificationid',$portData['billingspecificationid']);
-                    $billingObj->set('feeamount', $amountValue);
-                    $billingObj->set('beginning_price_date', $beginningPriceDate);
-                    $billingObj->set('ending_price_date', $endingPriceDate);
-                    $billingObj->save();
-                    
-                    if($billingObj->getId() && !empty($transactionData)){
+                        //}
                         
-                        $adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
+                        $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
+                        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
+                        WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
+                        AND vtiger_billing.beginning_price_date = ?",
+                            array($portData['portfolioinformationid'],$beginningPriceDate));
                         
-                        foreach($transactionData as $key => $transdata){
+                        if($adb->num_rows($billingQuery)){
+                            $billingId = $adb->query_result($billingQuery, 0, 'billingid');
+                            $billingObj = Vtiger_Record_Model::getInstanceById($billingId);
+                            $billingObj->set('mode', 'edit');
+                        }else{
+                            $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
+                        }
+                        
+                        $billingObj->set('start_date', $start_date);
+                        $billingObj->set('end_date', $end_date);
+                        $billingObj->set('portfolio_amount', $totalValue);
+                        $billingObj->set('portfolioid', $portData['portfolioinformationid']);
+                        $billingObj->set('billingspecificationid',$portData['billingspecificationid']);
+                        $billingObj->set('feeamount', $amountValue);
+                        $billingObj->set('beginning_price_date', $beginningPriceDate);
+                        $billingObj->set('ending_price_date', $endingPriceDate);
+                        $billingObj->save();
+                        
+                        if($billingObj->getId() && !empty($transactionData)){
                             
-                            $adjustment = $transdata['transactionamount']*$transdata['totalAmount'];
+                            $adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
                             
-                            $adb->pquery("INSERT INTO vtiger_billing_capitalflows(billingid, trade_date,
-                            diff_days, totalamount, totaldays, transactionamount, transactiontype, trans_fee, totaladjustment)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array($billingObj->getId(), $transdata['trade_date'],
-                            $transdata['diff_days'], $transdata['totalAmount'], $transdata['totalDays'], $transdata['transactionamount'],
-                            $transdata['transactiontype'], $transdata['trans_fee'], $adjustment));
+                            foreach($transactionData as $key => $transdata){
+                                
+                                $adjustment = $transdata['transactionamount']*$transdata['totalAmount'];
+                                
+                                $adb->pquery("INSERT INTO vtiger_billing_capitalflows(billingid, trade_date,
+                                diff_days, totalamount, totaldays, transactionamount, transactiontype, trans_fee, totaladjustment)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array($billingObj->getId(), $transdata['trade_date'],
+                                $transdata['diff_days'], $transdata['totalAmount'], $transdata['totalDays'], $transdata['transactionamount'],
+                                $transdata['transactiontype'], $transdata['trans_fee'], $adjustment));
+                                
+                            }
                             
                         }
                         
                     }
                     
-                }
-                
-                $html.="<br>
+                    $html.="<br>
                 <br>
                 <br>
         		<div class='row'>
@@ -325,8 +383,47 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             <div class='col-xs-3'>
                                 Fee Amount
                             </div>
+                        </div>";
+                    if($type == 'Schedule'){
+                        $amountValue = 0;
+                        foreach($finalSchedule as $key => $schedule){
+                            $html .= "<div class='row'>
+                                <div class='col-xs-2'>
+                                   ".$schedule['account']." :
+                                </div>
+                                <div class='col-xs-3 text-center'>
+                                    ".number_format($schedule['amount'], 2)."
+                                </div>
+                                <div class='col-xs-3'>
+                                    x ".$schedule['feerate']."
+                                </div>
+                                <div class='col-xs-1'>
+                                    =
+                                </div>
+                                <div class='col-xs-3'>
+                                    $".number_format($schedule['feeamount'],2)."
+                                </div>
+                            </div>
+                           ";
+                            $amountValue += $schedule['feeamount'];
+                        }
+                        $html .= " <div class='row'>
+                            <div class='col-xs-8'>
+                            </div>
+                            <div class='col-xs-3 text-center'>
+                                <strong>---------</strong>
+                            </div>
                         </div>
                         <div class='row'>
+                            <div class='col-xs-8 text-right'>
+                                gross fee
+                            </div>
+                            <div class='col-xs-3 text-center'>
+                                $".number_format($amountValue,2)."
+                            </div
+                        </div>";
+                    }else{
+                        $html .= "<div class='row'>
                             <div class='col-xs-2'>
                                ".$portData['account_number']." :
                             </div>
@@ -344,7 +441,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             </div>
                         </div>
                         <br>";
-                    
+                    }
                     if(!empty($transactionData)){
                         
                         $html .= "<div class='row'>

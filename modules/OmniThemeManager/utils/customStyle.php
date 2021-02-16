@@ -928,3 +928,10 @@ span.module-icon :not(.material-icons){
 span.module-icon.quickcreate :not(.material-icons){
 	filter : unset !important;
 }
+
+.checkbox-slider.checkbox-round {
+  border-radius: 34px !important;
+} 
+.checkbox-slider.checkbox-round:before {
+  border-radius: 50% !important;
+}
