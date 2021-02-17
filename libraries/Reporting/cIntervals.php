@@ -2,7 +2,7 @@
 include_once "libraries/Reporting/ReportCommonFunctions.php";
 
 class cIntervalData{public $accountNumber, $intervalBeginDate, $intervalEndDate, $intervalBeginValue, $intervalEndValue, $netFlowAmount,
-                           $netReturnAmount, $expenseAmount, $journalAmount, $tradeAmount, $intervalType, $investmentReturn;}
+                           $netReturnAmount, $expenseAmount, $incomeAmount, $journalAmount, $tradeAmount, $intervalType, $investmentReturn;}
 
 class DayBalances{public $date, $value;}
 class DayTransactions{public $transactionType, $transactionActivity, $amount;}
@@ -129,6 +129,7 @@ class cIntervals{
             $interval->expenseAmount = $this->CalculateDayType($balanceDay->date, 'expense');
             $interval->netFlowAmount = $this->CalculateDayType($balanceDay->date, 'flow');
             $interval->tradeAmount = $this->CalculateDayType($balanceDay->date, 'trade');
+            $interval->incomeAmount = $this->CalculateDayType($balanceDay->date, 'income');
             $interval->intervalType = 'Daily';
 
             if($interval->intervalBeginValue == 0)
@@ -166,21 +167,21 @@ class cIntervals{
         foreach($this->intervals AS $k => $v){
             if($counter >= 100){
                 $writer = rtrim($writer, ', ');
-                $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
+                $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, incomeamount, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
                           VALUES {$writer}";
                 $adb->pquery($query, $params, true);
                 $counter = 0;
                 $writer = "";
                 $params = array();
             }
-            $writer .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()), ";
-            $params[] = array($v->accountNumber, $v->intervalBeginDate, $v->intervalBeginValue, $v->intervalEndDate, $v->intervalEndValue, $v->expenseAmount, $v->netFlowAmount, $v->tradeAmount ,$v->investmentReturn, $v->netReturnAmount, $v->intervalType);
+            $writer .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()), ";
+            $params[] = array($v->accountNumber, $v->intervalBeginDate, $v->intervalBeginValue, $v->intervalEndDate, $v->intervalEndValue, $v->incomeAmount, $v->expenseAmount, $v->netFlowAmount, $v->tradeAmount ,$v->investmentReturn, $v->netReturnAmount, $v->intervalType);
             $counter++;
         }
 
         if(!empty($params)) {
             $writer = rtrim($writer, ', ');
-            $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
+            $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, incomeamount, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
                       VALUES {$writer}";
             $adb->pquery($query, $params, true);
         }

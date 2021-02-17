@@ -2,26 +2,38 @@
 
 include_once "libraries/Reporting/Reporting.php";
 
+class cAccountValues{
+    public $account_number, $date, $value, $disable_performance;
+}
+
 class cPerformance{
     private $account_number;
     private $start_balance, $end_balance;//These
     private $portfolio;
     private $transactionsPerformance;
+    private $transaction_types, $transaction_activities;
 
     private $dividend_accrual;//This was a Fidelity specific procedure
 
     public function __construct($account_number, $sdate, $edate){
         $this->account_number = $account_number;
+
         $portfolio_id = PortfolioInformation_Module_Model::GetRecordIDFromAccountNumber($account_number);
         $this->portfolio = Vtiger_Record_Model::getInstanceById($portfolio_id);
 
-        $tmp = new cBalanceInfo($account_number, $sdate);
-        $this->start_balance = $tmp;
-
-        $tmp = new cBalanceInfo($account_number, $edate);
-        $this->end_balance = $tmp;
+        $this->start_balance = new cBalanceInfo($account_number, $sdate);
+        $this->end_balance = new cBalanceInfo($account_number, $edate);
 
         $this->transactionsPerformance = GetTransactionsPerformanceData($account_number, $sdate, $edate);
+        $this->SetDividendAccrual();
+
+        foreach($this->transactionsPerformance AS $k => $v){
+            if(!in_array($v->transaction_type, $this->transaction_types))
+                $this->transaction_types[] = $v->transaction_type;
+
+            if(!in_array($v->transaction_activity, $this->transaction_activities))
+                $this->transaction_activities[] = $v->transaction_activity;
+        }
     }
 
     protected function Initialize(){
@@ -57,5 +69,15 @@ class cPerformance{
         $this->dividend_accrual = 0;
     }
 
+    public function GetPerformance(){
+        return $this->transactionsPerformance;
+    }
 
+    public function GetAllTransactionTypes(){
+        return $this->transaction_types;
+    }
+
+    public function GetAllTransactionActivities(){
+        return $this->transaction_activities;
+    }
 }
