@@ -1131,6 +1131,14 @@ if(!$adb->num_rows($query)){
 }
 
 
+
+$pandadoc_oauth_config = $adb->pquery("select * from vtiger_oauth_configuration where `type` = 'PandaDoc'");
+
+if(!$adb->num_rows($pandadoc_oauth_config)){
+	$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`client_id`, `client_secret`, `redirect_url`, `type`) VALUES
+	('4b6e04f10ad03face691', '2227aab0733416ef56111e0f2156159d1e121b0c', 'https://oauth.omnisrv.com', 'PandaDoc')");
+}
+
 $adb->pquery("UPDATE vtiger_field SET tablename=? WHERE tabid=?
 AND columnname IN ('description', 'smownerid', 'createdtime', 'modifiedtime', 'source', 'starred')",
 array('vtiger_notifications', getTabid('Notifications')));
