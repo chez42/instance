@@ -112,7 +112,9 @@ class PandaDoc_InRelation_View extends Vtiger_RelatedList_View {
                                 'name' => $details['name'],
                                 'status' => $details['status'],
                                 'recipient' => implode(', ', $recipient),
-                                'date_created' => Vtiger_Datetime_UIType::getDisplayValue(date('Y-m-d H:i:s',strtotime($details['date_created'])))
+                                'sent_by' => $details['sent_by']['first_name'] . ' ' . $details['sent_by']['last_name'],
+                                'date_created' => Vtiger_Datetime_UIType::getDisplayValue(date('Y-m-d H:i:s',strtotime($details['date_created']))),
+                                'date_modified' => Vtiger_Datetime_UIType::getDisplayValue(date('Y-m-d H:i:s',strtotime($details['date_modified'])))
                             );
                         }
                     }
