@@ -183,7 +183,7 @@
                     <td style="font-size: 8pt; text-align:right; margin:0; padding:0; padding-right:2%;">${$ytd_end_values[$account_number]->value|number_format:0:".":","}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
                     {*                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">{$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>*}
-                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['estimated']->GetGrandTotal()|number_format:0:".":","}</td>
+                    <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_individual_performance_summed[$account_number]['income_div_interest']->amount|number_format:0:".":","}</td>
                 </tr>
             {/foreach}
             <tr>
@@ -198,7 +198,7 @@
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double; padding-right:2%;">${$YTDPERFORMANCE->GetEndingValuesSummed()->value|number_format:0:".":","}</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">{$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>*}
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$YTDPERFORMANCE->GetEstimatedIncome()->GetGrandTotal()|number_format:0:".":","}</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; border-top:1px solid black; border-bottom: 1px double;">${$ytd_performance_summed.income_div_interest->amount|number_format:0:".":","}</td>
             </tr>
             </tbody>
         </table>
