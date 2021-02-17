@@ -38,6 +38,9 @@
 								Name
 							</th>
 							<th class="nowrap">
+								Sender Name
+							</th>
+							<th class="nowrap">
 								Recipient
 							</th>
 							<th class="nowrap">
@@ -45,6 +48,9 @@
 							</th>
 							<th class="nowrap">
 								Created Date
+							</th>
+							<th class="nowrap">
+								Modified Date
 							</th>
 						</tr>
 					</thead>
