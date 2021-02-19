@@ -51,7 +51,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             $adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
                 (user_id, user_email, params) VALUES (?, ?, ?)",
-                array($current_user->id, $current_user->email1, json_encode($_REQUEST)));
+                array($current_user->id, $request->get('useremail'), json_encode($_REQUEST)));
             
             $response = new Vtiger_Response();
             $response->setResult(true);

@@ -38,6 +38,9 @@
 								Name
 							</th>
 							<th class="nowrap">
+								Sender Name
+							</th>
+							<th class="nowrap">
 								Recipient
 							</th>
 							<th class="nowrap">
@@ -46,17 +49,29 @@
 							<th class="nowrap">
 								Created Date
 							</th>
+							<th class="nowrap">
+								Modified Date
+							</th>
 						</tr>
 					</thead>
 					{foreach item=RELATED_RECORD from=$RELATED_RECORDS}
 						<tr class="listViewEntries" data-id='{$RELATED_RECORD['doc_id']}' >
 							<td class="related-list-actions">
 								<a href="index.php?module=PandaDoc&action=DownloadPandadocFile&record={$RELATED_RECORD['doc_id']}&name={$RELATED_RECORD['name']}" 
-								 title="Save on desktop"><i class="fa fa-download"> </i></a>
+								 title="Save on desktop"><i class="fa fa-download"> </i></a> 
+								&nbsp;&nbsp;
+								<a href='#' onclick="PandaDoc_Js.registerEventsForSyncWithCrm('{$RELATED_RECORD['doc_id']}', '{$RELATED_RECORD['name']}', '{$RELATED_RECORD['crm_reference']}')"  
+								 title="Sync with CRM"><i class="fa fa-refresh"> </i></a>
+								 
 							</td>
 							<td class="relatedListEntryValues" title="{$RELATED_RECORD['name']}"  nowrap>
 								<span class="value textOverflowEllipsis">
 									{$RELATED_RECORD['name']}
+								</span>
+							</td>
+							<td class="relatedListEntryValues" title="{$RELATED_RECORD['name']}"  nowrap>
+								<span class="value textOverflowEllipsis">
+									{$RELATED_RECORD['sent_by']}
 								</span>
 							</td>
 							<td class="relatedListEntryValues" title="{$RELATED_RECORD['recipient']}"  nowrap>
@@ -68,12 +83,17 @@
 								<span class="value textOverflowEllipsis">
 									{strtoupper(str_replace('document.','', $RELATED_RECORD['status']))}
 								</span>
-							</td><td class="relatedListEntryValues" title="{$RELATED_RECORD['date_created']}"  nowrap>
+							</td>
+							<td class="relatedListEntryValues" title="{$RELATED_RECORD['date_created']}"  nowrap>
 								<span class="value textOverflowEllipsis">
 									{$RELATED_RECORD['date_created']}
 								</span>
 							</td>
-							
+							<td class="relatedListEntryValues" title="{$RELATED_RECORD['date_created']}"  nowrap>
+								<span class="value textOverflowEllipsis">
+									{$RELATED_RECORD['date_modified']}
+								</span>
+							</td>
 						</tr>
 					{/foreach}
 				</table>

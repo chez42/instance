@@ -25,6 +25,7 @@ class Vtiger_ReportPdf_View extends Vtiger_MassActionAjax_View {
     
     function showSelectReportForm(Vtiger_Request $request) {
         
+        global $current_user;
         $moduleName = $request->getModule();
         
         $viewer = $this->getViewer($request);
@@ -77,6 +78,10 @@ class Vtiger_ReportPdf_View extends Vtiger_MassActionAjax_View {
         $viewer->assign('START_DATE',$start_date);
         $viewer->assign('END_DATE',$end_date);
         $viewer->assign('ASSET_END_DATE',$asset_end_date);
+        
+        $currentUserEmail = $current_user->email1;
+        
+        $viewer->assign('USER_EMAIL', $currentUserEmail);
         
         echo $viewer->view('ReportPdf.tpl', 'PortfolioInformation', true);
         

@@ -1131,6 +1131,14 @@ if(!$adb->num_rows($query)){
 }
 
 
+
+$pandadoc_oauth_config = $adb->pquery("select * from vtiger_oauth_configuration where `type` = 'PandaDoc'");
+
+if(!$adb->num_rows($pandadoc_oauth_config)){
+	$adb->pquery("INSERT INTO `vtiger_oauth_configuration` (`client_id`, `client_secret`, `redirect_url`, `type`) VALUES
+	('4b6e04f10ad03face691', '2227aab0733416ef56111e0f2156159d1e121b0c', 'https://oauth.omnisrv.com', 'PandaDoc')");
+}
+
 $adb->pquery("UPDATE vtiger_field SET tablename=? WHERE tabid=?
 AND columnname IN ('description', 'smownerid', 'createdtime', 'modifiedtime', 'source', 'starred')",
 array('vtiger_notifications', getTabid('Notifications')));
@@ -1459,3 +1467,5 @@ if($adb->num_rows($notificationSeq))
     $adb->pquery("UPDATE vtiger_notifications_seq SET id=?",array($maxId+1));
 else
     $adb->pquery("INSERT INTO vtiger_notifications_seq (id) VALUES (?)",array($maxId+1));
+
+$adb->pquery("ALTER TABLE vtiger_pandadocdocument_reference ADD documentid INT(19) NULL;");
