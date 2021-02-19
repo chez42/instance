@@ -80,4 +80,66 @@ class cPerformance{
     public function GetAllTransactionActivities(){
         return $this->transaction_activities;
     }
+
+    /**
+     * Returns the sum of all values of given transaction type
+     * @param $type
+     * @return int
+     */
+    public function GetSumOfTransactionType($type){
+        $amount = 0;
+        foreach($this->transactionsPerformance AS $k => $v){
+            if(strtoupper($v->transaction_type) == strtoupper($type)){
+                $amount += $v->amount;
+            }
+        }
+        return $amount;
+    }
+
+    /**
+     * Returns the sum of all values of given transaction activity
+     * @param $activity
+     * @return int
+     */
+    public function GetSumOfTransactionActivity($activity){
+        $amount = 0;
+        foreach($this->transactionsPerformance AS $k => $v){
+            if(strtoupper($v->transaction_activities) == strtoupper($activity)){
+                $amount += $v->amount;
+            }
+        }
+        return $amount;
+    }
+
+    /**
+     * Returns the sum of all values of given transaction activity
+     * @param $activity
+     * @return int
+     */
+    public function GetSumOfTransactionTypeAndActivity($type, $activity){
+        $amount = 0;
+        foreach($this->transactionsPerformance AS $k => $v){
+            if(strtoupper($v->transaction_type) == strtoupper($type) &&
+               strtoupper($v->transaction_activity) == strtoupper($activity)){
+                    $amount += $v->amount;
+            }
+        }
+        return $amount;
+    }
+
+    /**
+     * Returns the sum of all values of given transaction activity
+     * @param $activity
+     * @return int
+     */
+    public function GetSumOfTransactionTypeIgnoringActivity($type, array $activity){
+        $amount = 0;
+        foreach($this->transactionsPerformance AS $k => $v){
+            if(strtoupper($v->transaction_type) == strtoupper($type) &&
+                !in_array(strtoupper($v->transaction_activity), array_map('strtoupper', $activity))){
+                $amount += $v->amount;
+            }
+        }
+        return $amount;
+    }
 }
