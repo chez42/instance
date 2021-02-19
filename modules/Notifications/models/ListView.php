@@ -40,6 +40,70 @@ class Notifications_ListView_Model extends Vtiger_ListView_Model {
 		return $links;
 	}
 	
+	public function getListViewHeaders() {
+	    $listViewContoller = $this->get('listview_controller');
+	    $module = $this->getModule();
+	    global $adb;
+	    
+	    $notificationFields = $adb->pquery("SELECT * FROM vtiger_field WHERE tabid =?",
+	        array($module->getId()));
+	   
+	    if($adb->num_rows($notificationFields)){
+	        for($i=0;$i<$adb->num_rows($notificationFields);$i++){
+	            $noti_fields[] = $adb->query_result($notificationFields, $i, 'fieldname');
+	        }
+	    }
+	    
+	    $fields = $this->get('query_generator')->getFields();
+	    
+	    $noti_fields = array_unique(array_merge($noti_fields,$fields));
+	    
+	    $this->get('query_generator')->setFields($noti_fields);
+	   
+	    $moduleFields = $this->get('query_generator')->getModuleFields();
+	    
+	    $fields = $this->get('query_generator')->getFields();
+	    
+	    $headerFields = array();
+	    foreach($fields as $fieldName) {
+	        if(array_key_exists($fieldName, $moduleFields)) {
+	            $headerFields[$fieldName] = $moduleFields[$fieldName];
+	        }
+	    }
+	    $headerFieldModels = array();
+	    $headerFields = $listViewContoller->getListViewHeaderFields();
+	    foreach($headerFields as $fieldName => $webserviceField) {
+	        if($webserviceField && !in_array($webserviceField->getPresence(), array(0,2))) continue;
+	        if($webserviceField && $webserviceField->parentReferenceField && !in_array($webserviceField->parentReferenceField->getPresence(), array(0,2))){
+	            continue;
+	        }
+	        if($webserviceField->getDisplayType() == '6') continue;
+	        // check if the field is reference field
+	        preg_match('/(\w+) ; \((\w+)\) (\w+)/', $fieldName, $matches);
+	        if(count($matches) > 0) {
+	            list($full, $referenceParentField, $referenceModule, $referenceFieldName) = $matches;
+	            $referenceModuleModel = Vtiger_Module_Model::getInstance($referenceModule);
+	            $referenceFieldModel = Vtiger_Field_Model::getInstance($referenceFieldName, $referenceModuleModel);
+	            $referenceFieldModel->set('webserviceField', $webserviceField);
+	            // added tp use in list view to see the title, for reference field rawdata key is different than the actual field
+	            // eg: in rawdata its account_idcf_2342 (raw column name used in querygenerator), actual field name (account_id ;(Accounts) cf_2342)
+	            // When generating the title we use rawdata and from field model we have no way to find querygenrator raw column name.
+	            
+	            $referenceFieldModel->set('listViewRawFieldName', $referenceParentField.$referenceFieldName);
+	            
+	            // this is added for picklist colorizer (picklistColorMap.tpl), for fetching picklist colors we need the actual field name of the picklist
+	            $referenceFieldModel->set('_name', $referenceFieldName);
+	            $headerFieldModels[$fieldName] = $referenceFieldModel->set('name', $fieldName); // resetting the fieldname as we use it to fetch the value from that name
+	            $matches=null;
+	        } else {
+	            $fieldInstance = Vtiger_Field_Model::getInstance($fieldName,$module);
+	            $fieldInstance->set('listViewRawFieldName', $fieldInstance->get('column'));
+	            $headerFieldModels[$fieldName] = $fieldInstance;
+	        }
+	    }
+	    return $headerFieldModels;
+	}
+	
 	function getListViewEntries($pagingModel) {
 	    global $current_user;
 	    $db = PearDatabase::getInstance();
