@@ -11,7 +11,7 @@
 	        		</tr>
 					{foreach item=TOKEN key=KEY from=$TOKENS}
 						<tr>
-							<td>{$KEY}</td>
+							<td>[{$KEY}]</td>
 							<td>{$TOKEN}</td>
 						</tr>
 					{/foreach}

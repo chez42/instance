@@ -193,6 +193,28 @@ Vtiger.Class("PandaDoc_Js",{
 		return aDeferred.promise();
 	},
 	
+	registerEventsForSyncWithCrm : function(id, name, crm_reference){
+		
+		var params = {};
+		
+		params.module = 'PandaDoc';
+		params.action = 'DownloadPandadocFile';
+		params.mode = 'SyncWithCrm';
+		params.record = id;
+		params.name = name;
+		params.src_record = app.getRecordId();
+		params.crm_reference = crm_reference;
+		
+		app.request.post({data:params}).then(function(err,data){
+			if(err === null) {
+				if(data.success){
+					app.helper.showSuccessNotification({message:app.vtranslate('Document Created Successfully.')});
+				}
+			}
+		});
+		
+	}
+	
 },{
 	
 	registerEventsForUserPrefrence : function(){
