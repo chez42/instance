@@ -120,7 +120,14 @@
 				        </table>
 			        </div>
                 </div>
-                
+                <div class="row" style="margin-top:5px;">
+					<div class="col-md-4">
+						<label>User Email : </label>
+					</div>
+                	<div class="col-md-8">	
+                		<input type="text" class="useremail" name="useremail" id="useremail" value="{$USER_EMAIL}" />
+                	</div>
+                </div>
             </div>
             <div>
                 <div class="modal-footer">

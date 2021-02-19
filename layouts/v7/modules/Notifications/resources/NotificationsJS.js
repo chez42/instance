@@ -563,34 +563,36 @@ Vtiger.Class("NotificationsJS", {
 			
 			var type = listViewContainer.find('.tab-item.active').data('id');
 			
-			var params = {
-				'module' : app.getModuleName(),
-				'action' : 'ActionAjax',
-				'mode'	 : 'loadMoreNotifications',
-				'page'	 : nextPageNumber,
-				'viewid' : viewid,
-				'type'	 : type
-			};
-			params.list_headers = listViewContainer.find('[name="list_headers"]').val();
-			app.helper.showProgress();
-			app.request.post({data: params}).then(
-				function(err, response) {
-	                if (!err) {
-	                	app.helper.hideProgress();
-	                	if(response.success){
-	                		listViewContainer.find('.mainList').find('.'+type).append(response.data);
-	                		if(response.nextpage){
-	                			listViewContainer.find('#pageNumber').val(nextPageNumber);
-	                			listViewContainer.find('.loadMoreNotifications').prop('disabled', false);
-	                		}else{
-	                			listViewContainer.find('.loadMoreNotifications').prop('disabled', true);
-	                		} 
-	                		thisInstance.registerEventForMouse();
-	                	}
-	                		
-	                }
-				}
-			);
+			if(!listViewContainer.find('.mainList').find('.'+type+' .notification_link').length && !listViewContainer.find('.mainList').find('.'+type+' .emptyRecordsDiv').length ){
+				var params = {
+					'module' : app.getModuleName(),
+					'action' : 'ActionAjax',
+					'mode'	 : 'loadMoreNotifications',
+					'page'	 : nextPageNumber,
+					'viewid' : viewid,
+					'type'	 : type
+				};
+				params.list_headers = listViewContainer.find('[name="list_headers"]').val();
+				app.helper.showProgress();
+				app.request.post({data: params}).then(
+					function(err, response) {
+		                if (!err) {
+		                	app.helper.hideProgress();
+		                	if(response.success){
+		                		listViewContainer.find('.mainList').find('.'+type).append(response.data);
+		                		if(response.nextpage){
+		                			listViewContainer.find('#pageNumber').val(nextPageNumber);
+		                			listViewContainer.find('.loadMoreNotifications').prop('disabled', false);
+		                		}else{
+		                			listViewContainer.find('.loadMoreNotifications').prop('disabled', true);
+		                		} 
+		                		thisInstance.registerEventForMouse();
+		                	}
+		                		
+		                }
+					}
+				);
+			}
 		})
 	},
 	

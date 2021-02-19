@@ -108,6 +108,7 @@ class PandaDoc_InRelation_View extends Vtiger_RelatedList_View {
                                 $recipient[] = $recipients['email'];
                             }
                             $documentsArray[] = array(
+                                'crm_reference' => $meta_data_reference,
                                 'doc_id' => $details['id'],
                                 'name' => $details['name'],
                                 'status' => $details['status'],

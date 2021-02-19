@@ -1467,3 +1467,5 @@ if($adb->num_rows($notificationSeq))
     $adb->pquery("UPDATE vtiger_notifications_seq SET id=?",array($maxId+1));
 else
     $adb->pquery("INSERT INTO vtiger_notifications_seq (id) VALUES (?)",array($maxId+1));
+
+$adb->pquery("ALTER TABLE vtiger_pandadocdocument_reference ADD documentid INT(19) NULL;");
