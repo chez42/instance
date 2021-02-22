@@ -10,6 +10,7 @@
 -->*}
 {literal}
 <style>
+.related-tabs li {float: left !important;}
 .select2-container { width:100%;}
 .fieldBlockContainer .inputElement:not([type='checkbox']) { width:100%;}
 .editViewContents .input-group { width: 100% !important; min-width:100% !important;}
@@ -40,7 +41,7 @@
 							{if $TABCOUNTER eq 1}
 								{$TABBLOCKNAME = $BLOCK_LABEL}
 							{/if}
-							<li class="tab-item {if $TABBLOCKNAME eq $BLOCK_LABEL}active{/if}" data-block="{$BLOCK_LABEL}" 	 style="background: #ffff;" >
+							<li class="tab-item {if $TABBLOCKNAME eq $BLOCK_LABEL}active{/if}" data-block="{$BLOCK_LABEL}" 	  >
 								<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#{$BLOCK_LABEL|replace:' ':'_'}" role="tab">
 						    		<span class="tab-label">
 							    		<strong>
@@ -59,7 +60,7 @@
 						{if $TABBLOCKNAME eq ''}
 							{$TABBLOCKNAME = $TABNAME}
 						{/if}
-						 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if}" style="background: #ffff;" >
+						 <li class="tab-item {if $TABBLOCKNAME eq $TABNAME}active{/if}"  >
 							<a class="tablinks textOverflowEllipsis " data-toggle='tab' href="#{$TABNAME|replace:' ':'_'}" role="tab">
 					    		<span class="tab-label">
 						    		<strong>
@@ -78,7 +79,7 @@
 						{assign var=NUM_OF_COL value=$NUMOFCOLUMNS[$BLOCK_LABEL]}
 					    
 						<div class='fieldBlockContainer {if $TABBLOCKNAME eq $BLOCK_LABEL}active {/if}tab-pane' id="{$BLOCK_LABEL|replace:' ':'_'}"  data-block="{$BLOCK_LABEL}">
-							<table class="table table-borderless" style = "table-layout:fixed;">
+							<table class="table table-borderless">
 								<tr>
 									{assign var=COUNTER value=0}
 									{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS name=blockfields}
@@ -145,7 +146,7 @@
 												&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 											</td>
 											{if $FIELD_MODEL->get('uitype') neq '83'}
-												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'}  {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 													{if $NUM_OF_COL gt 2}
 														<div class="customtab-columns-{$NUM_OF_COL}">
 													{/if}
@@ -170,17 +171,12 @@
 									{/foreach}
 									{*If their are odd number of fields in edit then border top is missing so adding the check*}
 									{if $COUNTER is odd}
-										<td></td>
-										<td></td>
+										{if $NUM_OF_COL neq 3 && $NUM_OF_COL neq 5}
+											<td></td>
+											<td></td>
+										{/if}
 									{/if}
 								</tr>
-								{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && count($MODULES_MODELS) > 0}
-									<tr>
-										<td colspan="{$NUM_OF_COL*2}">
-											{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE) MODULES_MODELS=$MODULES_MODELS}
-										</td>
-									</tr>
-								{/if}
 							</table>
 						</div>
 					{/if}
@@ -195,7 +191,7 @@
 								<div class='fieldBlockContainer' data-block="{$BLOCK_LABEL}">
 									<h4 class='fieldBlockHeader'>{vtranslate($BLOCK_LABEL, $MODULE)}</h4>
 									<hr>
-									<table class="table table-borderless" style = "table-layout:fixed;">
+									<table class="table table-borderless">
 										<tr>
 											{assign var=COUNTER value=0}
 											{foreach key=FIELD_NAME item=FIELD_MODEL from=$BLOCK_FIELDS name=blockfields}
@@ -262,7 +258,7 @@
 														&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 													</td>
 													{if $FIELD_MODEL->get('uitype') neq '83'}
-														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 											                {if $NUM_OF_COL gt 2}
 											                	<div class="customtab-columns-{$NUM_OF_COL}">
 															{/if}	
@@ -287,17 +283,12 @@
 											{/foreach}
 											{*If their are odd number of fields in edit then border top is missing so adding the check*}
 											{if $COUNTER is odd}
-												<td></td>
-												<td></td>
+												{if $NUM_OF_COL neq 3 && $NUM_OF_COL neq 5}
+													<td></td>
+													<td></td>
+												{/if}
 											{/if}
 										</tr>
-										{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && $VIEW_SOURCE neq 'MASSEDIT'}
-											<tr>
-												<td colspan="{$NUM_OF_COL*2}">
-													{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE)}
-												</td>
-											</tr>
-										{/if}
 									</table>
 								</div>
 							{/if}

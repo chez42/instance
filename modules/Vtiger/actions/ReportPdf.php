@@ -103,7 +103,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     function SendEmail($fileDir, $userEmail){
         
-        global $adb;
+		
+        global $adb, $current_user;
+		
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
         $zipname  = 'cache/'.strtotime('now').'.zip';
         $zip = new ZipArchive;
@@ -128,14 +130,27 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         $mailer = Emails_Mailer_Model::getInstance();
         $mailer->IsHTML(true);
         $userName = $currentUserModel->getName();
+		
+		$mailAccont = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id =? AND set_default=0",
+			array($current_user->id));
+		
+		$accountId = '';
+		if($adb->num_rows($mailAccont)){
+			$accountId = $adb->query_result($mailAccont, 0, 'account_id');
+		}
         
         $emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
         $fromEmail = $emailRecordModel->getFromEmailAddress();
         $replyTo = $emailRecordModel->getReplyToEmail();
         
-        $mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
-        
-        $mailer->AddAddress($userEmail);
+		if($accountId){
+			$mailer->initializeCustomSMTP($accountId);
+			$mailer->reinitialize();
+		}else{
+			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
+        }
+		
+		$mailer->AddAddress($userEmail);
         
         $mailer->AddAttachment($zipname);
         
@@ -143,7 +158,17 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $mailer->Body = $body ;
         
-        $status = $mailer->Send(true);
+        if($mailer->type == 'Office365'){
+			$connector = new MailManager_Office365_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
+			$status = $connector->SendMail($mailer);
+		}else if($mailer->type == 'Google'){
+			$connector = new MailManager_GoogleConnector_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
+			$status = $connector->SendMail($mailer);
+		}else if($mailer->type == 'mail.omnisrv.com'){
+			$status = MSExchange_MSExchange_Model::sendMailUsingEws($mailer);
+		}else{
+			$status = $mailer->Send(true);
+		}
         
         $error = $mailer->getError();
         
@@ -1306,6 +1331,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         require_once("libraries/Reporting/ReportPerformance.php");
         require_once("libraries/Reporting/ReportHistorical.php");
         require_once("libraries/reports/new//holdings_report.php");
+		require_once("modules/PortfolioInformation/models/NameMapper.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';

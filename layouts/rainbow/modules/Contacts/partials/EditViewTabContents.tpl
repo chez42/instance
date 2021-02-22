@@ -11,8 +11,8 @@
 {literal}
 <style>
 .related-tabs li {float: left !important;}
-.select2-container { width:100% !important;}
-.fieldBlockContainer .inputElement:not([type='checkbox']) { width:100% !important;}
+.select2-container { width:100%;}
+.fieldBlockContainer .inputElement:not([type='checkbox']) { width:100%;}
 .editViewContents .input-group { width: 100% !important; min-width:100% !important;}
 .editViewContents .fieldValue .referencefield-wrapper { width: 100% !important;}
 .editViewContents .referencefield-wrapper .input-group { width: 80% !important;  min-width:80% !important;}
