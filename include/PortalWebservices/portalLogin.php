@@ -80,7 +80,7 @@ function vtws_portallogin($element,$user){
                     
                     $selectedModules = array();
                     
-                    $PortalModules = array(getTabid('HelpDesk') => 'tickets', getTabid('Documents') => 'Documents', getTabid('Reports') => 'Reports');
+                    $PortalModules = array(getTabid('HelpDesk') => 'tickets', getTabid('Documents') => 'Documents', getTabid('Reports') => 'Reports', getTabid('Potentials') => 'Potentials');
                     $PortalReports = array('Portfolios'=>array('Asset Class Report'),'Income'=>array('Last 12 months','Last Year','Projected','Month Over Month'),'Performance'=>array('Gain Loss','GH1 Report','GH2 Report','Overview'));
                     
                     $selectedPortalModulesInfo = array();
