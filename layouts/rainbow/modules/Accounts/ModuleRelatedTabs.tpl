@@ -98,6 +98,14 @@
 										<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
 									{else if $RELATEDMODULENAME eq 'VTEEmailMarketing'} 
 										<span class="module-icon"><img src="layouts/rainbow/icons/EmailMarketing.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Invoice'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Invoice.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'PurchaseOrder'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/PurchaseOrder.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'Quotes'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/Quotes.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									{else if $RELATEDMODULENAME eq 'SalesOrder'} 
+										<span class="module-icon"><img src="layouts/rainbow/icons/SalesOrder.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
 									{else if $RELATEDMODULENAME eq 'CalendarTemplate'}
 										<i class="fa fa-fast-forward" aria-hidden="true"></i>
 									{else if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
