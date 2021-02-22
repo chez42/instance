@@ -49,8 +49,6 @@
             <td style="width:70%; vertical-align: top;">
                 {if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}
             </td>
-        </tr>
-        <tr>
             {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
@@ -137,7 +135,7 @@
         </table>
     </div>
     <div class="GHReport_section">
-        <h2 class="grey_header" style="padding-top:2px; padding-bottom:2px;"><span style="font-size:10pt;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B, %Y'})</span></h2>
+        <h2 class="grey_header"><span style="font-size:20px;">{$HEADING} PERFORMANCE ({$YTDPERFORMANCE->GetStartDate()|date_format:'%B %d, %Y'} to {$YTDPERFORMANCE->GetEndDate()|date_format:'%B %d, %Y'})</span></h2>
         <table class='table' style="font-family:Calibri, Sans-Serif; width:100%; min-wdith:100%;">
             <thead>
             <tr style="background-color:RGB(245, 245, 245);">
