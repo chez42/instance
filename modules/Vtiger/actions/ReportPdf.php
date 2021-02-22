@@ -1306,6 +1306,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         require_once("libraries/Reporting/ReportPerformance.php");
         require_once("libraries/Reporting/ReportHistorical.php");
         require_once("libraries/reports/new//holdings_report.php");
+		require_once("modules/PortfolioInformation/models/NameMapper.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';
