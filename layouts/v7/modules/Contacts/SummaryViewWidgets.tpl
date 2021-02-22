@@ -27,6 +27,9 @@
 		{assign var=BALANCE_WIDGET_MODEL value=$DETAIL_VIEW_WIDGET}
 	{/if}
 {/foreach}
+
+{assign var=PortfolioModel value=Vtiger_Module_Model::getInstance('PortfolioInformation')}
+
 {if $PortfolioModel->isActive()}
 	<div class="top-block container-fluid">
 		{* Balance Widget Model Start*}
