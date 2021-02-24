@@ -591,6 +591,26 @@ return;
         return null;
     }
 
+    static public function GetClosestPositionDate(array $account_numbers, $date){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT MAX(date) AS date
+                  FROM custodian_omniscient.custodian_positions_td 
+                  WHERE account_number IN ({$questions})
+                  AND date <= ?";
+        $result = $adb->pquery($query, array($account_numbers, $date));
+
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'date');
+
+        return null;
+    }
+
     /**
      * This is extremely specific.  This is not <= date, but requires a specific date to check against.  Request a saturday or holiday, you won't
      * get a response
@@ -601,6 +621,7 @@ return;
     static public function GetPositionDataAsOfDate(array $account_number, $date){
         global $adb;
         $questions = generateQuestionMarks($account_number);
+        $date = self::GetClosestPositionDate($account_number, $date);
 
         //TODO Add a function get latest position date as of provide date here!!
         $query = "SELECT pos.symbol, quantity, amount, account_number, 
@@ -680,5 +701,19 @@ return;
             return $data;
         }
         return null;
+    }
+
+    static public function GetBalancesVsPositionsDifference(array $account_number, $date){
+        $positions = cTDPositions::GetPositionDataAsOfDate($account_number, $date);
+        $position_total = 0;
+        $balance_total = 0;
+        foreach($positions AS $account => $position_info){
+            $balance = new cBalanceInfo($account, $date);
+            $balance_total += $balance->start_value;
+            foreach($position_info AS $k => $v) {
+                $position_total += $v['market_value'];
+            }
+        }
+        return abs($balance_total - $position_total);
     }
 }

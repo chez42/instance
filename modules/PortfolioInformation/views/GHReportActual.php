@@ -73,6 +73,11 @@ class PortfolioInformation_GHReportActual_View extends Vtiger_Index_View{
 
 //            PortfolioInformation_Module_Model::RemoveMonthlyIntervals($accounts);
 //            PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
+            $dif = cTDPositions::GetBalancesVsPositionsDifference($accounts, $start_date);
+            if($dif > 10) {
+                cTDPortfolios::CalculateAndWriteBalances($accounts, '1900-01-01', date("Y-m-d"));
+                PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, '1900-01-01', $end_date, false);
+            }
             PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, $start_date, $end_date, true);
 
             $tmp = array();
