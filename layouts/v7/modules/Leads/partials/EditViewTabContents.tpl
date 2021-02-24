@@ -145,7 +145,7 @@
 												&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 											</td>
 											{if $FIELD_MODEL->get('uitype') neq '83'}
-												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+												<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 													{if $NUM_OF_COL gt 2}
 														<div class="customtab-columns-{$NUM_OF_COL}">
 													{/if}
@@ -174,13 +174,6 @@
 										<td></td>
 									{/if}
 								</tr>
-								{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && count($MODULES_MODELS) > 0}
-									<tr>
-										<td colspan="{$NUM_OF_COL*2}">
-											{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE) MODULES_MODELS=$MODULES_MODELS}
-										</td>
-									</tr>
-								{/if}
 							</table>
 						</div>
 					{/if}
@@ -262,7 +255,7 @@
 														&nbsp;{if $FIELD_MODEL->isMandatory() eq true} <span class="redColor">*</span> {/if}
 													</td>
 													{if $FIELD_MODEL->get('uitype') neq '83'}
-														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'} style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19'} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
+														<td class="fieldValue" {if $FIELD_MODEL->getFieldDataType() eq 'boolean'}style="width:25%" {/if} {if $FIELD_MODEL->get('uitype') eq '19' && $COUNTER neq $NUM_OF_COL} colspan="3" {assign var=COUNTER value=$COUNTER+1} {/if}>
 											                {if $NUM_OF_COL gt 2}
 											                	<div class="customtab-columns-{$NUM_OF_COL}">
 															{/if}	
@@ -291,13 +284,6 @@
 												<td></td>
 											{/if}
 										</tr>
-										{if $BLOCK_LABEL eq 'LBL_CUSTOMER_PORTAL_INFORMATION' && $smarty.foreach.blockfields.last && $VIEW_SOURCE neq 'MASSEDIT'}
-											<tr>
-												<td colspan="{$NUM_OF_COL*2}">
-													{include file=vtemplate_path('PortalInfoBlock.tpl',$MODULE)}
-												</td>
-											</tr>
-										{/if}
 									</table>
 								</div>
 							{/if}

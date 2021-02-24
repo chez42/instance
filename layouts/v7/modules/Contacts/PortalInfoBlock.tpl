@@ -29,7 +29,7 @@
 		
 	</tr>
 			
-	{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}
+	{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Potentials')} => 'Potentials', {getTabid('Reports')} => 'Reports']}
 	{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 	
 	{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
@@ -46,21 +46,33 @@
 			<td class="fieldLabel textOverflowEllipsis text-left">{vtranslate($MODULE_NAME, 'Settings:CustomerPortal')}</td>
 			<td class="fieldLabel textOverflowEllipsis text-center" {if !$REPORT_PERMISSION} style = "display:none;" {/if}></td>
 			<td class="fieldValue text-center">
-				{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_visible]" value="0" />*}
-				<input type="checkbox" {if $MODULE_NAME eq 'Reports'} id="portal_reports" {/if} name="portalModulesInfo[{$NAME_MODULE}_visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
+				<label class="checkbox-switch">
+					<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_visible]" id="portalModulesInfo[{$NAME_MODULE}_visible]" value="0" />
+					{*<input style="opacity: 0;" {if $VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="checkboxSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_visible]" id="portalModulesInfo[{$NAME_MODULE}_visible]">*}
+					<input class="inputElement" type="checkbox" {if $MODULE_NAME eq 'Reports'} id="portal_reports" {/if} name="portalModulesInfo[{$NAME_MODULE}_visible]" value="1" {if $VISIBLE == '1'} checked {/if}/>
+					<span class="checkbox-slider checkbox-round"></span>
+				</label>
 			</td>
 			<td class="fieldValue text-center">
 				{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME eq 'Reports'}
 					&nbsp;
 				{else}
-					{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="0" />*}
-					<input type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="1" {if $RECORD_VISIBLE == '1'} checked {/if}/>
+					<label class="checkbox-switch">
+						<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" id="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="0" />
+						{*<input style="opacity: 0;" {if $RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="checkboxSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" id="portalModulesInfo[{$NAME_MODULE}_record_across_org]">*}
+						<input class="inputElement" type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" value="1" {if $RECORD_VISIBLE == '1'} checked {/if}/>
+						<span class="checkbox-slider checkbox-round"></span>
+					</label>
 				{/if}
 			</td>
 			<td class="fieldValue text-center">
-				{if $MODULE_NAME neq 'Accounts' }
-					{*<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="0" />*}
-					<input type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
+				{if $MODULE_NAME neq 'Accounts' && $MODULE_NAME neq 'Potentials'}
+					<label class="checkbox-switch">
+						<input type="hidden" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="0" />
+						{*<input style="opacity: 0;" {if $EDIT_RECORDS == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="checkboxSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]">*}
+						<input class="inputElement" type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" value="1" {if $EDIT_RECORDS == '1'} checked {/if}/>
+						<span class="checkbox-slider checkbox-round"></span>
+					</label>
 				{/if}
 			</td>
 		</tr>
@@ -98,12 +110,20 @@
 							<td>&nbsp;</td>
 							<td class="fieldLabel textOverflowEllipsis text-left">{vtranslate($ReportModules, $MODULE)}</td>
 							<td class="fieldValue text-center">
-								{*<input type="hidden" name="portalModulesInfo[{$NAME_REPORT}_visible]" value="0" />*}
-								<input type="checkbox" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_visible]" value="1" {if $REPORT_VISIBLE == '1'} checked {/if}/>
+								<label class="checkbox-switch">
+									<input type="hidden" name="portalModulesInfo[{$NAME_REPORT}_visible]" id="portalModulesInfo[{$NAME_REPORT}_visible]" value="0" />
+									{*<input style="opacity: 0;"  {if $REPORT_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="checkboxSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_visible]" id="portalModulesInfo[{$NAME_REPORT}_visible]">*}
+									<input type="checkbox" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_visible]" value="1" {if $REPORT_VISIBLE == '1'} checked {/if}/>
+									<span class="checkbox-slider checkbox-round"></span>
+								</label>
 							</td>
 							<td class="fieldValue text-center">
-								{*<input type="hidden" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="0" />*}
-								<input type="checkbox" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="1" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if}/>
+								<label class="checkbox-switch">
+									<input type="hidden" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" id="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="0" />
+									{*<input style="opacity: 0;"  {if $REPORT_RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="checkboxSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" id="portalModulesInfo[{$NAME_REPORT}_record_across_org]">*}
+									<input type="checkbox" class="{$ReprtName}" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" value="1" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if}/>
+									<span class="checkbox-slider checkbox-round"></span>
+								</label>
 							</td>
 							<td>&nbsp;</td>
 						</tr>

@@ -1469,3 +1469,20 @@ else
     $adb->pquery("INSERT INTO vtiger_notifications_seq (id) VALUES (?)",array($maxId+1));
 
 $adb->pquery("ALTER TABLE vtiger_pandadocdocument_reference ADD documentid INT(19) NULL;");
+
+$adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD potentials_visible INT(3) NULL DEFAULT '0', ADD potentials_record_across_org INT(3) NULL DEFAULT '0', ADD potentials_edit_records INT(3) NULL DEFAULT '0';");
+
+$operation = array('name'=>'get_related_potentials',
+    'path'=>'include/PortalWebservices/GetPotentials.php',
+    'method'=>'vtws_get_potentials',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type']);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
