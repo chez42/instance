@@ -8,7 +8,7 @@
         $allowedModules = $user_basic_details['allowed_modules'];
         
         foreach($allowedModules as $moduleInfo){
-            if(isset($moduleInfo['edit_record']) && $moduleInfo['edit_record'] == 1 && $moduleInfo['module'] != 'Documents' && $moduleInfo['module'] != 'HelpDesk'){
+            if(isset($moduleInfo['edit_record']) && $moduleInfo['edit_record'] == 1 && $moduleInfo['module'] != 'Documents' && $moduleInfo['module'] != 'HelpDesk' && $moduleInfo['module'] != 'Tickets'){
                 $allowedModuleForRecordCreation[$moduleInfo['module']] = array(
                     "label" => "LBL_NEW_".strtoupper($moduleInfo['module']), "link" => strtolower($moduleInfo['module']).".php?view=edit"
                 );
@@ -25,6 +25,12 @@
             if($mod == "Home" || $mod == "Documents" || $mod == 'HelpDesk' || $mod == 'Potentials'){
                 $portalMenus[$mod]['submenu'] = array();
                 $portalMenus[$mod]['link'] =  strtolower($mod).".php";
+            }else if($mod == "Tickets"){
+                $portalMenus[$mod]['submenu'] = array();
+                $portalMenus[$mod]['link'] =  "helpdesk.php";
+            }else if($mod == "Opportunities"){
+                $portalMenus[$mod]['submenu'] = array();
+                $portalMenus[$mod]['link'] =  "potentials.php";
             }else if($mod == "Accounts"){
                 $portalMenus[$mod]['submenu'] = array("detail" => array("label" => "LBL_MANAGE_".$mod, "link" => strtolower($mod).".php"));
                 $portalMenus[$mod]['link'] =  strtolower($mod).".php";
@@ -191,12 +197,12 @@
             								<rect fill="#000000" opacity="0.3" x="11" y="2" width="2" height="14" rx="1" />
             								<path d="M12.0362375,3.37797611 L7.70710678,7.70710678 C7.31658249,8.09763107 6.68341751,8.09763107 6.29289322,7.70710678 C5.90236893,7.31658249 5.90236893,6.68341751 6.29289322,6.29289322 L11.2928932,1.29289322 C11.6689749,0.916811528 12.2736364,0.900910387 12.6689647,1.25670585 L17.6689647,5.75670585 C18.0794748,6.12616487 18.1127532,6.75845471 17.7432941,7.16896473 C17.3738351,7.57947475 16.7415453,7.61275317 16.3310353,7.24329415 L12.0362375,3.37797611 Z" fill="#000000" fill-rule="nonzero" />
             							</g>
-        							<?php }elseif($mod == 'HelpDesk'){?>
+        							<?php }elseif($mod == 'Tickets'){?>
         								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                             <rect x="0" y="0" width="24" height="24"/>
                                             <path d="M3,10.0500091 L3,8 C3,7.44771525 3.44771525,7 4,7 L9,7 L9,9 C9,9.55228475 9.44771525,10 10,10 C10.5522847,10 11,9.55228475 11,9 L11,7 L21,7 C21.5522847,7 22,7.44771525 22,8 L22,10.0500091 C20.8588798,10.2816442 20,11.290521 20,12.5 C20,13.709479 20.8588798,14.7183558 22,14.9499909 L22,17 C22,17.5522847 21.5522847,18 21,18 L11,18 L11,16 C11,15.4477153 10.5522847,15 10,15 C9.44771525,15 9,15.4477153 9,16 L9,18 L4,18 C3.44771525,18 3,17.5522847 3,17 L3,14.9499909 C4.14112016,14.7183558 5,13.709479 5,12.5 C5,11.290521 4.14112016,10.2816442 3,10.0500091 Z M10,11 C9.44771525,11 9,11.4477153 9,12 L9,13 C9,13.5522847 9.44771525,14 10,14 C10.5522847,14 11,13.5522847 11,13 L11,12 C11,11.4477153 10.5522847,11 10,11 Z" fill="#000000" opacity="0.3" transform="translate(12.500000, 12.500000) rotate(-45.000000) translate(-12.500000, -12.500000) "/>
                                         </g>
-        							<?php }elseif($mod == 'Potentials'){?>
+        							<?php }elseif($mod == 'Opportunities'){?>
         								<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                                             <rect x="0" y="0" width="24" height="24"/>
                                             <rect fill="#000000" opacity="0.3" x="11.5" y="2" width="2" height="4" rx="1"/>

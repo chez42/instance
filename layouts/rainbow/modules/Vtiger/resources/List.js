@@ -283,6 +283,7 @@ Vtiger.Class("Vtiger_List_Js", {
 				if (!error) {
 					app.helper.showModal(data, {
                         'cb' : function(modalContainer) {
+                        	vtUtils.enableTooltips();
                         	listInstance.registerChangeForReportSelect(modalContainer);
                         	if(selectedRecordCount > 20){
 	                        	var chagneOwnerForm = jQuery('#massGeneratePdf');
