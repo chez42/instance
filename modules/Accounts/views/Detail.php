@@ -27,8 +27,10 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
             $integrity = new cIntegrity(array($v));
             $differences = $integrity->GetDifferences();
 
-            if(!empty($differences) && $differences['dif'] > 10)
-                $integrity->RepairDifferences();
+            foreach($differences AS $k => $v) {
+                if (!empty($differences) && abs($v['dif']) > 10)
+                    $integrity->RepairDifferences();
+            }
 
             $tmp = new CustodianClassMapping(array($v));
             $tmp->transactions::CreateNewTransactionsForAccounts(array($v));

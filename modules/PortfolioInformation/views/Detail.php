@@ -22,9 +22,10 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
         $integrity = new cIntegrity($account_number);
         $differences = $integrity->GetDifferences();
 
-        if(!empty($differences) && $differences['dif'] > 10)
-            $integrity->RepairDifferences();
-
+        foreach($differences AS $k => $v) {
+            if (!empty($differences) && abs($v['dif']) > 10)
+                $integrity->RepairDifferences();
+        }
         $tmp = new CustodianClassMapping($account_number);
         $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
         if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
