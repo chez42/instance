@@ -19,7 +19,7 @@
 {if $VIEW_SOURCE neq 'MASSEDIT'}
 	<label class="checkbox-switch">
 		<input type="hidden" name="{$FIELD_NAME}" value=0 />
-		<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" class="inputElement" style="width:15px;height:15px;" data-fieldname="{$FIELD_NAME}" data-fieldtype="checkbox" type="checkbox" name="{$FIELD_NAME}"
+		<input id="{$MODULE}_editView_fieldName_{$FIELD_NAME}" class="inputElement input-checkbox" style="width:15px;height:15px;" data-fieldname="{$FIELD_NAME}" data-fieldtype="checkbox" type="checkbox" name="{$FIELD_NAME}"
 		{if $FIELD_MODEL->get('fieldvalue') eq true} checked {/if} {if !empty($SPECIAL_VALIDATOR)}data-validator="{Zend_Json::encode($SPECIAL_VALIDATOR)}"{/if}
 		{if $FIELD_INFO["mandatory"] eq true} data-rule-required = "true" {/if}
 		{if count($FIELD_INFO['validator'])}
