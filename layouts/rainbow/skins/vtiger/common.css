@@ -7701,13 +7701,8 @@ a[name~="relationEdit"], button[name~="relationEdit"] , a.relationDelete, a[name
  .btn:hover {background:rgba(44, 59, 73, 0.33);color:#fff;}
 
 input[type=checkbox]:checked::after, 
-#checkgreen{content: none;;font-family: themify;color: white;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
-    line-height: 26px;}
-    
-.listViewEntries input[type=checkbox]:checked::after, 
 #checkgreen{content: "\e64c";font-family: themify;color: blue;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
     line-height: 26px;}
-
 input[type=checkbox]:checked {border: 1px solid transparent!important;background: transparent!important;}
 
 .table-hover>tbody>tr{border-left:4px solid white ;}
@@ -9212,3 +9207,5 @@ input:checked + .checkbox-slider:before {
 .checkbox-slider.checkbox-round:before {
   border-radius: 50% !important;
 }
+
+.input-checkbox:checked::after {content: none !important;}
