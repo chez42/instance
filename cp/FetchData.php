@@ -165,6 +165,62 @@ if(isset($_SESSION['ID'])){
 	    
 	    echo json_encode($result);
 	    
+	}else if($_GET['module'] == 'Potentials'){
+	      
+	    $search = array();
+	    if(isset($_REQUEST['opportunity']) && $_REQUEST['opportunity'] != ''){
+	        $search['opportunity'] = $_REQUEST['opportunity'];
+	    }
+	    if(isset($_REQUEST['sales_stage']) && $_REQUEST['sales_stage'] != ''){
+	        $search['sales_stage'] = $_REQUEST['sales_stage'];
+	    }
+	    if(isset($_REQUEST['primary_email']) && $_REQUEST['primary_email'] != ''){
+	        $search['primary_email'] = $_REQUEST['primary_email'];
+	    }
+	    if(isset($_REQUEST['mobile_phone']) && $_REQUEST['mobile_phone'] != ''){
+	        $search['mobile_phone'] = $_REQUEST['mobile_phone'];
+	    }
+	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
+	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
+	    }
+	    
+	    $potential_list = fetchPotentialData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
+	    
+	    if(!empty($potential_list['result']['count'])){
+	        
+	        $total_records = $potential_list['result']['count'];
+	        
+	        $potentialIds[] = $potential_list['result']['potential_ids'];
+	       
+	        foreach ($potential_list['result']['data'] as $index => $potential){
+	            
+	            $row_data = array(
+	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
+                        '.$potential['potential_no'].'
+                    </a>',
+	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
+                        '.$potential['potentialname'].'
+                    </a>',
+	                $potential['sales_stage'],
+	                $potential['cf_869'],
+	                $potential['cf_2899'],
+	                date('m-d-Y', strtotime($potential['modifiedtime']))
+	                
+	            );
+	            array_push($data, $row_data);
+	        }
+	    }
+	    
+	    $result = array(
+	        'draw' => $draw,
+	        'recordsTotal' => $total_records,
+	        'recordsFiltered' => $total_records,
+	        'data'=> $data
+	    );
+	    
+	    $_SESSION['potential_detail_navigation'] = $potentialIds;
+	    
+	    echo json_encode($result);
 	}
 	
     
@@ -238,4 +294,28 @@ function fetchTicketDocuments($ticket_docs){
     $html.= '</div>
     	</div>';
     return $html;
+}
+
+function fetchPotentialData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex, $seacrh){
+    
+    $element = array(
+        'id' => $id,
+        'module'=>$module,
+        'pageLimit' => $pageLimit,
+        'startIndex' => $startIndex
+    );
+    $element = array_merge($element, $seacrh);
+    
+    $postParams = array(
+        'operation'=>'get_related_potentials',
+        'sessionName' => $sessionName,
+        'element'=>json_encode($element)
+    );
+    
+    $response = postHttpRequest($ws_url, $postParams);
+    
+    $response = json_decode($response, true);
+    
+    return $response;
+    
 }
