@@ -29,7 +29,7 @@
 			</td>
 		</tr>
 		
-		{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Reports')} => 'Reports']}	
+		{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Potentials')} => 'Potentials', {getTabid('Reports')} => 'Reports']}	
 		{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 		{*'Holdings',*} 
 		{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
@@ -64,7 +64,7 @@
 						</span> -->
 					</td>
 					<td class="fieldValue text-center">
-						{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports'}
+						{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports' or $MODULE_NAME eq 'Potentials'}
 							&nbsp;
 						{else}
 							<input style="opacity: 0;" {if $EDIT_RECORDS == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]">

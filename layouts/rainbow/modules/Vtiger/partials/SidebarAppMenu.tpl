@@ -144,6 +144,14 @@
 														<span class="module-icon"><img src="layouts/rainbow/icons/PandaDoc.png" title="{$translatedModuleLabel}"></span>
 													{else if $moduleName eq 'VTEEmailMarketing'} 
 														<span class="module-icon"><img src="layouts/rainbow/icons/EmailMarketing.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Invoice'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Invoice.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'PurchaseOrder'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/PurchaseOrder.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'Quotes'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/Quotes.png" title="{$translatedModuleLabel}"></span>
+													{else if $moduleName eq 'SalesOrder'} 
+														<span class="module-icon"><img src="layouts/rainbow/icons/SalesOrder.png" title="{$translatedModuleLabel}"></span>
 													{else}
 														<i class="material-icons module-icon" >{$iconsarray[{strtolower($moduleName)}]}</i>
 													{/if}
