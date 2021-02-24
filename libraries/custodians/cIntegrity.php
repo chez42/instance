@@ -66,7 +66,8 @@ class cIntegrity{
 
     public function RepairDifferences(){
         $end = date('Y-m-d');
-        $start = date('Y-m-d', strtotime('-4 days'));
+        $start = '2019-01-01';
+#        $start = date('Y-m-d', strtotime('-4 days'));
         foreach($this->differences AS $k => $v) {
             switch(strtoupper($v['origination'])){
                 case "TD":
@@ -82,6 +83,10 @@ class cIntegrity{
                     break;
             }
         }
+    }
+
+    public function GetPortfolioToPositionsDifferenceTotalForDate(array $account, $date){
+        return cTDPositions::GetBalancesVsPositionsDifference($account, $date);
     }
 
     public function GetPortfolioToPositionDifferencesListForAccounts(array $account){

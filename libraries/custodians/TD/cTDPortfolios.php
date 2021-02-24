@@ -493,4 +493,81 @@ class cTDPortfolios extends cCustodian {
         $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
         self::UpdateAllPortfoliosForAccounts($accounts);
     }
+
+    static public function CalculateBalances(array $account_number, $sdate, $edate){
+        global $adb;
+        $values = array();
+
+        $questions = generateQuestionMarks($account_number);
+        $params[] = $sdate;
+        $params[] = $edate;
+        $params[] = $account_number;
+
+        $query = "SELECT pos.account_number, pos.symbol, SUM(quantity) AS quantity, SUM(amount) AS amount, pos.date, 
+                  CASE WHEN pr.price IS NULL THEN 0 ELSE pr.price END AS price, 
+                  CASE WHEN pr.factor IS NULL THEN 0 ELSE pr.factor END AS factor,
+                  mcf.aclass, mcf.security_price_adjustment, mcf.security_sector
+                  FROM custodian_omniscient.custodian_positions_td pos 
+                  LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pos.symbol = pr.symbol AND pos.date = pr.date
+                  LEFT JOIN custodian_omniscient.custodian_balances_td bal ON bal.account_number = pos.account_number AND bal.as_of_date = pos.date
+                  JOIN live_omniscient.vtiger_modsecurities m ON pos.symbol = m.security_symbol
+                  JOIN live_omniscient.vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  WHERE pos.date BETWEEN ? AND ?
+                  AND pos.account_number IN ({$questions})
+                  GROUP BY account_number, pos.symbol, pos.date";
+
+        $result = $adb->pquery($query, $params);
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+                if(strtoupper($x['symbol']) == 'CASH')
+                    $x['symbol'] = 'TDCASH';
+                if(is_null($x['price']))
+                    $x['price'] = 0;
+                if($x['security_price_adjustment'] == 0)
+                    $x['security_price_adjustment'] = 1;
+                if($x['factor'] == 0)
+                    $x['factor'] = 1;
+
+                $x['market_value'] = ($x['quantity'] + $x['amount']) * $x['price'] * $x['security_price_adjustment'] * $x['factor'];
+                $values[$x['account_number']][$x['date']] += $x['market_value'];
+            }
+        }
+
+        return $values;
+    }
+
+    static public function CalculateAndWriteBalances(array $account_number, $sdate, $edate){
+        global $adb;
+        $counter = 0;
+        $params = array();
+        $writer = "";
+
+        $balances = self::CalculateBalances($account_number, $sdate, $edate);
+
+        foreach($balances AS $account => $values){
+            foreach($values AS $date => $value){
+                if($counter >= 100) {
+                    $writer = rtrim($writer, ', ');
+                    $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, as_of_date, calculated) 
+                              VALUES {$writer}
+                              ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+                    $adb->pquery($query, $params, true);
+                    $counter = 0;
+                    $writer = "";
+                    $params = array();
+                }
+                $writer .= "(?, ?, ?, NOW()), ";
+                $params[] = array($account, $value, $date);
+                $counter++;
+            }
+        }
+
+        if(!empty($params)) {
+            $writer = rtrim($writer, ', ');
+            $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, as_of_date, calculated) 
+                      VALUES {$writer}
+                      ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+            $adb->pquery($query, $params, true);
+        }
+    }
 }

@@ -3704,4 +3704,45 @@ IF @beginningNet IS NULL THEN SET @beginningNet := 0; END IF;
             return $adb->query_result($result, 0, 'match_result');
         return 0;
     }
+
+    /**
+     * Returns a list of TD accounts which positions total different than their balances
+     * @return array
+     */
+    public static function GetDifferentValuesVsPositionsTD(){
+        global $adb;
+        $accounts = array();
+        $account_values = array();
+        $different_accounts = array();
+
+        $query = "SELECT account_number, total_value, stated_value_date, origination
+                  FROM vtiger_portfolioinformation 
+                  JOIN vtiger_portfolioinformationcf USING(portfolioinformationid)
+                  WHERE origination = 'TD'";
+        $result = $adb->pquery($query, array());
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+                $accounts[] = $x['account_number'];
+                $account_values[$x['account_number']] = $x['total_value'];
+            }
+        }
+
+        $questions = generateQuestionMarks($accounts);
+        $query = "SELECT account_number, SUM(current_value) AS pos_value
+                  FROM vtiger_positioninformation
+                  WHERE account_number IN ({$questions})
+                  GROUP BY account_number";
+        $result = $adb->pquery($query, array($accounts));
+
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+                $dif = $account_values[$x['account_number']] - $x['pos_value'];
+                if(abs($dif) > 10){
+#                    echo $x['account_number'] . ' value is ' . $account_values[$x['account_number']] . ' and positions value is ' . $x['pos_value'] . '<br />';
+                    $different_accounts[] = $x['account_number'];
+                }
+            }
+        }
+        return $different_accounts;
+    }
 }
