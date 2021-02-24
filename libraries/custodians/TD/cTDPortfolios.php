@@ -528,7 +528,10 @@ class cTDPortfolios extends cCustodian {
                 if($x['factor'] == 0)
                     $x['factor'] = 1;
 
-                $x['market_value'] = ($x['quantity'] + $x['amount']) * $x['price'] * $x['security_price_adjustment'] * $x['factor'];
+                if($x['symbol'] == 'TDCASH'){
+                    $x['market_value'] = $x['amount'];
+                }else
+                    $x['market_value'] = ($x['quantity'] + $x['amount']) * $x['price'] * $x['security_price_adjustment'] * $x['factor'];
                 $values[$x['account_number']][$x['date']] += $x['market_value'];
             }
         }
