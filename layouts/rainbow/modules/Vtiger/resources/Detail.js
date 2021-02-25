@@ -3387,6 +3387,26 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var recentActivitiesTab = self.getTabByLabel(self.detailViewRecentTaskTabLabel);
 			recentActivitiesTab.trigger('click');
 		});
+		
+		detailContentsHolder.on('change', ".checkboxSwitch", function (e) {
+			var currentElement = jQuery(e.currentTarget);
+	          
+			if(currentElement.is(":checked")){
+				currentElement.val(1);
+			} else {
+				currentElement.val(0);
+			}
+	          
+			app.helper.showProgress();
+			var fieldNameValueMap = {};
+			fieldNameValueMap['value'] = currentElement.val();
+			fieldNameValueMap['field'] = currentElement.data('fieldname');
+			self.saveFieldValues(fieldNameValueMap).then(function(err, response) {
+				app.helper.hideProgress();
+			});
+	         
+		});
+		
 	},
 
 	/**
