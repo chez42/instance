@@ -504,14 +504,14 @@ class cTDPortfolios extends cCustodian {
         $params[] = $account_number;
 
         $query = "SELECT pos.account_number, pos.symbol, SUM(quantity) AS quantity, SUM(amount) AS amount, pos.date, 
-                  CASE WHEN pr.price IS NULL THEN 0 ELSE pr.price END AS price, 
-                  CASE WHEN pr.factor IS NULL THEN 0 ELSE pr.factor END AS factor,
+                  CASE WHEN pr.price IS NULL THEN 1 ELSE pr.price END AS price, 
+                  CASE WHEN pr.factor IS NULL THEN 1 ELSE pr.factor END AS factor,
                   mcf.aclass, mcf.security_price_adjustment, mcf.security_sector
                   FROM custodian_omniscient.custodian_positions_td pos 
                   LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pos.symbol = pr.symbol AND pos.date = pr.date
                   LEFT JOIN custodian_omniscient.custodian_balances_td bal ON bal.account_number = pos.account_number AND bal.as_of_date = pos.date
-                  JOIN live_omniscient.vtiger_modsecurities m ON pos.symbol = m.security_symbol
-                  JOIN live_omniscient.vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  JOIN vtiger_modsecurities m ON pos.symbol = m.security_symbol
+                  JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
                   WHERE pos.date BETWEEN ? AND ?
                   AND pos.account_number IN ({$questions})
                   GROUP BY account_number, pos.symbol, pos.date";
@@ -523,7 +523,10 @@ class cTDPortfolios extends cCustodian {
                     $x['symbol'] = 'TDCASH';
                 if(is_null($x['price']))
                     $x['price'] = 0;
-                if($x['security_price_adjustment'] == 0)
+                if($x['security_price_adjustment'] == 0 && strtoupper($x['aclass']) == 'BONDS') {
+                    $x['security_price_adjustment'] = 0.01;
+                }
+                else if($x['security_price_adjustment'] == 0)
                     $x['security_price_adjustment'] = 1;
                 if($x['factor'] == 0)
                     $x['factor'] = 1;

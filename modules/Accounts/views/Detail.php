@@ -23,8 +23,8 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
         $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
         $account_numbers = array_unique($account_numbers);
 
-        foreach($account_numbers AS $k => $v){
-            $integrity = new cIntegrity(array($v));
+        foreach($account_numbers AS $tmp => $account){
+            $integrity = new cIntegrity(array($account));
             $differences = $integrity->GetDifferences();
 
             foreach($differences AS $k => $v) {
@@ -32,10 +32,10 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
                     $integrity->RepairDifferences();
             }
 
-            $tmp = new CustodianClassMapping(array($v['account_number']));
-            $tmp->transactions::CreateNewTransactionsForAccounts(array($v['account_number']));
+            $tmp = new CustodianClassMapping(array($account));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
             if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
-                $tmp->transactions::UpdateTransactionsForAccounts(array($v['account_number']));
+                $tmp->transactions::UpdateTransactionsForAccounts(array($account));
         }
     }
 
