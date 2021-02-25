@@ -32,10 +32,10 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
                     $integrity->RepairDifferences();
             }
 
-            $tmp = new CustodianClassMapping($v['account_number']);
-            $tmp->transactions::CreateNewTransactionsForAccounts(array($v['account_number']));
+            $tmp = new CustodianClassMapping(array($v));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($v));
             if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
-                $tmp->transactions::UpdateTransactionsForAccounts(array($v['account_number']));
+                $tmp->transactions::UpdateTransactionsForAccounts(array($v));
         }
     }
 
