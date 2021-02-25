@@ -404,8 +404,9 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 			self.clearPreviewContainer();
 			self.loadMailContents(folderName);
 			container.find('#searchType').trigger('change');
-			self.registerEventForSingleMailActions();
+			//self.registerEventForSingleMailActions();
 			self.registerAutoCompleteSearchFields();
+			self.registerEventForMoveFolderSingleMail();
 			
 			var userName = jQuery(document).find('#isMailUserName').val();
 			jQuery('.mailUserName').text(userName);
@@ -1766,6 +1767,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 		self.deleteMailBox();
 		self.registerDeleteMailboxEvent();
 		self.registerOpenMailMangerId();
+		self.registerEventForSingleMailActions();
 	},
 	
 	registerEventForSingleMailActions : function(){
@@ -1870,7 +1872,8 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 							var openedMsgNo = container.find('#mmMsgNo').val();
 							if(jQuery.inArray(openedMsgNo, msgNos) !== -1) {
 								nextDiv.find('.mmfolderMails').trigger('click');
-								//thisInstance.clearPreviewContainer();
+							}else{
+								thisInstance.clearPreviewContainer();
 							}
 						}
 					});
@@ -1909,8 +1912,33 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 	            }
 			});
 		});
+		
+		jQuery(document).on('click', '#mmReplySingle', function(){
 
-				
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.openReplySingleEmail(false, msgNo, folder);
+		});
+		
+		jQuery(document).on('click', '#mmReplyAllSingle', function(){
+
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.openReplySingleEmail(true, msgNo, folder);
+		});
+		
+		jQuery(document).on('click', '#mmForwardSingle', function(){
+			var msgNo = $(this).data('msgno');
+			var folder = $(this).data('folder');
+			thisInstance.registerSingleForwardEvent(msgNo, folder);
+		});
+		
+	},
+	
+	registerEventForMoveFolderSingleMail : function(){
+		
+		var thisInstance = this;
+		var container = thisInstance.getContainer();
 		var moveFolder = container.find('#mmMoveToFolderSingle');
 		
 		moveFolder.on('click', 'a', function(e){
@@ -1951,27 +1979,7 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
 				});
 			}
 		});
-		
-		jQuery(document).on('click', '#mmReplySingle', function(){
-
-			var msgNo = $(this).data('msgno');
-			var folder = $(this).data('folder');
-			thisInstance.openReplySingleEmail(false, msgNo, folder);
-		});
-		
-		jQuery(document).on('click', '#mmReplyAllSingle', function(){
-
-			var msgNo = $(this).data('msgno');
-			var folder = $(this).data('folder');
-			thisInstance.openReplySingleEmail(true, msgNo, folder);
-		});
-		
-		jQuery(document).on('click', '#mmForwardSingle', function(){
-			var msgNo = $(this).data('msgno');
-			var folder = $(this).data('folder');
-			thisInstance.registerSingleForwardEvent(msgNo, folder);
-		});
-		
+	
 	},
 	
 	openReplySingleEmail : function(all, msgNo, folder) {
