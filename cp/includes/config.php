@@ -52,11 +52,11 @@ if(!$_SESSION['api_url']){
      
 }
 
-$api_url = 'http://localhost/Omni-Ver4';//$_SESSION['api_url'];
+$api_url = $_SESSION['api_url'];
  
-$api_username = 'admin';// $_SESSION['portal_user'];
+$api_username = $_SESSION['portal_user'];
  
-$api_accesskey = 'Bq89UFzMqnDimcwg';//$_SESSION['portal_accesskey'];
+$api_accesskey = $_SESSION['portal_accesskey'];
  
 $websocketUrl = '';
 
