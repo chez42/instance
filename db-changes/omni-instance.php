@@ -1486,3 +1486,20 @@ if (!$adb->num_rows($rs)) {
         vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
     }
 }
+
+$adb->pquery("ALTER TABLE vtiger_contact_portal_permissions ADD products_visible INT(3) NULL DEFAULT '0', ADD products_record_across_org INT(3) NULL DEFAULT '0', ADD products_edit_records INT(3) NULL DEFAULT '0';");
+
+$operation = array('name'=>'get_related_products',
+    'path'=>'include/PortalWebservices/GetProducts.php',
+    'method'=>'vtws_get_products',
+    'type'=>'POST',
+    'params'=>array(array('name'=>'element','type'=>'encoded'))
+);
+$rs = $adb->pquery('SELECT 1 FROM vtiger_ws_operation WHERE name=?', array($operation['name']));
+if (!$adb->num_rows($rs)) {
+    $operationId = vtws_addWebserviceOperation($operation['name'], $operation['path'], $operation['method'], $operation['type']);
+    $sequence = 1;
+    foreach ($operation['params'] as $param) {
+        vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
+    }
+}
