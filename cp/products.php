@@ -28,7 +28,7 @@ $element = array(
 );
 
 $postParams = array(
-    'operation'=>'get_related_potentials',
+    'operation'=>'get_related_products',
     'sessionName' => $session_id,
     'element'=>json_encode($element)
 );
@@ -47,7 +47,7 @@ $headers = $headerResponse['result'];
    				<div class="kt-container  kt-container--fluid ">
         			<div class="kt-subheader__main">
             			<h3 class="kt-subheader__title">
-							Opportunities
+							Products
                         </h3>
                     </div>
        	 		</div>
@@ -62,7 +62,7 @@ $headers = $headerResponse['result'];
 				<div class="kt-portlet kt-portlet--mobile">
 					<div class="kt-portlet__body">
     					<div class="table-responsive">
-    						<table class="table table-striped- table-bordered table-hover table table-checkable" id="potentials_list">
+    						<table class="table table-striped- table-bordered table-hover table table-checkable" id="products_list">
     							<thead>
     								<tr>
     									<th></th>
@@ -98,7 +98,7 @@ $headers = $headerResponse['result'];
 	  var srchVal;
 	  var selectedStatus = '';
       
-      var table = jQuery('#potentials_list').DataTable({
+      var table = jQuery('#products_list').DataTable({
 		 	bSort: false,
     		responsive: false,
     		searchDelay: 500,
@@ -115,7 +115,7 @@ $headers = $headerResponse['result'];
         			
         			if(typeof srchVal == 'undefined'){
         				return $.extend( {}, d, {
-        					"module" : 'Potentials',	
+        					"module" : 'Products',	
         				} );
         			}else
     					return $.extend( {}, d, srchVal );
@@ -126,20 +126,20 @@ $headers = $headerResponse['result'];
     			"<'row'<'col-sm-5'i><'col-sm-12'tr>>" +
     			"<'row'<'col-sm-5'i><'col-sm-7'p>>",
     	});
-
-      	$('#potentials_list tbody').on('click', 'tr', function () {
-            var data = table.row( this ).data();
-           	window.location.href = 'potential-detail.php?record='+$(data[0]).attr('id');
+  	
+        $('#products_list tbody').on('click', 'tr', function () {
+          var data = table.row( this ).data();
+          window.location.href = 'product-detail.php?record='+$(data[0]).attr('id');
         } );
-
-		$('#potentials_list thead td').each( function (i) {
+        
+		$('#products_list thead td').each( function (i) {
 			
 	        var title = $(this).data('type');
 	       
 	        var name = $(this).data('name');
 
 	        var column = $(this).data('column');
-	        
+	    
 	        if(title != 'datetime' && title != 'date' && title != 'picklist' && title != 'multipicklist' && title != '' && typeof title  !== "undefined")
 	        	$(this).html( '<input type="text" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
 	        else if(title == 'picklist' || title == 'multipicklist'){
@@ -169,7 +169,7 @@ $headers = $headerResponse['result'];
 		$(document).on('change', '.search_filter', function(){
 		 	var length = $('.search_filter').length;
 		 	var colVal = {};
-		 	colVal["module"] = 'Potentials';
+		 	colVal["module"] = 'Products';
 			$('.search_filter').each(function(sind, sval){
 				 colVal[$(this).attr('name')] = $(this).val();
 			});

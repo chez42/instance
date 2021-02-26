@@ -56,8 +56,10 @@
 						  	   if($_SESSION['owner_name'] != ''){
 							?>
 							<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x" style="background-image: url(assets/media/misc/bg-1.jpg)">
+								
 								<div class="kt-user-card__avatar">
 									
+									<span style="color:#ffffff;font-size: 1rem; font-weight: bold;">YOUR REPRESENTATIVE</span>
 									
 									<img  class ="<?php echo ($_SESSION['owner_image'] == '')?'kt-hidden':''; ?>" src="<?php echo $_SESSION['owner_image'];?>"/>
 									
