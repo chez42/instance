@@ -119,36 +119,48 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         }
         $zip->close();
         
-        $query='SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
-					FROM  vtiger_emailtemplates WHERE vtiger_emailtemplates.templateid = 213';
-        
+        $query = 'SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
+		FROM  vtiger_emailtemplates WHERE vtiger_emailtemplates.templateid = 213';
+
         $result = $adb->pquery($query, array());
-        $body=decode_html($adb->query_result($result,0,'body'));
+		
+        $body = decode_html($adb->query_result($result,0,'body'));
         
-        $subject=decode_html($adb->query_result($result,0,'subject'));
+        $subject = decode_html($adb->query_result($result,0,'subject'));
         
         $mailer = Emails_Mailer_Model::getInstance();
-        $mailer->IsHTML(true);
+        
+		$mailer->IsHTML(true);
+		
         $userName = $currentUserModel->getName();
 		
-		$mailAccont = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id =? AND set_default=0",
-			array($current_user->id));
+		$mailer_result = $adb->pquery("SELECT * FROM `vtiger_systems` where server_type = 'email'");
 		
-		$accountId = '';
-		if($adb->num_rows($mailAccont)){
-			$accountId = $adb->query_result($mailAccont, 0, 'account_id');
-		}
-        
-        $emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
+		$emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
         $fromEmail = $emailRecordModel->getFromEmailAddress();
         $replyTo = $emailRecordModel->getReplyToEmail();
         
-		if($accountId){
-			$mailer->initializeCustomSMTP($accountId);
-			$mailer->reinitialize();
-		}else{
-			$mailer->ConfigSenderInfo($fromEmail, $userName, $replyTo);
-        }
+		if(!$adb->num_rows($mailer_result)){
+			return true;
+		}
+		
+		$mailer->Host = $adb->query_result($mailer_result, 0, "server");
+		$mailer->Username = trim($adb->query_result($mailer_result, 0, "server_username"));
+	    
+		$mailer->Password = trim($adb->query_result($mailer_result, 0, 'server_password'));
+		$mailer->SMTPAuth = 1;
+	        
+		$hostinfo = explode("://", $mailer->Host);
+		$smtpsecure = $hostinfo[0];
+		
+		if ($smtpsecure == "tls") {
+			$mailer->SMTPSecure = $smtpsecure;
+			$mailer->Host = $hostinfo[1];
+		}
+		
+		$mailer->ConfigSenderInfo($adb->query_result($mailer_result, 0, "from_email_field"), $userName, $adb->query_result($mailer_result, 0, "from_email_field"));
+	    
+		$mailer->_serverConfigured = true;
 		
 		$mailer->AddAddress($userEmail);
         
@@ -158,18 +170,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $mailer->Body = $body ;
         
-        if($mailer->type == 'Office365'){
-			$connector = new MailManager_Office365_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
-			$status = $connector->SendMail($mailer);
-		}else if($mailer->type == 'Google'){
-			$connector = new MailManager_GoogleConnector_Connector($mailer->accountId, $mailer->accessToken, $mailer->refreshToken, $mailer->Username);
-			$status = $connector->SendMail($mailer);
-		}else if($mailer->type == 'mail.omnisrv.com'){
-			$status = MSExchange_MSExchange_Model::sendMailUsingEws($mailer);
-		}else{
-			$status = $mailer->Send(true);
-		}
-        
+		$status = $mailer->Send(true);
+		
         $error = $mailer->getError();
         
         foreach ($fileDir as $file) {
@@ -221,6 +223,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             $calling_module = $moduleName;
             $calling_record = $recordId;
             if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
+				
                 $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
                 
                 $accounts = array_unique($accounts);
@@ -489,7 +492,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec('wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "' .$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "' . $whtmltopdfPath.'" 2>&1');
+                $output = shell_exec('wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "' .$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "' . $whtmltopdfPath.'" 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -809,20 +812,21 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 						</div>
 					</body>
 				</html>";
-                        $footerFileName = $fileDir.'/footer_'.$name.'.html';
-                        $ff = fopen($footerFileName, 'w');
-                        $f = $footer;
-                        fwrite($ff, $f);
-                        fclose($ff);
-                        
-                        $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-                        
-                        $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-                        
-                        unlink($bodyFileName);
-                        unlink($footerFileName);
-                        
-                        $filePath[] = $whtmltopdfPath;
+				
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
+				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+				
+				$output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				
+				unlink($bodyFileName);
+				unlink($footerFileName);
+				
+				$filePath[] = $whtmltopdfPath;
                         
         }
         
@@ -971,6 +975,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 						</div>
 					</body>
 				</html>";
+				
                 $footerFileName = $fileDir.'/footer_'.$name.'.html';
                 $ff = fopen($footerFileName, 'w');
                 $f = $footer;
@@ -979,7 +984,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -1304,7 +1309,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -1625,7 +1630,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -1664,7 +1669,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         $filePath = array();
         
         foreach($recordIds as $recordId){
-            
+			
             if($module != 'PortfolioInformation'){
                 $accounts = GetAccountNumbersFromRecord($recordId);
             }else{
@@ -1686,6 +1691,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $accounts = array_unique($accounts);
                 
+				if(empty($accounts)) continue;
+				
                 $map = new NameMapper();
                 $map->RenamePortfoliosBasedOnLinkedContact($accounts);
                 
@@ -2003,7 +2010,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec('wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
+                $output = shell_exec('wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
@@ -2052,9 +2059,12 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             global $adb, $dbconfig, $root_directory, $site_URL;
             
             $selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
+			
             $orientation = '';
-            $calling_module = $moduleName;
-            $calling_record = $recordId;
+            
+			$calling_module = $moduleName;
+            
+			$calling_record = $recordId;
             
             $current_user = Users_Record_Model::getCurrentUserModel();
             
@@ -2064,8 +2074,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 if(strlen($request->get('select_start_date')) > 1) {
                     $start_date = $request->get("select_start_date");
-                }
-                else {
+                } else {
                     $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
                 }
                 
@@ -2302,7 +2311,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
                 
-                $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+                $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
                 
                 unlink($bodyFileName);
                 unlink($footerFileName);
