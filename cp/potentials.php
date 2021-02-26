@@ -47,7 +47,7 @@ $headers = $headerResponse['result'];
    				<div class="kt-container  kt-container--fluid ">
         			<div class="kt-subheader__main">
             			<h3 class="kt-subheader__title">
-							Opportunities
+							<?php echo $_SESSION['Potentials']; ?>
                         </h3>
                     </div>
        	 		</div>

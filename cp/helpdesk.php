@@ -24,7 +24,7 @@ $ticketTime = $_REQUEST['tickettime'];
    				<div class="kt-container  kt-container--fluid ">
         			<div class="kt-subheader__main">
             			<h3 class="kt-subheader__title">
-							Tickets
+							<?php echo $_SESSION['HelpDesk']; ?>
                         </h3>
                     </div>
                     <div class="kt-subheader__toolbar">
