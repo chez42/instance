@@ -96,6 +96,7 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     
     foreach($GLOBALS['user_basic_details']['allowed_modules'] as $allowedModule){
         $modules[] = array('modules'=>$allowedModule['module'],'label'=>$allowedModule['module_label']);
+        $_SESSION[$allowedModule['module']] = $allowedModule['module_label'];
     }
 	
     $avmod = array();
