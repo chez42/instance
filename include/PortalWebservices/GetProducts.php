@@ -8,13 +8,13 @@
  * All Rights Reserved.
  *************************************************************************************/
 
-function vtws_get_potentials($element, $user){
+function vtws_get_products($element, $user){
     
     global $log, $adb;
     
     $id = $element['id'];
     
-    $moduleName = 'Potentials';
+    $moduleName = 'Products';
     $customModel = CustomView_Record_Model::getAllFilterByModule($moduleName);
     $cvId = $customModel->getId();
     
@@ -46,11 +46,11 @@ function vtws_get_potentials($element, $user){
             || $field->getFieldDataType() == 'currency' || $field->getFieldDataType() == "number" || $field->getFieldDataType() == "boolean" ||
             $field->getFieldDataType() == "picklist") {
                 $operator = 'e';
-        }
-        
-        if($element[$field->get('name')]){
-            $search[] = array($field->get('name'), $operator, $element[$field->get('name')]);
-        }
+            }
+            
+            if($element[$field->get('name')]){
+                $search[] = array($field->get('name'), $operator, $element[$field->get('name')]);
+            }
     }
     
     array_push($searchParams,$search);
@@ -64,7 +64,7 @@ function vtws_get_potentials($element, $user){
         $queryGenerator = new EnhancedQueryGenerator($moduleName, $user);
         $queryGenerator->initForCustomViewById($cvId);
         $fieldsList = $queryGenerator->getFields();
-       
+        
         if(!empty($headers) && is_array($headers) && count($headers) > 0) {
             $fieldsList = $headers;
             $fieldsList[] = 'id';
@@ -83,32 +83,6 @@ function vtws_get_potentials($element, $user){
         
         $listQuery = $queryGenerator->getQuery();
         
-        
-        
-        $permission_result = $adb->pquery("SELECT * FROM `vtiger_contact_portal_permissions` inner join
-    	vtiger_contactdetails on vtiger_contactdetails.contactid = vtiger_contact_portal_permissions.crmid
-    	where crmid = ?", array($id));
-        
-        $potential_across_org = 0;
-        
-        $contact_ids = array();
-        
-        $contact_ids[] = $id;
-        
-        if($adb->num_rows($permission_result)){
-            $potential_across_org = $adb->query_result($permission_result, 0, "potentials_record_across_org");
-            $account_id = $adb->query_result($permission_result, 0, "accountid");
-            if($account_id && $potential_across_org){
-                $contact_ids[] = $account_id;
-                $contact_result = $adb->pquery("SELECT * FROM `vtiger_contactdetails`
-    			inner join vtiger_crmentity on vtiger_crmentity.crmid = vtiger_contactdetails.contactid
-    			where accountid = ? and deleted = 0", array($account_id));
-                for($i = 0; $i < $adb->num_rows($contact_result); $i++){
-                    $contact_ids[] = $adb->query_result($contact_result, $i, "contactid");
-                }
-            }
-        }
-        
         $pageLimit = $element['pageLimit'];
         
         $startIndex = $element['startIndex'];
@@ -118,14 +92,14 @@ function vtws_get_potentials($element, $user){
         }
         
         
-        $potentials = array();
+        $products = array();
         
         $params = array();
         
         $count = 0;
         
-        $sql = $listQuery." AND vtiger_potential.contact_id IN ('" . implode("','", $contact_ids) . "') ";
-       
+        $sql = $listQuery;
+        
         $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC ";
         
         $result = $adb->pquery($sql, $params);
@@ -137,10 +111,10 @@ function vtws_get_potentials($element, $user){
         if($count){
             
             for($ti=0;$ti<$adb->num_rows($result);$ti++){
-                $potentialIds[] = vtws_getWebserviceEntityId($moduleName, $adb->query_result($result, $ti, 'potentialid'));
+                $productIds[] = vtws_getWebserviceEntityId($moduleName, $adb->query_result($result, $ti, 'potentialid'));
             }
             
-            $sql = $listQuery." AND vtiger_potential.contact_id IN ('" . implode("','", $contact_ids) . "')";
+            $sql = $listQuery;
             
             $sql .=" ORDER BY vtiger_crmentity.modifiedtime DESC LIMIT {$startIndex},{$pageLimit}";
             
@@ -150,21 +124,19 @@ function vtws_get_potentials($element, $user){
             
             $moduleFocus = CRMEntity::getInstance($moduleName);
             
-            $potentials =  $listViewContoller->getListViewRecords($moduleFocus,$moduleName, $result);
+            $products =  $listViewContoller->getListViewRecords($moduleFocus,$moduleName, $result);
             
         }
         
-        //echo"<pre>";print_r($potentials);echo"</pre>";
-        
-        $entity = $adb->pquery("SELECT * FROM vtiger_ws_entity WHERE name = ?",array('Potentials'));
+        $entity = $adb->pquery("SELECT * FROM vtiger_ws_entity WHERE name = ?",array('Products'));
         
         $entityId = '';
         if($adb->num_rows($entity)){
             $entityId = $adb->query_result($entity, 0, 'id');
         }
         
-        return array("data" => $potentials, "count" => $count, 'potential_ids'=>$potentialIds, "entityid" => $entityId);
-    
+        return array("data" => $products, "count" => $count, 'products_ids'=>$productIds, "entityid" => $entityId);
+        
     }
 }
 ?>

@@ -167,24 +167,9 @@ if(isset($_SESSION['ID'])){
 	    
 	}else if($_GET['module'] == 'Potentials'){
 	      
-	    $search = array();
-	    if(isset($_REQUEST['opportunity']) && $_REQUEST['opportunity'] != ''){
-	        $search['opportunity'] = $_REQUEST['opportunity'];
-	    }
-	    if(isset($_REQUEST['sales_stage']) && $_REQUEST['sales_stage'] != ''){
-	        $search['sales_stage'] = $_REQUEST['sales_stage'];
-	    }
-	    if(isset($_REQUEST['primary_email']) && $_REQUEST['primary_email'] != ''){
-	        $search['primary_email'] = $_REQUEST['primary_email'];
-	    }
-	    if(isset($_REQUEST['mobile_phone']) && $_REQUEST['mobile_phone'] != ''){
-	        $search['mobile_phone'] = $_REQUEST['mobile_phone'];
-	    }
-	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
-	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
-	    }
+	    $fields = explode(',',$_REQUEST['fields']);
 	    
-	    $potential_list = fetchPotentialData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
+	    $potential_list = fetchPotentialData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex, $_REQUEST);
 	    
 	    if(!empty($potential_list['result']['count'])){
 	        
@@ -193,24 +178,17 @@ if(isset($_SESSION['ID'])){
 	        $potentialIds[] = $potential_list['result']['potential_ids'];
 	       
 	        foreach ($potential_list['result']['data'] as $index => $potential){
-	            
-	            $row_data = array(
-	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
-                        '.$potential['potential_no'].'
-                    </a>',
-	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
-                        '.$potential['potentialname'].'
-                    </a>',
-	                $potential['sales_stage'],
-	                $potential['cf_869'],
-	                $potential['cf_2899'],
-	                date('m-d-Y', strtotime($potential['modifiedtime']))
-	                
-	            );
+	            $rowdata = array();
+	            $rowdata[] ='<span id="'.$potential_list['result']['entityid'].'x'.$index.'"></span>'; 
+	            foreach($fields as $field){
+	                //if($field)
+	                $rowdata[] = strip_tags($potential[$field]);
+	            }
+	            $row_data = $rowdata;
 	            array_push($data, $row_data);
 	        }
 	    }
-	    
+	   
 	    $result = array(
 	        'draw' => $draw,
 	        'recordsTotal' => $total_records,
@@ -224,27 +202,9 @@ if(isset($_SESSION['ID'])){
 	    
 	}else if($_GET['module'] == 'Products'){
 	    
-	    $search = array();
-	    if(isset($_REQUEST['id']) && $_REQUEST['id'] != ''){
-	        $search['product_no'] = $_REQUEST['id'];
-	    }
-	    if(isset($_REQUEST['product']) && $_REQUEST['product'] != ''){
-	        $search['productname'] = $_REQUEST['product'];
-	    }
-	    if(isset($_REQUEST['categeory']) && $_REQUEST['categeory'] != ''){
-	        $search['productcategory'] = $_REQUEST['categeory'];
-	    }
-	    if(isset($_REQUEST['vendor']) && $_REQUEST['vendor'] != ''){
-	        $search['vendor'] = $_REQUEST['vendor'];
-	    }
-	    if(isset($_REQUEST['unit_price']) && $_REQUEST['unit_price'] != ''){
-	        $search['unit_price'] = $_REQUEST['unit_price'];
-	    }
-	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
-	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
-	    }
+	    $fields = explode(',',$_REQUEST['fields']);
 	    
-	    $product_list = fetchProductsData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
+	    $product_list = fetchProductsData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$_REQUEST);
 	    
 	    if(!empty($product_list['result']['count'])){
 	        
@@ -253,20 +213,14 @@ if(isset($_SESSION['ID'])){
 	        $potentialIds[] = $product_list['result']['products_ids'];
 	        
 	        foreach ($product_list['result']['data'] as $index => $product){
-	            
-	            $row_data = array(
-	                '<a href="product-detail.php?record='.$product['productid'].'">
-                        '.$product['product_no'].'
-                    </a>',
-	                '<a href="product-detail.php?record='.$product['productid'].'">
-                        '.$product['productname'].'
-                    </a>',
-	                $product['vendorname'],
-	                $product['productcategory'],
-	                '$'.number_format($product['unit_price'],2),
-	                date('m-d-Y', strtotime($product['modifiedtime']))
-	                
-	            );
+	            //echo"<pre>";print_r($index);echo"</pre>";exit;
+	            $rowdata = array();
+	            $rowdata[] ='<span id="'.$product_list['result']['entityid'].'x'.$index.'"></span>'; 
+	            foreach($fields as $field){
+	                //if($field)
+	                $rowdata[] = strip_tags($product[$field]);
+	            }
+	            $row_data = $rowdata;
 	            array_push($data, $row_data);
 	        }
 	    }
