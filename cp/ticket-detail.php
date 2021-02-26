@@ -28,7 +28,9 @@ if(isset($_GET['record'])){
     
     global $api_url,$api_username,$api_accesskey;
     
-    $recordId = $_GET['record'];
+    $record = explode('x',$_GET['record']);
+    
+    $recordId = $record[1];
     
     $customer_id = $_SESSION['customer_id'];
     
@@ -41,7 +43,7 @@ if(isset($_GET['record'])){
     //$module_detail = module_info($api_url.'/webservice.php',$session_id,"HelpDesk");
     //$field_info = $module_detail['result']['fields'];
     
-    $ticket_detail = retrieve_info($api_url.'/webservice.php',$session_id,"9x$recordId");
+    $ticket_detail = retrieve_info($api_url.'/webservice.php',$session_id, $_GET['record']);
     $ticket_detail = $ticket_detail['result'];
     
     $element = array('ID' => $_SESSION['ID'], 'ticket_id' => $recordId);
@@ -57,23 +59,10 @@ if(isset($_GET['record'])){
     $response = json_decode($response,true);
     
     $ticket_docs = $response['result'];
-    //echo"<pre>";print_r($ticket_docs);echo"</pre>";exit;
-    $ticketstatus = array(
-        '----------',
-        'Acknw',
-        'Open',
-        'In Progress',
-        'Hold',
-        'Wait For Response',
-        'Closed',
-        'NIGO'
-    );
     
-    $ticketpriorities = array('Low',
-        'Normal',
-        'High',
-        'Urgent',
-    );
+    $ticketstatus = $_SESSION['ticketstatus'];
+    
+    $ticketpriorities = $_SESSION['ticketpriorities'];
     $prevRecordId = null;
     $nextRecordId = null;
     $found = false;

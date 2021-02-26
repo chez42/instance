@@ -52,11 +52,11 @@ if(!$_SESSION['api_url']){
      
 }
 
-$api_url = $_SESSION['api_url'];
+$api_url = 'http://localhost/Omni-Ver4';//$_SESSION['api_url'];
  
-$api_username =  $_SESSION['portal_user'];
+$api_username = 'admin';// $_SESSION['portal_user'];
  
-$api_accesskey = $_SESSION['portal_accesskey'];
+$api_accesskey = 'Bq89UFzMqnDimcwg';//$_SESSION['portal_accesskey'];
  
 $websocketUrl = '';
 
@@ -95,15 +95,15 @@ if(isset($_SESSION['ID']) && $_SESSION['ID'] != ''){
     $GLOBALS['user_basic_details'] = $_SESSION['data']['basic_details'];
     
     foreach($GLOBALS['user_basic_details']['allowed_modules'] as $allowedModule){
-        $modules[] = $allowedModule['module'];
+        $modules[] = array('modules'=>$allowedModule['module'],'label'=>$allowedModule['module_label']);
     }
 	
     $avmod = array();
     
     if(!empty($modules)){
         $avmod = array_values($modules);
-        
-    	$avmod = array_merge(array("Home"),$avmod);
+        $home[] = array('modules'=>"Home",'label'=>"Home");
+        $avmod = array_merge($home,$avmod);
     }
     
     $GLOBALS['avmod'] = $avmod;

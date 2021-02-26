@@ -143,7 +143,7 @@ function vtws_get_tickets($element, $user){
     if($count){
         
         for($ti=0;$ti<$adb->num_rows($result);$ti++){
-            $ticketIds[] = $adb->query_result($result, $ti, 'ticketid');
+            $ticketIds[] = vtws_getWebserviceEntityId('HelpDesk', $adb->query_result($result, $ti, 'ticketid'));
         }
         
         $sql = "SELECT DISTINCT vtiger_troubletickets.*, vtiger_crmentity.*, vtiger_ticketcf.*,
@@ -211,7 +211,14 @@ function vtws_get_tickets($element, $user){
         }
     }
     
-    return array("data" => $tickets, "count" => $count, 'ticket_ids'=>$ticketIds);
+    $entity = $adb->pquery("SELECT * FROM vtiger_ws_entity WHERE name = ?",array('HelpDesk'));
+    
+    $entityId = '';
+    if($adb->num_rows($entity)){
+        $entityId = $adb->query_result($entity, 0, 'id');
+    }
+    
+    return array("data" => $tickets, "count" => $count, 'ticket_ids'=>$ticketIds, "entityid" => $entityId);
     
 }
 ?>
