@@ -68,7 +68,7 @@ if(isset($_SESSION['ID'])){
 		    foreach ($ticket_list['result']['data'] as $index => $ticket){
 		        
 				$row_data = array(
-				    '<a href="ticket-detail.php?record='.$ticket['ticketid'].'">
+				    '<a href="ticket-detail.php?record='.$ticket_list['result']['entityid'].'x'.$ticket['ticketid'].'">
                         '.$ticket['title'].'
                     </a>',
 				    $ticket['ticket_no'],
@@ -221,6 +221,66 @@ if(isset($_SESSION['ID'])){
 	    $_SESSION['potential_detail_navigation'] = $potentialIds;
 	    
 	    echo json_encode($result);
+	    
+	}else if($_GET['module'] == 'Products'){
+	    
+	    $search = array();
+	    if(isset($_REQUEST['id']) && $_REQUEST['id'] != ''){
+	        $search['product_no'] = $_REQUEST['id'];
+	    }
+	    if(isset($_REQUEST['product']) && $_REQUEST['product'] != ''){
+	        $search['productname'] = $_REQUEST['product'];
+	    }
+	    if(isset($_REQUEST['categeory']) && $_REQUEST['categeory'] != ''){
+	        $search['productcategory'] = $_REQUEST['categeory'];
+	    }
+	    if(isset($_REQUEST['vendor']) && $_REQUEST['vendor'] != ''){
+	        $search['vendor'] = $_REQUEST['vendor'];
+	    }
+	    if(isset($_REQUEST['unit_price']) && $_REQUEST['unit_price'] != ''){
+	        $search['unit_price'] = $_REQUEST['unit_price'];
+	    }
+	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
+	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
+	    }
+	    
+	    $product_list = fetchProductsData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
+	    
+	    if(!empty($product_list['result']['count'])){
+	        
+	        $total_records = $product_list['result']['count'];
+	        
+	        $potentialIds[] = $product_list['result']['products_ids'];
+	        
+	        foreach ($product_list['result']['data'] as $index => $product){
+	            
+	            $row_data = array(
+	                '<a href="product-detail.php?record='.$product['productid'].'">
+                        '.$product['product_no'].'
+                    </a>',
+	                '<a href="product-detail.php?record='.$product['productid'].'">
+                        '.$product['productname'].'
+                    </a>',
+	                $product['vendorname'],
+	                $product['productcategory'],
+	                '$'.number_format($product['unit_price'],2),
+	                date('m-d-Y', strtotime($product['modifiedtime']))
+	                
+	            );
+	            array_push($data, $row_data);
+	        }
+	    }
+	    
+	    $result = array(
+	        'draw' => $draw,
+	        'recordsTotal' => $total_records,
+	        'recordsFiltered' => $total_records,
+	        'data'=> $data
+	    );
+	    
+	    $_SESSION['products_detail_navigation'] = $potentialIds;
+	    
+	    echo json_encode($result);
 	}
 	
     
@@ -308,6 +368,30 @@ function fetchPotentialData($ws_url, $sessionName, $module, $id, $pageLimit, $st
     
     $postParams = array(
         'operation'=>'get_related_potentials',
+        'sessionName' => $sessionName,
+        'element'=>json_encode($element)
+    );
+    
+    $response = postHttpRequest($ws_url, $postParams);
+    
+    $response = json_decode($response, true);
+    
+    return $response;
+    
+}
+
+function fetchProductsData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex, $seacrh){
+    
+    $element = array(
+        'id' => $id,
+        'module'=>$module,
+        'pageLimit' => $pageLimit,
+        'startIndex' => $startIndex
+    );
+    $element = array_merge($element, $seacrh);
+    
+    $postParams = array(
+        'operation'=>'get_related_products',
         'sessionName' => $sessionName,
         'element'=>json_encode($element)
     );
