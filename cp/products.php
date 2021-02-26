@@ -47,7 +47,7 @@ $headers = $headerResponse['result'];
    				<div class="kt-container  kt-container--fluid ">
         			<div class="kt-subheader__main">
             			<h3 class="kt-subheader__title">
-							Products
+							<?php echo $_SESSION['Products']; ?>
                         </h3>
                     </div>
        	 		</div>
@@ -129,7 +129,7 @@ $headers = $headerResponse['result'];
   	
         $('#products_list tbody').on('click', 'tr', function () {
           var data = table.row( this ).data();
-          window.location.href = 'product-detail.php?record='+$(data[0]).attr('id');
+         // window.location.href = 'product-detail.php?record='+$(data[0]).attr('id');
         } );
         
 		$('#products_list thead td').each( function (i) {
