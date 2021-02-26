@@ -105,7 +105,7 @@ function vtws_portallogin($element,$user){
                             $moduleName = getTabModuleName($tabid);
                             
                             $selectedModules[$tabid] = array(
-                                "module" => $moduleName,
+                                "module" => vtranslate($moduleName,$moduleName),
                                 "edit_record" => ($selectedPortalModulesInfo[$modulePortalName.'_edit_records'])?$selectedPortalModulesInfo[$modulePortalName.'_edit_records']:0,
                                 "record_across_org" => ($selectedPortalModulesInfo[$modulePortalName.'_record_across_org'])?$selectedPortalModulesInfo[$modulePortalName.'_record_across_org']:0
                             );
