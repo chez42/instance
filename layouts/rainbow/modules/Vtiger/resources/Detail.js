@@ -1506,6 +1506,7 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					'ignore' : 'span.hide .inputElement,input[type="hidden"]',
 					submitHandler : function(form){
 						var preAjaxSaveEvent = jQuery.Event(Vtiger_Detail_Js.PreAjaxSaveEvent);
+						jQuery(form).attr("modulename", thisInstance.getModuleName());
 						app.event.trigger(preAjaxSaveEvent,{form:jQuery(form),triggeredFieldInfo:fieldNameValueMap});
 						if(preAjaxSaveEvent.isDefaultPrevented()) {
 							return false;
