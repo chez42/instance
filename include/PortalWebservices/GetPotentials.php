@@ -53,8 +53,10 @@ function vtws_get_potentials($element, $user){
         }
     }
     
-    array_push($searchParams,$search);
-    
+	if(!empty($search)){
+		array_push($searchParams,$search);
+    }
+	
     if($element['mode'] == 'headers'){
         
         return $listHeaders;

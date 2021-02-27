@@ -52,9 +52,11 @@ function vtws_get_products($element, $user){
                 $search[] = array($field->get('name'), $operator, $element[$field->get('name')]);
             }
     }
-    
-    array_push($searchParams,$search);
-    
+	
+    if(!empty($search)){
+		array_push($searchParams,$search);
+    }
+   
     if($element['mode'] == 'headers'){
         
         return $listHeaders;
