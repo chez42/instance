@@ -55,11 +55,12 @@
 							<?php 
 						  	   if($_SESSION['owner_name'] != ''){
 							?>
-							<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x" style="background-image: url(assets/media/misc/bg-1.jpg)">
-								
+							<div class="kt-user-card kt-user-card--skin-dark kt-notification-item-padding-x" style="background-image: url(assets/media/misc/bg-1.jpg);flex-direction: column;">
+								<div style = "width:100%;padding-bottom:5px;"><span style="color:#ffffff;font-size: 1rem; font-weight: bold;">YOUR REPRESENTATIVE</span></div>
+								<div style = "flex: 1;width:100%;height:100%;"> <div style = "display: flex;">
 								<div class="kt-user-card__avatar">
 									
-									<span style="color:#ffffff;font-size: 1rem; font-weight: bold;">YOUR REPRESENTATIVE</span>
+									
 									
 									<img  class ="<?php echo ($_SESSION['owner_image'] == '')?'kt-hidden':''; ?>" src="<?php echo $_SESSION['owner_image'];?>"/>
 									
@@ -90,7 +91,8 @@
 								</div>
 								<div class="kt-user-card__badge">
 								
-								</div>
+								</div> </div>
+							</div>
 							</div>
 							<?php 
 						  	   }
