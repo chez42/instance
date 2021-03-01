@@ -21,6 +21,6 @@
 		<span class="checkbox-slider checkbox-round"></span>
 	</label>
 {else}
-	{$FIELD_MODEL->getDisplayValue()}
+	{$FIELD_MODEL->getDisplayValue($FIELD_MODEL->get('fieldvalue'), $RECORD->getId(), $RECORD)}
 {/if}
 {/strip}
