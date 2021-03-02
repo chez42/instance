@@ -54,7 +54,61 @@
 					    </select>
 				    </div>
                 </div>
-				<div class="row" style="margin-top:5px;">
+                 <div class="row omniOverview" style="margin-top:5px;display:none;">
+                	<div class="col-md-4">
+						<label>Selected Date : </label>
+					</div>
+                	<div class="col-md-8">	
+                		<input type="text" class="select_end_date" id="select_end_date" name="omni_select_end_date" value="{date('Y-m-d')}" style="display:block; margin-left:-15px;" />
+                	</div>
+                </div>
+                <div class="row dateselectiontable assetClassReport" style="margin-top:5px;display:none;">
+                	<div class="col-md-4">
+						<label>Selected Date : </label>
+					</div>
+                	<div class="col-md-8">	
+                		 <select id="report_date_selection" name="report_date_selection" class="select2 report_date_selection" style=" margin-left:-15px;width:50%;">
+	                        {foreach key=index item=option from=$ASSET_DATE_OPTIONS}
+	                            <option value="{$option.option_value}" data-start_date="{$option.date.start}" data-end_date="{$option.date.end}" >{$option.option_name}</option>
+	                        {/foreach}
+	                    </select>
+	                    
+	                    <input type="text" class="select_end_date" id="select_end_date" name="asset_select_end_date" value="{$ASSET_END_DATE}" style="display:block; margin-left:-15px;margin-top: 5px;" />
+                	</div>
+				</div>
+				<div class="row dateselectiontable gh2Report" style="margin-top:5px;display:none;">
+                	<div class="col-md-4">
+						<label>Selected Date : </label>
+					</div>
+                	<div class="col-md-8">	
+                		<select id="report_date_selection" name="report_date_selection" class="select2 report_date_selection" style="margin-left:-15px; width:50%;">
+	                        {foreach key=index item=option from=$GH2_DATE_OPTIONS}
+	                            <option value="{$option.option_value}" data-start_date="{$option.date.start}" data-end_date="{$option.date.end}">{$option.option_name}</option>
+	                        {/foreach}
+	                    </select>
+	                    <div style="display:block;">
+		                    <input type="text" class="select_start_date" name="gh2_select_start_date" id="select_start_date" value="{$START_DATE}" style="width:50%; margin-left:-15px;margin-top:5px;" />
+	                		<input type="text" class="select_end_date" name="gh2_select_end_date" id="select_end_date" value="{$END_DATE}" style="width:50%; margin-top:5px;" />
+                		</div>
+                	</div>
+				</div>
+				<div class="row dateselectiontable ghReport" style="margin-top:5px;display:none;">
+                	<div class="col-md-4">
+						<label>Selected Date : </label>
+					</div>
+                	<div class="col-md-8">	
+                		<select id="report_date_selection" name="report_date_selection" class="select2 report_date_selection" style="margin-left:-15px;width:50%;">
+	                        {foreach key=index item=option from=$GH_DATE_OPTIONS}
+	                            <option value="{$option.option_value}" data-start_date="{$option.date.start}" data-end_date="{$option.date.end}">{$option.option_name}</option>
+	                        {/foreach}
+	                    </select>
+	                    <div style="display:block;">
+		                    <input type="text" class="select_start_date" name="select_start_date" id="select_start_date" value="{$START_DATE}" style="width:50%; margin-left:-15px;margin-top:5px;" />
+	                		<input type="text" class="select_end_date" name="select_end_date" id="select_end_date" value="{$END_DATE}" style="width:50%; margin-top:5px;" />
+                		</div>
+                	</div>
+				</div>
+				{*<div class="row" style="margin-top:5px;">
                 	<div class="col-md-12">
 				        <table class="dateselectiontable omniOverview" style="display:none;">
 				            <tr>
@@ -119,13 +173,14 @@
 				            </tr>
 				        </table>
 			        </div>
-                </div>
+                </div>*}
                 <div class="row" style="margin-top:5px;">
 					<div class="col-md-4">
 						<label>User Email : </label>
 					</div>
                 	<div class="col-md-8">	
-                		<input type="text" class="useremail" name="useremail" id="useremail" value="{$USER_EMAIL}" />
+                		<input type="text" class="useremail" name="useremail" id="useremail" value="{$USER_EMAIL}" style="margin-left: -15px;" />
+                		<i class="fa fa-question-circle cursorPointer" data-toggle="tooltip" data-placement="top" data-original-title="Testing For ToolTip"></i>
                 	</div>
                 </div>
             </div>

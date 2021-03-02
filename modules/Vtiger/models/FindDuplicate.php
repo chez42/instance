@@ -80,7 +80,8 @@ class Vtiger_FindDuplicate_Model extends Vtiger_Base_Model {
             $paging->set('nextPageExists', false);
         }
 		$rows = count($entries);
-
+		$paging->recordCount = $rows;
+		
 		for ($i=0; $i<$rows; $i++) {
 			$row = $entries[$i];
             if($i != 0) {

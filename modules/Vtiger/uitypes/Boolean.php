@@ -33,5 +33,9 @@ class Vtiger_Boolean_UIType extends Vtiger_Base_UIType {
      public function getListSearchTemplateName() {
         return 'uitypes/BooleanFieldSearchView.tpl';
     }
+    
+    public function getDetailViewTemplateName() {
+        return 'uitypes/BooleanDetailView.tpl';
+    }
 
 }

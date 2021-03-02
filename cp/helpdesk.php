@@ -24,7 +24,7 @@ $ticketTime = $_REQUEST['tickettime'];
    				<div class="kt-container  kt-container--fluid ">
         			<div class="kt-subheader__main">
             			<h3 class="kt-subheader__title">
-							Tickets
+							<?php echo $_SESSION['HelpDesk']; ?>
                         </h3>
                     </div>
                     <div class="kt-subheader__toolbar">
@@ -187,6 +187,11 @@ $ticketTime = $_REQUEST['tickettime'];
 	  <?php if($ticketTime){?>
 	  	var searchRequest = "tickettime=<?php echo $ticketTime?>";
 	  <?php }?>
+	  
+	  var ticketStatus = <?php echo json_encode($_SESSION['ticketstatus'])?>;
+	  
+	  var ticketPriorities = <?php echo json_encode($_SESSION['ticketpriorities'])?>;
+	  
       var table = jQuery('#tickets_list').DataTable({
 		 	bSort: false,
     		responsive: false,
@@ -227,30 +232,19 @@ $ticketTime = $_REQUEST['tickettime'];
 	        	$(this).html( '<input type="text" class="search_filter form-control"  name="'+name+'" placeholder="Search '+title+'" />' );
 	        else if(title == 'Priority'){
 				var html = '<select class="search_filter form-control" name="'+name+'"><option value="">Select Priority</option>';
-				html += '<option value="Low">Low</option><option value="Normal">Normal</option>'+
-					'<option value="High">High</option><option value="Urgent">Urgent</option>'+
-					'</select>';
+				$.each(ticketPriorities,function(i,val){
+					html += '<option value="'+val+'">'+val+'</option>';
+				});
+				html +=	'</select>';
 	        	$(this).html( html );
 	        }else if(title == 'Status'){
 				var html = '<select class="search_filter form-control" name="'+name+'"><option value="">Select Status</option>';
-				html += '<option value="----------"';
-				if(selectedStatus == '----------'){html += 'selected';}
-				html +='>----------</option><option value="Acknw"';
-				if(selectedStatus == 'Acknw'){html += 'selected';}
-				html +='>Acknw</option><option value="Open"';
-				if(selectedStatus == 'Open'){html += 'selected';}
-				html +='>Open</option><option value="In Progress"';
-				if(selectedStatus == 'In Progress'){html += 'selected';}
-				html += '>In Progress</option><option value="Hold"';
-				if(selectedStatus == 'Hold'){html += 'selected';}
-				html+='>Hold</option><option value="Wait For Response"';
-				if(selectedStatus == 'Wait For Response'){html += 'selected';}
-				html+='>Wait For Response</option><option value="Closed"';
-				if(selectedStatus == 'Closed'){html += 'selected';}
-				html +='>Closed</option><option value="NIGO"';
-				if(selectedStatus == 'NIGO'){html += 'selected';}
-				html+='>NIGO</option>'+
-					'</select>';
+				$.each(ticketStatus,function(i,val){
+					html += '<option value="'+val+'"';
+					if(selectedStatus == val){html += 'selected';}
+					html+='>'+val+'</option>';
+				});
+				html+='</select>';
 	        	$(this).html( html );
 	        }else if (title == 'Due Date' || title == 'Last Modified'){
 		        var html = '<div class="input-group date">'+
