@@ -29,7 +29,7 @@
 			</td>
 		</tr>
 		
-		{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Potentials')} => 'Potentials', {getTabid('Reports')} => 'Reports']}	
+		{assign var=PortalModules value=[{getTabid('HelpDesk')} => 'Tickets', {getTabid('Documents')} => 'Documents', {getTabid('Potentials')} => 'Potentials', {getTabid('Products')} => 'Products', {getTabid('Reports')} => 'Reports']}	
 		{assign var=PortalReports value=['Portfolios'=>['Asset Class Report'],'Income'=>['Last 12 months','Last Year','Projected','Month Over Month'],'Performance'=>['Gain Loss','GH1 Report','GH2 Report','Overview']]}
 		{*'Holdings',*} 
 		{foreach key=TAB_ID item=MODULE_NAME from=$PortalModules}
@@ -46,8 +46,10 @@
 					</td>
 					<td {if !$REPORT_PERMISSION} style = "display:none;" {/if}> &nbsp;</td>
 					<td class="fieldValue text-center">
-					
-						<input style="opacity: 0;" {if $VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_visible]" id="portalModulesInfo[{$NAME_MODULE}_visible]">
+						<label class="checkbox-switch">
+							<input style="width:15px;height:15px;" {if $VISIBLE == '1'} checked {/if} class="inputElement input-checkbox portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_visible]" id="portalModulesInfo[{$NAME_MODULE}_visible]">
+							<span class="checkbox-slider checkbox-round"></span>
+						</label>
 						<!-- <span class="portalFieldValue">
 							{if $VISIBLE eq '1'} Yes {else} No {/if}
 						</span>
@@ -64,10 +66,13 @@
 						</span> -->
 					</td>
 					<td class="fieldValue text-center">
-						{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports' or $MODULE_NAME eq 'Potentials'}
+						{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports' or $MODULE_NAME eq 'Potentials' or $MODULE_NAME eq 'Products'}
 							&nbsp;
 						{else}
-							<input style="opacity: 0;" {if $EDIT_RECORDS == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]">
+							<label class="checkbox-switch">
+								<input style="width:15px;height:15px;" {if $EDIT_RECORDS == '1'} checked {/if} class="inputElement input-checkbox portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_edit_records]" id="portalModulesInfo[{$NAME_MODULE}_edit_records]">
+								<span class="checkbox-slider checkbox-round"></span>
+							</label>
 						{/if}
 						<!-- <span class="portalFieldValue">
 							{if $MODULE_NAME eq 'Accounts' or $MODULE_NAME == 'Reports'}
@@ -97,7 +102,10 @@
 						{if $MODULE_NAME eq 'Accounts'}
 							&nbsp;
 						{else}
-							<input style="opacity: 0;" {if $RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" id="portalModulesInfo[{$NAME_MODULE}_record_across_org]">
+							<label class="checkbox-switch">
+								<input style="width:15px;height:15px;" {if $RECORD_VISIBLE == '1'} checked {/if} class="inputElement input-checkbox portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_MODULE}_record_across_org]" id="portalModulesInfo[{$NAME_MODULE}_record_across_org]">
+								<span class="checkbox-slider checkbox-round"></span>
+							</label>
 						{/if}
 						<!-- <span class="portalFieldValue">
 							{if $MODULE_NAME eq 'Accounts'}
@@ -159,7 +167,10 @@
 									{vtranslate($ReportModules, $MODULE)}
 								</td>
 								<td class="fieldValue text-center">
-									<input style="opacity: 0;" {if $REPORT_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_visible]" id="portalModulesInfo[{$NAME_REPORT}_visible]">
+									<label class="checkbox-switch">
+										<input style="width:15px;height:15px;" {if $REPORT_VISIBLE == '1'} checked {/if}  class="inputElement input-checkbox portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_visible]" id="portalModulesInfo[{$NAME_REPORT}_visible]">
+										<span class="checkbox-slider checkbox-round"></span>
+									</label>
 									<!-- <span class="portalFieldValue">
 										{if $REPORT_VISIBLE == '1'} 
 											{vtranslate('LBL_YES', $MODULE_NAME)}
@@ -181,7 +192,10 @@
 								</td>
 								<td>&nbsp;</td>
 								<td class="fieldValue text-center">
-									<input style="opacity: 0;" {if $REPORT_RECORD_VISIBLE == '1'} checked value="1" {else} value="0"{/if} data-on-color="success" class="portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" id="portalModulesInfo[{$NAME_REPORT}_record_across_org]">
+									<label class="checkbox-switch">
+										<input style="width:15px;height:15px;" {if $REPORT_RECORD_VISIBLE == '1'} checked {/if} class="inputElement input-checkbox portalSwitch"  type="checkbox" name="portalModulesInfo[{$NAME_REPORT}_record_across_org]" id="portalModulesInfo[{$NAME_REPORT}_record_across_org]">
+										<span class="checkbox-slider checkbox-round"></span>
+									</label>
 									<!--<span class="portalFieldValue">
 										{if $REPORT_RECORD_VISIBLE == '1'} 
 											{vtranslate('LBL_YES', $MODULE_NAME)}

@@ -80,7 +80,7 @@ function vtws_portallogin($element,$user){
                     
                     $selectedModules = array();
                     
-                    $PortalModules = array(getTabid('HelpDesk') => 'tickets', getTabid('Documents') => 'Documents', getTabid('Reports') => 'Reports', getTabid('Potentials') => 'Potentials');
+                    $PortalModules = array(getTabid('HelpDesk') => 'tickets', getTabid('Documents') => 'Documents', getTabid('Reports') => 'Reports', getTabid('Potentials') => 'Potentials', getTabid('Products') => 'Products');
                     $PortalReports = array('Portfolios'=>array('Asset Class Report'),'Income'=>array('Last 12 months','Last Year','Projected','Month Over Month'),'Performance'=>array('Gain Loss','GH1 Report','GH2 Report','Overview'));
                     
                     $selectedPortalModulesInfo = array();
@@ -106,6 +106,7 @@ function vtws_portallogin($element,$user){
                             
                             $selectedModules[$tabid] = array(
                                 "module" => $moduleName,
+                                "module_label" => vtranslate($moduleName,$moduleName),
                                 "edit_record" => ($selectedPortalModulesInfo[$modulePortalName.'_edit_records'])?$selectedPortalModulesInfo[$modulePortalName.'_edit_records']:0,
                                 "record_across_org" => ($selectedPortalModulesInfo[$modulePortalName.'_record_across_org'])?$selectedPortalModulesInfo[$modulePortalName.'_record_across_org']:0
                             );
@@ -214,6 +215,10 @@ function vtws_portallogin($element,$user){
                 $field = Vtiger_Field_Model::getInstance('ticketpriorities', $t_module);
                 $PicklistValues = $field->getPicklistValues();
                 $resultData['ticketpriorities'] = $PicklistValues;
+                
+                $field = Vtiger_Field_Model::getInstance('ticketstatus', $t_module);
+                $PicklistValues = $field->getPicklistValues();
+                $resultData['ticketstatus'] = $PicklistValues;
                 
                 $finalRes = array('success'=>true, 'data' => $resultData);
                 

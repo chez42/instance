@@ -9,9 +9,7 @@
 
 {strip}
 	<style>
-		.input-group {
-		    min-width: 100% !important;
-		}
+		
 		.related-tabs li {
     		float: left !important;
 		}
@@ -150,7 +148,7 @@
 														{if !empty($REFERENCED_MODULE_STRUCTURE)}
 															{assign var="REFERENCED_MODULE_NAME" value=$REFERENCED_MODULE_STRUCTURE->get('name')}
 														{/if}
-														<select style="width: 140px;" class="select2 referenceModulesList">
+														<select class="select2 referenceModulesList">
 															{foreach key=index item=value from=$refrenceList}
 																<option value="{$value}" {if $value eq $REFERENCED_MODULE_NAME} selected {/if}>{vtranslate($value, $value)}</option>
 															{/foreach}
@@ -337,7 +335,7 @@
 																{if !empty($REFERENCED_MODULE_STRUCTURE)}
 																	{assign var="REFERENCED_MODULE_NAME" value=$REFERENCED_MODULE_STRUCTURE->get('name')}
 																{/if}
-																<select style="width: 140px;" class="select2 referenceModulesList">
+																<select class="select2 referenceModulesList">
 																	{foreach key=index item=value from=$refrenceList}
 																		<option value="{$value}" {if $value eq $REFERENCED_MODULE_NAME} selected {/if}>{vtranslate($value, $value)}</option>
 																	{/foreach}

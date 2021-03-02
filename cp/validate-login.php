@@ -30,7 +30,7 @@ if(!empty($_REQUEST)) {
     $response = postHttpRequest($ws_url, $postParams);
     
     $response = json_decode($response,true);
-   
+    
     $result = false;
     
     if($_REQUEST['email'] && $response['result']['success'] == true){
@@ -77,6 +77,8 @@ if(!empty($_REQUEST)) {
         $_SESSION['ticketcategories'] = $data['ticketcategories'];
         
         $_SESSION['ticketpriorities'] = $data['ticketpriorities'];
+        
+        $_SESSION['ticketstatus'] = $data['ticketstatus'];
         
         $result = true;
        // header("Location: index.php");

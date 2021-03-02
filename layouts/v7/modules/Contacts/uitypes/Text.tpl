@@ -19,11 +19,11 @@
 	{$FIELD_MODEL->get('fieldvalue')}</textarea>
 	{if $MODULE_NAME neq 'Webforms' && $smarty.request.view neq 'Detail'}
 		{if $FIELD_NAME eq "mailingstreet"}
-			<div>
+			<div style = "display:none;">
 				<a class="cursorPointer" name="copyAddress" data-target="other">{vtranslate('LBL_COPY_OTHER_ADDRESS', $MODULE)}</a>
 			</div>
 		{else if $FIELD_NAME eq "otherstreet"}
-			<div>
+			<div style = "display:none;">
 				<a class="cursorPointer" name="copyAddress" data-target="mailing">{vtranslate('LBL_COPY_MAILING_ADDRESS', $MODULE)}</a>
 			</div>
 		{/if}
