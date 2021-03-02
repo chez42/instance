@@ -142,18 +142,20 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 	 * Function to check for Portal User
 	 */
 	checkForPortalUser: function (form) {
-		var element = jQuery('[name="portal"]', form);
-		var response = element.is(':checked');
-		var primaryEmailField = jQuery('.fieldValue [data-name="email"]');
-		var primaryEmailValue = primaryEmailField.data('value');
-		if (response) {
-			if (primaryEmailField.length == 0) {
-				app.helper.showErrorNotification({message: app.vtranslate('JS_PRIMARY_EMAIL_FIELD_DOES_NOT_EXISTS')});
-				return false;
-			}
-			if (primaryEmailValue == "") {
-				app.helper.showErrorNotification({message: app.vtranslate('JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER')});
-				return false;
+		if(form.attr("modulename") == 'Contacts'){
+			var element = jQuery('[name="portal"]', form);
+			var response = element.is(':checked');
+			var primaryEmailField = jQuery('.fieldValue [data-name="email"]');
+			var primaryEmailValue = primaryEmailField.data('value');
+			if (response) {
+				if (primaryEmailField.length == 0) {
+					app.helper.showErrorNotification({message: app.vtranslate('JS_PRIMARY_EMAIL_FIELD_DOES_NOT_EXISTS')});
+					return false;
+				}
+				if (primaryEmailValue == "") {
+					app.helper.showErrorNotification({message: app.vtranslate('JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER')});
+					return false;
+				}
 			}
 		}
 		return true;
@@ -488,7 +490,7 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 		var form = this.getForm();
 		this._super();
 		this.registerAjaxPreSaveEvents(form);
-		jQuery(document).find(".portalSwitch").bootstrapSwitch();
+		//jQuery(document).find(".portalSwitch").bootstrapSwitch();
 		this.registerInlineEditForPortalBlock();
 		this.registerAjaxPortalEditCancelEvent();
 		this.registerAjaxPortalEditSaveEvent();
@@ -540,8 +542,8 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 				jQuery('form#detailView').on('submit', function(e) {
 					e.preventDefault();
 				});
-				if(!jQuery(document).find('.bootstrapSwitch').length && jQuery(document).find(".portalSwitch").length)
-					jQuery(document).find(".portalSwitch").bootstrapSwitch();
+				//if(!jQuery(document).find('.bootstrapSwitch').length && jQuery(document).find(".portalSwitch").length)
+					//jQuery(document).find(".portalSwitch").bootstrapSwitch();
 			});
 		}
 	},
@@ -549,15 +551,14 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
    registerEventForChangePortalModuleState: function () {
 	   var self = this;
 		var detailViewContainer = this.getDetailViewContainer();
-        jQuery(detailViewContainer).on('switchChange.bootstrapSwitch', ".portalSwitch", function (e) {
+        jQuery(detailViewContainer).on('change', ".portalSwitch", function (e) {
             var currentElement = jQuery(e.currentTarget);
             
-            if(currentElement.val() == '1'){
-                currentElement.attr('value','0');
-            } else {
-                currentElement.attr('value','1');
-            }
-            
+			if(currentElement.is(":checked")){
+				currentElement.val(1);
+			} else {
+				currentElement.val(0);
+			}
            
             var fieldNameValueMap = {};
 			fieldNameValueMap['value'] = currentElement.val();

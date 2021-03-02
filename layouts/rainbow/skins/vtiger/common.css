@@ -1748,10 +1748,13 @@ input[type=checkbox]:checked {
   width: 123px;
   min-width: 148px;
 }
-.overlayDetailHeader .recordBasicInfo .referencefield-wrapper .input-group,
+
+/*.overlayDetailHeader .recordBasicInfo .referencefield-wrapper .input-group,
 .detailview-header .recordBasicInfo .referencefield-wrapper .input-group {
   min-width: 177px;
-}
+}*/
+.input-save-wrap {padding-left:2px;}
+
 .overlayDetailHeader .recordBasicInfo .inputElement[type="checkbox"],
 .detailview-header .recordBasicInfo .inputElement[type="checkbox"] {
   width: 6%;
@@ -5985,7 +5988,7 @@ div.tooltip-inner {
 }
 .input-group {
   float: left;
-  min-width: 220px;margin-bottom: 10px;
+  /*min-width: 220px;margin-bottom: 10px;*/
 }
 .addCalendarEventContents .input-group {
   float: left;
@@ -5997,7 +6000,7 @@ div.tooltip-inner {
 }
 .summaryViewEntries .inputElement.form-control,
 .detailview-table .inputElement.form-control {
-  width: 60%;
+  width: 65%;
 }
 .detailview-table input[type="checkbox"] {
   width: 13px !important;
@@ -7701,13 +7704,8 @@ a[name~="relationEdit"], button[name~="relationEdit"] , a.relationDelete, a[name
  .btn:hover {background:rgba(44, 59, 73, 0.33);color:#fff;}
 
 input[type=checkbox]:checked::after, 
-#checkgreen{content: none;;font-family: themify;color: white;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
-    line-height: 26px;}
-    
-.listViewEntries input[type=checkbox]:checked::after, 
 #checkgreen{content: "\e64c";font-family: themify;color: blue;background-color:transparent;left: 0px;font-weight:bold;    font-size: 16px;
     line-height: 26px;}
-
 input[type=checkbox]:checked {border: 1px solid transparent!important;background: transparent!important;}
 
 .table-hover>tbody>tr{border-left:4px solid white ;}
@@ -8933,8 +8931,8 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 	border: 1px solid;
 	padding-bottom: 3px;
 	padding-top: 3px;
-	padding-left: 8px;
-	padding-right: 8px;
+	padding-left: 4px;
+	padding-right: 4px;
 }
 
 .lineItemTableDiv > div{ position: relative; }
@@ -9212,3 +9210,5 @@ input:checked + .checkbox-slider:before {
 .checkbox-slider.checkbox-round:before {
   border-radius: 50% !important;
 }
+
+.input-checkbox:checked::after {content: none !important;}
