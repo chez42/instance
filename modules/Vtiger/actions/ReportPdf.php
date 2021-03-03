@@ -41,7 +41,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $recordIds = $this->getRecordsListFromRequest($request);
         
-        if(count($recordIds)<=20 || $request->get('sendEmail')){
+        if(count($recordIds)<= 20 || $request->get('sendEmail')){
             
             $report = $request->get('reportselect');
             
@@ -50,8 +50,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         }else{
             
             $adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
-                (user_id, user_email, params) VALUES (?, ?, ?)",
-                array($current_user->id, $request->get('useremail'), json_encode($_REQUEST)));
+            (user_id, user_email, orientation, params) VALUES (?, ?, ?,?)",
+            array($current_user->id, $request->get('useremail'), $request->get('orientation'), json_encode($_REQUEST)));
             
             $response = new Vtiger_Response();
             $response->setResult(true);
@@ -76,22 +76,30 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     public function GeneratePDF($fileDir){
         
         $zipname  = 'cache/'.strtotime('now').'.zip';
-        $zip = new ZipArchive;
-        $zip->open($zipname, ZipArchive::CREATE);
-        foreach ($fileDir as $file) {
+        
+		$zip = new ZipArchive;
+        
+		$zip->open($zipname, ZipArchive::CREATE);
+        
+		foreach ($fileDir as $file) {
             if(filetype($file) == 'file') {
                 if(file_exists($file)) {
                     $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
                 }
             }
         }
-        $zip->close();
-        while(ob_get_level()) {
+        
+		$zip->close();
+        
+		while(ob_get_level()) {
             ob_end_clean();
         }
+		
         header('Content-Type: application/zip');
+		
         header('Content-disposition: attachment; filename='.basename($zipname));
-        readfile($zipname);
+        
+		readfile($zipname);
         
         foreach ($fileDir as $file) {
             unlink($file);
@@ -101,40 +109,27 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
     }
     
-    function SendEmail($fileDir, $userEmail){
+    function SendEmail($fileDir, $userEmail, $subject = ''){
         
         global $adb, $current_user;
         
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
         
-        $zipname  = 'cache/'.strtotime('now').'.zip';
+		$zipname  = 'cache/'.strtotime('now').'.zip';
         
-        $zip = new ZipArchive;
+        $files = implode("' '", $fileDir);
+		
+		$files = "'" . $files . "'";
+		
+		$zip_password = strtotime(date("Y-m-d H:i:s"));
+		
+		@exec("zip -D -j -P $zip_password $zipname $files");
+		
+		$mailer_result = $adb->pquery("SELECT * FROM `vtiger_systems` where server_type = 'email'");
         
-        $zip->open($zipname, ZipArchive::CREATE);
-        
-        foreach ($fileDir as $file) {
-            
-            if(filetype($file) == 'file') {
-                
-                if(file_exists($file)) {
-                    $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
-                }
-                
-            }
-            
+        if(!$adb->num_rows($mailer_result)){
+            return true;
         }
-        
-        $zip->close();
-        
-        $query = 'SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
-		FROM  vtiger_emailtemplates WHERE vtiger_emailtemplates.templateid = 213';
-        
-        $result = $adb->pquery($query, array());
-        
-        $body = decode_html($adb->query_result($result,0,'body'));
-        
-        $subject = decode_html($adb->query_result($result,0,'subject'));
         
         $mailer = Emails_Mailer_Model::getInstance();
         
@@ -142,23 +137,16 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $userName = $currentUserModel->getName();
         
-        $mailer_result = $adb->pquery("SELECT * FROM `vtiger_systems` where server_type = 'email'");
-        
-        $emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
-        $fromEmail = $emailRecordModel->getFromEmailAddress();
-        $replyTo = $emailRecordModel->getReplyToEmail();
-        
-        if(!$adb->num_rows($mailer_result)){
-            return true;
-        }
-        
         $mailer->Host = $adb->query_result($mailer_result, 0, "server");
+		
         $mailer->Username = trim($adb->query_result($mailer_result, 0, "server_username"));
         
         $mailer->Password = trim($adb->query_result($mailer_result, 0, 'server_password'));
-        $mailer->SMTPAuth = 1;
+        
+		$mailer->SMTPAuth = 1;
         
         $hostinfo = explode("://", $mailer->Host);
+		
         $smtpsecure = $hostinfo[0];
         
         if ($smtpsecure == "tls") {
@@ -167,28 +155,97 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         }
         
         $mailer->ConfigSenderInfo($adb->query_result($mailer_result, 0, "from_email_field"), $userName, $adb->query_result($mailer_result, 0, "from_email_field"));
-        
-        $mailer->_serverConfigured = true;
-        
+      
         $mailer->AddAddress($userEmail);
-        
-        $mailer->AddAttachment($zipname);
         
         $mailer->Subject = $subject;
         
-        $mailer->Body = $body ;
+        $mailer->Body = $this->getEmailContent($zipname, $zip_password);
         
         $mailer->Send(true);
         
-        foreach ($fileDir as $file) {
+		foreach ($fileDir as $file) {
             unlink($file);
         }
         
-        unlink($zipname);
-        
     }
-    
-    
+	
+	
+	function getEmailContent($filename, $password){
+		
+		$site_URL = vglobal('site_URL');
+		
+		$currentModule = vglobal('currentModule');
+        
+		$companydetails = getCompanyDetails();
+		
+		$logo = $site_URL.'/test/logo/'.$companydetails['logoname'];
+
+		$body = '<table width="700" cellspacing="0" cellpadding="0" border="0" align="center" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; ">
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" cellspacing="0" cellpadding="0" border="0">
+						<tr>
+							<td>
+							<table width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tr>
+										<td rowspan="4" ><img height="30" src='.$logo.'></td>
+									</tr>
+							</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							<table width="100%" cellspacing="0" cellpadding="0" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+									<tr>
+										<td valign="top">
+										<table width="100%" cellspacing="0" cellpadding="5" border="0">
+												<tr>
+													<td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);"> </td>
+												</tr>
+												<tr>
+													<td> </td>
+												</tr>
+												<tr>
+													<td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;"> This is an auto-generated email sent on behalf of a scheduled report</td>
+												</tr>
+												<tr>
+													<td align="center">
+													<table width="75%" cellspacing="0" cellpadding="10" border="0" style="border: 2px solid rgb(180, 180, 179); background-color: rgb(226, 226, 225); font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal;">
+															<tr>
+																<td>
+				<font color="#990000"><strong> <a style = "text-decoration:none;" href=' .$site_URL.'/download-report.php?fileid=' . base64_encode($filename). '>' . 'Click to Download Report' . '</a> and use this password <b>' . $password .'</b> to extract zip file</strong></font> <br/><small>Link will Expire once file Downloaded</small> </td>
+															</tr>
+													</table>
+													</td>
+												</tr>
+										</table>
+										</td>
+										<td width="1%" valign="top"> </td>
+									</tr>
+							</table>
+							</td>
+						</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+	</table>';
+
+	return $body;
+	}
+	
     function GenerateTableCategories($merged_transaction_types){
         $table = array();
         foreach($merged_transaction_types AS $k => $v){
@@ -818,20 +875,20 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 						</div>
 					</body>
 				</html>";
-                        $footerFileName = $fileDir.'/footer_'.$name.'.html';
-                        $ff = fopen($footerFileName, 'w');
-                        $f = $footer;
-                        fwrite($ff, $f);
-                        fclose($ff);
-                        
-                        $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-                        
-                        $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-                        
-                        unlink($bodyFileName);
-                        unlink($footerFileName);
-                        
-                        $filePath[] = $whtmltopdfPath;
+				$footerFileName = $fileDir.'/footer_'.$name.'.html';
+				$ff = fopen($footerFileName, 'w');
+				$f = $footer;
+				fwrite($ff, $f);
+				fclose($ff);
+				
+				$whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+				
+				$output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+				
+				unlink($bodyFileName);
+				unlink($footerFileName);
+				
+				$filePath[] = $whtmltopdfPath;
                         
         }
         
@@ -1672,8 +1729,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $filePath = array();
         
-        foreach($recordIds as $recordId){
-            
+		foreach($recordIds as $recordId){
+			
             if($module != 'PortfolioInformation'){
                 $accounts = GetAccountNumbersFromRecord($recordId);
             }else{
@@ -2034,8 +2091,12 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
             
-            $output = shell_exec('wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
-            
+			if($request->get('orientation') == 'landscape'){
+				$output = shell_exec('wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
+            } else {
+				$output = shell_exec('wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
+            }
+			
             unlink($bodyFileName);
             
             unlink($footerFileName);
@@ -2043,6 +2104,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             $filePath[] = $whtmltopdfPath;
             
         }
+		
         
         if(!$request->get('sendEmail')){
             
@@ -2050,7 +2112,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
         } else if ($request->get('sendEmail')){
             
-            $this->SendEmail($filePath, $request->get('userEmail'));
+            $this->SendEmail($filePath, $request->get('userEmail'), "Your Scheduled GH2Report is Ready !!");
             
         }
         
