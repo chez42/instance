@@ -603,7 +603,7 @@ class cSchwabTransactions extends cCustodian
         global $adb;
 
         $account_number = self::PrependZero($account_number);
-
+#print_r($account_number);exit;
         $account_questions = generateQuestionMarks($account_number);
         $query = "SELECT cloud_transaction_id 
                   FROM vtiger_transactions 
@@ -613,6 +613,8 @@ class cSchwabTransactions extends cCustodian
         $params = array();
         $cloud_ids = array();
         $transaction_ids = "";
+        $params[] = $account_number;
+
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
                 $cloud_ids[] = $v['cloud_transaction_id'];
@@ -621,7 +623,6 @@ class cSchwabTransactions extends cCustodian
             $transaction_ids = " AND t.transaction_id NOT IN ({$cloud_id_questions}) ";
             $params[] = $cloud_ids;
         }
-        $params[] = $account_number;
 
         $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, 1 AS ownerid, 
                          CASE WHEN m.omniscient_category > '' THEN m.omniscient_category ELSE t.transaction_category END AS transaction_type, 
@@ -649,10 +650,10 @@ class cSchwabTransactions extends cCustodian
                          version_marker3, closing_price_unfactored, factor, factor_date, file_date, insert_date, CASE WHEN m.operation is null THEN '' ELSE m.operation END AS operation
                   FROM custodian_omniscient.custodian_transactions_schwab t 
                   JOIN custodian_omniscient.schwabmapping m ON m.source_code = t.transaction_source_code AND m.type_code = t.transaction_type_code AND m.subtype_code = t.transaction_subtype_code AND m.direction = t.debit_credit_indicator 
-                  WHERE t.dupe_flag = 2 {$transaction_ids}  
-                  AND t.account_number IN ({$account_questions})
+                  WHERE t.account_number IN ({$account_questions}) {$transaction_ids}  
                   GROUP BY transaction_id";
-        $result = $adb->pquery($query, $params);
+
+        $result = $adb->pquery($query, $params, true);
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
@@ -660,7 +661,7 @@ class cSchwabTransactions extends cCustodian
                     $v['quantity'] = $v['gross_amount'];
                 $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
                 if($v['ticker_symbol'] == '' AND $v['cusip'] != '')
-                    $v['ticker_symbol'] = $v['ticker_symbol'] = $v['cusip'];
+                    $v['ticker_symbol'] = $v['cusip'];
                 if($v['ticker_symbol'] == '' AND $v['cusip'] == '')
                     $v['ticker_symbol'] = 'SCASH';
 
@@ -681,6 +682,111 @@ class cSchwabTransactions extends cCustodian
     }
 
     static public function UpdateTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
-        return;
+        global $adb;
+
+        $q1 = array();
+        $q1[] = $account_number;
+        if($sdate && $edate){
+            $and = " AND t.trade_date BETWEEN ? AND ? ";
+            $q1[] = $sdate;
+            $q1[] = $edate;
+        }
+
+        $account_questions = generateQuestionMarks($account_number);
+        $query = "SELECT cloud_transaction_id 
+                  FROM vtiger_transactions t
+                  WHERE origination = 'schwab'
+                  AND account_number IN ({$account_questions})
+                  {$and} ";
+
+        $result = $adb->pquery($query, $q1);
+        $params = array();
+        $cloud_ids = array();
+        $transaction_ids = "";
+
+        if($adb->num_rows($result) > 0){
+            while($v = $adb->fetchByAssoc($result)){
+                $cloud_ids[] = $v['cloud_transaction_id'];
+            }
+            $cloud_id_questions = generateQuestionMarks($cloud_ids);
+            $transaction_ids = " f.transaction_id IN ({$cloud_id_questions}) ";
+            $params[] = $cloud_ids;
+        }
+
+        if(strlen($transaction_ids) == 0){
+            $transaction_ids = " f.transaction_id != 0 ";
+        }
+
+        $params[] = $account_number;
+
+        if($sdate && $edate){
+            $params[] = $sdate;
+            $params[] = $edate;
+        }
+
+        $query = "SELECT m.operation, pcf.production_number, m.omniscient_category, m.schwab_category, m.omniscient_activity, m.transaction_activity,
+                         TRIM(LEADING '0' FROM t.account_number) AS account_number, pcf.omniscient_control_number,
+                         f.price, f.closing_price, f.gross_amount, f.quantity, mcf.security_price_adjustment, f.gross_amount,
+                         f.transaction_source_code, f.transaction_type_code, f.transaction_subtype_code, t.cloud_transaction_id
+                  FROM vtiger_transactions t
+                  JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
+                  JOIN custodian_omniscient.custodian_transactions_schwab f ON f.transaction_id = t.cloud_transaction_id
+                  JOIN custodian_omniscient.schwabmapping m ON m.source_code = f.transaction_source_code AND m.type_code = f.transaction_type_code AND m.subtype_code = f.transaction_subtype_code AND m.direction = f.debit_credit_indicator
+                  JOIN vtiger_crmentity e ON e.crmid = t.transactionsid
+                  LEFT JOIN vtiger_portfolioinformation p ON p.account_number = TRIM(LEADING '0' FROM t.account_number)
+                  LEFT JOIN vtiger_portfolioinformationcf pcf ON pcf.portfolioinformationid = p.portfolioinformationid
+                  LEFT JOIN vtiger_modsecurities ms ON ms.security_symbol = t.security_symbol
+                  LEFT JOIN vtiger_modsecuritiescf mcf ON ms.modsecuritiesid = mcf.modsecuritiesid
+                  WHERE {$transaction_ids}
+                  AND t.account_number IN ({$account_questions})
+                  {$and}
+                  GROUP BY f.transaction_id";
+        $result = $adb->pquery($query, $params, true);
+        if($adb->num_rows($result) > 0){
+            $query = "UPDATE vtiger_transactions t 
+                      JOIN vtiger_transactionscf cf USING(transactionsid)
+                      SET t.operation = ?, cf.custodian_control_number = ?, cf.transaction_type = ?, cf.transaction_activity = ?,
+                      t.account_number = ?, cf.rep_code = ?, t.security_price = ?, cf.net_amount = ?, key_mnemonic_description = ?,
+                      transaction_key_code_description = ?, transaction_code_description = ?
+                      WHERE cloud_transaction_id = ?";
+            while($v = $adb->fetchByAssoc($result)){
+                $params = array();
+                if(is_null($v['operation']))
+                    $v['operation'] = '';
+                $params[] = $v['operation'];
+                $params[] = $v['production_number'];
+
+                if(strlen($v['omniscient_category']) > 3)
+                    $params[] = $v['omniscient_category'];
+                else
+                    $params[] = $v['schwab_category'];
+
+                if(strlen($v['omniscient_activity']) > 3)
+                    $params[] = $v['omniscient_activity'];
+                else
+                    $params[] = $v['transaction_activity'];
+                $params[] = $v['account_number'];
+                $params[] = $v['omniscient_control_number'];
+
+                if($v['price'] == 0 && $v['closing_price'] == 0)
+                    $params[] = 1;
+                elseif($v['price'] > 0)
+                    $params[] = $v['price'];
+                else
+                    $params[] = $v['closing_price'];
+
+                if($v['gross_amount'] == 0)
+                    $params[] = $v['quantity'] * $v['closing_price'] * $v['security_price_adjustment'];
+                else
+                    $params[] = $v['gross_amount'];
+
+                $params[] = $v['transaction_source_code'];
+                $params[] = $v['transaction_type_code'];
+                $params[] = $v['transaction_subtype_code'];
+                $params[] = $v['cloud_transaction_id'];
+
+                $adb->pquery($query, $params, true);
+            }
+        }
     }
 }
