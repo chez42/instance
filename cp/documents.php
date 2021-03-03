@@ -44,7 +44,7 @@
         			<div class="kt-subheader__main">
             			
             			<h3 class="kt-subheader__title">
-							Documents
+							<?php echo $_SESSION['Documents']; ?>
                         </h3>
                         
                         <span class="kt-subheader__separator kt-hidden"></span>
