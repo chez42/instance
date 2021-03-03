@@ -68,7 +68,7 @@ if(isset($_SESSION['ID'])){
 		    foreach ($ticket_list['result']['data'] as $index => $ticket){
 		        
 				$row_data = array(
-				    '<a href="ticket-detail.php?record='.$ticket['ticketid'].'">
+				    '<a href="ticket-detail.php?record='.$ticket_list['result']['entityid'].'x'.$ticket['ticketid'].'">
                         '.$ticket['title'].'
                     </a>',
 				    $ticket['ticket_no'],
@@ -167,24 +167,9 @@ if(isset($_SESSION['ID'])){
 	    
 	}else if($_GET['module'] == 'Potentials'){
 	      
-	    $search = array();
-	    if(isset($_REQUEST['opportunity']) && $_REQUEST['opportunity'] != ''){
-	        $search['opportunity'] = $_REQUEST['opportunity'];
-	    }
-	    if(isset($_REQUEST['sales_stage']) && $_REQUEST['sales_stage'] != ''){
-	        $search['sales_stage'] = $_REQUEST['sales_stage'];
-	    }
-	    if(isset($_REQUEST['primary_email']) && $_REQUEST['primary_email'] != ''){
-	        $search['primary_email'] = $_REQUEST['primary_email'];
-	    }
-	    if(isset($_REQUEST['mobile_phone']) && $_REQUEST['mobile_phone'] != ''){
-	        $search['mobile_phone'] = $_REQUEST['mobile_phone'];
-	    }
-	    if(isset($_REQUEST['last_modified']) && $_REQUEST['last_modified'] != ''){
-	        $search['modifiedtime'] = date('Y-m-d', strtotime($_REQUEST['last_modified']));
-	    }
+	    $fields = explode(',',$_REQUEST['fields']);
 	    
-	    $potential_list = fetchPotentialData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$search);
+	    $potential_list = fetchPotentialData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex, $_REQUEST);
 	    
 	    if(!empty($potential_list['result']['count'])){
 	        
@@ -193,20 +178,49 @@ if(isset($_SESSION['ID'])){
 	        $potentialIds[] = $potential_list['result']['potential_ids'];
 	       
 	        foreach ($potential_list['result']['data'] as $index => $potential){
-	            
-	            $row_data = array(
-	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
-                        '.$potential['potential_no'].'
-                    </a>',
-	                '<a href="potential-detail.php?record='.$potential['potentialid'].'">
-                        '.$potential['potentialname'].'
-                    </a>',
-	                $potential['sales_stage'],
-	                $potential['cf_869'],
-	                $potential['cf_2899'],
-	                date('m-d-Y', strtotime($potential['modifiedtime']))
-	                
-	            );
+	            $rowdata = array();
+	            $rowdata[] ='<span id="'.$potential_list['result']['entityid'].'x'.$index.'"></span>'; 
+	            foreach($fields as $field){
+	                //if($field)
+	                $rowdata[] = strip_tags($potential[$field]);
+	            }
+	            $row_data = $rowdata;
+	            array_push($data, $row_data);
+	        }
+	    }
+	   
+	    $result = array(
+	        'draw' => $draw,
+	        'recordsTotal' => $total_records,
+	        'recordsFiltered' => $total_records,
+	        'data'=> $data
+	    );
+	    
+	    $_SESSION['potential_detail_navigation'] = $potentialIds;
+	    
+	    echo json_encode($result);
+	    
+	}else if($_GET['module'] == 'Products'){
+	    
+	    $fields = explode(',',$_REQUEST['fields']);
+	    
+	    $product_list = fetchProductsData($ws_url, $session_id, $_GET['module'], $customer_id, $pageLimit, $startIndex,$_REQUEST);
+	    
+	    if(!empty($product_list['result']['count'])){
+	        
+	        $total_records = $product_list['result']['count'];
+	        
+	        $potentialIds[] = $product_list['result']['products_ids'];
+	        
+	        foreach ($product_list['result']['data'] as $index => $product){
+	            //echo"<pre>";print_r($index);echo"</pre>";exit;
+	            $rowdata = array();
+	            $rowdata[] ='<span id="'.$product_list['result']['entityid'].'x'.$index.'"></span>'; 
+	            foreach($fields as $field){
+	                //if($field)
+	                $rowdata[] = strip_tags($product[$field]);
+	            }
+	            $row_data = $rowdata;
 	            array_push($data, $row_data);
 	        }
 	    }
@@ -218,7 +232,7 @@ if(isset($_SESSION['ID'])){
 	        'data'=> $data
 	    );
 	    
-	    $_SESSION['potential_detail_navigation'] = $potentialIds;
+	    $_SESSION['products_detail_navigation'] = $potentialIds;
 	    
 	    echo json_encode($result);
 	}
@@ -308,6 +322,30 @@ function fetchPotentialData($ws_url, $sessionName, $module, $id, $pageLimit, $st
     
     $postParams = array(
         'operation'=>'get_related_potentials',
+        'sessionName' => $sessionName,
+        'element'=>json_encode($element)
+    );
+    
+    $response = postHttpRequest($ws_url, $postParams);
+    
+    $response = json_decode($response, true);
+    
+    return $response;
+    
+}
+
+function fetchProductsData($ws_url, $sessionName, $module, $id, $pageLimit, $startIndex, $seacrh){
+    
+    $element = array(
+        'id' => $id,
+        'module'=>$module,
+        'pageLimit' => $pageLimit,
+        'startIndex' => $startIndex
+    );
+    $element = array_merge($element, $seacrh);
+    
+    $postParams = array(
+        'operation'=>'get_related_products',
         'sessionName' => $sessionName,
         'element'=>json_encode($element)
     );

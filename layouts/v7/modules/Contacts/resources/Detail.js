@@ -142,18 +142,20 @@ Vtiger_Detail_Js("Contacts_Detail_Js", {
 	 * Function to check for Portal User
 	 */
 	checkForPortalUser: function (form) {
-		var element = jQuery('[name="portal"]', form);
-		var response = element.is(':checked');
-		var primaryEmailField = jQuery('.fieldValue [data-name="email"]');
-		var primaryEmailValue = primaryEmailField.data('value');
-		if (response) {
-			if (primaryEmailField.length == 0) {
-				app.helper.showErrorNotification({message: app.vtranslate('JS_PRIMARY_EMAIL_FIELD_DOES_NOT_EXISTS')});
-				return false;
-			}
-			if (primaryEmailValue == "") {
-				app.helper.showErrorNotification({message: app.vtranslate('JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER')});
-				return false;
+		if(form.attr("modulename") == 'Contacts'){
+			var element = jQuery('[name="portal"]', form);
+			var response = element.is(':checked');
+			var primaryEmailField = jQuery('.fieldValue [data-name="email"]');
+			var primaryEmailValue = primaryEmailField.data('value');
+			if (response) {
+				if (primaryEmailField.length == 0) {
+					app.helper.showErrorNotification({message: app.vtranslate('JS_PRIMARY_EMAIL_FIELD_DOES_NOT_EXISTS')});
+					return false;
+				}
+				if (primaryEmailValue == "") {
+					app.helper.showErrorNotification({message: app.vtranslate('JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER')});
+					return false;
+				}
 			}
 		}
 		return true;
