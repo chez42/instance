@@ -3559,9 +3559,9 @@ IF @beginningNet IS NULL THEN SET @beginningNet := 0; END IF;
         $logo = $current_user->getImageDetails();
 
         if(isset($logo['user_logo']) && !empty($logo['user_logo'])){
-            echo '1';
+            //echo '1';
             if(isset($logo['user_logo'][0]) && !empty($logo['user_logo'][0])){
-                echo '2';
+                //echo '2';
                 $logo = $logo['user_logo'][0];
                 $logo = $logo['path']."_".$logo['name'];
             } else

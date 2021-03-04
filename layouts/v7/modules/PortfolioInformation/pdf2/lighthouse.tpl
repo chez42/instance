@@ -7,42 +7,22 @@
 	}
 </style>
 <div id="LHCoverPage">
-    <div class="CoverPageLogo">
+    <div class="CoverPageLogo" style = "width:70%;float:none;display:inline-block;line-height:1;vertical-align:middle;">
         {$COVERPAGE->GetFormattedLogo()}
     </div>
-    <div class="LHPreparedSection">
+    <div class="LHPreparedSection" style = "width:25%;float:none;display:inline-block;line-height:1;vertical-align:bottom;padding-bottom:60px;">
         {$COVERPAGE->GetFormattedTitle()}
         {$COVERPAGE->GetFormattedPreparedFor()}
         {$COVERPAGE->GetFormattedPreparedBy()}
         {$COVERPAGE->GetFormattedPreparedDate()}
     </div>
-{*        <div class="tr">
-            <div class="td LHLogoContainer">
-            </div>
-            <div class="td LHPreparedSection">
-                {$COVERPAGE->GetFormattedTitle()}
-                {$COVERPAGE->GetFormattedPreparedFor()}
-                {$COVERPAGE->GetFormattedPreparedBy()}
-                {$COVERPAGE->GetFormattedPreparedDate()}
-            </div>
-        </div>
-    </div>*}
 </div>
-
-
-
-
-
-{*<table id="lighthousetitle" style="padding-top:200px;">
-    <tr>
-        <td style="width:70%;">
-            <img src="{$SITEURL}/layouts/hardcoded_images/lhimage.jpg" width="100%" />
-        </td>
-        <td style="text-align:center; width:30%; padding-top:100px; font-size:12pt;">
-            <h2>Portfolio Review</h2>
-            <h3>{$PREPARED_FOR}</h3>
-            <p><strong>Prepared By:</strong> {$PREPARED_BY}</p>
-            <p>{$TODAY}</p>
-        </td>
-    </tr>
-</table>*}
+{literal}
+<style>
+	#TitleName {font-weight:800;}
+	#PreparedForName {font-weight:800;}
+	.PreparedFor {padding-top:5px;}
+	.LHPreparedSection #PreparedByName {padding-top:4px;}
+	.LHPreparedSection #TitleName {text-decoration:none;}
+</style>
+{/literal}
