@@ -724,7 +724,7 @@ class cSchwabTransactions extends cCustodian
             $params[] = $edate;
         }
 
-        $query = "SELECT m.operation, pcf.production_number, m.omniscient_category, m.schwab_category, m.omniscient_activity, m.transaction_activity,
+        $query = "SELECT f.quantity, m.operation, pcf.production_number, m.omniscient_category, m.schwab_category, m.omniscient_activity, m.transaction_activity,
                          TRIM(LEADING '0' FROM t.account_number) AS account_number, pcf.omniscient_control_number,
                          f.price, f.closing_price, f.gross_amount, f.quantity, mcf.security_price_adjustment, f.gross_amount,
                          f.transaction_source_code, f.transaction_type_code, f.transaction_subtype_code, t.cloud_transaction_id
@@ -745,12 +745,13 @@ class cSchwabTransactions extends cCustodian
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_transactions t 
                       JOIN vtiger_transactionscf cf USING(transactionsid)
-                      SET t.operation = ?, cf.custodian_control_number = ?, cf.transaction_type = ?, cf.transaction_activity = ?,
+                      SET t.quantity = ?, t.operation = ?, cf.custodian_control_number = ?, cf.transaction_type = ?, cf.transaction_activity = ?,
                       t.account_number = ?, cf.rep_code = ?, t.security_price = ?, cf.net_amount = ?, key_mnemonic_description = ?,
                       transaction_key_code_description = ?, transaction_code_description = ?
                       WHERE cloud_transaction_id = ?";
             while($v = $adb->fetchByAssoc($result)){
                 $params = array();
+                $params[] = $v['quantity'];
                 if(is_null($v['operation']))
                     $v['operation'] = '';
                 $params[] = $v['operation'];
