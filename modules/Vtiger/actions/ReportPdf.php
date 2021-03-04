@@ -41,7 +41,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $recordIds = $this->getRecordsListFromRequest($request);
         
-        if(count($recordIds)<=20 || $request->get('sendEmail')){
+        if(count($recordIds)<= 20 || $request->get('sendEmail')){
             
             $report = $request->get('reportselect');
             
@@ -50,8 +50,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         }else{
             
             $adb->pquery("INSERT INTO vtiger_scheduled_portfolio_reports
-                (user_id, user_email, params) VALUES (?, ?, ?)",
-                array($current_user->id, $request->get('useremail'), json_encode($_REQUEST)));
+            (user_id, user_email, orientation, params) VALUES (?, ?, ?,?)",
+            array($current_user->id, $request->get('useremail'), $request->get('orientation'), json_encode($_REQUEST)));
             
             $response = new Vtiger_Response();
             $response->setResult(true);
@@ -76,22 +76,30 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     public function GeneratePDF($fileDir){
         
         $zipname  = 'cache/'.strtotime('now').'.zip';
-        $zip = new ZipArchive;
-        $zip->open($zipname, ZipArchive::CREATE);
-        foreach ($fileDir as $file) {
+        
+		$zip = new ZipArchive;
+        
+		$zip->open($zipname, ZipArchive::CREATE);
+        
+		foreach ($fileDir as $file) {
             if(filetype($file) == 'file') {
                 if(file_exists($file)) {
                     $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
                 }
             }
         }
-        $zip->close();
-        while(ob_get_level()) {
+        
+		$zip->close();
+        
+		while(ob_get_level()) {
             ob_end_clean();
         }
+		
         header('Content-Type: application/zip');
+		
         header('Content-disposition: attachment; filename='.basename($zipname));
-        readfile($zipname);
+        
+		readfile($zipname);
         
         foreach ($fileDir as $file) {
             unlink($file);
@@ -101,87 +109,143 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
     }
     
-    function SendEmail($fileDir, $userEmail){
+    function SendEmail($fileDir, $userEmail, $subject = ''){
         
-		
         global $adb, $current_user;
-		
+        
         $currentUserModel = Users_Record_Model::getCurrentUserModel();
-        $zipname  = 'cache/'.strtotime('now').'.zip';
-        $zip = new ZipArchive;
-        $zip->open($zipname, ZipArchive::CREATE);
-        foreach ($fileDir as $file) {
-            if(filetype($file) == 'file') {
-                if(file_exists($file)) {
-                    $zip->addFile( $file, pathinfo( $file, PATHINFO_BASENAME ) );
-                }
-            }
-        }
-        $zip->close();
         
-        $query = 'SELECT vtiger_emailtemplates.subject,vtiger_emailtemplates.body
-		FROM  vtiger_emailtemplates WHERE vtiger_emailtemplates.templateid = 213';
-
-        $result = $adb->pquery($query, array());
+		$zipname  = 'cache/'.strtotime('now').'.zip';
+        
+        $files = implode("' '", $fileDir);
 		
-        $body = decode_html($adb->query_result($result,0,'body'));
+		$files = "'" . $files . "'";
+		
+		$zip_password = strtotime(date("Y-m-d H:i:s"));
+		
+		@exec("zip -D -j -P $zip_password $zipname $files");
+		
+		$mailer_result = $adb->pquery("SELECT * FROM `vtiger_systems` where server_type = 'email'");
         
-        $subject = decode_html($adb->query_result($result,0,'subject'));
+        if(!$adb->num_rows($mailer_result)){
+            return true;
+        }
         
         $mailer = Emails_Mailer_Model::getInstance();
         
-		$mailer->IsHTML(true);
-		
+        $mailer->IsHTML(true);
+        
         $userName = $currentUserModel->getName();
-		
-		$mailer_result = $adb->pquery("SELECT * FROM `vtiger_systems` where server_type = 'email'");
-		
-		$emailRecordModel = Emails_Record_Model::getCleanInstance('Emails');
-        $fromEmail = $emailRecordModel->getFromEmailAddress();
-        $replyTo = $emailRecordModel->getReplyToEmail();
         
-		if(!$adb->num_rows($mailer_result)){
-			return true;
-		}
+        $mailer->Host = $adb->query_result($mailer_result, 0, "server");
 		
-		$mailer->Host = $adb->query_result($mailer_result, 0, "server");
-		$mailer->Username = trim($adb->query_result($mailer_result, 0, "server_username"));
-	    
-		$mailer->Password = trim($adb->query_result($mailer_result, 0, 'server_password'));
+        $mailer->Username = trim($adb->query_result($mailer_result, 0, "server_username"));
+        
+        $mailer->Password = trim($adb->query_result($mailer_result, 0, 'server_password'));
+        
 		$mailer->SMTPAuth = 1;
-	        
-		$hostinfo = explode("://", $mailer->Host);
-		$smtpsecure = $hostinfo[0];
-		
-		if ($smtpsecure == "tls") {
-			$mailer->SMTPSecure = $smtpsecure;
-			$mailer->Host = $hostinfo[1];
-		}
-		
-		$mailer->ConfigSenderInfo($adb->query_result($mailer_result, 0, "from_email_field"), $userName, $adb->query_result($mailer_result, 0, "from_email_field"));
-	    
-		$mailer->_serverConfigured = true;
-		
-		$mailer->AddAddress($userEmail);
         
-        $mailer->AddAttachment($zipname);
+        $hostinfo = explode("://", $mailer->Host);
+		
+        $smtpsecure = $hostinfo[0];
+        
+        if ($smtpsecure == "tls") {
+            $mailer->SMTPSecure = $smtpsecure;
+            $mailer->Host = $hostinfo[1];
+        }
+        
+        $mailer->ConfigSenderInfo($adb->query_result($mailer_result, 0, "from_email_field"), $userName, $adb->query_result($mailer_result, 0, "from_email_field"));
+      
+        $mailer->AddAddress($userEmail);
         
         $mailer->Subject = $subject;
         
-        $mailer->Body = $body ;
+        $mailer->Body = $this->getEmailContent($zipname, $zip_password);
         
-		$status = $mailer->Send(true);
-		
-        $error = $mailer->getError();
+        $mailer->Send(true);
         
-        foreach ($fileDir as $file) {
+		foreach ($fileDir as $file) {
             unlink($file);
         }
         
-        unlink($zipname);
-        
     }
-    
+	
+	
+	function getEmailContent($filename, $password){
+		
+		$site_URL = vglobal('site_URL');
+		
+		$currentModule = vglobal('currentModule');
+        
+		$companydetails = getCompanyDetails();
+		
+		$logo = $site_URL.'/test/logo/'.$companydetails['logoname'];
+
+		$body = '<table width="700" cellspacing="0" cellpadding="0" border="0" align="center" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; text-decoration: none; ">
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td>
+				<table width="100%" cellspacing="0" cellpadding="0" border="0">
+						<tr>
+							<td>
+							<table width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tr>
+										<td rowspan="4" ><img height="30" src='.$logo.'></td>
+									</tr>
+							</table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							<table width="100%" cellspacing="0" cellpadding="0" border="0" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: normal; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+									<tr>
+										<td valign="top">
+										<table width="100%" cellspacing="0" cellpadding="5" border="0">
+												<tr>
+													<td align="right" style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; font-weight: bolder; text-decoration: none; color: rgb(66, 66, 253);"> </td>
+												</tr>
+												<tr>
+													<td> </td>
+												</tr>
+												<tr>
+													<td style="font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal; text-align: justify; line-height: 20px;"> This is an auto-generated email sent on behalf of a scheduled report</td>
+												</tr>
+												<tr>
+													<td align="center">
+													<table width="75%" cellspacing="0" cellpadding="10" border="0" style="border: 2px solid rgb(180, 180, 179); background-color: rgb(226, 226, 225); font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal;">
+															<tr>
+																<td>
+				<font color="#990000"><strong> <a style = "text-decoration:none;" href=' .$site_URL.'/download-report.php?fileid=' . base64_encode($filename). '>' . 'Click to Download Report' . '</a> and use this password <b>' . $password .'</b> to extract zip file</strong></font> <br/><small>Link will Expire once file Downloaded</small> </td>
+															</tr>
+													</table>
+													</td>
+												</tr>
+										</table>
+										</td>
+										<td width="1%" valign="top"> </td>
+									</tr>
+							</table>
+							</td>
+						</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+			<tr>
+				<td> </td>
+			</tr>
+	</table>';
+
+	return $body;
+	}
+	
     function GenerateTableCategories($merged_transaction_types){
         $table = array();
         foreach($merged_transaction_types AS $k => $v){
@@ -223,7 +287,6 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             $calling_module = $moduleName;
             $calling_record = $recordId;
             if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
-				
                 $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh_report");
                 
                 $accounts = array_unique($accounts);
@@ -552,174 +615,174 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             if(is_array($assigned_to))
                 $assigned_to = $assigned_to[0];
-            
-            $pie_image = 0;
-            
-            $ispdf = $request->get('pdf');
-            
-            $viewer = $this->getViewer($request);
-            //$moduleName = $request->getModule();
-            $account_number = $accountNumbers;
-            
-            $total_weight = 0;
-            if(!is_array($account_number))
-                $accounts = explode(",", $accountNumbers);
-            else {
-                $accounts = $account_number;
-            }
-            $accounts = array_unique($accounts);
-            
-            if(strlen($request->get('asset_select_end_date')) > 1) {
-                $end_date = $request->get("asset_select_end_date");
-            }
-            else {
-                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
-            }
-            
-            $tmp_end_date = date("Y-m-d", strtotime($end_date));
-            if (sizeof($accounts) > 0) {
-                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
-                $categories = array("aclass");
-                $fields = array("symbol", "security_type", "account_number", "description", "quantity", "price", "market_value");//, "weight", "current_value");"cusip",
-                $totals = array("market_value");
-                $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
-                $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
-                $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
                 
-                $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
-                PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
+                $pie_image = 0;
                 
-                global $adb;
-                $query = "SELECT @global_total as global_total";
-                $result = $adb->pquery($query, array());
-                if($adb->num_rows($result) > 0) {
-                    $global_total = $adb->query_result($result, 0, 'global_total');
-                }
+                $ispdf = $request->get('pdf');
                 
-            };
-            
-            $contact_instance = null;
-            $custodian = null;
-            if(is_array($accounts)){
-                $portfolios = array();
-                $unsettled_cash = 0;
-                foreach($accounts AS $k => $v) {
-                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                    if($crmid) {
-                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                        $contact_id = $p->get('contact_link');
-                        if ($contact_id)
-                            $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                            
-                            $portfolios[] = $p->getData();
-                            $unsettled_cash += $p->get('unsettled_cash');
-                            if (!$advisor_instance) {
-                                echo "NO INSTANCE!";
-                                $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                            }
+                $viewer = $this->getViewer($request);
+                //$moduleName = $request->getModule();
+                $account_number = $accountNumbers;
+                
+                $total_weight = 0;
+                if(!is_array($account_number))
+                    $accounts = explode(",", $accountNumbers);
+                    else {
+                        $accounts = $account_number;
+                    }
+                    $accounts = array_unique($accounts);
+                    
+                    if(strlen($request->get('asset_select_end_date')) > 1) {
+                        $end_date = $request->get("asset_select_end_date");
+                    }
+                    else {
+                        $end_date = PortfolioInformation_Module_Model::ReportValueToDate("current")['end'];
                     }
                     
-                    $custodian = $p->get('origination');
-                }
-            }
-            
-            if($contact_instance) {
-                if(!$advisor_instance)
-                    $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                    
-                    $household_instance = null;
-                    if (reset($contact_instance)->get('account_id'))
-                        $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-            }
-            
-            $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
-            $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
-            
-            $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
-            
-            $colors = PortfolioInformation_Module_Model::GetAllChartColors();
-            $current_user = Users_Record_Model::getCurrentUserModel();
-            $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
-            $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
-            
-            $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
-            
-            $data = $advisor_instance->getData();
-            $has_advisor = 0;
-            if(strlen($data['user_name']) > 0)
-                $has_advisor = 1;
+                    $tmp_end_date = date("Y-m-d", strtotime($end_date));
+                    if (sizeof($accounts) > 0) {
+                        PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $tmp_end_date);
+                        $categories = array("aclass");
+                        $fields = array("symbol", "security_type", "account_number", "description", "quantity", "price", "market_value");//, "weight", "current_value");"cusip",
+                        $totals = array("market_value");
+                        $estimateTable = PortfolioInformation_Reports_Model::GetTable("Holdings", "PositionValues", $fields, $categories);
+                        $estimatePie = PortfolioInformation_Reports_Model::GetPieFromTable("PositionValuesPie");
+                        $estimateTable['TableTotals'] = PortfolioInformation_Reports_Model::GetTableTotals("PositionValues", $totals);
                         
-            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
-            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
-            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
-            
-            $toc = array();
-            $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-            $toc[] = array("title" => "#2", "name" => "Asset Allocation");
-            
-            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-            $viewer->assign("MARGIN_BALANCE", $margin_balance);
-            $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
-            
-            $viewer->assign("DATE", date("F d, Y"));
-            $viewer->assign("ASSIGNED_TO", $assigned_to);
-            $viewer->assign("HAS_ADVISOR", $has_advisor);
-            $viewer->assign("CONTACTS", $contact_instance);
-            $viewer->assign("REPORT_TYPE", "Client Statement");
-            $viewer->assign("CURRENT_USER", $current_user);
-            $viewer->assign("ADVISOR", $advisor_instance);
-            $viewer->assign("HOUSEHOLD", $household_instance);
-            $viewer->assign("MAILING_INFO", $mailing_info);
-            $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
-            $viewer->assign("PORTFOLIO_DATA", $portfolios);
-            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-            $viewer->assign("PIE_IMAGE", $pie_image);
-            $viewer->assign("DYNAMIC_PIE_FILE", $pie_image);
-            $viewer->assign("COLORS", $colors);
-            $viewer->assign("TOTAL_WEIGHT", $total_weight);
-            $viewer->assign("CALLING_RECORD", $calling_record);
-            $viewer->assign("TOC", $toc);
-            $viewer->assign("ACCOUNTINFO", $account_info);
-            $viewer->assign("ACCOUNTINFOTOTAL", $account_info_total);
-            $viewer->assign("CATEGORIES", $categories);
-            $viewer->assign("DATE_OPTIONS", $options);
-            $viewer->assign("SHOW_END_DATE", 1);
-            $viewer->assign("END_DATE", $end_date);
-            $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
-            $viewer->assign("MODULE", "PortfolioInformation");
-            
-            $viewer->assign("CATEGORY_TOTALS", $category_totals);
-            $viewer->assign("ESTIMATE_TABLE", $estimateTable);
-            $viewer->assign("DYNAMIC_PIE", json_encode($estimatePie));
-            $viewer->assign("GLOBAL_TOTAL", array("global_total" => $global_total));
-            $viewer->assign("TRAILING_AUM", json_encode($trailing_aum));
-            $viewer->assign("TRAILING_REVENUE", json_encode($trailing_revenue));
-            $viewer->assign("RANDOM", rand(1,100000));
-            $viewer->assign("SITEURL", $site_URL);
-            
-            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-            $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
-            
-            $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AssetClassPie.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/DynamicHoldings.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
-            
-            $pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+                        $category_totals = PortfolioInformation_Reports_Model::GetTableCategoryTotals("PositionValues", $categories, $totals);
+                        PortfolioInformation_reports_model::MergeTotalsIntoCategoryRows($categories, $estimateTable, $category_totals);
+                        
+                        global $adb;
+                        $query = "SELECT @global_total as global_total";
+                        $result = $adb->pquery($query, array());
+                        if($adb->num_rows($result) > 0) {
+                            $global_total = $adb->query_result($result, 0, 'global_total');
+                        }
+                        
+                    };
+                    
+                    $contact_instance = null;
+                    $custodian = null;
+                    if(is_array($accounts)){
+                        $portfolios = array();
+                        $unsettled_cash = 0;
+                        foreach($accounts AS $k => $v) {
+                            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+                            if($crmid) {
+                                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                                $contact_id = $p->get('contact_link');
+                                if ($contact_id)
+                                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                                    
+                                    $portfolios[] = $p->getData();
+                                    $unsettled_cash += $p->get('unsettled_cash');
+                                    if (!$advisor_instance) {
+                                        echo "NO INSTANCE!";
+                                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
+                                    }
+                            }
+                            
+                            $custodian = $p->get('origination');
+                        }
+                    }
+                    
+                    if($contact_instance) {
+                        if(!$advisor_instance)
+                            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
+                            
+                            $household_instance = null;
+                            if (reset($contact_instance)->get('account_id'))
+                                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+                    }
+                    
+                    $account_info = PortfolioInformation_Module_Model::GetAccountIndividualTotals($accounts);
+                    $account_info_total = PortfolioInformation_module_Model::GetAccountSumTotals($accounts);
+                    
+                    $mailing_info = PortfolioInformation_Reports_Model::GetMailingInformationForAccount($moduleName, $accounts);
+                    
+                    $colors = PortfolioInformation_Module_Model::GetAllChartColors();
+                    $current_user = Users_Record_Model::getCurrentUserModel();
+                    $trailing_aum = PortfolioInformation_HistoricalInformation_Model::GetTrailing12AUM($accounts);
+                    $trailing_revenue = PortfolioInformation_HistoricalInformation_Model::GetTrailing12Revenue($accounts);
+                    
+                    $options = PortfolioInformation_Module_Model::GetReportSelectionOptions("asset_allocation");
+                    
+                    $data = $advisor_instance->getData();
+                    $has_advisor = 0;
+                    if(strlen($data['user_name']) > 0)
+                        $has_advisor = 1;
+                        
+                        $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "unsettled_cash", $tmp_end_date);
+                        $margin_balance = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "margin_balance", $tmp_end_date);
+                        $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetCustodianTotalAsOfDate($custodian, $accounts, "net_credit_debit", $tmp_end_date);
+                        
+                        $toc = array();
+                        $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+                        $toc[] = array("title" => "#2", "name" => "Asset Allocation");
+                        
+                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+                        $viewer->assign("MARGIN_BALANCE", $margin_balance);
+                        $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
+                        
+                        $viewer->assign("DATE", date("F d, Y"));
+                        $viewer->assign("ASSIGNED_TO", $assigned_to);
+                        $viewer->assign("HAS_ADVISOR", $has_advisor);
+                        $viewer->assign("CONTACTS", $contact_instance);
+                        $viewer->assign("REPORT_TYPE", "Client Statement");
+                        $viewer->assign("CURRENT_USER", $current_user);
+                        $viewer->assign("ADVISOR", $advisor_instance);
+                        $viewer->assign("HOUSEHOLD", $household_instance);
+                        $viewer->assign("MAILING_INFO", $mailing_info);
+                        $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
+                        $viewer->assign("PORTFOLIO_DATA", $portfolios);
+                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+                        $viewer->assign("PIE_IMAGE", $pie_image);
+                        $viewer->assign("DYNAMIC_PIE_FILE", $pie_image);
+                        $viewer->assign("COLORS", $colors);
+                        $viewer->assign("TOTAL_WEIGHT", $total_weight);
+                        $viewer->assign("CALLING_RECORD", $calling_record);
+                        $viewer->assign("TOC", $toc);
+                        $viewer->assign("ACCOUNTINFO", $account_info);
+                        $viewer->assign("ACCOUNTINFOTOTAL", $account_info_total);
+                        $viewer->assign("CATEGORIES", $categories);
+                        $viewer->assign("DATE_OPTIONS", $options);
+                        $viewer->assign("SHOW_END_DATE", 1);
+                        $viewer->assign("END_DATE", $end_date);
+                        $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
+                        $viewer->assign("MODULE", "PortfolioInformation");
+                        
+                        $viewer->assign("CATEGORY_TOTALS", $category_totals);
+                        $viewer->assign("ESTIMATE_TABLE", $estimateTable);
+                        $viewer->assign("DYNAMIC_PIE", json_encode($estimatePie));
+                        $viewer->assign("GLOBAL_TOTAL", array("global_total" => $global_total));
+                        $viewer->assign("TRAILING_AUM", json_encode($trailing_aum));
+                        $viewer->assign("TRAILING_REVENUE", json_encode($trailing_revenue));
+                        $viewer->assign("RANDOM", rand(1,100000));
+                        $viewer->assign("SITEURL", $site_URL);
+                        
+                        $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+                        $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
+                        
+                        $pdf_content  = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MailingInfo.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TitlePage.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/TableOfContents.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GroupAccounts.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AssetClassPie.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/DynamicHoldings.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+                        
+                        $pdf_content .= '	<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
 			<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
 			<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
 			<script type="text/javascript">';
                         
-                if(!empty($estimatePie)){
-                    $pdf_content .= 'CreatePieWithDetails("dynamic_pie_holder", "estimate_pie_values");';
-                }
-                
-                $pdf_content .= 'function CreatePieWithDetails(holder, value_source, showLegend){
+                        if(!empty($estimatePie)){
+                            $pdf_content .= 'CreatePieWithDetails("dynamic_pie_holder", "estimate_pie_values");';
+                        }
+                        
+                        $pdf_content .= 'function CreatePieWithDetails(holder, value_source, showLegend){
 					if($("#"+holder).length == 0)
 						return;
                             
@@ -752,26 +815,26 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				}
 			</script>';
                         
-            $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-            
-            if (!is_dir($fileDir)) {
-                mkdir($fileDir);
-            }
-            
-            $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_Holdings";
-            
-            $bodyFileName = $fileDir.'/body_'.$name.'.html';
-            $fb = fopen($bodyFileName, 'w');
-            $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-            fwrite($fb, $b);
-            fclose($fb);
-            
-            $footer ="<!doctype html>
+                        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+                        
+                        if (!is_dir($fileDir)) {
+                            mkdir($fileDir);
+                        }
+                        
+                        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_Holdings";
+                        
+                        $bodyFileName = $fileDir.'/body_'.$name.'.html';
+                        $fb = fopen($bodyFileName, 'w');
+                        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+                        fwrite($fb, $b);
+                        fclose($fb);
+                        
+                        $footer ="<!doctype html>
 				<html>
 					<head>
 						<meta charset='utf-8'>
@@ -812,7 +875,6 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 						</div>
 					</body>
 				</html>";
-				
 				$footerFileName = $fileDir.'/footer_'.$name.'.html';
 				$ff = fopen($footerFileName, 'w');
 				$f = $footer;
@@ -975,7 +1037,6 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 						</div>
 					</body>
 				</html>";
-				
                 $footerFileName = $fileDir.'/footer_'.$name.'.html';
                 $ff = fopen($footerFileName, 'w');
                 $f = $footer;
@@ -1336,7 +1397,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         require_once("libraries/Reporting/ReportPerformance.php");
         require_once("libraries/Reporting/ReportHistorical.php");
         require_once("libraries/reports/new//holdings_report.php");
-		require_once("modules/PortfolioInformation/models/NameMapper.php");
+        require_once("modules/PortfolioInformation/models/NameMapper.php");
         
         $module = $request->getModule();
         $moduleName = 'PortfolioInformation';
@@ -1668,7 +1729,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
         
         $filePath = array();
         
-        foreach($recordIds as $recordId){
+		foreach($recordIds as $recordId){
 			
             if($module != 'PortfolioInformation'){
                 $accounts = GetAccountNumbersFromRecord($recordId);
@@ -1679,353 +1740,380 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             }
             
             global $adb, $dbconfig, $root_directory, $site_URL;
+            
             $db_name = $dbconfig['db_name'];
+            
             $custodianDB = $dbconfig['custodianDB'];
             
             $orientation = '';
+            
             $calling_module = $moduleName;
+            
             $calling_record = $recordId;
+            
             $prepared_for = "";
             
-            if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
-                
-                $accounts = array_unique($accounts);
-                
-				if(empty($accounts)) continue;
-				
-                $map = new NameMapper();
-                $map->RenamePortfoliosBasedOnLinkedContact($accounts);
-                
-				
-				if(strlen($request->get('gh2_select_start_date')) > 1) {
-					$start_date =  $request->get("gh2_select_start_date");
-				} else {
-					$start_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['start'];
-				}
-
-				if(strlen($request->get('gh2_select_end_date')) > 1) {
-					$end_date = $request->get("gh2_select_end_date");
-				} else {
-					$end_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['end'];
-				}
-				
-                
-                $start_date = date("Y-m-d", strtotime($start_date));
-				$end_date = date("Y-m-d", strtotime($end_date));
-
-                PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
-                
-                $tmp = array();
-                foreach($accounts AS $k => $v){
-                    if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
-                        $query = "CALL TD_REC_TRANSACTIONS(?)";
-                        $adb->pquery($query, array($v), true);
-                    };
-                    if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
-                        $tmp[] = $v;
-                }
-                
-                $accounts = $tmp;
-                
-                $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
-                
-                if (sizeof($accounts) > 0) {
-                    PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $end_date);
-                    $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
-                    $sector_pie = PortfolioInformation_Reports_Model::GetPositionSectorsPie();
-                    
-                    global $adb;
-                    $query = "SELECT @global_total as global_total";
-                    $result = $adb->pquery($query, array());
-                    if($adb->num_rows($result) > 0){
-                        $global_total = $adb->query_result($result, 0, 'global_total');
-                    }
-                };
-                
-                $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $end_date);
-                $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $end_date);
-                $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $end_date);
-                $date_options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh2_report");
-                
-                $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
-                $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
-                
-                $viewer = $this->getViewer($request);
-                
-                $ytd_performance->CalculateIndividualTWRCumulative($start_date, $end_date);
-                
-                $start_date = date("m/d/Y", strtotime($start_date));
-                $end_date = date("m/d/Y", strtotime($end_date));
-                
-                
-                $viewer->assign("ORIENTATION", $orientation);
-                $viewer->assign("TODAY", date("M d, Y"));
-                $viewer->assign("YTDPERFORMANCE", $ytd_performance);
-                $viewer->assign("HOLDINGSPIEVALUES", json_encode($new_pie));
-                $viewer->assign("HOLDINGSSECTORPIESTRING", json_encode($sector_pie));
-                $viewer->assign("HOLDINGSSECTORPIEARRAY", $sector_pie);
-                $viewer->assign("HOLDINGSPIEARRAY", $new_pie);
-                $viewer->assign("GLOBALTOTAL", $global_total);
-                $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-                $viewer->assign("MARGIN_BALANCE", $margin_balance);
-                $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
-                $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-                $viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
-                $viewer->assign("CALLING_RECORD", $calling_record);
-                $viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
-                $viewer->assign("HEADING", "");
-                $viewer->assign("DATE_OPTIONS", $date_options);
-                $viewer->assign("SHOW_START_DATE", 1);
-                $viewer->assign("SHOW_END_DATE", 1);
-                $viewer->assign("START_DATE", $start_date);
-                $viewer->assign("END_DATE", $end_date);
-                $viewer->assign("SITEURL", $site_URL);
-                
-                if($calling_record) {
-                    $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
-                    $prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
-                    $record = VTiger_Record_Model::getInstanceById($calling_record);
-                    $data = $record->getData();
-                    $module = $record->getModule();
-                    if($module->getName() == "Accounts") {
-                        $policy = $data['cf_2525'];//Investment Policy Statement
-                        $viewer->assign("POLICY", $policy);
-                    }
-                    $viewer->assign("PREPARED_FOR", $prepared_for);
-                    $viewer->assign("PREPARED_BY", $prepared_by);
-                }
-                
-                $ispdf = $request->get('pdf');
-                
-                $personal_notes = $request->get('personal_notes');
-                //$moduleName = $request->getModule();
-                $current_user = Users_Record_Model::getCurrentUserModel();
-                
-                $account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
-                $account_totals['global_total'] = $account_totals['total'];
-                
-                if(is_array($accounts)){
-                    $portfolios = array();
-                    foreach($accounts AS $k => $v) {
-                        $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                        if($crmid) {
-                            $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                            $portfolios[] = $p->getData();
-                        }
-                    }
-                }
-                
-                
-                
-                $viewer->assign("PORTFOLIO_DATA", $portfolios);
-                $viewer->assign("GLOBAL_TOTAL", $account_totals);
-                $viewer->assign("PERSONAL_NOTES", $personal_notes);
-                
-                $toc = array();
-                $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-                $toc[] = array("title" => "#2", "name" => "Portfolio Performance");
-                $viewer->assign("TOC", $toc);
-                
-                $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-                $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
-                
-                $coverpage = new FormattedContactInfo($calling_record);
-                $coverpage->SetTitle("Portfolio Review");
-                $coverpage->SetLogo(rtrim($site_URL, '/').'/'."layouts/hardcoded_images/lhimage.jpg");
-                
-                $viewer->assign("COVERPAGE", $coverpage);
-                
-                $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/lighthouse.tpl', $moduleName);
-                //$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
-                
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GH2ReportPDF.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AllocationTypesPDF.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-                $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
-                
-                
-                $pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
-				<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
-				<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
-				<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
-				<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
-				<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
-				<script type="text/javascript">';
-                
-                if(!empty($new_pie)){
-                    $pdf_content .= 'ValuePieChart();';
-                }
-                
-                if(!empty($sector_pie)){
-                    $pdf_content .= 'AssetPieChart();';
-                }
-                
-                
-                $pdf_content .= 'function ValuePieChart(){
-						var self = this;
-						am4core.options.commercialLicense = true;
-						var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
-						var chartData = $.parseJSON($("#holdings_values").val());
-                    
-						chart.data = chartData;
-                    
-						var pieSeries = chart.series.push(new am4charts.PieSeries3D());
-						pieSeries.slices.template.stroke = am4core.color("#555354");
-						pieSeries.dataFields.value = "value";
-						pieSeries.dataFields.category = "title";
-						pieSeries.fontSize = 14;
-                    
-						pieSeries.slices.template.strokeWidth = 2;
-						pieSeries.slices.template.strokeOpacity = 1;
-                    
-						pieSeries.labels.horizontalCenter = "middle";
-						pieSeries.labels.verticalCenter = "middle";
-                    
-						pieSeries.labels.template.disabled = true;
-                    
-						pieSeries.ticks.template.disabled = true;
-                    
-						var colorSet = new am4core.ColorSet();
-						var colors = [];
-						$.each(chartData,function(){
-							var element = jQuery(this);
-							colors.push(element["0"].color);
-						});
-                    
-						colorSet.list = colors.map(function(color) {
-							return new am4core.color(color);
-						});
-						pieSeries.colors = colorSet;
-                    
-					}
-                    
-					function AssetPieChart(){
-						var self = this;
-						am4core.options.commercialLicense = true;
-						var chart = am4core.create("sector_pie_holder", am4charts.PieChart3D);
-						var chartData = $.parseJSON($("#sector_values").val());
-                    
-						chart.data = chartData;
-                    
-						chart.depth = 10;
-						chart.angle = 10;
-                    
-						var pieSeries = chart.series.push(new am4charts.PieSeries3D());
-						pieSeries.slices.template.stroke = am4core.color("#555354");
-						pieSeries.dataFields.value = "value";
-						pieSeries.dataFields.category = "title";
-						pieSeries.fontSize = 14;
-                    
-						pieSeries.slices.template.strokeWidth = 2;
-						pieSeries.slices.template.strokeOpacity = 1;
-                    
-						pieSeries.labels.horizontalCenter = "middle";
-						pieSeries.labels.verticalCenter = "middle";
-                    
-						pieSeries.labels.template.disabled = true;
-                    
-						pieSeries.ticks.template.disabled = true;
-                    
-						var colorSet = new am4core.ColorSet();
-						var colors = [];
-						$.each(chartData,function(){
-							var element = jQuery(this);
-							colors.push(element["0"].color);
-						});
-                    
-						colorSet.list = colors.map(function(color) {
-							return new am4core.color(color);
-						});
-						pieSeries.colors = colorSet;
-                    
-					}
-				</script>';
-                
-                $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-                $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-                $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
-                $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
-                $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
-                
-                if (!is_dir($fileDir)) {
-                    mkdir($fileDir);
-                }
-                
-                $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH2";
-                
-                $bodyFileName = $fileDir.'/body_'.$name.'.html';
-                $fb = fopen($bodyFileName, 'w');
-                $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-                fwrite($fb, $b);
-                fclose($fb);
-                
-                $footer ="<!doctype html>
-				<html>
-					<head>
-						<meta charset='utf-8'>
-						<script>
-							function substitutePdfVariables() {
-                    
-								function getParameterByName(name) {
-									var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-									return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-								}
-                    
-								function substitute(name) {
-									var value = getParameterByName(name);
-									var elements = document.getElementsByClassName(name);
-                    
-									for (var i = 0; elements && i < elements.length; i++) {
-										elements[i].textContent = value;
-									}
-								}
-                    
-								['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
-									.forEach(function(param) {
-										substitute(param);
-									});
-							}
-						</script>
-					</head>
-					<body onload='substitutePdfVariables()'>
-						<div style='width:100%;'>
-							<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
-								<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
-									Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
-								</p>
-							</div>
-							<div style='float:right;width:60%;'>
-								<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'  width='40%'/>
-							</div>
-						</div>
-					</body>
-				</html>";
-                $footerFileName = $fileDir.'/footer_'.$name.'.html';
-                $ff = fopen($footerFileName, 'w');
-                $f = $footer;
-                fwrite($ff, $f);
-                fclose($ff);
-                
-                $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-                
-                $output = shell_exec('wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
-                
-                unlink($bodyFileName);
-                unlink($footerFileName);
-                
-                $filePath[] = $whtmltopdfPath;
-                
-            } else{
+            //if(sizeof($accounts) > 0 || strlen($calling_module) >= 0){
+            
+            $accounts = array_unique($accounts);
+            
+            if(empty($accounts)) {
                 continue;
             }
+            
+            $map = new NameMapper();
+            
+            $map->RenamePortfoliosBasedOnLinkedContact($accounts);
+            
+            if(strlen($request->get('gh2_select_start_date')) > 1) {
+                $start_date =  $request->get("gh2_select_start_date");
+            } else {
+                $start_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['start'];
+            }
+            
+            if(strlen($request->get('gh2_select_end_date')) > 1) {
+                $end_date = $request->get("gh2_select_end_date");
+            } else {
+                $end_date = PortfolioInformation_Module_Model::ReportValueToDate("2020", false)['end'];
+            }
+            
+            
+            $start_date = date("Y-m-d", strtotime($start_date));
+            $end_date = date("Y-m-d", strtotime($end_date));
+            
+            PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
+            
+            $tmp = array();
+            foreach($accounts AS $k => $v){
+                if (strtolower(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($v)) == 'td'){
+                    $query = "CALL TD_REC_TRANSACTIONS(?)";
+                    $adb->pquery($query, array($v), true);
+                };
+                if(PortfolioInformation_Module_Model::DoesAccountHaveIntervalData($v, $start_date, $end_date))
+                    $tmp[] = $v;
+            }
+            
+            $accounts = $tmp;
+            
+            $ytd_performance = new Performance_Model($accounts, $start_date, $end_date);//GetFirstDayLastYear(), GetLastDayLastYear());
+            
+            if (sizeof($accounts) > 0) {
+                PortfolioInformation_Reports_Model::GeneratePositionsValuesTable($accounts, $end_date);
+                $new_pie = PortfolioInformation_Reports_Model::GetPositionValuesPie();
+                $sector_pie = PortfolioInformation_Reports_Model::GetPositionSectorsPie();
+                
+                global $adb;
+                $query = "SELECT @global_total as global_total";
+                $result = $adb->pquery($query, array());
+                if($adb->num_rows($result) > 0){
+                    $global_total = $adb->query_result($result, 0, 'global_total');
+                }
+            };
+            
+            $unsettled_cash = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "unsettled_cash", $end_date);
+            $margin_balance = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "margin_balance", $end_date);
+            $net_credit_debit = PortfolioInformation_HoldingsReport_Model::GetFidelityFieldTotalAsOfDate($accounts, "net_credit_debit", $end_date);
+            $date_options = PortfolioInformation_Module_Model::GetReportSelectionOptions("gh2_report");
+            
+            $tmp = $ytd_performance->ConvertPieToBenchmark($new_pie);
+            $ytd_performance->SetBenchmark($tmp['Stocks'], $tmp['Cash'], $tmp['Bonds']);
+            
+            $viewer = $this->getViewer($request);
+            
+            $ytd_performance->CalculateIndividualTWRCumulative($start_date, $end_date);
+            
+            $start_date = date("m/d/Y", strtotime($start_date));
+            $end_date = date("m/d/Y", strtotime($end_date));
+            
+            
+            $viewer->assign("ORIENTATION", $orientation);
+            $viewer->assign("TODAY", date("M d, Y"));
+            $viewer->assign("YTDPERFORMANCE", $ytd_performance);
+            $viewer->assign("HOLDINGSPIEVALUES", json_encode($new_pie));
+            $viewer->assign("HOLDINGSSECTORPIESTRING", json_encode($sector_pie));
+            $viewer->assign("HOLDINGSSECTORPIEARRAY", $sector_pie);
+            $viewer->assign("HOLDINGSPIEARRAY", $new_pie);
+            $viewer->assign("GLOBALTOTAL", $global_total);
+            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+            $viewer->assign("MARGIN_BALANCE", $margin_balance);
+            $viewer->assign("NET_CREDIT_DEBIT", $net_credit_debit);
+            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+            $viewer->assign("SETTLED_TOTAL", $global_total+$unsettled_cash+$margin_balance+$net_credit_debit);
+            $viewer->assign("CALLING_RECORD", $calling_record);
+            $viewer->assign("ACCOUNT_NUMBER", $accountNumbers);
+            $viewer->assign("HEADING", "");
+            $viewer->assign("DATE_OPTIONS", $date_options);
+            $viewer->assign("SHOW_START_DATE", 1);
+            $viewer->assign("SHOW_END_DATE", 1);
+            $viewer->assign("START_DATE", $start_date);
+            $viewer->assign("END_DATE", $end_date);
+            $viewer->assign("SITEURL", $site_URL);
+            
+            if($calling_record) {
+                $prepared_for = PortfolioInformation_Module_Model::GetPreparedForNameByRecordID($calling_record);
+                $prepared_by = PortfolioInformation_Module_Model::GetPreparedByNameByRecordID($calling_record);
+                $record = VTiger_Record_Model::getInstanceById($calling_record);
+                $data = $record->getData();
+                $module = $record->getModule();
+                if($module->getName() == "Accounts") {
+                    $policy = $data['cf_2525'];//Investment Policy Statement
+                    $viewer->assign("POLICY", $policy);
+                }
+                $viewer->assign("PREPARED_FOR", $prepared_for);
+                $viewer->assign("PREPARED_BY", $prepared_by);
+            }
+            
+            $ispdf = $request->get('pdf');
+            
+            $personal_notes = $request->get('personal_notes');
+            //$moduleName = $request->getModule();
+            $current_user = Users_Record_Model::getCurrentUserModel();
+            
+            $account_totals = PortfolioInformation_Module_Model::GetAccountSumTotals($accounts);
+            $account_totals['global_total'] = $account_totals['total'];
+            
+            if(is_array($accounts)){
+                $portfolios = array();
+                foreach($accounts AS $k => $v) {
+                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+                    if($crmid) {
+                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                        $portfolios[] = $p->getData();
+                    }
+                }
+            }
+            
+            
+            
+            $viewer->assign("PORTFOLIO_DATA", $portfolios);
+            $viewer->assign("GLOBAL_TOTAL", $account_totals);
+            $viewer->assign("PERSONAL_NOTES", $personal_notes);
+            
+            $toc = array();
+            $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+            $toc[] = array("title" => "#2", "name" => "Portfolio Performance");
+            $viewer->assign("TOC", $toc);
+            
+            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+            $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
+            
+            $coverpage = new FormattedContactInfo($calling_record);
+            $coverpage->SetTitle("Portfolio Review");
+            $coverpage->SetLogo(rtrim($site_URL, '/').'/'."layouts/hardcoded_images/lhimage.jpg");
+            
+            $viewer->assign("COVERPAGE", $coverpage);
+            
+            $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/lighthouse.tpl', $moduleName);
+            //$pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/Reports/LighthouseCover.tpl', $moduleName);
+            
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/GH2ReportPDF.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/AllocationTypesPDF.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+            
+            
+            $pdf_content .= '<script src="'.$site_URL.'layouts/v7/lib/jquery/jquery.min.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts4/core.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts4/charts.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts4/themes/animated.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts/amcharts/amcharts.js"></script>
+			<script src="'.$site_URL.'libraries/amcharts/amcharts/pie.js"></script>
+			<script type="text/javascript">';
+            
+            if(!empty($new_pie)){
+                $pdf_content .= 'ValuePieChart();';
+            }
+            
+            if(!empty($sector_pie)){
+                $pdf_content .= 'AssetPieChart();';
+            }
+            
+            
+            $pdf_content .= 'function ValuePieChart(){
+					var self = this;
+					am4core.options.commercialLicense = true;
+					var chart = am4core.create("dynamic_pie_holder", am4charts.PieChart3D);
+					var chartData = $.parseJSON($("#holdings_values").val());
+                
+					chart.data = chartData;
+                
+					var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+					pieSeries.slices.template.stroke = am4core.color("#555354");
+					pieSeries.dataFields.value = "value";
+					pieSeries.dataFields.category = "title";
+					pieSeries.fontSize = 14;
+                
+					pieSeries.slices.template.strokeWidth = 2;
+					pieSeries.slices.template.strokeOpacity = 1;
+                
+					pieSeries.labels.horizontalCenter = "middle";
+					pieSeries.labels.verticalCenter = "middle";
+                
+					pieSeries.labels.template.disabled = true;
+                
+					pieSeries.ticks.template.disabled = true;
+                
+					var colorSet = new am4core.ColorSet();
+					var colors = [];
+					$.each(chartData,function(){
+						var element = jQuery(this);
+						colors.push(element["0"].color);
+					});
+                
+					colorSet.list = colors.map(function(color) {
+						return new am4core.color(color);
+					});
+					pieSeries.colors = colorSet;
+                
+					chart.legend = new am4charts.Legend();
+					chart.legend.position = "right";
+					chart.legend.valueLabels.template.text = "";
+                
+				}
+                
+				function AssetPieChart(){
+					var self = this;
+					am4core.options.commercialLicense = true;
+					var chart = am4core.create("sector_pie_holder", am4charts.PieChart3D);
+					var chartData = $.parseJSON($("#sector_values").val());
+                
+					chart.data = chartData;
+                
+					chart.depth = 10;
+					chart.angle = 10;
+                
+					var pieSeries = chart.series.push(new am4charts.PieSeries3D());
+					pieSeries.slices.template.stroke = am4core.color("#555354");
+					pieSeries.dataFields.value = "value";
+					pieSeries.dataFields.category = "title";
+					pieSeries.fontSize = 14;
+                
+					pieSeries.slices.template.strokeWidth = 2;
+					pieSeries.slices.template.strokeOpacity = 1;
+                
+					pieSeries.labels.horizontalCenter = "middle";
+					pieSeries.labels.verticalCenter = "middle";
+                
+					pieSeries.labels.template.disabled = true;
+                
+					pieSeries.ticks.template.disabled = true;
+                
+					var colorSet = new am4core.ColorSet();
+					var colors = [];
+					$.each(chartData,function(){
+						var element = jQuery(this);
+						colors.push(element["0"].color);
+					});
+                
+					colorSet.list = colors.map(function(color) {
+						return new am4core.color(color);
+					});
+					pieSeries.colors = colorSet;
+                
+				}
+			</script>';
+            
+            $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsSummary.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/BalancesTable.css');
+            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/HoldingsCharts.css');
+            
+            if (!is_dir($fileDir)) {
+                mkdir($fileDir);
+            }
+            
+            $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GH2";
+            
+            $bodyFileName = $fileDir.'/body_'.$name.'.html';
+            
+            $fb = fopen($bodyFileName, 'w');
+            
+            $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+            
+            fwrite($fb, $b);
+            
+            fclose($fb);
+            
+            $footer ="<!doctype html>
+			<html>
+				<head>
+					<meta charset='utf-8'>
+					<script>
+						function substitutePdfVariables() {
+                
+							function getParameterByName(name) {
+								var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+								return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+							}
+                
+							function substitute(name) {
+								var value = getParameterByName(name);
+								var elements = document.getElementsByClassName(name);
+                
+								for (var i = 0; elements && i < elements.length; i++) {
+									elements[i].textContent = value;
+								}
+							}
+                
+							['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection']
+								.forEach(function(param) {
+									substitute(param);
+								});
+						}
+					</script>
+				</head>
+				<body onload='substitutePdfVariables()'>
+					<div style='width:100%;'>
+						<div style='width:40%; float:left;vertical-align:middle;line-height:30px;'>
+							<p style='color:black;font-family:arial,  Sans-Serif, font-size:15px;padding-top:30px;'>
+								Page <span class='page'></span> of <span class='topage'></span> <span style='font-size:12px;'>Disclosures are on the final two pages</span>
+							</p>
+						</div>
+						<div style='float:right;width:60%;'>
+							<img class='pdf_crm_logo' src='" . $site_URL . "" . $logo . "' style='float:right;'  width='40%'/>
+						</div>
+					</div>
+				</body>
+			</html>";
+            
+            $footerFileName = $fileDir.'/footer_'.$name.'.html';
+            
+            $ff = fopen($footerFileName, 'w');
+            
+            $f = $footer;
+            
+            fwrite($ff, $f);
+            
+            fclose($ff);
+            
+            $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+            
+			if($request->get('orientation') == 'landscape'){
+				$output = shell_exec('wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
+            } else {
+				$output = shell_exec('wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html "'.$footerFileName.'" --footer-font-size 10 "'. $bodyFileName.'" "'.$whtmltopdfPath.'" 2>&1');
+            }
+			
+            unlink($bodyFileName);
+            
+            unlink($footerFileName);
+            
+            $filePath[] = $whtmltopdfPath;
+            
         }
+		
         
         if(!$request->get('sendEmail')){
+            
             $this->GeneratePDF($filePath);
-        }else if ($request->get('sendEmail')){
-            $this->SendEmail($filePath, $request->get('userEmail'));
+            
+        } else if ($request->get('sendEmail')){
+            
+            $this->SendEmail($filePath, $request->get('userEmail'), "Your Scheduled GH2Report is Ready !!");
+            
         }
         
     }
@@ -2059,12 +2147,9 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             global $adb, $dbconfig, $root_directory, $site_URL;
             
             $selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
-			
             $orientation = '';
-            
-			$calling_module = $moduleName;
-            
-			$calling_record = $recordId;
+            $calling_module = $moduleName;
+            $calling_record = $recordId;
             
             $current_user = Users_Record_Model::getCurrentUserModel();
             
@@ -2074,7 +2159,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
                 
                 if(strlen($request->get('select_start_date')) > 1) {
                     $start_date = $request->get("select_start_date");
-                } else {
+                }
+                else {
                     $start_date = PortfolioInformation_Module_Model::ReportValueToDate("ytd", false)['start'];
                 }
                 
@@ -3042,39 +3128,39 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     
     /* function OmniIntervalsDaily(Vtiger_Request $request){
     
-        $moduleName = $request->getModule();
-        $recordIds = $this->getRecordsListFromRequest($request);
-        
-        $fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
-        $printed_date = date("mdY");
-        
-        foreach($recordIds as $recordId){
-        
-        $portfolio = Vtiger_Record_Model::getInstanceById($recordId);
-        
-        global $adb, $dbconfig, $root_directory, $site_URL;
-        
-        if (!is_dir($fileDir)) {
-            mkdir($fileDir);
-        }
-        
-        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GHX";
-        
-        $bodyFileName = $fileDir.'/body_'.$name.'.html';
-        $fb = fopen($bodyFileName, 'w');
-        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-        fwrite($fb, $b);
-        fclose($fb);
-        
-        $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
-        
-        $output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-        
-        //unlink($bodyFileName);
-        
-        }
-        $this->GeneratePDF($fileDir);
-        
+    $moduleName = $request->getModule();
+    $recordIds = $this->getRecordsListFromRequest($request);
+    
+    $fileDir = 'cache/'.$request->get('reportselect');//.'_'.strtotime("now");
+    $printed_date = date("mdY");
+    
+    foreach($recordIds as $recordId){
+    
+    $portfolio = Vtiger_Record_Model::getInstanceById($recordId);
+    
+    global $adb, $dbconfig, $root_directory, $site_URL;
+    
+    if (!is_dir($fileDir)) {
+    mkdir($fileDir);
+    }
+    
+    $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_GHX";
+    
+    $bodyFileName = $fileDir.'/body_'.$name.'.html';
+    $fb = fopen($bodyFileName, 'w');
+    $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+    fwrite($fb, $b);
+    fclose($fb);
+    
+    $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
+    
+    $output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+    
+    //unlink($bodyFileName);
+    
+    }
+    $this->GeneratePDF($fileDir);
+    
     }*/
     
     function MonthOverMonth(Vtiger_Request $request){
@@ -3118,126 +3204,126 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             if(is_array($assigned_to))
                 $assigned_to = $assigned_to[0];
                 
-            $ispdf = $request->get('pdf');
-            
-            $viewer = $this->getViewer($request);
-            //$moduleName = $request->getModule();
-            $account_number = $accountNumbers;
-            
-            $total_weight = 0;
-            if(!is_array($account_number))
-                $accounts = explode(",", $accountNumbers);
-            else {
-                $accounts = $account_number;
-            }
-            $accounts = array_unique($accounts);
-            if (sizeof($accounts) > 0) {
-                $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
-                $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
-                $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
-            };
-            
-            $contact_instance = null;
-            if(is_array($accounts)){
-                $portfolios = array();
-                $unsettled_cash = 0;
-                foreach($accounts AS $k => $v) {
-                    $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
-                    if($crmid) {
-                        $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
-                        $contact_id = $p->get('contact_link');
-                        if ($contact_id)
-                            $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
-                            
-                            $portfolios[] = $p->getData();
-                            $unsettled_cash += $p->get('unsettled_cash');
-                            if (!$advisor_instance) {
-                                echo "NO INSTANCE!";
-                                $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
-                            }
-                    }
-                }
-            }
-            
-            if($contact_instance) {
-                if(!$advisor_instance)
-                    $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
-                    
-                    $household_instance = null;
-                    if (reset($contact_instance)->get('account_id'))
-                        $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
-            }
-            
-            
-            $current_user = Users_Record_Model::getCurrentUserModel();
-            
-            $data = $advisor_instance->getData();
-            $has_advisor = 0;
-            if(strlen($data['user_name']) > 0)
-                $has_advisor = 1;
+                $ispdf = $request->get('pdf');
                 
-            $toc = array();
-            $toc[] = array("title" => "#1", "name" => "Accounts Overview");
-            $toc[] = array("title" => "#2", "name" => "Month Over Month");
-            
-            $viewer->assign("DATE", date("F d, Y"));
-            $viewer->assign("ASSIGNED_TO", $assigned_to);
-            $viewer->assign("HAS_ADVISOR", $has_advisor);
-            $viewer->assign("CONTACTS", $contact_instance);
-            $viewer->assign("REPORT_TYPE", "Client Statement");
-            $viewer->assign("CURRENT_USER", $current_user);
-            $viewer->assign("ADVISOR", $advisor_instance);
-            $viewer->assign("HOUSEHOLD", $household_instance);
-            $viewer->assign("USER_DATA", $current_user->getData());
-            $viewer->assign("MAILING_INFO", $mailing_info);
-            $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
-            $viewer->assign("PORTFOLIO_DATA", $portfolios);
-            $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
-            $viewer->assign("PIE_IMAGE", $pie_image);
-            $viewer->assign("DYNAMIC_PIE_FILE", $pie_file);
-            $viewer->assign("COLORS", $colors);
-            $viewer->assign("TOTAL_WEIGHT", $total_weight);
-            $viewer->assign("CALLING_RECORD", $calling_record);
-            $viewer->assign("TOC", $toc);
-            $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
-            $viewer->assign("MOM_TABLE", $mom_table);
-            $viewer->assign("DOW_PRICES", $dow_prices);
-            $viewer->assign("YEARS", $years);
-            $viewer->assign("PREPARED_FOR", $prepared_for);
-            $viewer->assign("PREPARED_BY", $prepared_by);
-            $viewer->assign("MODULE", "PortfolioInformation");
-            $viewer->assign("SITEURL", $site_URL);
-            
-            $viewer->assign("RANDOM", rand(1,100000));
-            
-            $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
-            $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
-            
-            $personal_notes = $request->get('personal_notes');
-            $viewer->assign("PERSONAL_NOTES", $personal_notes);
-            
-            $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MonthOverMonth.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
-            $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
-            
-            $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
-            $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/MonthOverMonth.css');
-            
-            if (!is_dir($fileDir)) {
-                mkdir($fileDir);
-            }
-            
-            $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_MonthOverMonth";
-            
-            $bodyFileName = $fileDir.'/body_'.$name.'.html';
-            $fb = fopen($bodyFileName, 'w');
-            $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
-            fwrite($fb, $b);
-            fclose($fb);
-            
-            $footer ="<!doctype html>
+                $viewer = $this->getViewer($request);
+                //$moduleName = $request->getModule();
+                $account_number = $accountNumbers;
+                
+                $total_weight = 0;
+                if(!is_array($account_number))
+                    $accounts = explode(",", $accountNumbers);
+                    else {
+                        $accounts = $account_number;
+                    }
+                    $accounts = array_unique($accounts);
+                    if (sizeof($accounts) > 0) {
+                        $mom_table = PortfolioInformation_MonthOverMonth_Model::GenerateMonthOverMonthTable($accounts, "Income");
+                        $dow_prices = PortfolioInformation_MonthOverMonth_Model::GetMonthEndPrices("DJI");
+                        $years = PortfolioInformation_MonthOverMonth_Model::GetMonthOverMonthYears();
+                    };
+                    
+                    $contact_instance = null;
+                    if(is_array($accounts)){
+                        $portfolios = array();
+                        $unsettled_cash = 0;
+                        foreach($accounts AS $k => $v) {
+                            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($v);
+                            if($crmid) {
+                                $p = PortfolioInformation_Record_Model::getInstanceById($crmid);
+                                $contact_id = $p->get('contact_link');
+                                if ($contact_id)
+                                    $contact_instance[$p->get('account_number')] = Contacts_Record_Model::getInstanceById($contact_id);
+                                    
+                                    $portfolios[] = $p->getData();
+                                    $unsettled_cash += $p->get('unsettled_cash');
+                                    if (!$advisor_instance) {
+                                        echo "NO INSTANCE!";
+                                        $advisor_instance = Users_Record_Model::getInstanceById($p->get('assigned_user_id'), "Users");
+                                    }
+                            }
+                        }
+                    }
+                    
+                    if($contact_instance) {
+                        if(!$advisor_instance)
+                            $advisor_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('assigned_user_id'), "Users");
+                            
+                            $household_instance = null;
+                            if (reset($contact_instance)->get('account_id'))
+                                $household_instance = Users_Record_Model::getInstanceById(reset($contact_instance)->get('account_id'));
+                    }
+                    
+                    
+                    $current_user = Users_Record_Model::getCurrentUserModel();
+                    
+                    $data = $advisor_instance->getData();
+                    $has_advisor = 0;
+                    if(strlen($data['user_name']) > 0)
+                        $has_advisor = 1;
+                        
+                        $toc = array();
+                        $toc[] = array("title" => "#1", "name" => "Accounts Overview");
+                        $toc[] = array("title" => "#2", "name" => "Month Over Month");
+                        
+                        $viewer->assign("DATE", date("F d, Y"));
+                        $viewer->assign("ASSIGNED_TO", $assigned_to);
+                        $viewer->assign("HAS_ADVISOR", $has_advisor);
+                        $viewer->assign("CONTACTS", $contact_instance);
+                        $viewer->assign("REPORT_TYPE", "Client Statement");
+                        $viewer->assign("CURRENT_USER", $current_user);
+                        $viewer->assign("ADVISOR", $advisor_instance);
+                        $viewer->assign("HOUSEHOLD", $household_instance);
+                        $viewer->assign("USER_DATA", $current_user->getData());
+                        $viewer->assign("MAILING_INFO", $mailing_info);
+                        $viewer->assign("NUM_ACCOUNTS_USED", sizeof($accounts));
+                        $viewer->assign("PORTFOLIO_DATA", $portfolios);
+                        $viewer->assign("UNSETTLED_CASH", $unsettled_cash);
+                        $viewer->assign("PIE_IMAGE", $pie_image);
+                        $viewer->assign("DYNAMIC_PIE_FILE", $pie_file);
+                        $viewer->assign("COLORS", $colors);
+                        $viewer->assign("TOTAL_WEIGHT", $total_weight);
+                        $viewer->assign("CALLING_RECORD", $calling_record);
+                        $viewer->assign("TOC", $toc);
+                        $viewer->assign("ACCOUNT_NUMBER", json_encode($accounts));
+                        $viewer->assign("MOM_TABLE", $mom_table);
+                        $viewer->assign("DOW_PRICES", $dow_prices);
+                        $viewer->assign("YEARS", $years);
+                        $viewer->assign("PREPARED_FOR", $prepared_for);
+                        $viewer->assign("PREPARED_BY", $prepared_by);
+                        $viewer->assign("MODULE", "PortfolioInformation");
+                        $viewer->assign("SITEURL", $site_URL);
+                        
+                        $viewer->assign("RANDOM", rand(1,100000));
+                        
+                        $logo = PortfolioInformation_Module_Model::GetLogo();//Set the logo
+                        $viewer->assign("LOGO", rtrim($site_URL, '/').'/'.$logo);
+                        
+                        $personal_notes = $request->get('personal_notes');
+                        $viewer->assign("PERSONAL_NOTES", $personal_notes);
+                        
+                        $pdf_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/MonthOverMonth.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/page_break.tpl', $moduleName);
+                        $pdf_content .= $viewer->fetch('layouts/v7/modules/PortfolioInformation/pdf2/disclaimer.tpl', $moduleName);
+                        
+                        $stylesheet  = file_get_contents('layouts/v7/modules/PortfolioInformation/css/HoldingsReport.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/GroupAccounts.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/TableOfContents.css');
+                        $stylesheet .= file_get_contents('layouts/v7/modules/PortfolioInformation/css/pdf/MonthOverMonth.css');
+                        
+                        if (!is_dir($fileDir)) {
+                            mkdir($fileDir);
+                        }
+                        
+                        $name = GetClientNameFromRecord($calling_record) . "_" . $printed_date . "_MonthOverMonth";
+                        
+                        $bodyFileName = $fileDir.'/body_'.$name.'.html';
+                        $fb = fopen($bodyFileName, 'w');
+                        $b = '<html><style>'.$stylesheet.'</style>'.$pdf_content.'</html>';
+                        fwrite($fb, $b);
+                        fclose($fb);
+                        
+                        $footer ="<!doctype html>
 			<html>
 				<head>
 					<meta charset='utf-8'>
@@ -3278,6 +3364,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 					</div>
 				</body>
 			</html>";
+                        
             $footerFileName = $fileDir.'/footer_'.$name.'.html';
             $ff = fopen($footerFileName, 'w');
             $f = $footer;
@@ -3286,7 +3373,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
             
             $whtmltopdfPath = $fileDir.'/'.$name.'.pdf';
             
-            $output = shell_exec("wkhtmltopdf --javascript-delay 4000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+            $output = shell_exec("wkhtmltopdf --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0  --footer-html ".$footerFileName." --footer-font-size 10 ". $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
             
             unlink($bodyFileName);
             unlink($footerFileName);
