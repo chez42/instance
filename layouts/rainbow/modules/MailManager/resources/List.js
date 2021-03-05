@@ -2676,6 +2676,11 @@ Vtiger_List_Js("MailManager_List_Js", {}, {
     	var moduleName = app.getModuleName();
     	
     	jQuery(document).ready(function(){
+    		
+    		if(!jQuery("[name='folderData']").length){
+    			return;
+    		}
+    			
     		var data = JSON.parse(jQuery("[name='folderData']").val());
 	    	$(function () {
 	    		jQuery('#tree_folder').jstree({

@@ -451,7 +451,7 @@ class MailManager_Relation_View extends MailManager_Abstract_View {
 	 * @return Array
 	 */
 	public function getCurrentUserMailManagerAllowedModules() {
-		$moduleListForCreateRecordFromMail = array('Contacts', 'Accounts', 'Leads', 'HelpDesk', 'Calendar', 'Potentials');
+		$moduleListForCreateRecordFromMail = array('Contacts', 'Accounts', 'Leads', 'HelpDesk', 'Calendar', 'Potentials', 'Emails');
 
 		foreach($moduleListForCreateRecordFromMail as $module) {
 			if(MailManager::checkModuleWriteAccessForCurrentUser($module)) {
