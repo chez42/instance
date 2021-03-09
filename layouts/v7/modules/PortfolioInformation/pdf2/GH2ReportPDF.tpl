@@ -18,11 +18,11 @@
 
 <div id="GHReport_wrapper">
     <div class="GHReport_section">
-        <h2 style="width:100%; background-color:lightblue; text-align:center;">PORTFOLIO SUMMARY</h2>
+        <h2 style="width:100%; background-color:lightblue; text-align:center;font-size:25px;padding-top:2px;padding-bottom:2px;">PORTFOLIO SUMMARY</h2>
         <table style="width:100%;">
             <tr>
-                <td style="width:50%;">
-                    <table style="display:block; width:90%; font-size:14px;">
+                <td style="width:40%;">
+                    <table style="width:100%; font-size:16px;">
                         <thead>
                         <tr>
                             <th>&nbsp;</th>
@@ -67,8 +67,8 @@
                         </tbody>
                     </table>
                 </td>
-                <td style="padding-left:100pt;">
-                   <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 400px; width:550px;"></div>
+                <td style="padding-left:100pt;width:70%;">
+                   <div id="dynamic_pie_holder" class="dynamic_pie_holder" style="height: 400px;"></div>
                 </td>
             </tr>
 

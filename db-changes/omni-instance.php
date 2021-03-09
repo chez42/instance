@@ -1503,3 +1503,5 @@ if (!$adb->num_rows($rs)) {
         vtws_addWebserviceOperationParam($operationId, $param['name'], $param['type'], $sequence++);
     }
 }
+
+$adb->pquery("ALTER TABLE `vtiger_scheduled_portfolio_reports` ADD `orientation` VARCHAR(100) NULL DEFAULT NULL AFTER `user_id`")
