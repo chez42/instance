@@ -881,40 +881,79 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 		var thisInstance = this;
 		jQuery(document).on('change', '[name="template_id"]', function(){
 			
-			var module = 'CalendarTemplate';
-			var tempValue = $(this).val();
-			var data = {};
-			data['record'] = tempValue;
-			data['source_module'] = module;
-			thisInstance.getRecordDetails(data).then(function(response){
-				var tmpData = response.data;
-				
-				jQuery('[name="subject"]').val(tmpData.subject);
-				jQuery('[name="location"]').val(tmpData.location);
-				
-				jQuery('[name="description"]').val(tmpData.description);
-				
-				if(tmpData.send_mail_reminder){
-					jQuery('[name="set_reminder"]').prop('checked',true).trigger('change');
-				}
-				if(tmpData.send_contact_notification){
-					jQuery('[name="sendnotification"]').prop('checked',true);
-				}
-				
-				var str = tmpData.default_category;
-				var categeory = str.split(" |##| ");
-				
-				$('[name="cf_3294[]"]').val(categeory).trigger("change");
+			if($(this).val() == 'create-template') {
+				window.open("index.php?module=CalendarTemplate&view=Edit", '_blank');
+			} else { 
 			
-				$('select[name="activitytype"]').val(tmpData.activitytype).trigger("change");
+				var module = 'CalendarTemplate';
+				var tempValue = $(this).val();
+				var data = {};
+				data['record'] = tempValue;
+				data['source_module'] = module;
+				thisInstance.getRecordDetails(data).then(function(response){
+					var tmpData = response.data;
+					
+					jQuery('[name="subject"]').val(tmpData.subject);
+					jQuery('[name="location"]').val(tmpData.location);
+					
+					jQuery('[name="description"]').val(tmpData.description);
+					
+					if(tmpData.send_mail_reminder){
+						jQuery('[name="set_reminder"]').prop('checked',true).trigger('change');
+					}
+					if(tmpData.send_contact_notification){
+						jQuery('[name="sendnotification"]').prop('checked',true);
+					}
+					
+					var str = tmpData.default_category;
+					var categeory = str.split(" |##| ");
+					
+					$('[name="cf_3294[]"]').val(categeory).trigger("change");
 				
-				$('select[name="taskpriority"]').val(tmpData.taskpriority).trigger("change");
-			
-			},
-			function(error, err){
-
-			});
+					$('select[name="activitytype"]').val(tmpData.activitytype).trigger("change");
+					
+					$('select[name="taskpriority"]').val(tmpData.taskpriority).trigger("change");
+				
+				},
+				function(error, err){
+	
+				});
+			}
 		});
+		
+		jQuery(document).on('click', '.refresh_calendar_template', function(){
+			
+			var params = {
+	    		'module': 'CalendarTemplate',
+	            'action': 'GetTemplates',
+	        };
+			
+	        app.request.post({data: params}).then(
+	    		function(err, response) {
+	                if (!err) {
+	                	
+	                	$('[name="template_id"]').empty();
+                		
+	                	$('[name="template_id"]').append(new Option('Select Template', ''));
+		                $('[name="template_id"]').val('');
+	                	
+		                $.each(response.templates,function(template_id, template_name){
+	                		$('[name="template_id"]').append(new Option(template_name, template_id));
+		                });
+		                $('[name="template_id"]').append(new Option('Create New Template', 'create-template'));
+		            }
+	    		}
+    		);
+		});
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	},
 	 
 });

@@ -51,16 +51,28 @@
 								<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE_EVENT)}' />
 							{/if}
 						{/if}
-						<div>
-							<div style="margin-left: 14px;width: 95%;">
+						<div class = "row">
+							<div class = "col-lg-10" style="margin-left: 14px;">
 								{assign var=CALENDAR_TEMPLATES value=CalendarTemplate_Module_Model::getAllTemplates()}
 								<select class="select2 inputElement" name="template_id" style = "width:100%;" >
-									 <option value="">Select Template</option>
+									{if !empty($CALENDAR_TEMPLATES)}
+										<option value="">Select Template</option>
+									{/if}
 									{foreach item=TEMPLATE_NAME key=TEMPLATE_VALUE from=$CALENDAR_TEMPLATES}
 										<option value="{$TEMPLATE_VALUE}">{$TEMPLATE_NAME}</option>
 									{/foreach}
+									<option value="create-template">Create New Template</option>
 								</select>
 							</div>
+							
+							<div class="col-lg-1">
+			                	<span class="pull-left">
+			                        <span class="cursorPointer refresh_calendar_template" title="Refresh">
+			                        	<i class="fa fa-refresh"></i>
+		                        	</span>&nbsp;
+	                        	</span>
+			                </div>
+			                
 						</div>
 						<div style="padding-top: 2%;">
 							{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['subject']}
