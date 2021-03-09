@@ -58,7 +58,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
             	<head>
             		<link type='text/css' rel='stylesheet' href='".rtrim($site_URL,'/')."/layouts/v7/lib/todc/css/bootstrap.min.css'>
             	</head>
-            	<body style='font-size:1.8rem !important;'>";
+            	<body style='font-size:16px !important;font-family:Times New Roman,serif;'>";
         
         $portQuery = $adb->pquery("SELECT * FROM vtiger_portfolioinformation
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
@@ -220,14 +220,16 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
     					CASE
-    						WHEN (vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
-    						WHEN (vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities') then 'minus'
+    						WHEN (
+							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
+    						WHEN (
+							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities') then 'minus'
                         END  AS transaction_status
     					FROM vtiger_transactions
     					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
     					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
     					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-    					AND vtiger_transactionscf.transaction_activity IN ('Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities')
+    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities')
     					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
     					AND vtiger_transactionscf.net_amount > ?
     					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
@@ -248,7 +250,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 $transactionAmount = ($diffDays/$totalDays*$feeamount);
                                 
                                 $totalAmount = $transaction_data['totalamount'];
-                                if($transaction_data['transaction_activity'] == 'Withdrawal of funds' || $transaction_data['transaction_activity'] == 'Transfer of securities'){
+                                if(
+									$transaction_data['transaction_activity'] == 'Transfer of funds' ||
+									$transaction_data['transaction_activity'] == 'Withdrawal of funds' || 
+									$transaction_data['transaction_activity'] == 'Transfer of securities'
+								){
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
                                 
@@ -314,11 +320,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 <br>
                 <br>
         		<div class='row'>
-        			<div class='col-xs-1'></div>
-            		<div class='col-xs-10'>
-                		<div class='row'>
+        			
+            		<div class='col-xs-12'>
+                		<!-- <div class='row'>
                 			<div class='col-xs-12'><strong>".date('F d, Y')."</strong></div>
-                		</div>
+                		</div> 
                         <br>
                 		<div class='row'>
                 			<div class='col-xs-3'>
@@ -326,12 +332,12 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 			</div>
                 			<div class='col-xs-9'>
                 			</div>
-                		</div>
+                		</div> -->
                         <br>
                 		<div class='row'>
-                			<div class='col-xs-12'><strong>".strtoupper($fullName)."</strong></div>
+                			<div class='col-xs-12' style = 'font-weight:600;font-family:Times New Roman,serif;'>".strtoupper($fullName)."</div>
                 		</div>
-                        <br>
+                        <!-- <br>
                         <div class='row'>
                             <div class='col-xs-1'>
                                 <label>To : </label>
@@ -341,8 +347,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 ".$conData['mailingcity']."<br>
                                 ".$conData['mailingstate'].", ".$conData['mailingzip']."
                             </div>
-                        </div>
-                        <br>
+                        </div> -->
+                        <br> 
                         <br>
                         <br>
                         <div class='row'>
@@ -372,15 +378,14 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             <div class='col-xs-2'>
                                 Account
                             </div>
-                            <div class='col-xs-3'>
+                            <div class='col-xs-4' style = 'text-align:right;'>
                                 Portion of Assets Calculated
                             </div>
-                            <div class='col-xs-3'>
+                            <div class='col-xs-4' style = 'text-align:left;'>
                                 Fee Rate (".$feeRate." Annual Rate)
                             </div>
-                            <div class='col-xs-1'>
-                            </div>
-                            <div class='col-xs-3'>
+                            
+                            <div class='col-xs-2' style = 'text-align:left;'>
                                 Fee Amount
                             </div>
                         </div>";
@@ -391,17 +396,15 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 <div class='col-xs-2'>
                                    ".$schedule['account']." :
                                 </div>
-                                <div class='col-xs-3 text-center'>
+                                <div class='col-xs-4 text-center'>
                                     ".number_format($schedule['amount'], 2)."
                                 </div>
-                                <div class='col-xs-3'>
+                                <div class='col-xs-4'>
                                     x ".$schedule['feerate']."
                                 </div>
-                                <div class='col-xs-1'>
-                                    =
-                                </div>
-                                <div class='col-xs-3'>
-                                    $".number_format($schedule['feeamount'],2)."
+                                
+                                <div class='col-xs-2'>
+                                   = $".number_format($schedule['feeamount'],2)."
                                 </div>
                             </div>
                            ";
@@ -427,17 +430,15 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             <div class='col-xs-2'>
                                ".$portData['account_number']." :
                             </div>
-                            <div class='col-xs-3 text-center'>
+                            <div class='col-xs-4' style = 'text-align:right;'>
                                 ".number_format($totalValue, 2)."
                             </div>
-                            <div class='col-xs-3'>
-                                x ".$feeamount."
+                            <div class='col-xs-4' style = 'text-align:left;'>
+                                &nbsp;&nbsp;x&nbsp;&nbsp;".$feeamount."
                             </div>
-                            <div class='col-xs-1'>
-                                =
-                            </div>
-                            <div class='col-xs-3'>
-                                $".number_format($amountValue,2)."
+                            
+                            <div class='col-xs-2' style = 'text-align:left;'>
+                                 =&nbsp;&nbsp;&nbsp;&nbsp;$".number_format($amountValue,2)."
                             </div>
                         </div>
                         <br>";
@@ -451,19 +452,19 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         </div>
                         <br>
                         <div class='row'>
-                            <div class='col-xs-3'>
+                            <div class='col-xs-3' style = 'width:24%;'>
                                 Date of Flow
                             </div>
-                            <div class='col-xs-2'>
+                            <div class='col-xs-2' style = 'width:23%;'>
                                 Time Period
                             </div>
-                            <div class='col-xs-1'>
+                            <div class='col-xs-1' style = 'width:5%;'>
                                 Rate
                             </div>
-                            <div class='col-xs-3'>
+                            <div class='col-xs-3' style = 'width:24%;'>
                                 Amount of Flow
                             </div>
-                            <div class='col-xs-3'>
+                            <div class='col-xs-3' style = 'width:24%;text-align:right;'>
                                 Total Adjustment
                             </div>
                         </div>";
@@ -471,84 +472,86 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         foreach($transactionData as $transdata){
                             $addFeeTrans += $transdata['transactionamount']*$transdata['totalAmount'];
                             $html .= "<div class='row'>
-                                <div class='col-xs-3'>
+                                <div class='col-xs-3' style = 'width:24%;'>
                                     ".date('F d, Y',strtotime($transdata['trade_date']))."
                                 </div>
-                                <div class='col-xs-2'>
+                                <div class='col-xs-2' style = 'width:23%'>
                                     ".$transdata['diff_days']." / ".$transdata['totalDays']."  x  ".$transdata['trans_fee']."
                                 </div>
-                                <div class='col-xs-1'>
+                                <div class='col-xs-1' style = 'width:5%;'>
                                     x
                                 </div>
-                                <div class='col-xs-3'>
+                                <div class='col-xs-3' style = 'width:24%;'>
                                     $".number_format($transdata['totalAmount'],2)." =
                                 </div>
-                                <div class='col-xs-3 text-center'>
+                                <div class='col-xs-3 text-center' style = 'width:24%;text-align:right;'>
                                     $".number_format($transdata['transactionamount']*$transdata['totalAmount'], 2)."
                                 </div>
                             </div>";
                         }
                         $html .= "<div class='row'>
-                            <div class='col-xs-9'>
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                <strong>---------</strong>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class='col-xs-9 text-right'>
-                                add
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                $".number_format($addFeeTrans,2)."
-                            </div
-                        </div>
-                        <div class='row'>
-                            <div class='col-xs-9'>
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                <strong>---------</strong>
-                            </div>
-                        </div>
-                        <div class='row'>
-                            <div class='col-xs-9 text-right'>
-                                equals
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                $".number_format($addFeeTrans+$amountValue,2)."
-                            </div>
-                        </div>";
+										<div class='col-xs-9'>
+										</div>
+										<div class='col-xs-3' style = 'text-align:right;'>
+											<strong>---------</strong>
+										</div>
+									</div>
+									<div class='row'>
+										<div class='col-xs-9 text-right'>
+											add
+										</div>
+										<div class='col-xs-3' style = 'text-align:right;'>
+											$".number_format($addFeeTrans,2)."
+										</div>
+									</div>
+									<div class='row'>
+										<div class='col-xs-9'>
+										</div>
+										<div class='col-xs-3' style = 'text-align:right;'>
+											<strong>---------</strong>
+										</div>
+									</div>
+									<div class='row'>
+										<div class='col-xs-9 text-right'>
+											equals
+										</div>
+										<div class='col-xs-3' style = 'text-align:right;'>
+											$".number_format($addFeeTrans+$amountValue,2)."
+										</div>
+									</div>";
                         $amountValue = $addFeeTrans+$amountValue;
                     }
                     
                     $html .="<div class='row'>
-                            <div class='col-xs-9'>
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                <strong>----------------------</strong>
-                            </div>
-                        </div>
-                        <div class='row' style='background-color: #dedede !important;'>
-                            <div class='col-xs-9 text-right'>
-                                Total Fees Debited
-                            </div>
-                            <div class='col-xs-3 text-center'>
-                                <strong>$".number_format($amountValue, 2)."</strong>
-                            </div>
-                        </div>
-                        <br>
-                        <div class='row'>
-                            <div class='col-xs-12'>
-                                Disclaimer:<br>
-                                This presentation is solely for informational purpose. Past performance is no guarantee of future returns.
-                                Investing invol principal capital. The information in this report is believed to be accurate and complete
-                                but cannot be guaranteed. Clients this information with ".strtolower($frequency)." statements from their
-                                custodian, TD Ameritrade. Please contact us at your earliest conveni regarding the content of this presentation
-                                and how it may be the right strategy for you.
-                            </div>
-                        </div>
+								<div class='col-xs-9'>
+								</div>
+								<div class='col-xs-3' style = 'text-align:right;'>
+									<strong>----------------</strong>
+								</div>
+							</div>
+							<div class='row' style='background-color: #dedede !important;'>
+								<div class='col-xs-9 text-right' style = 'text-align:right;'>
+									Total Fees Debited
+								</div>
+								<div class='col-xs-3 text-right' style = 'text-align:right;'>
+									<strong>$".number_format($amountValue, 2)."</strong>
+								</div>
+							</div>
+							<br>
+						
+							<div class='row'>
+								<div class='col-xs-12'>
+									Disclaimer:<br>
+									This presentation is solely for informational purpose. Past performance is no guarantee of future returns.
+									Investing invol principal capital. The information in this report is believed to be accurate and complete
+									but cannot be guaranteed. Clients this information with ".strtolower($frequency)." statements from their
+									custodian, TD Ameritrade. Please contact us at your earliest conveni regarding the content of this presentation
+									and how it may be the right strategy for you.
+								</div>
+							</div>
+						
             		</div>
-            		<div class='col-xs-1'></div>
+            		
         		</div>
 				</div>
                 <div class='page-break' style='page-break-before: always !important;'></div>";
@@ -560,14 +563,14 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $html.="</body>
         </html>";
         
-        
+		
         $fileDir = 'cache/';
         $bodyFileName = $fileDir.'billingStatement.html';
         $fb = fopen($bodyFileName, 'w');
         fwrite($fb, $html);
         fclose($fb);
         
-        $output = shell_exec("wkhtmltopdf --javascript-delay 6000 -T 10.0 -B 5.0 -L 5.0 -R 5.0  ".$bodyFileName." ".$fileDir."billingStatement.pdf 2>&1");
+        $output = shell_exec("wkhtmltopdf -T 5.0 -B 5.0 -L 20.0 -R 20.0  ".$bodyFileName." ".$fileDir."billingStatement.pdf 2>&1");
         
         header('Content-Type: application/pdf');
         header('Content-disposition: attachment; filename=billingStatement.pdf');
