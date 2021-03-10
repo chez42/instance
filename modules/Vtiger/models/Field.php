@@ -158,13 +158,18 @@ class Vtiger_Field_Model extends Vtiger_Field {
 				$fieldDataType = 'documentsFileUpload';
 			} else if($uiType == '83') {
 				$fieldDataType = 'productTax';
+				
 			} else if($uiType == '117') {
-				$fieldDataType = 'currencyList';
-			} else if($uiType == '55' && stripos($this->getName(), 'salutationtype') !== false) {
+				
+			    $fieldDataType = 'currencyList';
+			
+		    /*} else if($uiType == '55' && stripos($this->getName(), 'salutationtype') !== false) {
 				$fieldDataType = 'picklist';
 			} else if($uiType == '55' && stripos($this->getName(), 'firstname') !== false) {
 				$fieldDataType = 'salutation';
-            } else if($uiType == '55' && stripos($this->getName(), 'roundrobin_userid') !== false) {
+            */
+				
+			} else if($uiType == '55' && stripos($this->getName(), 'roundrobin_userid') !== false) {
                 $fieldDataType = 'multiowner';
             } else if($uiType == '1006'){
                 return 'PortfolioCurrency';
@@ -248,9 +253,14 @@ class Vtiger_Field_Model extends Vtiger_Field {
 	}
 
 	public function isRoleBased() {
-		if($this->get('uitype') == '15' || $this->get('uitype') == '33' || ($this->get('uitype') == '55' && $this->getFieldName() == 'salutationtype')) {
+		/*if($this->get('uitype') == '15' || $this->get('uitype') == '33' || ($this->get('uitype') == '55' && $this->getFieldName() == 'salutationtype')) {
 			return true;
-		}
+		}*/
+	    
+	    if($this->get('uitype') == '15' || $this->get('uitype') == '33') {
+	        return true;
+	    }
+	    
 		return false;
 	}
 

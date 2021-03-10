@@ -1504,4 +1504,17 @@ if (!$adb->num_rows($rs)) {
     }
 }
 
-$adb->pquery("ALTER TABLE `vtiger_scheduled_portfolio_reports` ADD `orientation` VARCHAR(100) NULL DEFAULT NULL AFTER `user_id`")
+$adb->pquery("ALTER TABLE `vtiger_scheduled_portfolio_reports` ADD `orientation` VARCHAR(100) 
+NULL DEFAULT NULL AFTER `user_id`");
+
+$adb->pquery("ALTER TABLE `com_vtiger_workflow_tasktypes` ADD PRIMARY KEY(`id`)");
+
+$adb->pquery("update vtiger_field set displaytype = 1, uitype = 15 where fieldname = 'salutationtype' and tabid = 4");
+$adb->pquery("update vtiger_field set displaytype = 1, uitype = 2 where fieldname = 'firstname' and tabid = 4");
+
+$adb->pquery("update vtiger_field set displaytype = 1, uitype = 15 where fieldname = 'salutationtype' and tabid = 7");
+$adb->pquery("update vtiger_field set displaytype = 1, uitype = 2 where fieldname = 'firstname' and tabid = 7");
+
+/*INTO `com_vtiger_workflow_tasktypes` (`id`, `tasktypename`, `label`, `classname`, `classpath`, 
+    `templatepath`, `modules`, `sourcemodule`) VALUES ('', 'NotificationTask', 'Create Notifications', 'NotificationTask', 'modules/Notifications/workflow/NotificationTask.inc', 'modules/Notifications/task/NotificationTask.tpl', '{\"include\":[],\"exclude\":[]}', 'Notifications');
+*/
