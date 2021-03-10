@@ -570,15 +570,20 @@ tbody .ps__thumb-y{
 }
 .referencefield-wrapper .inputElement, 
 .input-group > :first-child{
-	border-radius: <?= $border_radius ?>px 0px 0px <?= $border_radius ?>px !important;
-}
-.input-group :last-child{
-	border-radius: 0px <?= $border_radius ?>px <?= $border_radius ?>px 0px !important;
+	border-radius: <?= $border_radius ?>px <?= $border_radius ?>px <?= $border_radius ?>px <?= $border_radius ?>px !important;
 }
 
-.input-save-wrap :first-child{
-	border-radius: 0px !important;
+.date > .inputElement  {
+	border-radius: <?= $border_radius ?>px 0px 0px <?= $border_radius ?>px !important;
 }
+
+/*.input-group :last-child{
+	border-radius: 0px <?= $border_radius ?>px <?= $border_radius ?>px 0px !important;
+}*/
+
+/*.input-save-wrap :first-child{
+	border-radius: 0px !important;
+}*/
 
 .inputElement[type='checkbox']{
 	border-radius: 0px !important;

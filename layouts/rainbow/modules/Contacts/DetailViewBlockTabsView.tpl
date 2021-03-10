@@ -276,7 +276,6 @@
 									&nbsp;{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
 								</h4>
 							</div>
-							<hr>
 							<div class="blockData">
 								<table class="table detailview-table no-border">
 									<tbody {if $IS_HIDDEN} class="hide" {/if}>
