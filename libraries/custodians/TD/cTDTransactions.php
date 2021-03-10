@@ -577,7 +577,7 @@ class cTDTransactions extends cCustodian
 
         $query = "SELECT m.operation, cf.custodian_control_number, pcf.production_number, m.omniscient_category, m.omniscient_activity, 
                          f.transaction_code, t.security_price, t.quantity, cf.net_amount, f.symbol, f.transaction_id, f.account_number,
-                         t.trade_date, mscf.security_price_adjustment AS pricing_factor
+                         t.trade_date, mscf.security_price_adjustment AS pricing_factor, f.cancel_status_flag
                   FROM vtiger_transactions t
                   JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
                   JOIN custodian_omniscient.custodian_transactions_td f ON f.transaction_id = t.cloud_transaction_id
@@ -605,6 +605,14 @@ class cTDTransactions extends cCustodian
                 if(strtoupper($v['omniscient_activity']) == "RECEIPT OF SECURITIES"){
                     $v['price'] = $v['close_price'] = self::GetBestReceiptOfSecurityPrice($v['symbol'], $v['trade_date']);
                     $v['net_amount'] = $v['quantity'] * $v['pricing_factor'] * $v['close_price'];
+                }
+
+                switch(strtoupper($v['cancel_status_flag'])){
+                    case "Y":
+                        if($v['operation'] == '-')
+                            $v['operation'] = '';
+                        elseif(($v['operation'] == '') || $v['operation'] == '+')
+                            $v['operation'] = '-';
                 }
 
                 $query = "UPDATE vtiger_transactions t 

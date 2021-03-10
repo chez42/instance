@@ -139,7 +139,8 @@
         <table class='table' style="font-family:Calibri, Sans-Serif; width:100%; min-wdith:100%;">
             <thead>
             <tr style="background-color:RGB(245, 245, 245);">
-                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:25%; text-align:right; text-decoration:underline;">ACCOUNT NAME</th>
+                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:25%; text-align:left; text-decoration:underline;">ACCOUNT NAME</th>
+                <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:12%; text-align:left; text-decoration:underline;">ACCT TYPE</th>
                 <th style="font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:10%; text-align:right; text-decoration:underline;">ACCT<br />NUMBER</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">BEG.<br />BALANCE</th>
                 <th style="margin:0; padding:0; font-size: 8pt; font-weight:bold; background-color:RGB(245, 245, 245); width:15%; text-align:right; text-decoration:underline;">ADDTNS/<br />WTHDRWLS</th>
@@ -151,7 +152,8 @@
             <tbody>
             {foreach from=$ytd_individual_performance_summed key=account_number item=v}
                 <tr {if $ytd_individual_performance_summed[$account_number]['Flow']->disable_performance eq 1} style="" {/if}>
-                    <td style="font-size: 7pt; margin:0; padding:0; text-align:right;">{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
+                    <td style="font-size: 7pt; margin:0; padding:0; text-align:left;">{$ytd_individual_performance_summed[$account_number]['account_name']}</td>
+                    <td style="font-size: 8pt; margin:0; padding:0; text-align:left;">{$ytd_individual_performance_summed[$account_number]['account_type']}</td>
                     <td style="font-size: 7pt; margin:0; padding:0; text-align:right;">**{$account_number|substr:5}</td>
                     {*<td style="font-size: 8pt; margin:0; padding:0;">$</td>*}
                     <td style="font-size: 8pt; text-align:right; margin:0; padding:0;">${$ytd_begin_values[$account_number]->value|number_format:0:".":","}</td>
@@ -167,7 +169,7 @@
                 </tr>
             {/foreach}
             <tr>
-                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="2">&nbsp;</td>
+                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;" colspan="3">&nbsp;</td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
                 <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; text-align:right; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;"><span style="text-align:right;">${$YTDPERFORMANCE->GetBeginningValuesSummed()->value|number_format:0:".":","}</span></td>
                 {*                <td style="margin:0; padding:0; font-size: 8pt; font-weight:bold; border-top:1px solid black; border-bottom: 1px double;">$</td>*}
