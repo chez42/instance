@@ -12,7 +12,7 @@ spl_autoload_register(function ($className) {
  * @param $edate
  * @return array
  */
-function GetTransactionsPerformanceData($account_number, $sdate, $edate){
+function GetTransactionsPerformanceData($account_number, $sdate, $edate, $applyrules=true){
     global $adb;
 
     $query = "SELECT SUM(CONCAT(operation, net_amount)) AS amount, transaction_type, transaction_activity, trade_date, operation, 
@@ -42,9 +42,28 @@ function GetTransactionsPerformanceData($account_number, $sdate, $edate){
             $tmp->commission = $v['commission'];
             $tmp->buy_sell_indicator = $v['buy_sell_indicator'];
             $tmp->transaction_type = $v['transaction_type'];
-            $data[] = $v;
+            if($applyrules == true)
+                ApplyPerformanceRules($tmp);//Set the rules for performance
+            $data[] = $tmp;
         }
     }
 
     return $data;
+}
+
+function ApplyPerformanceRules(&$data){
+    switch(strtoupper($data->transaction_activity)){
+#        case "MANAGEMENT FEE":
+#            $data->transaction_type = "Reversal";
+#            break;
+        case "":
+            $data->transaction_type = "Unknown";
+        break;
+    }
+
+    switch(strtoupper($data->transaction_type)){
+        case "":
+            $data->transaction_type = "Unknown";
+            break;
+    }
 }
