@@ -171,9 +171,11 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
     }
 	
 	
-	function getEmailContent($filename, $password){
+		function getEmailContent($filename, $password){
 		
 		$site_URL = vglobal('site_URL');
+		
+		$site_URL = rtrim($site_URL, "/");
 		
 		$currentModule = vglobal('currentModule');
         
@@ -216,8 +218,8 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 													<td align="center">
 													<table width="75%" cellspacing="0" cellpadding="10" border="0" style="border: 2px solid rgb(180, 180, 179); background-color: rgb(226, 226, 225); font-family: Arial,Helvetica,sans-serif; font-size: 12px; color: rgb(0, 0, 0); font-weight: normal;">
 															<tr>
-																<td>
-				<font color="#990000"><strong> <a style = "text-decoration:none;" href=' .$site_URL.'/download-report.php?fileid=' . base64_encode($filename). '>' . 'Click to Download Report' . '</a> and use this password <b>' . $password .'</b> to extract zip file</strong></font> <br/><small>Link will Expire once file Downloaded</small> </td>
+																<td style = "font-weight:800;color:#990000;">
+				<a style = "text-decoration:none;" href="' .$site_URL.'/download-report.php?fileid=' . base64_encode($filename). '">Click to Download Report</a> and use this password ' . $password .' to extract zip file <br/><small style = "font-weight:normal;color:black;">Link will Expire once file Downloaded</small> </td>
 															</tr>
 													</table>
 													</td>
@@ -232,15 +234,7 @@ class Vtiger_ReportPdf_Action extends Vtiger_Mass_Action {
 				</table>
 				</td>
 			</tr>
-			<tr>
-				<td> </td>
-			</tr>
-			<tr>
-				<td> </td>
-			</tr>
-			<tr>
-				<td> </td>
-			</tr>
+			
 	</table>';
 
 	return $body;

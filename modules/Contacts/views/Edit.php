@@ -25,17 +25,17 @@ class Contacts_Edit_View extends Vtiger_Edit_View {
 		}
 
 		$viewer = $this->getViewer($request);
-
-		$salutationFieldModel = Vtiger_Field_Model::getInstance('salutationtype', $recordModel->getModule());
-		// Fix for http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/7851
+		
+        /*$salutationFieldModel = Vtiger_Field_Model::getInstance('salutationtype', $recordModel->getModule());
 		$salutationType = $request->get('salutationtype');
 		if(!empty($salutationType)){
 			$salutationFieldModel->set('fieldvalue', $request->get('salutationtype'));
 		} else {
 			$salutationFieldModel->set('fieldvalue', $recordModel->get('salutationtype')); 
 		}
-		$viewer->assign('SALUTATION_FIELD_MODEL', $salutationFieldModel);
-
+		$viewer->assign('SALUTATION_FIELD_MODEL', $salutationFieldModel);*/
+		
+		
 		$contactModuleModel = $recordModel->getModule();
 		$selectedPortalModulesInfo = array();
 		if($recordId){

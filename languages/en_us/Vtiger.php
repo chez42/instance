@@ -716,7 +716,7 @@ $languageStrings = array(
 	'Type' => 'Type',
 
 	'Reviewed'=>'Reviewed',
-	'Salutation' => 'Salutation',
+	'Salutation' => 'Prefix',
 	'Street' => 'Street',
 	'Support Start Date' => 'Support Start Date',
 	'Support Expiry Date' => 'Support Expiry Date',
