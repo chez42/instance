@@ -775,19 +775,19 @@ a.menu-item:hover {
   padding-left: 42px!important;
 }
 .input-group-addon-save {
-  color: #008446;
+    color: #008446;
     background: #fff;
     border: none;
-    font-size: 16px;
+    font-size: 25px;
 }
 .input-group-addon-cancel {
-      color: #CC0033;
+    color: #CC0033;
     background: #fff;
     border: none;
-    font-size: 16px;
+    font-size: 25px;
 }
 .input-group-addon [class^="ti-"]{font-weight: bold;}
-.input-group-addon {padding: 4px 5px;width: initial;} /* edit inline in detailview */
+.input-group-addon {padding: 0px 2px;width: initial;} /* edit inline in detailview */
 
 
 .pointerCursorOnHover:hover {
@@ -2160,7 +2160,7 @@ input[type=checkbox]:checked {
 
 .related-tabs .tab-label {
   display: inline-block;
-  height: 26px;
+  /*height: 26px;*/
   line-height: 13px;
 }
 .summary-table {
@@ -5958,11 +5958,10 @@ div.tooltip-inner {
 #detailView .detailview-table .input-group.editElement,
 .calendar-timezone .input-group.editElement {
   width: 100%;
-  display: inline-block;
+  /*display: inline-block;*/
 }
 .summaryViewEntries .input-group.editElement {
   width: auto;
-  //display: flex;
 }
 .summaryView .summaryViewFields .input-group {
   line-height: 0;
@@ -5983,9 +5982,9 @@ div.tooltip-inner {
   width: 300px;
   display: inline-block;
 }
-.input-group-addon {
+/*.input-group-addon {
   line-height: 1.4;
-}
+}*/
 .input-group {
   float: left;
   /*min-width: 220px;margin-bottom: 10px;*/
@@ -6000,7 +5999,7 @@ div.tooltip-inner {
 }
 .summaryViewEntries .inputElement.form-control,
 .detailview-table .inputElement.form-control {
-  width: 65%;
+  width: 75%;
 }
 .detailview-table input[type="checkbox"] {
   width: 13px !important;
@@ -8928,11 +8927,21 @@ visibility: visible;top: 0;left: 60px; /*position where enlarged image should of
 }
 
 .input-save-wrap .input-group-addon{
-	border: 1px solid;
+	/*border: 1px solid;
+	border-radius:50%;
 	padding-bottom: 3px;
 	padding-top: 3px;
 	padding-left: 4px;
-	padding-right: 4px;
+	padding-right: 4px;*/
+}
+
+.inlineAjaxCancel > .fa-times-circle-o {
+	float:left;
+	-webkit-text-stroke: 1px white;
+}
+.inlineAjaxSave > .fa-check-circle{
+	float:left;
+	-webkit-text-stroke: 1px;
 }
 
 .lineItemTableDiv > div{ position: relative; }
@@ -9212,3 +9221,14 @@ input:checked + .checkbox-slider:before {
 }
 
 .input-checkbox:checked::after {content: none !important;}
+
+ul.select2-choices:after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 5px solid #333;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+}
