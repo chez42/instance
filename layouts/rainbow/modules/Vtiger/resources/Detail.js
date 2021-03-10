@@ -1346,8 +1346,8 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var fieldModel = fieldObject.getUiTypeModel();
 
 			var ele = jQuery('<div class="input-group editElement"></div>');
-			var actionButtons = '<span class="pointerCursorOnHover input-group-addon input-group-addon-save inlineAjaxSave"><i class="ti-check"></i></span>';
-			actionButtons += '<span class="pointerCursorOnHover input-group-addon input-group-addon-cancel inlineAjaxCancel"><i class="ti-close"></i></span>';
+			var actionButtons = '<span class="pointerCursorOnHover input-group-addon input-group-addon-save inlineAjaxSave"><i class="fa fa-check-circle"></i></span>';
+			actionButtons += '<span class="pointerCursorOnHover input-group-addon input-group-addon-cancel inlineAjaxCancel"><i class="fa fa-times-circle-o"></i></span>';
 			//wrapping action buttons with class called input-save-wrap
 			var inlineSaveWrap=jQuery('<div class="input-save-wrap"></div>');
 			inlineSaveWrap.append(actionButtons);
