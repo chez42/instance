@@ -1994,7 +1994,7 @@ class Accounts extends CRMEntity {
         $button = '';
         
         $button .= '<input type="hidden" name="email_directing_module"><input type="hidden" name="record">';
-        
+
         if($actions) {
             if(is_string($actions)) $actions = explode(',', strtoupper($actions));
             if(in_array('SELECT', $actions) && isPermitted($related_module,4, '') == 'yes') {
@@ -2010,15 +2010,17 @@ class Accounts extends CRMEntity {
         
         $report = new cReports('household', $id);
         
-        if($report->pids)
+/*        if($report->pids)
             $account_numbers = GetPortfolioAccountNumbersFromPids($report->pids);
         if($report->ssn)
             $account_numbers_ssn = GetPortfolioAccountNumbersFromSSN($report->ssn);
         if(is_array($account_numbers))
             $account_numbers = array_merge($account_numbers, $account_numbers_ssn);
         else
-            $account_numbers = $account_numbers_ssn;
-            
+            $account_numbers = $account_numbers_ssn;*/
+        $account_numbers = GetAccountNumbersFromRecord($id);
+        $account_numbers = array_unique($account_numbers);
+
         $questions = SeparateArrayToQuoteAndCommas($account_numbers);
 
         $userNameSql = getSqlForNameInDisplayFormat(array('first_name'=>

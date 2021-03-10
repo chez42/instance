@@ -60,16 +60,9 @@
 <div id="GHReport_wrapper" class="GHReport_UI_Wrapper">
     <table id="GHReport_header" style="font-family:Calibri, Sans-Serif;">
         <tr>
-            <td style="width:70%; vertical-align: top; border">
+            <td style="width:65%; vertical-align: top; border">
                 {if $LOGO neq ''}<img class="pdf_crm_logo" src="{$LOGO}" style="width:60%;" />{/if}
-                <div class="btn-toolbar" style="float:right;">
-                    <span class="btn-group">
-                        <button class="btn ExportReport" style="background-color:#36A645; border-radius:5px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);"><strong>Print PDF</strong></button>
-                    </span>
-                </div>
             </td>
-        </tr>
-        <tr>
             {*            <td style="width:50%; text-align:center;"><h1>{$PREPARED_FOR}</h1></td>*}
             <td style="width:30%; font-size: 9pt;">
                 {if $PREPARED_BY eq null}
@@ -80,6 +73,11 @@
                 {else}
                     {$PREPARED_BY}
                 {/if}
+                <div class="btn-toolbar" style="float:right;">
+                    <span class="btn-group">
+                        <button class="btn ExportReport" style="background-color:#36A645; border-radius:5px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);"><strong>Print PDF</strong></button>
+                    </span>
+                </div>
             </td>
         </tr>
     </table>

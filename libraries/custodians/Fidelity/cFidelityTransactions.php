@@ -480,6 +480,10 @@ class cFidelityTransactions extends cCustodian
                     $v['amount'] = ABS($v['amount']);
                 }
 
+                if($v['amount'] == 0 && $v['symbol'] == '' || is_null($v['symbol'])){
+                    $v['amount'] = $v['quantity'];
+                }
+
                 if(is_null($v['operation']))
                     $v['operation'] = '';
 
@@ -602,6 +606,7 @@ class cFidelityTransactions extends cCustodian
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+
                 $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
                 if($v['pricing_factor'] == 0 || strlen($v['pricing_factor']) == 0)
                     $v['pricing_factor'] = 1;
@@ -609,7 +614,7 @@ class cFidelityTransactions extends cCustodian
 #                    $v['close_price'] = $v['price'];
 
                 /*SPECIAL RULES FOR FIDELITY*/
-                if(strtoupper($v['omniscient_activity']) == "RECEIPT OF SECURITIES"){
+                if(strtoupper($v['omniscient_activity']) == "RECEIPT OF SECURITIES" && $v['amount'] == 0 || is_null($v['amount'])){
                     $v['price'] = $v['close_price'] = self::GetBestReceiptOfSecurityPrice($v['symbol'], $v['trade_date']);
                     $v['amount'] = $v['quantity'] * $v['pricing_factor'] * $v['close_price'];
                 }
@@ -637,6 +642,8 @@ class cFidelityTransactions extends cCustodian
 
                 if($v['amount'] == 0)
                     $v['amount'] = ABS($v['calculated_amount']);
+
+
 #echo '<br /><br />';
                 /*SPECIAL RULES END*/
 #print_r($v); echo '<br /><br />';

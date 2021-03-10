@@ -66,7 +66,8 @@ class cIntegrity{
 
     public function RepairDifferences(){
         $end = date('Y-m-d');
-        $start = date('Y-m-d', strtotime('-4 days'));
+        $start = '2019-01-01';
+#        $start = date('Y-m-d', strtotime('-4 days'));
         foreach($this->differences AS $k => $v) {
             switch(strtoupper($v['origination'])){
                 case "TD":
@@ -84,6 +85,10 @@ class cIntegrity{
         }
     }
 
+    public function GetPortfolioToPositionsDifferenceTotalForDate(array $account, $date){
+        return cTDPositions::GetBalancesVsPositionsDifference($account, $date);
+    }
+
     public function GetPortfolioToPositionDifferencesListForAccounts(array $account){
         global $adb;
         $questions = generateQuestionMarks($account);
@@ -97,10 +102,10 @@ class cIntegrity{
                   GROUP BY p.account_number";
         $result = $adb->pquery($query, array($account));
 
-        if($adb->num_rows($result )> 0){
+        if($adb->num_rows($result ) > 0){
             $differences = array();
             while($v = $adb->fetchByAssoc($result)){
-                $dif = abs($v['positionvalue']) - abs($v['total_value']);
+                $dif = $v['total_value'] - $v['positionvalue'];
                 $latest_balance = PortfolioInformation_Module_Model::GetLatestBalanceForAccount($v['account_number']);
                 if( $dif > 10 || ((int)$latest_balance == (int)$v['positionvalue'])){
                     $differences[] = $v;

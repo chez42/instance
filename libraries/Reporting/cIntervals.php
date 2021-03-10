@@ -2,7 +2,7 @@
 include_once "libraries/Reporting/ReportCommonFunctions.php";
 
 class cIntervalData{public $accountNumber, $intervalBeginDate, $intervalEndDate, $intervalBeginValue, $intervalEndValue, $netFlowAmount,
-                           $netReturnAmount, $expenseAmount, $journalAmount, $tradeAmount, $intervalType, $investmentReturn;}
+                           $netReturnAmount, $expenseAmount, $incomeAmount, $journalAmount, $tradeAmount, $intervalType, $investmentReturn;}
 
 class DayBalances{public $date, $value;}
 class DayTransactions{public $transactionType, $transactionActivity, $amount;}
@@ -110,6 +110,38 @@ class cIntervals{
         return $total;
     }
 
+    /**
+     * This will take all transactions between sdate and edate adding their amounts
+     * If a balance is missing but a transaction exists (IE:  transaction on sunday but no balance), this will catch that
+     * @param $date
+     * @param $type
+     * @return int
+     */
+    public function CalculateDayTypeBetweenDates($sdate, $edate, $type){
+        if($sdate == $edate || GetDatePlusOneDay($sdate) == $edate) {
+            return $this->CalculateDaytype($edate, $type);//If the dates are the same, return the amount as of that balance date
+        }
+        else {//We get here when the last day was a Friday and it is now a monday or tuesday for example.. this will snag any transactions that don't have a balance date
+            $sdate = GetDatePlusOneDay($sdate);
+            $total = 0;
+
+            $begin = new DateTime($sdate);
+            $end = new DateTime($edate);
+            $end->setTime(0,0,1);
+
+            $interval = DateInterval::createFromDateString('1 day');
+            $period = new DatePeriod($begin, $interval, $end);
+
+            foreach ($period as $dt) {
+                $date = $dt->format("Y-m-d");
+                foreach ($this->transactions[$date][$type] AS $k => $v) {
+                    $total += $v->amount;
+                }
+            }
+        }
+        return $total;
+    }
+
     public function CalculateIntervals($sdate, $edate){
         global $adb;
         $this->ResetIntervals(array($this->account_number));
@@ -126,9 +158,10 @@ class cIntervals{
             $interval->intervalBeginValue = $this->lastBalance;
             $interval->intervalEndDate = $balanceDay->date;
             $interval->intervalEndValue = $balanceDay->value;
-            $interval->expenseAmount = $this->CalculateDayType($balanceDay->date, 'expense');
-            $interval->netFlowAmount = $this->CalculateDayType($balanceDay->date, 'flow');
-            $interval->tradeAmount = $this->CalculateDayType($balanceDay->date, 'trade');
+            $interval->expenseAmount = $this->CalculateDayTypeBetweenDates($this->lastDate, $balanceDay->date, 'expense');
+            $interval->netFlowAmount = $this->CalculateDayTypeBetweenDates($this->lastDate, $balanceDay->date, 'flow');
+            $interval->tradeAmount = $this->CalculateDayTypeBetweenDates($this->lastDate, $balanceDay->date, 'trade');
+            $interval->incomeAmount = $this->CalculateDayTypeBetweenDates($this->lastDate, $balanceDay->date, 'income');
             $interval->intervalType = 'Daily';
 
             if($interval->intervalBeginValue == 0)
@@ -153,7 +186,7 @@ class cIntervals{
 
             $interval->investmentReturn = $interval->intervalEndValue - ($interval->netFlowAmount + $interval->expenseAmount) - $interval->intervalBeginValue;
 
-            if($interval->netReturnAmount == 0)
+            if($interval->netReturnAmount == 0 || is_nan($interval->netReturnAmount) || !is_numeric($interval->netReturnAmount) || is_infinite($interval->netReturnAmount))
                 $interval->netReturnAmount = 1;
 
             $this->intervals[] = $interval;
@@ -166,21 +199,21 @@ class cIntervals{
         foreach($this->intervals AS $k => $v){
             if($counter >= 100){
                 $writer = rtrim($writer, ', ');
-                $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
+                $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, incomeamount, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
                           VALUES {$writer}";
                 $adb->pquery($query, $params, true);
                 $counter = 0;
                 $writer = "";
                 $params = array();
             }
-            $writer .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()), ";
-            $params[] = array($v->accountNumber, $v->intervalBeginDate, $v->intervalBeginValue, $v->intervalEndDate, $v->intervalEndValue, $v->expenseAmount, $v->netFlowAmount, $v->tradeAmount ,$v->investmentReturn, $v->netReturnAmount, $v->intervalType);
+            $writer .= "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()), ";
+            $params[] = array($v->accountNumber, $v->intervalBeginDate, $v->intervalBeginValue, $v->intervalEndDate, $v->intervalEndValue, $v->incomeAmount, $v->expenseAmount, $v->netFlowAmount, $v->tradeAmount ,$v->investmentReturn, $v->netReturnAmount, $v->intervalType);
             $counter++;
         }
 
         if(!empty($params)) {
             $writer = rtrim($writer, ', ');
-            $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
+            $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, incomeamount, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)
                       VALUES {$writer}";
             $adb->pquery($query, $params, true);
         }

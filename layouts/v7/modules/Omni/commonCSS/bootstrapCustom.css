@@ -1,0 +1,100 @@
+.col-2r,
+.col-3r,
+.col-4r,
+.col-6r,
+.col-8r,
+.col-8-2r,
+.col-10r,
+.col-12,
+.col-14,
+.col-16r,
+.col-xs-8r,
+.col-sm-8r,
+.col-md-8r,
+.col-lg-8r {
+    position: relative;
+    min-height: 1px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.col-2r{
+    width: 50%;
+    float: left;
+}
+
+.col-3r{
+    width: 33.3333333333%;
+    float: left;
+}
+
+.col-4r{
+    width: 25%;
+    float: left;
+}
+
+.col-6r{
+    width: 16.666666666667%;
+    float: left;
+}
+
+.col-8r {
+    width: 12.5%;
+    float: left;
+}
+
+.col-8-2r {
+    width: 87.5%;
+    float: left;
+}
+
+.col-10r {
+    width: 10%;
+    float: left;
+}
+
+.col-12r {
+    width: 8.3333333333%;
+    float: left;
+}
+
+.col-12-2r {
+    width: 91.6666666666%;
+    float: left;
+}
+
+.col-14r {
+    width: 7.142857142857143%;
+    float: left;
+}
+
+.col-16r {
+    width: 6.25%;
+    float: left;
+}
+
+.col-xs-8r {
+    width: 12.5%;
+    float: left;
+}
+
+@media (min-width: 768px) {
+    .col-sm-8r {
+        width: 12.5%;
+        float: left;
+    }
+}
+
+@media (min-width: 992px) {
+    .col-md-8r {
+        width: 12.5%;
+        float: left;
+    }
+}
+
+@media (min-width: 1200px) {
+    .col-lg-8r {
+        width: 12.5%;
+        float: left;
+    }
+}
