@@ -23,17 +23,19 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
         $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
         $account_numbers = array_unique($account_numbers);
 
-        foreach($account_numbers AS $k => $v){
-            $integrity = new cIntegrity(array($v));
+        foreach($account_numbers AS $tmp => $account){
+            $integrity = new cIntegrity(array($account));
             $differences = $integrity->GetDifferences();
 
-            if(!empty($differences) && $differences['dif'] > 10)
-                $integrity->RepairDifferences();
+            foreach($differences AS $k => $v) {
+                if (!empty($differences) && abs($v['dif']) > 10)
+                    $integrity->RepairDifferences();
+            }
 
-            $tmp = new CustodianClassMapping(array($v));
-            $tmp->transactions::CreateNewTransactionsForAccounts(array($v));
+            $tmp = new CustodianClassMapping(array($account));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
             if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
-                $tmp->transactions::UpdateTransactionsForAccounts(array($v));
+                $tmp->transactions::UpdateTransactionsForAccounts(array($account));
         }
     }
 
