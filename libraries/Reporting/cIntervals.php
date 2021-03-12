@@ -189,6 +189,11 @@ class cIntervals{
             if($interval->netReturnAmount == 0 || is_nan($interval->netReturnAmount) || !is_numeric($interval->netReturnAmount) || is_infinite($interval->netReturnAmount))
                 $interval->netReturnAmount = 1;
 
+/*            echo $interval->intervalEndDate . ' ---- ' .
+                $interval->intervalEndValue . ' / (' .
+                $interval->intervalBeginValue . ' + (' . $interval->netFlowAmount . ' + ' . $interval->expenseAmount . ')) = ' .
+                $interval->netReturnAmount . ' ===== ' . $interval->netReturnAmount . '<br />';
+*/
             $this->intervals[] = $interval;
             $this->lastDate = $balanceDay->date;
             $this->lastBalance = $balanceDay->value;
