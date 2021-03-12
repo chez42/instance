@@ -1778,6 +1778,9 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
 
         if ($adb->num_rows($result) > 0) {
             while ($x = $adb->fetchByAssoc($result)) {
+                if($x['netreturnamount'] == 0 || is_null($x['netreturnamount']))
+                    $x['netreturnamount'] = 1;
+
                 if ($x['netreturnamount'] != 1) {
                     $twr *= $x['netreturnamount'];
 #                    echo $x['intervalenddate'] . '... ' . $x['intervalbeginvalue'] . ' - ' . $x['netflowamount'] . ' - ' . $x['incomeamount'] . ' - ' . $x['expenseamount'] . ' - ' . $x['investmentreturn'] . ' - ' . $x['intervalendvalue'] . ' - ' . (($x['netreturnamount'] - 1) * 100) . ' -- ' . ($twr - 1) * 100 . '<br />';
