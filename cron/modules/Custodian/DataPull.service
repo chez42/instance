@@ -18,7 +18,8 @@ echo date("Y-m-d H:i:s") . ' - portfolios created Schwab - <br />';
 #echo 'now check for 678498025';exit;
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Grabbing Accounts");
-$accounts = PortfolioInformation_Module_Model::GetAllAccountNumbersInCRM($rep_codes);
+$accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+#$accounts = PortfolioInformation_Module_Model::GetAllAccountNumbersInCRM($rep_codes);
 echo date("Y-m-d H:i:s") . ' - Accounts organized - <br />';
 
 $copy = new CustodianToOmniTransfer($accounts);
