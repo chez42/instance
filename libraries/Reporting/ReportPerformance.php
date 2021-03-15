@@ -462,15 +462,17 @@ class Performance_Model extends Vtiger_Module {
 
         if ($adb->num_rows($result) > 0) {
             while ($x = $adb->fetchByAssoc($result)) {
-                if ($x['netreturnamount'] != 1) {
+                if ($x['netreturnamount'] != 1 && $x['netreturnamount'] < 1.5 && $x['netreturnamount'] > -1.5 && abs($x['netreturnamount']) != 0) {
+#                    echo $x['netreturnamount'] . '<br />';
                     $twr *= $x['netreturnamount'];
 #                    echo $x['intervalenddate'] . '... ' . $x['intervalbeginvalue'] . ' - ' . $x['netflowamount'] . ' - ' . $x['incomeamount'] . ' - ' . $x['expenseamount'] . ' - ' . $x['investmentreturn'] . ' - ' . $x['intervalendvalue'] . ' - ' . (($x['netreturnamount']-1)*100) . ' -- ' . ($twr-1)*100 . '<br />';
 #                    echo $twr . ' - ' . $x['intervalenddate'] . ' = ' . ($twr-1)*100 . '(investment return - ' . $x['investmentreturn'] . ')<br />';
-                } else
-                    $twr *= $x['netreturnamount'];
+                } else {
+#                    $twr *= $x['netreturnamount'];
+                }
             }
         }
-
+#echo $twr;exit;
         if ($twr != 1)
             $this->twr = ($twr - 1) * 100;
         else
