@@ -172,7 +172,7 @@ class cIntervals{
             $interval->netReturnAmount = $interval->intervalEndValue /
                                          ($interval->intervalBeginValue +
                                          ($interval->netFlowAmount + $interval->expenseAmount));
-
+#echo $interval->intervalEndValue . ' / (' . $interval->intervalBeginValue . ' +(' . $interval->netFlowAmount . ' + '. $interval->expenseAmount . '))' . ' = ' . $interval->netReturnAmount . '<br />';
             /*
                 (($interval->intervalEndValue - $interval->intervalBeginValue) -
                     ($interval->netFlowAmount + $interval->expenseAmount)) /
@@ -186,7 +186,9 @@ class cIntervals{
 
             $interval->investmentReturn = $interval->intervalEndValue - ($interval->netFlowAmount + $interval->expenseAmount) - $interval->intervalBeginValue;
 
-            if($interval->netReturnAmount == 0 || is_nan($interval->netReturnAmount) || !is_numeric($interval->netReturnAmount) || is_infinite($interval->netReturnAmount))
+            if($interval->netReturnAmount == 0 || is_nan($interval->netReturnAmount) || !is_numeric($interval->netReturnAmount)
+                                               || is_infinite($interval->netReturnAmount) || $interval->netReturnAmount > 1.5
+                                               || $interval->netReturnAmount < -1.5)
                 $interval->netReturnAmount = 1;
 
 /*            echo $interval->intervalEndDate . ' ---- ' .
