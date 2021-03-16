@@ -33,9 +33,11 @@ class Notifications_Delete_Action extends Vtiger_Delete_Action {
 	    global $adb;
 	    
 	    if($recordId){
-// 	       $adb->pquery("DELETE FROM vtiger_notifications WHERE vtiger_notifications.notificationsid = ?",
-// 	           array($recordId));
-	       $result = array('success' => true);
+            
+	        $adb->pquery("DELETE FROM vtiger_notifications WHERE 
+            vtiger_notifications.notificationsid = ?", array($recordId));
+            
+	        $result = array('success' => true);
 	    }else{
 	        $result = array('success' => false);
 	    }

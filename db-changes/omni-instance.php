@@ -1515,6 +1515,11 @@ $adb->pquery("update vtiger_field set displaytype = 1, uitype = 2 where fieldnam
 $adb->pquery("update vtiger_field set displaytype = 1, uitype = 15 where fieldname = 'salutationtype' and tabid = 7");
 $adb->pquery("update vtiger_field set displaytype = 1, uitype = 2 where fieldname = 'firstname' and tabid = 7");
 
+$adb->pquery("ALTER TABLE `vtiger_notificationscf` ADD  CONSTRAINT `fk_notificationcf_notification` 
+FOREIGN KEY (`notificationsid`) REFERENCES 
+`vtiger_notifications`(`notificationsid`) ON DELETE CASCADE ON UPDATE RESTRICT");
+
+
 /*INTO `com_vtiger_workflow_tasktypes` (`id`, `tasktypename`, `label`, `classname`, `classpath`, 
     `templatepath`, `modules`, `sourcemodule`) VALUES ('', 'NotificationTask', 'Create Notifications', 'NotificationTask', 'modules/Notifications/workflow/NotificationTask.inc', 'modules/Notifications/task/NotificationTask.tpl', '{\"include\":[],\"exclude\":[]}', 'Notifications');
 */
