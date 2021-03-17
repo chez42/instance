@@ -663,7 +663,7 @@ function clickToOk(btnOK){
 	
 	var params = {
 		'module': 'Notifications',
-		'action': 'delete',
+		'action': 'Delete',
 		'record': id
 	};
 	var instance = new NotificationsJS();
