@@ -592,7 +592,7 @@ class Performance_Model extends Vtiger_Module {
     }
 
     private function CalculateEstimatedIncome(){
-        $projected = new ProjectedIncome_Model($this->account_numbers);
+        $projected = new ProjectedIncome_Model($this->account_numbers, $this->end_date);
         $calendar = CreateMonthlyCalendar($this->start_date, $this->end_date);
         $projected->CalculateMonthlyTotals($calendar);
         $this->estimated_income = $projected;
@@ -600,7 +600,7 @@ class Performance_Model extends Vtiger_Module {
 
     private function CalculateIndividualEstimatedIncome(){
         foreach($this->account_numbers AS $k => $v){
-            $projected = new ProjectedIncome_Model(array($v));
+            $projected = new ProjectedIncome_Model(array($v), $this->end_date);
             $calendar = CreateMonthlyCalendar($this->start_date, $this->end_date);
             $projected->CalculateMonthlyTotals($calendar);
             $this->individual_performance_summed[$v]['estimated'] = $projected;

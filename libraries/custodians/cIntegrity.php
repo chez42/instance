@@ -107,8 +107,9 @@ class cIntegrity{
             while($v = $adb->fetchByAssoc($result)){
                 $dif = $v['total_value'] - $v['positionvalue'];
                 $latest_balance = PortfolioInformation_Module_Model::GetLatestBalanceForAccount($v['account_number']);
-                if( $dif > 10 || ((int)$latest_balance == (int)$v['positionvalue'])){
+                if( ABS($dif) > 10 || ((int)$latest_balance == (int)$v['positionvalue'])){
                     $differences[] = $v;
+#                    cTDPortfolios::CalculateAndWriteBalances($account, '1900-01-01', date("Y-m-d"));
                 }
             }
             return $differences;
