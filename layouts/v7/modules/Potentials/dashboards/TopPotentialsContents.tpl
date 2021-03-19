@@ -27,7 +27,7 @@
 		{foreach item=MODEL from=$MODELS}
 		<div class='row'>
 			<div class='col-lg-4'>
-				<a href="{$MODEL->getDetailViewUrl()}">{$MODEL->getName()}</a>
+				<a href="{$MODEL->getDetailViewUrl()}" target="_blank">{$MODEL->getName()}</a>
 			</div>
 			<div class='col-lg-4'>
 				{CurrencyField::appendCurrencySymbol($MODEL->getDisplayValue('amount'), $USER_CURRENCY_SYMBOL)}

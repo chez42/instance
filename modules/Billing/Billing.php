@@ -140,6 +140,15 @@ class Billing extends Vtiger_CRMEntity {
             PRIMARY KEY (capitalflowsid)
         );");
         
+        $adb->query_result("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts (
+            billing_portfolio_id INT(19) NOT NULL AUTO_INCREMENT,
+            billingid INT(19) NULL,
+            portfolioid INT(19) NULL,
+            portfolio_amount VARCHAR(255) NULL,
+            bill_amount VARCHAR(255) NULL ,
+            PRIMARY KEY (billing_portfolio_id)
+        );");
+        
     }
     
     

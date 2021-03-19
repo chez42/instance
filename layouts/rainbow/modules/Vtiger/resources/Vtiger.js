@@ -2105,7 +2105,9 @@ $(function(){
 		e.preventDefault();
 		e.stopPropagation();
 		e.stopImmediatePropagation();
-		
+		if($(this).attr("target") == "_blank")
+			window.open($(this).attr("href"),"_blank");
+		else
 		window.location = $(this).attr("href");
 	});
 	

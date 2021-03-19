@@ -24,6 +24,8 @@ class Billing_Detail_View extends Vtiger_Detail_View {
 	    $record = $request->get("record");
 	    
 	    $final_details = array();
+
+	    $final_portfolio_details = array();
 	    
 	    if($record){
 	        
@@ -61,6 +63,32 @@ class Billing_Detail_View extends Vtiger_Detail_View {
     	    $viewer->assign('RELATED_FLOWS', $final_details);
     	    $viewer->assign('FINAL_ADJUSTMENT', number_format($finalAdujstment,2));
     	    $viewer->assign("FINAL_EQUAL", number_format(($finalAdujstment+$recordModel->get('feeamount')),2));
+    	    
+    	    if($recordModel->get('billing_type') == 'Group'){
+    	        
+    	        $relatedPortfolios = $recordModel->getRelatdPortfolios();
+    	        
+    	        if(!empty($relatedPortfolios)){
+    	            
+    	            $index = 1;
+    	            
+    	            foreach($relatedPortfolios as $portfolios){
+    	                $account_number = PortfolioInformation_Module_Model::GetAccountNumbersFromCrmid($portfolios['portfolioid']);
+    	                $final_portfolio_details[$index] = array(
+    	                    'billing_portfolio_id'.$index => $portfolios['billing_portfolio_id'],
+    	                    'portfolioid'.$index =>  $account_number[0],
+    	                    'portfolio_amount'.$index => $portfolios['portfolio_amount'],
+    	                    'bill_amount'.$index =>  $portfolios['bill_amount'],
+    	                );
+    	                
+    	                $index++;
+    	                
+    	            }
+    	            
+    	        }
+    	        
+    	    }
+    	    $viewer->assign('RELATED_PORTFOLIOS', $final_portfolio_details);
     	    
 	    }
 	}

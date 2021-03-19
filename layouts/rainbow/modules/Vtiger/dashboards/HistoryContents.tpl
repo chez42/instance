@@ -55,7 +55,7 @@
 								{assign var=FIELDS value=$HISTORY->getFieldInstances()}
 								<div>
 									<div><b>{$USER->getName()}</b> {vtranslate('LBL_UPDATED')} <a class="text-info cursorPointer" {if stripos($DETAILVIEW_URL, 'javascript:')===0}
-																								  onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$DETAILVIEW_URL}"' {/if}>
+																								  onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.open("{$DETAILVIEW_URL}","_blank")' {/if}>
 											{$PARENT->getName()}</a>
 									</div>
 									{foreach from=$FIELDS key=INDEX item=FIELD}
@@ -84,7 +84,7 @@
 							{else if $HISTORY->isCreate()}
 								<div>
 									<b>{$USER->getName()}</b> {vtranslate('LBL_ADDED')} 
-									<a class="text-info cursorPointer" {if stripos($DETAILVIEW_URL, 'javascript:')===0} onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$DETAILVIEW_URL}"' {/if}>{$PARENT->getName()}</a>
+									<a class="text-info cursorPointer" {if stripos($DETAILVIEW_URL, 'javascript:')===0} onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.open("{$DETAILVIEW_URL}","_blank")' {/if}>{$PARENT->getName()}</a>
 								</div>
 							{else if ($HISTORY->isRelationLink() || $HISTORY->isRelationUnLink())}
 								{assign var=RELATION value=$HISTORY->getRelationInstance()}
@@ -100,7 +100,7 @@
 									{if $RELATION->getLinkedRecord()->getModuleName() eq 'Calendar'}
 										{if isPermitted('Calendar', 'DetailView', $RELATION->getLinkedRecord()->getId()) eq 'yes'}
 											<a class="text-info cursorPointer" {if stripos($LINKED_RECORD_DETAIL_URL, 'javascript:')===0} onclick='{$LINKED_RECORD_DETAIL_URL|substr:strlen("javascript:")}'
-											{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
+											{else} onclick='window.open("{$LINKED_RECORD_DETAIL_URL}","_blank")' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
 									{else}
 										{vtranslate($RELATION->getLinkedRecord()->getModuleName(), $RELATION->getLinkedRecord()->getModuleName())}
 									{/if}
@@ -108,15 +108,15 @@
 									<i>"{$RELATION->getLinkedRecord()->getName()}"</i>
 								{else}
 									<a class="cursorPointer" {if stripos($LINKED_RECORD_DETAIL_URL, 'javascript:')===0} onclick='{$LINKED_RECORD_DETAIL_URL|substr:strlen("javascript:")}'
-									{else} onclick='window.location.href="{$LINKED_RECORD_DETAIL_URL}"' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
+									{else} onclick='window.open("{$LINKED_RECORD_DETAIL_URL}","_blank")' {/if}>{$RELATION->getLinkedRecord()->getName()}</a>
 							{/if}{vtranslate('LBL_FOR')} <a class="text-info cursorPointer" {if stripos($PARENT_DETAIL_URL, 'javascript:')===0}
-							   onclick='{$PARENT_DETAIL_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$PARENT_DETAIL_URL}"' {/if}>
+							   onclick='{$PARENT_DETAIL_URL|substr:strlen("javascript:")}' {else} onclick='window.open("{$PARENT_DETAIL_URL}","_blank")' {/if}>
 									{$RELATION->getParent()->getParent()->getName()}</a>
 							</div>
 						{else if $HISTORY->isRestore()}
 							<div>
 								<b>{$USER->getName()}</b> {vtranslate('LBL_RESTORED')} <a class="text-info cursorPointer" {if stripos($DETAILVIEW_URL, 'javascript:')===0}
-																						  onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.location.href="{$DETAILVIEW_URL}"' {/if}>
+																						  onclick='{$DETAILVIEW_URL|substr:strlen("javascript:")}' {else} onclick='window.open("{$DETAILVIEW_URL}","_blank")' {/if}>
 									{$PARENT->getName()}</a>
 							</div>
 						{else if $HISTORY->isDelete()}

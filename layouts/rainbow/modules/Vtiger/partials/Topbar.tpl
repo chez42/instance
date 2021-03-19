@@ -147,7 +147,7 @@
 								
 								{if $USER_PRIVILEGES_MODEL->hasModulePermission($COMMENTS_MODULE_MODEL->getId())}
 									<li class="{if $MODULE eq "ModComments"}active{/if}"> 
-										<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" >
+										<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" target="_blank">
 											{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
 											<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{vtranslate('ModComments')}"></span>
 											<span class="hide-menu"> {vtranslate('ModComments')}</span>
@@ -159,7 +159,7 @@
 								
 								{if $USER_PRIVILEGES_MODEL->hasModulePermission($DOCUMENTS_MODULE_MODEL->getId())}
 									<li class="{if $MODULE eq "Documents"}active{/if}"> 
-										<a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" >
+										<a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" target="_blank" >
 											{*<i class="app-icon-list material-icons">file_download</i>*}
 											<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{vtranslate('Documents')}"></span>
 											<span class="hide-menu"> {vtranslate('Documents')}</span>
@@ -182,7 +182,7 @@
 							
 								{if $USER_MODEL->isAdminUser()}
 									<li>
-										<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="index.php?module=Vtiger&parent=Settings&view=Index" >
+										<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="index.php?module=Vtiger&parent=Settings&view=Index" target="_blank">
 											<span class="module-icon"><i class="material-icons">settings</i></span>
 											<span class="hide-menu">  {vtranslate('LBL_CRM_SETTINGS','Vtiger')}</span>
 										</a>
@@ -244,7 +244,7 @@
 												{foreach item=moduleModel key=moduleName from=$APP_GROUPED_MENU[$APP_NAME]}
 													{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 													<li>
-														<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
+														<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" {if $moduleName eq 'Accounts' || $moduleName eq 'PriceBooks'}target="_blank"{/if}>
 														{if $moduleName eq 'PortfolioInformation'}
 															<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
 															{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
@@ -532,7 +532,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($CALENDAR_MODULE_MODEL->getId())}
 							<li>
 								<div>
-									<a href="index.php?module=Calendar&view={$CALENDAR_MODULE_MODEL->getDefaultViewName()}" title="{vtranslate('Calendar','Calendar')}" aria-hidden="true">
+									<a href="index.php?module=Calendar&view={$CALENDAR_MODULE_MODEL->getDefaultViewName()}" target="_blank" title="{vtranslate('Calendar','Calendar')}" aria-hidden="true">
 										<i class="material-icons">event</i>
 									</a>
 								</div>
@@ -542,7 +542,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($REPORTS_MODULE_MODEL->getId())}
 							<li>
 								<div>
-									<a href="index.php?module=Reports&view=List" title="{vtranslate('Reports','Reports')}" aria-hidden="true">
+									<a href="index.php?module=Reports&view=List" title="{vtranslate('Reports','Reports')}" target="_blank" aria-hidden="true">
 										<i class="material-icons">show_chart</i>
 									</a>
 								</div>

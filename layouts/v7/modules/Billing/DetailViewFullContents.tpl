@@ -14,4 +14,7 @@
    	{if $RELATED_FLOWS}
     	{include file='LineItemsDetail.tpl'|@vtemplate_path:'Billing'}
 	{/if}
+	{if $RELATED_PORTFOLIOS}
+    	{include file='PortfolioLineItemsDetail.tpl'|@vtemplate_path:'Billing'}
+	{/if}
 </form>

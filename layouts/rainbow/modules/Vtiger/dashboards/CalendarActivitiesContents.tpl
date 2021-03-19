@@ -21,7 +21,7 @@
 			<div class='pull-left'>
 				{assign var=PARENT_ID value=$ACTIVITY->get('parent_id')}
 				{assign var=CONTACT_ID value=$ACTIVITY->get('contact_id')}
-				<a href="{$ACTIVITY->getDetailViewUrl()}">{$ACTIVITY->get('subject')}</a>{if $PARENT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('parent_id')}{else if $CONTACT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('contact_id')}{/if}
+				<a href="{$ACTIVITY->getDetailViewUrl()}" target="_blank">{$ACTIVITY->get('subject')}</a>{if $PARENT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('parent_id')}{else if $CONTACT_ID} {vtranslate('LBL_FOR')} {$ACTIVITY->getDisplayValue('contact_id')}{/if}
 			</div>
 				{assign var=START_DATE value=$ACTIVITY->get('date_start')}
 				{assign var=START_TIME value=$ACTIVITY->get('time_start')}
