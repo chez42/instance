@@ -297,6 +297,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $billingObj->set('feeamount', $amountValue);
                         $billingObj->set('beginning_price_date', $beginningPriceDate);
                         $billingObj->set('ending_price_date', $endingPriceDate);
+                        $billingObj->set('billing_type', 'Individual');
                         $billingObj->save();
                         
                         if($billingObj->getId() && !empty($transactionData)){

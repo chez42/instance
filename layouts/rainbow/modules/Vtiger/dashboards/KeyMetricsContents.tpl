@@ -11,7 +11,7 @@
 	{foreach item=KEYMETRIC from=$KEYMETRICS}
 	<div style="padding-bottom:6px;">
 		<span class="pull-right badge">{$KEYMETRIC.count}</span>
-		<a href="?module={$KEYMETRIC.module}&view=List&viewname={$KEYMETRIC.id}">{$KEYMETRIC.name}</a>
+		<a href="?module={$KEYMETRIC.module}&view=List&viewname={$KEYMETRIC.id}" target="_blank">{$KEYMETRIC.name}</a>
 	</div>	
 	{/foreach}
 </div>

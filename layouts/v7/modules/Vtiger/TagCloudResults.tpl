@@ -32,7 +32,7 @@
                         <div name="tagSearchModuleResults" id="tagSearch_{$MODULE_NAME}">
                             <h5>{vtranslate($MODULE_NAME,$MODULE)} ({count($TAGGED_RECORD_MODELS)})</h5>
                             {foreach item=TAGGED_RECORD_MODEL from=$TAGGED_RECORD_MODELS}
-                                <div><a href="{$TAGGED_RECORD_MODEL->getDetailViewUrl()}">{$TAGGED_RECORD_MODEL->getName()}</a></div>
+                                <div><a href="{$TAGGED_RECORD_MODEL->getDetailViewUrl()}" target="_blank">{$TAGGED_RECORD_MODEL->getName()}</a></div>
                                 {/foreach}
                             <br>
                         </div>
