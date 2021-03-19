@@ -100,7 +100,7 @@ class ProjectedIncome_Model extends Vtiger_Module {
             $params[] = $position['pay_frequency'];
             $params[] = $position['aclass'];
             $params[] = 1;
-        }elseif($position['dividend_share'] > 0 && $position['market_value'] > 0){//Stocks
+        }elseif($position['dividend_share'] > 0 && $position['quantity'] > 0){//Stocks
             $interest_rate = $position['dividend_share'] * $position['quantity']
                 / $this->FrequencyToNumber($position['pay_frequency']);
 
