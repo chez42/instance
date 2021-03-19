@@ -10,6 +10,10 @@ class cCatalogue extends cParsing{
         return parent::GetFiles($directory, $extension, $num_days);
     }
 
+    public function GetAllFiles($directory, $num_days=null): array{
+        return parent::GetAllFiles($directory, $num_days);
+    }
+
     public function WriteFiles($files, $rep_code){
         global $adb;
 
