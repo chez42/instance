@@ -1448,9 +1448,9 @@ $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_billing_capitalflows (
             PRIMARY KEY (capitalflowsid)
         );");
 
-$tab_id = getTabid('PortfolioInformation');
-$linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLink");';
-Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
+// $tab_id = getTabid('PortfolioInformation');
+// $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLink");';
+// Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
 
 $adb->pquery("ALTER TABLE vtiger_seproductsrel ADD quantity INT(19) NOT NULL DEFAULT '1'");
 
