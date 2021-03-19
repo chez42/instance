@@ -68,10 +68,9 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
             INNER JOIN vtiger_crmentity portcrm ON portcrm.crmid = vtiger_group_items.portfolioid AND portcrm.deleted = 0
             INNER JOIN vtiger_crmentity billcrm ON billcrm.crmid = vtiger_group_items.billingspecificationid AND billcrm.deleted = 0
             WHERE vtiger_crmentity.deleted = 0 AND vtiger_group_items.active = 1 AND vtiger_group_items.groupid = ?",array($record));
-            
+            $portfolios = array();
             if($adb->num_rows($portQuery)){
                 $groupName = $adb->query_result($portQuery, 0, 'group_name');
-                $portfolios = array();
                 for($b=0;$b<$adb->num_rows($portQuery);$b++){
                     $portfolios[$adb->query_result($portQuery, $b, 'billingspecificationid')][] = $adb->query_result($portQuery, $b, 'portfolioid');
                 }
@@ -252,6 +251,73 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             );
                             
                         }
+                    }
+                    
+                    $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
+                    INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
+                    WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.group_billingid = ? 
+                    AND vtiger_billing.billingspecificationid = ? AND vtiger_billing.beginning_price_date = ?",
+                    array($record,$billing,$beginningPriceDate));
+                    
+                    if($adb->num_rows($billingQuery)){
+                        $billingId = $adb->query_result($billingQuery, 0, 'billingid');
+                        $billingObj = Vtiger_Record_Model::getInstanceById($billingId);
+                        $billingObj->set('mode', 'edit');
+                    }else{
+                        $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
+                    }
+                    
+                    $billingObj->set('start_date', $start_date);
+                    $billingObj->set('end_date', $end_date);
+                    $billingObj->set('portfolio_amount', $totalValue);
+                    $billingObj->set('group_billingid', $record);
+                    $billingObj->set('billingspecificationid', $billing);
+                    $billingObj->set('feeamount', $amountValue);
+                    $billingObj->set('beginning_price_date', $beginningPriceDate);
+                    $billingObj->set('ending_price_date', $endingPriceDate);
+                    $billingObj->set('billing_type', 'Group');
+                    $billingObj->save();
+                    
+                    if($billingObj->getId() && !empty($transactionData)){
+                        
+                        $adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
+                        
+                        foreach($transactionData as $key => $transdata){
+                            
+                            $adjustment = $transdata['transactionamount']*$transdata['totalAmount'];
+                            
+                            $adb->pquery("INSERT INTO vtiger_billing_capitalflows(billingid, trade_date,
+                            diff_days, totalamount, totaldays, transactionamount, transactiontype, trans_fee, totaladjustment)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", array($billingObj->getId(), $transdata['trade_date'],
+                            $transdata['diff_days'], $transdata['totalAmount'], $transdata['totalDays'], $transdata['transactionamount'],
+                            $transdata['transactiontype'], $transdata['trans_fee'], $adjustment));
+                            
+                        }
+                        
+                    }
+                    
+                    if($billingObj->getId() && !empty($portfolio)){
+                        
+                        $adb->pquery("DELETE FROM vtiger_billing_portfolio_accounts WHERE billingid=?",array($billingObj->getId()));
+                    
+                        foreach($portfolio as $portId){
+                            
+                            $portfolioModel = Vtiger_Record_Model::getInstanceById($portId);
+                           
+                            $account = new CustodianAccess($portfolioModel->get('account_number'));
+                            
+                            $balance = $account->GetBalance($beginningPriceDate);
+                            
+                            $totalPortfolioAmount = $balance->value ? $balance->value : 0;
+                            
+                            if($billingObj->getId() ){
+                                
+                                $adb->pquery("INSERT INTO vtiger_billing_portfolio_accounts( billingid, portfolioid, portfolio_amount, bill_amount)
+                                VALUES (?, ?, ?, ?)", array($billingObj->getId(), $portId, $totalPortfolioAmount, ($totalPortfolioAmount*$feeamount)));
+                                
+                            }
+                        }
+                    
                     }
                     
                 }

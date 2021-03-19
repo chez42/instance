@@ -108,4 +108,18 @@ class ModSecurities_Detail_View extends Vtiger_Detail_View {
         $cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
         return $cssInstances;
     }
+    
+    public function getHeaderScripts(Vtiger_Request $request) {
+        $headerScriptInstances = parent::getHeaderScripts($request);
+        $moduleName = $request->getModule();
+        
+        $jsFileNames = array(
+            'modules.'.$moduleName.'.resources.HistoricalDataList',
+        );
+        
+        $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
+        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
+        
+        return $headerScriptInstances;
+    }
 }

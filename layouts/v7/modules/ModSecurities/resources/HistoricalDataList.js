@@ -20,10 +20,9 @@ Vtiger.Class("Vtiger_HistoricalDataList_Js",{
 		var container = jQuery('.historicalDataRelatedContainer');
 		vtUtils.applyFieldElementsView(container);
 		this.initializeHistoricalDataPaginationEvents();
-		this.registerRelatedRowClickEvent();
-		this.registerEventForEmailsRelatedRecord();
 		this.registerRelatedListSearch();
 		this.updateRelatedRecordsCount();
+		
 	},
 	
 	updateRelatedRecordsCount: function () {
@@ -317,136 +316,6 @@ Vtiger.Class("Vtiger_HistoricalDataList_Js",{
 			);
 		}
 		return aDeferred.promise();
-	},
-	
-	/**
-	 * Function to register event for related list row click
-	 */
-	registerRelatedRowClickEvent: function() {
-		var historicalDataListContainer = jQuery('.historicalDataRelatedContainer');
-		historicalDataListContainer.on('click','.relatedListEntryValues a',function(e){
-			e.preventDefault();
-		});
-		historicalDataListContainer.on('click','.listViewEntries',function(e){
-			var selection = window.getSelection().toString();
-			if(selection.length == 0) { 
-				var targetElement = jQuery(e.target, jQuery(e.currentTarget));
-				if(targetElement.hasClass('js-reference-display-value')) return;
-				if(targetElement.is('td:first-child') && (targetElement.children('input[type="checkbox"]').length > 0)) return;
-				if(jQuery(e.target).is('input[type="checkbox"]')) return;
-					var elem = jQuery(e.currentTarget);
-					var recordUrl = elem.data('recordurl');
-				if(typeof recordUrl != "undefined"){
-						var params = app.convertUrlToDataParams(recordUrl);
-						//Display Mode to show details in overlay
-						params['mode'] = 'showDetailViewByMode';
-						params['requestMode'] = 'full';
-						params['displayMode'] = 'overlay';
-						var parentRecordId = app.getRecordId();
-						app.helper.showProgress();
-						app.request.get({data: params}).then(function(err, response) {
-							app.helper.hideProgress();
-							var overlayParams = {/*'backdrop' : 'static', */'keyboard' : false};
-							app.helper.loadPageContentOverlay(response, overlayParams).then(function(container) {
-								var detailjs = Vtiger_Detail_Js.getInstanceByModuleName(params.module);
-								detailjs.showScroll(jQuery('.overlayDetail .modal-body'));
-								detailjs.setModuleName(params.module);
-								detailjs.setOverlayDetailMode(true);
-								detailjs.setContentHolder(container.find('.overlayDetail'));
-								detailjs.setDetailViewContainer(container.find('.overlayDetail'));
-								detailjs.registerOverlayEditEvent();
-								detailjs.registerBasicEvents();
-								detailjs.registerClickEvent();
-								detailjs.registerHeaderAjaxEditEvents(container.find('.overlayDetailHeader'));
-								detailjs.registerEventToReloadRelatedListOnCloseOverlay(parentRecordId);
-								app.event.trigger('post.overlay.load', parentRecordId, params); 
-								container.find('form#detailView').on('submit', function(e) {
-									e.preventDefault();
-							});
-						});
-					});
-				}
-			}
-		});
-	},
-	
-	registerEventForEmailsRelatedRecord : function(){
-		var historicalDataListContainer = jQuery('.historicalDataRelatedContainer');
-		var parentId = app.getRecordId();
-
-		var params = {};
-		params['module'] = "Emails";
-		params['view'] = "ComposeEmail";
-		params['parentId'] = parentId;
-		params['relatedLoad'] = true;
-
-		historicalDataListContainer.on('click','[name="emailsRelatedRecord"], [name="emailsDetailView"]',function(e){
-			e.stopPropagation();
-			var element = jQuery(e.currentTarget);
-			var recordId = element.data('id');
-			if(element.data('emailflag') == 'SAVED') {
-				var mode = 'emailEdit';
-			} else {
-				mode = 'emailPreview';
-				params['parentModule'] = app.getModuleName();
-			}
-			params['mode'] = mode;
-			params['record'] = recordId;
-			app.helper.showProgress();
-			app.request.post({data:params}).then(function(err,data){
-				app.helper.hideProgress();
-				if(err === null){
-					var dataObj = jQuery(data);
-					var descriptionContent = dataObj.find('#iframeDescription').val();
-					app.helper.showModal(data,{cb:function(){
-						if(mode === 'emailEdit'){
-							var editInstance = new Emails_MassEdit_Js();
-							editInstance.registerEvents();
-						}else {
-							var previewInstance = new Vtiger_EmailPreview_Js();
-							previewInstance.registerEventsForActionButtons();
-						}
-						jQuery('#emailPreviewIframe').contents().find('html').html(descriptionContent);
-						jQuery("#emailPreviewIframe").height(jQuery('.email-body-preview').height());
-						jQuery('#emailPreviewIframe').contents().find('html').find('a').on('click', function(e) {
-							e.preventDefault();
-							var url = jQuery(e.currentTarget).attr('href');
-							window.open(url, '_blank');
-						});
-						//jQuery("#emailPreviewIframe").height(jQuery('#emailPreviewIframe').contents().find('html').height());
-					}});
-				}
-			});
-		})
-
-		historicalDataListContainer.on('click','[name="emailsEditView"]',function(e){
-			e.stopPropagation();
-			var module = "Emails";
-			app.helper.checkServerConfig(module).then(function(data){
-				if(data == true){
-					var element = jQuery(e.currentTarget);
-					var closestROw = element.closest('tr');
-					var recordId = closestROw.data('id');
-					var parentRecord = new Array();
-					parentRecord.push(parentId);
-
-					params['mode'] = "emailEdit";
-					params['record'] = recordId;
-					params['selected_ids'] = parentRecord;
-					app.helper.showProgress();
-					app.request.post({'data':params}).then(function(err,data){
-						app.helper.hideProgress();
-						if(err === null){
-							app.helper.showModal(data);
-							var editInstance = new Emails_MassEdit_Js();
-							editInstance.registerEvents();
-						}
-					});
-				} else {
-					app.helper.showErrorMessage(app.vtranslate('JS_EMAIL_SERVER_CONFIGURATION'));
-				}
-			})
-		})
 	},
 	
 	/**

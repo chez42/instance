@@ -132,20 +132,6 @@ class ModSecurities_HistoricalDataList_View extends ModSecurities_Detail_View {
         $response->emit();
     }
     
-    
-    public function getHeaderScripts(Vtiger_Request $request) {
-        $headerScriptInstances = parent::getHeaderScripts($request);
-        $moduleName = $request->getModule();
-        
-        $jsFileNames = array(
-            'modules.'.$moduleName.'.resources.HistoricalDataList',
-        );
-        
-        $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
-        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
-        return $headerScriptInstances;
-    }
-    
     public function getHistoricalListData($parentRecordId, $pagingModel,$moduleName,$searchParams){
         global $adb;
         

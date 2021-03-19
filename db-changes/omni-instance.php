@@ -1667,3 +1667,43 @@ if(!$adb->num_rows($notifyWorkflowTask)){
     VALUES ($taskId,'NotificationTask', 'Create Notifications', 'NotificationTask', 'modules/Notifications/workflow/NotificationTask.inc', 'modules/Notifications/task/NotificationTask.tpl', '{\"include\":[],\"exclude\":[]}', 'Notifications');");
 }
 
+$module = Vtiger_Module::getInstance("Billing");
+
+if(!empty($module)){
+    $blockInstance = Vtiger_Block::getInstance('LBL_BILLING_INFORMATION',$module);
+    $fieldInstance = Vtiger_Field::getInstance('group_billingid', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'group_billingid';
+        $field->label = 'Group Billing';
+        $field->uitype = 10;
+        $field->typeofdata = 'I~O';
+        $field->columntype = 'INT(19)';
+        $blockInstance->addField($field);
+        $field->setrelatedmodules(array('Group'));
+    }
+    
+    $fieldInstance = Vtiger_Field::getInstance('billing_type', $module);
+    if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'billing_type';
+        $field->label = 'Billing Type';
+        $field->uitype = 15;
+        $field->typeofdata = 'V~O';
+        $field->columntype = 'VARCHAR(255)';
+        $blockInstance->addField($field);
+        if( !Vtiger_Utils::CheckTable('vtiger_'.$field->name) ) {
+            $picklist_values = array("Individual", "Group");
+            $field->setPicklistValues($picklist_values);
+        }
+    }
+    
+    $adb->query_result("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts ( 
+        billing_portfolio_id INT(19) NOT NULL AUTO_INCREMENT, 
+        billingid INT(19) NULL, 
+        portfolioid INT(19) NULL, 
+        portfolio_amount VARCHAR(255) NULL, 
+        bill_amount VARCHAR(255) NULL , 
+        PRIMARY KEY (billing_portfolio_id)
+    );");
+}
