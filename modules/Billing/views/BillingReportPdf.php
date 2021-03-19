@@ -15,6 +15,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $this->exposeMethod('GenrateLink');
         $this->exposeMethod('DownloadStatement');
         $this->exposeMethod('getPortfoilioLists');
+        $this->exposeMethod('GenrateLinkForPortfolios');
     }
     
     function process(Vtiger_Request $request) {
@@ -45,10 +46,12 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     function DownloadStatement(Vtiger_Request $request){
         
         $cvId = $request->get('viewid');
-        
-        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
-        
-        $recordId = $customViewModel->getRecordIds(array(),'PortfolioInformation');
+        if($cvId){
+            $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+            $recordId = $customViewModel->getRecordIds(array(),'PortfolioInformation');
+        }else{
+            $recordId = $this->getRecordsListFromRequest($request);
+        }
         
         global $site_URL, $adb;
         $companyModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
@@ -596,4 +599,65 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $viewer->view('GetPortfoliosList.tpl',$moduleName);
         
     }
+    
+    function GenrateLinkForPortfolios(Vtiger_Request $request){
+        $moduleName = $request->getModule();
+        
+        $viewer = $this->getViewer($request);
+        
+        $data = $request->getAll();
+        unset($data['module']);
+        unset($data['view']);
+        unset($data['mode']);
+        
+        $result = array();
+        
+        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&'.http_build_query($data);
+        
+        $response = new Vtiger_Response();
+        $response->setResult($result);
+        $response->emit();
+    }
+    
+    function getRecordsListFromRequest(Vtiger_Request $request) {
+        $cvId = $request->get('viewname');
+        $module = $request->get('module');
+        if(!empty($cvId) && $cvId=="undefined"){
+            $sourceModule = $request->get('sourceModule');
+            $cvId = CustomView_Record_Model::getAllFilterByModule($sourceModule)->getId();
+        }
+        $selectedIds = $request->get('selected_ids');
+        $excludedIds = $request->get('excluded_ids');
+        
+        if(!empty($selectedIds) && $selectedIds != 'all') {
+            if(!empty($selectedIds) && count($selectedIds) > 0) {
+                return $selectedIds;
+            }
+        }
+        
+        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+        if($customViewModel) {
+            $searchKey = $request->get('search_key');
+            $searchValue = $request->get('search_value');
+            $operator = $request->get('operator');
+            if(!empty($operator)) {
+                $customViewModel->set('operator', $operator);
+                $customViewModel->set('search_key', $searchKey);
+                $customViewModel->set('search_value', $searchValue);
+            }
+            
+            /**
+             *  Mass action on Documents if we select particular folder is applying on all records irrespective of
+             *  seleted folder
+             */
+            if ($module == 'Documents') {
+                $customViewModel->set('folder_id', $request->get('folder_id'));
+                $customViewModel->set('folder_value', $request->get('folder_value'));
+            }
+            
+            $customViewModel->set('search_params',$request->get('search_params'));
+            return $customViewModel->getRecordIds($excludedIds,$module);
+        }
+    }
+    
 }

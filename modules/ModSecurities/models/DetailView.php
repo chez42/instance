@@ -260,4 +260,23 @@ class ModSecurities_DetailView_Model extends Vtiger_DetailView_Model {
 
 		return $instance->setModule($moduleModel)->setRecord($recordModel);
 	}
+	
+	public function getDetailViewRelatedLinks(){
+	    
+	    $recordModel = $this->getRecord();
+	    $moduleName = $recordModel->getModuleName();
+	    $parentModuleModel = $this->getModule();
+	    
+	    $relatedLinks = parent::getDetailViewRelatedLinks();
+	    
+	    $relatedLinks[] = array(
+	        'linktype' => 'DETAILVIEWTAB',
+	        'linklabel' => 'Historical Data',
+	        'linkurl' => 'index.php?module='.$moduleName.'&view=HistoricalDataList&record='.$recordModel->getId().'&mode=recentHistoricals&page=1',
+	        'linkicon' => ''
+	    );
+	    
+	   return $relatedLinks;
+	    
+	}
 }
