@@ -2,7 +2,7 @@
 
 class cFileLocations{
     public $id, $custodian, $tenant, $file_location, $rep_code, $master_rep_code, $omni_code, $prefix, $suffix, $last_filename,
-           $last_filedate, $currently_active;
+           $last_filedate, $currently_active, $archive;
 }
 
 class cFileHandling{
@@ -103,6 +103,7 @@ class cFileHandling{
                 $tmp->last_filename = $r['last_filename'];
                 $tmp->last_filedate = $r['last_filedate'];
                 $tmp->currently_active = $r['currently_active'];
+                $tmp->archive = str_ireplace("lanserver2n", "archive", $tmp->file_location);
                 $data[$r['rep_code']] = $tmp;
             }
         }
