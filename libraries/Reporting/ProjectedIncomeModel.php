@@ -379,10 +379,11 @@ class ProjectedIncome_Model extends Vtiger_Module {
                     foreach($v->pay_dates AS $b => $pd){
                         if($pd->month == $month->month){
                             $monthly_total[$month->month] += $v->estimate_payment_amount;
-                            $this->grand_total += $v->estimate_payment_amount;
                         }
                     }
                 }
+                $this->grand_total += $v->year_payment;
+#                print_r($v); echo '<br /><<br />';
             }
         }
         $this->monthly_total = $monthly_total;
