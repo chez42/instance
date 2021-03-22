@@ -37,7 +37,7 @@
 					<table class="table table-bordered modulesTable">
 						<tr>
 							<style>
-								span.module-icon :not(.material-icons) {
+								.moduleManagerBlock span.module-icon :not(.material-icons) {
 									filter:none !important;
 								}
 							</style>
