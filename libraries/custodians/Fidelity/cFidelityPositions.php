@@ -606,4 +606,58 @@ class cFidelityPositions extends cCustodian {
             return $symbols;
         }
     }
+
+    static public function GetClosestPositionDate(array $account_numbers, $date){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT MAX(as_of_date) AS date
+                  FROM custodian_omniscient.custodian_positions_fidelity
+                  WHERE account_number IN ({$questions})
+                  AND as_of_date <= ?";
+        $result = $adb->pquery($query, array($account_numbers, $date));
+
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'date');
+
+        return null;
+    }
+
+    /**
+     * This is extremely specific.  This is not <= date, but requires a specific date to check against.  Request a saturday or holiday, you won't
+     * get a response
+     * @param array $account_number
+     * @param $date
+     * @return array|null
+     */
+    static public function GetPositionDataAsOfDate(array $account_number, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $date = self::GetClosestPositionDate($account_number, $date);
+
+        $query = "SELECT p.symbol, SUM(closing_market_value) AS market_value, security_sector, mcf.cusip, m.description1,
+                         mcf.aclass, mcf.security_sector, mcf.cusip, m.security_name, m.securitytype, m.pay_frequency, m.maturity_date,
+                         m.interest_rate, mcf.dividend_pay_date, mcf.dividend_share, mcf.dividend_yield, mcf.security_price_adjustment,
+                         p.account_number, trade_date_quantity AS quantity, close_price AS price
+                  FROM custodian_omniscient.custodian_positions_fidelity p
+                  JOIN vtiger_modsecurities m ON m.security_symbol = p.symbol
+                  JOIN vtiger_modsecuritiescf mcf USING (modsecuritiesid)
+                  WHERE p.account_number IN ({$questions})
+                  AND as_of_date = ?
+                  GROUP BY p.account_number, security_symbol, aclass, security_sector";
+        $result = $adb->pquery($query, array($account_number, $date));
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[$v['account_number']][] = $v;
+            }
+            return $data;
+        }
+        return null;
+    }
 }
