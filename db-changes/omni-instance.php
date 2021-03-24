@@ -1519,13 +1519,13 @@ $adb->pquery("ALTER TABLE `vtiger_notificationscf` ADD  CONSTRAINT `fk_notificat
 FOREIGN KEY (`notificationsid`) REFERENCES 
 `vtiger_notifications`(`notificationsid`) ON DELETE CASCADE ON UPDATE RESTRICT");
 
+
+
 $MODULENAME = 'Group';
 $sel = $adb->pquery("SELECT * FROM vtiger_tab WHERE name = 'Group'");
 
 $moduleInstance = Vtiger_Module::getInstance($MODULENAME);
-if ($moduleInstance || $adb->num_rows($sel)) {
-    echo "Module already present - choose a different name.";
-} else {
+if (!$adb->num_rows($sel)) {
     $moduleInstance = new Vtiger_Module();
     $moduleInstance->name = $MODULENAME;
     $moduleInstance->parent= 'Tools';
@@ -1669,10 +1669,13 @@ if(!$adb->num_rows($notifyWorkflowTask)){
 
 $module = Vtiger_Module::getInstance("Billing");
 
-if(!empty($module)){
-    $blockInstance = Vtiger_Block::getInstance('LBL_BILLING_INFORMATION',$module);
+if($module){
+    
+	$blockInstance = Vtiger_Block::getInstance('LBL_BILLING_INFORMATION',$module);
+	
     $fieldInstance = Vtiger_Field::getInstance('group_billingid', $module);
-    if(!$fieldInstance){
+    
+	if(!$fieldInstance){
         $field = new Vtiger_Field();
         $field->name = 'group_billingid';
         $field->label = 'Group Billing';
@@ -1683,11 +1686,11 @@ if(!empty($module)){
         $field->setrelatedmodules(array('Group'));
     }
     
-    $fieldInstance = Vtiger_Field::getInstance('billing_type', $module);
+    $fieldInstance = Vtiger_Field::getInstance('billingtype', $module);
     if(!$fieldInstance){
         $field = new Vtiger_Field();
-        $field->name = 'billing_type';
-        $field->label = 'Billing Type';
+        $field->name = 'billingtype';
+        $field->label = 'Type';
         $field->uitype = 15;
         $field->typeofdata = 'V~O';
         $field->columntype = 'VARCHAR(255)';
