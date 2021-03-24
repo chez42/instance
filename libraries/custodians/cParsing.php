@@ -78,6 +78,35 @@ class cParsing{
     }
 
     /**
+     * @param $directory
+     * @param $extension
+     * @param null $num_days
+     * @return array
+     */
+    protected function GetAllFiles($directory, $num_days=null): array{
+        $files = array();
+        if(!is_null($num_days))
+            $time = 60*60*24*$num_days;
+
+        if (file_exists($directory)) {
+            foreach (new DirectoryIterator($directory) AS $fileInfo) {
+                if ($fileInfo->isDot()) {
+                    continue;
+                }
+
+                if(!is_null($num_days)){
+                    if($fileInfo->isFile() && time() - $fileInfo->getCTime() <= $time){
+                        $files[] = $this->SetFileInfo($fileInfo);
+                    }
+                }else{
+                    $files[] = $this->SetFileInfo($fileInfo);
+                }
+            }
+        }
+        return $files;
+    }
+
+    /**
      * Determines if the directory exists or not.  Creates it if not (if it can)
      * @param $directory
      * @return bool

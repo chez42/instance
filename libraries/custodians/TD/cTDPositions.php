@@ -626,7 +626,8 @@ return;
         //TODO Add a function get latest position date as of provide date here!!
         $query = "SELECT pos.symbol, quantity, amount, account_number, 
                          pos.date, pr.price, CASE WHEN pr.factor = 0 OR pr.factor IS NULL THEN 1 ELSE pr.factor END AS factor, 
-                         mcf.aclass, mcf.security_sector, mcf.cusip, m.security_name, m.securitytype
+                         mcf.aclass, mcf.security_sector, mcf.cusip, m.security_name, m.securitytype, m.pay_frequency, m.maturity_date,
+                         m.interest_rate, mcf.dividend_pay_date, mcf.dividend_share, mcf.dividend_yield, mcf.security_price_adjustment
                   FROM custodian_omniscient.custodian_positions_td pos 
                   LEFT JOIN custodian_omniscient.custodian_prices_td pr ON pos.symbol = pr.symbol AND pos.date = pr.date
                   LEFT JOIN vtiger_modsecurities m ON pos.symbol = m.security_symbol
