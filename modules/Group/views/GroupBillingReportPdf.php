@@ -205,13 +205,16 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
 						WHEN (
 						vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
 						WHEN (
-						vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities') then 'minus'
+						vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR
+						vtiger_transactionscf.transaction_activity = 'Moneylink Transfer'
+						
+						) then 'minus'
 					END  AS transaction_status
 					FROM vtiger_transactions
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
 					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
 					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number IN (".generateQuestionMarks($portfolioAccountNumbers).")
-					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities')
+					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities', 'Moneylink Transfer')
 					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
 					AND vtiger_transactionscf.net_amount > ?
 					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
@@ -235,7 +238,8 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             if(
                                 $transaction_data['transaction_activity'] == 'Transfer of funds' ||
                                 $transaction_data['transaction_activity'] == 'Withdrawal of funds' ||
-                                $transaction_data['transaction_activity'] == 'Transfer of securities'
+                                $transaction_data['transaction_activity'] == 'Transfer of securities' ||
+								$transaction_data['transaction_activity'] == 'Moneylink Transfer'
                                 ){
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                             }
@@ -275,7 +279,7 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     $billingObj->set('feeamount', $amountValue);
                     $billingObj->set('beginning_price_date', $beginningPriceDate);
                     $billingObj->set('ending_price_date', $endingPriceDate);
-                    $billingObj->set('billing_type', 'Group');
+                    $billingObj->set('billingtype', 'Group');
                     $billingObj->save();
                     
                     if($billingObj->getId() && !empty($transactionData)){

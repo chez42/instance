@@ -279,7 +279,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
                         WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
                         AND vtiger_billing.beginning_price_date = ?",
-                            array($portData['portfolioinformationid'],$beginningPriceDate));
+						array($portData['portfolioinformationid'],$beginningPriceDate));
                         
                         if($adb->num_rows($billingQuery)){
                             $billingId = $adb->query_result($billingQuery, 0, 'billingid');
@@ -297,7 +297,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $billingObj->set('feeamount', $amountValue);
                         $billingObj->set('beginning_price_date', $beginningPriceDate);
                         $billingObj->set('ending_price_date', $endingPriceDate);
-                        $billingObj->set('billing_type', 'Individual');
+                        $billingObj->set('billingtype', 'Individual');
                         $billingObj->save();
                         
                         if($billingObj->getId() && !empty($transactionData)){
@@ -647,17 +647,9 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 $customViewModel->set('search_value', $searchValue);
             }
             
-            /**
-             *  Mass action on Documents if we select particular folder is applying on all records irrespective of
-             *  seleted folder
-             */
-            if ($module == 'Documents') {
-                $customViewModel->set('folder_id', $request->get('folder_id'));
-                $customViewModel->set('folder_value', $request->get('folder_value'));
-            }
-            
             $customViewModel->set('search_params',$request->get('search_params'));
-            return $customViewModel->getRecordIds($excludedIds,$module);
+            
+			return $customViewModel->getRecordIds($excludedIds,$module);
         }
     }
     
