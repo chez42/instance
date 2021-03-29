@@ -605,6 +605,7 @@ class cTDTransactions extends cCustodian
                 if(strtoupper($v['omniscient_activity']) == "RECEIPT OF SECURITIES"){
                     $v['price'] = $v['close_price'] = self::GetBestReceiptOfSecurityPrice($v['symbol'], $v['trade_date']);
                     $v['net_amount'] = $v['quantity'] * $v['pricing_factor'] * $v['close_price'];
+#                    echo $v['net_amount'] . ' = ' . $v['quantity'] . ' * ' . $v['pricing_factor'] . ' * ' . $v['close_price'] . '<br />';
                 }
 
                 switch(strtoupper($v['cancel_status_flag'])){
@@ -628,8 +629,8 @@ class cTDTransactions extends cCustodian
     }
 
     private function GetBestReceiptOfSecurityPrice($symbol, $date){
-        $price = cTDPrices::GetBestKnownPriceBeforeDate($symbol, $date);
-#        $price = cTDPrices::GetPriceAsOfDate($symbol, $date);
+#        $price = cTDPrices::GetBestKnownPriceBeforeDate($symbol, $date);
+        $price = cTDPrices::GetPriceAsOfDate($symbol, $date);
 
         if($price == false){
             $fix = new CustodianWriter();
