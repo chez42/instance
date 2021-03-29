@@ -33,7 +33,7 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
             $end_date = GetDateLastOfPreviousMonthPlusOneYear();
 
             $positions = PositionInformation_Module_Model::GetPositionsForAccountNumber($accounts);
-
+/*
             foreach($positions AS $k => $v) {
                 //TODO:  Get last EOD date.  If it is less than today - 3 months, call UpdateSecurityFromEOD
                 $crmid = ModSecurities_Module_Model::GetCrmidFromSymbol($v['security_symbol']);
@@ -46,9 +46,9 @@ class PortfolioInformation_OmniProjected_View extends Vtiger_Index_View{
 #                    if ($returned <= $compared)
                         ModSecurities_ConvertCustodian_Model::UpdateSecurityFromEOD($v['security_symbol'], "US");
                 }
-            }
+            }*/
 
-            $projected = new ProjectedIncome_Model($accounts);
+            $projected = new ProjectedIncome_Model($accounts, $end_date);
             $calendar = CreateMonthlyCalendar($start_date, $end_date);
             $projected->CalculateMonthlyTotals($calendar);
             $graph = $projected->GetMonthlyIncomeGraph();

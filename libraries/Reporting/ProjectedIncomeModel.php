@@ -27,8 +27,10 @@ class ProjectedIncome_Model extends Vtiger_Module {
     private $account_numbers;
     private $date;
 
-    public function ProjectedIncome_Model(array $account_numbers, $date){
+    public function ProjectedIncome_Model(array $account_numbers, $date = null){
         global $adb;
+        if(is_null($date))
+            $date = GetDateMinusDays(365);
         $this->account_numbers = $account_numbers;
         $this->date = $date;
 
