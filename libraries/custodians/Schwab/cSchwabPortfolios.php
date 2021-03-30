@@ -431,16 +431,18 @@ class cSchwabPortfolios extends cCustodian {
         if(!empty($new)) {
             $questions = generateQuestionMarks($new);
 
-            $query = "SELECT p.account_number, 'Schwab' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.description, p.rep_code, p.master_rep_code, NOW() AS generated_time
+            $query = "SELECT p.account_number, 'Schwab' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.description, 
+                             p.rep_code, p.master_rep_code, NOW() AS generated_time, u.id AS userid
                       FROM custodian_omniscient.custodian_portfolios_schwab p 
-                      WHERE p.account_number NOT IN ({$questions})";
+                      JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',p.rep_code,'%')
+                      WHERE p.account_number IN ({$questions})";
             $result = $adb->pquery($query, array($new));
 
             if($adb->num_rows($result) > 0) {
                 while ($v = $adb->fetchByAssoc($result)) {
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generated_time'], $v['generated_time'], $v['account_number']));
+                    $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generated_time'], $v['generated_time'], $v['account_number']));
 
                     $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination)
                               VALUES (?, ?, ?)";
@@ -469,7 +471,7 @@ class cSchwabPortfolios extends cCustodian {
                   JOIN custodian_omniscient.custodian_portfolios_schwab f ON f.account_number = p.account_number
                   JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = cf.production_number
                   JOIN custodian_omniscient.custodian_balances_schwab bal ON bal.account_number = p.account_number AND bal.as_of_date = lpd.last_position_date
-                  LEFT JOIN portfolios_mapping_schwab pmap ON pmap.schwab_code = f.account_registration
+                  LEFT JOIN custodian_omniscient.portfolios_mapping_schwab pmap ON pmap.schwab_code = f.account_registration
                   WHERE p.account_number IN ({$questions})";
         $result = $adb->pquery($query, array($account_number));
 
