@@ -520,6 +520,59 @@ class cSchwabPositions extends cCustodian {
             }
         }
     }
+
+    static public function GetClosestPositionDate(array $account_numbers, $date){
+        global $adb;
+
+        if(empty($account_numbers))
+            return null;
+
+        $questions = generateQuestionMarks($account_numbers);
+
+        $query = "SELECT MAX(date) AS date
+                  FROM custodian_omniscient.custodian_positions_schwab 
+                  WHERE account_number IN ({$questions})
+                  AND date <= ?";
+        $result = $adb->pquery($query, array($account_numbers, $date));
+
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'date');
+
+        return null;
+    }
+
+    /**
+     * This is extremely specific.  This is not <= date, but requires a specific date to check against.  Request a saturday or holiday, you won't
+     * get a response
+     * @param array $account_number
+     * @param $date
+     * @return array|null
+     */
+    static public function GetPositionDataAsOfDate(array $account_number, $date){
+        global $adb;
+        $questions = generateQuestionMarks($account_number);
+        $date = self::GetClosestPositionDate($account_number, $date);
+
+
+        $query = "SELECT p.symbol, SUM(market_value_settled_and_unsettled) AS market_value, aclass, security_sector,
+                         cf.cusip, m.security_name, account_number, quantity, p.closing_price, securitytype
+                  FROM custodian_omniscient.custodian_positions_schwab p
+                  JOIN vtiger_modsecurities m ON m.security_symbol = p.symbol
+                  JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
+                  WHERE account_number IN ({$questions})
+                  AND date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_schwab WHERE date = ? AND account_number IN ({$questions}))
+                  GROUP BY security_symbol, aclass, security_sector";
+
+        if($adb->num_rows($result) > 0){
+            $data = array();
+            while($v = $adb->fetchByAssoc($result)){
+                $data[$v['account_number']][] = $v;
+            }
+            return $data;
+        }
+
+        return null;
+    }
 }
 
 /*
