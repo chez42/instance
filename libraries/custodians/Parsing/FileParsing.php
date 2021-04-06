@@ -108,5 +108,21 @@ class FileParsing{
             );
             $res = $this->guz->get($url);
         }
+        StatusUpdate::UpdateMessage("MANUALPARSING", "Parsing Complete!  Updating last position date for data");
+
+        switch(strtolower($this->custodian)){
+            case "fidelity":
+                $date_field = "as_of_date";
+                break;
+            case "pershing":
+                $date_field = "position_date";
+                break;
+            default:
+                $date_field = "date";
+                break;
+        }
+        $url = "http://synctest.360vew.com/lh/RepCodeDates.php?custodian={$this->custodian}&date_field={$date_field}&rep_code={$this->rep_code}";
+        $res = $this->guz->get($url);
+        StatusUpdate::UpdateMessage("MANUALPARSING", "{$this->rep_code} should now have latest data");
     }
 }
