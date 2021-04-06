@@ -34,5 +34,23 @@ class Billing_Record_Model extends Vtiger_Record_Model {
         return false;
     }
     
+    public function getRelatdPortfolios(){
+        $adb = PearDatabase::getInstance();
+        
+        $result = $adb->pquery("SELECT billing_portfolio_id, portfolioid, portfolio_amount, bill_amount FROM vtiger_billing_portfolio_accounts WHERE billingid = ?",
+            array($this->getId()));
+        
+        $portfolioDetails = array();
+        
+        if($adb->num_rows($result)){
+            
+            while($schedule = $adb->fetchByAssoc($result)){
+                $portfolioDetails[] = $schedule;
+            }
+        }
+        
+        return $portfolioDetails;
+        
+    }
 
 }

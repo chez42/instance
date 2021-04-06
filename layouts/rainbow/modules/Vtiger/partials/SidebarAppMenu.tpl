@@ -101,7 +101,7 @@
 				                            {assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 											
 			                                <li>
-			                                	<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" >
+			                                	<a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" {if $moduleName eq 'Accounts' || $moduleName eq 'PriceBooks'}target="_blank"{/if} >
 													{if $moduleName eq 'PortfolioInformation'}
 														<span class="module-icon"><img src="layouts/rainbow/icons/PortfolioInformation.png" title="{$translatedModuleLabel}"></span>
 														{*<i class="fa fa-line-chart" aria-hidden="true"></i>*}
@@ -179,7 +179,7 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($DOCUMENTS_MODULE_MODEL->getId())}
 							
 							<li class="{if $MODULE eq "Documents"}active{/if}"> 
-								<a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" >
+								<a class=" waves-effect waves-dark" href="index.php?module=Documents&view=List" target="_blank">
 									{*<i class="app-icon-list material-icons">file_download</i>*}
 									<span class="module-icon"><img src="layouts/rainbow/icons/Documents.png" title="{vtranslate('Documents')}"></span>
 									<span class="hide-menu"> {vtranslate('Documents')}</span>
@@ -199,7 +199,7 @@
 						{assign var=COMMENTS_MODULE_MODEL value=Vtiger_Module_Model::getInstance('ModComments')}
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($COMMENTS_MODULE_MODEL->getId())}
 							<li class="{if $MODULE eq "ModComments"}active{/if}"> 
-								<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" >
+								<a class=" waves-effect waves-dark" href="index.php?module=ModComments&view=List" target="_blank">
 									{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
 									<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{vtranslate('ModComments')}"></span>
 									<span class="hide-menu"> {vtranslate('ModComments')}</span>
@@ -235,7 +235,7 @@
                             
                             <ul  style="padding-left:6px;padding-top:4px;" aria-expanded="{if $SELECTED_MENU_CATEGORY eq $APP_NAME}true{else}false{/if}" class="collapse {if $SELECTED_MENU_CATEGORY eq $APP_NAME}in{/if}">
 	                           
-	                            <li><a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="index.php?module=Vtiger&parent=Settings&view=Index" ><span class="module-icon"><i class="material-icons">settings</i></span><span class="hide-menu">  {vtranslate('LBL_CRM_SETTINGS','Vtiger')}</span></a></li>
+	                            <li><a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="index.php?module=Vtiger&parent=Settings&view=Index" target="_blank" ><span class="module-icon"><i class="material-icons">settings</i></span><span class="hide-menu">  {vtranslate('LBL_CRM_SETTINGS','Vtiger')}</span></a></li>
 					
 								<li><a class="waves-effect waves-dark {if $MODULE eq $moduleName}active{/if}" href="index.php?module=Users&parent=Settings&view=List" ><span class="module-icon"><i class="material-icons">contacts</i></span><span class="hide-menu">   {vtranslate('LBL_MANAGE_USERS','Vtiger')}</span></a></li>
 					

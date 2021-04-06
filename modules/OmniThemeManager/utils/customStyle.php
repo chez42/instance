@@ -829,7 +829,7 @@ tbody .ps__thumb-y{
     border-top: 1px solid <?= $params["field-border-color"] ?>;
 }
 .detailview-table .fieldValue, .detailview-table .fieldLabel, #detailView .summaryView .fieldValue{
-	border-bottom: 1px solid <?= $params["field-border-color"] ?>;
+	border-bottom: 1px solid <?= $params["field-border-color"] ?> !important;
 }
 
 .fieldLabel label, .fieldLabel .muted{

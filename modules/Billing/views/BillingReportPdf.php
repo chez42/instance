@@ -15,6 +15,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $this->exposeMethod('GenrateLink');
         $this->exposeMethod('DownloadStatement');
         $this->exposeMethod('getPortfoilioLists');
+        $this->exposeMethod('GenrateLinkForPortfolios');
     }
     
     function process(Vtiger_Request $request) {
@@ -45,10 +46,12 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     function DownloadStatement(Vtiger_Request $request){
         
         $cvId = $request->get('viewid');
-        
-        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
-        
-        $recordId = $customViewModel->getRecordIds(array(),'PortfolioInformation');
+        if($cvId){
+            $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+            $recordId = $customViewModel->getRecordIds(array(),'PortfolioInformation');
+        }else{
+            $recordId = $this->getRecordsListFromRequest($request);
+        }
         
         global $site_URL, $adb;
         $companyModel = Settings_Vtiger_CompanyDetails_Model::getInstance();
@@ -276,7 +279,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
                         WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
                         AND vtiger_billing.beginning_price_date = ?",
-                            array($portData['portfolioinformationid'],$beginningPriceDate));
+						array($portData['portfolioinformationid'],$beginningPriceDate));
                         
                         if($adb->num_rows($billingQuery)){
                             $billingId = $adb->query_result($billingQuery, 0, 'billingid');
@@ -294,6 +297,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $billingObj->set('feeamount', $amountValue);
                         $billingObj->set('beginning_price_date', $beginningPriceDate);
                         $billingObj->set('ending_price_date', $endingPriceDate);
+                        $billingObj->set('billingtype', 'Individual');
                         $billingObj->save();
                         
                         if($billingObj->getId() && !empty($transactionData)){
@@ -596,4 +600,57 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $viewer->view('GetPortfoliosList.tpl',$moduleName);
         
     }
+    
+    function GenrateLinkForPortfolios(Vtiger_Request $request){
+        $moduleName = $request->getModule();
+        
+        $viewer = $this->getViewer($request);
+        
+        $data = $request->getAll();
+        unset($data['module']);
+        unset($data['view']);
+        unset($data['mode']);
+        
+        $result = array();
+        
+        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&'.http_build_query($data);
+        
+        $response = new Vtiger_Response();
+        $response->setResult($result);
+        $response->emit();
+    }
+    
+    function getRecordsListFromRequest(Vtiger_Request $request) {
+        $cvId = $request->get('viewname');
+        $module = $request->get('module');
+        if(!empty($cvId) && $cvId=="undefined"){
+            $sourceModule = $request->get('sourceModule');
+            $cvId = CustomView_Record_Model::getAllFilterByModule($sourceModule)->getId();
+        }
+        $selectedIds = $request->get('selected_ids');
+        $excludedIds = $request->get('excluded_ids');
+        
+        if(!empty($selectedIds) && $selectedIds != 'all') {
+            if(!empty($selectedIds) && count($selectedIds) > 0) {
+                return $selectedIds;
+            }
+        }
+        
+        $customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+        if($customViewModel) {
+            $searchKey = $request->get('search_key');
+            $searchValue = $request->get('search_value');
+            $operator = $request->get('operator');
+            if(!empty($operator)) {
+                $customViewModel->set('operator', $operator);
+                $customViewModel->set('search_key', $searchKey);
+                $customViewModel->set('search_value', $searchValue);
+            }
+            
+            $customViewModel->set('search_params',$request->get('search_params'));
+            
+			return $customViewModel->getRecordIds($excludedIds,$module);
+        }
+    }
+    
 }

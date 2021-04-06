@@ -1137,7 +1137,10 @@ Vtiger.Class("Vtiger_List_Js", {
 				// Redirect only after 500 milliseconds
 				if (!currentAElement.data('timer') && typeof href != 'undefined') {
 					currentAElement.data('timer', setTimeout(function () {
-						window.location = href;
+						if(jQuery('.searchResults').length)
+							window.open(href,"_blank");
+						else
+							window.location = href;
 					}, 500));
 				}
 				e.preventDefault();
@@ -1166,6 +1169,10 @@ Vtiger.Class("Vtiger_List_Js", {
 							if (typeof recordUrl == 'undefined') {
 								return;
 							}
+							
+							if(jQuery('.searchResults').length)
+								window.open(recordUrl,"_blank");
+							else
 							window.location.href = recordUrl;
 						}
 					}

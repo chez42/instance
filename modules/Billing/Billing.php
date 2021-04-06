@@ -86,6 +86,10 @@ class Billing extends Vtiger_CRMEntity {
             $linkurl = 'layouts/v7/modules/Billing/resources/Billing.js';
             Vtiger_Link::deleteLink($tab_id, 'HEADERSCRIPT', 'BillingJS', $linkurl);
             
+            $tab_id = Vtiger_Functions::getModuleId('PortfolioInformation');
+            $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLinkForPortfolios");';
+            Vtiger_Link::deleteLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl);
+            
         } else if($eventType == 'module.enabled') {
             
             $this->addLinks($adb,$displayLabel);
@@ -108,6 +112,16 @@ class Billing extends Vtiger_CRMEntity {
             Vtiger_Link::addLink($tab_id, 'HEADERSCRIPT', 'BillingJS', $linkurl, '', '0', '', '', '');
         }
         
+        $tab_id = Vtiger_Functions::getModuleId('PortfolioInformation');
+        $linkurl = 'javascript:Billing_Js.triggerBillingReportPdf("index.php?module=Billing&view=BillingReportPdf&mode=GenrateLinkForPortfolios");';
+        
+        $result = $adb->pquery("select * from vtiger_links where linkurl = ?
+        AND tabid = ?",array($linkurl, $tab_id));
+        
+        if(!$adb->num_rows($result)){
+            Vtiger_Link::addLink($tab_id, 'LISTVIEWMASSACTION', 'Get Statement', $linkurl, '', '0', '', '', '');
+        }
+        
     }
     
     function customTables($adb){
@@ -124,6 +138,15 @@ class Billing extends Vtiger_CRMEntity {
             trans_fee VARCHAR(255) NULL , 
             totaladjustment VARCHAR(255) NULL , 
             PRIMARY KEY (capitalflowsid)
+        );");
+        
+        $adb->query_result("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts (
+            billing_portfolio_id INT(19) NOT NULL AUTO_INCREMENT,
+            billingid INT(19) NULL,
+            portfolioid INT(19) NULL,
+            portfolio_amount VARCHAR(255) NULL,
+            bill_amount VARCHAR(255) NULL ,
+            PRIMARY KEY (billing_portfolio_id)
         );");
         
     }
