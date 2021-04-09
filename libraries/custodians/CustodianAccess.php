@@ -91,4 +91,28 @@ class CustodianAccess{
         return 0;
     }
 
+    /**
+     * If no date is passed in, it will return the results of 'GetLatestBalanceDate'
+     * @param null $date
+     * @return int|string|string[]|null
+     * @throws Exception
+     */
+    public function GetNearestValidBalanceDate($date=null){
+        global $adb;
+        if(is_null($date))
+            return $this->GetLatestBalanceDate();
+
+        $query = "SELECT {$this->fields['balance_as_of_date']} AS date 
+                  FROM custodian_omniscient.{$this->custodian['balance']} 
+                  WHERE account_number = ?
+                  AND {$this->fields['balance_as_of_date']} <= ?
+                  ORDER BY {$this->fields['balance_as_of_date']} DESC";
+
+        $result = $adb->pquery($query, array($this->account_number, $date), true);
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'date');
+
+        return 0;
+    }
+
 }
