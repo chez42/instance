@@ -513,11 +513,12 @@ class cFidelityPortfolios extends cCustodian {
                              'Fidelity' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.production_number, f.as_of_date, f.net_worth, f.buying_power, 
                              f.cash_available_to_withdraw, (f.net_worth-f.cash_available_to_withdraw) AS market_value, f.cash_available_to_borrow, 
                              f.money_market_available, f.core_cash_market_value, f.unsettled_cash, f.dividend_accrual, NOW() AS generatedtime, 
-                             p.rep_code 
+                             p.rep_code, u.id AS userid
                       FROM custodian_omniscient.custodian_portfolios_fidelity p
                       JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = p.rep_code 
                       LEFT JOIN custodian_omniscient.custodian_balances_fidelity f ON f.account_number = p.account_number 
-                                                                                   AND f.as_of_date = lpd.last_position_date 
+                                                                                   AND f.as_of_date = lpd.last_position_date
+                      JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',p.rep_code,'%') 
                       WHERE p.account_number IN ({$questions})";
             $result = $adb->pquery($query, array($new));
 
@@ -525,7 +526,7 @@ class cFidelityPortfolios extends cCustodian {
                 while($v = $adb->fetchByAssoc($result)){
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    $adb->pquery($query, array($v['crmid'], 1, 1, 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
+                    $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
 
                     $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, total_value, market_value, cash_value)
                               VALUES(?, ?, ?, ?, ?, ?)";
@@ -547,20 +548,22 @@ class cFidelityPortfolios extends cCustodian {
                          CASE WHEN pf.primary_owner_last_name = '' THEN pf.primary_account_owner ELSE pf.primary_owner_last_name END AS last_name,
                          pf.address1_line1, pf.address1_line2, pf.address1_line3, pf.address2_line1, pf.address2_line2, pf.address2_line3, 
                          pf.city1, pf.state1, pf.zip_code1, pf.establishment_date, pf.rep_code, pf.master_rep_code, pf.rep_code_multiple,
-                         p.portfolioinformationid
+                         u.id AS userid, p.portfolioinformationid
                   FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid  
                   LEFT JOIN custodian_omniscient.custodian_portfolios_fidelity pf ON pf.account_number = p.account_number 
                   LEFT JOIN custodian_omniscient.portfolios_mapping_fidelity pmap ON pmap.fidelity_type = pf.registration
+                  JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',pf.rep_code,'%')
                   WHERE pf.account_number IN ({$questions})";
         $result = $adb->pquery($query, array($account_number), true);#21,826,709.36
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_portfolioinformation p 
-                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                      JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
+                      JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
                       SET cf.description = ?, p.first_name = ?,
                       p.last_name = ?, cf.address1 = ?, cf.address2 = ?, cf.address3 = ?, cf.address4 = ?, cf.address5 = ?, 
                       cf.address6 = ?, cf.city = ?, cf.state = ?, cf.zip = ?, cf.custodian_inception = ?, cf.production_number = ?,
-                      cf.master_production_number = ?, cf.rep_code_multiple = ?
+                      cf.master_production_number = ?, cf.rep_code_multiple = ?, e.smownerid = ?
                     WHERE p.portfolioinformationid = ?";
             while($v = $adb->fetchByAssoc($result)){
                 $adb->pquery($query, $v, true);
