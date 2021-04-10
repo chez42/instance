@@ -124,6 +124,19 @@ class CustodianAccess{
         return 0;
     }
 
+    public function GetBalanceExcludingPositions(array $positions, $date){
+        $bal = $this->GetBalance($date);
+        $pos = $this->GetPositions($date, $positions);//We are excluding these positions, so we want to get ONLY the positions we want to exclude so we can subtract
+        $total = 0;
+
+        foreach($pos AS $k => $v){
+            $total += $v['market_value'];
+        }
+
+        $bal->value -= $total;
+    }
+
+
     /**
      * Returns a list of positions including or excluding those passed in.  This uses in_array so is CASE SENSITIVE!!
      * @param $date
