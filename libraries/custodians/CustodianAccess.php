@@ -134,6 +134,7 @@ class CustodianAccess{
         }
 
         $bal->value -= $total;
+        return $bal;
     }
 
 
