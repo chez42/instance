@@ -13,11 +13,11 @@ class PortfolioInformation_ConvertCustodian_Action extends Vtiger_BasicAjax_Acti
 		$account_number = $request->get('account_number');
 		switch($convert_table){
 			case "portfolios":
-				PortfolioInformation_ConvertCustodian_Model::ConvertCustodian($custodian, $date, "=", $account_number);
+#				PortfolioInformation_ConvertCustodian_Model::ConvertCustodian($custodian, $date, "=", $account_number);
 				break;
 			case "update_portfolios":
 				switch($custodian){
-					case "fidelity":
+					/*case "fidelity":
 						PortfolioInformation_ConvertCustodian_Model::UpdatePortfolioValuesFidelity($date, $account_number);
 						echo "Fidelity Portfolios Updated";
 						break;
@@ -32,7 +32,7 @@ class PortfolioInformation_ConvertCustodian_Action extends Vtiger_BasicAjax_Acti
                     case "schwab":
                         PortfolioInformation_ConvertCustodian_Model::UpdateAllSchwabPortfoliosWithLatestInfoForAccount();
                         echo "Schwab updated to LATEST values.  Date had no effect if entered";
-                        break;
+                        break;*/
 				}
 			break;
 			case "assign_portfolios":
@@ -40,7 +40,7 @@ class PortfolioInformation_ConvertCustodian_Action extends Vtiger_BasicAjax_Acti
 				echo "Portfolio Re-Assignment Complete";
 				break;
 			case "calculate_portfolios":
-				switch($custodian){
+				switch($custodian){/*
 					case stristr($custodian, 'schwab'):
 						PortfolioInformation_ConvertCustodian_Model::UpdateAllSchwabPortfoliosWithLatestInfoForAccount($account_number);
 					break;
@@ -49,9 +49,9 @@ class PortfolioInformation_ConvertCustodian_Action extends Vtiger_BasicAjax_Acti
 					break;
 					default:
 						PortfolioInformation_ConvertCustodian_Model::UpdatePortfolioValuesFromPositions($custodian, $account_number);
-					break;
+					break;*/
 				}
-				echo "Portfolio Totals Updated for {$custodian} {$account_number}";
+#				echo "Portfolio Totals Updated for {$custodian} {$account_number}";
 				break;
 			case "link_portfolios":
 				PortfolioInformation_ConvertCustodian_Model::LinkContactsToPortfolios();
