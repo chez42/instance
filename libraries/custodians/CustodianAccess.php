@@ -14,31 +14,40 @@ DEFINE("SCHWAB_BALANCE_FIELDS", array("date" => "as_of_date", "value" => "accoun
 
 DEFINE("PERSHING", array("portfolio" => "custodian_portfolios_pershing", "balance" => "custodian_balances_pershing", "positions" => "custodian_positions_pershing", "transactions" => "custodian_transactions_pershing", "prices" => "custodian_prices_pershing", "securities" => "custodian_securities_pershing"));
 
+DEFINE("INCL", 1);
+DEFINE("EXCL", 0);
+
 class CustodianBalance{public $value, $money_market, $account_type, $account_description, $cash_equivalent, $available_funds, $todays_net_change, $buying_power, $net_balance, $option_buying_power, $date, $calculated;}
 
 class CustodianAccess{
     private $account_number;
     private $custodian, $fields, $balance_fields;//used for accessing the custodian database
-    public $balance;
+    public $balance, $positions;
+
+    private $map;//This is the custodian mapping to give acess to cTDPortfolios for example
 
     public function __construct($account_number){
         $this->account_number = $account_number;
         $this->balance = new CustodianBalance();
+        $this->map = new CustodianClassMapping($account_number);
         switch(strtoupper(PortfolioInformation_Module_Model::GetCustodianFromAccountNumber($account_number))){
             case "TD":
                 $this->custodian = TD;
                 $this->fields = TD_FIELDS;
                 $this->balance_fields = TD_BALANCE_FIELDS;
+                $this->positions = cTDPositions::GetPositionDataAsOfDate(array($account_number), date("Y-m-d"));
                 break;
             case "FIDELITY":
                 $this->custodian = FIDELITY;
                 $this->fields = FIDELITY_FIELDS;
                 $this->balance_fields = FIDELITY_BALANCE_FIELDS;
+                $this->positions = cFidelityPositions::GetPositionDataAsOfDate(array($account_number), date("Y-m-d"));
                 break;
             case "SCHWAB":
                 $this->custodian = SCHWAB;
                 $this->fields = SCHWAB_FIELDS;
                 $this->balance_fields = SCHWAB_BALANCE_FIELDS;
+                $this->positions = cSchwabPositions::GetPositionDataAsOfDate(array($account_number), date("Y-m-d"));
                 break;
             case "PERSHING":
                 $this->custodian = PERSHING;
@@ -113,6 +122,54 @@ class CustodianAccess{
             return $adb->query_result($result, 0, 'date');
 
         return 0;
+    }
+
+    public function GetBalanceExcludingPositions(array $positions, $date){
+        $bal = $this->GetBalance($date);
+        $pos = $this->GetPositions($date, $positions);//We are excluding these positions, so we want to get ONLY the positions we want to exclude so we can subtract
+        $total = 0;
+
+        foreach($pos AS $k => $v){
+            $total += $v['market_value'];
+        }
+
+        $bal->value -= $total;
+        return $bal;
+    }
+
+
+    /**
+     * Returns a list of positions including or excluding those passed in.  This uses in_array so is CASE SENSITIVE!!
+     * @param $date
+     * @param array|null $positions
+     * @param int $position_rule
+     * @return array
+     */
+    public function GetPositions($date, array $positions = null, $position_rule = INCL){
+        $tmp_positions = $this->map->positions::GetPositionDataAsOfDate(array($this->account_number), $date)[$this->account_number];//The function returns an array of positions belonging to the account number
+
+        $return_positions = array();
+
+        if(!empty($positions)){
+            switch($position_rule){
+                case EXCL:
+                    foreach($tmp_positions AS $k => $v){
+                        if(!in_array($v['symbol'], $positions))
+                            $return_positions[] = $v;
+                    }
+                    break;
+                case INCL:
+                    foreach($tmp_positions AS $k => $v){
+                        if(in_array($v['symbol'], $positions))
+                            $return_positions[] = $v;
+                    }
+                default:
+            }
+        }else{
+            $return_positions = $tmp_positions;
+        }
+
+        return $return_positions;
     }
 
 }
