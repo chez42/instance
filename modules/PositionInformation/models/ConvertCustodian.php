@@ -818,7 +818,7 @@ ELSE cf.security_price_adjustment * f.trade_date_quantity * f.close_price END
 	}
 
 	static public function ConvertCustodian($custodian, $date, $comparitor, $account_number){
-		self::CloudToModuleConversion($custodian, $date, $comparitor, $account_number);
+#		self::CloudToModuleConversion($custodian, $date, $comparitor, $account_number);
 	}
 
 	static public function UpdatePriceAdjustment(){
