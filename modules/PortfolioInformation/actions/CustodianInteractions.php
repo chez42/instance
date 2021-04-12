@@ -25,12 +25,14 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
 
                 $parse = new FileParsing($data->custodian, $parse_type, $num_days, 0, $data->rep_code);
                 $parse->parseFiles();
-                StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
+#                StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
                 break;
             case 'RecalculateHomepageWidgets':
                 include("cron/modules/InstanceOnly/HomepageWidgets.service");
                 break;
             case "PullRecalculate":{
+                include("cron/modules/Custodian/DataPull.service");
+/*
                 $cust = $request->get('custodian');
                 switch(strtoupper($cust)){
                     case "ALL":
@@ -43,7 +45,7 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
                     $updateClass = "c".$custodian."Updater";
                     $update = new $updateClass(array());
                     $update->UpdateAll();
-                }
+                }*/
             }break;
             case "GetUpdateStatus":{
                 echo StatusUpdate::ReadMessage("TDUPDATER");
