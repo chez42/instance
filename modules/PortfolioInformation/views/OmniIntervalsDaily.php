@@ -93,7 +93,7 @@ class PortfolioInformation_OmniIntervalsDaily_View extends Vtiger_Index_View{
         $selected_indexes = PortfolioInformation_Indexes_Model::GetSelectedIndexes();
 #        PortfolioInformation_Module_Model::CalculateMonthlyIntervalsForAccounts($accounts);
 #        PortfolioInformation_Module_Model::AutoDetermineIntervalCalculationDates($accounts);
-        PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
+        PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, false);
 //        $intervals = PortfolioInformation_Module_Model::GetDailyIntervalsForAccountsPreCalculated($accounts, '1900-01-01', date("Y-m-d"));
         $intervals = PortfolioInformation_Module_Model::GetDailyIntervalsForAccountsPreCalculated($accounts, '1900-01-01', date("Y-m-d"));
         foreach($accounts AS $k => $v){

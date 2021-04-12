@@ -204,6 +204,10 @@ class cIntervals{
         $counter = 0;
         $params = array();
         foreach($this->intervals AS $k => $v){
+            if($v->netReturnAmount < 0.5 || $v->netReturnAmount > 1.5) {
+                $v->netReturnAmount = 1;
+            }
+#print_r($v);echo '<br />';
             if($counter >= 100){
                 $writer = rtrim($writer, ', ');
                 $query = "INSERT INTO intervals_daily (AccountNumber, IntervalBeginDate, IntervalBeginValue, IntervalEndDate, IntervalEndValue, incomeamount, expenseamount, NetFlowAmount, tradeamount, investmentreturn, NetReturnAmount, intervalType, EntryDate)

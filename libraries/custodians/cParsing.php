@@ -205,4 +205,26 @@ class cParsing{
         $d = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' 11:00:00');
         touch($file, $d->getTimestamp());
     }
+
+    /**
+     *
+     * @param $result
+     * @param $key
+     * @param $value
+     * @return array
+     */
+    public function FilterResults($result, $key, $value){
+        global $adb;
+
+        $filter = array();
+        if($adb->num_rows($result) > 0){
+            while($x = $adb->fetchByAssoc($result)){
+                if(strtoupper($x[$key]) == strtoupper($value)){
+                    $filter[] = $x;
+                }
+            }
+        }
+        return $filter;
+    }
+
 }
