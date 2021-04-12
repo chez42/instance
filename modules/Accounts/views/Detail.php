@@ -38,6 +38,15 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
                 $tmp->transactions::UpdateTransactionsForAccounts(array($account));
             */
         }
+
+        $tmp = new CustodianClassMapping($account_numbers);
+        $tmp->portfolios::UpdateAllPortfoliosForAccounts($account_numbers);
+        $tmp->positions::CreateNewPositionsForAccounts($account_numbers);
+        $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts($account_numbers);
+        $tmp->transactions::CreateNewTransactionsForAccounts($account_numbers);
+#        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+#            $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+
     }
 
 
