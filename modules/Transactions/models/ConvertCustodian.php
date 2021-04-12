@@ -356,7 +356,7 @@ class Transactions_ConvertCustodian_Model extends Vtiger_Module_Model{
         $adb->pquery($query, $params);*/
     }
 
-	static public function ConvertCustodian($custodian, $date, $comparitor, $newonly = 0){
+	static public function ConvertCustodian($custodian, $date, $comparitor, $newonly = 0){return;
 		if($newonly == 1){
 			switch ($custodian){
 				case "fidelity":

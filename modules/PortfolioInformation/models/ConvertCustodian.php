@@ -840,6 +840,8 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 
 
 	static public function ConvertCustodian($custodian, $date, $comparitor, $account_number){
+	    //NO LONGER SAFE
+	    return;/*
 		switch($custodian){
 			case "fidelity":
 				self::PullNewPortfoliosFidelity($date);
@@ -859,7 +861,7 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 				self::SetDashless();
 				break;
 		}
-		echo "New Portfolios Pulled for {$custodian}";
+		echo "New Portfolios Pulled for {$custodian}";*/
 	}
 
 	/**
