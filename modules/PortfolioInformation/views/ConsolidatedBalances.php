@@ -30,6 +30,10 @@ class PortfolioInformation_ConsolidatedBalances_View extends Vtiger_Detail_View 
         else
             $account_numbers = GetAccountNumbersFromRecord($request->get('calling_record'));
 
+        $start = "2012-01-01";
+        $finish = date('Y-m-d');
+        PortfolioInformation_Module_Model::ConsolidatedBalances($account_numbers, $start, $finish);
+
         $balances = PortfolioInformation_HistoricalInformation_Model::GetConsolidatedBalances($account_numbers, '1900-01-01', date("Y-m-d"));
 
         $viewer = $this->getViewer($request);

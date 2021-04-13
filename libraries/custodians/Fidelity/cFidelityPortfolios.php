@@ -581,7 +581,7 @@ class cFidelityPortfolios extends cCustodian {
                      f.cash_available_to_borrow, f.cash_available_to_withdraw AS cash_available_to_withdraw3, f.money_market_available, f.outstanding_calls, 
                      f.margin_balance, f.core_cash_market_value, f.margin_market_value, f.trade_date_legal_balance, f.face_amount, f.death_benefit_amount,
                      f.policy_account_value, f.cash_surrender_value, f.loan_balance, f.regulatory_net_worth, CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END AS omniscient_type, 
-                     pf.registration, f.net_worth AS net_worth2, f.filename, 0 AS accountclosed,
+                     pf.registration, f.net_worth AS net_worth2, f.filename, 0 AS accountclosed, pf.omni_code,
                      p.portfolioinformationid
                   FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
@@ -601,7 +601,7 @@ class cFidelityPortfolios extends cCustodian {
                       p.cash_available_to_borrow = ?, p.cash_available_to_withdraw = ?, p.money_market_funds = ?, p.outstanding_calls = ?, p.margin_balance = ?, p.core_cash_market_value = ?, 
                       p.margin_market_value = ?, p.trade_date_legal_balance = ?, p.face_amount = ?, p.death_benefit_amount = ?, p.policy_account_value = ?, 
                       p.cash_surrender_value = ?, p.loan_balance = ?, p.regulatory_net_worth = ?, cf.cf_2549 = ?, cf.account_registration = ?, 
-                      cf.stated_net_worth = ?, cf.custodian_source = ?, p.accountclosed = ?
+                      cf.stated_net_worth = ?, cf.custodian_source = ?, p.accountclosed = ?, cf.omniscient_control_number = ?
                     WHERE p.portfolioinformationid = ?";
             while($v = $adb->fetchByAssoc($result)){
                 $adb->pquery($query, $v, true);
