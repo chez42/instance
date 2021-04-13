@@ -32,6 +32,12 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
                     $integrity->RepairDifferences();
             }
 
+            $tmp = new CustodianClassMapping($account);
+            $tmp->portfolios::UpdateAllPortfoliosForAccounts(array($account));
+            $tmp->positions::CreateNewPositionsForAccounts(array($account));
+            $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts(array($account));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
+
             /*$tmp = new CustodianClassMapping(array($account));
             $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
             if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
@@ -39,11 +45,6 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
             */
         }
 
-        $tmp = new CustodianClassMapping($account_numbers);
-        $tmp->portfolios::UpdateAllPortfoliosForAccounts($account_numbers);
-        $tmp->positions::CreateNewPositionsForAccounts($account_numbers);
-        $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts($account_numbers);
-        $tmp->transactions::CreateNewTransactionsForAccounts($account_numbers);
 #        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
 #            $tmp->transactions::UpdateTransactionsForAccounts($account_number);
 
