@@ -33,6 +33,14 @@
 					    </select>
 				    </div>
                 </div>
+				 <div class="row">
+                	<div class="col-md-4">	
+                		<label>Prorate Capital Flows</label>
+                	</div>
+                	<div class="clo-md-8">
+	                     <input type = "checkbox" name = "proratecapitalflows" value = "1" checked/>
+				    </div>
+                </div>
             </div>
             <div>
                 <div class="modal-footer">
