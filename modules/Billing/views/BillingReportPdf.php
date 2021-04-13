@@ -33,9 +33,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $viewer = $this->getViewer($request);
         $cvId = $request->get('viewid');
         
+		$proratecapitalflows = $request->get("proratecapitalflows");
+		
         $result = array();
         
-        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&viewid='.$cvId;
+        $result['link'] = 'index.php?module='.$moduleName.'&view=BillingReportPdf&mode=DownloadStatement&viewid='.$cvId.'&proratecapitalflows='.$proratecapitalflows;
         
         $response = new Vtiger_Response();
         $response->setResult($result);
@@ -159,6 +161,13 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 							$balance = $account->GetBalance($beginningPriceDate);
                         }
 						
+						$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX"));
+						
+						$cash_value = 0;
+						
+						if(isset($positions[0])){
+							$cash_value = $positions[0]['amount'];
+						}
 						
                         $totalValue = $balance->value ? $balance->value : 0;
                         
@@ -262,7 +271,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                         
                         
-                        if($adb->num_rows($transaction) && $feeamount > 0){
+                        if($adb->num_rows($transaction) && $feeamount > 0 && $request->get("proratecapitalflows")){
                             
                             for($t=0;$t<$adb->num_rows($transaction);$t++){
                                 
@@ -320,7 +329,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         $billingObj->set('start_date', $start_date);
                         $billingObj->set('end_date', $end_date);
-                        $billingObj->set('portfolio_amount', $totalValue);
+						
+						$billingObj->set('cash_value', $cash_value);
+                        $billingObj->set('assigned_user_id', $portData['smownerid']);
+						
+						$billingObj->set('portfolio_amount', $totalValue);
                         $billingObj->set('portfolioid', $portData['portfolioinformationid']);
                         $billingObj->set('billingspecificationid',$portData['billingspecificationid']);
                         $billingObj->set('feeamount', $amountValue);
