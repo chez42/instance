@@ -135,13 +135,31 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         $beginningPriceDate=$billingData['beginning_price_date'];
                         $endingPriceDate=$billingData['ending_price_date'];
-                        $priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
-                        $totalDays = $priceDatediff->days;
+                        
+						$priceDatediff = date_diff(date_create($proStartDate), date_create($proEndDate));
+						
+                        $totalDays = $priceDatediff->days + 1;
                         
                         $account = new CustodianAccess($account_number);
                         
-                        $balance = $account->GetBalance($beginningPriceDate);
-                        
+						$positions_result = $adb->pquery("select * from vtiger_positioninformation 
+						inner join vtiger_crmentity on crmid = positioninformationid
+						where account_number = ? and deleted = 0 and exclude_from_billing = 1", array($account_number));
+						
+						$excluded_positions = array();
+						if($adb->num_rows($positions_result)){
+							for($indexp = 0; $indexp < $adb->num_rows($positions_result); $indexp++){
+								$excluded_positions[] = $adb->query_result($positions_result, $indexp, "security_symbol");
+							}
+						}
+						
+						if(count($excluded_positions) > 0){
+							$balance = $account->GetBalanceExcludingPositions($excluded_positions, $beginningPriceDate);
+                        } else {
+							$balance = $account->GetBalance($beginningPriceDate);
+                        }
+						
+						
                         $totalValue = $balance->value ? $balance->value : 0;
                         
                         $rangeArray = array();
@@ -224,30 +242,39 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
     					CASE
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
+							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' OR
+							vtiger_transactionscf.transaction_activity = 'Split or Share dividend' 
+							) then 'add'
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities') then 'minus'
+							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR 
+							vtiger_transactionscf.transaction_activity = 'Withdrawal Federal withholding'
+							) then 'minus'
                         END  AS transaction_status
     					FROM vtiger_transactions
     					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
     					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
     					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities')
-    					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
+    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities', 'Split or Share dividend',
+						'Withdrawal Federal withholding')
+    					AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
     					AND vtiger_transactionscf.net_amount > ?
     					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                         
                         
-                        if($adb->num_rows($transaction)){
+                        if($adb->num_rows($transaction) && $feeamount > 0){
                             
                             for($t=0;$t<$adb->num_rows($transaction);$t++){
                                 
                                 $transaction_data = $adb->query_result_rowdata($transaction,$t);
                                 
-                                $date1=date_create($transaction_data['trade_date']);
-                                $date2=date_create($proEndDate);
-                                $diff=date_diff($date2, $date1);
+                                $date1 = date_create($transaction_data['trade_date']);
+                                
+								$date2 = date_create($proEndDate);
+                                
+								//Include End Date
+								$diff = date_diff($date2, $date1);
+								
                                 $diffDays = $diff->days + 1;
                                 
                                 $transactionAmount = ($diffDays/$totalDays*$feeamount);
@@ -256,7 +283,9 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 if(
 									$transaction_data['transaction_activity'] == 'Transfer of funds' ||
 									$transaction_data['transaction_activity'] == 'Withdrawal of funds' || 
-									$transaction_data['transaction_activity'] == 'Transfer of securities'
+									$transaction_data['transaction_activity'] == 'Transfer of securities' ||
+									$transaction_data['transaction_activity'] == 'Withdrawal Federal withholding'
+									
 								){
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
@@ -543,7 +572,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 							</div>
 							<br>
 						
-							<div class='row'>
+							<div class='row' style = 'display:none;'>
 								<div class='col-xs-12'>
 									Disclaimer:<br>
 									This presentation is solely for informational purpose. Past performance is no guarantee of future returns.

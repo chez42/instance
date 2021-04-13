@@ -1710,3 +1710,19 @@ if($module){
         PRIMARY KEY (billing_portfolio_id)
     );");
 }
+
+
+$module = Vtiger_Module::getInstance("PositionInformation");
+$blockInstance = Vtiger_Block::getInstance('Position Information',$module);
+$fieldInstance = Vtiger_Field::getInstance('exclude_from_billing', $module);
+if(!$fieldInstance){
+	$field1 = new Vtiger_Field();
+	$field1->name = 'exclude_from_billing';
+	$field1->label= 'Exclude from Billing';
+	$field1->table = $module->basetable;
+	$field1->uitype = 56;
+	$field1->typeofdata = 'C~O';
+	$field1->columntype = 'VARCHAR(10)';
+	$field1->displaytype = '1';
+	$blockInstance->addField($field1);
+}
