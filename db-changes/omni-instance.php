@@ -1701,7 +1701,7 @@ if($module){
         }
     }
     
-    $adb->query_result("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts ( 
+    $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts ( 
         billing_portfolio_id INT(19) NOT NULL AUTO_INCREMENT, 
         billingid INT(19) NULL, 
         portfolioid INT(19) NULL, 
@@ -1709,4 +1709,39 @@ if($module){
         bill_amount VARCHAR(255) NULL , 
         PRIMARY KEY (billing_portfolio_id)
     );");
+}
+
+
+$module = Vtiger_Module::getInstance("PositionInformation");
+$blockInstance = Vtiger_Block::getInstance('Position Information',$module);
+$fieldInstance = Vtiger_Field::getInstance('exclude_from_billing', $module);
+if(!$fieldInstance){
+	$field1 = new Vtiger_Field();
+	$field1->name = 'exclude_from_billing';
+	$field1->label= 'Exclude from Billing';
+	$field1->table = $module->basetable;
+	$field1->uitype = 56;
+	$field1->typeofdata = 'C~O';
+	$field1->columntype = 'VARCHAR(10)';
+	$field1->displaytype = '1';
+	$blockInstance->addField($field1);
+}
+
+$module = Vtiger_Module::getInstance("Billing");
+if($module){
+    
+	$blockInstance = Vtiger_Block::getInstance('LBL_BILLING_INFORMATION',$module);
+	
+    $fieldInstance = Vtiger_Field::getInstance('cash_value', $module);
+    
+	if(!$fieldInstance){
+        $field = new Vtiger_Field();
+        $field->name = 'cash_value';
+        $field->label = 'Cash Value';
+        $field->uitype = 71;
+        $field->typeofdata = 'N~O';
+        $field->columntype = 'DECIMAL(25,8)';
+        $blockInstance->addField($field);
+    }
+	
 }
