@@ -62,7 +62,7 @@ class Billing_Detail_View extends Vtiger_Detail_View {
     	    $viewer = $this->getViewer($request);
     	    $viewer->assign('RELATED_FLOWS', $final_details);
     	    $viewer->assign('FINAL_ADJUSTMENT', number_format($finalAdujstment,2));
-    	    $viewer->assign("FINAL_EQUAL", number_format(($finalAdujstment+$recordModel->get('feeamount')),2));
+    	    $viewer->assign("FINAL_EQUAL", number_format($recordModel->get('feeamount'),2));
     	    
     	    if($recordModel->get('billing_type') == 'Group'){
     	        
