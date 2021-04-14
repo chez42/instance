@@ -270,7 +270,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                         
-                        
+                        $fee = $amountValue;
                         if($adb->num_rows($transaction) && $feeamount > 0 && $request->get("proratecapitalflows")){
                             
                             for($t=0;$t<$adb->num_rows($transaction);$t++){
@@ -299,6 +299,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
                                 
+								
+								
                                 $transactionData[] = array(
                                     'trade_date' => $transaction_data['trade_date'],
                                     'diff_days' => $diffDays,
@@ -308,6 +310,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                     'transactiontype' => $transaction_data['transaction_activity'],
                                     'trans_fee' => $feeamount
                                 );
+								
+								$fee += $transactionAmount * $totalAmount;
                                 
                             }
                         }
@@ -336,7 +340,9 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 						$billingObj->set('portfolio_amount', $totalValue);
                         $billingObj->set('portfolioid', $portData['portfolioinformationid']);
                         $billingObj->set('billingspecificationid',$portData['billingspecificationid']);
-                        $billingObj->set('feeamount', $amountValue);
+                        
+						$billingObj->set('feeamount', $fee);
+						
                         $billingObj->set('beginning_price_date', $beginningPriceDate);
                         $billingObj->set('ending_price_date', $endingPriceDate);
                         $billingObj->set('billingtype', 'Individual');
