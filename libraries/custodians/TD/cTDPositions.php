@@ -367,6 +367,7 @@ return;
 
     static public function UpdateAllCRMPositionsAtOnceForAccounts(array $account_number){
         global $adb;
+        $account_values = array();
         $questions = generateQuestionMarks($account_number);
 
         $query = "UPDATE vtiger_positioninformation p 
@@ -389,7 +390,7 @@ return;
         $query = "SELECT p.positioninformationid, f.quantity + f.amount AS quantity, (f.quantity + f.amount) * m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END * CASE WHEN m.asset_backed_factor > 0 THEN m.asset_backed_factor ELSE 1 END AS current_value,
                          sec.description, m.securitytype, mcf.aclass, 'TD' AS custodian, 
                          m.security_price * CASE WHEN mcf.security_price_adjustment = 0 THEN 1 ELSE mcf.security_price_adjustment END AS last_price, 
-                         f.date, f.filename
+                         f.date, f.filename, p.security_symbol, p.account_number
                   FROM custodian_omniscient.custodian_positions_td f
                   LEFT JOIN custodian_omniscient.custodian_securities_td sec ON f.symbol = sec.symbol 
                   JOIN vtiger_positioninformation p ON CASE WHEN f.symbol = 'CASH' THEN 'TDCASH' ELSE f.symbol END = p.security_symbol AND f.account_number = p.account_number 
@@ -400,15 +401,30 @@ return;
                   AND f.date = ?";
         $result = $adb->pquery($query, array($account_number, $latest_date));
 
+        foreach($account_number AS $k => $acc_num){
+            $crmid = PortfolioInformation_Module_Model::GetCrmidFromAccountNumber($acc_num);
+            $portfolio = Vtiger_Record_Model::getInstanceById($crmid);
+            $account_values[$acc_num] = $portfolio->get('total_value');
+        }
+
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_positioninformation p 
                       JOIN vtiger_positioninformationcf cf USING (positioninformationid)
-                      SET p.quantity = ?, p.current_value = ?, p.description = ?, p.last_price = ?, cf.last_update = ?, cf.custodian_source = ?
+                      SET p.quantity = ?, p.current_value = ?, p.description = ?, p.last_price = ?, cf.last_update = ?, cf.custodian_source = ?,
+                          cf.security_type = ?, cf.base_asset_class = ?, p.weight = ?
                       WHERE p.positioninformationid = ?";
 
             while($v = $adb->fetchByAssoc($result)){
+                $weight = $v['current_value'] / $account_values[$v['account_number']] * 100;
                 $data = array($v['quantity'], $v['current_value'], $v['description'], $v['last_price'], $v['date'],
-                              $v['filename'], $v['positioninformationid']);
+                              $v['filename'], $v['securitytype'], $v['aclass'], $weight,
+                              $v['positioninformationid']);
+
+#                echo 'Account is:' . $v['account_number'] . '--- Value is ' . $values[$v['account_number']] . ' for ' . $v['security_symbol'] . '--<br />';
+#                echo $v['current_value'] . ' / ' . $account_values[$v['account_number']] . ' * 100 = ' . $weight . ' <br />';
+#                print_r($v);echo '<br />';
+#                print_r($account_values);echo '<br /><br />';
+#                echo 'done';
                 $adb->pquery($query, $data);
             }
         }
