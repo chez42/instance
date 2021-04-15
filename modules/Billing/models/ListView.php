@@ -32,6 +32,21 @@ class Billing_ListView_Model extends Vtiger_ListView_Model {
 				'linkicon' => ''
 			);
 		}
+		
+		$massActionLinks[] = array(
+			'linktype' => 'LISTVIEWMASSACTION',
+			'linklabel' => 'LBL_EXPORT_TDA_FORMAT',
+			'linkurl' => 'javascript:Billing_List_Js.exportTDAFormat("index.php?module=' . $moduleModel->getName() . '&view=ExportTDAFormat");',
+			'linkicon' => ''
+		);
+		
+		$massActionLinks[] = array(
+			'linktype' => 'LISTVIEWMASSACTION',
+			'linklabel' => 'LBL_EXPORT_FIDELITY_FORMAT',
+			'linkurl' => 'javascript:Billing_List_Js.exportFidelityFormat("index.php?module=' . $moduleModel->getName() . '&view=ExportFidelityFormat");',
+			'linkicon' => ''
+		);
+		
 
 		foreach($massActionLinks as $massActionLink) {
 			$links['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
