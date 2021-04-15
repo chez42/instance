@@ -271,8 +271,13 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
                         
                         $fee = $amountValue;
+						
+						$prorated = false;
+						
                         if($adb->num_rows($transaction) && $feeamount > 0 && $request->get("proratecapitalflows")){
                             
+							$prorated = true;
+							
                             for($t=0;$t<$adb->num_rows($transaction);$t++){
                                 
                                 $transaction_data = $adb->query_result_rowdata($transaction,$t);
@@ -331,11 +336,19 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
                         }
                         
+						
+						if($prorated){
+							$billingObj->set('prorated', 1);
+						}
+						
                         $billingObj->set('start_date', $start_date);
                         $billingObj->set('end_date', $end_date);
 						
+						$billingObj->set('base_fee', $amountValue);
+						
 						$billingObj->set('cash_value', $cash_value);
-                        $billingObj->set('assigned_user_id', $portData['smownerid']);
+                        
+						$billingObj->set('assigned_user_id', $portData['smownerid']);
 						
 						$billingObj->set('portfolio_amount', $totalValue);
                         $billingObj->set('portfolioid', $portData['portfolioinformationid']);

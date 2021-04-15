@@ -1744,4 +1744,32 @@ if($module){
         $blockInstance->addField($field);
     }
 	
+	$fieldInstance = Vtiger_Field::getInstance('base_fee', $module);
+	
+	if(!$fieldInstance){
+		$field1 = new Vtiger_Field();
+		$field1->name = 'base_fee';
+		$field1->label= 'Base Fee';
+		$field1->table = $module->basetable;
+		$field1->uitype = 71;
+		$field1->typeofdata = 'N~O';
+		$field1->columntype = 'DECIMAL(25,8)';
+		$field1->displaytype = '1';
+		$blockInstance->addField($field1);
+	}
+	
+	$fieldInstance = Vtiger_Field::getInstance('prorated', $module);
+	
+	if(!$fieldInstance){
+		$field1 = new Vtiger_Field();
+		$field1->name = 'prorated';
+		$field1->label= 'Pro Rated';
+		$field1->table = $module->basetable;
+		$field1->uitype = 56;
+		$field1->typeofdata = 'C~O';
+		$field1->columntype = 'VARCHAR(10)';
+		$field1->displaytype = '1';
+		$blockInstance->addField($field1);
+	}
+	
 }
