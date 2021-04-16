@@ -28,7 +28,11 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
 #                StatusUpdate::UpdateMessage("MANUALPARSING", "finished");
                 break;
             case 'RecalculateHomepageWidgets':
+                $consolidateDays = $request->get('consolidateDays');
+                if(is_nan($consolidateDays) || $consolidateDays == 0)
+                    $consolidateDays = 10;
                 include("cron/modules/InstanceOnly/HomepageWidgets.service");
+                echo 'Finished Running Homepage Widgets and consolidating back ' . $consolidateDays . ' days';
                 break;
             case "PullRecalculate":{
                 include("cron/modules/Custodian/DataPull.service");

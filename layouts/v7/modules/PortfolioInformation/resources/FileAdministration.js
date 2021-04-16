@@ -37,8 +37,9 @@ jQuery.Class("FileAdministration_Module_Js",{
         });
 
         $("#RecalculateHomepageWidgets").click(function(e){
-            $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'RecalculateHomepageWidgets'}, function(response) {
-//                alert(response);
+            var consolidate = $("#consolidateDays").val();
+            $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'RecalculateHomepageWidgets', consolidateDays:consolidate}, function(response) {
+                alert(response);
             });
             UpdateStatus('TDUPDATER', '.current-status');
         });
