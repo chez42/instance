@@ -116,6 +116,7 @@ class cFileHandling{
      * @param $data
      */
     public function CreateFieldRow($data){
+        echo 'creating';exit;
         global $adb;
         $data = self::AutoFillData($data);
         $params = array();
@@ -188,12 +189,23 @@ class cFileHandling{
         return $data;
     }
 
-    public function AutoInsertOrUpdateData($data){
+    public function AutoInsertOrUpdateData($data)
+    {
+        if (strlen($data['rep_code']) < 2) {//No rep code, no love
+            return;
+        }
+
         $data = self::AutoFillData($data);
         if(strlen(TRIM($data['id'])) > 0){
             self::UpdateFieldRow($data);
         }else{
-            return self::CreateFieldRow($data);
+            $tmp_id = self::IsPreviousRepCode($data['rep_code']);
+            if($tmp_id != false) {
+                self::RestoreRepCodeUsingID($tmp_id);
+                return $tmp_id;
+            }
+            else
+                return self::CreateFieldRow($data);
         }
     }
 
@@ -212,5 +224,44 @@ class cFileHandling{
         if($adb->num_rows($result) > 0)
             return $adb->query_result($result, 0, "custodian");
         return null;
+    }
+
+    static public function DeleteRepCodeUsingID($id){
+        global $adb;
+        $query = "REPLACE INTO custodian_omniscient.file_locations_removed
+                  SELECT * FROM custodian_omniscient.file_locations WHERE id = ?";
+        $adb->pquery($query, array($id));
+
+        $query = "DELETE FROM custodian_omniscient.file_locations WHERE id = ?";
+        $adb->pquery($query, array($id));
+    }
+
+    static public function RestoreRepCodeUsingID($id){
+        global $adb;
+
+        $query = "REPLACE INTO custodian_omniscient.file_locations
+                  SELECT * FROM custodian_omniscient.file_locations_removed WHERE id = ?";
+        $adb->pquery($query, array($id));
+
+        $query = "DELETE FROM custodian_omniscient.file_locations_removed WHERE id = ?";
+        $adb->pquery($query, array($id));
+    }
+
+    static public function IsPreviousID($id){
+        global $adb;
+        $query = "SELECT id FROM custodian_omniscient.file_locations_removed WHERE id = ?";
+        $result = $adb->pquery($query, array($id));
+        if($adb->num_rows($result) > 0)
+            return true;
+        return false;
+    }
+
+    static public function IsPreviousRepCode($rep_code){
+        global $adb;
+        $query = "SELECT id FROM custodian_omniscient.file_locations_removed WHERE rep_code = ?";
+        $result = $adb->pquery($query, array($rep_code));
+        if($adb->num_rows($result) > 0)
+            return $adb->query_result($result, 0, 'id');
+        return false;
     }
 }

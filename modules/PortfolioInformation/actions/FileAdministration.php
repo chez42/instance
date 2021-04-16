@@ -28,6 +28,11 @@ class PortfolioInformation_FileAdministration_Action extends Vtiger_BasicAjax_Ac
                 if($last_id)
                     echo $last_id;//Return last id created so tabulator knows to send an ID to update next time
                 break;
+            case "deleterep":
+                $deleteID = $request->get('deleteID');
+                cFileHandling::DeleteRepCodeUsingID($deleteID);
+                echo 'Deleted ' . $deleteID;
+            break;
         }
     }
 }
