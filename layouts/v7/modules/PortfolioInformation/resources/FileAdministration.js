@@ -11,6 +11,7 @@ function UpdateStatus(code, element){
 }
 
 jQuery.Class("FileAdministration_Module_Js",{
+    warning: true,
     currentInstance : false,
     table: Array(),
 
@@ -82,6 +83,23 @@ jQuery.Class("FileAdministration_Module_Js",{
         return "<button class='parseData' data-id="+id+">Parse Data</button> <input class='num_days' type='text' value='7' />";
     },
 
+    deleteButton : function(value, data, cell, row, options){
+        var self = this;
+
+        var id = value.getRow().getData().id;
+        $(".deleteRepCode").on("click", function(e){
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            var deleteID = $(this).data('id');
+
+            $.post("index.php", {module:'PortfolioInformation', action:'FileAdministration', todo:'DeleteRep', deleteID:deleteID}, function(response) {
+                console.log(response);
+                value.getRow().getPrevRow().delete();
+            });
+        });
+        return "<button class='deleteRepCode' data-id="+id+">Delete ID: " + id + "</button>";
+    },
+
     RenderTable : function(){
         var self = this;
         $.post("index.php", {module:'PortfolioInformation', action:'FileAdministration', todo:'getlocations'}, function(response){
@@ -91,7 +109,7 @@ jQuery.Class("FileAdministration_Module_Js",{
                 addRowPos:"top",
                 layout:"fitColumns",
                 columns:[
-                    {title:"ID", field:"id", sorter:"number"},
+                    {title:"ID", field:"id", sorter:"number", formatter:self.deleteButton},
                     {title:"Custodian", field:"custodian", editor:"select", editorParams:{values:{"TD":"TD", "Fidelity":"Fidelity", "Fidelity(FTP)":"FidelityFTP", "Schwab":"Schwab", "Pershing":"Pershing", "RaymondJames":"Raymond James", "Disabled":"Disabled"}}},
                     {title:"Rep Code", field:"rep_code", editor:true},
                     {title:"Omni Code", field:"omni_code", editor:true},
@@ -103,12 +121,13 @@ jQuery.Class("FileAdministration_Module_Js",{
                     var data = row.getData();
                     $.post("index.php", {module:'PortfolioInformation', action:'FileAdministration', todo:'UpdateFileField', RowData:data}, function(response){
                         var id = response;
+//                        console.log(response);
                         if(id > 0) {
                             row.update({id: id});
                         }
                     });
-                    alert("Update Saved");
-                },
+//                    alert("Update Saved");
+                }
             });
             self.table = table;
         });
