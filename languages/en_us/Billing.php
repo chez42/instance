@@ -15,11 +15,12 @@ $languageStrings = Array(
 
 	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
 	'LBL_BILLING_INFORMATION' => 'Billing Information',
-    
+    'LBL_EXPORT_FIDELITY_FORMAT' => 'Export Fidelity Format',
+	'LBL_EXPORT_TDA_FORMAT' => 'Export TDA Format',
+	
     'LBL_ADD_RECORD' => 'Add Billing',
     'LBL_RECORDS_LIST' => 'Billing List',
 
-	'ModuleFieldLabel' => 'ModuleFieldLabel Text',
 );
 
 ?>
