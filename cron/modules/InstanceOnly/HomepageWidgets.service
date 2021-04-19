@@ -42,7 +42,11 @@ foreach($ids AS $k => $v) {//Loop through the users and place the position total
 
 #PortfolioInformation_TotalBalances_Model::WriteAndUpdateAssetAllocationUserDaily();
 StatusUpdate::UpdateMessage("TDUPDATER", "Pulling rep code list");
-$start = date('Y-m-d', strtotime('-7 days'));
+
+if(!isset($consolidateDays))
+    $consolidateDays = 10;
+
+$start = date('Y-m-d', strtotime('-' . $consolidateDays . ' days'));
 $finish = date('Y-m-d');
 #$questions = generateQuestionMarks($accounts);
 
@@ -51,6 +55,7 @@ StatusUpdate::UpdateMessage("TDUPDATER", "Running Consolidate Balances");
 //Write to the users table from consolidated balances for grand total of all accounts
 #$adb->pquery($query, array($accounts, $dbconfig['db_name'], $start, $finish), true);
 PortfolioInformation_Module_Model::ConsolidatedBalances($accounts, $start, $finish);
-StatusUpdate::UpdateMessage("TDUPDATER", "Updating Previous 7");
-PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+StatusUpdate::UpdateMessage("TDUPDATER", "Updating Previous " . $consolidateDays . ' days');
+#PortfolioInformation_TotalBalances_Model::WriteAndUpdateLast7DaysForAllUsers();
+PortfolioInformation_TotalBalances_Model::WriteAndUpdateLastXDaysForAllUsers($consolidateDays);
 StatusUpdate::UpdateMessage("TDUPDATER", "finished");
