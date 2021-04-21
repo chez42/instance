@@ -17,9 +17,7 @@ class VTEEmailMarketing_Module_Model extends Vtiger_Module_Model
     public function getSettingLinks()
     {
         $vTELicense = new VTEEmailMarketing_VTELicense_Model("VTEEmailMarketing");
-        if ($vTELicense->validate()) {
-            $settingsLinks = parent::getSettingLinks();
-        }
+        $settingsLinks = parent::getSettingLinks();
         $settingsLinks[] = array("linktype" => "MODULESETTING", "linklabel" => "Settings", "linkurl" => "index.php?module=VTEEmailMarketing&parent=Settings&view=Settings", "linkicon" => "");
         /*$settingsLinks[] = array("linktype" => "MODULESETTING", "linklabel" => "Uninstall", "linkurl" => "index.php?module=VTEEmailMarketing&parent=Settings&view=Uninstall", "linkicon" => "");*/
         return $settingsLinks;
