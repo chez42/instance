@@ -2,12 +2,12 @@ var reports_left = 4;
 
 jQuery(document).ready(function($){
 
-    $(".hide_widget").closest(".summaryWidgetContainer").hide();
-    if ( $( ".hide_widget" ).length ) {
-
-        $( ".stellarnav" ).hide();
-
-    }
+    
+	$(".hide_widget").closest(".summaryWidgetContainer").hide();
+    
+    /*if ( $( ".hide_widget" ).length ) {
+    	$( ".stellarnav" ).hide();
+	}*/
 
     if($("[name=ACCOUNT_NUMBERS]").length) {
         if ($("[name=ACCOUNT_NUMBERS]").val().length > 5) {

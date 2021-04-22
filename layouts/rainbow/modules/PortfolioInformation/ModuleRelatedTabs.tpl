@@ -51,9 +51,9 @@
 						data-module="{$RELATEDMODULENAME}" data-relation-id="{$RELATED_LINK->getId()}" {if $RELATEDMODULENAME eq "ModComments"} title {else} title="{$DETAILVIEWRELATEDLINKLBL}"{/if} {if $RELATEDFIELDNAME}data-relatedfield ="{$RELATEDFIELDNAME}"{/if} >
 						<a href="index.php?{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" class="textOverflowEllipsis" displaylabel="{$DETAILVIEWRELATEDLINKLBL}" recordsCount="" tippytitle data-tippy-content="{$DETAILVIEWRELATEDLINKLBL}">
 							{if $RELATEDMODULENAME eq "ModComments"}
-								<span class="tab-label" >{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
-									<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
-								</span>&nbsp;
+									<span class="tab-label" >{*<i class="fa fa-comments-o" aria-hidden="true"></i>*}
+										<span class="module-icon"><img src="layouts/rainbow/icons/ModComments.png" title="{$DETAILVIEWRELATEDLINKLBL}"></span>
+									</span>&nbsp;
 									{else}
 								<span class="tab-icon tab-label">
 									{assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}  
@@ -109,12 +109,12 @@
 									{else if $RELATEDMODULENAME eq 'CalendarTemplate'}
 										<i class="fa fa-fast-forward" aria-hidden="true"></i>
 									{else if $iconsarray[{strtolower($RELATEDMODULENAME)}]}
-										<i class="material-icons">{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
+										<i class="material-icons" >{$iconsarray[{strtolower($RELATEDMODULENAME)}]}</i>
 									{else}
-										<i class="material-icons">folder</i>
+										<i class="material-icons" >folder</i>
 									{/if}
 									{*<i class="vicon-{strtolower($RELATEDMODULENAME)}"></i>*}
-									{*{$RELATED_MODULE_MODEL->getModuleIcon()}*}
+									{*$RELATED_MODULE_MODEL->getModuleIcon()*}
 								</span>
 							{/if}
 							<span class="numberCircle disabled hide" >0</span>
