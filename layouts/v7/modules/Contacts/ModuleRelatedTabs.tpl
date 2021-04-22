@@ -111,7 +111,7 @@
                 </ul>
             </li>
             <li>
-                {if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
+                {if $CURRENT_USER_MODEL->hasModulePermission('PortfolioInformation') eq 1}
                     {include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
                 {/if}
             </li>
