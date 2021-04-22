@@ -22,6 +22,7 @@
 <div id="interval_page_wrapper">
     {if $CURRENT_USER->isAdminUser()}
         <button id="ResetIntervals">Reset Intervals</button>
+        <button id="CreateTransactions">Create Transactions</button>
     {/if}
     <div id="controls" style="width: 100%; overflow: hidden;">
         <div class="controls_dates">
@@ -70,7 +71,7 @@
                         <tr>
                             {*                                <td style="padding:2px;">{$v.account_number}</td>
                                                     <td style="padding:2px;">{$v.begin_date}</td>*}
-                            <td class="left_text padding2 data_end_date" data-date="{$v.end_date}">{$v.end_date}</td>
+                            <td class="left_text padding2 data_end_date" data-date="{$v.end_date}">{$v.end_date} <input type="radio" name="createdate" value="{$v.end_date}" /></td>
                             <td class="right_text padding2 data_begin_value" data-begin_value='{$v.begin_value}'>${$v.begin_value|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_net_flow {if $v.net_flow lt 0} red {/if} {if $v.net_flow gt 0} green {/if}" data-net_flow="{$v.net_flow}">${$v.net_flow|number_format:2:".":","}</td>
                             <td class="right_text padding2 data_incomeamount {if $v.incomeamount lt 0} red {/if} {if $v.incomeamount gt 0} green {/if}" data-incomeamount="{$v.incomeamount}">${$v.incomeamount|number_format:2:".":","}</td>

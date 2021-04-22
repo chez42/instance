@@ -1,7 +1,7 @@
 <?php
 
-use League\Csv\Reader;
-require 'libraries/csv/vendor/autoload.php';
+#use League\Csv\Reader;
+#require 'libraries/csv/vendor/autoload.php';
 
 class PortfolioInformation_CustodianInteractions_View extends Vtiger_Index_View{
 	function process(Vtiger_Request $request) {

@@ -1,6 +1,6 @@
 <?php
-use League\Csv\Reader;
-require 'libraries/csv/vendor/autoload.php';
+#use League\Csv\Reader;
+#require 'libraries/csv/vendor/autoload.php';
 require 'modules/Omniscient/models/cAuditTypes.php';
 
 class PortfolioInformation_CustodianInteractions_Model extends PortfolioInformation_PCQuery_Model{
@@ -452,4 +452,20 @@ GMA00000037J7T201594 H2R 3CR000000000000205331+000000000000205331+00000000000612
 		$result = array("positions" => $account, "portfolios" => $portfolio_info);
 		return $result;
 	}
+
+	static public function CreateTransactionsFromPositions($account_number, $date){
+        $tmp = new CustodianClassMapping(array($account_number));
+        $positions = $tmp->positions::GetPositionDataAsOfDate(array($account_number), $date);
+
+        foreach($positions AS $account_number => $positions){
+            foreach($positions AS $k => $v){
+                if(strtolower($v['aclass']) == 'cash')
+                    $type = 1;
+                else
+                    $type = 0;
+                $tmp->transactions::CreateTransactionsInCustodian($account_number, $v['symbol'], $date,
+                                                                  $type, $v['market_value'], $v['quantity'], $v['price']);
+            }
+        }
+    }
 }

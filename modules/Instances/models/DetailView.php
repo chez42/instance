@@ -37,6 +37,17 @@ class Instances_DetailView_Model extends Vtiger_DetailView_Model {
             'linkicon' => ''
         );
         $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+		
+		
+        $basicActionLink = array(
+            'linktype' => 'DETAILVIEW',
+            'linklabel' => 'Manage Instance Permissions',
+            'linkurl' => 'javascript:Instances_Detail_Js.manageInstancePermissions();',
+            'linkicon' => ''
+        );
+        $linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($basicActionLink);
+        
+		
         
         return $linkModelList;
     }
