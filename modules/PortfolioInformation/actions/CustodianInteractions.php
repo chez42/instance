@@ -192,6 +192,25 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
 				}
 				echo "Accounts Finished Resetting";
 			}break;
+		    case "PositionsToTransactions":{
+		        $account_number = $request->get('account_number');
+		        $date = $request->get('date');
+                $start = DateTime::createFromFormat('m-d-Y', $date);
+                $date = $start->format("Y-m-d");
+		        if(strlen($date) < 5 || strlen($account_number) < 3) {
+                    echo 0;
+                }
+		        else {
+                    PortfolioInformation_CustodianInteractions_Model::CreateTransactionsFromPositions($account_number, $date);
+                    echo 1;
+                }
+
+		        $account_number = array($account_number);
+                $tmp = new CustodianClassMapping($account_number);
+                $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
+                if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+                    $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+            }break;
 		}
 //		$interaction = new PortfolioInformation_ManualInteractions_Model();
 //		switch($request->get('todo')){

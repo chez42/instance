@@ -658,4 +658,47 @@ class cFidelityTransactions extends cCustodian
             }
         }
     }
+
+    static public function DoesIDExist($id){
+        global $adb;
+        $query = "SELECT transaction_id 
+                  FROM custodian_omniscient.custodian_transactions_fidelity 
+                  WHERE transaction_id = ?";
+        $result =$adb->pquery($query, array($id));
+        if($adb->num_rows($result) > 0){
+            return 1;
+        }
+        return 0;
+    }
+
+    static public function GenerateUniqueID(){
+        $d = date("Ymd");
+        return "97" . $d. rand(0, 25000);
+    }
+
+    static public function CreateTransactionsInCustodian($account_number, $symbol, $trade_date,
+                                                         $type, $amount, $quantity, $price){
+        global $adb;
+        $id = self::GenerateUniqueID();
+        while(self::DoesIDExist($id) != 0)
+            $id = self::GenerateUniqueID();
+
+        if($type == 1){
+            $mnemonic = 'TFR';
+            $desc = 'Buy';
+        }else{
+            $mnemonic = 'TFR';
+            $desc = 'Deposit';
+        }
+
+        $query = "INSERT INTO custodian_omniscient.omni_created_transactions (transaction_id, custodian)
+                  VALUES (?, ?)";
+        $adb->pquery($query, array($id, 'Fidelity'));
+
+        $query = "INSERT INTO custodian_omniscient.custodian_transactions_fidelity (transaction_id, account_number, 
+                              symbol, trade_date, amount, quantity, price, transaction_key_mnemonic, 
+                              transaction_code_description)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $adb->pquery($query, array($id, $account_number, $symbol, $trade_date, $amount, $quantity, $price, $mnemonic, $desc));
+    }
 }
