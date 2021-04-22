@@ -579,6 +579,18 @@ jQuery.Class("IntervalsDaily_Js",{
                 });
         });
 
+        $("#CreateTransactions").click(function(){
+            var account_numbers = $("#account_numbers").val();
+            var date = $("input[name='createdate']:checked").val();
+            $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'PositionsToTransactions', account_number:account_numbers, date:date}, function(response) {
+                if(response == '1')
+                    alert("Transactions Created for " + account_numbers + " based on " + date + ".  Refresh the page to confirm change! -- Clicking this button again will duplicate transactions");
+                else
+                    alert("Transactions Failed to create for " + account_numbers + ".  Make sure a date has been selected, likely the first one needs selected!");
+                console.log(response);
+            });
+        });
+
         $(".ExportReport").click(function(e){
             e.stopImmediatePropagation();
             $("#start_date").val($("#fromfield").val());
