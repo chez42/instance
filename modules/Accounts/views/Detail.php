@@ -38,6 +38,11 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
             $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts(array($account));
             $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
 
+            $weight = new cWeight($account);
+            $weight->UpdatePortfolioWeight();
+            $weight->UpdateContactWeightAndValue();
+            $weight->UpdateHouseholdWeightAndValue();
+
             /*$tmp = new CustodianClassMapping(array($account));
             $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
             if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)

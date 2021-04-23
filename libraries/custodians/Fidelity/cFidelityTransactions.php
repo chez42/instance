@@ -685,10 +685,10 @@ class cFidelityTransactions extends cCustodian
 
         if($type == 1){
             $mnemonic = 'TFR';
-            $desc = 'Buy';
+            $desc = 'Deposit';
         }else{
             $mnemonic = 'TFR';
-            $desc = 'Deposit';
+            $desc = 'Buy';
         }
 
         $query = "INSERT INTO custodian_omniscient.omni_created_transactions (transaction_id, custodian)

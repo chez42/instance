@@ -790,4 +790,30 @@ class cSchwabTransactions extends cCustodian
             }
         }
     }
+
+    static public function CreateTransactionsInCustodian($account_number, $symbol, $trade_date,
+                                                         $type, $amount, $quantity, $price){
+        global $adb;
+/**THIS NEEDS FIGURED OUT FOR SCHWAB STILL BUT WE NEEDS AN EXAMPLE ACCOUNT FIRST**/
+        return;
+        if($type == 1){
+            $transaction_type = 'CKR';
+        }else{
+            $transaction_type = 'REC';
+        }
+        $query = "INSERT INTO custodian_omniscient.custodian_transactions_schwab(account_number, 
+                              symbol, trade_date, net_amount, quantity, transaction_code)
+                  VALUES (?, ?, ?, ?, ?, ?)";
+        $adb->pquery($query, array($account_number, $symbol, $trade_date, $amount, $quantity, $transaction_type));
+
+        $query = "SELECT LAST_INSERT_ID() AS id";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0)
+            $id = $adb->query_result($result, 0);
+
+        $query = "INSERT INTO custodian_omniscient.omni_created_transactions (transaction_id, custodian)
+                  VALUES (?, ?)";
+        $adb->pquery($query, array($id, 'Fidelity'));
+    }
 }

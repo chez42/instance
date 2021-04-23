@@ -577,7 +577,7 @@ class cTDTransactions extends cCustodian
 
         $query = "SELECT m.operation, cf.custodian_control_number, pcf.production_number, m.omniscient_category, m.omniscient_activity, 
                          f.transaction_code, t.security_price, t.quantity, cf.net_amount, f.symbol, f.transaction_id, f.account_number,
-                         t.trade_date, mscf.security_price_adjustment AS pricing_factor, f.cancel_status_flag
+                         t.trade_date, mscf.security_price_adjustment AS pricing_factor, f.cancel_status_flag, f.comment
                   FROM vtiger_transactions t
                   JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
                   JOIN custodian_omniscient.custodian_transactions_td f ON f.transaction_id = t.cloud_transaction_id
@@ -614,6 +614,14 @@ class cTDTransactions extends cCustodian
                             $v['operation'] = '';
                         elseif(($v['operation'] == '') || $v['operation'] == '+')
                             $v['operation'] = '-';
+
+#                    if(strtolower($v['omniscient_category']) == 'flow'){
+#                        $v['omniscient_activity'] = 'Cancelled Transaction';
+#                    }
+                }
+
+                if(strpos($v['comment'], '|JNJN')){
+                    $v['omniscient_category'] = 'Journal';
                 }
 
                 $query = "UPDATE vtiger_transactions t 
@@ -644,7 +652,7 @@ class cTDTransactions extends cCustodian
         return $price;
     }
 
-    static public function GetTransactionCount(array $account_numbe){
+    static public function GetTransactionCount(array $account_number){
         global $adb;
 
         if(empty($account_number))
@@ -665,5 +673,30 @@ class cTDTransactions extends cCustodian
             return $data;
         }
         return null;
+    }
+
+    static public function CreateTransactionsInCustodian($account_number, $symbol, $trade_date,
+                                                         $type, $amount, $quantity, $price){
+        global $adb;
+/**THIS HAS NOT BEEN TESTED WITH TD BUT SHOULD WORK AS IS ... DOUBLE CHECK FIRST**/
+        if($type == 1){
+            $transaction_type = 'CKR';
+        }else{
+            $transaction_type = 'REC';
+        }
+        $query = "INSERT INTO custodian_omniscient.custodian_transactions_td (account_number, 
+                              symbol, trade_date, net_amount, quantity, transaction_code)
+                  VALUES (?, ?, ?, ?, ?, ?)";
+        $adb->pquery($query, array($account_number, $symbol, $trade_date, $amount, $quantity, $transaction_type));
+
+        $query = "SELECT LAST_INSERT_ID() AS id";
+        $result = $adb->pquery($query, array());
+
+        if($adb->num_rows($result) > 0)
+            $id = $adb->query_result($result, 0);
+
+        $query = "INSERT INTO custodian_omniscient.omni_created_transactions (transaction_id, custodian)
+                  VALUES (?, ?)";
+        $adb->pquery($query, array($id, 'Fidelity'));
     }
 }
