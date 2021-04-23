@@ -10,6 +10,7 @@
  * *********************************************************************************** */
 include_once('libraries/reports/new/nCommon.php');
 require_once("libraries/EODHistoricalData/EODGuzzle.php");
+require_once("libraries/Reporting/ReportCommonFunctions.php");
 
 class ModSecurities_Detail_View extends Vtiger_Detail_View {
 
@@ -33,6 +34,18 @@ class ModSecurities_Detail_View extends Vtiger_Detail_View {
         }catch(Exception $e){//Exception if we try to access a fundamental that isn't a bond
 
         }
+
+          $date = date("Y-m-d");
+          $start = GetDateMinusDays(30);
+          $security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
+          ModSecurities_ConvertCustodian_Model::UpdateSecurityPriceFromEOD($symbol, $start, $date);
+
+                $guz = new cEodGuzzle();
+                $rawData = $guz->getFundamentals($symbol);
+                $result = json_decode($rawData);
+                $dividendData = json_decode($guz->getDividends($symbol, "US", $start, $date));
+                ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
+                ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
 
 #        $dividendData = json_decode($guz->getDividends($symbol, "US", '2018-01-01', '2019-11-04'));
 
