@@ -34,6 +34,11 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
         if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
             $tmp->transactions::UpdateTransactionsForAccounts($account_number);
 
+        $weight = new cWeight($portfolio->get('account_number'));
+        $weight->UpdatePortfolioWeight();
+        $weight->UpdateContactWeightAndValue();
+        $weight->UpdateHouseholdWeightAndValue();
+
 #        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
 #        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
 
