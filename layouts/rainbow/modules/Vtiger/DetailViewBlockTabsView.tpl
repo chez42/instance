@@ -10,9 +10,9 @@
 {strip}
 	<style>
 		
-		.related-tabs li {
+		/*.related-tabs li {
     		float: left !important;
-		}
+		}*/
 		.nav-tabs > li {
 		    margin: 0 2px !important; 
 		}
@@ -268,7 +268,7 @@
 									{vtranslate({$BLOCK_LABEL_KEY},{$MODULE_NAME})}
 								</h4>
 							</div>
-							<hr>
+							
 							<div class="blockData">
 								<table class="table detailview-table no-border">
 									<tbody {if $IS_HIDDEN} class="hide" {/if}>

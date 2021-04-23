@@ -189,6 +189,18 @@ class Vtiger_Detail_View extends Vtiger_Index_View {
 		}
 
 		$viewer->assign('IS_AJAX_ENABLED', $this->isAjaxEnabled($recordModel));
+		
+		
+		
+		$instance_permissions = $adb->pquery("select * from vtiger_instance_permissions");
+		$portfolio_reports = 0;
+		if($adb->num_rows($instance_permissions)){
+			$portfolio_reports = $adb->query_result($instance_permissions, 0, "portfolio_reports");
+		}
+		$viewer->assign("PORTFOLIO_REPORTS", $portfolio_reports);
+		
+		
+		
 		$this->getTimecontrolWidgetData($request);
 		if($display) {
 			$this->preProcessDisplay($request);
