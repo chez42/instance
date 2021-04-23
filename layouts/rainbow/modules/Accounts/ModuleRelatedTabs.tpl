@@ -186,9 +186,9 @@
 					</ul>
 				</li>
 			{/if}
-			<li>
-				{if $CURRENT_USER_MODEL->hasModulePermission('portfolioinformation') eq 1}
-					{include file='layouts/v7/modules/Omni/StellarNavReports.tpl'}
+			<li class = "stellarnavli">
+				{if $CURRENT_USER_MODEL->hasModulePermission('PortfolioInformation') eq 1 && $PORTFOLIO_REPORTS eq 1}
+                	{include file='layouts/rainbow/modules/Vtiger/ReportsNavigation.tpl'}
 				{/if}
             </li>
 		</ul>

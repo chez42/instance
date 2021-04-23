@@ -126,6 +126,64 @@ Vtiger_Detail_Js("Instances_Detail_Js",{
 		
 	},
 	
+	manageInstancePermissions :function(){
+		
+		var self = this;
+		
+		var moduleName = app.getModuleName();
+		
+		var record = app.getRecordId();
+		
+		var params = {
+			'module' : moduleName,
+			'record' : record,
+			'view' 	 : 'ManageInstancePermissions'
+		};
+		
+		app.helper.showProgress();
+		app.request.post({data: params}).then(function(err, data) {
+			 app.helper.showModal(data,{
+             	'cb': function (modal) {
+             		app.helper.hideProgress();
+             		var form = jQuery(modal).find('#SavePermissions');
+         			var params = {
+         	            submitHandler : function(form) {
+         	                app.helper.showProgress();
+         	                var form = jQuery(form);
+         	                var params = form.serializeFormData();
+         	                app.request.post({'data': params}).then(function (err, data) {
+            	                if (typeof data != 'undefined') {	
+            	                	app.helper.hideModal();
+            	                	app.helper.hideProgress();
+            	                	app.helper.showSuccessNotification({message: 'Permissions Updated Successfully!'});
+                	            } else {
+                    				app.helper.hideProgress();
+                    				app.helper.showErrorNotification({'message': err['message']});
+                    			}
+         	                });
+         	            }
+         			};
+         			if (form.length) {
+         				form.vtValidate(params);
+         			 	form.on('submit', function(e){
+         	            	e.preventDefault();
+         	            	return false;
+         	        	});
+         			}
+             	}
+             });
+		});
+		
+	},
+	
+	
+	
+	
+	
+	
+	
+	
+	
 },{
 	
 	
