@@ -1801,3 +1801,21 @@ if($module){
 	}
 	
 }
+
+$module = Vtiger_Module::getInstance("PortfolioInformation");
+
+$blockInstance = Vtiger_Block::getInstance('Portfolio Information',$module);
+
+$fieldInstance = Vtiger_Field::getInstance('bill_from_account', $module);
+
+if(!$fieldInstance){	
+	$field1 = new Vtiger_Field();
+	$field1->name = 'bill_from_account';
+	$field1->label= 'Billing Account Number';
+	$field1->table = $module->basetable;
+	$field1->uitype = 2;
+	$field1->typeofdata = 'V~O';
+	$field1->columntype = 'VARCHAR(100)';
+	$field1->displaytype = '1';
+	$blockInstance->addField($field1);
+}
