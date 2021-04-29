@@ -161,13 +161,20 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 							$balance = $account->GetBalance($beginningPriceDate);
                         }
 						
-						$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX"));
+						$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX", '$CASH'));
 						
 						$cash_value = 0;
 						
 						if(isset($positions[0])){
-							$cash_value = $positions[0]['amount'];
+							
+							if(isset($positions[0]['amount'])){
+								$cash_value = $positions[0]['amount'];
+							} else {
+								$cash_value = $positions[0]['market_value'];
+							}
+							
 						}
+						
 						
                         $totalValue = $balance->value ? $balance->value : 0;
                         
@@ -228,7 +235,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             
                         }else{
                             
-                            if($frequency == 'Quaterly'){
+                            if($frequency == 'Quarterly'){
                                 
                                 $feeRate = '1/4';
                                 $feeamount = ($feeamount/4)/100;
