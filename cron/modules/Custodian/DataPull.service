@@ -32,6 +32,9 @@ echo date("Y-m-d H:i:s") . ' - Securities Updated - <br />';
 StatusUpdate::UpdateMessage("CRONUPDATER", "Updating Positions");
 $copy->CreatePositions();
 echo date("Y-m-d H:i:s") . ' - Positions Updated - <br />';
+StatusUpdate::UpdateMessage("CRONUPDATER", "Updating Transactions");
+$copy->CreateTransactions();
+echo date("Y-m-d H:i:s") . ' - Transactions Updated - <br />';
 
 StatusUpdate::UpdateMessage("CRONUPDATER", "Consolidating Balances");
 PortfolioInformation_Module_Model::ConsolidatedBalances($accounts, $start, $finish);
