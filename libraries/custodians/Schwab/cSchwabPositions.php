@@ -560,9 +560,11 @@ class cSchwabPositions extends cCustodian {
                   JOIN vtiger_modsecurities m ON m.security_symbol = p.symbol
                   JOIN vtiger_modsecuritiescf cf USING (modsecuritiesid)
                   WHERE account_number IN ({$questions})
-                  AND date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_schwab WHERE date = ? AND account_number IN ({$questions}))
+                  AND date = (SELECT MAX(date) FROM custodian_omniscient.custodian_positions_schwab 
+				  WHERE date = ? AND account_number IN ({$questions}))
                   GROUP BY security_symbol, aclass, security_sector";
-
+		$result = $adb->pquery($query, array($account_number, $date, $account_number));
+		
         if($adb->num_rows($result) > 0){
             $data = array();
             while($v = $adb->fetchByAssoc($result)){
