@@ -228,7 +228,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             
                         }else{
                             
-                            if($frequency == 'Quaterly'){
+                            if($frequency == 'Quarterly'){
                                 
                                 $feeRate = '1/4';
                                 $feeamount = ($feeamount/4)/100;
