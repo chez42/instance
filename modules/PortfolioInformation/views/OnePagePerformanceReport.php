@@ -12,6 +12,42 @@ include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 
 class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View{
 
+
+	function preProcess(Vtiger_Request $request, $display=true) {
+		global $adb;
+		
+		if($request->get("pdf") == 1){
+			
+		} else {
+			
+			parent::preProcess($request, false);
+			
+			$viewer = $this->getViewer($request);
+			
+			$portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
+			inner join vtiger_portfolioinformationcf on 
+			vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
+			inner join vtiger_contactdetails  on contact_link = contactid 
+			inner join vtiger_contactaddress on contactaddressid = contactid
+
+			where account_number = ?", array($request->get("account_number")));
+			
+			$record_id = $adb->query_result($portfolio_result, 0, "portfolioinformationid");
+			
+			$recordModel = Vtiger_DetailView_Model::getInstance("PortfolioInformation", $record_id);
+			
+			$recordModel = $recordModel->getRecord();
+			
+			$viewer->assign('RECORD', $recordModel);
+			
+			$moduleName = $request->getModule();
+			if($display) {
+				$this->preProcessDisplay($request);
+			}
+			
+		}
+	}
+
     public function postProcess(Vtiger_Request $request) {
 		
         if($request->get("pdf") == 1){
@@ -69,7 +105,9 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
             
 			$accounts = array_unique($accounts);
 
-            $portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation 
+            $portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
+inner join vtiger_portfolioinformationcf on 
+vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
 			inner join vtiger_contactdetails  on contact_link = contactid 
 			inner join vtiger_contactaddress on contactaddressid = contactid
 			
@@ -83,6 +121,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 					$adb->query_result($portfolio_result, 0, "lastname")
 					
 				);
+				
+				$viewer->assign("PORTFOLIO_TYPE", $adb->query_result($portfolio_result, 0, "cf_2549"));
 			}
 			
 			
@@ -105,7 +145,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 			$viewer->assign("END_DATE", $end_date);	
 			
-			$viewer->assign("REPORT_PERIOD", $start_date . ' - ' .  $end_date);
+			$viewer->assign("REPORT_PERIOD", date("m/d/Y", strtotime($start_date)) . ' - ' .  date("m/d/Y", strtotime($end_date)));
 			
 			//$start_date = date("Y-m-d", strtotime($start_date));
 			//$end_date = date("Y-m-d", strtotime($end_date));
@@ -172,6 +212,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$viewer->assign("LAST_3_MONTHS_PERFORMANCE", $last3_month_performance);
 			
 			
+			$viewer->assign("MODULE", "PortfolioInformation");
 			
 			$viewer->assign("SINCE_INCEPTION_PERFORMANCE", $since_inception_performance);
 			$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
@@ -190,12 +231,11 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 				$viewer->assign("IS_PDF", $ispdf);
 			}
 			
-			$screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/OnePagePerformanceReport.tpl', "PortfolioInformation");
 			
 			if($ispdf) {
 				
-				
-				
+				$screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/OnePagePerformanceReport.tpl', "PortfolioInformation");
+			
 				$stylesheet  = '<link type="text/css" rel="stylesheet" href = "' . $site_URL . 'layouts/v7/lib/todc/css/bootstrap.min.css">';
 				
 				$screen_content = $stylesheet . $screen_content;
@@ -216,9 +256,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 				
 				$whtmltopdfPath = $fileDir.'/PerformanceReport.pdf';
 				
-				
-				
-				 $footer ="<!doctype html>
+				$footer ="<!doctype html>
 				<html>
 				
 					<head>
@@ -273,8 +311,12 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 				
 				readfile($whtmltopdfPath);
 				
+				unlink($whtmltopdfPath);
+				unlink($bodyFileName);
+				
+				
 			} else {
-				echo $screen_content;
+				$viewer->view('OnePagePerformanceReport.tpl', "PortfolioInformation");
 			}
 		
 		} else { 
@@ -350,7 +392,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		$moduleName = $request->getModule();
         
 		$jsFileNames = array(
-            "modules.PortfolioInformation.resources.DateSelection",
+            //"modules.PortfolioInformation.resources.DateSelection",
         );
 		
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
