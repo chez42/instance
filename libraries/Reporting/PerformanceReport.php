@@ -440,7 +440,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			
 			$this->CalculateEstimatedIncome();
 			
-			$this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount + $this->GetCommissionAmount();
+			$this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount;
 		}
     }
 
@@ -593,7 +593,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 	
 	public function GetInvestmentGain(){
 	
-		return $this->performance_summed['change_in_value'] + 
+		return $this->getCapAppreciation() + 
 		$this->performance_summed['income_div_interest']->amount + 
 		$this->performance_summed['Reversal']->amount +
 		$this->performance_summed['Expense']->amount;
@@ -629,6 +629,18 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 		
 		return round ( ( ( $value /  $this->GetEndingValuesSummed()->value) * 100), 2);
 	}
+
+	public function getCapAppreciation(){
+		
+		$value = $this->GetEndingValuesSummed()->value - $this->GetBeginningValuesSummed()->value;
+		$value = $value - $this->performance_summed['Flow']->amount;
+		$value = $value - $this->performance_summed['income_div_interest']->amount;
+		$value = $value - $this->performance_summed['Reversal']->amount;
+		$value = $value - $this->performance_summed['Expense']->amount;
+		
+		return $value;
+	}
+
 
     private function CalculateEstimatedIncome(){
         $projected = new ProjectedIncome_Model($this->account_numbers, $this->end_date);
