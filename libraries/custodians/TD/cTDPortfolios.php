@@ -427,7 +427,7 @@ class cTDPortfolios extends cCustodian {
             $questions = generateQuestionMarks($new);
             $query = "SELECT p.account_number, 'TD' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.first_name, p.last_name, 
                              p.street, p.address2, p.address3, p.address4, p.address5, p.address6, p.city, p.state, p.zip, p.account_type, 
-                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code, u.id AS userid
+                             p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code, u.id AS userid, p.insert_date
                           FROM custodian_omniscient.custodian_portfolios_td p 
                           LEFT JOIN custodian_omniscient.custodian_portfolio_custom_properties cust ON p.account_number = cust.account_number 
                           JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',rep_code,'%')
@@ -440,14 +440,14 @@ class cTDPortfolios extends cCustodian {
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
 
-                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name)
-                              VALUES (?, ?, ?, ?, ?, ?)";
-                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name']));
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name, custodian_inception)
+                              VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name'], $v['insert_date']));
 
-                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated)
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated, inceptiondate)
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], $v['rep_code'], $v['street'], $v['address2'], $v['address3'], $v['address4'], $v['address5'],
-                        $v['address6'], $v['city'], $v['state'], $v['zip'], $v['system_generated']));
+                        $v['address6'], $v['city'], $v['state'], $v['zip'], $v['system_generated'], $v['insert_date']));
                 }
             }
         }
@@ -464,7 +464,7 @@ class cTDPortfolios extends cCustodian {
 
         $query = "SELECT f.account_value, f.money_market, 0 AS market_value, f.as_of_date, f2.street, f2.address2, f2.address3, f2.address4, 
                   f2.address5, f2.address6, f2.city, f2.state, f2.zip, f2.account_type, f2.rep_code, f2.master_rep_code, f2.omni_code, 
-                  0 as accountclosed, p.portfolioinformationid
+                  0 as accountclosed, f2.insert_date, f2.insert_date AS insert_date2, p.portfolioinformationid
                   FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
                   JOIN custodian_omniscient.custodian_balances_td f ON f.account_number = p.account_number 
@@ -480,7 +480,9 @@ class cTDPortfolios extends cCustodian {
                       SET p.total_value = ?, p.money_market_funds = ?, p.market_value = ?, cf.stated_value_date = ?, 
                           cf.address1 = ?, cf.address2 = ?, cf.address3 = ?, cf.address4 = ?, cf.address5 = ?, 
                           cf.address6 = ?, cf.city = ?, cf.state = ?, cf.zip = ?, p.account_type = ?, 
-                          cf.production_number = ?, cf.master_production_number = ?, cf.omniscient_control_number = ?, p.accountclosed = ?
+                          cf.production_number = ?, cf.master_production_number = ?, cf.omniscient_control_number = ?, p.accountclosed = ?,
+                          cf.custodian_inception = CASE WHEN cf.custodian_inception = '' OR cf.custodian_inception IS NULL THEN ? ELSE cf.custodian_inception END, 
+                          p.inceptiondate = CASE WHEN p.inceptiondate = '' OR p.inceptiondate IS NULL THEN ? ELSE p.inceptiondate END
                       WHERE p.portfolioinformationid = ?";
             while($v = $adb->fetchByAssoc($result)){
                 $adb->pquery($query, $v);
