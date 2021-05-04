@@ -258,11 +258,16 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
     					CASE
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' OR
-							vtiger_transactionscf.transaction_activity = 'Split or Share dividend' 
+							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR 
+							vtiger_transactionscf.transaction_activity = 'Receipt of securities' OR
+							vtiger_transactionscf.transaction_activity = 'Split or Share dividend' OR
+							vtiger_transactionscf.transaction_activity = 'Moneylink Transfer'
+							
 							) then 'add'
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR 
+							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR 
+							vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR 
+							vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR 
 							vtiger_transactionscf.transaction_activity = 'Withdrawal Federal withholding'
 							) then 'minus'
                         END  AS transaction_status
@@ -270,7 +275,11 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
     					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
     					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
     					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities', 'Split or Share dividend',
+    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 
+						'Deposit of funds', 'Withdrawal of funds', 
+						'Moneylink Transfer',
+						'Receipt of securities', 
+						'Transfer of securities', 'Split or Share dividend',
 						'Withdrawal Federal withholding')
     					AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
     					AND vtiger_transactionscf.net_amount > ?
