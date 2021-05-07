@@ -326,7 +326,7 @@
 														<div title="{$BLOCK_DATA.summary}">
 															<h4 style = "font-size:20px;line-height:30px;font-weight:600;">{$BLOCK_DATA.displayTitle}</h4>
 															<div style = "font-size:13px;line-height:25px;">{$BLOCK_DATA.summary}</div>
-															{*<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>*}
+															<a href="{$BLOCK_DATA.url}" target="_blank"><u>{$BLOCK_DATA.urlalt}</u></a>
 														</div>
 													
 													</div>
