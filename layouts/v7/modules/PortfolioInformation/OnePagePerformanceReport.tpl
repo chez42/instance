@@ -166,7 +166,7 @@
 						Last 3 Months
 					</td>
 				</tr>
-				<tr>
+				<tr style = "display:none;">
 					<td style = "padding-top:10px;">
 						TWR
 					</td>
@@ -184,7 +184,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td style = "padding-top:10px;">
 						S&P 500
 					</td>
 					<td>
