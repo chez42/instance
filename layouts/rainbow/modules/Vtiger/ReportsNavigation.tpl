@@ -24,7 +24,10 @@ li.stellarnavli {
                         <li><a href="#" class="report_selection" data-report="GHReportActual">GH1 Report (Actual Income)</a></li>
                         <li><a href="#" class="report_selection" data-report="GH2Report">GH2 Report</a></li>
                         <li><a href="#" class="report_selection" data-report="OmniOverview">Overview</a></li>
-                    </ul>
+                        {if $MODULE eq 'PortfolioInformation'}
+							<li><a href="#" class="report_selection" data-report="OnePagePerformanceReport">Performance Overview Summary</a></li>
+						{/if}
+					</ul>
                 </li>
                 <li><a href="#" class="report_selection" data-report="AssetClassReport">Asset Class Report</a></li>
                 <li><a href="#">Income</a>
