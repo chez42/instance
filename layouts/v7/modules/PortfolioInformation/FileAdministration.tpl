@@ -6,6 +6,7 @@
         The daily email report listing missing files depends on this table to be accurate, or deactivated rep code's will show up as
         having missing files</p>
         <button id="add-row">Add New RepCode</button>
+        Number Of Days To Parse: <input type="text" class="num_days" value="7" />
         <div id="file-locations-table"></div>
     </div>
     <div id="custodian-interactions">
