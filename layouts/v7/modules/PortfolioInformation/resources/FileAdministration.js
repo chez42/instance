@@ -74,14 +74,15 @@ jQuery.Class("FileAdministration_Module_Js",{
             e.stopPropagation();
             e.stopImmediatePropagation();
             var parseID = $(this).data('id');
-            var num_days = $(this).siblings('.num_days').val();
+            var num_days = $('.num_days').val();
+            //var num_days = $(this).siblings('.num_days').val();
 
             $.post("index.php", {module:'PortfolioInformation', action:'CustodianInteractions', todo:'ParseData', parseID:parseID, parse_type:'parse_all', num_days:num_days}, function(response) {
                 console.log(response);
             });
             UpdateStatus('MANUALPARSING', '.parse-status');
         });
-        return "<button class='parseData' data-id="+id+">Parse Data</button> <input class='num_days' type='text' value='7' />";
+        return "<button class='parseData' data-id="+id+">Parse</button>";// <input class='num_days' type='text' value='7' />";
     },
 
     deleteButton : function(value, data, cell, row, options){
