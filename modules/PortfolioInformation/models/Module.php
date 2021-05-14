@@ -3699,6 +3699,7 @@ IF @beginningNet IS NULL THEN SET @beginningNet := 0; END IF;
             $and = " AND match_check = ?";
             $params[] = $match_check;
         }
+
         $query = "SELECT match_result
                   FROM vtiger_instance_settings 
                   WHERE setting_name = ? {$and}";
@@ -3747,5 +3748,9 @@ IF @beginningNet IS NULL THEN SET @beginningNet := 0; END IF;
             }
         }
         return $different_accounts;
+    }
+
+    static public function UpdateCashValueField($account_number){
+
     }
 }
