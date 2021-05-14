@@ -6,7 +6,7 @@
  * Time: 3:30 PM
  */
 
-class Settings_PortfolioInformation_SchwabTransactionMapping_View extends Vtiger_Index_View{
+class Settings_PortfolioInformation_SchwabTransactionMapping_View extends Settings_Vtiger_Index_View{
     function process(Vtiger_Request $request) {
         $mapping = Settings_PortfolioInformation_Administration_Model::GetSchwabTransactionMapping();
         $activities = Settings_PortfolioInformation_Module_Model::GetActivityPicklistValues();
@@ -22,7 +22,7 @@ class Settings_PortfolioInformation_SchwabTransactionMapping_View extends Vtiger
     public function getHeaderScripts(Vtiger_Request $request) {
         $moduleName = $request->getModule();
         $jsFileNames = array(
-            "modules.PortfolioInformation.resources.SchwabTransactionMapping", // . = delimiter
+            "~/modules/Settings/PortfolioInformation/resources/SchwabTransactionMapping.js", // . = delimiter
         );
         $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
         return $jsScriptInstances;
