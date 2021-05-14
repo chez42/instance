@@ -5,7 +5,7 @@ require_once("libraries/custodians/cCustodian.php");
 
 include_once("libraries/Reporting/Reporting.php");
 
-class PortfolioInformation_Module_Model extends Vtiger_Module_Model
+class Settings_PortfolioInformation_Module_Model extends Vtiger_Module_Model
 {
     /**
      * Sets all production numbers that are currently null or empty

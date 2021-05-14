@@ -6,7 +6,7 @@
  * Time: 3:16 PM
  */
 
-class PortfolioInformation_Administration_Model extends Vtiger_Module{
+class Settings_PortfolioInformation_Administration_Model extends Vtiger_Module{
     static $tenant = "custodian_omniscient";
 
     static public function GetFileLocations(){
