@@ -8,8 +8,8 @@
 
 class Settings_PortfolioInformation_SchwabTransactionMapping_View extends Vtiger_Index_View{
     function process(Vtiger_Request $request) {
-        $mapping = PortfolioInformation_Administration_Model::GetSchwabTransactionMapping();
-        $activities = PortfolioInformation_Module_Model::GetActivityPicklistValues();
+        $mapping = Settings_PortfolioInformation_Administration_Model::GetSchwabTransactionMapping();
+        $activities = Settings_PortfolioInformation_Module_Model::GetActivityPicklistValues();
 
         $viewer = $this->getViewer($request);
         $viewer->assign("MAPPING", $mapping);
