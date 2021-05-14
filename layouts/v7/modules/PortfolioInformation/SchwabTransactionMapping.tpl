@@ -1,6 +1,7 @@
 <p> - Schwab Category is simply a guideline for quick reference as they map to what Schwab categorizes existing transactions.
     If it is empty, it simply means we do not have a transaction of that type.</p>
-<p><strong>Note:</strong> + is not required in the Operation field</p>
+<p><strong>Note:</strong> + is not required in the Operation field UNLESS '-' has already been filled in.
+Currently, the system will not allow for a blank value, so please substitute with a "+"</p>
 <div id="MapWrap" style="width:100%; display:block;">
     <table class = "SchwabTransactionMappingTable" style="margin:auto; padding:10px; table-layout:fixed; width:1000px; overflow:auto; height:500px; display:block; border:1px solid black;">
         <thead>
