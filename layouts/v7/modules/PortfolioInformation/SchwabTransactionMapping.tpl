@@ -2,7 +2,7 @@
     If it is empty, it simply means we do not have a transaction of that type.</p>
 <p><strong>Note:</strong> + is not required in the Operation field</p>
 <div id="MapWrap" style="width:100%; display:block;">
-    <table class = "SchwabTransactionMappingTable" style="table-layout:fixed; width:1000px; overflow:auto; height:500px; display:block; border:1px solid black;">
+    <table class = "SchwabTransactionMappingTable" style="margin:auto; padding:10px; table-layout:fixed; width:1000px; overflow:auto; height:500px; display:block; border:1px solid black;">
         <thead>
         <tr>
             <td>ID</td>
