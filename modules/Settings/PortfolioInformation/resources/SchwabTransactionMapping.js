@@ -17,7 +17,7 @@ jQuery.Class("SchwabTransactionMapping_Module_Js",{
             var value = $(this).val();
             var field = $(this).prop("name");
             var progressInstance = jQuery.progressIndicator();
-            $.post("index.php", {module:'PortfolioInformation', action:'Administration', todo:'UpdateSchwabMappingField', id:id, value:value, field:field}, function(response){
+            $.post("index.php", {module:'PortfolioInformation', parent:'Settings', action:'Administration', todo:'UpdateSchwabMappingField', id:id, value:value, field:field}, function(response){
                 progressInstance.hide();
             });
         });
@@ -27,7 +27,7 @@ jQuery.Class("SchwabTransactionMapping_Module_Js",{
             var value = $(this).val();
             var field = $(this).prop("name");
             var progressInstance = jQuery.progressIndicator();
-            $.post("index.php", {module:'PortfolioInformation', action:'Administration', todo:'UpdateSchwabMappingField', id:id, value:value, field:field}, function(response){
+            $.post("index.php", {module:'PortfolioInformation', parent:'Settings', action:'Administration', todo:'UpdateSchwabMappingField', id:id, value:value, field:field}, function(response){
                 progressInstance.hide();
             });
         });
@@ -35,7 +35,7 @@ jQuery.Class("SchwabTransactionMapping_Module_Js",{
 
         $(".addrow").click(function(e){
             var progressInstance = jQuery.progressIndicator();
-            $.post("index.php", {module:'PortfolioInformation', action:'Administration', todo:'CreateSchwabMappingRow'}, function(response){
+            $.post("index.php", {module:'PortfolioInformation', action:'Administration', parent:'Settings', todo:'CreateSchwabMappingRow'}, function(response){
                 progressInstance.hide();
                 var id = response;
                 $('.SchwabTransactionMappingTable tr:last').after('<tr> ' +
