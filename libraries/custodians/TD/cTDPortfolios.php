@@ -425,7 +425,7 @@ class cTDPortfolios extends cCustodian {
         $new = array_diff($custodian_accounts, $crm_accounts);
         if(!empty($new)){
             $questions = generateQuestionMarks($new);
-            $query = "SELECT p.account_number, 'TD' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.first_name, p.last_name, 
+            $query = "SELECT p.account_number, 'TD' AS custodian, p.first_name, p.last_name, 
                              p.street, p.address2, p.address3, p.address4, p.address5, p.address6, p.city, p.state, p.zip, p.account_type, 
                              p.rep_code, cust.system_generated, NOW() AS generatedtime, p.rep_code, u.id AS userid, p.insert_date
                           FROM custodian_omniscient.custodian_portfolios_td p 
@@ -436,15 +436,17 @@ class cTDPortfolios extends cCustodian {
 
             if($adb->num_rows($result) > 0){
                 while($v = $adb->fetchByAssoc($result)){
+                    $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
 
-                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name, custodian_inception)
-                              VALUES (?, ?, ?, ?, ?, ?, ?)";
-                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name'], $v['insert_date']));
+                    $query = "INSERT INTO vtiger_portfolioinformation (portfolioinformationid, account_number, origination, account_type, first_name, last_name)
+                              VALUES (?, ?, ?, ?, ?, ?)";
+                    $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['custodian'], $v['account_type'], $v['first_name'], $v['last_name']));
 
-                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated, inceptiondate)
+                    $query = "INSERT INTO vtiger_portfolioinformationcf (portfolioinformationid, production_number, address1, address2, address3, address4, address5, address6, city, state, zip, system_generated, custodian_inception)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], $v['rep_code'], $v['street'], $v['address2'], $v['address3'], $v['address4'], $v['address5'],
                         $v['address6'], $v['city'], $v['state'], $v['zip'], $v['system_generated'], $v['insert_date']));
