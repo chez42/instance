@@ -303,8 +303,10 @@ class cTDSecurities extends cCustodian {
         $securities_result = $adb->pquery($query, array($symbols), true);
         if($adb->num_rows($securities_result) > 0){
             while($v = $adb->fetchByAssoc($securities_result)) {
-                $new_id_result = $adb->pquery("SELECT IncreaseAndReturnCrmEntitySequence() AS crmid", array());
-                $id = $adb->query_result($new_id_result, 0, 'crmid');
+#                $new_id_result = $adb->pquery("SELECT IncreaseAndReturnCrmEntitySequence() AS crmid", array());
+#                $id = $adb->query_result($new_id_result, 0, 'crmid');
+
+                $id = $adb->getUniqueID("vtiger_crmentity");
 
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES (?, 1, 1, 1, 'ModSecurities', NOW(), NOW(), ?)";

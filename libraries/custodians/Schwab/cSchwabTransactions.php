@@ -624,7 +624,7 @@ class cSchwabTransactions extends cCustodian
             $params[] = $cloud_ids;
         }
 
-        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, 1 AS ownerid, 
+        $query = "SELECT 1 AS ownerid, 
                          CASE WHEN m.omniscient_category > '' THEN m.omniscient_category ELSE t.transaction_category END AS transaction_type, 
                          CASE WHEN m.omniscient_activity > '' THEN m.omniscient_activity ELSE m.transaction_activity END AS transaction_activity, 
                          transaction_id, TRIM(LEADING '0' FROM t.account_number) AS account_number, trade_date, transaction_code, security_type, symbol, dollar_amount, t.account_type, ABS(quantity) AS quantity, 
@@ -657,6 +657,8 @@ class cSchwabTransactions extends cCustodian
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                 if($v['quantity'] == 0)
                     $v['quantity'] = $v['gross_amount'];
                 $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
