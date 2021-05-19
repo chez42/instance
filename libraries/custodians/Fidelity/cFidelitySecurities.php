@@ -322,7 +322,7 @@ class cFidelitySecurities extends cCustodian {
         global $adb;
         $questions = generateQuestionMarks($symbols);
 
-        $query = "SELECT symbol, description, IncreaseAndReturnCrmEntitySequence() AS crmid, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
+        $query = "SELECT symbol, description, us_stock, intl_stock, us_bond, intl_bond, preferred_net, convertible_net, cash_net, other_net, unclassified_net 
                   FROM custodian_omniscient.custodian_securities_fidelity sec
                   LEFT JOIN vtiger_global_asset_class_mapping m ON m.fidelity_asset_class_code = sec.asset_class_type_code
                   WHERE symbol IN ({$questions})
@@ -332,6 +332,7 @@ class cFidelitySecurities extends cCustodian {
         $securities_result = $adb->pquery($query, array($symbols), true);
         if($adb->num_rows($securities_result) > 0) {
             while($v = $adb->fetchByAssoc($securities_result)) {
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES (?, 1, 1, 1, 'ModSecurities', NOW(), NOW(), ?)";
                 $adb->pquery($query, array($v['crmid'], $v['description']), true);

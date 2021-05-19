@@ -397,7 +397,7 @@ class cSchwabSecurities extends cCustodian {
         $query = "SELECT f.cusip, CASE WHEN symbol IS NULL OR symbol = '' THEN cusip ELSE symbol END AS symbol, f.security_description_line1 AS description,
                          map.multiplier, f.closing_price, map.security_type, map.omni_base_asset_class AS aclass, NOW() AS last_update,
                          f.strike_price_amount, f.option_expiration_date, f.option_root_symbol, f.option_call_or_put_code, f.interest_rate,
-                         f.product_code, f.maturity_date, 'Schwab' AS origination, IncreaseAndReturnCrmEntitySequence() AS crmid, f.filename
+                         f.product_code, f.maturity_date, 'Schwab' AS origination, f.filename
                   FROM custodian_omniscient.custodian_securities_schwab f
                   LEFT JOIN custodian_omniscient.securities_mapping_schwab map ON map.code = f.product_code
                   WHERE symbol IN ({$questions})
@@ -408,6 +408,8 @@ class cSchwabSecurities extends cCustodian {
 
         if($adb->num_rows($securities_result) > 0) {
             while($v = $adb->fetchByAssoc($securities_result)) {
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                 if($v['aclass'] == NULL || TRIM($v['aclass']) == '')//This is during creation, so if we have nothing at least show something
                     $v['aclass'] = 'Funds';
 
@@ -437,7 +439,7 @@ class cSchwabSecurities extends cCustodian {
         $query = "SELECT f.cusip, CASE WHEN symbol IS NULL OR symbol = '' THEN cusip ELSE symbol END AS symbol, f.security_description_line1 AS description,
                          map.multiplier, f.closing_price, map.security_type, map.omni_base_asset_class AS aclass, NOW() AS last_update,
                          f.strike_price_amount, f.option_expiration_date, f.option_root_symbol, f.option_call_or_put_code, f.interest_rate,
-                         f.product_code, f.maturity_date, 'Schwab' AS origination, IncreaseAndReturnCrmEntitySequence() AS crmid, f.filename, m.modsecuritiesid
+                         f.product_code, f.maturity_date, 'Schwab' AS origination, f.filename, m.modsecuritiesid
                   FROM custodian_omniscient.custodian_securities_schwab f
                   LEFT JOIN custodian_omniscient.securities_mapping_schwab map ON map.code = f.product_code
                   JOIN vtiger_modsecurities m ON m.security_symbol = f.symbol
