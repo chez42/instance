@@ -672,8 +672,9 @@ class ModSecurities_Module_Model extends Vtiger_Module_Model {
                   GROUP BY p.security_symbol";
         $adb->pquery($query, array());
 
-        $query = "UPDATE SecuritiesToCreate SET crmid = IncreaseAndReturnCrmEntitySequence()";
-        $adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+        $query = "UPDATE SecuritiesToCreate SET crmid = ?";
+        $adb->pquery($query, array($crmid));
 
         $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) 
                   SELECT crmid, 1, 1, 1, 'ModSecurities', NOW(), NOW(), description FROM SecuritiesToCreate";
