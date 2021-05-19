@@ -2307,8 +2307,9 @@ SET net_amount = CASE WHEN net_amount = 0 THEN total_value ELSE net_amount END";
         $query = "UPDATE CreateTransactions t SET price = COALESCE(ABS(net_amount / CASE WHEN quantity > 0 THEN quantity ELSE net_amount END), 0.0)";
         $adb->pquery($query, array());
 
-        $query = "UPDATE CreateTransactions SET crmid = live_omniscient.IncreaseAndReturnCrmEntitySequence()";
-        $adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+        $query = "UPDATE CreateTransactions SET crmid = ?";
+        $adb->pquery($query, array($crmid));
 
         $query = "INSERT INTO live_omniscient.vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label) SELECT crmid, 1, 1, 1, 'Transactions', NOW(), NOW(), notes FROM CreateTransactions";
         $adb->pquery($query, array());

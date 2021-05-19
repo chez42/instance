@@ -455,7 +455,7 @@ return;
         $questions = generateQuestionMarks($account_number);
         $latest_date = cTDPositions::GetLatestPositionDateForAccounts($account_number);
 
-        $query = "SELECT pos.symbol, pos.account_number, sec.description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+        $query = "SELECT pos.symbol, pos.account_number, sec.description
                   FROM custodian_omniscient.custodian_positions_td pos
                   LEFT JOIN custodian_omniscient.custodian_securities_td sec ON pos.symbol = sec.symbol
                   WHERE (account_number, pos.symbol) NOT IN (SELECT account_number, CASE WHEN security_symbol = 'TDCASH' THEN 'Cash' ELSE security_symbol END as security_symbol
@@ -470,6 +470,7 @@ return;
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
                 $adb->pquery($query, array($v['crmid'], $v['symbol']), true);

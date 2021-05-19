@@ -510,7 +510,7 @@ class cFidelityPortfolios extends cCustodian {
             $questions = generateQuestionMarks($new);
 
             $query = "SELECT p.account_number, p.account_name, p.t_account, p.registration, p.disposal_method, p.s_corp_indicator, 
-                             'Fidelity' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.production_number, f.as_of_date, f.net_worth, f.buying_power, 
+                             'Fidelity' AS custodian, p.production_number, f.as_of_date, f.net_worth, f.buying_power, 
                              f.cash_available_to_withdraw, (f.net_worth-f.cash_available_to_withdraw) AS market_value, f.cash_available_to_borrow, 
                              f.money_market_available, f.core_cash_market_value, f.unsettled_cash, f.dividend_accrual, NOW() AS generatedtime, 
                              p.rep_code, u.id AS userid
@@ -524,6 +524,7 @@ class cFidelityPortfolios extends cCustodian {
 
             if($adb->num_rows($result) > 0){
                 while($v = $adb->fetchByAssoc($result)){
+                    $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generatedtime'], $v['generatedtime'], $v['account_number']));
