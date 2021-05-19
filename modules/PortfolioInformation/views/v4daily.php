@@ -21,6 +21,15 @@ include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
 require_once("libraries/custodians/cCustodian.php");
 require_once('modules/ModSecurities/actions/ConvertCustodian.php');
 include_once("include/utils/omniscientCustom.php");
+include_once("libraries/OmniAI/OmniAI.php");
+
+
+include_once("libraries/Reporting/Reporting.php");
+
+include_once "libraries/custodians/cFileMonitor.php";
+include_once "libraries/custodians/cDailyFiles.php";
+
+require_once("libraries/Reporting/ProjectedIncomeModel.php");
 
 spl_autoload_register(function ($className) {
     if (file_exists("libraries/EODHistoricalData/$className.php")) {
@@ -32,6 +41,388 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
 
     function process(Vtiger_Request $request)
     {
+        include("cron/modules/Custodian/DataPull.service");
+        exit;
+        $tmp = new CustodianClassMapping(array('656354103'));
+        $date = '2021-04-01';
+
+        $positions = $tmp->positions::GetPositionDataAsOfDate(array('656354103'), '2021-04-01');
+        foreach($positions AS $account_number => $positions){
+            foreach($positions AS $k => $v){
+                if(strtolower($v['aclass']) == 'cash')
+                    $type = 1;
+                else
+                    $type = 0;
+
+                $tmp->transactions::CreateTransactionsInCustodian($account_number, $v['symbol'], $date,
+                                                                  $type, $v['market_value'], $v['quantity'], $v['price']);
+            }
+        }
+        echo 'done';exit;
+
+        include("cron/modules/Custodian/DataPull.service");
+        echo 'hi';exit;
+#        $rep_codes = array('08438677');
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        foreach($rep_codes AS $rep_code){
+            echo 'Trying for -- ' . $rep_code . ' -- ';
+            $monitor = new cDailyFiles($rep_code);
+
+#            $data = $monitor->GetLocationData();
+#            print_r($data);
+            echo '<br /><br />';
+#            $monitor->
+            /*
+            $monitor->SetFileHistoryFromRepCode($rep_code, 7);
+            $unarchived = $monitor->GetUnarchivedHistory();
+            $archived = $monitor->GetArchivedHistory();
+#            print_r($unarchived);
+            echo '<br /><br />ARCHIVED.....<br /><br />';
+#            print_r($archived);*/
+        }
+        echo 'done';
+        exit;
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        print_r($rep_codes);exit;
+        $account = new CustodianAccess('628040098');
+        $bal = $account->GetBalanceExcludingPositions(array('FTSM'), '2021-04-06');
+        print_r($bal);
+        echo 'done';exit;
+        echo date("Y-m-d");exit;
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+
+        $copy = new CustodianToOmniTransfer($accounts);
+        $copy->UpdatePortfolios();
+echo 'done';exit;
+
+        $account = new CustodianAccess('944131565');
+        $date = $account->GetNearestValidBalanceDate('2021-01-02');
+        $balance = $account->GetBalance($date);
+        print_r($balance);exit;
+
+        $tmp = new CustodianClassMapping('944131565');
+        $bal = $tmp->portfolios::GetEndingBalanceAsOfDate(array('944131565'), '2021-01-02');
+        print_r($bal);
+        echo 'done';exit;
+
+        include("cron/modules/Custodian/DataPull.service");
+
+        echo 'done';exit;
+
+        $parser = new cFidelityParsing();//commented out below just in case, code works fine
+#        $file = "/mnt/lanserver2n/AD HOC FILES/fi022020.BAK";
+#        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed(array('gh2'));
+#        $parser->ParseSpecificsUnenhanced($file, $account_numbers);
+        echo 'done';exit;
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        cSchwabPortfolios::CreateNewPortfoliosForRepCodes($rep_codes);//Create any missing Fidelity portfolios
+
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        cSchwabPortfolios::UpdateAllPortfoliosForAccounts($accounts);
+        print_r($accounts);
+        echo 'done';exit;
+
+        $custodian = cFileHandling::GetCustodianFromRepCode('08015678');
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromCustodianUsingRepCodes($custodian, array('08015678'));
+
+        exit;
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        print_r($account_numbers);exit;
+
+        include("cron/modules/Custodian/DataPull.service");
+
+        echo 'done';exit;
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        $count = 1;
+        foreach($account_numbers AS $k => $v){
+#            if($count < 10) {
+                $account_number = array($v);
+                $tmp = new CustodianClassMapping($account_number);
+                $tmp->portfolios::UpdateAllPortfoliosForAccounts($account_number);
+                $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts($account_number);
+                $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
+                if (PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+                    $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+                $count++;
+#            }
+        }
+        echo 'done ' . $count . '<br />';
+        exit;
+
+        $parser = new cFidelityParsing();
+        $file = "/mnt/lanserver2n/AD HOC FILES/fi022020.BAK";
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed(array('gh2'));
+        $parser->ParseSpecificsUnenhanced($file, $account_numbers);
+        echo 'done';exit;
+
+        $result = $parser->GetParsedResultEnhanced('/mnt/archive/fidelity/sowell/LighthouseGH1/original/021920gh1transact-(20200415-13-39-39).trn');
+        $filtered = $parser->FilterResults($result, "transaction_key_mnemonic", "int");
+        $parser->UpdateSpecificFieldUsingResult("amount", $filtered);
+        echo 'done';exit;
+
+        foreach($filtered AS $k => $v){
+            print_r($v);
+            echo '<br /><br />';
+        }
+        echo 'bla';
+        exit;
+
+        $projected = new ProjectedIncome_Model(array('942824843'), '2020-12-31');
+        $t = $projected->GetIndividualAccounts();
+        $year_total = 0;
+        foreach($t AS $k => $account){
+            foreach($account AS $k => $v){
+#            echo $v->account_number;
+                $year_total += $v->year_payment;
+                print_r($v);
+                echo '<br /><br />';
+            }
+        }
+        echo $year_total;
+#        print_r($projected->GetIndividualAccounts());
+        exit;
+#        print_r($projected);exit;
+
+#        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+#        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+#        cTDPortfolios::CalculateAndWriteBalances($account_numbers, '2021-03-09', date("Y-m-d"));
+#echo 'done';exit;
+        $start = date('Y-m-d', strtotime('-10 days'));
+        $finish = date('Y-m-d');
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+
+        PortfolioInformation_Module_Model::ConsolidatedBalances($accounts, $start, $finish);
+        echo 'yay';exit;
+        echo date("Y-m-d H:i:s") . ' - Balances Consolidated - <br />';
+        StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Process");
+
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        cTDPortfolios::CalculateAndWriteBalances($account_numbers, '2021-03-09', date("Y-m-d"));
+
+        print_r($account_numbers);exit;
+
+        $account = "942825008";
+        $tmp = new CustodianClassMapping(array($account));
+        $positions = $tmp->positions::GetPositionDataAsOfDate(array($account), "2020-12-31");
+        print_r($positions);
+        exit;
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+#        $locations = new cFileHandling();
+#        $data = $locations->GetLocationDataFromRepCode($rep_codes);
+$rep_codes = array('08438677');
+        foreach($rep_codes AS $rep_code){
+            $monitor = new cFileMonitor();
+            $monitor->SetFileHistoryFromRepCode($rep_code, 5);
+            $unarchived = $monitor->GetUnarchivedHistory();
+            $archived = $monitor->GetArchivedHistory();
+            print_r($unarchived);
+            echo '<br /><br />ARCHIVED.....<br /><br />';
+            print_r($archived);
+        }
+exit;
+
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+print_r($accounts);
+        echo 'done';exit;
+
+        $parser = new cFidelityParsing();
+        $parser->ParseTransactions("GH2", "365");
+exit;
+        $performance = new cPerformance('944162932', '2020-01-01', '2020-03-31');
+        $p = $performance->GetPerformance();
+        print_r($performance->GetPerformance());
+echo 'done';exit;
+
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        cTDPortfolios::CalculateAndWriteBalances($account_numbers, '2020-03-09', date("Y-m-d"));
+#        $account_numbers = array("638068662");
+#        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
+#        $account_numbers = array_unique($account_numbers);
+
+        foreach($account_numbers AS $tmp => $account){
+            echo 'Doing ' . $account . '<br />';
+            $tmp = new CustodianClassMapping(array($account));
+            $tmp->transactions::CreateNewTransactionsForAccounts(array($account));
+#            if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+#                $tmp->transactions::UpdateTransactionsForAccounts(array($account));
+        }
+echo 'done';
+exit;
+
+
+        $accts = array();
+        $count = 0;
+        foreach($account_number AS $k => $v){
+            if($count >= 50)
+                continue;
+            $accts[] = $v;
+            $count++;
+        }
+#        print_r($accts);exit;
+#        $tmp = new CustodianClassMapping($accts);
+        cSchwabPortfolios::UpdateAllPortfoliosForAccounts($accts);
+        cSchwabPositions::UpdateAllCRMPositionsAtOnceForAccounts($accts);
+        cSchwabTransactions::CreateNewTransactionsForAccounts($accts);
+        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+            cSchwabTransactions::UpdateTransactionsForAccounts($accts);
+echo 'done';exit;
+
+#        $balances = cTDPortfolios::CalculateTDBalances(array('942684664'), '1900-01-01', date("Y-m-d"));
+        cTDPortfolios::CalculateAndWriteBalances(array('942684664'), '1900-01-01', date("Y-m-d"));
+#        print_r($balances);
+        echo 'done';exit;
+        $dif = cTDPositions::GetBalancesVsPositionsDifference(array('942684664'), '2020-01-01');
+        if($dif > 10){
+            echo 'kill it';exit;
+        }
+        echo 'done';exit;
+#        $positions = cTDPositions::GetPositionDataAsOfDate(array('942684664'),"2020-01-01");
+#        print_r($positions);exit;
+
+        $accounts = PortfolioInformation_Module_Model::GetDifferentValuesVsPositionsTD();
+        print_r($accounts);exit;
+/*
+CREATE TEMPORARY TABLE dif
+SELECT por.account_number, por.total_value, pos.pos_value, por.total_value - pos.pos_value AS dif, por.stated_value_date, origination
+FROM por
+JOIN pos ON por.account_number = pos.account_number;
+
+SELECT * FROM dif d WHERE (d.dif > 1 OR d.dif < -1)
+    AND stated_value_date = '2021-02-19';
+*/
+
+
+
+        $end = date('Y-m-d');
+        $start = "2019-01-01";//date('Y-m-d', strtotime('-4 days'));
+        $accounts = array("941381181");
+        PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($accounts, $start, $end);
+        print_r($accounts);
+        echo $start . '<br />' . $end;
+echo 'done';exit;
+        $performance = new cPerformanceCombined(array('657527774', '624755265'), '2020-01-01', '2020-12-31');
+        echo $performance->start_date . '<br />';
+        echo $performance->end_date . '<br />';
+        echo $performance->start_balance . '<br />';
+        echo $performance->end_balance . '<br />';
+        echo $performance->GetSumOfTransactionType(array("flow"));
+        echo 'done';exit;
+/*
+        $performance = new cPerformance('657527774', '2020-01-01', '2020-12-31');
+        $p = $performance->GetPerformance();
+#        print_r($performance->GetPerformance());
+        echo "Start info: " . $performance->GetStartInfo()->end_of_day_date . " - " . $performance->GetStartInfo()->start_value . '<br />';
+        echo "Start info: " . $performance->GetEndInfo()->end_of_day_date . " - " . $performance->GetEndInfo()->end_value . '<br />';
+        echo '<br /><br />';
+        echo "Sum of flows " . $performance->GetSumOfTransactionType(array("Flow")) . '<br />';
+        echo "Sum of expenses " . $performance->GetSumOfTransactionType(array("Expense")) . '<br />';
+        echo "Sum of flow minus type " . $performance->GetSumOfTransactionTypeIgnoringActivity("Flow", array("payment in lieu")) . '<br />';
+#        echo "Sum of management fee expenses " . $performance->GetSumOfTransactionTypeAndActivity("Expense", "Management fee");
+        echo 'Investment return ' . $performance->GetInvestmentReturn() . '<br />';
+        echo 'Investment return percent ' . $performance->GetInvestmentReturnPercent() . '<br />';
+        echo 'Change in value: ' . $performance->GetChangeInValue() . '<br />';
+        echo 'Commission ' . $performance->GetCommission();
+        echo 'done';exit;
+*/
+
+        $performance = new cPerformance('657527774', '2020-01-01', '2020-12-31');
+        $p = $performance->GetPerformance();
+        print_r($performance->GetPerformance());
+        echo '<br /><br />';
+        echo "Sum of expenses " . $performance->GetSumOfTransactionType("Expense");
+        echo 'done';exit;
+
+        $cat = new cCatalogue();
+        $dupes = $cat->FindDupeValues(array());
+        foreach($dupes AS $k => $v){
+            $v['id'] . ' -- ' . $v['filename'] . ' -- ' . $v['line_1'];
+            echo '<br />';
+        }
+        echo 'done';exit;
+        /*
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $locations = new cFileHandling();
+        $data = $locations->GetLocationDataFromRepCode($rep_codes);
+        $cat = new cCatalogue();
+
+        foreach($data AS $k => $v){
+            $v->file_location = str_replace("lanserver2n", "archive", $v->file_location);
+            $files = $cat->GetFiles($v->file_location, "TRN", "5000");
+            $cat->WriteFiles($files, $v->rep_code);
+#            echo $v->file_location . '<br />';
+//            print_r($v); echo '<br />';
+        }
+
+/*        $cat = new cCatalogue();
+        $files = $cat->GetFiles("/mnt/archive/fidelity/sowell/BuskirkGH2", "TRN", "5000");
+        $cat->WriteFiles($files, 'GH2');
+        /*
+        foreach($files AS $k => $v){
+            print_r($v);
+            echo '<br /><br />';
+        }*/
+        echo 'done';exit;
+        $end = date('Y-m-d');
+        $start = "2019-01-01";//date('Y-m-d', strtotime('-4 days'));
+        $accounts = array("942684781","942684773","942684775","942684777");
+        PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($accounts, $start, $end);
+echo 'done';exit;
+        $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
+        $accounts = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCodeOpenAndClosed($rep_codes);
+        echo date('Y-m-d H:i:s') . '<br />';
+        foreach($accounts AS $k => $v){
+            $intervals = new cIntervals($v);
+            $intervals->CalculateIntervals('1900-01-01', date("Y-m-d"));
+            echo "'{$v}'," . '<br />';
+        }
+        echo date('Y-m-d H:i:s') . '<br />';
+echo 'done';
+        $intervals = new cIntervals('60393882');
+        $intervals->CalculateIntervals('1900-01-01', '2020-02-06');
+        exit;
+/*
+        $parser = new cTDParsing();
+        $parser->ParseTransactions("GOX", "365");
+
+        echo 'done';exit;
+        $ai = new OmniAI();
+        $ai->FixReceiptOfSecuritiesWithNoAmount("2020-01-01");
+        echo 'dun';exit;
+        /*
+        $guz = new cEodGuzzle();
+        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD("URFFX");
+        $data = json_decode($guz->getFundamentals("URFFX"));
+        $div = json_decode($guz->getDividends("VTSAX", "US", '2019-01-01', '2019-12-31'));
+        $fund = new TypeFund($data, $div);
+print_r($fund);exit;
+        print_r($type);exit;
+
+
+echo 'done';exit;
+        $tdAccounts = array("942766501");
+        $end = date('Y-m-d');
+        $start = date('Y-m-d', strtotime('-4 days'));
+        $start = '2019-01-01';
+        PortfolioInformation_Module_Model::TDBalanceCalculationsMultiple($tdAccounts, $start, $end);
+echo 'done';exit;
+
         include("cron/modules/Custodian/TDPull.service");
         echo 'done2';exit;
 
@@ -80,11 +471,11 @@ class PortfolioInformation_v4daily_View extends Vtiger_BasicAjax_View{
             $dif += $v['dif'];
         }
 
-print_r($differences);
+        print_r($differences);
 
         echo "Difference Total: " . $dif;
 
-echo 'done';exit;
+        echo 'done';exit;
 
         include("cron/modules/InstanceOnly/Integrity.service");
         echo 'done';exit;

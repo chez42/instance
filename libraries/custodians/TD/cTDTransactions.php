@@ -468,7 +468,7 @@ class cTDTransactions extends cCustodian
             $params[] = $edate;
         }
 
-        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, transaction_id, advisor_rep_code, file_date, account_number, transaction_code, omniscient_category, omniscient_activity, cancel_status_flag, symbol, security_code, trade_date, quantity, net_amount, 000000000.0000000 AS price, principal, broker_fee, other_fee, settle_date, from_to_account, account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id
+        $query = "SELECT transaction_id, advisor_rep_code, file_date, account_number, transaction_code, omniscient_category, omniscient_activity, cancel_status_flag, symbol, security_code, trade_date, quantity, net_amount, 000000000.0000000 AS price, principal, broker_fee, other_fee, settle_date, from_to_account, account_type, accrued_interest, comment, closing_method, filename, insert_date, dupe_saver_id
                   FROM custodian_omniscient.custodian_transactions_td t 
                   JOIN custodian_omniscient.tdmapping m ON m.id = t.transaction_code 
                   WHERE {$transaction_ids}
@@ -479,6 +479,7 @@ class cTDTransactions extends cCustodian
 
         if($adb->num_rows($result) > 0) {
             while ($v = $adb->fetchByAssoc($result)) {
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
                 $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
 
                 if (is_null($v['net_amount']))

@@ -397,8 +397,9 @@ class Transactions_ConvertCustodian_Model extends Vtiger_Module_Model{
 #		WHERE security_type = 'ex'";
 #		$adb->pquery($query, array());
 
-		$query = "UPDATE new_transactions SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_transactions SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "SELECT * FROM new_transactions";
 		$adb->pquery($query, array());
@@ -440,8 +441,9 @@ class Transactions_ConvertCustodian_Model extends Vtiger_Module_Model{
 		WHERE security_type = 'ex'";
 		$adb->pquery($query, array());
 
-		$query = "UPDATE new_transactions SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_transactions SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "SELECT * FROM new_transactions";
 		$adb->pquery($query, array());
