@@ -43,8 +43,9 @@ class PositionInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 					GROUP BY account_number, symbol";
 		$adb->pquery($query, array($date));
 
-		$query = "UPDATE temp_positions SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE temp_positions SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, setype, createdtime, modifiedtime, presence, label)
 				  SELECT crmid, 1 AS smcreatorid, 1 AS smownerid, 'PositionInformation' AS setype, NOW() AS createdtime, NOW() AS modifiedtime, 1 AS presence, description AS label FROM temp_positions";
@@ -88,8 +89,9 @@ class PositionInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 		$query = "DELETE FROM temp_positions WHERE original_symbol = 'CASH07'";
 		$adb->pquery($query, array());
 
-		$query = "UPDATE temp_positions SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE temp_positions SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, setype, createdtime, modifiedtime, presence, label)
 				  SELECT crmid, 1 AS smcreatorid, 1 AS smownerid, 'PositionInformation' AS setype, NOW() AS createdtime, NOW() AS modifiedtime, 1 AS presence, description AS label FROM temp_positions";
@@ -126,8 +128,9 @@ class PositionInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
         $query = "DELETE FROM temp_positions WHERE (account_number, symbol) IN (SELECT dashless, security_symbol FROM vtiger_positioninformation);";
         $adb->pquery($query, array());
 
-		$query = "UPDATE temp_positions SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE temp_positions SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, setype, createdtime, modifiedtime, presence, label)
 				  SELECT crmid, 1 AS smcreatorid, 1 AS smownerid, 'PositionInformation' AS setype, NOW() AS createdtime, NOW() AS modifiedtime, 1 AS presence, symbol AS label FROM temp_positions";
@@ -195,8 +198,9 @@ class PositionInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
                   AND date = ?";
         $adb->pquery($query, array($date));
 
-		$query = "UPDATE temp_positions SET crmid = IncreaseAndReturnCrmEntitySequence(), close_price = sum_value / sum_quantity";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE temp_positions SET crmid = ?, close_price = sum_value / sum_quantity";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, setype, createdtime, modifiedtime, presence, label)
 				  SELECT crmid, 1 AS smcreatorid, 1 AS smownerid, 'PositionInformation' AS setype, NOW() AS createdtime, NOW() AS modifiedtime, 1 AS presence, symbol AS label FROM temp_positions";

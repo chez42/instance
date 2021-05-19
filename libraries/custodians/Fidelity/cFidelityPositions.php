@@ -526,7 +526,7 @@ class cFidelityPositions extends cCustodian {
         global $adb;
         $questions = generateQuestionMarks($account_number);
 
-        $query = "SELECT symbol, account_number, description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+        $query = "SELECT symbol, account_number, description 
                   FROM custodian_omniscient.custodian_positions_fidelity pos
                   WHERE account_number IN ({$questions})
                   AND (account_number, symbol) NOT IN (SELECT account_number, security_symbol 
@@ -540,6 +540,8 @@ class cFidelityPositions extends cCustodian {
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
                 $adb->pquery($query, array($v['crmid'], $v['symbol']), true);
