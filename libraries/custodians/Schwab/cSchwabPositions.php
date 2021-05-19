@@ -490,7 +490,7 @@ class cSchwabPositions extends cCustodian {
 
         self::ExtraCashPositionsSchwabAccounts($account_number);
 
-        $query = "SELECT pos.symbol, pos.account_number, security_description_line1 AS description, IncreaseAndReturnCrmEntitySequence() AS crmid 
+        $query = "SELECT pos.symbol, pos.account_number, security_description_line1 AS description 
                   FROM custodian_omniscient.custodian_positions_schwab pos 
                   JOIN custodian_omniscient.custodian_portfolios_schwab por ON por.account_number = pos.account_number
                   JOIN custodian_omniscient.latestpositiondates lpd ON lpd.rep_code = por.rep_code
@@ -506,6 +506,8 @@ class cSchwabPositions extends cCustodian {
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                 $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                           VALUES(?, 1, 1, 1, 'PositionInformation', NOW(), NOW(), ?)";
                 $adb->pquery($query, array($v['crmid'], $v['symbol']), true);

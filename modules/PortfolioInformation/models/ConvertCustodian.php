@@ -70,8 +70,9 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 */
 		$adb->pquery($query, array($as_of_date));
 
-		$query = "UPDATE new_portfolios SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_portfolios SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 #		$query = "SELECT * FROM new_portfolios";
 #		$adb->pquery($query, array());
@@ -127,8 +128,9 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 				  WHERE account_number NOT IN (SELECT REPLACE(account_number, '-', '') FROM vtiger_portfolioinformation)";
 		$adb->pquery($query, array());
 
-		$query = "UPDATE new_portfolios SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+		$crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_portfolios SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
 		SELECT crmid, 1, 1, 1, 'PortfolioInformation', NOW(), NOW(), account_number FROM new_portfolios";
@@ -162,8 +164,9 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 
 		$adb->pquery($query, array());
 
-		$query = "UPDATE new_portfolios SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+		$crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_portfolios SET crmid = ?()";
+		$adb->pquery($query, array($crmid));
 
 		$query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
 		SELECT crmid, 1, 1, 1, 'PortfolioInformation', NOW(), NOW(), account_number FROM new_portfolios";
@@ -194,8 +197,9 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
 
 		$adb->pquery($query, array($as_of_date));
 
-		$query = "UPDATE new_portfolios SET crmid = IncreaseAndReturnCrmEntitySequence()";
-		$adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+		$query = "UPDATE new_portfolios SET crmid = ?";
+		$adb->pquery($query, array($crmid));
 
 #		$query = "SELECT * FROM new_portfolios";
 #		$adb->pquery($query, array());
@@ -1546,8 +1550,9 @@ class PortfolioInformation_ConvertCustodian_Model extends Vtiger_Module_Model{
                     GROUP BY first_name, last_name ORDER BY last_name";
         $adb->pquery($query, $params);
 
-        $query = "UPDATE ContactsToCreate SET crmid = live_omniscient.IncreaseAndReturnCrmEntitySequence()";
-        $adb->pquery($query, array());
+        $crmid = $adb->getUniqueID("vtiger_crmentity");
+        $query = "UPDATE ContactsToCreate SET crmid = ?";
+        $adb->pquery($query, array($crmid));
         $query = "UPDATE ContactsToCreate SET conNumber = live_omniscient.IncreaseAndReturnContactNumber()";
         $adb->pquery($query, array());
         $query = "UPDATE ContactsToCreate SET tax_id = CASE WHEN tax_id = '' THEN conNumber WHEN tax_id is null THEN conNumber ELSE tax_id END";

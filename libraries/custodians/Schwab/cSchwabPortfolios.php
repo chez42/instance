@@ -431,7 +431,7 @@ class cSchwabPortfolios extends cCustodian {
         if(!empty($new)) {
             $questions = generateQuestionMarks($new);
 
-            $query = "SELECT p.account_number, 'Schwab' AS custodian, IncreaseAndReturnCrmEntitySequence() AS crmid, p.description, 
+            $query = "SELECT p.account_number, 'Schwab' AS custodian, p.description, 
                              p.rep_code, p.master_rep_code, NOW() AS generated_time, u.id AS userid
                       FROM custodian_omniscient.custodian_portfolios_schwab p 
                       JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',p.rep_code,'%')
@@ -440,6 +440,8 @@ class cSchwabPortfolios extends cCustodian {
 
             if($adb->num_rows($result) > 0) {
                 while ($v = $adb->fetchByAssoc($result)) {
+                    $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
+
                     $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $adb->pquery($query, array($v['crmid'], 1, $v['userid'], 1, 'PortfolioInformation', $v['generated_time'], $v['generated_time'], $v['account_number']));

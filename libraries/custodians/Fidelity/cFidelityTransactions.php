@@ -440,7 +440,7 @@ class cFidelityTransactions extends cCustodian
             $params[] = $edate;
         }
 
-        $query = "SELECT IncreaseAndReturnCrmEntitySequence() AS crmid, m.omniscient_category, m.omniscient_activity, t.transaction_id, t.account_number, t.account_source, 
+        $query = "SELECT m.omniscient_category, m.omniscient_activity, t.transaction_id, t.account_number, t.account_source, 
                          t.account_type_code, t.account_type_description, t.amount, t.broker_code, t.buy_sell_indicator, t.certificate_fee, 
                          t.comment, t.comment2, t.commission, t.core_fund_indicator, t.cusip, t.custom_short_name, t.div_payable_date, 
                          t.div_record_date, t.dtc_code, t.entry_date, t.exchange, t.exchange_code, t.fbsi_short_name, t.fee_amount, t.floor_symbol, 
@@ -466,6 +466,7 @@ class cFidelityTransactions extends cCustodian
 
         if($adb->num_rows($result) > 0){
             while($v = $adb->fetchByAssoc($result)){
+                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
                 $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
 
                 /*SPECIAL RULES FOR FIDELITY*/
