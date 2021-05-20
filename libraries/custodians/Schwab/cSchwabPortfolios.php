@@ -435,7 +435,7 @@ class cSchwabPortfolios extends cCustodian {
                              p.rep_code, p.master_rep_code, NOW() AS generated_time, u.id AS userid
                       FROM custodian_omniscient.custodian_portfolios_schwab p 
                       JOIN vtiger_users u ON u.advisor_control_number LIKE CONCAT('%',p.rep_code,'%')
-                      WHERE p.account_number IN ({$questions})";
+                      WHERE p.account_number IN ({$questions}) GROUP BY p.account_number";
             $result = $adb->pquery($query, array($new));
 
             if($adb->num_rows($result) > 0) {
