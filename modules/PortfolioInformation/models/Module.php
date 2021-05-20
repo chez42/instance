@@ -742,9 +742,8 @@ class PortfolioInformation_Module_Model extends Vtiger_Module_Model
         $questions = generateQuestionMarks($ccn);
 
         $query = "SELECT account_number FROM vtiger_portfolioinformation p 
-                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid
-                  JOIN vtiger_crmentity e ON e.crmid = p.portfolioinformationid 
-                  WHERE production_number IN ({$questions})";
+                  JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
+                  WHERE production_number IN ({$questions})";//We don't want CRMEntity as a requirement, it can cause issues here when the portfolio account number exists but the entity doesn't
         $result = $adb->pquery($query, array($ccn));
 
         if ($adb->num_rows($result) > 0) {
