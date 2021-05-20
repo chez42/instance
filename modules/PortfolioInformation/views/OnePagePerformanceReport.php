@@ -2,18 +2,13 @@
 require_once("libraries/Reporting/ReportCommonFunctions.php");
 
 include_once "libraries/custodians/cCustodian.php";
-require_once("libraries/Reporting/PerformanceReport.php");
 
-require_once("libraries/Reporting/ReportHistorical.php");
-require_once("libraries/reports/pdf/cMpdf7.php");
-require_once("libraries/reports/new/holdings_report.php");
-require_once("modules/PortfolioInformation/models/NameMapper.php");
-include_once("modules/PortfolioInformation/models/PrintingContactInfo.php");
+require_once("libraries/Reporting/PerformanceReport.php");
 
 class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View{
 
-
 	function preProcess(Vtiger_Request $request, $display=true) {
+		
 		global $adb;
 		
 		if($request->get("pdf") == 1){
@@ -106,8 +101,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$accounts = array_unique($accounts);
 
             $portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
-inner join vtiger_portfolioinformationcf on 
-vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
+			inner join vtiger_portfolioinformationcf on 
+			vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
 			inner join vtiger_contactdetails  on contact_link = contactid 
 			inner join vtiger_contactaddress on contactaddressid = contactid
 			
@@ -127,7 +122,6 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 			
 			
 			//Calculate Intervals
-			
 			PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
 			
 			if(strlen($request->get('report_start_date')) > 1) {
@@ -153,11 +147,12 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 			$selected_period_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, $start_date), $end_date);
 			
-			$result = $adb->pquery("select * from vtiger_portfolioinformation where 
+			/*$result = $adb->pquery("select * from vtiger_portfolioinformation where 
 			account_number in (?)", array($request->get("account_number")));
 			$inception_date = $adb->query_result($result, 0, "inceptiondate");
 			$since_inception_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
+			*/
 			
 			$result = $adb->pquery("SELECT DATE_SUB(?, INTERVAL 12 MONTH) as last_month_date", array($end_date));			
 			$last_12month_date = $adb->query_result($result, 0, "last_month_date");
@@ -190,8 +185,8 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 			
 			//Since Inception
 			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), 'since_inception', $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), 'since_inception', $end_date),
+				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $start_date, $end_date),
+				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $start_date, $end_date),
 			);
 			
 			//Last 3 Months Index Return
@@ -208,20 +203,18 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 			$viewer->assign("INDEX_RETURN_DATA", $index_return_data);
 			
 			$viewer->assign("SELECTED_PERIOD_PERFORMANCE", $selected_period_performance);
+			
 			$viewer->assign("YTD_PERFORMANCE", $ytd_performance);
+			
 			$viewer->assign("LAST_3_MONTHS_PERFORMANCE", $last3_month_performance);
 			
+			//$viewer->assign("SINCE_INCEPTION_PERFORMANCE", $since_inception_performance);
+			
+			$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
 			
 			$viewer->assign("MODULE", "PortfolioInformation");
 			
-			$viewer->assign("SINCE_INCEPTION_PERFORMANCE", $since_inception_performance);
-			$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
-			
-			
-			
-			
-			$viewer->assign("SCRIPTS", $this->getHeaderScripts($request));
-            $viewer->assign("ACCOUNT_NUMBER", $request->get("account_number"));
+			$viewer->assign("ACCOUNT_NUMBER", $request->get("account_number"));
 
 			global $site_URL;
 			
@@ -254,7 +247,7 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 				
 				fclose($fb);
 				
-				$whtmltopdfPath = $fileDir.'/PerformanceReport.pdf';
+				$whtmltopdfPath = $fileDir.'/'. $request->get("account_number").'.pdf';
 				
 				$footer ="<!doctype html>
 				<html>
@@ -307,7 +300,7 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 				
 				header("Content-Type: application/octet-stream");
 				
-				header('Content-Disposition: attachment; filename="PerformanceReport.pdf"');
+				header('Content-Disposition: attachment; filename="'.$request->get("account_number").'.pdf"');
 				
 				readfile($whtmltopdfPath);
 				
@@ -384,20 +377,4 @@ vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformati
 
 		return $irr * 100;
 	}
-	
-	public function getHeaderScripts(Vtiger_Request $request) {
-        
-		$headerScriptInstances = parent::getHeaderScripts($request);
-        
-		$moduleName = $request->getModule();
-        
-		$jsFileNames = array(
-            //"modules.PortfolioInformation.resources.DateSelection",
-        );
-		
-        $jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);
-        $headerScriptInstances = array_merge($headerScriptInstances, $jsScriptInstances);
-        return $headerScriptInstances;
-    }
-
 }
