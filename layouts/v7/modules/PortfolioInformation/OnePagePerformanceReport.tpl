@@ -55,7 +55,7 @@
 					</div>
 				</div>
 			</div>
-			<div class = "col-xs-8">
+			<div class = "col-xs-10">
 			<div class = "row">
 				<div class = "col-xs-6">
 					<div style = "font-size:14px;font-weight:600;margin-bottom:20px;text-align:left;border-bottom:1px solid black;">
@@ -147,56 +147,56 @@
 					.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {padding:0px;}
 				</style>
 			{/literal}
-			<div class = "col-xs-9" style = "margin-top:20px;">
+			<div class = "col-xs-10" style = "margin-top:20px;">
 			<table class="performance_table" style = "width:100%;font-size:14px;" >
 				<tr>
-					<td style = "border-bottom: 1px solid black !important;padding:0px;font-weight:600;">
+					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;">
 						Total Portfolio
 					</td>
-					<td style = "border-bottom: 1px solid black !important;padding:0px;font-weight:600;">
-						Inception
+					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;text-align:right;">
+						{$REPORT_PERIOD}
 					</td>
-					<td style = "border-bottom: 1px solid black !important;padding:0px;font-weight:600;">
+					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;text-align:right;">
 						Last 12 Months
 					</td>
-					<td style = "border-bottom: 1px solid black !important;padding:0px;font-weight:600;">
+					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;text-align:right;">
 						YTD
 					</td>
-					<td style = "border-bottom: 1px solid black !important;font-weight:600;">
+					<td style = "width:20%;border-bottom: 1px solid black !important;font-weight:600;text-align:right;">
 						Last 3 Months
 					</td>
 				</tr>
-				<tr style = "display:none;">
+				<tr>
 					<td style = "padding-top:10px;">
-						TWR
+						Rate of Return (net)
 					</td>
-					<td  style = "padding-top:10px;">
-						{$SINCE_INCEPTION_PERFORMANCE->GetTWR()|number_format:2:".":","}%
+					<td  style = "padding-top:10px;text-align:right;">
+						{$SELECTED_PERIOD_PERFORMANCE->GetTWR()|number_format:2:".":","}%
 					</td>
-					<td  style = "padding-top:10px;">
+					<td  style = "padding-top:10px;text-align:right;">
 						{$LAST_12_MONTHS_PERFORMANCE->GetTWR()|number_format:2:".":","}%
 					</td>
-					<td  style = "padding-top:10px;">
+					<td  style = "padding-top:10px;text-align:right;">
 						{$YTD_PERFORMANCE->GetTWR()|number_format:2:".":","}%
 					</td>
-					<td  style = "padding-top:10px;">
+					<td  style = "padding-top:10px;text-align:right;">
 						{$LAST_3_MONTHS_PERFORMANCE->GetTWR()|number_format:2:".":","}%
 					</td>
 				</tr>
 				<tr>
-					<td style = "padding-top:10px;">
+					<td>
 						S&P 500
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[2]['GSPC']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[0]['GSPC']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[1]['GSPC']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[3]['GSPC']}%
 					</td>
 				</tr>
@@ -205,16 +205,16 @@
 					<td>
 						Barcap Aggregate Bond
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[2]['AGG']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[0]['AGG']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[1]['AGG']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[3]['AGG']}%
 					</td>
 				</tr>
@@ -222,16 +222,16 @@
 					<td>
 						50/50 Stocks/Bonds
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[2]['50/50']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[0]['50/50']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[1]['50/50']}%
 					</td>
-					<td>
+					<td style = "text-align:right;">
 						{$INDEX_RETURN_DATA[3]['50/50']}%
 					</td>
 				</tr>
