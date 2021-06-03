@@ -308,7 +308,11 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			$query = "UPDATE performance SET transaction_type = 'income_div_interest'
 			  WHERE transaction_type = 'Income' 
 			  AND (transaction_activity LIKE ('%dividend%') OR 
-			  transaction_activity LIKE ('%interest%'));";
+			  transaction_activity LIKE ('%interest%') or 
+			  transaction_activity LIKE ('%Monthly Sch1 Credit Int.%') or
+			  transaction_activity LIKE ('%Margin expense%') or
+			  transaction_activity LIKE ('%Cash in lieu transaction%')
+			  );";
 			$adb->pquery($query, array());
 			
 			$query = "UPDATE performance SET amount = 0 WHERE transaction_activity = 'Payment in lieu'";
@@ -623,13 +627,6 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
         }
     }
 	
-	public function getIRRNeT(){
-		
-		$value = $this->GetEndingValuesSummed()->value - $this->GetBeginningValuesSummed()->value;
-		
-		return round ( ( ( $value /  $this->GetEndingValuesSummed()->value) * 100), 2);
-	}
-
 	public function getCapAppreciation(){
 		
 		$value = $this->GetEndingValuesSummed()->value - $this->GetBeginningValuesSummed()->value;
@@ -781,7 +778,8 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
     public function GetIRR(){
         return $this->irr;
     }
-
+	
+	
     public function GetIndex($index){
         
 		global $adb;
