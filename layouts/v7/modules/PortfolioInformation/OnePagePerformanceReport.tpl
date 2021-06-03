@@ -170,17 +170,17 @@
 					<td style = "padding-top:10px;">
 						Rate of Return (net)
 					</td>
-					<td  style = "padding-top:10px;text-align:right;">
-						{$SELECTED_PERIOD_PERFORMANCE->GetTWR()|number_format:2:".":","}%
+					<td style = "text-align:right;">
+						{$INDEX_RETURN_DATA[2]['IRR']}%
 					</td>
-					<td  style = "padding-top:10px;text-align:right;">
-						{$LAST_12_MONTHS_PERFORMANCE->GetTWR()|number_format:2:".":","}%
+					<td style = "text-align:right;">
+						{$INDEX_RETURN_DATA[0]['IRR']}%
 					</td>
-					<td  style = "padding-top:10px;text-align:right;">
-						{$YTD_PERFORMANCE->GetTWR()|number_format:2:".":","}%
+					<td style = "text-align:right;">
+						{$INDEX_RETURN_DATA[1]['IRR']}%
 					</td>
-					<td  style = "padding-top:10px;text-align:right;">
-						{$LAST_3_MONTHS_PERFORMANCE->GetTWR()|number_format:2:".":","}%
+					<td style = "text-align:right;">
+						{$INDEX_RETURN_DATA[3]['IRR']}%
 					</td>
 				</tr>
 				<tr>

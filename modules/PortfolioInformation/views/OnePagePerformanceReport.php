@@ -5,8 +5,22 @@ include_once "libraries/custodians/cCustodian.php";
 
 require_once("libraries/Reporting/PerformanceReport.php");
 
-class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View{
+/*$user = CRMEntity::getInstance("Users");
+$user->id = 1;
+$user->retrieve_entity_info($user->id, "Users");
+vglobal("current_user", $user);
+*/
 
+class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View{
+	
+	/*function loginRequired() {
+		return false;
+	}
+	
+	function checkPermission(Vtiger_Request $request) {
+		return true;
+	}*/
+	
 	function preProcess(Vtiger_Request $request, $display=true) {
 		
 		global $adb;
@@ -163,6 +177,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$last_3month_date = $adb->query_result($result, 0, "last_month_date");
 			$last3_month_performance = new PerformanceReport_Model($accounts, $this->DetermineIntervalStartDate($accounts, $last_3month_date), $end_date);
             
+			
 			$ytd_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, GetDateStartOfYear($end_date)), $end_date);
 			
@@ -171,7 +186,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			//Last 12 Month Index Return
 			$index_return_data[] = array(
 				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $last_12month_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $last_12month_date, $end_date)
+				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $last_12month_date, $end_date),
+				"IRR" => $this->CalculateIRR($last_12month_performance, $last_12month_date , $end_date, $accounts[0])
 			);
 			
 			
@@ -180,19 +196,22 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), 
 				GetDateStartOfYear($end_date), $end_date),
 				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), 
-				GetDateStartOfYear($end_date), $end_date)
+				GetDateStartOfYear($end_date), $end_date),
+				"IRR" => $this->CalculateIRR($ytd_performance, GetDateStartOfYear($end_date) , $end_date, $accounts[0])
 			);
 			
 			//Since Inception
 			$index_return_data[] = array(
 				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $start_date, $end_date),
 				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $start_date, $end_date),
+				"IRR" => $this->CalculateIRR($selected_period_performance, $start_date, $end_date, $accounts[0])
 			);
 			
 			//Last 3 Months Index Return
 			$index_return_data[] = array(
 				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $last_3month_date, $end_date),
 				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $last_3month_date, $end_date),
+				"IRR" => $this->CalculateIRR($last3_month_performance, $last_3month_date, $end_date, $accounts[0])
 			);
 			
 			$index_return_data[2]['50/50'] = ($index_return_data[2]['GSPC'] + $index_return_data[2]['AGG']) /2;
@@ -377,4 +396,141 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 
 		return $irr * 100;
 	}
+	
+	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number)
+    {
+		global $adb;
+		
+		$cashFlow = array();
+		
+		$begining_value = -$performance_obj->GetBeginningValuesSummed()->value;
+		
+		$cashFlow[] = array("value" => -$performance_obj->GetBeginningValuesSummed()->value, 
+		"day" => 0);
+		
+		$date1 = date_create($end_date);
+		
+		$date2 = date_create($start_date);
+		
+		$diff = date_diff($date1, $date2);
+		
+		$total_days = $diff->days;
+		
+		$transaction_result = $adb->pquery("SELECT *, 
+		SUM(vtiger_transactionscf.net_amount) as totalamount,
+		CASE
+			WHEN (
+				vtiger_transactions.operation = '' 
+			) then 'add'
+			WHEN (
+				vtiger_transactions.operation = '-' 
+			) then 'minus'
+		END  AS transaction_status
+		FROM vtiger_transactions
+		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
+		INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
+		WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
+		AND 
+		(
+			vtiger_transactionscf.transaction_activity IN (
+				'Transfer of funds', 
+				'Deposit of funds', 
+				'Withdrawal of funds', 
+				'Moneylink Transfer',
+				'Receipt of securities', 
+				'Transfer of securities', 
+				'Split or Share dividend',
+				'Federal withholding',
+				'Withdrawal Federal withholding'
+			) or (
+				vtiger_transactionscf.transaction_activity IN ('Check Transaction')
+				AND transaction_type = 'Flow'
+			) or (
+				vtiger_transactionscf.transaction_activity IN ('Debit card transaction')
+				AND transaction_type = 'Flow'
+			)
+		)
+		
+		AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
+		GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
+		array($account_number,$start_date, $end_date));
+		
+		for($i = 0; $i < $adb->num_rows($transaction_result);  $i++){
+			
+			$transaction_data = $adb->query_result_rowdata($transaction_result, $i);
+                                
+			$date1 = date_create($transaction_data['trade_date']);
+			
+			$date2 = date_create($start_date);
+			
+			$diff = date_diff($date1, $date2);
+			
+			$diffDays = $diff->days;
+                                
+			if(
+				$transaction_data['transaction_status'] == 'minus' 
+			){
+				$totalAmount = $transaction_data['totalamount'];
+			} else {
+				$totalAmount = -$transaction_data['totalamount'];
+			}
+			
+			
+			
+			$cashFlow[] = array("value" => $totalAmount, "date" => $transaction_data['trade_date'], 
+			"day" => ($diffDays/$total_days), "actual_day" => $diffDays, "total_days" => $total_days);
+		
+		}
+		
+		$date1 = date_create($end_date);
+		
+		$date2 = date_create($start_date);
+		
+		$diff = date_diff($date1, $date2);
+		
+		$cashFlow[] = array(
+				"value" => $performance_obj->GetEndingValuesSummed()->value, 
+				"day" => ($diff->days/$total_days)
+		);
+		
+        bcscale(11);
+
+        $totalCashFlowItems = count($cashFlow);
+		
+        $maxIterationCount = 10000;
+        
+		$absoluteAccuracy = 10 ** -11;
+        
+		$x0 = 0.1;
+		
+        $i = 0;
+
+        while ($i < $maxIterationCount) {
+            
+			$fValue = 0;
+            
+			$fDerivative = 0;
+
+            for ($k = 0; $k < $totalCashFlowItems; $k++) {
+				
+				$div = bcdiv($cashFlow[$k]['value'], bcadd(1.0, $x0) **  $cashFlow[$k]['day']);
+				
+                $fValue = bcadd($fValue, $div);
+                
+				$fDerivative = bcadd($fDerivative, bcdiv(bcmul(-$k, $cashFlow[$k]['value']), bcadd(1.0, $x0) **  $cashFlow[$k]['day']));
+            }
+
+            $x1 = bcsub($x0, bcdiv($fValue, $fDerivative));
+			
+            if (abs($x1 - $x0) <= $absoluteAccuracy) {
+				return round(($x1 *100), 2);
+			}
+
+            $x0 = $x1;
+			
+            $i++;
+        }
+		
+        return null;
+    }
 }
