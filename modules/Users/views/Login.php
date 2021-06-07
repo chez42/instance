@@ -94,7 +94,7 @@ class Users_Login_View extends Vtiger_View_Controller {
 		
         $host_parts = explode(".", $_SERVER['HTTP_HOST']);
         
-        if($host_parts[0] == 'hq' || $host_parts[0] == 'crm4'){
+        if($host_parts[0] == 'crm4'){
             
             global $adb, $site_URL;
             
