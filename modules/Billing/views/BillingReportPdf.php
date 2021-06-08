@@ -188,52 +188,86 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         if($type == 'Schedule'){
                             
-                            $range = $adb->pquery("SELECT * FROM vtiger_billing_range WHERE billingid = ?",
-                                array($portData['billingspecificationid']));
+                            
+							
+							
+							$range = $adb->pquery("SELECT * FROM vtiger_billing_range WHERE billingid = ?",
+                            array($portData['billingspecificationid']));
                             
                             if($adb->num_rows($range)){
-                                for($b=0;$b<$adb->num_rows($range);$b++){
-                                    $rangeData = $adb->query_result_rowdata($range, $b);
-                                    $rangeArray[] = array(
+                                
+								for($b=0;$b<$adb->num_rows($range);$b++){
+                                    
+									$rangeData = $adb->query_result_rowdata($range, $b);
+                                    
+									$rangeArray[] = array(
                                         'amount_from' => $rangeData['from'],
-                                        'amount_to' => $rangeData['to'] ? $rangeData['to'] : $totalValue,
+                                        'amount_to' => ($rangeData['to'] < $totalValue) ? ($rangeData['to'])?$rangeData['to']:$totalValue : $totalValue,
                                         'value' => $rangeData['value']/100
                                     );
+									
+									if($rangeData['to'] > $totalValue){ break; }
+									
                                 }
                             }
                             
                             $remainingAmount      = $totalValue;
                             
                             foreach ($rangeArray as $key => $value) {
-                                $resultArray = array();
-                                if ($totalValue > $value['amount_to']) {
-                                    $sum                       = $value['amount_to'] - $value['amount_from'];
-                                    $resultArray['amount']     = $sum;
+                                
+								$resultArray = array();
+                                
+								$sum  = $value['amount_to'] - $value['amount_from'];
+								
+								if ($totalValue > $value['amount_to']) {
+                                    
+									$resultArray['amount']     = $sum;
                                     $resultArray['toAmount']   = $value['amount_to'];
                                     $resultArray['percentage'] = $value['value'];
-                                    array_push($arrayAmount, $resultArray);
-                                    $remainingAmount = $remainingAmount - $sum;
+                                    
+									array_push($arrayAmount, $resultArray);
+									
+                                    //$remainingAmount = $remainingAmount - $sum;
+									
                                 } else {
-                                    $resultArray['amount']     = $remainingAmount;
+                                    
+									$resultArray['amount']     = $sum;
                                     $resultArray['toAmount']   = $totalValue;
                                     $resultArray['percentage'] = $value['value'];
                                     array_push($arrayAmount, $resultArray);
                                     break;
-                                }
+                                
+								}
+								
                             }
                             
+							$amountValue = 0;
+							
                             foreach ($arrayAmount as $key => $value) {
-                                $cal                = (($value['amount'] * $value['percentage']));
+                                
+								$cal = (($value['amount'] * $value['percentage']));
+								
                                 $finalSchedule[] = array(
                                     'account' => $portData['account_number'],
                                     'amount' => $value['toAmount'],
                                     'feerate' => $value['percentage'],
                                     'feeamount' => $cal
                                 );
-                                $feeamount = $value['percentage'];
-                            }
+                                
+								$amountValue += $cal;
+								
+								//$feeamount = $value['percentage'];
                             
-                        }else{
+							}
+							
+							if($frequency == 'Quarterly'){
+								$feeRate = '1/4';
+							} else if ($frequency == 'Monthly'){
+								$feeRate = '1/12';
+							}
+							
+                            
+                        } else {
                             
                             if($frequency == 'Quarterly'){
                                 
@@ -255,33 +289,42 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         //if($type == 'Fixed Rate'){
                         
-                        $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
+                        $transaction = $adb->pquery("SELECT *, 
+						SUM(vtiger_transactionscf.net_amount) as totalamount,
     					CASE
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR 
-							vtiger_transactionscf.transaction_activity = 'Receipt of securities' OR
-							vtiger_transactionscf.transaction_activity = 'Split or Share dividend' OR
-							vtiger_transactionscf.transaction_activity = 'Moneylink Transfer'
-							
+								vtiger_transactions.operation = '' 
 							) then 'add'
     						WHEN (
-							vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR 
-							vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR 
-							vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR 
-							vtiger_transactionscf.transaction_activity = 'Withdrawal Federal withholding'
+								vtiger_transactions.operation = '-' 
 							) then 'minus'
                         END  AS transaction_status
     					FROM vtiger_transactions
     					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
     					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
     					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number = ?
-    					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 
-						'Deposit of funds', 'Withdrawal of funds', 
-						'Moneylink Transfer',
-						'Receipt of securities', 
-						'Transfer of securities', 'Split or Share dividend',
-						'Withdrawal Federal withholding')
-    					AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
+    					AND 
+						(
+							vtiger_transactionscf.transaction_activity IN (
+								'Transfer of funds', 
+								'Deposit of funds', 
+								'Withdrawal of funds', 
+								'Moneylink Transfer',
+								'Receipt of securities', 
+								'Transfer of securities', 
+								'Split or Share dividend',
+								'Federal withholding',
+								'Withdrawal Federal withholding'
+							) or (
+								vtiger_transactionscf.transaction_activity IN ('Check Transaction')
+								AND transaction_type = 'Flow'
+							) or (
+								vtiger_transactionscf.transaction_activity IN ('Debit card transaction')
+								AND transaction_type = 'Flow'
+							)
+						)
+						
+						AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
     					AND vtiger_transactionscf.net_amount > ?
     					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
                             array($portData['account_number'],$proStartDate, $proEndDate, $proAmount));
@@ -294,7 +337,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             
 							$prorated = true;
 							
-                            for($t=0;$t<$adb->num_rows($transaction);$t++){
+                            for($t = 0; $t < $adb->num_rows($transaction); $t++){
                                 
                                 $transaction_data = $adb->query_result_rowdata($transaction,$t);
                                 
@@ -310,19 +353,18 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 $transactionAmount = ($diffDays/$totalDays*$feeamount);
                                 
                                 $totalAmount = $transaction_data['totalamount'];
-                                if(
-									$transaction_data['transaction_activity'] == 'Transfer of funds' ||
-									$transaction_data['transaction_activity'] == 'Withdrawal of funds' || 
-									$transaction_data['transaction_activity'] == 'Transfer of securities' ||
-									$transaction_data['transaction_activity'] == 'Withdrawal Federal withholding'
-									
+                                
+								if(
+									$transaction_data['transaction_status'] == 'minus' 
 								){
                                     $totalAmount = '-'.$transaction_data['totalamount'];
                                 }
                                 
+								if(isset($transactionData[$transaction_data['trade_date']])){
+									$totalAmount = $transactionData[$transaction_data['trade_date']]['totalAmount'] + $totalAmount;
+								}
 								
-								
-                                $transactionData[] = array(
+								$transactionData[$transaction_data['trade_date']] = array(
                                     'trade_date' => $transaction_data['trade_date'],
                                     'diff_days' => $diffDays,
                                     'totalAmount' => $totalAmount,
@@ -331,6 +373,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                     'transactiontype' => $transaction_data['transaction_activity'],
                                     'trans_fee' => $feeamount
                                 );
+								
+								
 								
 								$fee += $transactionAmount * $totalAmount;
                                 
