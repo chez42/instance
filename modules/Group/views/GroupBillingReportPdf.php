@@ -67,13 +67,20 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
             INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_group_items.groupid
             INNER JOIN vtiger_crmentity portcrm ON portcrm.crmid = vtiger_group_items.portfolioid AND portcrm.deleted = 0
             INNER JOIN vtiger_crmentity billcrm ON billcrm.crmid = vtiger_group_items.billingspecificationid AND billcrm.deleted = 0
-            WHERE vtiger_crmentity.deleted = 0 AND vtiger_group_items.active = 1 AND vtiger_group_items.groupid = ?",array($record));
-            $portfolios = array();
+            WHERE vtiger_crmentity.deleted = 0 AND vtiger_group_items.active = 1 
+			AND vtiger_group_items.groupid = ?",array($record));
+            
+			$portfolios = array();
+			
             if($adb->num_rows($portQuery)){
-                $groupName = $adb->query_result($portQuery, 0, 'group_name');
-                for($b=0;$b<$adb->num_rows($portQuery);$b++){
+                
+				$groupName = $adb->query_result($portQuery, 0, 'group_name');
+                
+				// Grouping is Done here
+				for($b = 0; $b < $adb->num_rows($portQuery); $b++){
                     $portfolios[$adb->query_result($portQuery, $b, 'billingspecificationid')][] = $adb->query_result($portQuery, $b, 'portfolioid');
                 }
+				
             }
             
             foreach($portfolios as $billing => $portfolio){
@@ -82,34 +89,48 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billingspecifications.billingspecificationsid
                 WHERE vtiger_crmentity.deleted = 0 AND vtiger_billingspecifications.billingspecificationsid = ?",
                     array($billing));
+					
                 $billingData = array();
+				
                 $transaction_data = array();
-                $transactionData = array();
+                
+				$transactionData = array();
                 
                 if($adb->num_rows($billingSpec)){
                     
                     $billingData = $adb->query_result_rowdata($billingSpec);
-                    $frequency = $billingData['billing_frequency'];
+                    
+					$frequency = $billingData['billing_frequency'];
                     
                     $type = $billingData['billing_type'];
-                    $amountValue = $billingData['amount_value'];
-                    $feeamount = $billingData['amount_value'];
-                    $start_date = $billingData['beginning_date'];
-                    $end_date = $billingData['ending_date'];
+                    
+					$amountValue = $billingData['amount_value'];
+                    
+					$feeamount = $billingData['amount_value'];
+                    
+					$start_date = $billingData['beginning_date'];
+                    
+					$end_date = $billingData['ending_date'];
                     
                     $proStartDate = $billingData['proratefromdate'];
-                    $proEndDate = $billingData['proratetodate'];
-                    $proAmount = $billingData['prorateamount'];
+                    
+					$proEndDate = $billingData['proratetodate'];
+                    
+					$proAmount = $billingData['prorateamount'];
                     
                     $beginningPriceDate=$billingData['beginning_price_date'];
-                    $endingPriceDate=$billingData['ending_price_date'];
-                    $priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
-                    $totalDays = $priceDatediff->days;
+                    
+					$endingPriceDate=$billingData['ending_price_date'];
+                    
+					$priceDatediff=date_diff(date_create($proStartDate), date_create($proEndDate));
+                    
+					$totalDays = $priceDatediff->days;
                     
                     $totalValue =0;
                     
                     $portfolioAccountNumbers = array();
-                    foreach($portfolio as $portId){
+                    
+					foreach($portfolio as $portId){
                         
                         $account_number = PortfolioInformation_Module_Model::GetAccountNumbersFromCrmid($portId);
                         
@@ -121,10 +142,11 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         $totalPortfolioAmount = $balance->value ? $balance->value : 0;
                         
+						//Total Sum of Portfolio Value
                         $totalValue += $totalPortfolioAmount;
                         
                     }
-                    
+					
                     $rangeArray = array();
                     
                     $arrayAmount = array();
@@ -135,33 +157,46 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     
                     if($type == 'Schedule'){
                         
-                        $range = $adb->pquery("SELECT * FROM vtiger_billing_range WHERE billingid = ?",
-                            array($billing));
+                        $range = $adb->pquery("SELECT * FROM vtiger_billing_range 
+						WHERE billingid = ?", array($billing));
                         
                         if($adb->num_rows($range)){
-                            for($b=0;$b<$adb->num_rows($range);$b++){
+                            
+							for($b = 0; $b < $adb->num_rows($range); $b++){
+								
                                 $rangeData = $adb->query_result_rowdata($range, $b);
-                                $rangeArray[] = array(
+                                
+								$rangeArray[] = array(
                                     'amount_from' => $rangeData['from'],
-                                    'amount_to' => $rangeData['to'] ? $rangeData['to'] : $totalValue,
+                                    'amount_to' => ($rangeData['to'] < $totalValue) ? ($rangeData['to'])?$rangeData['to']:$totalValue : $totalValue,
                                     'value' => $rangeData['value']/100
                                 );
-                            }
+								
+								if($rangeData['to'] > $totalValue){ break; }
+                            
+							}
                         }
                         
+						
                         $remainingAmount = $totalValue;
                         
                         foreach ($rangeArray as $key => $value) {
-                            $resultArray = array();
-                            if ($totalValue > $value['amount_to']) {
-                                $sum                       = $value['amount_to'] - $value['amount_from'];
-                                $resultArray['amount']     = $sum;
+                            
+							$resultArray = array();
+                            
+							$sum  = $value['amount_to'] - $value['amount_from'];
+							
+							if ($totalValue > $value['amount_to']) {
+							    
+								$resultArray['amount'] = $sum;
                                 $resultArray['toAmount']   = $value['amount_to'];
                                 $resultArray['percentage'] = $value['value'];
-                                array_push($arrayAmount, $resultArray);
-                                $remainingAmount = $remainingAmount - $sum;
-                            } else {
-                                $resultArray['amount']     = $remainingAmount;
+                                
+								array_push($arrayAmount, $resultArray);
+                            
+							} else {
+                                
+								$resultArray['amount']     = $sum;
                                 $resultArray['toAmount']   = $totalValue;
                                 $resultArray['percentage'] = $value['value'];
                                 array_push($arrayAmount, $resultArray);
@@ -170,79 +205,117 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         }
                         
                         foreach ($arrayAmount as $key => $value) {
-                            $cal                = (($value['amount'] * $value['percentage']));
-                            $finalSchedule[] = array(
+                            
+							$cal = (($value['amount'] * $value['percentage']));
+                            
+							$finalSchedule[] = array(
                                 'account' => '&nbsp;',
                                 'amount' => $value['toAmount'],
                                 'feerate' => $value['percentage'],
                                 'feeamount' => $cal
                             );
+							
                             $feeamount = $value['percentage'];
-                        }
+                        
+						}
+						
+						if($frequency == 'Quarterly'){
+                            $feeRate = '1/4';
+						}else if ($frequency == 'Monthly'){
+                            $feeRate = '1/12';
+						}
                         
                     }else{
                         
-                        if($frequency == 'Quaterly'){
+                        if($frequency == 'Quarterly'){
                             
                             $feeRate = '1/4';
-                            $feeamount = ($feeamount/4)/100;
-                            if($type == 'Fixed Rate'){
+                            
+							$feeamount = round(($feeamount/4)/100, 6);
+                            
+							if($type == 'Fixed Rate'){
                                 $amountValue = ($totalValue * $feeamount);
                             }
+							
                             
                         }else if ($frequency == 'Monthly'){
                             
                             $feeRate = '1/12';
-                            $feeamount = ($feeamount/12)/100;
+
+							$feeamount = round(($feeamount/12)/100, 6);
+							
                             if($type == 'Fixed Rate'){
                                 $amountValue = ($totalValue * $feeamount);
                             }
+							
                         }
                     }
                     
-                    $transaction = $adb->pquery("SELECT *, SUM(vtiger_transactionscf.net_amount) as totalamount,
-					CASE
-						WHEN (
-						vtiger_transactionscf.transaction_activity = 'Deposit of funds' OR vtiger_transactionscf.transaction_activity = 'Receipt of securities' ) then 'add'
-						WHEN (
-						vtiger_transactionscf.transaction_activity = 'Transfer of funds' OR vtiger_transactionscf.transaction_activity = 'Withdrawal of funds' OR vtiger_transactionscf.transaction_activity = 'Transfer of securities' OR
-						vtiger_transactionscf.transaction_activity = 'Moneylink Transfer'
+					$transaction = $adb->pquery("SELECT *, 
+						SUM(vtiger_transactionscf.net_amount) as totalamount,
+    					CASE
+    						WHEN (
+								vtiger_transactions.operation = '' 
+							) then 'add'
+    						WHEN (
+								vtiger_transactions.operation = '-' 
+							) then 'minus'
+                        END  AS transaction_status
+    					FROM vtiger_transactions
+    					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
+    					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
+    					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number IN (".generateQuestionMarks($portfolioAccountNumbers).")
+    					AND 
+						(
+							vtiger_transactionscf.transaction_activity IN (
+								'Transfer of funds', 
+								'Deposit of funds', 
+								'Withdrawal of funds', 
+								'Moneylink Transfer',
+								'Receipt of securities', 
+								'Transfer of securities', 
+								'Split or Share dividend',
+								'Federal withholding',
+								'Withdrawal Federal withholding'
+							) or (
+								vtiger_transactionscf.transaction_activity IN ('Check Transaction')
+								AND transaction_type = 'Flow'
+							) or (
+								vtiger_transactionscf.transaction_activity IN ('Debit card transaction')
+								AND transaction_type = 'Flow'
+							)
+						)
 						
-						) then 'minus'
-					END  AS transaction_status
-					FROM vtiger_transactions
-					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_transactions.transactionsid
-					INNER JOIN vtiger_transactionscf ON vtiger_transactionscf.transactionsid = vtiger_transactions.transactionsid
-					WHERE vtiger_crmentity.deleted = 0 AND vtiger_transactions.account_number IN (".generateQuestionMarks($portfolioAccountNumbers).")
-					AND vtiger_transactionscf.transaction_activity IN ('Transfer of funds', 'Deposit of funds', 'Withdrawal of funds', 'Receipt of securities', 'Transfer of securities', 'Moneylink Transfer')
-					AND (vtiger_transactions.trade_date > ? AND vtiger_transactions.trade_date <= ?)
-					AND vtiger_transactionscf.net_amount > ?
-					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
-                        array($portfolioAccountNumbers,$proStartDate, $proEndDate, $proAmount));
-                    
-                    
-                    if($adb->num_rows($transaction)){
+						AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
+    					AND vtiger_transactionscf.net_amount > ?
+    					GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
+                            array($portfolioAccountNumbers,$proStartDate, $proEndDate, $proAmount));
+                      
+					
+					if($adb->num_rows($transaction)){
                         
                         for($t=0;$t<$adb->num_rows($transaction);$t++){
                             
                             $transaction_data = $adb->query_result_rowdata($transaction,$t);
                             
-                            $date1=date_create($transaction_data['trade_date']);
-                            $date2=date_create($proEndDate);
-                            $diff=date_diff($date2, $date1);
-                            $diffDays = $diff->days + 1;
+                            $date1 = date_create($transaction_data['trade_date']);
+							
+                            $date2 = date_create($proEndDate);
+                            
+							$diff = date_diff($date2, $date1);
+                            
+							$diffDays = $diff->days + 1;
                             
                             $transactionAmount = ($diffDays/$totalDays*$feeamount);
                             
                             $totalAmount = $transaction_data['totalamount'];
-                            if(
-                                $transaction_data['transaction_activity'] == 'Transfer of funds' ||
-                                $transaction_data['transaction_activity'] == 'Withdrawal of funds' ||
-                                $transaction_data['transaction_activity'] == 'Transfer of securities' ||
-								$transaction_data['transaction_activity'] == 'Moneylink Transfer'
-                                ){
-                                    $totalAmount = '-'.$transaction_data['totalamount'];
-                            }
+                            
+							if(
+									$transaction_data['transaction_status'] == 'minus' 
+							){
+								$totalAmount = '-'.$transaction_data['totalamount'];
+							}
+                                
                             
                             $transactionData[] = array(
                                 'trade_date' => $transaction_data['trade_date'],
@@ -256,32 +329,47 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             
                         }
                     }
-                    
-                    $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
+					
+					
+                    /*$billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
                     INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
                     WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.group_billingid = ? 
                     AND vtiger_billing.billingspecificationid = ? AND vtiger_billing.beginning_price_date = ?",
-                    array($record,$billing,$beginningPriceDate));
-                    
+                    array($record, $billing, $beginningPriceDate));
+					
                     if($adb->num_rows($billingQuery)){
-                        $billingId = $adb->query_result($billingQuery, 0, 'billingid');
-                        $billingObj = Vtiger_Record_Model::getInstanceById($billingId);
-                        $billingObj->set('mode', 'edit');
-                    }else{
+                        
+						$billingId = $adb->query_result($billingQuery, 0, 'billingid');
+                        
+						$billingObj = Vtiger_Record_Model::getInstanceById($billingId);
+                        
+						$billingObj->set('mode', 'edit');
+                    
+					} else {
+						
                         $billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
                     }
                     
                     $billingObj->set('start_date', $start_date);
-                    $billingObj->set('end_date', $end_date);
-                    $billingObj->set('portfolio_amount', $totalValue);
-                    $billingObj->set('group_billingid', $record);
-                    $billingObj->set('billingspecificationid', $billing);
-                    $billingObj->set('feeamount', $amountValue);
-                    $billingObj->set('beginning_price_date', $beginningPriceDate);
-                    $billingObj->set('ending_price_date', $endingPriceDate);
-                    $billingObj->set('billingtype', 'Group');
-                    $billingObj->save();
                     
+					$billingObj->set('end_date', $end_date);
+                    
+					$billingObj->set('portfolio_amount', $totalValue);
+                    
+					$billingObj->set('group_billingid', $record);
+                    
+					$billingObj->set('billingspecificationid', $billing);
+                    
+					$billingObj->set('feeamount', $amountValue);
+                    
+					$billingObj->set('beginning_price_date', $beginningPriceDate);
+                    
+					$billingObj->set('ending_price_date', $endingPriceDate);
+					
+                    $billingObj->set('billingtype', 'Group');
+					
+					$billingObj->save();
+					
                     if($billingObj->getId() && !empty($transactionData)){
                         
                         $adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
@@ -322,20 +410,20 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             }
                         }
                     
-                    }
+                    }*/
                     
                 }
                 
-                $html.="<br>
+                $html .= "<br>
                 <br>
                 <br>
         		<div class='row'>
                     
-            		<div class='col-xs-12'>
+            		<div class = 'col-xs-12'>
                     
                         <br>
                 		<div class='row'>
-                			<div class='col-xs-12' style = 'font-weight:600;font-family:Times New Roman,serif;'>".strtoupper($groupName)."</div>
+                			<div class='col-xs-12' style = 'font-weight:600;font-family:Times New Roman,serif;'>".($groupName)."</div>
                 		</div>
                 			    
                         <br>
@@ -365,17 +453,17 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         </div>
                         <br>
                         <div class='row'>
-                            <div class='col-xs-2'>
+                            <div class='col-xs-2' style = 'text-align:left;'>
                                 Account
                             </div>
-                            <div class='col-xs-4' style = 'text-align:right;'>
+                            <div class='col-xs-4' style = 'text-align:left;'>
                                 Portion of Assets Calculated
                             </div>
                             <div class='col-xs-4' style = 'text-align:left;'>
                                 Fee Rate (".$feeRate." Annual Rate)
                             </div>
                                     
-                            <div class='col-xs-2' style = 'text-align:left;'>
+                            <div class='col-xs-2' style = 'text-align:right;'>
                                 Fee Amount
                             </div>
                         </div>";
@@ -384,53 +472,54 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     $amountValue = 0;
                     foreach($finalSchedule as $key => $schedule){
                         $html .= "<div class='row'>
-                                <div class='col-xs-2'>
+                                <div class='col-xs-2' style = 'text-align:left;'>
                                    ".$schedule['account']." :
                                 </div>
-                                <div class='col-xs-4 text-center'>
+                                <div class='col-xs-4' style = 'text-align:left;'>
                                     ".number_format($schedule['amount'], 2)."
                                 </div>
-                                <div class='col-xs-4'>
+                                <div class='col-xs-4' style = 'text-align:left;'>
                                     x ".$schedule['feerate']."
                                 </div>
                                         
-                                <div class='col-xs-2'>
-                                   = $".number_format($schedule['feeamount'],2)."
+                                <div class='col-xs-2' style = 'text-align:right;'>
+                                   =&nbsp;&nbsp;$".number_format($schedule['feeamount'],2)."
                                 </div>
                             </div>
                            ";
                         $amountValue += $schedule['feeamount'];
                     }
-                    $html .= " <div class='row'>
+					$html .= " <div class='row'>
                             <div class='col-xs-9'>
                             </div>
-                            <div class='col-xs-3 text-center'>
+                            <div class='col-xs-3'  style = 'text-align:right;'>
                                 <strong>---------</strong>
                             </div>
                         </div>
                         <div class='row'>
-                            <div class='col-xs-9 text-right'>
+                            <div class='col-xs-9' style = 'text-align:right;'>
                                 gross fee
                             </div>
-                            <div class='col-xs-3 text-center'>
+                            <div class='col-xs-3'  style = 'text-align:right;'>
                                 $".number_format($amountValue,2)."
-                            </div
+                            </div>
                         </div>";
                     
-                }else{
+                } else {
+					
                     $html .= "<div class='row'>
-                            <div class='col-xs-2'>
-                               ".$portData['account_number']." :
+                            <div class='col-xs-2' style = 'text-align:left;'>
+                               " . $portData['account_number'] . " :
                             </div>
-                            <div class='col-xs-4' style = 'text-align:right;'>
+                            <div class='col-xs-4' style = 'text-align:left;'>
                                 ".number_format($totalValue, 2)."
                             </div>
                             <div class='col-xs-4' style = 'text-align:left;'>
-                                &nbsp;&nbsp;x&nbsp;&nbsp;".$feeamount."
+                                x&nbsp;&nbsp;" . $feeamount . "
                             </div>
                                     
-                            <div class='col-xs-2' style = 'text-align:left;'>
-                                 =&nbsp;&nbsp;&nbsp;&nbsp;$".number_format($amountValue,2)."
+                            <div class='col-xs-2' style = 'text-align:right;'>
+                                 =&nbsp;&nbsp;$" . number_format($amountValue,2)."
                             </div>
                         </div>
                         <br>";
@@ -477,7 +566,7 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                                 <div class='col-xs-3' style = 'width:24%;'>
                                     $".number_format($transdata['totalAmount'],2)." =
                                 </div>
-                                <div class='col-xs-3 text-center' style = 'width:24%;text-align:right;'>
+                                <div class='col-xs-3' style = 'width:24%;text-align:right;'>
                                     $".number_format($transdata['transactionamount']*$transdata['totalAmount'], 2)."
                                 </div>
                             </div>";
@@ -517,35 +606,110 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                 
                 $html .="<br>
 					<div class='row' style='margin-left:5px;margin-right:5px;'>
-						<div class='col-xs-3 text-center'>Name</div>
-						<div class='col-xs-3 text-center'>Acct. Num</div>
-						<div class='col-xs-3 text-center'>Portfolio Value</div>
-						<div class='col-xs-3 text-center'>Bill Amount</div>
+						<div class='col-xs-3' style = 'text-align:left;'>Name</div>
+						<div class='col-xs-3' style = 'text-align:left;'>Acct. Num</div>
+						<div class='col-xs-3' style = 'text-align:left;'>Portfolio Value</div>
+						<div class='col-xs-3' style = 'text-align:right;'>Bill Amount</div>
 					</div>";
                 
+				
+				$final_gross_amount = 0;
+				
                 foreach($portfolio as $portId){
                     
                     $portfolioModel = Vtiger_Record_Model::getInstanceById($portId);
-                    $contactName = '';
-                    if($portfolioModel->get('contact_link')){
+                    
+					$contactName = '';
+                    
+					if($portfolioModel->get('contact_link')){
                         $conModel = Vtiger_Record_Model::getInstanceById($portfolioModel->get('contact_link'));
                         $contactName = (($conModel->get('salutationtype') != '--None--')?$conModel->get('salutationtype'):'').$conModel->get('firstname').' '.$conModel->get('lastname');
                     }
-                    $account = new CustodianAccess($portfolioModel->get('account_number'));
+                    
+					$account = new CustodianAccess($portfolioModel->get('account_number'));
                     
                     $balance = $account->GetBalance($beginningPriceDate);
                     
                     $totalPortfolioAmount = $balance->value ? $balance->value : 0;
                     
-                    $html .="
+                    $current_fee = ($amountValue * $totalPortfolioAmount)/$totalValue;
+			
+					$html .="
 					<div class='row' style='margin-left:5px;margin-right:5px;'>
-						<div class='col-xs-3'>".$contactName."</div>
-						<div class='col-xs-3'>".$portfolioModel->get('account_number')."</div>
-						<div class='col-xs-3 text-right'>$".number_format($totalPortfolioAmount,2)."</div>
-						<div class='col-xs-3 text-right'>$".number_format($totalPortfolioAmount*$feeamount, 2)."</div>
+						<div class='col-xs-3' style = 'text-align:left;'>".$contactName."</div>
+						<div class='col-xs-3' style = 'text-align:left;'>".$portfolioModel->get('account_number')."</div>
+						<div class='col-xs-3' style = 'text-align:left;'>$".number_format($totalPortfolioAmount,2)."</div>
+						<div class='col-xs-3' style = 'text-align:right;'>$".number_format($current_fee, 2)."</div>
 					</div>";
-                    
-                }
+					
+					$positions_result = $adb->pquery("select * from vtiger_positioninformation 
+					inner join vtiger_crmentity on crmid = positioninformationid
+					where account_number = ? and deleted = 0 
+					and exclude_from_billing = 1", array($portfolioModel->get('account_number')));
+					
+					$excluded_positions = array();
+					if($adb->num_rows($positions_result)){
+						for($indexp = 0; $indexp < $adb->num_rows($positions_result); $indexp++){
+							$excluded_positions[] = $adb->query_result($positions_result, $indexp, "security_symbol");
+						}
+					}
+					
+					$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX", '$CASH'));
+					
+					$cash_value = 0;
+					
+					if(isset($positions[0])){
+						
+						if(isset($positions[0]['amount'])){
+							$cash_value = $positions[0]['amount'];
+						} else {
+							$cash_value = $positions[0]['market_value'];
+						}
+						
+					}
+					
+					$billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
+					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
+					WHERE vtiger_crmentity.deleted = 0 AND vtiger_billing.portfolioid = ?
+					AND vtiger_billing.beginning_price_date = ?",
+					array($portId,$beginningPriceDate));
+					
+					if($adb->num_rows($billingQuery)){
+						$billingId = $adb->query_result($billingQuery, 0, 'billingid');
+						$billingObj = Vtiger_Record_Model::getInstanceById($billingId);
+						$billingObj->set('mode', 'edit');
+					}else{
+						$billingObj = Vtiger_Record_Model::getCleanInstance('Billing');
+					}
+                        
+					$billingObj->set('start_date', $start_date);
+					
+					$billingObj->set('end_date', $end_date);
+					
+					$billingObj->set('base_fee', $current_fee);
+					
+					$billingObj->set('cash_value', $cash_value);
+					
+					$billingObj->set('beginning_price_date', $beginningPriceDate);
+					
+					//$billingObj->set('ending_price_date', $endingPriceDate);
+					
+					$billingObj->set('assigned_user_id', $portfolioModel->get("assigned_user_id"));
+					$billingObj->set('portfolio_amount', $totalPortfolioAmount);
+					$billingObj->set('portfolioid', $portId);
+					$billingObj->set('billingspecificationid',$portfolioModel->get('billingspecificationid'));
+					$billingObj->set('feeamount', $current_fee);
+					
+					$billingObj->set('billingtype', 'Individual');
+					$billingObj->save();
+					
+					
+					
+					
+					
+					
+				
+				}
                 $html.="<div class='row' style='margin-left:5px;margin-right:5px;' >
 							<div class='col-xs-9'>
 							</div>
@@ -571,10 +735,12 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
             }
             
         }
-        
+  
         $html.="</body>
         </html>";
         
+		
+		
         $fileDir = 'cache/';
         $bodyFileName = $fileDir.'groupBillingStatement.html';
         $fb = fopen($bodyFileName, 'w');
