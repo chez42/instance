@@ -33,15 +33,24 @@ Vtiger.Class("NotificationsJS", {
     addHeaderIcon: function () {
         var thisInstance = this;
         var headerLinksBig = jQuery('#menubar_quickCreate').closest('li');
-        var headerIcon = '<li>' +
+        
+		
+		var headerIcon = '<li>' +
             '<div style="margin:15px;" class="notifications">' +
-            '<span class="notification_bell module-buttons btn dropdown-toggle" data-toggle="dropdown" aria-hidden="true" title="Notifications" style="border:0px!important;background:none!important;">' +
+            '<span class="notification_bell module-buttons btn dropdown-toggle" aria-hidden="true" title="Notifications" style="border:0px!important;background:none!important;">' +
             '<i></i></span>' +
-            '<input type="hidden" name="notification_count" value="">' +
-            '<div id="notificationContainer" class="dropdown-menu" role="menu" style="margin-top: 35%!important;">' +
-            '<div id="notificationTitle">Notifications <button class="btn discardall btn-default pull-right" style="margin-bottom:0px !important;">Discard All</button></div><div id="notificationsBody" class="notifications table-responsive"></div>'+
-            '<div id="notificationFooter"><a target="_blank" href="index.php?module=Notifications&view=List">See All</a></div></div></li>';
-        headerLinksBig.before(headerIcon);
+            
+			'<input type="hidden" name="notification_count" value="">' +
+            
+			'<div id="notificationContainer" class="dropdown-menu" role="menu" style="margin-top: 35%!important;">' +
+            
+			'<div id="notificationTitle"><div class = "pull-left">Notifications</div><div class = "pull-right"><div class = "pull-left"><i class = "fa fa-envelope-open discardall" title = "Mark all as Read"></i></div><div class = "pull-left" style = "padding-top:1px;padding-left:15px;"><i class = "fa fa-list" onClick = "window.location.href=' + "'" + 'index.php?module=Notifications&view=List' + "';" + '"></i></div></div></div><div id="notificationsBody" class="notifications table-responsive"></div>';
+            
+	//		'<div id="notificationFooter"><a target="_blank" href="index.php?module=Notifications&view=List">See All</a></div></div></li>';
+        
+		
+		
+		headerLinksBig.before(headerIcon);
 
         var notificationContainer = jQuery('#headerNotification');
         var notificationList = jQuery('#notificationsBody');
@@ -103,7 +112,11 @@ Vtiger.Class("NotificationsJS", {
             	window.location.href = notificationLink.data('href');
             }
         });
-
+		
+		$(document).on("click", ".notification_bell", function(e){
+			$(".notifications").toggleClass("open");
+		});
+		
     },
     
     registerForGetNotifications : function(){
@@ -669,15 +682,11 @@ function clickToOk(btnOK){
 	var instance = new NotificationsJS();
 	
 	app.request.post({data: params}).then(
+		
 		function(err, response) {
-			if (!err) {
-				//instance.updateTotalCounter(notificationLink);
-                app.helper.showSuccessNotification({message:'Notification has been acknowledged'},{offset:{y: 450}});
-			} else {
-				app.helper.showErrorNotification({title: 'Error', message: err.message});
-			}
-			
+			currentTarget.closest('.notification_link').parent().fadeOut(300, function(){ $(this).remove();});
 		}
+		
 	);
 
 	return false;
