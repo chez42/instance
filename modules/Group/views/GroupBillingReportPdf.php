@@ -423,7 +423,7 @@ class Group_GroupBillingReportPdf_View extends Vtiger_MassActionAjax_View {
                     
                         <br>
                 		<div class='row'>
-                			<div class='col-xs-12' style = 'font-weight:600;font-family:Times New Roman,serif;'>".strtoupper($groupName)."</div>
+                			<div class='col-xs-12' style = 'font-weight:600;font-family:Times New Roman,serif;'>".($groupName)."</div>
                 		</div>
                 			    
                         <br>
