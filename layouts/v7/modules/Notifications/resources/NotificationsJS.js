@@ -684,7 +684,20 @@ function clickToOk(btnOK){
 	app.request.post({data: params}).then(
 		
 		function(err, response) {
-			currentTarget.closest('.notification_link').parent().fadeOut(300, function(){ $(this).remove();});
+			
+			currentTarget.closest('.notification_link').parent().fadeOut(300, function(){ 
+				$(this).remove();
+				
+				if( !($('#notificationsBody li').length >= 1) ){
+					$("#notificationsBody").html('<div class="emptyRecordsContent" style="display: inline-block;font-size: 16px;left: 50%;margin-left: -20%;position: absolute;width: 50%;top: 45%;">No Notifications found.</div>');
+					$("#notificationsBody").css("height",'100px');
+					$("#notificationContainer").find(".discardall").hide();
+					$("#notificationContainer").find(".fa-list").hide();
+					
+				}
+			
+			});
+			
 		}
 		
 	);
