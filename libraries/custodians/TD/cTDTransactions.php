@@ -577,7 +577,7 @@ class cTDTransactions extends cCustodian
         }
 
         $query = "SELECT m.operation, cf.custodian_control_number, pcf.production_number, m.omniscient_category, m.omniscient_activity, 
-                         f.transaction_code, t.security_price, t.quantity, cf.net_amount, f.symbol, f.transaction_id, f.account_number,
+                         f.transaction_code, t.security_price, t.quantity, f.net_amount, f.symbol, f.transaction_id, f.account_number,
                          t.trade_date, mscf.security_price_adjustment AS pricing_factor, f.cancel_status_flag, f.comment
                   FROM vtiger_transactions t
                   JOIN vtiger_transactionscf cf ON t.transactionsid = cf.transactionsid
