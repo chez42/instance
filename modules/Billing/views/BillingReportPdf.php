@@ -312,7 +312,6 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								'Moneylink Transfer',
 								'Receipt of securities', 
 								'Transfer of securities', 
-								'Split or Share dividend',
 								'Federal withholding',
 								'Withdrawal Federal withholding'
 							) or (
