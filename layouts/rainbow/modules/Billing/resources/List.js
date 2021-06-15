@@ -1,4 +1,16 @@
-Vtiger_List_Js("Billing_List_Js",{},{
+Vtiger_List_Js("Billing_List_Js",{
+	
+	exportTDAFormat : function(url) {
+    	var self = app.controller();
+        self.exportTDAFormat(url);
+    },
+    
+	exportFidelityFormat : function(url) {
+    	var self = app.controller();
+        self.exportFidelityFormat(url);
+    },
+	
+},{
 	
 	getDefaultParams: function () {
 		
@@ -32,6 +44,124 @@ Vtiger_List_Js("Billing_List_Js",{},{
 		return params;
 	},
 	
+	getListSearchParams: function (includeStarFilters) {
+		if (typeof includeStarFilters == "undefined") {
+			includeStarFilters = true;
+		}
+		var listViewPageDiv = this.getListViewContainer();
+		var listViewTable = listViewPageDiv.find('.searchRow');
+		var searchParams = new Array();
+		var currentSearchParams = new Array();
+		if (listViewPageDiv.find('#currentSearchParams').val()) {
+			currentSearchParams = JSON.parse(listViewPageDiv.find('#currentSearchParams').val());
+		}
+
+		if (this.filterClick) {
+			return;
+		}
+		listViewTable.find('.listSearchContributor').each(function (index, domElement) {
+			var searchInfo = new Array();
+			var searchContributorElement = jQuery(domElement);
+			var fieldName = searchContributorElement.attr('name');
+			
+			if (typeof uimeta !== "undefined") {
+				var fieldInfo = uimeta.field.get(fieldName);
+			}
+
+			if (typeof fieldInfo == 'undefined') {
+				fieldInfo = searchContributorElement.data("fieldinfo");
+			}
+
+			if (currentSearchParams != null) {
+				if (typeof fieldName != 'undefined') {
+					if (fieldName in currentSearchParams) {
+						delete currentSearchParams[fieldName];
+					}
+				}
+
+				if ('starred' in currentSearchParams) {
+					delete currentSearchParams['starred'];
+				}
+			}
+
+			var searchValue = searchContributorElement.val();
+
+			if (typeof searchValue == "object") {
+				if (searchValue == null) {
+					searchValue = "";
+				} else {
+					searchValue = searchValue.join(',');
+				}
+			}
+			searchValue = searchValue.trim();
+			if (searchValue.length <= 0) {
+				//continue
+				return true;
+			}
+			var searchOperator = 'c';
+			if (fieldInfo.type == "date" || fieldInfo.type == "datetime") {
+				searchOperator = 'bw';
+			} else if (fieldInfo.type == 'percentage' || fieldInfo.type == "double" || fieldInfo.type == "integer"
+					|| fieldInfo.type == 'currency' || fieldInfo.type == "number" || fieldInfo.type == "boolean" ||
+					fieldInfo.type == "picklist") {
+				searchOperator = 'e';
+			}
+			var storedOperator = searchContributorElement.parent().parent().find('.operatorValue').val();
+			if (storedOperator) {
+				searchOperator = storedOperator;
+				storedOperator = false;
+			}
+			searchInfo.push(fieldName);
+			searchInfo.push(searchOperator);
+			searchInfo.push(searchValue);
+
+			searchParams.push(searchInfo);
+		});
+		for (var i in currentSearchParams) {
+//			Number.isInteger(parseInt(i)) (Previously Used which is not supported by IE.)
+//			http://codereview.stackexchange.com/questions/101484/simple-function-to-verify-if-a-number-is-integer
+//			http://stackoverflow.com/questions/26482645/number-isintegerx-which-is-created-can-not-work-in-ie
+			if (!this.isInteger(parseInt(i))) {
+				continue;
+			}
+			var fieldName = currentSearchParams[i]['fieldName'];
+			var searchValue = currentSearchParams[i]['searchValue'];
+			var searchOperator = currentSearchParams[i]['comparator'];
+			if (fieldName == null || fieldName.length <= 0) {
+				continue;
+			}
+			var searchInfo = new Array();
+			searchInfo.push(fieldName);
+			searchInfo.push(searchOperator);
+			searchInfo.push(searchValue);
+			searchParams.push(searchInfo);
+		}
+		
+		if($("#billing_period_range").val() != ''){
+			var searchInfo = new Array();
+			searchInfo.push('start_date');
+			searchInfo.push('bw');
+			searchInfo.push($("#billing_period_range").val());
+			searchParams.push(searchInfo);
+		}
+		
+		if (searchParams.length > 0) {
+			var listSearchParams = new Array(searchParams);
+		} else {
+			var listSearchParams = new Array();
+		}
+		if (includeStarFilters) {
+			listSearchParams = this.addStarSearchParams(listSearchParams);
+		}
+		
+		console.log(listSearchParams);
+		
+		return listSearchParams;
+	},
+	
+	
+	
+	
 	registerEvents: function(callParent) {
 		this._super();
 		this.registerBillingPeriodRangeChangeEvent();
@@ -60,5 +190,88 @@ Vtiger_List_Js("Billing_List_Js",{},{
 		self.registerPostLoadListViewActions();
 		vtUtils.applyFieldElementsView($("#billing-period-range-div"));
 	},
+	
+	
+	exportTDAFormat : function(url) {
+        
+		var listInstance = this;
+        
+		var validationResult = listInstance.checkListRecordSelected();
+		
+		if(!validationResult){
+			
+			var postData = listInstance.getListSelectAllParams(true);
+
+			var params = {
+				"url":url,
+				"data" : postData
+			};
+            
+            app.helper.showProgress();
+            app.request.get(params).then(function(e,res) {
+                app.helper.hideProgress();
+                if(!e && res) {
+                    app.helper.showModal(res, {
+                        'cb' : function(modalContainer) {
+                        	listInstance.registerExportFileModalEvents(modalContainer);
+                        }
+                    });
+                }
+            });
+		} else{
+			listInstance.noRecordSelectedAlert();
+		}
+    },
+	
+	exportFidelityFormat : function(url) {
+        
+		var listInstance = this;
+        
+		var validationResult = listInstance.checkListRecordSelected();
+		
+		if(!validationResult){
+			
+			var postData = listInstance.getListSelectAllParams(true);
+
+			var params = {
+				"url":url,
+				"data" : postData
+			};
+            
+            app.helper.showProgress();
+            app.request.get(params).then(function(e,res) {
+                app.helper.hideProgress();
+                if(!e && res) {
+                    app.helper.showModal(res, {
+                        'cb' : function(modalContainer) {
+                        	listInstance.registerExportFileModalEvents(modalContainer);
+                        }
+                    });
+                }
+            });
+		} else{
+			listInstance.noRecordSelectedAlert();
+		}
+    },
+	
+	registerExportFileModalEvents : function(container) {
+        
+		var self = this;
+        
+		var addFolderForm = jQuery('#exportFile');
+		
+        addFolderForm.vtValidate({
+            
+			submitHandler: function(form) {
+            	
+                var formData = addFolderForm.serializeFormData();
+                app.helper.showProgress();
+                form.submit();
+				app.helper.hideModal();
+				app.helper.hideProgress();
+					
+            }
+        });
+    },
 	
 });
