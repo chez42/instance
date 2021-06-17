@@ -525,10 +525,14 @@ class cTDPortfolios extends cCustodian {
             while($x = $adb->fetchByAssoc($result)){
                 $cash_value = 0;
 
+                if(strtoupper($x['symbol']) == 'CASH') {
+                    $x['symbol'] = 'TDCASH';
+                    $x['aclass'] = 'Cash';
+                }
+
                 if(strtoupper($x['aclass']) == 'CASH')
                     $cash_value = $x['amount'];
-                if(strtoupper($x['symbol']) == 'CASH')
-                    $x['symbol'] = 'TDCASH';
+
                 if(is_null($x['price']))
                     $x['price'] = 0;
                 if($x['security_price_adjustment'] == 0 && strtoupper($x['aclass']) == 'BONDS') {
@@ -547,6 +551,7 @@ class cTDPortfolios extends cCustodian {
                 $values[$x['account_number']][$x['date']]['cash_value'] += $cash_value;
             }
         }
+        print_r($values);
 
         return $values;
     }
