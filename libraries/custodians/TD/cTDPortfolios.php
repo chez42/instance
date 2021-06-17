@@ -551,7 +551,6 @@ class cTDPortfolios extends cCustodian {
                 $values[$x['account_number']][$x['date']]['cash_value'] += $cash_value;
             }
         }
-        print_r($values);
 
         return $values;
     }
