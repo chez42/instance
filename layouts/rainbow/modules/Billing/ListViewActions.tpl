@@ -25,7 +25,7 @@
             {/if}
         {/foreach}
         <div class = "row">
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
 	            
 	           	            
 	            
@@ -131,25 +131,36 @@
             
             </div>
             
-            <div class='col-lg-4 col-md-4 col-sm-12 col-xs-12 text-center myc-filters'>
-              	<div class = "row" id = "billing-period-range-div">
+            <div class='col-lg-6 col-md-6 col-sm-12 col-xs-12 text-center myc-filters'>
+              	<div class = "row" id = "billing-filters">
               		
               		<div class = "col-md-3" style = "padding-left:0px;padding-right:0px;padding-top:3px;">
-              			Billing Period : 
+              			Billing Date : 
               		</div>
               		
-              		<div class = "col-md-6" style = "padding-left:0px;padding-right:0px;">
-              			<input data-calendar-type="range" type = "text" class = "dateField inputElement" value = "{$BILLING_PERIOD_RANGE}" id = "billing_period_range"></input>
+              		<div class = "col-md-2" style = "padding-left:0px;padding-right:0px;">
+              			<input type = "text" class = "dateField inputElement" value = "{$BILLING_DATE}" id = "billing_date"></input>
+              		</div>
+					
+					<div class = "col-md-3" style = "padding-left:0px;padding-right:0px;padding-top:3px;">
+              			Billing Price Date : 
+              		</div>
+              		
+              		<div class = "col-md-2" style = "padding-left:0px;padding-right:0px;">
+              			<input type = "text" class = "dateField inputElement" value = "{$BILLING_PRICE_DATE}" id = "billing_price_date"></input>
+              		</div>
+					
+					<div class = "col-md-1" style = "padding-left:0px;padding-right:0px;padding-top:3px;">
+              			<i class = "fa fa-search filter_billing"></i>
               		</div>
               	</div>
-              		
               </div>
               
               
-              
+             
               
             
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
                 
                 {assign var=RECORD_COUNT value=$LISTVIEW_ENTRIES_COUNT}
                 {include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
