@@ -508,10 +508,10 @@ class cTDTransactions extends cCustodian
                                                  WHERE date < ? 
                                                  AND symbol = ? 
                                                  ORDER BY date DESC LIMIT 1)";
-                            $result = $adb->pquery($query, array($v['symbol'], $v['trade_date'], $v['symbol']));
-                            if ($adb->num_rows($result) > 0) {
-                                $v['price'] = $adb->query_result($result, 0, 'price');
-                                $v['net_amount'] = $adb->query_result($result, 0, 'net_amount');
+                            $price_result = $adb->pquery($query, array($v['symbol'], $v['trade_date'], $v['symbol']));
+                            if ($adb->num_rows($price_result) > 0) {
+                                $v['price'] = $adb->query_result($price_result, 0, 'price');
+                                $v['net_amount'] = $adb->query_result($price_result, 0, 'net_amount');
                             }
                     }
                 }
