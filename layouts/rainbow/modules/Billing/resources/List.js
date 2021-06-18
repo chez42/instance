@@ -39,7 +39,8 @@ Vtiger_List_Js("Billing_List_Js",{
 		params.list_headers = container.find('[name="list_headers"]').val();
 		params.tag = container.find('[name="tag"]').val();
 		
-		params.billing_period_range = $("#billing_period_range").val();
+		params.billing_date = $("#billing_date").val();
+		params.billing_price_date = $("#billing_price_date").val();
 		
 		return params;
 	},
@@ -137,11 +138,19 @@ Vtiger_List_Js("Billing_List_Js",{
 			searchParams.push(searchInfo);
 		}
 		
-		if($("#billing_period_range").val() != ''){
+		if($("#billing_price_date").val() != ''){
+			var searchInfo = new Array();
+			searchInfo.push('beginning_price_date');
+			searchInfo.push('e');
+			searchInfo.push($("#billing_price_date").val());
+			searchParams.push(searchInfo);
+		}
+		
+		if($("#billing_date").val() != ''){
 			var searchInfo = new Array();
 			searchInfo.push('start_date');
-			searchInfo.push('bw');
-			searchInfo.push($("#billing_period_range").val());
+			searchInfo.push('e');
+			searchInfo.push($("#billing_date").val());
 			searchParams.push(searchInfo);
 		}
 		
@@ -154,12 +163,8 @@ Vtiger_List_Js("Billing_List_Js",{
 			listSearchParams = this.addStarSearchParams(listSearchParams);
 		}
 		
-		console.log(listSearchParams);
-		
 		return listSearchParams;
 	},
-	
-	
 	
 	
 	registerEvents: function(callParent) {
@@ -173,7 +178,7 @@ Vtiger_List_Js("Billing_List_Js",{
     	
 		var params = {};
     	
-		$(document).on("change", "#billing_period_range", function(){
+		$(document).on("click", ".filter_billing", function(){
     		self.clearList();
     		self.loadListViewRecords();
     	});
@@ -188,7 +193,7 @@ Vtiger_List_Js("Billing_List_Js",{
 		self.markSelectedIdsCheckboxes();
 		self.registerDynamicListHeaders();
 		self.registerPostLoadListViewActions();
-		vtUtils.applyFieldElementsView($("#billing-period-range-div"));
+		vtUtils.applyFieldElementsView($("#billing-filters"));
 	},
 	
 	

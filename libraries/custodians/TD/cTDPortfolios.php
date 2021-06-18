@@ -523,8 +523,16 @@ class cTDPortfolios extends cCustodian {
         $result = $adb->pquery($query, $params);
         if($adb->num_rows($result) > 0){
             while($x = $adb->fetchByAssoc($result)){
-                if(strtoupper($x['symbol']) == 'CASH')
+                $cash_value = 0;
+
+                if(strtoupper($x['symbol']) == 'CASH') {
                     $x['symbol'] = 'TDCASH';
+                    $x['aclass'] = 'Cash';
+                }
+
+                if(strtoupper($x['aclass']) == 'CASH')
+                    $cash_value = $x['amount'];
+
                 if(is_null($x['price']))
                     $x['price'] = 0;
                 if($x['security_price_adjustment'] == 0 && strtoupper($x['aclass']) == 'BONDS') {
@@ -539,7 +547,8 @@ class cTDPortfolios extends cCustodian {
                     $x['market_value'] = $x['amount'];
                 }else
                     $x['market_value'] = ($x['quantity'] + $x['amount']) * $x['price'] * $x['security_price_adjustment'] * $x['factor'];
-                $values[$x['account_number']][$x['date']] += $x['market_value'];
+                $values[$x['account_number']][$x['date']]['market_value'] += $x['market_value'];
+                $values[$x['account_number']][$x['date']]['cash_value'] += $cash_value;
             }
         }
 
@@ -558,25 +567,25 @@ class cTDPortfolios extends cCustodian {
             foreach($values AS $date => $value){
                 if($counter >= 100) {
                     $writer = rtrim($writer, ', ');
-                    $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, as_of_date, calculated) 
+                    $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, money_market, as_of_date, calculated) 
                               VALUES {$writer}
-                              ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+                              ON DUPLICATE KEY UPDATE account_value = VALUES(account_value), money_market = VALUES(money_market)";
                     $adb->pquery($query, $params, true);
                     $counter = 0;
                     $writer = "";
                     $params = array();
                 }
-                $writer .= "(?, ?, ?, NOW()), ";
-                $params[] = array($account, $value, $date);
+                $writer .= "(?, ?, ?, ?, NOW()), ";
+                $params[] = array($account, $value['market_value'], $value['cash_value'], $date);
                 $counter++;
             }
         }
 
         if(!empty($params)) {
             $writer = rtrim($writer, ', ');
-            $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, as_of_date, calculated) 
+            $query = "INSERT INTO custodian_omniscient.custodian_balances_td (account_number, account_value, money_market, as_of_date, calculated) 
                       VALUES {$writer}
-                      ON DUPLICATE KEY UPDATE account_value = VALUES(account_value)";
+                      ON DUPLICATE KEY UPDATE account_value = VALUES(account_value), money_market = VALUES(money_market)";
             $adb->pquery($query, $params, true);
         }
     }

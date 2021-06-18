@@ -14,7 +14,11 @@ class PortfolioInformation_CustodianInteractions_Action extends Vtiger_BasicAjax
                 $rep_codes = PortfolioInformation_Module_Model::GetRepCodeListFromUsersTable();
                 $days = $request->get('days');
                 $start = date("Y-m-d", strtotime('-' . $days . ' days'));
-                PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, $start, date("Y-m-d"), false);
+                $account_numbers = PortfolioInformation_Module_Model::GetAccountNumbersFromRepCode($rep_codes);
+                StatusUpdate::UpdateMessage("TDBALANCEUPDATE", "Calculating Balances");
+                    cTDPortfolios::CalculateAndWriteBalances($account_numbers, $start, date('Y-m-d'));
+                StatusUpdate::UpdateMessage("TDBALANCEUPDATE", "Finished");
+//                PortfolioInformation_Module_Model::TDBalanceCalculationsRepCodes($rep_codes, $start, date("Y-m-d"), false);
                 break;
             case "ParseData":
                 $parseID = $request->get('parseID');
