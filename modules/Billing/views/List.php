@@ -163,10 +163,6 @@ class Billing_List_View extends Vtiger_List_View {
             $tagParams = array();
         }
         
-        if($billing_period){
-            $searchParams[0][] = array("start_date", 'bw', $billing_period);
-        }
-        
         $searchAndTagParams = array_merge($searchParams, $tagParams);
         
         $transformedSearchParams = $this->transferListSearchParamsToFilterCondition($searchAndTagParams, $listViewModel->getModule());
@@ -284,7 +280,8 @@ class Billing_List_View extends Vtiger_List_View {
         $viewer->assign('STAR_FILTER_MODE',$starFilterMode);
         $viewer->assign('VIEWID', $cvId);
         
-        $viewer->assign("BILLING_PERIOD_RANGE", $request->get("billing_period_range"));
+        $viewer->assign("BILLING_PRICE_DATE", $request->get("billing_price_date"));
+        $viewer->assign("BILLING_DATE", $request->get("billing_date"));
         
         //Vtiger7
         $viewer->assign('REQUEST_INSTANCE',$request);
@@ -298,59 +295,4 @@ class Billing_List_View extends Vtiger_List_View {
         $picklistDependencyDatasource = Vtiger_DependencyPicklist::getPicklistDependencyDatasource($moduleName);
         $viewer->assign('PICKIST_DEPENDENCY_DATASOURCE',Zend_Json::encode($picklistDependencyDatasource));
     }
-	
-	
-	/**
-	 * Function to get listView count
-	 * @param Vtiger_Request $request
-	 */
-	function getListViewCount(Vtiger_Request $request){
-		$moduleName = $request->getModule();
-		$cvId = $request->get('viewname');
-		$billing_period = $request->get("billing_period_range");
-		
-		if(empty($cvId)) {
-			$cvId = '0';
-		}
-
-		$searchKey = $request->get('search_key');
-		$searchValue = $request->get('search_value');
-		$tagParams = $request->get('tag_params');
-
-		$listViewModel = Vtiger_ListView_Model::getInstance($moduleName, $cvId);
-
-		if(empty($tagParams)){
-			$tagParams = array();
-		}
-
-		$searchParams = $request->get('search_params');
-		if(empty($searchParams) && !is_array($searchParams)){
-			$searchParams = array();
-		}
-		
-		if($billing_period){
-            $searchParams[0][] = array("start_date", 'bw', $billing_period);
-        }
-		
-		print_r($searchParams);
-		$searchAndTagParams = array_merge($searchParams, $tagParams);
-
-		$listViewModel->set('search_params',$this->transferListSearchParamsToFilterCondition($searchAndTagParams, $listViewModel->getModule()));
-
-		$listViewModel->set('search_key', $searchKey);
-		$listViewModel->set('search_value', $searchValue);
-		$listViewModel->set('operator', $request->get('operator'));
-
-		// for Documents folders we should filter with folder id as well
-		$folder_value = $request->get('folder_value');
-		if(!empty($folder_value)){
-			$listViewModel->set('folder_id',$request->get('folder_id'));
-			$listViewModel->set('folder_value',$folder_value);
-		}
-
-		$count = $listViewModel->getListViewCount();
-
-		return $count;
-	}
-    
 }
