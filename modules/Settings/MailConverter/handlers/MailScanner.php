@@ -114,9 +114,13 @@ class Vtiger_MailScanner {
 				$mailrecord = $mailbox->getMessage($messageid, false);
 				$mailrecord->debug = $mailbox->debug;
 				$mailrecord->log();
-
+				
+				if(is_object($request)){
+				    $cron = $request->get("cron");
+				}
+				
 				// If the email is already scanned & rescanning is not set, skip it
-				if($this->isMessageScanned($mailrecord, $lookAtFolder, $request['cron'])) {
+				if($this->isMessageScanned($mailrecord, $lookAtFolder, $cron)) {
 					$this->log("\nMessage already scanned [$mailrecord->_subject], IGNORING...\n");
 					unset($mailrecord);
 					continue;
