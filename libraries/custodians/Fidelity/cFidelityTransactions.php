@@ -456,8 +456,8 @@ class cFidelityTransactions extends cCustodian
                   JOIN custodian_omniscient.fidelitymapping m ON m.id = t.transaction_key_mnemonic 
                   LEFT JOIN custodian_omniscient.custodian_positions_fidelity pos ON t.symbol = pos.symbol AND t.trade_date = pos.as_of_date AND t.account_number = pos.account_number
                   LEFT JOIN custodian_omniscient.custodian_prices_fidelity pr ON pr.symbol = t.symbol AND pr.price_id = (SELECT price_id FROM custodian_omniscient.custodian_prices_fidelity WHERE symbol = t.symbol AND price_date <= t.trade_date ORDER BY price_date DESC LIMIT 1)
-                  LEFT JOIN live_omniscient.vtiger_modsecurities ms ON ms.security_symbol = t.symbol
-                  LEFT JOIN live_omniscient.vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
+                  LEFT JOIN vtiger_modsecurities ms ON ms.security_symbol = t.symbol
+                  LEFT JOIN vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
                   WHERE {$transaction_ids} 
                   AND t.account_number IN ({$account_questions})
                   {$and}
@@ -597,8 +597,8 @@ class cFidelityTransactions extends cCustodian
                   JOIN custodian_omniscient.fidelitymapping m ON m.id = t.transaction_key_mnemonic AND (t.transaction_code_description = m.code_description OR t.transaction_code_description IS NULL AND m.code_description IS NULL)
                   LEFT JOIN custodian_omniscient.custodian_positions_fidelity pos ON t.symbol = pos.symbol AND t.trade_date = pos.as_of_date AND t.account_number = pos.account_number
                   LEFT JOIN custodian_omniscient.custodian_prices_fidelity pr ON pr.symbol = t.symbol AND pr.price_id = (SELECT price_id FROM custodian_omniscient.custodian_prices_fidelity WHERE symbol = t.symbol AND price_date <= t.trade_date ORDER BY price_date DESC LIMIT 1)
-                  JOIN live_omniscient.vtiger_modsecurities ms ON ms.security_symbol = t.symbol
-                  LEFT JOIN live_omniscient.vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
+                  JOIN vtiger_modsecurities ms ON ms.security_symbol = t.symbol
+                  LEFT JOIN vtiger_modsecuritiescf mscf ON ms.modsecuritiesid = mscf.modsecuritiesid
                   WHERE {$transaction_ids} 
                   AND t.account_number IN ({$account_questions})
                   {$and}
