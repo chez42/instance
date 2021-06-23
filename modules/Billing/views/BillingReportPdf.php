@@ -125,6 +125,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $billingData = $adb->query_result_rowdata($billingSpec);
                         $frequency = $billingData['billing_frequency'];
                         
+						$billing_pro_rate = $billingData['prorate'];
+						
                         $type = $billingData['billing_type'];
                         $amountValue = $billingData['amount_value'];
                         $feeamount = $billingData['amount_value'];
@@ -161,7 +163,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 							$balance = $account->GetBalance($beginningPriceDate);
                         }
 						
-						$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX", '$CASH'));
+						/*$positions = $account->GetPositions($beginningPriceDate, array("MMDA12", "FCASH", "FDRXX", '$CASH'));
 						
 						$cash_value = 0;
 						
@@ -173,11 +175,13 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								$cash_value = $positions[0]['market_value'];
 							}
 							
-						}
+						}*/
 						
 						
                         $totalValue = $balance->value ? $balance->value : 0;
                         
+						$cash_value = $balance->money_market ? $balance->money_market : 0;;
+						
                         $rangeArray = array();
                         
                         $arrayAmount = array();
@@ -188,9 +192,6 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         
                         if($type == 'Schedule'){
                             
-                            
-							
-							
 							$range = $adb->pquery("SELECT * FROM vtiger_billing_range WHERE billingid = ?",
                             array($portData['billingspecificationid']));
                             
@@ -313,7 +314,9 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								'Receipt of securities', 
 								'Transfer of securities', 
 								'Federal withholding',
-								'Withdrawal Federal withholding'
+								'Withdrawal Federal withholding',
+								'Foreign tax paid',
+								'Withdrawal state withholding'
 							) or (
 								vtiger_transactionscf.transaction_activity IN ('Check Transaction')
 								AND transaction_type = 'Flow'
@@ -332,7 +335,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 						
 						$prorated = false;
 						
-                        if($adb->num_rows($transaction) && $feeamount > 0 && $request->get("proratecapitalflows")){
+                        if($adb->num_rows($transaction) && $feeamount > 0 && $billing_pro_rate && $request->get("proratecapitalflows")){
                             
 							$prorated = true;
 							
@@ -380,6 +383,10 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                             }
                         }
                         //}
+						
+						$original_fee = $fee;
+						
+						if($fee < 0) $fee = 0;
                         
                         $billingQuery = $adb->pquery("SELECT * FROM vtiger_billing
                         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_billing.billingid
@@ -420,9 +427,9 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
                         $billingObj->set('billingtype', 'Individual');
                         $billingObj->save();
                         
+						$adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
+						
                         if($billingObj->getId() && !empty($transactionData)){
-                            
-                            $adb->pquery("DELETE FROM vtiger_billing_capitalflows WHERE billingid=?",array($billingObj->getId()));
                             
                             foreach($transactionData as $key => $transdata){
                                 
@@ -652,8 +659,16 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								<div class='col-xs-3' style = 'text-align:right;'>
 									<strong>----------------</strong>
 								</div>
+							</div>";
+					if($amountValue < 0){
+						$html .= "<div class = 'row' style = 'padding-top:10px;padding-bottom:10px;'>
+							<div class = 'col-xs-9 text-left' style = 'text-align:left;'>
+								Adjustment for minimum fee.<br/>The minimum fee ($0.00) is larger than your fee of $" . number_format($amountValue, 2) . ", <br/>therefore it supercedes it
 							</div>
-							<div class='row' style='background-color: #dedede !important;'>
+						</div>";
+						$amountValue = 0;
+					}
+					$html .=  "<div class='row' style='background-color: #dedede !important;'>
 								<div class='col-xs-9 text-right' style = 'text-align:right;'>
 									Total Fees Debited
 								</div>

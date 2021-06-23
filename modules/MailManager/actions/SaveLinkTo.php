@@ -20,7 +20,7 @@ class MailManager_SaveLinkTo_Action extends Vtiger_Action_Controller {
             
             foreach ($idList as $msgno){
                 
-                $mail = $connector->openMail($msgno, $foldername);
+                $mail = $connector->openMail($msgno, $folderName);
                 $mail->attachments(); 
                 
                 $linkedto = MailManager_Relate_Action::associate($mail, $linkto);
