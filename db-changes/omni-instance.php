@@ -1819,3 +1819,27 @@ if(!$fieldInstance){
 	$field1->displaytype = '1';
 	$blockInstance->addField($field1);
 }
+
+$fieldInstance = Vtiger_Field::getInstance('transaction_based_fee', $module);
+if(!$fieldInstance){
+    $field = new Vtiger_Field();
+    $field->name = 'transaction_based_fee';
+    $field->label = 'Transaction Based Fee';
+    $field->uitype = 56;
+    $field->typeofdata = 'C~O';
+    $field->columntype = 'VARCHAR(10)';
+    $blockInstance->addField($field);
+}
+
+$module = Vtiger_Module::getInstance("BillingSpecifications");
+$blockInstance = Vtiger_Block::getInstance('Pro Rate Flows',$module);
+$fieldInstance = Vtiger_Field::getInstance('prorate', $module);
+if(!$fieldInstance){
+	$field = new Vtiger_Field();
+	$field->name = 'prorate';
+	$field->label = 'Pro Rate';
+	$field->uitype = 56;
+	$field->typeofdata = 'C~O';
+	$field->columntype = 'VARCHAR(5)';
+	$blockInstance->addField($field);
+}

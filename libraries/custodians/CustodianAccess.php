@@ -10,7 +10,7 @@ DEFINE("FIDELITY_BALANCE_FIELDS", array("account_number" => "account_number", "d
 
 DEFINE("SCHWAB", array("portfolio" => "custodian_portfolios_schwab", "balance" => "custodian_balances_schwab", "positions" => "custodian_positions_schwab", "transactions" => "custodian_transactions_schwab", "prices" => "custodian_prices_schwab", "securities" => "custodian_securities_schwab"));
 DEFINE("SCHWAB_FIELDS", array("balance_as_of_date" => "as_of_date"));
-DEFINE("SCHWAB_BALANCE_FIELDS", array("date" => "as_of_date", "value" => "account_value", "net_cash" => "net_cash", "calculated" => "as_of_date"));
+DEFINE("SCHWAB_BALANCE_FIELDS", array("date" => "as_of_date", "value" => "account_value", "money_market" => "cash_balance", "net_cash" => "net_cash", "calculated" => "as_of_date"));
 
 DEFINE("PERSHING", array("portfolio" => "custodian_portfolios_pershing", "balance" => "custodian_balances_pershing", "positions" => "custodian_positions_pershing", "transactions" => "custodian_transactions_pershing", "prices" => "custodian_prices_pershing", "securities" => "custodian_securities_pershing"));
 
