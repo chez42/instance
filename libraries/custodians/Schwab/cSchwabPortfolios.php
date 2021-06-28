@@ -467,7 +467,7 @@ class cSchwabPortfolios extends cCustodian {
                          CASE WHEN pmap.omniscient_type != '' THEN pmap.omniscient_type ELSE cf.cf_2549 END AS omniscient_type, f.master_rep_code,
                          f.omni_code, f.email_address,
                          bal.account_value, bal.net_mv_positions, bal.cash_balance, bal.net_credit_debit, bal.margin_balance, bal.available_to_pay,
-                         bal.as_of_date, bal.filename, 0 AS accountclosed, p.portfolioinformationid
+                         bal.as_of_date, bal.filename, bal.cash_balance as cash_value,  0 AS accountclosed, p.portfolioinformationid
                   FROM vtiger_portfolioinformation p 
                   JOIN vtiger_portfolioinformationcf cf USING (portfolioinformationid) 
                   JOIN custodian_omniscient.custodian_portfolios_schwab f ON f.account_number = p.account_number
@@ -487,7 +487,7 @@ class cSchwabPortfolios extends cCustodian {
                           cf.master_production_number = ?, cf.omniscient_control_number = ?, cf.email_address = ?,
                           p.total_value = ?, cf.securities = ?, cf.cash = ?, cf.net_credit_debit = ?, 
                           p.margin_balance = ?, p.available_to_pay = ?, cf.stated_value_date = ?, 
-                          cf.custodian_source = ?, p.accountclosed = ?
+                          cf.custodian_source = ?, p.cash_value = ?, p.accountclosed = ?
                       WHERE p.portfolioinformationid = ?";
             while($v = $adb->fetchByAssoc($result)){
                 $adb->pquery($query, $v);

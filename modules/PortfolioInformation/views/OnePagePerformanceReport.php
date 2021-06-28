@@ -5,7 +5,8 @@ include_once "libraries/custodians/cCustodian.php";
 
 require_once("libraries/Reporting/PerformanceReport.php");
 
-/*$user = CRMEntity::getInstance("Users");
+/*
+$user = CRMEntity::getInstance("Users");
 $user->id = 1;
 $user->retrieve_entity_info($user->id, "Users");
 vglobal("current_user", $user);
@@ -155,18 +156,15 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 			$viewer->assign("REPORT_PERIOD", date("m/d/Y", strtotime($start_date)) . ' - ' .  date("m/d/Y", strtotime($end_date)));
 			
-			//$start_date = date("Y-m-d", strtotime($start_date));
-			//$end_date = date("Y-m-d", strtotime($end_date));
+			$result = $adb->pquery("select * from vtiger_portfolioinformation where 
+			account_number in (?)", array($request->get("account_number")));
+			$inception_date = $adb->query_result($result, 0, "inceptiondate");
+			
+			$since_inception_performance = new PerformanceReport_Model($accounts, 
+			$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
 			
 			$selected_period_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, $start_date), $end_date);
-			
-			/*$result = $adb->pquery("select * from vtiger_portfolioinformation where 
-			account_number in (?)", array($request->get("account_number")));
-			$inception_date = $adb->query_result($result, 0, "inceptiondate");
-			$since_inception_performance = new PerformanceReport_Model($accounts, 
-			$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
-			*/
 			
 			$result = $adb->pquery("SELECT DATE_SUB(?, INTERVAL 12 MONTH) as last_month_date", array($end_date));			
 			$last_12month_date = $adb->query_result($result, 0, "last_month_date");
@@ -183,35 +181,72 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 			$index_return_data = array();
 			
+			
+			if($inception_date > $last_12month_date){
+				$calculated_start_date = $inception_date;
+			} else {
+				$calculated_start_date = $last_12month_date;
+			}
+			
+			
 			//Last 12 Month Index Return
 			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $last_12month_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $last_12month_date, $end_date),
-				"IRR" => $this->CalculateIRR($last_12month_performance, $last_12month_date , $end_date, $accounts[0])
+				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $calculated_start_date, $end_date),
+				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $calculated_start_date, $end_date),
+				"IRR" => $this->CalculateIRR($last_12month_performance, $calculated_start_date , $end_date, $accounts[0])
 			);
 			
+			
+			if($inception_date > GetDateStartOfYear($end_date)){
+				$calculated_start_date = $inception_date;
+			} else {
+				$calculated_start_date = GetDateStartOfYear($end_date);
+			}
 			
 			//YTD Index Return
 			$index_return_data[] = array(
 				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), 
-				GetDateStartOfYear($end_date), $end_date),
+				$calculated_start_date, $end_date),
 				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), 
-				GetDateStartOfYear($end_date), $end_date),
-				"IRR" => $this->CalculateIRR($ytd_performance, GetDateStartOfYear($end_date) , $end_date, $accounts[0])
+				$calculated_start_date, $end_date),
+				"IRR" => $this->CalculateIRR($ytd_performance, $calculated_start_date , $end_date, $accounts[0])
 			);
+			
+			
+			
+			$date1 = date_create($end_date);
+			
+			$date2 = date_create($inception_date);
+			
+			$diff = date_diff($date1, $date2);
+			
+			$total_days = $diff->days;
+			
+			$irr = $this->CalculateIRR($since_inception_performance, $inception_date, $end_date, $accounts[0]);
+			
+			if($total_days > 365){
+				$pow = pow( (1 + ($irr/ 100)) , 1 / ($total_days/365));
+				$irr = round( ($pow - 1) * 100, 2);
+			}
 			
 			//Since Inception
 			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $start_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $start_date, $end_date),
-				"IRR" => $this->CalculateIRR($selected_period_performance, $start_date, $end_date, $accounts[0])
+				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $inception_date, $end_date),
+				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $inception_date, $end_date),
+				"IRR" => $irr
 			);
+			
+			if($inception_date > $last_3month_date){
+				$calculated_start_date = $inception_date;
+			} else {
+				$calculated_start_date = $last_3month_date;
+			}
 			
 			//Last 3 Months Index Return
 			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $last_3month_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $last_3month_date, $end_date),
-				"IRR" => $this->CalculateIRR($last3_month_performance, $last_3month_date, $end_date, $accounts[0])
+				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $calculated_start_date, $end_date),
+				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $calculated_start_date, $end_date),
+				"IRR" => $this->CalculateIRR($last3_month_performance, $calculated_start_date, $end_date, $accounts[0])
 			);
 			
 			$index_return_data[2]['50/50'] = ($index_return_data[2]['GSPC'] + $index_return_data[2]['AGG']) /2;
@@ -226,8 +261,6 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$viewer->assign("YTD_PERFORMANCE", $ytd_performance);
 			
 			$viewer->assign("LAST_3_MONTHS_PERFORMANCE", $last3_month_performance);
-			
-			//$viewer->assign("SINCE_INCEPTION_PERFORMANCE", $since_inception_performance);
 			
 			$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
 			
@@ -397,13 +430,11 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		return $irr * 100;
 	}
 	
-	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number)
-    {
+	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number){
+		
 		global $adb;
 		
 		$cashFlow = array();
-		
-		$begining_value = -$performance_obj->GetBeginningValuesSummed()->value;
 		
 		$cashFlow[] = array("value" => -$performance_obj->GetBeginningValuesSummed()->value, 
 		"day" => 0);
@@ -452,7 +483,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		)
 		
 		AND (vtiger_transactions.trade_date >= ? AND vtiger_transactions.trade_date <= ?)
-		GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date DESC",
+		GROUP BY vtiger_transactions.trade_date, transaction_status ORDER BY vtiger_transactions.trade_date ASC",
 		array($account_number,$start_date, $end_date));
 		
 		for($i = 0; $i < $adb->num_rows($transaction_result);  $i++){
@@ -474,11 +505,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			} else {
 				$totalAmount = -$transaction_data['totalamount'];
 			}
-			
-			
-			
-			$cashFlow[] = array("value" => $totalAmount, "date" => $transaction_data['trade_date'], 
-			"day" => ($diffDays/$total_days), "actual_day" => $diffDays, "total_days" => $total_days);
+			$cashFlow[] = array("value" => $totalAmount, "day" => ($diffDays/$total_days));
 		
 		}
 		
@@ -489,15 +516,15 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		$diff = date_diff($date1, $date2);
 		
 		$cashFlow[] = array(
-				"value" => $performance_obj->GetEndingValuesSummed()->value, 
-				"day" => ($diff->days/$total_days)
+			"value" => $performance_obj->GetEndingValuesSummed()->value, 
+			"day" => ($diff->days/$total_days)
 		);
 		
-        bcscale(11);
+		bcscale(11);
 
         $totalCashFlowItems = count($cashFlow);
 		
-        $maxIterationCount = 10000;
+        $maxIterationCount = 2000;
         
 		$absoluteAccuracy = 10 ** -11;
         

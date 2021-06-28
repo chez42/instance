@@ -154,7 +154,7 @@
 						Total Portfolio
 					</td>
 					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;text-align:right;">
-						{$REPORT_PERIOD}
+						Inception
 					</td>
 					<td style = "width:20%;border-bottom: 1px solid black !important;padding:0px;font-weight:600;text-align:right;">
 						Last 12 Months
