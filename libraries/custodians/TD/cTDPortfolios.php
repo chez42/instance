@@ -464,7 +464,7 @@ class cTDPortfolios extends cCustodian {
                   WHERE account_number IN ({$questions})";
         $adb->pquery($query, array($account_number));
 
-        $query = "SELECT f.account_value, f.money_market, 0 AS market_value, f.as_of_date, f2.street, f2.address2, f2.address3, f2.address4, 
+        $query = "SELECT f.account_value, f.money_market, f.money_market as cash_value, 0 AS market_value, f.as_of_date, f2.street, f2.address2, f2.address3, f2.address4, 
                   f2.address5, f2.address6, f2.city, f2.state, f2.zip, f2.account_type, f2.rep_code, f2.master_rep_code, f2.omni_code, 
                   0 as accountclosed, f2.insert_date, f2.insert_date AS insert_date2, p.portfolioinformationid
                   FROM vtiger_portfolioinformation p 
@@ -479,7 +479,7 @@ class cTDPortfolios extends cCustodian {
         if($adb->num_rows($result) > 0){
             $query = "UPDATE vtiger_portfolioinformation p 
                       JOIN vtiger_portfolioinformationcf cf ON p.portfolioinformationid = cf.portfolioinformationid 
-                      SET p.total_value = ?, p.money_market_funds = ?, p.market_value = ?, cf.stated_value_date = ?, 
+                      SET p.total_value = ?, p.money_market_funds = ?, p.cash_value = ?, p.market_value = ?, cf.stated_value_date = ?, 
                           cf.address1 = ?, cf.address2 = ?, cf.address3 = ?, cf.address4 = ?, cf.address5 = ?, 
                           cf.address6 = ?, cf.city = ?, cf.state = ?, cf.zip = ?, p.account_type = ?, 
                           cf.production_number = ?, cf.master_production_number = ?, cf.omniscient_control_number = ?, p.accountclosed = ?,
