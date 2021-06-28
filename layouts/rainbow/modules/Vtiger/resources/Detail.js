@@ -1966,8 +1966,44 @@ Vtiger.Class("Vtiger_Detail_Js",{
 			var customParams = {};
 			customParams[fieldName] = recordId;
 			
+			
 			if(quickCreateNode.length <= 0) {
-				app.helper.showErrorMessage(app.vtranslate('JS_NO_CREATE_OR_NOT_QUICK_CREATE_ENABLED'));
+				
+				if(referenceModuleName == 'ProjectTask' && module == 'Project'){
+					var quickCreateUrl = 'index.php?module='+referenceModuleName+'&view=QuickCreateAjax&projectid='+recordId; 
+				} else {
+					var quickCreateUrl = 'index.php?module='+referenceModuleName+'&view=QuickCreateAjax'; 
+				}
+				
+				var quickCreateModuleName = referenceModuleName;
+				params = customParams;
+				app.helper.showProgress();
+				
+				self.getCustomQuickCreateForm(quickCreateUrl,quickCreateModuleName,params).then(function(data){
+					app.helper.hideProgress();
+					var callbackparams = {
+						'cb' : function (container){
+							self.registerCustomPostReferenceEvent(container);
+							app.event.trigger('post.QuickCreateForm.show',form);
+							app.helper.registerLeavePageWithoutSubmit(form);
+							app.helper.registerModalDismissWithoutSubmit(form);
+						},
+						backdrop : 'static',
+						keyboard : false
+					}
+					app.helper.showModal(data, callbackparams);
+					var form = jQuery('form[name="QuickCreate"]');
+					var moduleName = form.find('[name="module"]').val();
+					app.helper.showVerticalScroll(jQuery('form[name="QuickCreate"] .modal-body'), {'autoHideScrollbar': true});
+
+					var moduleInstance = Vtiger_Edit_Js.getInstanceByModuleName(moduleName);
+					moduleInstance.registerBasicEvents(form);
+					vtUtils.applyFieldElementsView(form);
+					moduleInstance.quickCreateSave(form,params);
+					app.helper.hideProgress();
+					
+				});
+				
 			}
 
 			app.event.on('post.QuickCreateForm.save',function(event,data){
@@ -1978,11 +2014,21 @@ Vtiger.Class("Vtiger_Detail_Js",{
 					self.loadWidget(summaryWidgetContainer.find('[class^="widgetContainer_"]'));
 				});
 			});
-
-			var QuickCreateParams = {};
-			QuickCreateParams['data'] = customParams;
-			QuickCreateParams['noCache'] = false;
-			quickCreateNode.trigger('click', QuickCreateParams);
+			
+			if(referenceModuleName == 'HelpDesk' && fieldName == 'project_id'){
+				app.event.on("post.QuickCreateForm.show",function(event,form){
+					jQuery('<input type="hidden" name="'+fieldName+'" value="'+recordId+'" >').appendTo(form);
+				});
+			}
+			
+			
+			if(!(quickCreateNode.length <= 0)) {
+				var QuickCreateParams = {};
+				QuickCreateParams['data'] = customParams;
+				QuickCreateParams['noCache'] = false;
+				quickCreateNode.trigger('click', QuickCreateParams);
+			}
+			
 		});
 
 		/*
