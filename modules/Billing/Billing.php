@@ -77,8 +77,8 @@ class Billing extends Vtiger_CRMEntity {
         
         if($eventType == 'module.postinstall') {
             
-            $this->addLinks($adb,$displayLabel);
-            $this->customTables($adb);
+            $this->addLinks($displayLabel);
+            $this->customTables();
             
         } else if($eventType == 'module.disabled') {
             
@@ -92,8 +92,8 @@ class Billing extends Vtiger_CRMEntity {
             
         } else if($eventType == 'module.enabled') {
             
-            $this->addLinks($adb,$displayLabel);
-            $this->customTables($adb);
+            $this->addLinks($displayLabel);
+            $this->customTables();
             
         } else if($eventType == 'module.preuninstall') {
             
@@ -103,8 +103,10 @@ class Billing extends Vtiger_CRMEntity {
     }
     
     
-    function addLinks($adb,$displayLabel) {
+    function addLinks($displayLabel) {
         
+		global $adb;
+		
         $tab_id = Vtiger_Functions::getModuleId('Billing');
         $linkurl = 'layouts/v7/modules/Billing/resources/Billing.js';
         $result = $adb->pquery("select * from vtiger_links where linkurl = ?",array($linkurl));
@@ -124,8 +126,8 @@ class Billing extends Vtiger_CRMEntity {
         
     }
     
-    function customTables($adb){
-        
+    function customTables(){
+        global $adb;
         $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_billing_capitalflows ( 
             capitalflowsid INT(19) NOT NULL AUTO_INCREMENT , 
             billingid INT(19) NULL , 
@@ -140,7 +142,7 @@ class Billing extends Vtiger_CRMEntity {
             PRIMARY KEY (capitalflowsid)
         );");
         
-        $adb->query_result("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts (
+        $adb->pquery("CREATE TABLE IF NOT EXISTS vtiger_billing_portfolio_accounts (
             billing_portfolio_id INT(19) NOT NULL AUTO_INCREMENT,
             billingid INT(19) NULL,
             portfolioid INT(19) NULL,
