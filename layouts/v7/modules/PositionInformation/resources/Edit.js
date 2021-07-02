@@ -29,21 +29,22 @@ Vtiger_Edit_Js("PositionInformation_Edit_Js",{},{
 		
 		thisInstance.getRecordDetails(data).then(
 			function(response){
-				console.log(response)
 				thisInstance.mapFieldDetails(thisInstance.FieldsMapping[sourceModule], response['data'], container);
 			},
-			function(error, err){
-
-			});
+			function(error, err){}
+		);
 	},
 	
 	/**
 	 * Function which will map the address details of the selected record
 	 */
 	mapFieldDetails : function(addressDetails, result, container) {
+		
 		var thisInstance = this;
+		
 		for(var key in addressDetails) {
-            if(container.find('[name="'+key+'"]').length == 0) {
+            
+			if(container.find('[name="'+key+'"]').length == 0) {
                 var create = container.append("<input type='hidden' name='"+key+"'>");
             }
            
@@ -54,56 +55,55 @@ Vtiger_Edit_Js("PositionInformation_Edit_Js",{},{
 	
 	registerEventForSecuritySymbolFiled : function(container){
 		var thisInstance = this;
-		$(document).ready(function(){
-			var symbolVal;
-			var params = {
-				'module' : app.getModuleName(),
-				'action' : 'GetAllSecuritySymbols'
-			};
-			app.request.post({data: params}).then(function(err, data) {
-				if(data) {
-					symbolVal = data;
-					
-					var substringMatcher = function(strs) {
-					  return function findMatches(q, cb) {
-					    var matches, substringRegex;
-					    
-					    matches = [];
-
-					    substrRegex = new RegExp(q, 'i');
-					    
-					    $.each(strs, function(i, str) {
-					      if (substrRegex.test(str.value)) {
-					        matches.push(strs[i]);
-					      }
-					    });
-
-					    cb(matches);
-					  };
-					};
-
-					
-					$('[name="security_symbol"]').typeahead({
-					  hint: true,
-					  highlight: true,
-					  //minLength: 1
-					},
-					{
-					  name: 'symbol',
-					  display: 'value',
-					  source: substringMatcher(symbolVal)
-					});
+		
+		var symbolVal;
+		
+		var params = {
+			'module' : app.getModuleName(),
+			'action' : 'GetAllSecuritySymbols'
+		};
+		
+		app.request.post({data: params}).then(function(err, data) {
+			if(data) {
 				
-					$('[name="security_symbol"]').bind('typeahead:select', function(ev, suggestion) {
-						console.log(suggestion.symbol)
-						var params = {
-							'record' :suggestion.symbol, 
-							'source_module': "ModSecurities"
-						};
-						thisInstance.copyFieldDetails(params, container);
-					});
-				}
-			});
+				symbolVal = data;
+				
+				var substringMatcher = function(strs) {
+				  return function findMatches(q, cb) {
+				    var matches, substringRegex;
+				    
+				    matches = [];
+	
+				    substrRegex = new RegExp(q, 'i');
+				    
+				    $.each(strs, function(i, str) {
+				      if (substrRegex.test(str.value)) {
+				        matches.push(strs[i]);
+				      }
+				    });
+	
+				    cb(matches);
+				  };
+				};
+
+				
+				$('[name="security_symbol"]').typeahead({
+				  hint: true,
+				  highlight: true,
+				},{
+				  name: 'symbol',
+				  display: 'value',
+				  source: substringMatcher(symbolVal)
+				});
+			
+				$('[name="security_symbol"]').bind('typeahead:select', function(ev, suggestion) {
+					var params = {
+						'record' :suggestion.symbol, 
+						'source_module': "ModSecurities"
+					};
+					thisInstance.copyFieldDetails(params, container);
+				});
+			}
 		});
 	},
 	
@@ -111,11 +111,4 @@ Vtiger_Edit_Js("PositionInformation_Edit_Js",{},{
 		this._super(container);
 		this.registerEventForSecuritySymbolFiled(container);
 	},
-	
-	registerEvents : function(){
-		this._super();
-	},
-	
-
-	
 })
