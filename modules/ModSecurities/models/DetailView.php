@@ -271,7 +271,7 @@ class ModSecurities_DetailView_Model extends Vtiger_DetailView_Model {
 	    
 	    $relatedLinks[] = array(
 	        'linktype' => 'DETAILVIEWTAB',
-	        'linklabel' => 'Historical Data',
+	        'linklabel' => 'Price History',
 	        'linkurl' => 'index.php?module='.$moduleName.'&view=HistoricalDataList&record='.$recordModel->getId().'&mode=recentHistoricals&page=1',
 	        'linkicon' => ''
 	    );
