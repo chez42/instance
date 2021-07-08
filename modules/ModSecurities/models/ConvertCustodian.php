@@ -456,7 +456,6 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
                           consumer_defensive_weight = ?, healthcare_weight = ?, utilities_weight = ?, basic_materials_weight = ?, consumer_cyclical_weight = ?, financial_services_weight = ?, real_estate_weight = ?";
                     break;
                 case "common stock":
-                    print_r($symbolData);exit;
                     $params[] = $symbolData->General->Name;
                     $params[] = $symbolData->General->Type;
                     $params[] = $symbolData->General->Exchange;

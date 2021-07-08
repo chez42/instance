@@ -9,26 +9,26 @@
 
 {strip}
 	<div class="col-lg-8 col-md-8 col-sm-8">
-		<div class="left_wrapper" style="display:block; float:left;">
+		<div class="left_wrapper col-md-4">
 			<div class="record-header clearfix">
 				{if !$MODULE}
 					{assign var=MODULE value=$MODULE_NAME}
 				{/if}
-				<div class="recordImage bg_{$MODULE} hidden-sm hidden-xs ">
+				<!-- <div class="recordImage bg_{$MODULE} hidden-sm hidden-xs ">
 					<div class="name">
 	
 						{assign var=IMAGE_DETAILS value=$RECORD->getImageDetails()}
-							{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
-								{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
-									<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}">
-								{/if}
-							{/foreach}
-							<span><strong><i class="ti-{strtolower($MODULE)}"></i></strong></span>
+						{foreach key=ITER item=IMAGE_INFO from=$IMAGE_DETAILS}
+							{if !empty($IMAGE_INFO.path) && !empty({$IMAGE_INFO.orgname})}
+								<img src="{$IMAGE_INFO.path}_{$IMAGE_INFO.orgname}">
+							{/if}
+						{/foreach}
+						<span><strong><i class="ti-{strtolower($MODULE)}"></i></strong></span>
 	
 					</div>  
-				</div>
+				</div> -->
 	
-				<div class="recordBasicInfo">
+				<div class="recordBasicInfo" style = "padding-top:6px;padding-left:0px;">
 					<div class="info-row">
 						<h4>
 							<span class="recordLabel pushDown" title="{$RECORD->getName()}">
@@ -45,7 +45,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="right_wrapper" style="display:block; float:right;">
+		<div class="right_wrapper col-md-8">
 			{include file="DetailViewEODLatestPrice.tpl"|vtemplate_path:$MODULE}
 		</div>
 	</diV>

@@ -11,10 +11,10 @@
 {strip}	
 	
     {assign var=PAGING_MODEL value=$PAGING}
-	{assign var=RECORD_COUNT value=$RECENT_ACTIVITIES|@count}
+	{assign var=RECORD_COUNT value=$PRICE_HISTORY|@count}
 	{assign var=PAGE_NUMBER value=$PAGING->get('page')}
 	
-	<div class="historicalDataRelatedContainer">
+	<div class="historicalDataRelatedContainer" >
 		
 		<input type='hidden' id='pageNumber' value="{$PAGING_MODEL->get('page')}">
         <input type='hidden' id='pageLimit' value="{$PAGING_MODEL->getPageLimit()}">
@@ -27,15 +27,27 @@
 		<input type="hidden" name="currentPageNum" value="{$PAGING_MODEL->getCurrentPage()}" />
 		<input type='hidden' value="{vtranslate('Historical Data', $MODULE_NAME)}" id='tab_label' name='tab_label'>
 		
-		<div class="relatedHeader">
-			{if !empty($RECENT_ACTIVITIES)}
-				<div class = "row">
-					<div class="col-md-4">
-						
-		            </div>       
-		            {include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
-		      	</div>  
-	      	{/if}        
+		<div class="relatedHeader" style = "padding:30px;">
+			
+			<div class = "row">
+			
+				<div class = "col-md-4 pull-left">
+					<button type = "button" name = "addPrice" class = "btn btn-primary">
+						<i class="ti-plus"></i>&nbsp;
+						Add Price
+					</button>
+				</div>
+			
+				{if !empty($PRICE_HISTORY)}
+						<div class="col-md-4">
+							
+						</div>       
+						{include file="Pagination.tpl"|vtemplate_path:$MODULE SHOWPAGEJUMP=true}
+					</div>  
+				{/if}
+				
+			</div>
+			
 		</div>
 
 		<div class="relatedContents col-lg-12 col-md-12 col-sm-12 table-container">
@@ -51,22 +63,7 @@
 								Date
 							</th>
 							<th class="nowrap">
-								Open
-							</th>
-							<th class="nowrap">
-								High
-							</th>
-							<th class="nowrap">
-								Low
-							</th>
-							<th class="nowrap">
-								Close
-							</th>
-							<th class="nowrap">
-								Volume
-							</th>
-							<th class="nowrap">
-								Adjusted Close
+								Price
 							</th>
 						</tr>
 						<tr class="searchRow">
@@ -80,65 +77,25 @@
 								<input type="hidden" class="operatorValue" value="{$SEARCH_DETAILS['createddate']['comparator']}">
 							</th>
 							<th>&nbsp;</th>
-							<th>&nbsp;</th>
-							<th>&nbsp;</th>
-							<th>&nbsp;</th>
-							<th>&nbsp;</th>
-							<th>&nbsp;</th>
 						</tr>
 					</thead>
-					{if !empty($RECENT_ACTIVITIES)}
-						{foreach item=RECENT_ACTIVITY from=$RECENT_ACTIVITIES}
+					{if !empty($PRICE_HISTORY)}
+						{foreach item=PRICE_HISTORY_DETAIL from=$PRICE_HISTORY}
 							<tr class="listViewEntries" >
 								<td class="related-list-actions">
 	
 								</td>
 								<td class="relatedListEntryValues" nowrap>
 									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['date']}">
-										{if $RECENT_ACTIVITY['date']}
-											{$RECENT_ACTIVITY['date']|date_format:"%A, %B %e, %Y"}
+										{if $PRICE_HISTORY_DETAIL['date']}
+											{$PRICE_HISTORY_DETAIL['date']|date_format:"%A, %B %e, %Y"}
 										{/if}
 									</span>
 								</td>
 								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['open']}">
-										{if $RECENT_ACTIVITY['open']}
-											{number_format($RECENT_ACTIVITY['open'],2)}
-										{/if}
-									</span>
-								</td>
-								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['high']}">
-										{if $RECENT_ACTIVITY['high']}
-											{number_format($RECENT_ACTIVITY['high'],2)}
-										{/if}
-									</span>
-								</td>
-								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['low']}">
-										{if $RECENT_ACTIVITY['low']}
-											{number_format($RECENT_ACTIVITY['low'],2)}
-										{/if}
-									</span>
-								</td>
-								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['close']}">
-										{if $RECENT_ACTIVITY['close']}
-											{number_format($RECENT_ACTIVITY['close'],2)}
-										{/if}
-									</span>
-								</td>
-								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['volume']}">
-										{if $RECENT_ACTIVITY['volume']}
-											{number_format($RECENT_ACTIVITY['volume'],2)}
-										{/if}
-									</span>
-								</td>
-								<td class="relatedListEntryValues" nowrap>
-									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['adjusted_close']}">
-										{if $RECENT_ACTIVITY['adjusted_close']}
-											{number_format($RECENT_ACTIVITY['adjusted_close'],2)}
+									<span class="value textOverflowEllipsis" title="{$PRICE_HISTORY_DETAIL['price']}">
+										{if $PRICE_HISTORY_DETAIL['price']}
+											{number_format($PRICE_HISTORY_DETAIL['price'],2)}
 										{/if}
 									</span>
 								</td>
