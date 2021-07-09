@@ -524,7 +524,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 
         $totalCashFlowItems = count($cashFlow);
 		
-        $maxIterationCount = 2000;
+        $maxIterationCount = 15000;
         
 		$absoluteAccuracy = 10 ** -11;
         
