@@ -14,34 +14,33 @@ include_once('libraries/reports/new/nCommon.php');
 class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-        $portfolio = PortfolioInformation_Record_Model::getInstanceById($request->get('record'));
-        $account_number = array($portfolio->get('account_number'));
+        
+		$portfolio = PortfolioInformation_Record_Model::getInstanceById($request->get('record'));
+        
+		$account_number = array($portfolio->get('account_number'));
 
-#        $account_numbers = GetAccountNumbersFromRecord($request->get('record'));
-#        $account_numbers = array_unique($account_numbers);
-        $integrity = new cIntegrity($account_number);
-        $differences = $integrity->GetDifferences();
+		if($portfolio->get("origination") != 'MANUAL'){
+			$integrity = new cIntegrity($account_number);
+			$differences = $integrity->GetDifferences();
 
-        foreach($differences AS $k => $v) {
-            if (!empty($differences) && abs($v['dif']) > 10)
-                $integrity->RepairDifferences();
-        }
-        $tmp = new CustodianClassMapping($account_number);
-        $tmp->portfolios::UpdateAllPortfoliosForAccounts($account_number);
-        $tmp->positions::CreateNewPositionsForAccounts($account_number);
-        $tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts($account_number);
-        $tmp->transactions::CreateNewTransactionsForAccounts($account_number);
-        if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
-            $tmp->transactions::UpdateTransactionsForAccounts($account_number);
+			foreach($differences AS $k => $v) {
+				if (!empty($differences) && abs($v['dif']) > 10)
+					$integrity->RepairDifferences();
+			}
+			$tmp = new CustodianClassMapping($account_number);
+			$tmp->portfolios::UpdateAllPortfoliosForAccounts($account_number);
+			$tmp->positions::CreateNewPositionsForAccounts($account_number);
+			$tmp->positions::UpdateAllCRMPositionsAtOnceForAccounts($account_number);
+			$tmp->transactions::CreateNewTransactionsForAccounts($account_number);
+			if(PortfolioInformation_Module_Model::getInstanceSetting("update_transactions", 1) == 1)
+				$tmp->transactions::UpdateTransactionsForAccounts($account_number);
 
-        $weight = new cWeight($portfolio->get('account_number'));
-        $weight->UpdatePortfolioWeight();
-        $weight->UpdateContactWeightAndValue();
-        $weight->UpdateHouseholdWeightAndValue();
-
-#        cFidelityTransactions::CreateNewTransactionsForAccounts($account_number);
-#        cFidelityTransactions::UpdateTransactionsForAccounts($account_number);
-
+			$weight = new cWeight($portfolio->get('account_number'));
+			$weight->UpdatePortfolioWeight();
+			$weight->UpdateContactWeightAndValue();
+			$weight->UpdateHouseholdWeightAndValue();
+		}
+		
         return parent::preProcess($request);
     }
 
