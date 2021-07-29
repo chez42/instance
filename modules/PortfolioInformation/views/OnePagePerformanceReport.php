@@ -5,8 +5,8 @@ include_once "libraries/custodians/cCustodian.php";
 
 require_once("libraries/Reporting/PerformanceReport.php");
 
-/*
-$user = CRMEntity::getInstance("Users");
+
+/*$user = CRMEntity::getInstance("Users");
 $user->id = 1;
 $user->retrieve_entity_info($user->id, "Users");
 vglobal("current_user", $user);
@@ -166,12 +166,12 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$selected_period_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, $start_date), $end_date);
 			
-			$result = $adb->pquery("SELECT DATE_SUB(?, INTERVAL 12 MONTH) as last_month_date", array($end_date));			
+			$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 12 MONTH)) as last_month_date", array($end_date));			
 			$last_12month_date = $adb->query_result($result, 0, "last_month_date");
 			$last_12month_performance = new PerformanceReport_Model($accounts, 
 			$this->DetermineIntervalStartDate($accounts, $last_12month_date), $end_date);
 			
-			$result = $adb->pquery("SELECT DATE_SUB(?, INTERVAL 3 MONTH) as last_month_date", array($end_date));			
+			$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 3 MONTH)) as last_month_date", array($end_date));
 			$last_3month_date = $adb->query_result($result, 0, "last_month_date");
 			$last3_month_performance = new PerformanceReport_Model($accounts, $this->DetermineIntervalStartDate($accounts, $last_3month_date), $end_date);
             
@@ -222,7 +222,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 			$total_days = $diff->days;
 			
-			$irr = $this->CalculateIRR($since_inception_performance, $inception_date, $end_date, $accounts[0]);
+			$irr = $this->CalculateIRR($since_inception_performance, $inception_date, $end_date, $accounts[0], true);
 			
 			if($total_days > 365){
 				$pow = pow( (1 + ($irr/ 100)) , 1 / ($total_days/365));
@@ -430,14 +430,17 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		return $irr * 100;
 	}
 	
-	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number){
+	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number, $since_inception = false){
 		
 		global $adb;
 		
 		$cashFlow = array();
 		
-		$cashFlow[] = array("value" => -$performance_obj->GetBeginningValuesSummed()->value, 
-		"day" => 0);
+		if($since_inception){
+			$cashFlow[] = array("value" => 0, "day" => 0);
+		} else {
+			$cashFlow[] = array("value" => -$performance_obj->GetBeginningValuesSummed()->value, "day" => 0);
+		}
 		
 		$date1 = date_create($end_date);
 		
@@ -472,7 +475,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 				'Transfer of securities', 
 				'Split or Share dividend',
 				'Federal withholding',
-				'Withdrawal Federal withholding'
+				'Withdrawal Federal withholding',
+				'Auto Cash Distribution'
 			) or (
 				vtiger_transactionscf.transaction_activity IN ('Check Transaction')
 				AND transaction_type = 'Flow'
@@ -524,7 +528,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 
         $totalCashFlowItems = count($cashFlow);
 		
-        $maxIterationCount = 15000;
+        $maxIterationCount = 20000;
         
 		$absoluteAccuracy = 10 ** -11;
         
