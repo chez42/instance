@@ -86,10 +86,10 @@ class CustodianToOmniTransfer{
                 CASE "TD":
                     break;
                 CASE "FIDELITY":
-                    cFidelityTransactions::CreateNewTransactionsForAccounts($v);
+                    cFidelityTransactions::CreateNewTransactionsForAccounts2($v);
                     break;
                 CASE "SCHWAB":
-                    cSchwabTransactions::CreateNewTransactionsForAccounts($v);
+                    cSchwabTransactions::CreateNewTransactionsForAccounts2($v);
                     break;
                 case "PERSHING":
                     break;

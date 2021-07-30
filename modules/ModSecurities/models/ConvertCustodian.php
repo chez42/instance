@@ -131,13 +131,16 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
      */
     static public function UpdateSecurityPriceFromEOD($symbol, $start, $end){
         global $adb;
-        $eod = new EODHistoricalData('json', "US", '59838effd9cac');
-        $result = $eod->getSymbolPricing($symbol, $start, $end);
-        $data = json_decode($result);
-        $query = "INSERT INTO vtiger_prices (symbol, date, open, high, low, close, adjusted_close, volume) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                  ON DUPLICATE KEY UPDATE open=VALUES(open), high=VALUES(high), low=VALUES(low), close=VALUES(close), 
-                                          adjusted_close=VALUES(adjusted_close), volume=VALUES(volume)";
+        
+		$eod = new EODHistoricalData('json', "US", '59838effd9cac');
+        
+		$result = $eod->getSymbolPricing($symbol, $start, $end);
+        
+		$data = json_decode($result);
+        
+		$query = "INSERT INTO vtiger_prices (symbol, date, open, high, low, close, adjusted_close, volume) 
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE open=VALUES(open), high=VALUES(high), low=VALUES(low), close=VALUES(close), 
+		adjusted_close=VALUES(adjusted_close), volume=VALUES(volume)";
 
         if(sizeof($data) > 0){
             foreach($data AS $k => $v){
@@ -154,10 +157,8 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
             }
         }
 
-        $query = "UPDATE vtiger_modsecurities m 
-                  JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                  SET eod_pricing = NOW()
-                  WHERE security_symbol = ?";
+        $query = "UPDATE vtiger_modsecurities m JOIN vtiger_modsecuritiescf USING (modsecuritiesid) 
+		SET eod_pricing = NOW() WHERE security_symbol = ?";
         $adb->pquery($query, array($symbol));
 
     }
@@ -216,178 +217,14 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
     }
 
     static public function UpdateSecurityFromEOD($symbol, $exchange){
-        $type = OmnisolReader::DetermineSecurityTypeGivenByEOD($symbol);
-        $writer = new OmniscientWriter();
-        $symData = OmnisolReader::MatchSymbolsOfSecurityType(array($symbol), $type);
-        $writer->WriteEodToOmni($symbol);
-        /*This is legacy code below, but the logic is somewhat the same so left here as a reminder
-
-        global $adb;
-        $params = array();
-        $set = "";
-
-        $start = date('Y')  - 1 . "-01-01";
-        $end = date('Y') - 1 . "-12-31";
-
-        $eod = new EODHistoricalData('json', $exchange, '59838effd9cac');
-        $symbolData = json_decode($eod->getSymbolData($symbol));
-        $dividendData = json_decode($eod->getSymbolDividends($symbol, $start, $end));
-
-/*        print_r($symbolData);
-        echo "<br /><br />";
-        print_r($dividendData);
-        exit;
-
-        if(count((array)$symbolData) > 0 ){#|| count((array)$dividendData) > 0){
-            switch($symbolData->General->Type){
-                case "Mutual Fund":
-                    $params[] = $symbolData->General->Type;
-                    $params[] = $symbolData->General->Exchange;
-                    $params[] = $symbolData->General->CurrencyCode;
-                    $params[] = $symbolData->General->CountryName;
-                    $params[] = $symbolData->General->Isin;
-                    $params[] = $symbolData->General->Fund_Summary;
-                    $params[] = $symbolData->General->Fund_Family;
-
-                    $params[] = $symbolData->MutualFund_Data->Nav;
-                    $params[] = $symbolData->MutualFund_Data->Net_Assets;
-                    $params[] = $symbolData->MutualFund_Data->Morning_Star_Rating;
-                    $params[] = $symbolData->MutualFund_Data->Morning_Star_Risk_Rating;
-                    $params[] = $symbolData->MutualFund_Data->Morning_Star_Category;
-                    $params[] = $symbolData->MutualFund_Data->Incepton_Date;
-                    $params[] = $symbolData->MutualFund_Data->Domicile;
-                    $params[] = $symbolData->MutualFund_Data->Yield;
-
-                    $set .= " securitytype = ?, stock_exchange = ?, currency_code = ?, country = ?, isin = ?, summary = ?, fund_family = ?, nav = ?, net_assets = ?, 
-                          Morning_Star_Rating = ?, Morning_Star_Risk_Rating = ?, Morning_Star_Category = ?, inception_date = ?, domicile = ?, dividend_yield = ? ";
-                    break;
-                case "Common Stock":
-                    $params[] = $symbolData->General->Type;
-                    $params[] = $symbolData->General->Exchange;
-                    $params[] = $symbolData->General->CurrencyCode;
-                    $params[] = $symbolData->General->CountryName;
-                    $params[] = $symbolData->General->ISIN;
-                    $params[] = $symbolData->General->CUSIP;
-                    $params[] = $symbolData->General->Sector;
-                    $params[] = $symbolData->General->Industry;
-                    $params[] = $symbolData->General->Description;
-
-                    $params[] = $symbolData->Highlights->MarketCapitalization;
-                    $params[] = $symbolData->Highlights->EBITDA;
-                    $params[] = $symbolData->Highlights->PERatio;
-                    $params[] = $symbolData->Highlights->PEGRatio;
-                    $params[] = $symbolData->Highlights->WallStreetTargetPrice;
-                    $params[] = $symbolData->Highlights->BookValue;
-                    $params[] = $symbolData->Highlights->DividendShare;
-                    $params[] = $symbolData->Highlights->DividendYield;
-                    $params[] = $symbolData->Highlights->EarningsShare;
-                    $params[] = $symbolData->Highlights->EPSEstimateCurrentYear;
-                    $params[] = $symbolData->Highlights->EPSEstimateNextYear;
-                    $params[] = $symbolData->Highlights->EPSEstimateNextQuarter;
-
-                    $set .= " securitytype = ?, stock_exchange = ?, currency_code = ?, country = ?, isin = ?, cusip = ?, security_sector = ?, industrypl = ?, summary = ?, 
-                              market_capitalization = ?, ebitda = ?, peratio = ?, pegratio = ?, one_year_target_price = ?, book_value = ?, dividend_share = ?, 
-                              dividend_yield = ?, earnings_share = ?, eps_estimate_current_year = ?, eps_estimate_next_year = ?, eps_estimate_next_quarter = ? ";
-                    break;
-
-                case "ETF":
-                    $params[] = $symbolData->General->Type;
-                    $params[] = $symbolData->General->Name;
-                    $params[] = $symbolData->General->Exchange;
-                    $params[] = $symbolData->General->CountryName;
-                    $params[] = $symbolData->General->Description;
-                    $params[] = $symbolData->General->Category;
-
-                    $params[] = $symbolData->ETF_Data->Isin;
-                    $params[] = $symbolData->ETF_Data->Yield;
-                    $params[] = $symbolData->ETF_Data->Dividend_Paying_Frequency;
-
-                    $params[] = $symbolData->ETF_Data->Asset_Allocation->Stock->{'Net_Assets_ % '};
-                    $params[] = $symbolData->ETF_Data->Asset_Allocation->Bond->{'Net_Assets_ % '};
-                    $params[] = $symbolData->ETF_Data->Asset_Allocation->Property->{'Net_Assets_ % '};
-                    $params[] = $symbolData->ETF_Data->Asset_Allocation->Cash->{'Net_Assets_ % '};
-                    $params[] = $symbolData->ETF_Data->Asset_Allocation->Other->{'Net_Assets_ % '};
-
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'United States'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->Canada->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Latin America'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'United Kingdom'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Europe - except Euro'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Europe - Emerging'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->Africa->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Middle East'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->Japan->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->Australasia->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Asia - Developed'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->World_Regions->{'Asia - Emerging'}->{'Equity_ % '};
-
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Basic Materials'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Consumer Cyclical'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Financial Services'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Real Estate'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Consumer Defensive'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Healthcare'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Utilities'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Communication Services'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Energy'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Industrials'}->{'Equity_ % '};
-                    $params[] = $symbolData->ETF_Data->Sector_Weights->{'Technology'}->{'Equity_ % '};
-
-                    $set .= "securitytype = ?, security_name = ?, stock_exchange = ?, country = ?, summary = ?, Morning_Star_Category = ?, isin = ?, 
-                             dividend_yield = ?, pay_frequency = ?, us_stock = ?, us_bond = ?, unclassified_net = ?, cash_net = ?, other_net = ?, us_equity = ?, 
-                             canada_equity = ?, Latin_America_equity = ?, UK_equity = ?, Europe_ex_euro_equity = ?, Europe_Emerging_equity = ?, Africa_equity = ?, 
-                             Middle_East_equity = ?, Japan_equity = ?, Australasia_equity = ?, Asia_Developed_equity = ?, Asia_Emerging_equity = ?, Basic_Materials_Weight = ?, 
-                             Consumer_Cyclical_Weight = ?, Financial_Services_Weight = ?, Real_Estate_Weight = ?, Consumer_Defensive_Weight = ?, Healthcare_Weight = ?, 
-                             Utilities_Weight = ?, Energy_Weight = ?, Industrials_Weight = ?, Communication_Services_Weight = ?, technology_weight = ? ";
-                    break;
-            }
-#            $yield = $symbolData->Highlights->DividendYield;
-#            $share = $symbolData->Highlights->DividendShare;
-
-#            $params[] = $share;
-#            $params[] = $yield * 100;
-
-#            $set .= " dividend_share = ?, dividend_yield = ? ";
-        }
-
-        if(count((array)$dividendData) > 0){
-            switch(count((array)$dividendData)){
-                case 2:
-                    $frequency = "SemiAnnual";
-                    break;
-                case 4:
-                case 5:
-                case 6:
-                    $frequency = "Quarterly";
-                    break;
-                default:
-                    $frequency = "Annual";
-                    break;
-            }
-
-            $params[] = $frequency;
-            if(strlen($set) > 10)
-                $set .= ", pay_frequency = ? ";
-            else
-                $set .= " pay_frequency = ? ";
-        }
-
-        if(count((array)$symbolData) > 0  || count((array)$dividendData) > 0) {
-            $params[] = $symbol;
-
-            $query = "UPDATE vtiger_modsecurities m 
-                  JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                  SET last_eod = NOW(), {$set}
-                  WHERE security_symbol = ?";
-
-            $adb->pquery($query, array($params));
-        }else{
-            $query = "UPDATE vtiger_modsecurities m 
-                  JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                  SET last_eod = NOW()
-                  WHERE security_symbol = ?";
-            $adb->pquery($query, array($symbol));
-        }*/
+        
+		$type = OmnisolReader::DetermineSecurityTypeGivenByEOD($symbol);
+        
+		$writer = new OmniscientWriter();
+        
+		$symData = OmnisolReader::MatchSymbolsOfSecurityType(array($symbol), $type);
+        
+		$writer->WriteEodToOmni($symbol);
     }
 
     static public function UpdateFromEODGuzzleResult($symbolData, $dividendData = null, $symbol){
@@ -548,13 +385,7 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
                              Utilities_Weight = ?, Energy_Weight = ?, Industrials_Weight = ?, Communication_Services_Weight = ?, technology_weight = ? ";
                     break;
             }
-#            $yield = $symbolData->Highlights->DividendYield;
-#            $share = $symbolData->Highlights->DividendShare;
 
-#            $params[] = $share;
-#            $params[] = $yield * 100;
-
-#            $set .= " dividend_share = ?, dividend_yield = ? ";
         }
 
         if(count((array)$dividendData) > 0){
@@ -580,27 +411,28 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
         }
 
         if(count((array)$symbolData) > 0  || count((array)$dividendData) > 0) {
+			
             $params[] = $symbol;
 
             $query = "UPDATE vtiger_modsecurities m 
-                  JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                  SET last_eod = NOW(), {$set}
-                  WHERE security_symbol = ?";
+            JOIN vtiger_modsecuritiescf USING (modsecuritiesid) SET last_eod = NOW(), {$set}
+            WHERE security_symbol = ?";
             $adb->pquery($query, array($params));
 
             if(strlen($aclass) > 0){
-                $query = "UPDATE vtiger_modsecurities m 
-                          JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                          SET aclass = ?
-                          WHERE security_symbol = ? AND (aclass = 'Funds' OR aclass IS NULL OR aclass = '')";
-                $adb->pquery($query, array($aclass, $symbol));
+                //@Ryan Please recheck if this is Required
+				/*$query = "UPDATE vtiger_modsecurities m 
+                JOIN vtiger_modsecuritiescf USING (modsecuritiesid) SET aclass = ?
+                WHERE security_symbol = ? AND (aclass = 'Funds' OR aclass IS NULL OR aclass = '')";
+                $adb->pquery($query, array($aclass, $symbol));*/
+				
             }
-        }else{
-                $query = "UPDATE vtiger_modsecurities m 
-                      JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
-                      SET last_eod = NOW()
-                      WHERE security_symbol = ?";
-                $adb->pquery($query, array($symbol));
+			
+        } else {
+			$query = "UPDATE vtiger_modsecurities m 
+			JOIN vtiger_modsecuritiescf USING (modsecuritiesid)
+			SET last_eod = NOW() WHERE security_symbol = ?";
+			$adb->pquery($query, array($symbol));
         }
     }
 
@@ -1284,107 +1116,7 @@ class ModSecurities_ConvertCustodian_Model extends Vtiger_Module_Model{
 
         self::UpdateSecurityType("schwab", $symbol);
         self::UpdateOptionsSchwab($symbol);
-
-
-/****OTHER WAY OF DOING IT... WAS NOT UPDATING PRICES AND DOESN'T WORK FOR OPTIONS*****
-        if($symbol){
-            $questions = generateQuestionMarks($symbol);
-            $where = " WHERE m.security_symbol IN ({$questions}) ";
-            $params[] = $symbol;
-        }
-
-        $query = "DROP TABLE IF EXISTS tmp_security_update;";
-        $adb->pquery($query, array());
-
-		$query = "CREATE TEMPORARY TABLE tmp_security_update
-				  SELECT m.modsecuritiesid, s.* FROM vtiger_modsecurities m 
-				  JOIN vtiger_modsecurities cf USING (modsecuritiesid)
-				  JOIN {$tenant}.custodian_securities_schwab s ON (m.security_symbol = s.symbol OR m.security_symbol = s.cusip OR m.security_symbol = s.sec_nbr)
-				  {$where}
-				  GROUP BY modsecuritiesid
-				  LIMIT 100";
-		$result = $adb->pquery($query, $params);
-
-		if($adb->num_rows($result) > 0) {
-            $query = "UPDATE vtiger_modsecurities m
-					JOIN vtiger_modsecuritiescf cf ON m.modsecuritiesid = cf.modsecuritiesid
-					JOIN tmp_security_update tmp ON tmp.modsecuritiesid = m.modsecuritiesid
-					SET m.header=tmp.header, m.custodian_id=tmp.custodian_id, m.master_account_number=tmp.master_account_number, m.master_account_name=tmp.master_account_name, m.business_date=tmp.business_date, m.prod_code=tmp.prod_code, m.prod_catg_code=tmp.prod_catg_code, m.tax_code=tmp.tax_code,
-					  m.ly=tmp.ly, m.industry_ticker_symbol=tmp.industry_ticker_symbol, cf.cusip=tmp.cusip, m.sec_nbr=tmp.sec_nbr, m.reorg_sec_nbr=tmp.reorg_sec_nbr, m.item_issue_id=tmp.item_issue_id, m.rulst_sufid=tmp.rulst_sufid, m.isin=tmp.isin, m.sedol=tmp.sedol, 
-					  m.options_display_symbol=tmp.options_display_symbol, m.description1=tmp.description1, m.description2=tmp.description2, m.description3=tmp.description3, m.scrty_des=tmp.scrty_des, m.underlying_ticker_symbol=tmp.underlying_ticker_symbol, m.underlying_industry_ticker_symbol=tmp.underlying_industry_ticker_symbol,
-					  m.underlying_cusip=tmp.underlying_cusip, m.underly_schwab=tmp.underly_schwab, m.underlying_itm_iss_id=tmp.underlying_itm_iss_id, m.unrul_sufid=tmp.unrul_sufid, m.underlying_isin=tmp.underlying_isin, m.underly_sedol=tmp.underly_sedol, m.mnymk_code=tmp.mnymk_code, 
-					  m.last_update=tmp.last_update, m.s_f=tmp.s_f, m.closing_price=tmp.closing_price, m.secprice_lstupd=tmp.secprice_lstupd, m.security_valuation_unit=tmp.security_valuation_unit, m.optnrt_symbol=tmp.optnrt_symbol, m.opt_expr_date=tmp.opt_expr_date, m.c_p=tmp.c_p, 
-					  m.strike_price=tmp.strike_price, m.interest_rate=tmp.interest_rate, cf.maturity_date=tmp.maturity_date, m.tips_factor=tmp.tips_factor, m.asset_backed_factor=tmp.asset_backed_factor, m.face_value_amt=tmp.face_value_amt, m.st_cd=tmp.st_cd, m.vers_mrkr_1=tmp.vers_mrkr_1, 
-					  m.p_i=tmp.p_i, m.o_i=tmp.o_i, m.vers_mrkr_2=tmp.vers_mrkr_2, m.closing_price_unfactored=tmp.closing_price_unfactored, m.schwab_factor=tmp.factor, m.factor_date=tmp.factor_date, m.source='Schwab';";
-
-            $adb->pquery($query, array());
-        }
-			self::UpdateSecurityType("schwab", $symbol);
-/*
-			while($v = $adb->fetchByAssoc($result)){
-				$update_params[] = $v['header'];
-				$update_params[] = $v['custodian_id'];
-				$update_params[] = $v['master_account_number'];
-				$update_params[] = $v['master_account_name'];
-				$update_params[] = $v['business_date'];
-				$update_params[] = $v['prod_code'];
-				$update_params[] = $v['prod_catg_code'];
-				$update_params[] = $v['tax_code'];
-				$update_params[] = $v['ly'];
-				$update_params[] = $v['industry_ticker_symbol'];
-				$update_params[] = $v['cusip'];
-				$update_params[] = $v['sec_nbr'];
-				$update_params[] = $v['reorg_sec_nbr'];
-				$update_params[] = $v['item_issue_id'];
-				$update_params[] = $v['rulst_sufid'];
-				$update_params[] = $v['isin'];
-				$update_params[] = $v['sedol'];
-				$update_params[] = $v['options_display_symbol'];
-				$update_params[] = $v['description1'];
-				$update_params[] = $v['description2'];
-				$update_params[] = $v['description3'];
-				$update_params[] = $v['scrty_des'];
-				$update_params[] = $v['underlying_ticker_symbol'];
-				$update_params[] = $v['underlying_industry_ticker_symbol'];
-				$update_params[] = $v['underlying_cusip'];
-				$update_params[] = $v['underly_schwab'];
-				$update_params[] = $v['underlying_itm_iss_id'];
-				$update_params[] = $v['unrul_sufid'];
-				$update_params[] = $v['underlying_isin'];
-				$update_params[] = $v['underly_sedol'];
-				$update_params[] = $v['mnymk_code'];
-				$update_params[] = $v['last_update'];
-				$update_params[] = $v['s_f'];
-				$update_params[] = $v['closing_price'];
-				$update_params[] = $v['secprice_lstupd'];
-				$update_params[] = $v['security_valuation_unit'];
-				$update_params[] = $v['optnrt_symbol'];
-				$update_params[] = $v['opt_expr_date'];
-				$update_params[] = $v['c_p'];
-				$update_params[] = $v['strike_price'];
-				$update_params[] = $v['interest_rate'];
-				$update_params[] = $v['maturity_date'];
-				$update_params[] = $v['tips_factor'];
-				$update_params[] = $v['asset_backed_factor'];
-				$update_params[] = $v['face_value_amt'];
-				$update_params[] = $v['st_cd'];
-				$update_params[] = $v['vers_mrkr_1'];
-				$update_params[] = $v['p_i'];
-				$update_params[] = $v['o_i'];
-				$update_params[] = $v['vers_mrkr_2'];
-				$update_params[] = $v['closing_price_unfactored'];
-				$update_params[] = $v['factor'];
-				$update_params[] = $v['factor_date'];
-				$update_params[] = $v['modsecuritiesid'];
-				$r = $adb->pquery($query, $update_params);
-				if($r){
-#					echo "A result!";exit;
-				}else{
-					echo mysql_error();
-					echo "false";exit;
-				}
-			}*/
-//		}
+	
 	}
 
 	static public function UpdateSecurityPrices($custodian, $date){

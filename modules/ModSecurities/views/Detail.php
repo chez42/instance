@@ -15,45 +15,47 @@ require_once("libraries/Reporting/ReportCommonFunctions.php");
 class ModSecurities_Detail_View extends Vtiger_Detail_View {
 
     public function preProcess(Vtiger_Request $request) {
-/*        $i = Vtiger_Record_Model::getInstanceById($request->get('record'));
-        $symbol = $i->get('security_symbol');
-        ModSecurities_Module_Model::FillWithYQLOrXigniteData($symbol);*/
-        $guz = new cEodGuzzle();
-        $security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
-        if(strlen($security->get("option_root_symbol")) > 0 && trim($security->get("option_root_symbol")) != '') {
+
+		$guz = new cEodGuzzle();
+        
+		$security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
+        
+		if(strlen($security->get("option_root_symbol")) > 0 && trim($security->get("option_root_symbol")) != '') {
             $symbol = $security->get("option_root_symbol");
             $notes = "This security is an option.  Showing information from the root symbol";
-        }
-        else {
+        } else {
             $symbol = $security->get("security_symbol");
         }
 
         $eod = json_decode($guz->getSymbolRealTimePricing($symbol));
-        try {
+        
+		try {
             $fund = json_decode($guz->getFundamentals($symbol));
-        }catch(Exception $e){//Exception if we try to access a fundamental that isn't a bond
+        } catch(Exception $e){}
 
-        }
+        $date = date("Y-m-d");
+        
+		$start = GetDateMinusDays(30);
+        
+		$security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
+        
+		ModSecurities_ConvertCustodian_Model::UpdateSecurityPriceFromEOD($symbol, $start, $date);
 
-          $date = date("Y-m-d");
-          $start = GetDateMinusDays(30);
-          $security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
-          ModSecurities_ConvertCustodian_Model::UpdateSecurityPriceFromEOD($symbol, $start, $date);
-
-                $guz = new cEodGuzzle();
-                $rawData = $guz->getFundamentals($symbol);
-                $result = json_decode($rawData);
-                $dividendData = json_decode($guz->getDividends($symbol, "US", $start, $date));
-                ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
-                ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
-
-#        $dividendData = json_decode($guz->getDividends($symbol, "US", '2018-01-01', '2019-11-04'));
-
-#        ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
-#        ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
-#print_r($fund);exit;
-        $change = $eod->change;//$eod->close - $data['security_price'];
-        $percentage = $change / $eod->close * 100;//$data['security_price'] * 100;
+		$guz = new cEodGuzzle();
+		
+		$rawData = $guz->getFundamentals($symbol);
+		
+		$result = json_decode($rawData);
+		
+		$dividendData = json_decode($guz->getDividends($symbol, "US", $start, $date));
+		
+		ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
+		
+		ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);
+		
+        $change = $eod->change;
+		
+        $percentage = $change / $eod->close * 100;
 
         date_default_timezone_set('America/Los_Angeles');
         $eod->last_update = date("F d, Y h:i:s a", $eod->timestamp);
@@ -66,37 +68,23 @@ class ModSecurities_Detail_View extends Vtiger_Detail_View {
         $viewer->assign("CHANGE", $eod->change);
         $viewer->assign("PERCENTAGE", $percentage);
         $viewer->assign("NOTES", $notes);
-        if(strlen($fund->General->LogoURL) > 0)
+        
+		if(strlen($fund->General->LogoURL) > 0)
             $viewer->assign("LOGO", URI_LOGOS . $fund->General->LogoURL);
-        $viewer->assign("EXTRA_SCRIPTS", $this->getCustomScripts($request));
-        $viewer->assign("EXTRA_STYLES", $this->getExtraHeaderCss($request));
+        
+		$viewer->assign("EXTRA_SCRIPTS", $this->getCustomScripts($request));
+        
+		$viewer->assign("EXTRA_STYLES", $this->getExtraHeaderCss($request));
 
         return parent::preProcess($request);
     }
 
     function process(Vtiger_Request $request) {
         require_once("libraries/EODHistoricalData/EODGuzzle.php");
-
-##        $date = date("Y-m-d");
-##        $security = ModSecurities_Record_Model::getInstanceById($request->get("record"));
-##        $symbol = $security->get("security_symbol");
-##        ModSecurities_ConvertCustodian_Model::UpdateSecurityPriceFromEOD($symbol, '2013-01-01', $date);
-
-/*      ENABLE THIS IF WE WANT EOD TO AUTO UPDATE
- *
- *         $guz = new cEodGuzzle();
-        $rawData = $guz->getFundamentals($symbol);
-        $result = json_decode($rawData);
-        $dividendData = json_decode($guz->getDividends($symbol, "US", '2013-01-01', $date));
-        ModSecurities_ConvertCustodian_Model::UpdateFromEODGuzzleResult($result, $dividendData, $symbol);
-        ModSecurities_ConvertCustodian_Model::WriteRawEODData($symbol, $rawData);*/
-
         return parent::process($request);
     }
     
     public function postProcess(\Vtiger_Request $request) {
-/*        $viewer = $this->getViewer($request);
-        $viewer->assign("RECORD_ID", $record->get('id'));*/
         parent::postProcess($request);
     }
 
