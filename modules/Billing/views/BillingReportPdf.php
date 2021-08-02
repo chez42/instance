@@ -68,7 +68,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $portQuery = $adb->pquery("SELECT * FROM vtiger_portfolioinformation
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
         WHERE vtiger_crmentity.deleted = 0 AND
-        vtiger_portfolioinformation.portfolioinformationid IN (29567826)",array());
+         vtiger_portfolioinformation.portfolioinformationid IN (".generateQuestionMarks($recordId).")",$recordId);
         
         if($adb->num_rows($portQuery)){
             
