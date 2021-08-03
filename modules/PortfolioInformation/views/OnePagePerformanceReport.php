@@ -6,29 +6,114 @@ include_once "libraries/custodians/cCustodian.php";
 require_once("libraries/Reporting/PerformanceReport.php");
 
 
-/*$user = CRMEntity::getInstance("Users");
-$user->id = 1;
-$user->retrieve_entity_info($user->id, "Users");
-vglobal("current_user", $user);
-*/
-
-class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View{
+class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_View {
 	
-	/*function loginRequired() {
-		return false;
+	function __construct() {
+		parent::__construct();
+		$this->exposeMethod('viewForm');
+		$this->exposeMethod('DownloadReport');
 	}
 	
-	function checkPermission(Vtiger_Request $request) {
-		return true;
-	}*/
-	
-	function preProcess(Vtiger_Request $request, $display=true) {
+	function viewForm(Vtiger_Request $request){
+	    
+	    $sourceModule = $request->getModule();
+	    
+	    $viewer = $this->getViewer($request);
 		
+		$cvId = $request->get('viewname');
+		$selectedIds = $request->get('selected_ids');
+		$excludedIds = $request->get('excluded_ids');
+		
+		$viewer->assign('CVID', $cvId);
+		$viewer->assign('SELECTED_IDS', $selectedIds);
+		$viewer->assign('EXCLUDED_IDS', $excludedIds);
+		
+		$searchKey = $request->get('search_key');
+        $searchValue = $request->get('search_value');
+		$operator = $request->get('operator');
+        if(!empty($operator)) {
+			$viewer->assign('OPERATOR',$operator);
+			$viewer->assign('ALPHABET_VALUE',$searchValue);
+            $viewer->assign('SEARCH_KEY',$searchKey);
+		}
+		
+		$searchParams = $request->get('search_params');
+        if(!empty($searchParams)) {
+            $viewer->assign('SEARCH_PARAMS',$searchParams);
+        }
+	    
+		$viewer->assign("TYPE", "OnePagePerformanceReport");
+		
+	    echo $viewer->view('PerformanceReportDownloadForm.tpl','PortfolioInformation',true);
+	   
+	}
+	
+	
+	function DownloadReport(Vtiger_Request $request){
+		set_time_limit(-1);
+
 		global $adb;
 		
-		if($request->get("pdf") == 1){
+		$record_ids = $this->getRecordsListFromRequest($request);
+		
+		$result = $adb->pquery("SELECT * FROM vtiger_portfolioinformation
+        INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
+        WHERE vtiger_crmentity.deleted = 0 AND
+        vtiger_portfolioinformation.portfolioinformationid IN (".generateQuestionMarks($record_ids).")",$record_ids);
+		
+		$viewer = $this->getViewer($request);
+		
+		$pdf_files = array();
+		
+		for($i = 0; $i < $adb->num_rows($result); $i++){
 			
-		} else {
+			$account_no = $adb->query_result($result, $i, "account_number");
+			
+			$account_numbers = array($account_no);
+			
+			PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
+			
+			$file_content = $this->GenerateReport($account_no, $request);
+		    
+			file_put_contents("cache/$account_no" . '_' . date("Y-m-d") . ".pdf", $file_content);
+			
+			$pdf_files[]  = "cache/$account_no" . '_' . date("Y-m-d") . ".pdf";
+		
+		}
+		
+		$zipname  = 'cache/'.date('Y-m-d').'.zip';
+        
+		$files = implode("' '", $pdf_files);
+		
+		$files = "'" . $files . "'";
+		
+		$zip_password = strtotime(date("Y-m-d H:i:s"));
+		
+		@exec("zip -D -j $zipname $files");
+		
+		while(ob_get_level()) {
+            ob_end_clean();
+        }
+		
+        header('Content-Type: application/zip');
+		
+        header('Content-disposition: attachment; filename='.basename($zipname));
+        
+		readfile($zipname);
+        
+        foreach ($pdf_files as $file) {
+            unlink($file);
+        }
+        
+        unlink($zipname);
+	
+	}
+	
+	function preProcess(Vtiger_Request $request, $display=true) {
+		$mode = $request->get('mode');
+		
+		if(!$mode){
+			global $adb;
 			
 			parent::preProcess($request, false);
 			
@@ -51,31 +136,24 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			$viewer->assign('RECORD', $recordModel);
 			
 			$moduleName = $request->getModule();
+			
 			if($display) {
 				$this->preProcessDisplay($request);
 			}
-			
+		} else {
+			return true;
+		}
+	}
+	
+	function postProcess(Vtiger_Request $request) {
+		
+		$mode = $request->get('mode');
+		
+		if(!$mode){
+			return true;
 		}
 	}
 
-    public function postProcess(Vtiger_Request $request) {
-		
-        if($request->get("pdf") == 1){
-			
-		} else {
-			parent::postProcess($request);
-		}
-	}
-	
-	public function preProcessTplName(Vtiger_Request $request) {
-		
-		if($request->get("pdf") == 1){
-			return '';
-		} else {
-			return parent::preProcessTplName($request);
-		}
- 	}
-	
 	public  function DetermineIntervalStartDate($account_number, $sdate){
 		
 		global $adb;
@@ -83,9 +161,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		$questions = generateQuestionMarks($account_number);
 
 		$query = "SELECT DATE_ADD(MAX(intervalbegindate), INTERVAL 1 DAY) AS begin_date
-              FROM intervals_daily 
-              WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ?";
-			  
+	    FROM intervals_daily  WHERE accountnumber IN ({$questions}) AND intervalbegindate <= ?";
+	  
 		$result = $adb->pquery($query, array($account_number, $sdate));
 		
 		if($adb->num_rows($result) > 0){
@@ -107,267 +184,225 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
         
 		global $adb, $current_user;
 		
+		$mode = $request->get('mode');
+		
+		if(!empty($mode)) {
+			$this->invokeExposedMethod($mode, $request);
+			return;
+		}
+		
 		$viewer = $this->getViewer($request);
 		
-		if($request->get("account_number") > 0){
-			
-            $accounts = explode(",", $request->get("account_number"));
-            
-			$accounts = array_unique($accounts);
-
-            $portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
-			inner join vtiger_portfolioinformationcf on 
-			vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
-			inner join vtiger_contactdetails  on contact_link = contactid 
-			inner join vtiger_contactaddress on contactaddressid = contactid
-			
-			where account_number = ?", array($accounts[0]));
-			
-			if($adb->num_rows($portfolio_result)){
-				
-				$viewer->assign("PREPARED_FOR", 
-					
-					$adb->query_result($portfolio_result, 0, "firstname") . ' ' . 
-					$adb->query_result($portfolio_result, 0, "lastname")
-					
-				);
-				
-				$viewer->assign("PORTFOLIO_TYPE", $adb->query_result($portfolio_result, 0, "cf_2549"));
-			}
-			
-			
-			//Calculate Intervals
-			PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
-			
-			if(strlen($request->get('report_start_date')) > 1) {
-               $start_date = date("Y-m-d", strtotime($request->get("report_start_date")));
-			} else {
-               $start_date =  date("Y-01-01");
-            }
-			$viewer->assign("START_DATE", $start_date);	
-			
-            if(strlen($request->get('report_end_date')) > 1) {
-                $end_date = date("Y-m-d", strtotime($request->get("report_end_date")));
-			} else {
-				$end_date =  date("Y-12-31");
-			}
-			
-			$viewer->assign("END_DATE", $end_date);	
-			
-			$viewer->assign("REPORT_PERIOD", date("m/d/Y", strtotime($start_date)) . ' - ' .  date("m/d/Y", strtotime($end_date)));
-			
-			$result = $adb->pquery("select * from vtiger_portfolioinformation where 
-			account_number in (?)", array($request->get("account_number")));
-			$inception_date = $adb->query_result($result, 0, "inceptiondate");
-			
-			$since_inception_performance = new PerformanceReport_Model($accounts, 
-			$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
-			
-			$selected_period_performance = new PerformanceReport_Model($accounts, 
-			$this->DetermineIntervalStartDate($accounts, $start_date), $end_date);
-			
-			$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 12 MONTH)) as last_month_date", array($end_date));			
-			$last_12month_date = $adb->query_result($result, 0, "last_month_date");
-			$last_12month_performance = new PerformanceReport_Model($accounts, 
-			$this->DetermineIntervalStartDate($accounts, $last_12month_date), $end_date);
-			
-			$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 3 MONTH)) as last_month_date", array($end_date));
-			$last_3month_date = $adb->query_result($result, 0, "last_month_date");
-			$last3_month_performance = new PerformanceReport_Model($accounts, $this->DetermineIntervalStartDate($accounts, $last_3month_date), $end_date);
-            
-			
-			$ytd_performance = new PerformanceReport_Model($accounts, 
-			$this->DetermineIntervalStartDate($accounts, GetDateStartOfYear($end_date)), $end_date);
-			
-			$index_return_data = array();
-			
-			
-			if($inception_date > $last_12month_date){
-				$calculated_start_date = $inception_date;
-			} else {
-				$calculated_start_date = $last_12month_date;
-			}
-			
-			
-			//Last 12 Month Index Return
-			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $calculated_start_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $calculated_start_date, $end_date),
-				"IRR" => $this->CalculateIRR($last_12month_performance, $calculated_start_date , $end_date, $accounts[0])
-			);
-			
-			
-			if($inception_date > GetDateStartOfYear($end_date)){
-				$calculated_start_date = $inception_date;
-			} else {
-				$calculated_start_date = GetDateStartOfYear($end_date);
-			}
-			
-			//YTD Index Return
-			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), 
-				$calculated_start_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), 
-				$calculated_start_date, $end_date),
-				"IRR" => $this->CalculateIRR($ytd_performance, $calculated_start_date , $end_date, $accounts[0])
-			);
-			
-			
-			
-			$date1 = date_create($end_date);
-			
-			$date2 = date_create($inception_date);
-			
-			$diff = date_diff($date1, $date2);
-			
-			$total_days = $diff->days;
-			
-			$irr = $this->CalculateIRR($since_inception_performance, $inception_date, $end_date, $accounts[0], true);
-			
-			if($total_days > 365){
-				$pow = pow( (1 + ($irr/ 100)) , 1 / ($total_days/365));
-				$irr = round( ($pow - 1) * 100, 2);
-			}
-			
-			//Since Inception
-			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $inception_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $inception_date, $end_date),
-				"IRR" => $irr
-			);
-			
-			if($inception_date > $last_3month_date){
-				$calculated_start_date = $inception_date;
-			} else {
-				$calculated_start_date = $last_3month_date;
-			}
-			
-			//Last 3 Months Index Return
-			$index_return_data[] = array(
-				'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), $calculated_start_date, $end_date),
-				'AGG' => $this->GetIndex("AGG", $request->get("account_number"), $calculated_start_date, $end_date),
-				"IRR" => $this->CalculateIRR($last3_month_performance, $calculated_start_date, $end_date, $accounts[0])
-			);
-			
-			$index_return_data[2]['50/50'] = ($index_return_data[2]['GSPC'] + $index_return_data[2]['AGG']) /2;
-			$index_return_data[1]['50/50'] = ($index_return_data[1]['GSPC'] + $index_return_data[1]['AGG']) /2;
-			$index_return_data[0]['50/50'] = ($index_return_data[0]['GSPC'] + $index_return_data[0]['AGG'])/2;
-			$index_return_data[3]['50/50'] = ($index_return_data[3]['GSPC'] + $index_return_data[3]['AGG'])/2;
-			
-			$viewer->assign("INDEX_RETURN_DATA", $index_return_data);
-			
-			$viewer->assign("SELECTED_PERIOD_PERFORMANCE", $selected_period_performance);
-			
-			$viewer->assign("YTD_PERFORMANCE", $ytd_performance);
-			
-			$viewer->assign("LAST_3_MONTHS_PERFORMANCE", $last3_month_performance);
-			
-			$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
-			
-			$viewer->assign("MODULE", "PortfolioInformation");
-			
-			$viewer->assign("ACCOUNT_NUMBER", $request->get("account_number"));
-
-			global $site_URL;
-			
-			$ispdf = $request->get('pdf');
-			
-			if($ispdf) {
-				$viewer->assign("IS_PDF", $ispdf);
-			}
-			
-			
-			if($ispdf) {
-				
-				$screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/OnePagePerformanceReport.tpl', "PortfolioInformation");
-			
-				$stylesheet  = '<link type="text/css" rel="stylesheet" href = "' . $site_URL . 'layouts/v7/lib/todc/css/bootstrap.min.css">';
-				
-				$screen_content = $stylesheet . $screen_content;
-				
-				$fileDir = 'cache/PerformanceReport';
-				
-				if (!is_dir($fileDir)) {
-					mkdir($fileDir);
-				}
-				
-				$bodyFileName = $fileDir.'/PerformanceReport.html';
-				
-				$fb = fopen($bodyFileName, 'w');
-				
-				fwrite($fb, $screen_content);
-				
-				fclose($fb);
-				
-				$whtmltopdfPath = $fileDir.'/'. $request->get("account_number").'.pdf';
-				
-				$footer ="<!doctype html>
-				<html>
-				
-					<head>
-						<meta charset='utf-8'>
-						<script>
-						function subst() {
-								var vars = {};
-								var x = document.location.search.substring(1).split('&');
-								for (var i in x) {
-									var z = x[i].split('=', 2);
-									vars[z[0]] = unescape(z[1]);
-								}
-								var x = ['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'];
-								
-								for (var i in x) {
-									
-									var y = document.getElementsByClassName(x[i]);
-									
-									for (var j = 0; j < y.length; ++j) y[j].textContent = vars[x[i]];
-
-									if (vars['page'] == 1) {
-										document.getElementById('FakeHeaders').style.display = 'none';
-									}
-								}
-						 }
-						 </script>
-					</head>
-					
-					<body onload='subst()'>
-						<div style='width:100%;'>
-							<div style='width:100%; float:left;vertical-align:middle;line-height:30px;' id = 'FakeHeaders'>
-								<p>
-									Market values are obtained from sources believed to be reliable but are not guaranteed. No representation is made as to this review's accuracy or completeness.<br/>
-									The performance data quoted represents past performance and does not guarantee future 
-									results. The investment return and principal value of an investment will fluctuate thus an investor's shares, when redeemed, may be worth more or less than return data quoted herein.
-								</p>
-							</div>
-						</div>
-					</body>
-				</html>";
-                $footerFileName = $fileDir.'/footer_PR.html';
-                $ff = fopen($footerFileName, 'w');
-                $f = $footer;
-                fwrite($ff, $f);
-                fclose($ff);
-				
-				shell_exec("wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0 --footer-html ".$footerFileName." --footer-font-size 10 " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
-				
-				header("Content-Type: application/octet-stream");
-				
-				header('Content-Disposition: attachment; filename="'.$request->get("account_number").'.pdf"');
-				
-				readfile($whtmltopdfPath);
-				
-				unlink($whtmltopdfPath);
-				unlink($bodyFileName);
-				
-				
-			} else {
-				$viewer->view('OnePagePerformanceReport.tpl', "PortfolioInformation");
-			}
+		$account_no = $request->get("account_number");
 		
-		} else { 
-            return "<div class='ReportBottom'></div>";
-		}
+		$account_numbers = array($account_no);
+		PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
+		
+		$file_content = $this->GenerateReport($account_no, $request);
+		
+		$viewer->assign("BLOB_CONTENT", base64_encode($file_content));
+		
+		$viewer->view('OnePagePerformanceReport.tpl', "PortfolioInformation");
+		
     }
+	
+	
+	function GenerateReport($account_no, Vtiger_Request $request){
+		
+		global $adb;
+		
+		$viewer = $this->getViewer($request);
+		
+		$report_start_date = DateTimeField::convertToDBFormat($request->get("report_start_date"));
+		
+		$report_end_date = DateTimeField::convertToDBFormat($request->get("report_end_date"));
+		
+		//PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
+		
+		//foreach($account_numbers as $account_no){
+			
+		$portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
+		inner join vtiger_portfolioinformationcf on 
+		vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
+		inner join vtiger_contactdetails  on contact_link = contactid 
+		inner join vtiger_contactaddress on contactaddressid = contactid
+		where account_number = ?", array($account_no));
+
+		$viewer->assign("PREPARED_FOR", 
+			$adb->query_result($portfolio_result, 0, "firstname") . ' ' . 
+			$adb->query_result($portfolio_result, 0, "lastname")
+		);
+		
+		$viewer->assign("PORTFOLIO_TYPE", $adb->query_result($portfolio_result, 0, "cf_2549"));
+	
+		if(strlen($report_start_date) > 1) {
+		   $start_date = date("Y-m-d", strtotime($report_start_date));
+		} else {
+		   $start_date =  date("Y-01-01");
+		}
+		
+		$viewer->assign("START_DATE", $start_date);	
+	
+		if(strlen($report_end_date) > 1) {
+			$end_date = date("Y-m-d", strtotime($report_end_date));
+		} else {
+			$end_date =  date("Y-12-31");
+		}
+			
+		$viewer->assign("END_DATE", $end_date);	
+		
+		$viewer->assign("REPORT_PERIOD", date("m/d/Y", strtotime($start_date)) . ' - ' .  date("m/d/Y", strtotime($end_date)));
+	
+		$result = $adb->pquery("select * from vtiger_portfolioinformation where 
+		account_number in (?)", array($account_no));
+		$inception_date = $adb->query_result($result, 0, "inceptiondate");
+		
+		$accounts = array($account_no);
+		
+		$since_inception_performance = new PerformanceReport_Model($accounts, 
+		$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
+		
+		$selected_period_performance = new PerformanceReport_Model($accounts, 
+		$this->DetermineIntervalStartDate($accounts, $start_date), $end_date);
+		
+		$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 12 MONTH)) as last_month_date", array($end_date));			
+		$last_12month_date = $adb->query_result($result, 0, "last_month_date");
+		$last_12month_performance = new PerformanceReport_Model($accounts, 
+		$this->DetermineIntervalStartDate($accounts, $last_12month_date), $end_date);
+		
+		$result = $adb->pquery("SELECT LAST_DAY(DATE_SUB(?, INTERVAL 3 MONTH)) as last_month_date", array($end_date));
+		$last_3month_date = $adb->query_result($result, 0, "last_month_date");
+		$last3_month_performance = new PerformanceReport_Model($accounts, $this->DetermineIntervalStartDate($accounts, $last_3month_date), $end_date);
+		
+		
+		$ytd_performance = new PerformanceReport_Model($accounts, 
+		$this->DetermineIntervalStartDate($accounts, GetDateStartOfYear($end_date)), $end_date);
+		
+		$index_return_data = array();
+		
+		if($inception_date > $last_12month_date){
+			$calculated_start_date = $inception_date;
+		} else {
+			$calculated_start_date = $last_12month_date;
+		}
+				
+				
+		//Last 12 Month Index Return
+		$index_return_data[] = array(
+			'GSPC' => $this->GetIndex("GSPC", $account_no, $calculated_start_date, $end_date),
+			'AGG' => $this->GetIndex("AGG", $account_no, $calculated_start_date, $end_date),
+			"IRR" => $this->CalculateIRR($last_12month_performance, $calculated_start_date , $end_date, $account_no)
+		);
+			
+				
+		if($inception_date > GetDateStartOfYear($end_date)){
+			$calculated_start_date = $inception_date;
+		} else {
+			$calculated_start_date = GetDateStartOfYear($end_date);
+		}
+			
+		//YTD Index Return
+		$index_return_data[] = array(
+			'GSPC' => $this->GetIndex("GSPC", $request->get("account_number"), 
+			$calculated_start_date, $end_date),
+			'AGG' => $this->GetIndex("AGG", $request->get("account_number"), 
+			$calculated_start_date, $end_date),
+			"IRR" => $this->CalculateIRR($ytd_performance, $calculated_start_date , $end_date, $account_no)
+		);
+			
+		$date1 = date_create($end_date);
+		
+		$date2 = date_create($inception_date);
+		
+		$diff = date_diff($date1, $date2);
+		
+		$total_days = $diff->days;
+		
+		$irr = $this->CalculateIRR($since_inception_performance, $inception_date, $end_date, $account_no, true);
+		
+		if($total_days > 365){
+			$pow = pow( (1 + ($irr/ 100)) , 1 / ($total_days/365));
+			$irr = round( ($pow - 1) * 100, 2);
+		}
+				
+		//Since Inception
+		$index_return_data[] = array(
+			'GSPC' => $this->GetIndex("GSPC", $account_no, $inception_date, $end_date),
+			'AGG' => $this->GetIndex("AGG", $account_no, $inception_date, $end_date),
+			"IRR" => $irr
+		);
+				
+		if($inception_date > $last_3month_date){
+			$calculated_start_date = $inception_date;
+		} else {
+			$calculated_start_date = $last_3month_date;
+		}
+			
+		//Last 3 Months Index Return
+		$index_return_data[] = array(
+			'GSPC' => $this->GetIndex("GSPC", $account_no, $calculated_start_date, $end_date),
+			'AGG' => $this->GetIndex("AGG", $account_no, $calculated_start_date, $end_date),
+			"IRR" => $this->CalculateIRR($last3_month_performance, $calculated_start_date, $end_date, $account_no)
+		);
+				
+		$index_return_data[2]['50/50'] = round(($index_return_data[2]['GSPC'] + $index_return_data[2]['AGG']) /2, 2);
+		$index_return_data[1]['50/50'] = round(($index_return_data[1]['GSPC'] + $index_return_data[1]['AGG']) /2, 2);
+		$index_return_data[0]['50/50'] = round(($index_return_data[0]['GSPC'] + $index_return_data[0]['AGG'])/2, 2);
+		$index_return_data[3]['50/50'] = round(($index_return_data[3]['GSPC'] + $index_return_data[3]['AGG'])/2, 2);
+		
+		$viewer->assign("INDEX_RETURN_DATA", $index_return_data);
+		
+		$viewer->assign("SELECTED_PERIOD_PERFORMANCE", $selected_period_performance);
+		
+		$viewer->assign("YTD_PERFORMANCE", $ytd_performance);
+		
+		$viewer->assign("LAST_3_MONTHS_PERFORMANCE", $last3_month_performance);
+		
+		$viewer->assign("LAST_12_MONTHS_PERFORMANCE", $last_12month_performance);
+		
+		$viewer->assign("MODULE", "PortfolioInformation");
+		
+		$viewer->assign("ACCOUNT_NUMBER", $account_no);
+
+		global $site_URL;
+			
+		$ispdf = $request->get('pdf');
+		
+		$viewer->assign("IS_PDF", $ispdf);
+		
+		$screen_content = $viewer->fetch('layouts/v7/modules/PortfolioInformation/OnePagePerformanceReportContent.tpl', "PortfolioInformation");
+		
+		$stylesheet  = '<link type="text/css" rel="stylesheet" href = "' . $site_URL . 'layouts/v7/lib/todc/css/bootstrap.min.css">';
+		
+		$screen_content = $stylesheet . $screen_content;
+			
+		$fileDir = 'cache/Reports';
+		
+		if (!is_dir($fileDir)) {
+			mkdir($fileDir);
+		}
+			
+		$bodyFileName = $fileDir.'/PerformanceReport.html';
+		
+		$fb = fopen($bodyFileName, 'w');
+		fwrite($fb, $screen_content);
+		fclose($fb);
+			
+		$whtmltopdfPath = $fileDir.'/'. $request->get("account_number").'.pdf';
+	
+		shell_exec("wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0 " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+			
+		return file_get_contents($whtmltopdfPath);
+		
+		//header("Content-Type: application/octet-stream");
+		//header('Content-Disposition: attachment; filename="'.$request->get("account_number").'.pdf"');
+		//readfile($whtmltopdfPath);
+		
+		unlink($whtmltopdfPath);
+		
+		unlink($bodyFileName);
+	
+	}
 
 
     public function GetIndex($index, $account_number, $start_date = 'since_inception', $end_date){
@@ -564,4 +599,46 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		
         return null;
     }
+	
+	
+	function getRecordsListFromRequest(Vtiger_Request $request) {
+		$cvId = $request->get('viewname');
+		$module = $request->get('module');
+		if(!empty($cvId) && $cvId=="undefined"){
+			$sourceModule = $request->get('sourceModule');
+			$cvId = CustomView_Record_Model::getAllFilterByModule($sourceModule)->getId();
+		}
+		$selectedIds = $request->get('selected_ids');
+		$excludedIds = $request->get('excluded_ids');
+
+		if(!empty($selectedIds) && $selectedIds != 'all') {
+			if(!empty($selectedIds) && count($selectedIds) > 0) {
+				return $selectedIds;
+			}
+		}
+
+		$customViewModel = CustomView_Record_Model::getInstanceById($cvId);
+		if($customViewModel) {
+            $searchKey = $request->get('search_key');
+            $searchValue = $request->get('search_value');
+            $operator = $request->get('operator');
+            if(!empty($operator)) {
+                $customViewModel->set('operator', $operator);
+                $customViewModel->set('search_key', $searchKey);
+                $customViewModel->set('search_value', $searchValue);
+            }
+
+            /**
+			 *  Mass action on Documents if we select particular folder is applying on all records irrespective of
+			 *  seleted folder
+			 */
+			if ($module == 'Documents') {
+				$customViewModel->set('folder_id', $request->get('folder_id'));
+				$customViewModel->set('folder_value', $request->get('folder_value'));
+			}
+
+			$customViewModel->set('search_params',$request->get('search_params'));
+			return $customViewModel->getRecordIds($excludedIds,$module);
+		}
+	}
 }
