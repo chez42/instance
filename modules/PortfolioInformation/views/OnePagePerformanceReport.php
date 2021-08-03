@@ -150,8 +150,11 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		$mode = $request->get('mode');
 		
 		if(!$mode){
+			parent::postProcess($request);	
+		} else {
 			return true;
 		}
+		
 	}
 
 	public  function DetermineIntervalStartDate($account_number, $sdate){
@@ -202,6 +205,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		
 		$viewer->assign("BLOB_CONTENT", base64_encode($file_content));
 		
+		$viewer->assign("USER_DATE_FORMAT", $current_user->date_format);
+		
 		$viewer->view('OnePagePerformanceReport.tpl', "PortfolioInformation");
 		
     }
@@ -213,9 +218,9 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		
 		$viewer = $this->getViewer($request);
 		
-		$report_start_date = DateTimeField::convertToDBFormat($request->get("report_start_date"));
+		$report_start_date = DateTimeField::convertToDBFormat(str_replace("/", "-", $request->get("report_start_date")));
 		
-		$report_end_date = DateTimeField::convertToDBFormat($request->get("report_end_date"));
+		$report_end_date = DateTimeField::convertToDBFormat(str_replace("/", "-", $request->get("report_end_date")));
 		
 		//PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
 		
@@ -241,18 +246,20 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		   $start_date =  date("Y-01-01");
 		}
 		
-		$viewer->assign("START_DATE", $start_date);	
-	
 		if(strlen($report_end_date) > 1) {
 			$end_date = date("Y-m-d", strtotime($report_end_date));
 		} else {
 			$end_date =  date("Y-12-31");
 		}
-			
-		$viewer->assign("END_DATE", $end_date);	
 		
 		$viewer->assign("REPORT_PERIOD", date("m/d/Y", strtotime($start_date)) . ' - ' .  date("m/d/Y", strtotime($end_date)));
-	
+		
+		$date = new DateTimeField($start_date);
+		$viewer->assign("START_DATE", $date->getDisplayDate());	
+		
+		$date = new DateTimeField($end_date);	
+		$viewer->assign("END_DATE", $date->getDisplayDate());	
+		
 		$result = $adb->pquery("select * from vtiger_portfolioinformation where 
 		account_number in (?)", array($account_no));
 		$inception_date = $adb->query_result($result, 0, "inceptiondate");
