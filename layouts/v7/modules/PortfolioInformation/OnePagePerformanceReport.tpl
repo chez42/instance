@@ -65,11 +65,11 @@
 					$("#calculate").submit();
 				});
 				$("#select_start_date").datepicker({
-					format: 'yyyy-mm-dd',
+					format: '{/literal}{$USER_DATE_FORMAT}{literal}',
 				});
 
 				$("#select_end_date").datepicker({
-					format: 'yyyy-mm-dd',
+					format: '{/literal}{$USER_DATE_FORMAT}{literal}',
 				});
 			});	
 		</script>
