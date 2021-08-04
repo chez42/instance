@@ -27,6 +27,7 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
 		);
 		$massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
 		
+		/*
 		$massActionLink = array(
             'linktype' => 'LISTVIEWMASSACTION',
             'linklabel' => 'Get Report Pdf',
@@ -35,7 +36,8 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
         );
 		
         $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
-        
+        */
+		
 		$massActionLink = array(
             'linktype' => 'LISTVIEWMASSACTION',
             'linklabel' => 'Generate One Page Performance Report',
@@ -48,7 +50,7 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
 		
 		
         //11.6.20
-        $BillingModuleModel = Vtiger_Module_Model::getInstance('Billing');
+        /*$BillingModuleModel = Vtiger_Module_Model::getInstance('Billing');
         
         if($currentUserModel->hasModulePermission($BillingModuleModel->getId())) {
             $massActionLink = array(
@@ -58,7 +60,7 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
                 'linkicon' => ''
             );
             $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
-        }  
+        }*/  
         
         
         return $massActionLinks;
