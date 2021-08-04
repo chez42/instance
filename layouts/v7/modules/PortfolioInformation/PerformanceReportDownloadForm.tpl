@@ -44,6 +44,7 @@
                        </div>
                     </div>
                 </div>
+				{assign var=BUTTON_NAME value={vtranslate('Download Report', $MODULE)}}
                 {include file='ModalFooter.tpl'|@vtemplate_path:$MODULE}
             </form>
         </div>

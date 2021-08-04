@@ -66,12 +66,14 @@ class PerformanceReport_Model extends Vtiger_Module {
 		#$start_date = GetDateMinusOneDay($start_date);
 
         $this->beginning_values_summed = new AccountValues();
+		
         $this->ending_values_summed = new AccountValues();
 
         $this->dividend_accrual = 0;
 
 		
 		$adb->pquery("DROP TABLE IF EXISTS tmp_intervals_daily");
+		
 		$adb->pquery("CREATE TEMPORARY TABLE tmp_intervals_daily LIKE intervals_daily");
 		
 		
@@ -321,7 +323,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			
 			// Individual Performance Begins
            
-			$adb->pquery("DROP TABLE IF EXISTS INDIVIDUAL_PERFORMANCE");
+			$adb->pquery("DROP TABLE IF EXISTS individual_performance");
 			
 			$adb->pquery("CREATE TEMPORARY TABLE individual_performance 
 			SELECT account_number, SUM(CONCAT(operation, net_amount)) AS amount, transaction_type, transaction_activity, 
@@ -430,21 +432,21 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			$this->isValid = true;
 
                 
-			$this->CalculateInvestmentReturn();
+			//$this->CalculateInvestmentReturn();
 			
-			$this->CalculateIndividualInvestmentReturn();
+			//$this->CalculateIndividualInvestmentReturn();
 			
-			$this->CalculateIndividualChangeInValue();
+			//$this->CalculateIndividualChangeInValue();
 			
-			$this->CalculateIndividualEstimatedIncome();
+			//$this->CalculateIndividualEstimatedIncome();
 			
-			$this->CalculateIndividualTWRCumulative($this->start_date, $this->end_date);
+			//$this->CalculateIndividualTWRCumulative($this->start_date, $this->end_date);
 			
-			$this->CalculateCombinedTWRCumulative($this->start_date, $this->end_date);
+			//$this->CalculateCombinedTWRCumulative($this->start_date, $this->end_date);
 			
-			$this->CalculateEstimatedIncome();
+			//$this->CalculateEstimatedIncome();
 			
-			$this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount;
+			//$this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount;
 		}
     }
 

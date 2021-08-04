@@ -69,10 +69,6 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 			$account_no = $adb->query_result($result, $i, "account_number");
 			
-			$account_numbers = array($account_no);
-			
-			PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
-			
 			$file_content = $this->GenerateReport($account_no, $request);
 		    
 			file_put_contents("cache/$account_no" . '_' . date("Y-m-d") . ".pdf", $file_content);
@@ -198,9 +194,6 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		
 		$account_no = $request->get("account_number");
 		
-		$account_numbers = array($account_no);
-		PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
-		
 		$file_content = $this->GenerateReport($account_no, $request);
 		
 		$viewer->assign("BLOB_CONTENT", base64_encode($file_content));
@@ -222,10 +215,6 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		
 		$report_end_date = DateTimeField::convertToDBFormat(str_replace("/", "-", $request->get("report_end_date")));
 		
-		//PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($account_numbers, null, null, true);
-		
-		//foreach($account_numbers as $account_no){
-			
 		$portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation
 		inner join vtiger_portfolioinformationcf on 
 		vtiger_portfolioinformationcf.portfolioinformationid = vtiger_portfolioinformation.portfolioinformationid			
@@ -265,6 +254,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 		$inception_date = $adb->query_result($result, 0, "inceptiondate");
 		
 		$accounts = array($account_no);
+		
+		PortfolioInformation_Module_Model::CalculateDailyIntervalsForAccounts($accounts, null, null, true);
 		
 		$since_inception_performance = new PerformanceReport_Model($accounts, 
 		$this->DetermineIntervalStartDate($accounts, $inception_date),$end_date);
@@ -397,17 +388,15 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			
 		$whtmltopdfPath = $fileDir.'/'. $request->get("account_number").'.pdf';
 	
-		shell_exec("wkhtmltopdf -O landscape --javascript-delay 2000 -T 10.0 -B 25.0 -L 5.0 -R 5.0 " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
+		shell_exec("wkhtmltopdf -O landscape -T 10.0 -B 25.0 -L 5.0 -R 5.0 " . $bodyFileName.' '.$whtmltopdfPath.' 2>&1');
 			
-		return file_get_contents($whtmltopdfPath);
-		
-		//header("Content-Type: application/octet-stream");
-		//header('Content-Disposition: attachment; filename="'.$request->get("account_number").'.pdf"');
-		//readfile($whtmltopdfPath);
+		$file_contents = file_get_contents($whtmltopdfPath);
 		
 		unlink($whtmltopdfPath);
 		
 		unlink($bodyFileName);
+		
+		return $file_contents;
 	
 	}
 
@@ -566,6 +555,11 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 			"day" => ($diff->days/$total_days)
 		);
 		
+		if(!($performance_obj->GetEndingValuesSummed()->value > 0 || $performance_obj->GetBeginningValuesSummed()->value > 0) && ! (count($cashFlow) > 2) ){
+			return 0;
+		}
+		
+		
 		bcscale(11);
 
         $totalCashFlowItems = count($cashFlow);
@@ -634,16 +628,7 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
                 $customViewModel->set('search_key', $searchKey);
                 $customViewModel->set('search_value', $searchValue);
             }
-
-            /**
-			 *  Mass action on Documents if we select particular folder is applying on all records irrespective of
-			 *  seleted folder
-			 */
-			if ($module == 'Documents') {
-				$customViewModel->set('folder_id', $request->get('folder_id'));
-				$customViewModel->set('folder_value', $request->get('folder_value'));
-			}
-
+			
 			$customViewModel->set('search_params',$request->get('search_params'));
 			return $customViewModel->getRecordIds($excludedIds,$module);
 		}
