@@ -68,7 +68,7 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
         $portQuery = $adb->pquery("SELECT * FROM vtiger_portfolioinformation
         INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_portfolioinformation.portfolioinformationid
         WHERE vtiger_crmentity.deleted = 0 AND
-        vtiger_portfolioinformation.portfolioinformationid IN (".generateQuestionMarks($recordId).")",$recordId);
+         vtiger_portfolioinformation.portfolioinformationid IN (".generateQuestionMarks($recordId).")",$recordId);
         
         if($adb->num_rows($portQuery)){
             
@@ -316,7 +316,8 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								'Federal withholding',
 								'Withdrawal Federal withholding',
 								'Foreign tax paid',
-								'Withdrawal state withholding'
+								'Withdrawal state withholding',
+								'Adjustment'
 							) or (
 								vtiger_transactionscf.transaction_activity IN ('Check Transaction')
 								AND transaction_type = 'Flow'
@@ -378,11 +379,31 @@ class Billing_BillingReportPdf_View extends Vtiger_MassActionAjax_View {
 								
 								
 								
-								$fee += $transactionAmount * $totalAmount;
+								//$fee += $transactionAmount * $totalAmount;
                                 
                             }
-                        }
+                       
                         //}
+						
+							foreach($transactionData as $t_date => $t_data){
+								
+								if($t_data['totalAmount'] > 0 || $t_data['totalAmount'] < 0){
+									
+									$transactionAmount = ($t_data['diff_days']/$t_data['totalDays'] * $feeamount);
+									
+									$fee += $transactionAmount * $t_data['totalAmount'];
+									
+								} else {
+									
+									unset($transactionData[$t_date]);
+								
+								}
+								
+							}
+							
+							
+							
+						}
 						
 						$original_fee = $fee;
 						

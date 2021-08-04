@@ -13,9 +13,75 @@ Vtiger_List_Js("PortfolioInformation_List_Js", {
     	var self = app.controller();
         self.ReCalculate();
     },
-
+	
+	triggerGenerateOnePagePerformanceReport : function() {
+    	var self = app.controller();
+        self.showOnePagePerformanceReportForm();
+    },
 	
 }, {
+	
+	showOnePagePerformanceReportForm : function() {
+        
+		var listInstance = window.app.controller();
+		
+		var selectedRecordCount = listInstance.getSelectedRecordCount();
+		
+		if (!selectedRecordCount) {
+			listInstance.noRecordSelectedAlert();
+			return;
+		}
+		
+		var listSelectParams = listInstance.getListSelectAllParams(true);
+		
+		listSelectParams['module'] = app.getModuleName();
+		listSelectParams['view'] = 'OnePagePerformanceReport';
+		listSelectParams['mode'] = 'viewForm';
+		
+		app.helper.showProgress();
+			
+		app.request.get({data: listSelectParams}).then(function (error, data) {
+			
+			app.helper.hideProgress();
+			
+			if(!error){
+				
+				var callback = function (data) {
+					
+					var downloadReport = jQuery("#downloadReport");
+					
+					vtUtils.applyFieldElementsView(downloadReport);
+					
+					downloadReport.vtValidate({
+								
+						/*submitHandler: function (form) {
+							
+							jQuery("button[name='saveButton']").attr("disabled","disabled");
+						
+							var formData = jQuery(form).serialize();
+							
+							app.helper.showProgress();
+							
+							app.request.post({data:formData}).then(function(err,data){
+								app.helper.hideProgress();
+								app.helper.hideModal();
+							});
+						}*/
+						
+					});
+				}
+				
+				var params = {};
+				
+				params.cb = callback;
+				
+				app.helper.showModal(data, params);
+			}
+		});
+			
+		
+    },
+	
 	
 	ReCalculate : function() {
         
