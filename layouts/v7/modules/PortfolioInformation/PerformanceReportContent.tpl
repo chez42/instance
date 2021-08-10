@@ -37,12 +37,12 @@
 					<div class = "col-xs-12" style = "font-size:25px;font-weight:600;margin-bottom:20px;text-align:center;">
 						Portfolio Overview
 					</div>
-					{if $IS_PDF neq ""}
-						<div style = "position:absolute;right:15;font-weight:600;font-size:14px;text-align:right;padding-top:10px;">
-							<div>Period Ending: {$END_DATE}</div>
-							<div style = "margin-top:5px;">Portfolio Inception Date: {$INCEPTION_DATE}</div>
-						</div>
-					{/if}
+					
+					<div style = "position:absolute;right:15;font-weight:600;font-size:14px;text-align:right;padding-top:10px;">
+						<div>Period Ending: {$END_DATE}</div>
+						<div style = "margin-top:5px;">Portfolio Inception Date: {$INCEPTION_DATE}</div>
+					</div>
+					
 				</div>
 			</div>
 			
@@ -173,12 +173,12 @@
 					<div class = "col-xs-12" style = "font-size:25px;font-weight:600;margin-bottom:20px;text-align:center;">
 						Asset Allocation
 					</div>
-					{if $IS_PDF neq ""}
-						<div style = "position:absolute;right:15;font-weight:600;font-size:14px;text-align:right;padding-top:10px;">
-							<div>Period Ending: {$END_DATE}</div>
-							<div style = "margin-top:5px;">Portfolio Inception Date: {$INCEPTION_DATE}</div>
-						</div>
-					{/if}
+					
+					<div style = "position:absolute;right:15;font-weight:600;font-size:14px;text-align:right;padding-top:10px;">
+						<div>Period Ending: {$END_DATE}</div>
+						<div style = "margin-top:5px;">Portfolio Inception Date: {$INCEPTION_DATE}</div>
+					</div>
+					
 				</div>
 			</div>
 			
@@ -223,6 +223,7 @@
 						<div>Period Ending: {$END_DATE}</div>
 						<div style = "margin-top:5px;">Portfolio Inception Date: {$INCEPTION_DATE}</div>
 					</div>
+					
 				</div>
 			</div>
 			
@@ -698,8 +699,6 @@
 				createSeries('AGG', 'The Third');
 			
 			}
-			
-			
 			
 		</script>
 	{/literal}
