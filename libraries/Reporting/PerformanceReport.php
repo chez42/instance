@@ -70,15 +70,17 @@ class PerformanceReport_Model extends Vtiger_Module {
         $this->ending_values_summed = new AccountValues();
 
         $this->dividend_accrual = 0;
-
 		
-		$adb->pquery("DROP TABLE IF EXISTS tmp_intervals_daily");
 		
-		$adb->pquery("CREATE TEMPORARY TABLE tmp_intervals_daily LIKE intervals_daily");
+		$table_name = 'tmp_intervals_daily'.uniqid();
+		
+		$adb->pquery("DROP TABLE IF EXISTS $table_name");
+		
+		$adb->pquery("CREATE TEMPORARY TABLE $table_name LIKE intervals_daily");
 		
 		
 		if($since_inception){
-				$adb->pquery("INSERT INTO tmp_intervals_daily SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, 
+				$adb->pquery("INSERT INTO $table_name SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, 
 			IntervalEndValue, NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, 
 			FirstDayFlows, FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount, 
 			intervaltype, investmentreturn, uid FROM (SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate 
@@ -94,7 +96,7 @@ class PerformanceReport_Model extends Vtiger_Module {
 				AccountNumber IN (" . $questions . ") ORDER BY intervaltype ASC
 			) AS ordered GROUP BY AccountNumber", array($account_numbers, $account_numbers));
 		} else {
-				$adb->pquery("INSERT INTO tmp_intervals_daily SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, 
+				$adb->pquery("INSERT INTO $table_name SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, 
 			IntervalEndValue, NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, 
 			FirstDayFlows, FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount, 
 			intervaltype, investmentreturn, uid FROM (SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate 
@@ -116,9 +118,9 @@ class PerformanceReport_Model extends Vtiger_Module {
 			
 		}
 		
-		$beginning_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily");
+		$beginning_date_result = $adb->pquery("SELECT * FROM $table_name");
 		
-		$result = $adb->pquery("SELECT MIN(intervalenddate) as intervaldate FROM tmp_intervals_daily");
+		$result = $adb->pquery("SELECT MIN(intervalenddate) as intervaldate FROM $table_name");
         
 		if($adb->num_rows($result) == 0){
             echo "There has been an error determining the earliest interval date!";
@@ -128,27 +130,27 @@ class PerformanceReport_Model extends Vtiger_Module {
 		
         $earliest_date = $adb->query_result($result, 0, 'intervaldate');
 		
-        $earliest_start_date_result = $adb->pquery("SELECT IntervalBeginDate FROM tmp_intervals_daily 
+        $earliest_start_date_result = $adb->pquery("SELECT IntervalBeginDate FROM $table_name 
 		WHERE IntervalEndDate = ?", array($earliest_date));
         
 		$earliest_start_date = $adb->query_result($earliest_start_date_result, 0, 'intervalbegindate');
 
-		$adb->pquery("DROP TEMPORARY TABLE IF EXISTS tmp_intervals_daily");
+		$adb->pquery("DROP TEMPORARY TABLE IF EXISTS $table_name");
 		
-		$adb->pquery("CREATE TEMPORARY TABLE tmp_intervals_daily LIKE intervals_daily");
+		$adb->pquery("CREATE TEMPORARY TABLE $table_name LIKE intervals_daily");
 		
-		$adb->pquery("INSERT INTO tmp_intervals_daily 
-	SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, IntervalEndValue,
-	NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, FirstDayFlows, 
-	FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount, intervaltype, 
-	investmentreturn, uid FROM intervals_daily WHERE (AccountNumber, IntervalEndDate) IN 
-	(SELECT AccountNumber, MAX(IntervalEndDate)  FROM intervals_daily WHERE IntervalEndDate >= ? 
-	AND IntervalEndDate <= ? AND AccountNumber IN (" . $questions . ")   
-	GROUP BY AccountNumber ORDER BY IntervalEndDate DESC) AND AccountNumber IN (" . $questions . ") 
-	GROUP BY AccountNumber", array( $start_date, $end_date, $account_numbers, $account_numbers));
+		$adb->pquery("INSERT INTO $table_name 
+		SELECT AccountNumber, IntervalID, IntervalBeginDate, IntervalEndDate AS IntervalEndDate, IntervalBeginValue, IntervalEndValue,
+		NetFlowAmount, NetReturnAmount, GrossReturnAmount, EntryDate, PriceBeginDate, PriceEndDate, FirstDayFlows, 
+		FirstDayGrossFlows, LastModifiedDate, expenseamount, incomeamount, journalamount, tradeamount, intervaltype, 
+		investmentreturn, uid FROM intervals_daily WHERE (AccountNumber, IntervalEndDate) IN 
+		(SELECT AccountNumber, MAX(IntervalEndDate)  FROM intervals_daily WHERE IntervalEndDate >= ? 
+		AND IntervalEndDate <= ? AND AccountNumber IN (" . $questions . ")   
+		GROUP BY AccountNumber ORDER BY IntervalEndDate DESC) AND AccountNumber IN (" . $questions . ") 
+		GROUP BY AccountNumber", array( $start_date, $end_date, $account_numbers, $account_numbers));
 		
 		
-		$ending_date_result = $adb->pquery("SELECT * FROM tmp_intervals_daily ORDER BY intervalendvalue DESC");
+		$ending_date_result = $adb->pquery("SELECT * FROM $table_name ORDER BY intervalendvalue DESC");
 
 		//$query = "CALL CALCULATE_DIVIDEND_ACCRUAL(\"{$questions}\", ?)";
         //$adb->pquery($query, array($account_numbers, $end_date));
@@ -273,13 +275,14 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
             }
 			
 			
-			// Performance Begins
-			$adb->pquery("DROP TABLE IF EXISTS performance");
+			$performance_table = 'performance'.uniqid();
 			
+			// Performance Begins
+			$adb->pquery("DROP TABLE IF EXISTS $performance_table");
 			
 			if($since_inception){
 			
-				$adb->pquery("CREATE TEMPORARY TABLE performance SELECT SUM(CONCAT(operation, net_amount)) 
+				$adb->pquery("CREATE TEMPORARY TABLE $performance_table SELECT SUM(CONCAT(operation, net_amount)) 
 				AS amount, transaction_type, transaction_activity, trade_date, operation, buy_sell_indicator, 
 				SUM(commission) AS commission FROM vtiger_transactions t JOIN vtiger_transactionscf cf USING (transactionsid) 
 				JOIN vtiger_crmentity e ON e.crmid = t.transactionsid JOIN vtiger_portfolioinformation p ON 
@@ -291,7 +294,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			
 			} else {
 			
-				$adb->pquery("CREATE TEMPORARY TABLE performance SELECT SUM(CONCAT(operation, net_amount)) 
+				$adb->pquery("CREATE TEMPORARY TABLE $performance_table SELECT SUM(CONCAT(operation, net_amount)) 
 				AS amount, transaction_type, transaction_activity, trade_date, operation, buy_sell_indicator, 
 				SUM(commission) AS commission FROM vtiger_transactions t JOIN vtiger_transactionscf cf USING (transactionsid) 
 				JOIN vtiger_crmentity e ON e.crmid = t.transactionsid JOIN vtiger_portfolioinformation p ON 
@@ -304,10 +307,10 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			}
 			
 			
-			$adb->pquery("UPDATE performance SET transaction_type = 'Reversal' WHERE 
+			$adb->pquery("UPDATE $performance_table SET transaction_type = 'Reversal' WHERE 
 			transaction_activity IN ('Management fee')");
 			
-			$query = "UPDATE performance SET transaction_type = 'income_div_interest'
+			$query = "UPDATE $performance_table SET transaction_type = 'income_div_interest'
 			  WHERE transaction_type = 'Income' 
 			  AND (transaction_activity LIKE ('%dividend%') OR 
 			  transaction_activity LIKE ('%interest%') or 
@@ -317,50 +320,11 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			  );";
 			$adb->pquery($query, array());
 			
-			$query = "UPDATE performance SET amount = 0 WHERE transaction_activity = 'Payment in lieu'";
+			$query = "UPDATE $performance_table SET amount = 0 WHERE transaction_activity = 'Payment in lieu'";
             $adb->pquery($query, array());
-		
-			
-			// Individual Performance Begins
-           
-			$adb->pquery("DROP TABLE IF EXISTS individual_performance");
-			
-			$adb->pquery("CREATE TEMPORARY TABLE individual_performance 
-			SELECT account_number, SUM(CONCAT(operation, net_amount)) AS amount, transaction_type, transaction_activity, 
-			trade_date, operation, buy_sell_indicator, SUM(commission) AS commission, 0 AS disable_performance 
-			FROM vtiger_transactions t JOIN vtiger_transactionscf cf USING (transactionsid) 
-			JOIN vtiger_crmentity e ON e.crmid = t.transactionsid\nWHERE account_number IN (" . $questions .") 
-			AND trade_date >= ? AND trade_date <= ? AND e.deleted = 0 
-			GROUP BY account_number, transaction_type, transaction_activity, buy_sell_indicator",
-			array($account_numbers, $this->transaction_start_date, $this->end_date));
 			
 			
-			$adb->pquery("UPDATE individual_performance SET account_number = TRIM(account_number)");
-			
-			$adb->pquery("UPDATE individual_performance h JOIN vtiger_portfolioinformation p 
-			ON p.account_number = h.account_number JOIN vtiger_portfolioinformationcf cf ON 
-			p.portfolioinformationid = cf.portfolioinformationid SET h.disable_performance = 1 
-			WHERE h.account_number = p.account_number AND cf.disable_performance = 1");
-			
-			
-			$adb->pquery("UPDATE individual_performance SET transaction_type = 'Reversal' WHERE transaction_activity IN ('Management fee')");
-			
-			$adb->pquery("UPDATE individual_performance SET transaction_type = 'Unknown' WHERE transaction_type IN ('')");
-			
-			$adb->pquery("UPDATE individual_performance SET transaction_activity = 'Unknown' WHERE transaction_activity IN ('')");
-			
-			$adb->pquery("DELETE FROM individual_performance WHERE transaction_type LIKE('%DUPE%')");
-			
-			
-            $query = "UPDATE individual_performance SET transaction_type = 'income_div_interest'
-                      WHERE transaction_type = 'Income' 
-                      AND (transaction_activity LIKE ('%dividend%') OR transaction_activity LIKE ('%interest%'));";
-            $adb->pquery($query, array());
-
-            $query = "UPDATE individual_performance SET amount = 0 WHERE transaction_activity = 'Payment in lieu'";
-            $adb->pquery($query, array());
-
-            $performance_result = $adb->query("SELECT * FROM performance");
+			$performance_result = $adb->query("SELECT * FROM $performance_table");
 
 			while($v = $adb->fetchByAssoc($performance_result)){
 				$tmp = new Performance();
@@ -374,7 +338,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			}
 
 			$query = "SELECT SUM(amount) AS amount, transaction_type, transaction_activity, trade_date, operation, 
-			buy_sell_indicator FROM performance GROUP BY transaction_type";
+			buy_sell_indicator FROM $performance_table GROUP BY transaction_type";
 			$result = $adb->pquery($query, array());
 
 			if($adb->num_rows($result) > 0){
@@ -388,9 +352,53 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 					$this->performance_summed[$v['transaction_type']] = $tmp;
 				}
 			}
+			
+		
+			
+			// Individual Performance Begins
+            
+			$individual_performance_table = 'individual_performance'.uniqid();
+			
+			$adb->pquery("DROP TABLE IF EXISTS $individual_performance_table");
+			
+			$adb->pquery("CREATE TEMPORARY TABLE $individual_performance_table 
+			SELECT account_number, SUM(CONCAT(operation, net_amount)) AS amount, transaction_type, transaction_activity, 
+			trade_date, operation, buy_sell_indicator, SUM(commission) AS commission, 0 AS disable_performance 
+			FROM vtiger_transactions t JOIN vtiger_transactionscf cf USING (transactionsid) 
+			JOIN vtiger_crmentity e ON e.crmid = t.transactionsid\nWHERE account_number IN (" . $questions .") 
+			AND trade_date >= ? AND trade_date <= ? AND e.deleted = 0 
+			GROUP BY account_number, transaction_type, transaction_activity, buy_sell_indicator",
+			array($account_numbers, $this->transaction_start_date, $this->end_date));
+			
+			
+			$adb->pquery("UPDATE $individual_performance_table SET account_number = TRIM(account_number)");
+			
+			$adb->pquery("UPDATE $individual_performance_table h JOIN vtiger_portfolioinformation p 
+			ON p.account_number = h.account_number JOIN vtiger_portfolioinformationcf cf ON 
+			p.portfolioinformationid = cf.portfolioinformationid SET h.disable_performance = 1 
+			WHERE h.account_number = p.account_number AND cf.disable_performance = 1");
+			
+			
+			$adb->pquery("UPDATE $individual_performance_table SET transaction_type = 'Reversal' WHERE transaction_activity IN ('Management fee')");
+			
+			$adb->pquery("UPDATE $individual_performance_table SET transaction_type = 'Unknown' WHERE transaction_type IN ('')");
+			
+			$adb->pquery("UPDATE $individual_performance_table SET transaction_activity = 'Unknown' WHERE transaction_activity IN ('')");
+			
+			$adb->pquery("DELETE FROM $individual_performance_table WHERE transaction_type LIKE('%DUPE%')");
+			
+			
+            $query = "UPDATE $individual_performance_table SET transaction_type = 'income_div_interest'
+                      WHERE transaction_type = 'Income' 
+                      AND (transaction_activity LIKE ('%dividend%') OR transaction_activity LIKE ('%interest%'));";
+            $adb->pquery($query, array());
 
+            $query = "UPDATE $individual_performance_table SET amount = 0 WHERE transaction_activity = 'Payment in lieu'";
+            $adb->pquery($query, array());
+
+            
 			$query = "SELECT account_number, SUM(amount) AS amount, transaction_type, transaction_activity, trade_date, 
-			operation, buy_sell_indicator, disable_performance FROM individual_performance GROUP BY account_number, transaction_type";
+			operation, buy_sell_indicator, disable_performance FROM $individual_performance_table GROUP BY account_number, transaction_type";
 			
 			$result = $adb->pquery($query, array());
 
@@ -432,9 +440,9 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			$this->isValid = true;
 
                 
-			//$this->CalculateInvestmentReturn();
+			$this->CalculateInvestmentReturn();
 			
-			//$this->CalculateIndividualInvestmentReturn();
+			$this->CalculateIndividualInvestmentReturn();
 			
 			//$this->CalculateIndividualChangeInValue();
 			
@@ -449,6 +457,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			//$this->performance_summed['change_in_value'] = $this->ending_values_summed->value - $this->beginning_values_summed->value - $this->performance_summed['Flow']->amount - $this->performance_summed['Reversal']->amount;
 		}
     }
+	
 
     private function CalculateTWRFromIntervals($start_date, $end_date){
         global $adb;
@@ -828,8 +837,20 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 		//return getReferenceReturn($index,$this->start_date,$this->end_date);
 	}
 	
-	public function get_portfolio_return(){
-		return round ( ( ($this->capital_appreciation / $this->ending_values_summed->value) * 100), 1);
+	public function get_portfolio_return($since_inception = false, $total_days = 0){
+		
+		$investment_gain = $this->ending_values_summed->value - ($this->beginning_values_summed->value + $this->performance_summed['Flow']->amount);
+		
+		$investment_gain = $investment_gain / ($this->beginning_values_summed->value + $this->performance_summed['Flow']->amount);
+		
+		if($since_inception && $total_days > 365){
+			
+			$pow = pow( (1 + $investment_gain) , 1 / ($total_days/365));
+			return round(($pow - 1) * 100, 2);
+			
+		} else {
+			return round(($investment_gain * 100), 2);
+		}
 	}
 	
 	
@@ -884,7 +905,8 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
         }
         return $tmp;
     }
-    public function SetBenchmark($stocks, $cash, $bonds){
+    
+	/*public function SetBenchmark($stocks, $cash, $bonds){
         $s1 = $this->GetIndex("GSPC");// * $stocks / 100;
         $s2 = $this->GetIndex("DVG");// * $stocks / 100;
         $b1 = $this->GetIndex("SP500BDT");// * $bonds / 100;
@@ -895,7 +917,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 
     public function GetBenchmark(){
         return $this->benchmark;
-    }
+    }*/
 
     public function GetDividendAccrualAmount(){
         return $this->dividend_accrual;

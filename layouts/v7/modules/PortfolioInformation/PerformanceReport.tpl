@@ -2,16 +2,21 @@
 	
 	<div id="dateselection" class = "col-md-12" style = "margin-bottom:10px;">
 		<div class = "col-md-8">
+		<form method="GET" id="calculate">
+			<input type="hidden" value='{$ACCOUNT_NUMBER}' name="account_number" id="account_number" />
+			<input type="hidden" value="PortfolioInformation" name="module" />
+			<input type="hidden" value="PerformanceReport" name="view" />
 			<table class="dateselectiontable">
 				<tr>
 					<td>
-						<input type="text" id="select_end_date" value="{$END_DATE}" class = "inputElement"/>
+						<input type="text" id="report_end_date" name = "report_end_date" value="{$END_DATE}" class = "inputElement"/>
 					</td>
 					<td>
 						<input type="button" class = "btn btn-info" id="calculate_report" value="Calculate" style = "margin-left:10px;" />
 					</td>
 				</tr>
 			</table>
+		</form>
 		</div>
 	</div>
 			
@@ -55,7 +60,7 @@
 					$("#calculate").submit();
 				});
 				
-				$("#select_end_date").datepicker({
+				$("#report_end_date").datepicker({
 					format: '{/literal}{$USER_DATE_FORMAT}{literal}',
 				});
 			});	
