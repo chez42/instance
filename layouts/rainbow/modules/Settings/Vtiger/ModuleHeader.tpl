@@ -57,7 +57,7 @@
 									<span class="ti-angle-right" aria-hidden="true"></span>&nbsp;
 									{vtranslate('LBL_EDITING', $MODULE)} :&nbsp;{$USER_MODEL->getName()}
 								{else if $smarty.request.view eq 'Edit' or $smarty.request.view eq 'Detail'}
-									<a href="{$URL}">
+									<a href="{$URL}" style = "float:left;">
 									{if $smarty.request.extensionModule}{$smarty.request.extensionModule}{else}{vtranslate({$PAGETITLE}, $QUALIFIED_MODULE)}{/if}&nbsp;
 									</a>
 									<span class="ti-angle-right" aria-hidden="true"></span>&nbsp;
