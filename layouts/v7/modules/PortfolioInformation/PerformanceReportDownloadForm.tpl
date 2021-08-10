@@ -31,12 +31,16 @@
                 {include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
                 
                 <div class="modal-body">
-                    <div class="form-group">
+                    
+					{if $TYPE neq 'PerformanceReport'}
+					<div class="form-group">
 						<label class="col-lg-4 control-label">{vtranslate('From Date',$MODULE)}</label>
 						<div class="col-lg-6">
 							<input type = "text" name = "report_start_date" class = "form-control dateField"  data-rule-required="true" autocomplete="off" />
 						</div>
                     </div>
+					{/if}
+					
                     <div class="form-group">
                        <label class="col-lg-4 control-label">{vtranslate('To Date', $MODULE)}</label>
                        <div class="col-lg-6">
