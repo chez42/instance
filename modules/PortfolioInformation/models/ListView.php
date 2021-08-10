@@ -41,11 +41,21 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
 		$massActionLink = array(
             'linktype' => 'LISTVIEWMASSACTION',
             'linklabel' => 'Generate One Page Performance Report',
-            'linkurl' => 'javascript:PortfolioInformation_List_Js.triggerGenerateOnePagePerformanceReport();',
+            'linkurl' => "javascript:PortfolioInformation_List_Js.triggerGeneratePerformanceReport('OnePagePerformanceReport');",
             'linkicon' => ''
         );
 		
         $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+		
+		$massActionLink = array(
+            'linktype' => 'LISTVIEWMASSACTION',
+            'linklabel' => 'Generate Performance Report',
+            'linkurl' => "javascript:PortfolioInformation_List_Js.triggerGeneratePerformanceReport('PerformanceReport');",
+            'linkicon' => ''
+        );
+		
+        $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+        
         
 		
 		

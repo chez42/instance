@@ -14,14 +14,14 @@ Vtiger_List_Js("PortfolioInformation_List_Js", {
         self.ReCalculate();
     },
 	
-	triggerGenerateOnePagePerformanceReport : function() {
+	triggerGeneratePerformanceReport : function(type) {
     	var self = app.controller();
-        self.showOnePagePerformanceReportForm();
+        self.showPerformanceReportForm(type);
     },
 	
 }, {
 	
-	showOnePagePerformanceReportForm : function() {
+	showPerformanceReportForm : function(type) {
         
 		var listInstance = window.app.controller();
 		
@@ -35,7 +35,7 @@ Vtiger_List_Js("PortfolioInformation_List_Js", {
 		var listSelectParams = listInstance.getListSelectAllParams(true);
 		
 		listSelectParams['module'] = app.getModuleName();
-		listSelectParams['view'] = 'OnePagePerformanceReport';
+		listSelectParams['view'] = type;
 		listSelectParams['mode'] = 'viewForm';
 		
 		app.helper.showProgress();
