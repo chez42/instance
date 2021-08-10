@@ -10,7 +10,7 @@
 
 {* START YOUR IMPLEMENTATION FROM BELOW. Use {debug} for information *}
 {strip}
-<div class="detailViewContainer">
+<div class="detailViewContainer" style = "margin-top:10px;">
     <div class="col-sm-12 col-xs-12">
         <div class="detailViewTitle" id="userPageHeader">
             <div class = "row">
@@ -37,47 +37,50 @@
                     </span>
                 </div>
                 <div class="pull-right col-md-7 detailViewButtoncontainer">
-                    <div class="btn-group pull-right">
-                        {foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWBASIC']}
-                            <button class="btn btn-default {if $DETAIL_VIEW_BASIC_LINK->getLabel() eq 'LBL_EDIT'}{/if}" id="{$MODULE}_detailView_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel())}"
-                                    {if $DETAIL_VIEW_BASIC_LINK->isPageLoadLink()}
-                                        onclick="window.location.href='{$DETAIL_VIEW_BASIC_LINK->getUrl()}'"
-                                    {else}
-                                        onclick="{$DETAIL_VIEW_BASIC_LINK->getUrl()}"
-                                    {/if}>
-                               {vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE)}
-                            </button>
-                        {/foreach}
-                        {if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
-                            <button class="btn btn-default" data-toggle="dropdown" href="javascript:void(0);">
-                                {vtranslate('LBL_MORE', $MODULE)}&nbsp;<i class="caret"></i>
-                            </button>
-                            <ul class="dropdown-menu pull-right">
-                                {foreach item=DETAIL_VIEW_LINK from=$DETAILVIEW_LINKS['DETAILVIEW']}
-                                    {if $DETAIL_VIEW_LINK->getLabel() eq "Delete"}
-                                        {if $CURRENT_USER_MODEL->isAdminUser() && $CURRENT_USER_MODEL->getId() neq $RECORD->getId()}
-                                            <li id="{$MODULE}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
-                                            <a href={$DETAIL_VIEW_LINK->getUrl()} >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE)}</a>
-                                        {/if}
-                                    {else}
-                                        <li id="{$MODULE}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
-                                            <a href={$DETAIL_VIEW_LINK->getUrl()} >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE)}</a>
-                                        </li>
-                                    {/if}
-                                {/foreach}
-                            </ul>
-                        {/if}
-                    </div>
-                    {if !{$NO_PAGINATION}}
-			            <div class="button-group pull-right">
-			                <button class="btn btn-secondary" id="detailViewPreviousRecordButton" {if empty($PREVIOUS_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$PREVIOUS_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if} >
-			                      <i class="fa fa-chevron-left"></i>
-			                </button>
-			                <button class="btn btn-secondary " id="detailViewNextRecordButton"{if empty($NEXT_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$NEXT_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if}>
-			                    <i class="fa fa-chevron-right"></i>
-			                </button>
-			            </div>
-		            {/if}    
+				
+					<div class = "pull-right btn-toolbar">
+						<div class="btn-group" style = "margin-right:10px;">
+							{foreach item=DETAIL_VIEW_BASIC_LINK from=$DETAILVIEW_LINKS['DETAILVIEWBASIC']}
+								<button class="btn btn-primary {if $DETAIL_VIEW_BASIC_LINK->getLabel() eq 'LBL_EDIT'}{/if}" id="{$MODULE}_detailView_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_BASIC_LINK->getLabel())}"
+										{if $DETAIL_VIEW_BASIC_LINK->isPageLoadLink()}
+											onclick="window.location.href='{$DETAIL_VIEW_BASIC_LINK->getUrl()}'"
+										{else}
+											onclick="{$DETAIL_VIEW_BASIC_LINK->getUrl()}"
+										{/if}>
+								   {vtranslate($DETAIL_VIEW_BASIC_LINK->getLabel(), $MODULE)}
+								</button>
+							{/foreach}
+							{if $DETAILVIEW_LINKS['DETAILVIEW']|@count gt 0}
+								<button class="btn btn-primary" data-toggle="dropdown" href="javascript:void(0);">
+									{vtranslate('LBL_MORE', $MODULE)}&nbsp;<i class="caret"></i>
+								</button>
+								<ul class="dropdown-menu pull-right">
+									{foreach item=DETAIL_VIEW_LINK from=$DETAILVIEW_LINKS['DETAILVIEW']}
+										{if $DETAIL_VIEW_LINK->getLabel() eq "Delete"}
+											{if $CURRENT_USER_MODEL->isAdminUser() && $CURRENT_USER_MODEL->getId() neq $RECORD->getId()}
+												<li id="{$MODULE}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
+												<a href={$DETAIL_VIEW_LINK->getUrl()} >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE)}</a>
+											{/if}
+										{else}
+											<li id="{$MODULE}_detailView_moreAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($DETAIL_VIEW_LINK->getLabel())}">
+												<a href={$DETAIL_VIEW_LINK->getUrl()} >{vtranslate($DETAIL_VIEW_LINK->getLabel(), $MODULE)}</a>
+											</li>
+										{/if}
+									{/foreach}
+								</ul>
+							{/if}
+						</div>
+						{if !{$NO_PAGINATION}}
+							<div class="button-group pull-right">
+								<button class="btn btn-secondary" id="detailViewPreviousRecordButton" {if empty($PREVIOUS_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$PREVIOUS_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if} >
+									  <i class="fa fa-chevron-left"></i>
+								</button>
+								<button class="btn btn-secondary " id="detailViewNextRecordButton"{if empty($NEXT_RECORD_URL)} disabled="disabled" {else} onclick="window.location.href = '{$NEXT_RECORD_URL}&app={$SELECTED_MENU_CATEGORY}'" {/if}>
+									<i class="fa fa-chevron-right"></i>
+								</button>
+							</div>
+						{/if}  
+					</div>
                 </div>
             </div>
         </div>
