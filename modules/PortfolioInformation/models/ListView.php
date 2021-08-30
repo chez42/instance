@@ -56,6 +56,16 @@ class PortfolioInformation_ListView_Model extends Vtiger_ListView_Model{
 		
         $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
         
+		$massActionLink = array(
+            'linktype' => 'LISTVIEWMASSACTION',
+            'linklabel' => 'Generate Billing Statement',
+            'linkurl' => "javascript:PortfolioInformation_List_Js.triggerGenerateBillingStatement();",
+            'linkicon' => ''
+        );
+		
+        $massActionLinks['LISTVIEWMASSACTION'][] = Vtiger_Link_Model::getInstanceFromValues($massActionLink);
+        
+        
         
 		
 		
