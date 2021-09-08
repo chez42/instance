@@ -841,11 +841,26 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 		
 		$investment_gain = $this->ending_values_summed->value - ($this->beginning_values_summed->value + $this->performance_summed['Flow']->amount);
 		
+		if(!$investment_gain || !($this->beginning_values_summed->value + $this->performance_summed['Flow']->amount)){
+			return 0;
+		}
+		
 		$investment_gain = $investment_gain / ($this->beginning_values_summed->value + $this->performance_summed['Flow']->amount);
 		
 		if($since_inception && $total_days > 365){
 			
-			$pow = pow( (1 + $investment_gain) , 1 / ($total_days/365));
+			$y = 1 + $investment_gain;
+			
+			$n = bcdiv(($total_days/365), 1, 1);
+			
+			$power = 1 / $n;
+			
+			if($y < 0){
+				$pow = (-1*$y) ** $power;
+			} else {
+				$pow = $y ** $power;
+			}
+			
 			return round(($pow - 1) * 100, 2);
 			
 		} else {
