@@ -33,7 +33,7 @@
 						<td><a class='context-menu-one_DISABLED' data-acc="{$i.account_number}" href="index.php?module=PortfolioInformation&view=Detail&record={$i.portfolioinformationid}" target="_blank">{$i.account_number}</a></td>
 					{/if}
 					<td style="text-align:left;"><a href="index.php?module=Contacts&view=Detail&record={$i.contactid}" target="_blank">{$i.firstname} {$i.lastname}</a></td>
-					<td style="text-align:left;">{$i.account_type}</td>
+					<td style="text-align:left;">{$i.cf_2549}</td>
 					<td style="text-align:right;">${$i.total_value|number_format:2}</td>
 {*					<td style="text-align:right;">${$i.money_market_funds|number_format:2}</td>
 {*					<td style="text-align:right;">${$i.securities|number_format:2}</td>
