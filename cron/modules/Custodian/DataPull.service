@@ -40,3 +40,15 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Consolidating Balances");
 PortfolioInformation_Module_Model::ConsolidatedBalances($accounts, $start, $finish);
 echo date("Y-m-d H:i:s") . ' - Balances Consolidated - <br />';
 StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Process");
+
+
+//Calculate Balance for TD Portfolios
+$sdate = date("Y-m-01");
+$edate = date("Y-m-d");
+$portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation 
+inner join vtiger_crmentity on crmid = portfolioinformationid where deleted = 0 and origination = 'TD'");
+$accounts = array();
+for($i = 0; $i < $adb->num_rows($portfolio_result);  $i++){
+	$accounts[] = $adb->query_result($portfolio_result, $i, "account_number");
+}
+cTDPortfolios::CalculateAndWriteBalances($accounts, $sdate, $edate){
