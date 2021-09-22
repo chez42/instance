@@ -11,8 +11,8 @@ global $adb, $current_user;
  vglobal("current_user", $user);
  */
 
-if(RingCentral_Config_Connector::$server == 'Sandbox')
-    $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
+	if(RingCentral_Config_Connector::$server == 'Sandbox')
+		$rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
     if(RingCentral_Config_Connector::$server == 'Production')
         $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_PRODUCTION);
         
@@ -55,6 +55,13 @@ if(RingCentral_Config_Connector::$server == 'Sandbox')
                         continue;
                     }
                 }
+				
+				
+				if($token['access_token_expiry_time'] < $current_time && $token['refresh_token_expiry_time'] < $current_time){
+					 $adb->pquery("update vtiger_ringcentral_oauth set access_token = ''
+					 where userid = ?",array($user_id));
+                     continue;
+				}
                 
 				
 				

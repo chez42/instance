@@ -377,6 +377,20 @@ Class MSExchange_Vtiger_Connector extends MSExchange_Base_Connector{
 			
 			while($arre = $adb->fetchByAssoc($result)){
 				
+				$event_start_time = $arre['date_start'] . ' ' . $arre['time_start'];
+				
+				$event_end_time =  $arre['due_date'] . ' ' . $arre['time_end'];
+				
+				if(
+					! ( 
+						strtotime($event_end_time) > strtotime($event_start_time) 
+					) 
+				){
+					continue;
+				}
+				
+				
+				
 				$key = $arre[$moduleMeta->getIdColumn()];
 				
                 if($forModule == 'Calendar' && ($arre['contactid'] > 0 || $arre['crmid'] > 0)){
