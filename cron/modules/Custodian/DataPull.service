@@ -45,6 +45,7 @@ StatusUpdate::UpdateMessage("CRONUPDATER", "Finished Process");
 //Calculate Balance for TD Portfolios
 $sdate = date("Y-m-01");
 $edate = date("Y-m-d");
+global $adb;
 $portfolio_result = $adb->pquery("select * from vtiger_portfolioinformation 
 inner join vtiger_crmentity on crmid = portfolioinformationid where deleted = 0 and origination = 'TD'");
 $accounts = array();
