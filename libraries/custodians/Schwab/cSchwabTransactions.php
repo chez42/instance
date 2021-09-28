@@ -821,7 +821,10 @@ class cSchwabTransactions extends cCustodian
 	
 	static public function CreateNewTransactionsForAccounts2(array $account_number){
         global $adb;
-
+		
+		
+		$account_no = $account_number;
+		
         $account_number = self::PrependZero($account_number);
 
         $account_questions = generateQuestionMarks($account_number);
@@ -831,7 +834,7 @@ class cSchwabTransactions extends cCustodian
                   WHERE origination = 'Schwab'
                   AND account_number IN ({$account_questions})";
         
-		$result = $adb->pquery($query, array($account_number));
+		$result = $adb->pquery($query, array($account_no));
         
 		$params = array();
         
@@ -853,7 +856,7 @@ class cSchwabTransactions extends cCustodian
             FROM vtiger_transactions WHERE origination = 'Schwab'
             AND account_number IN ({$account_questions})) ";
 				  
-            $params[] = $account_number;
+            $params[] = $account_no;
         }
 
         $query = "SELECT 1 AS ownerid, 
