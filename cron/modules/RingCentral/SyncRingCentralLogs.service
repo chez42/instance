@@ -1,24 +1,20 @@
 <?php
-//require_once "includes/main/WebUI.php";
 
-require_once 'modules/RingCentral/vendor/autoload.php';
+		require_once 'modules/RingCentral/vendor/autoload.php';
 
-global $adb, $current_user;
+		global $adb, $current_user;
 
-/*$user = CRMEntity::getInstance("Users");
- $user->id = 1;
- $user->retrieve_entity_info($user->id, "Users");
- vglobal("current_user", $user);
- */
 
-	if(RingCentral_Config_Connector::$server == 'Sandbox')
-		$rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
-    if(RingCentral_Config_Connector::$server == 'Production')
-        $rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_PRODUCTION);
+		if(RingCentral_Config_Connector::$server == 'Sandbox')
+			$rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_SANDBOX);
+		
+		if(RingCentral_Config_Connector::$server == 'Production')
+			$rcsdk = new RingCentral\SDK\SDK(RingCentral_Config_Connector::$client_id, RingCentral_Config_Connector::$client_secret, RingCentral\SDK\SDK::SERVER_PRODUCTION);
         
         $platform = $rcsdk->platform();
         
-        $ringCentral_settings_result = $adb->pquery("SELECT * FROM vtiger_ringcentral_oauth where ( access_token is not NULL and access_token != '' )",array());
+        $ringCentral_settings_result = $adb->pquery("SELECT * FROM vtiger_ringcentral_oauth where 
+		( access_token is not NULL and access_token != '' )",array());
         
         if($adb->num_rows($ringCentral_settings_result)){
             
@@ -44,20 +40,27 @@ global $adb, $current_user;
                 
                 $platform->auth()->setData($token);
                 
-                if($token['access_token_expiry_time'] < $current_time && $token['refresh_token_expiry_time'] > $current_time){
+                if(
+					$token['access_token_expiry_time'] < $current_time && 
+					$token['refresh_token_expiry_time'] > $current_time
+				){
+					
                     try {
                         $api_response = $platform->refresh();
                         $token_response =  $api_response->text();
                         saveToken($token_response, $user_id);
                     } catch(Exception $e){
                         $adb->pquery("update vtiger_ringcentral_oauth set access_token = ''
-	            where userid = ?",array($user_id));
+						where userid = ?",array($user_id));
                         continue;
                     }
                 }
 				
 				
-				if($token['access_token_expiry_time'] < $current_time && $token['refresh_token_expiry_time'] < $current_time){
+				if(
+					$token['access_token_expiry_time'] < $current_time && 
+					$token['refresh_token_expiry_time'] < $current_time
+				){
 					 $adb->pquery("update vtiger_ringcentral_oauth set access_token = ''
 					 where userid = ?",array($user_id));
                      continue;
@@ -81,7 +84,8 @@ global $adb, $current_user;
                 ));
 				
 				$message_logs = json_decode($message_logs->text(), true);
-               
+                
+				
 				$modified_time_array =  array();
                 
 				foreach($message_logs['records'] as $record){
@@ -90,7 +94,7 @@ global $adb, $current_user;
                 
                 $message_sync = true;
                 
-                $count = 1;
+                $count = 2;
                 
                 while($message_sync){
                     
@@ -98,10 +102,9 @@ global $adb, $current_user;
                     
                     if(!isset($message_logs['navigation']['nextPage'])){
                         $message_sync = false;
-                        $count++;
                     }
                     
-                    if($message_sync){
+					if($message_sync){
                         
                         $message_logs = $platform->get('/account/~/extension/~/message-store',array(
                             'dateFrom' => $syncStartDate,
@@ -110,12 +113,13 @@ global $adb, $current_user;
 							'perPage' => 1000,
 					    ));
                         
+						$count++;
+						
                         $message_logs = json_decode($message_logs->text(), true);
                         
                         foreach($message_logs['records'] as $record){
                             $modified_time_array[] = $record['lastModifiedTime'];
                         }
-                        
                     }
                 }
 				
@@ -126,11 +130,13 @@ global $adb, $current_user;
 					$syncLastTime =  date('c');
 				}
                 
-                $adb->pquery("UPDATE vtiger_ringcentral_oauth SET lastmsgsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
+                $adb->pquery("UPDATE vtiger_ringcentral_oauth SET 
+				lastmsgsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
                 
                 /**** Message Sync Ends ****/
                 
-                /** Call Sync Begins ***/
+				
+				/** Call Sync Begins ***/
                 
                 $token['lastcallsynctime'] = $token_data['lastcallsynctime'] ? $token_data['lastcallsynctime'] : date("Y-m-d H:i:s", strtotime("-10 hours"));
                 $syncStartDate = date('c', strtotime($token['lastcallsynctime']));
@@ -155,7 +161,7 @@ global $adb, $current_user;
                 
                 $call_sync = true;
                 
-                $count = 1;
+                $count = 2;
                 
                 while($call_sync){
                     
@@ -163,7 +169,6 @@ global $adb, $current_user;
                     
                     if(!isset($call_logs['navigation']['nextPage'])){
                         $call_sync = false;
-                        $count++;
                     }
                     
                     if($call_sync){
@@ -176,23 +181,21 @@ global $adb, $current_user;
 							'perPage' => 1000,
 					    ));
                         
+						$count++;
+                    
                         $call_logs = json_decode($call_logs->text(), true);
                         
                         foreach($call_logs['records'] as $record){
                             $modified_time_array[] = $record['startTime'];
                         }
-                        
                     }
                 }
                 
                 
                 if(!empty($modified_time_array)){
-                    
-					usort($modified_time_array, 'sort_date');
-                    
-					$syncLastTime = date('c', strtotime("-5 minutes", strtotime(   $modified_time_array[count($modified_time_array)- 1]   ) ));
-					
-                }  else {
+                    usort($modified_time_array, 'sort_date');
+                    $syncLastTime = date('c', strtotime("-5 minutes", strtotime(   $modified_time_array[count($modified_time_array)- 1]   ) ));
+				}  else {
 					$syncLastTime =  date('c');
 				}
 				
@@ -218,13 +221,14 @@ global $adb, $current_user;
                 $fax_logs = json_decode($fax_logs->text(), true);
                 
 				$modified_time_array =  array();
+				
                 foreach($fax_logs['records'] as $record){
                     $modified_time_array[] = $record['lastModifiedTime'];
                 }
                 
                 $fax_sync = true;
                 
-                $count = 1;
+                $count = 2;
                 
                 while($fax_sync){
                     
@@ -232,7 +236,6 @@ global $adb, $current_user;
                     
                     if(!isset($fax_logs['navigation']['nextPage'])){
                         $fax_sync = false;
-                        $count++;
                     }
                     
                     if($fax_sync){
@@ -244,6 +247,8 @@ global $adb, $current_user;
 							'perPage' => 1000,
 					    ));
                         
+						$count++;
+						
                         $fax_logs = json_decode($fax_logs->text(), true);
                         
                         foreach($fax_logs['records'] as $record){
@@ -264,11 +269,7 @@ global $adb, $current_user;
 				}
                 
                 $adb->pquery("UPDATE vtiger_ringcentral_oauth SET lastfaxsynctime = ? where userid = ? ",array($syncLastTime, $token_data['userid']));
-                
                 /** Fax Sync Ends ***/
-                
-                
-                
             }
         }
         
@@ -282,9 +283,9 @@ global $adb, $current_user;
                 $obj = CRMEntity::getInstance("RingCentral");
                 
                 $ringcentral_result = $adb->pquery("SELECT * FROM vtiger_ringcentral
-		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
-		WHERE vtiger_crmentity.deleted = 0 AND vtiger_ringcentral.request_id = ?",
-                    array($record['id']));
+				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+				WHERE vtiger_crmentity.deleted = 0 AND vtiger_ringcentral.request_id = ?",
+                array($record['id']));
                 
                 if($adb->num_rows($ringcentral_result)){
                     $ringId = $adb->query_result($ringcentral_result,0,'ringcentralid');
@@ -295,55 +296,49 @@ global $adb, $current_user;
                 
                 if($record['direction'] == 'Inbound')
                     $direction = 'Incoming';
-                    else
-                        $direction = 'Outgoing';
+                else
+					$direction = 'Outgoing';
                         
-                        $obj->column_fields['direction'] = $direction;
+				$obj->column_fields['direction'] = $direction;
+				
+				$obj->column_fields['ringcentral_type'] = 'Call';
+				
+				$obj->column_fields['ringcentral_status'] = $record['result'];
+				
+				$obj->column_fields['from_number'] = $record['from']['phoneNumber'];
+				
+				$obj->column_fields['request_id'] = $record['id'];
+				
+				$obj->column_fields['assigned_user_id'] = $user_id;
+				
+				$log_date = date('Y-m-d',strtotime($record['startTime']));
+				$obj->column_fields['log_date'] = $log_date;
+				
+				$obj->save("RingCentral");
                         
-                        $obj->column_fields['ringcentral_type'] = 'Call';
-                        
-                        $obj->column_fields['ringcentral_status'] = $record['result'];
-                        
-                        $obj->column_fields['from_number'] = $record['from']['phoneNumber'];
-                        
-                        $obj->column_fields['request_id'] = $record['id'];
-                        
-                        $obj->column_fields['assigned_user_id'] = $user_id;
-                        
-                        $log_date = date('Y-m-d',strtotime($record['startTime']));
-                        $obj->column_fields['log_date'] = $log_date;
-                        
-                        $obj->save("RingCentral");
-                        
-                        if($obj->id){
-                            
-                            $toNums = $record['to'] ;
-                            
-                            $toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
-                            
-                            $crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
-                            
-							if(isset($crmId['id'])){
-                            
-								
-								$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
-				WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
-				AND vtiger_seringcentralrel.to_number = ? ", array($crmId['id'],$obj->id, $toNums['phoneNumber']));
-								
-								
-								if(!$adb->num_rows($relIds)){
-									
-									$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
-									array($crmId['id'],$obj->id,$toNums['phoneNumber']));
-								
-								}
-								
-								
-							
-							}
-                        
+				if($obj->id){
+					
+					$toNums = $record['to'] ;
+					
+					$toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
+					
+					$crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
+					
+					if(isset($crmId['id'])){
+					
+						
+						$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
+		WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
+		AND vtiger_seringcentralrel.to_number = ? ", array($crmId['id'],$obj->id, $toNums['phoneNumber']));
+						
+						
+						if(!$adb->num_rows($relIds)){
+							$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
+							array($crmId['id'],$obj->id,$toNums['phoneNumber']));
 						}
-            }
+					}
+				}
+			}
         }
         
         function syncMessages($user_id, $messages, $platform = ''){
@@ -355,9 +350,9 @@ global $adb, $current_user;
                 $obj = CRMEntity::getInstance("RingCentral");
                 
                 $ringcentral_result = $adb->pquery("SELECT * FROM vtiger_ringcentral
-		INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
-		WHERE vtiger_crmentity.deleted = 0 AND vtiger_ringcentral.request_id = ?",
-                    array($record['id']));
+				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_ringcentral.ringcentralid
+				WHERE vtiger_crmentity.deleted = 0 AND vtiger_ringcentral.request_id = ?",
+                array($record['id']));
                 
                 if($adb->num_rows($ringcentral_result)){
                     $ringId = $adb->query_result($ringcentral_result,0,'ringcentralid');
@@ -374,50 +369,47 @@ global $adb, $current_user;
                 
                 if($record['direction'] == 'Inbound')
                     $direction = 'Incoming';
-                    else
-                        $direction = 'Outgoing';
+                else
+                    $direction = 'Outgoing';
                         
-                        $obj->column_fields['direction'] = $direction;
-                        
-                        $obj->column_fields['from_number'] = $record['from']['phoneNumber'];
-                        
-                        $obj->column_fields['request_id'] = $record['id'];
-                        
-                        $obj->column_fields['description'] = $record['subject'];
-                        
-                        $log_date = date('Y-m-d',strtotime($record['creationTime']));
-                        $obj->column_fields['log_date'] = $log_date;
-                        
-                        $obj->save("RingCentral");
-                        
-                        
-                        if($obj->id){
-                            
-                            if($record['type'] == 'Fax' && $record['messageStatus'] == 'Sent')
-                                syncFiles($record,$obj->id,$platform);
+				$obj->column_fields['direction'] = $direction;
+				
+				$obj->column_fields['from_number'] = $record['from']['phoneNumber'];
+				
+				$obj->column_fields['request_id'] = $record['id'];
+				
+				$obj->column_fields['description'] = $record['subject'];
+				
+				$log_date = date('Y-m-d',strtotime($record['creationTime']));
+				$obj->column_fields['log_date'] = $log_date;
+				
+				$obj->save("RingCentral");
+                
+				if($obj->id){
+                
+					if($record['type'] == 'Fax' && $record['messageStatus'] == 'Sent')
+						syncFiles($record,$obj->id,$platform);
                                 
-                                foreach($record['to'] as $toNums){
-                                    $toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
-                                    $crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
-									
-									if(isset($crmId['id'])){
-										
-										$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
-					WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
-					AND vtiger_seringcentralrel.to_number = ? ",
-											array($crmId['id'],$obj->id, $toNums['phoneNumber']));
-										
-										if(!$adb->num_rows($relIds)){
-											$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
-												array($crmId['id'],$obj->id,$toNums['phoneNumber']));
-										}
-										
-									
-									}
-									
-                                }
-                        }
+                    foreach($record['to'] as $toNums){
+						
+						$toNums['phoneNumber'] = substr($toNums['phoneNumber'], -10);
                         
+						$crmId = PBXManager_Record_Model::lookUpRelatedWithNumber($toNums['phoneNumber']);
+									
+						if(isset($crmId['id'])){
+							
+							$relIds = $adb->pquery("SELECT * FROM vtiger_seringcentralrel
+							WHERE vtiger_seringcentralrel.crmid =? AND vtiger_seringcentralrel.ringcentralid = ?
+							AND vtiger_seringcentralrel.to_number = ? ",
+							array($crmId['id'],$obj->id, $toNums['phoneNumber']));
+										
+							if(!$adb->num_rows($relIds)){
+								$adb->pquery("INSERT INTO vtiger_seringcentralrel(crmid, ringcentralid, to_number) VALUES (?,?,?)",
+								array($crmId['id'],$obj->id,$toNums['phoneNumber']));
+							}
+						}
+					}
+				}
             }
         }
         
