@@ -18,20 +18,20 @@
                 <input type="hidden" name="action" value="SavePrice" />
 				<input type="hidden" name="modsecurityid" value="{$RECORD_ID}" />
 				
-                {assign var=HEADER_TITLE value={vtranslate('Add Price', $MODULE)}}
+                {assign var=HEADER_TITLE value={vtranslate($TITLE, $MODULE)}}
                 {include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
                 
                 <div class="modal-body">
                     <div class="form-group">
 						<label class="col-lg-4 control-label">{vtranslate('Price',$MODULE)}</label>
 						<div class="col-lg-6">
-							<input type = "text" name = "price" class = "form-control" data-rule-required="true" />
+							<input type = "text" name = "price" class = "form-control" value = "{$SECURITY_PRICE}" data-rule-required="true" />
 						</div>
                     </div>
                     <div class="form-group">
                        <label class="col-lg-4 control-label">{vtranslate('Date', $MODULE)}</label>
                        <div class="col-lg-6">
-                              <input type = "text" name = "price_date" class = "dateField form-control"  data-rule-required="true"/>  
+                              <input type = "text" name = "price_date" class = "dateField form-control" value = "{$SECURITY_PRICE_DATE}"  data-rule-required="true"/>  
                        </div>
                     </div>
                 </div>
