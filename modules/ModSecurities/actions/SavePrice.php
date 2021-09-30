@@ -40,7 +40,8 @@ class ModSecurities_SavePrice_Action extends Vtiger_Action_Controller {
 			
 			$symbol = $adb->query_result($result, 0, "security_symbol");
 			
-			$adb->pquery("insert into custodian_omniscient.`custodian_prices_manual` (symbol, date, price, file_date, insert_date) values(?,?,?,?,?)",
+			$adb->pquery("insert into custodian_omniscient.`custodian_prices_manual` (symbol, date, price, file_date, insert_date) 
+			values(?,?,?,?,?) ON DUPLICATE KEY UPDATE `date` = VALUES(`date`), `price` = VALUES(`price`)", 
 			array($symbol, $price_date, $price, date("Y-m-d"), date("Y-m-d")));
 			
 			$error_message = $adb->database->ErrorMsg();

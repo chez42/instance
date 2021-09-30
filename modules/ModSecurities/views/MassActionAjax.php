@@ -25,9 +25,25 @@ class ModSecurities_MassActionAjax_View extends Vtiger_MassActionAjax_View {
 	    $sourceModule = $request->getModule();
 	    
 	    $recordId = $request->get("security_id");
-	    $viewer = $this->getViewer($request);
-	    $viewer->assign('RECORD_ID', $recordId);
 	    
+		$viewer = $this->getViewer($request);
+		
+	    $viewer->assign('RECORD_ID', $recordId);
+		
+		if($request->get('price')){
+			$viewer->assign("SECURITY_PRICE", round($request->get('price'), 3));
+		}
+		
+		if($request->get('date')){
+			$viewer->assign("SECURITY_PRICE_DATE", DateTimeField::convertToUserFormat($request->get('date')));
+			
+			$viewer->assign("TITLE", "Edit Price");
+			
+	    } else {
+			$viewer->assign("TITLE", "Add Price");
+			
+		}
+		
 	    echo $viewer->view('NewSecurityPriceForm.tpl','ModSecurities',true);
 	   
 	}
