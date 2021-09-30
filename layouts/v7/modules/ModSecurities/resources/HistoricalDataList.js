@@ -74,7 +74,65 @@ Vtiger.Class("Vtiger_HistoricalDataList_Js",{
 			);
 			
 			
+		});
+		
+		
+		
+		
+		jQuery('.historicalDataRelatedContentContainer').on('click','[name="relationEdit"]',function(e){
+			
+			var params = {};
+			params.security_id = app.getRecordId();
+			params.price=$(this).data('price');
+			params.date=$(this).data('date');
+			
+			app.request.get({'url': 'index.php?module=ModSecurities&view=MassActionAjax&mode=showNewSecurityPriceForm',data: params}).then(
+				function (error, data) {
+					app.helper.hideProgress();
+					
+					if (data) {
+					
+						var callback = function (data) {
+						
+							var addpriceform = jQuery("#addpriceform");
+							vtUtils.applyFieldElementsView(addpriceform);
+							
+							addpriceform.vtValidate({
+							
+								submitHandler: function (form) {
+								
+									jQuery("button[name='saveButton']").attr("disabled","disabled");
+								
+									var formData = jQuery(form).serialize();
+								
+									app.request.post({data:formData}).then(function(err,data){
+										app.helper.hideProgress();
+										if(err === null) {
+											app.helper.hideModal();
+											app.helper.showSuccessNotification({"message":'Price Saved Successfully'},{delay:4000});
+											var params = {'page' : '1'};
+											thisInstance.loadRelatedList(params);
+										} else {
+											jQuery("button[name='saveButton']").removeAttr('disabled');
+											app.helper.showErrorNotification({"message":err.message},{delay:4000});
+										}
+									});
+								}
+							});
+						}
+						var params = {};
+						params.cb = callback;
+						app.helper.showModal(data, params);
+					}
+				}
+			);
+			
+			
 		})
+		
+		
+		
+		
 	},
 	
 	updateRelatedRecordsCount: function () {
