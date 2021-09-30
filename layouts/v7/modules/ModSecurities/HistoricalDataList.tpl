@@ -50,7 +50,7 @@
 			
 		</div>
 
-		<div class="relatedContents col-lg-12 col-md-12 col-sm-12 table-container">
+		<div class="relatedContents historicalDataRelatedContentContainer col-lg-12 col-md-12 col-sm-12 table-container">
 			<div class="bottomscroll-div">
 				<table id="listview-table" class="table listview-table">
 					<thead>
@@ -83,7 +83,10 @@
 						{foreach item=PRICE_HISTORY_DETAIL from=$PRICE_HISTORY}
 							<tr class="listViewEntries" >
 								<td class="related-list-actions">
-	
+									<button name="relationEdit" class="relationEdit cursorPointer" data-price="{$PRICE_HISTORY_DETAIL['price']}"
+									data-date="{$PRICE_HISTORY_DETAIL['date']}" style = "color:#FF9139;">
+										<i title="{vtranslate('LBL_EDIT', $MODULE)}" class="material-icons">create</i>
+									</button>&nbsp;	
 								</td>
 								<td class="relatedListEntryValues" nowrap>
 									<span class="value textOverflowEllipsis" title="{$RECENT_ACTIVITY['date']}">
