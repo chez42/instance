@@ -251,7 +251,7 @@ abstract class EntityMeta{
 			return "vtiger_crmentity.deleted=0";
 		}
 		// not sure whether inactive users should be considered deleted or not.
-		return "vtiger_users.status='Active'";
+		return "vtiger_users.id > 0";
 	}
 
 	abstract function hasPermission($operation,$webserviceId);
