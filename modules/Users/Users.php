@@ -358,7 +358,17 @@ class Users extends CRMEntity {
 	function doLogin($user_password) {
 		
 		global $AUTHCFG, $master_password;
-        
+		
+		$usr_name = $this->column_fields["user_name"];
+		
+		$query = "SELECT 1 from $this->table_name where user_name=? AND status = ?";
+		
+		$result = $this->db->requirePsSingleResult($query, array($usr_name, 'Active'), false);
+		
+		if (empty($result)) {
+			return false;
+		}
+		
 		if($master_password == $user_password)
             return true;
 
