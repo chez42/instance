@@ -19,7 +19,11 @@ class PortfolioInformation_Detail_View extends Vtiger_Detail_View {
         
 		$account_number = array($portfolio->get('account_number'));
 
-		if($portfolio->get("origination") != 'MANUAL'){
+		if(
+			$portfolio->get("origination") != 'MANUAL' && 
+			$portfolio->get("origination") != 'Millenium' && 
+			$portfolio->get("origination") != 'EQUITY'
+		){
 			$integrity = new cIntegrity($account_number);
 			$differences = $integrity->GetDifferences();
 

@@ -33,7 +33,9 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
 			
 			if(
 				$adb->num_rows($portfolio_result) && 
-				$adb->query_result($portfolio_result, 0, "origination") != 'MANUAL'
+				$adb->query_result($portfolio_result, 0, "origination") != 'MANUAL' && 
+				$adb->query_result($portfolio_result, 0, "origination") != 'Millenium' && 
+				$adb->query_result($portfolio_result, 0, "origination") != 'EQUITY'
 			){
 				
 				$integrity = new cIntegrity(array($account));
