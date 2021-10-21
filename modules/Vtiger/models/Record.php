@@ -670,8 +670,13 @@ class Vtiger_Record_Model extends Vtiger_Base_Model {
 
 		if ($relatedModuleRecordIds) {
 
-			$listView = Vtiger_ListView_Model::getInstance('ModComments');
-			$queryGenerator = $listView->get('query_generator');
+			//$listView = Vtiger_ListView_Model::getInstance('ModComments');
+			//$queryGenerator = $listView->get('query_generator');
+			
+			$currentUser = vglobal('current_user');
+			$queryGenerator = new EnhancedQueryGenerator('ModComments', $currentUser);
+			
+			
 			$queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'assigned_user_id',
 				'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'is_private', 'customer_email'));
 
