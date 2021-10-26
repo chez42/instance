@@ -1,0 +1,35 @@
+<?php
+	
+	$adb = PearDatabase::getInstance();
+	
+	$google_tokens_query = $adb->pquery("select * from vtiger_google_oauth2 inner join
+	vtiger_users on vtiger_users.id = vtiger_google_oauth2.userid 
+	where service = 'GoogleCalendar' and (access_token is not NULL and access_token != '')",array());
+	
+	$total_oauth_results = $adb->num_rows($google_tokens_query);
+	
+	if ($total_oauth_results > 0) {
+		
+		for($i=0; $i< $total_oauth_results; $i++){
+			
+			$userid = $adb->query_result($google_tokens_query, $i, 'userid');
+			
+			$user_obj = CRMEntity::getInstance("Users");
+			
+			$user_obj->id = $userid;
+			
+			$user_obj->retrieve_entity_info($userid, "Users");
+			
+			vglobal("current_user", $user_obj);
+			
+			$user = Users_Record_Model::getInstanceFromUserObject($user_obj);
+    		$request = new Vtiger_Request(array("module" => "Google", "view" => "Sync", "source_module" => "Calendar"));
+    		$googleSyncInstance = new Google_Sync_View($request);
+    		$googleSyncInstance->sync($request, 'Calendar');
+		}
+	}
+	
+	global $current_user;
+	$current_user = Users::getActiveAdminUser();
+	
+?>
