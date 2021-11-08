@@ -10,11 +10,13 @@ $loginObj = login($ws_url, $api_username, $api_accesskey);
 $session_id = $loginObj->sessionName;
     
 $data = $_REQUEST ;
+
 $data['mode'] = 'logo';
+
 $postParams = array(
-    'operation'=>'get_schedule_appointment',
-    'sessionName'=>$session_id,
-    'element'=>json_encode($data)
+    'operation' => 'get_schedule_appointment',
+    'sessionName' => $session_id,
+    'element' => json_encode($data)
 );
 
 $response = postHttpRequest($ws_url, $postParams);
@@ -244,9 +246,17 @@ $activityType = $response['result']['activitytype'];
     						<input type="text" id="topic" name="topic"
     							placeholder='Topic' class="required me-disable"
     							disabled="disabled" />
-    						<input type="text" id="userName" name="userName"
-    							placeholder='Name' class="required me-disable"
-    							disabled="disabled" /> 
+    						
+							<div class="control-group">
+								<div class="controls">
+									<input style="width: 47%;margin-right:10px;"   id="FirstName" name="first_name" placeholder="Firstname" type="text" value="" class="required me-disable" disabled="disabled" />
+									<input style="width: 47%" id="LastName" name="last_name" placeholder="Lastname" type="text" value="" class="required me-disable" disabled="disabled" />
+								</div>
+							</div>
+							 
+								
+								
+								
 							<input type="text" id="email"
     							name="email" placeholder='Email' class="required me-disable"
     							disabled="disabled" /> 
@@ -443,4 +453,3 @@ $activityType = $response['result']['activitytype'];
     	</script>
     </body>
 </html>
-
