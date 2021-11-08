@@ -148,6 +148,12 @@
             
             $email = $element['email'];
             $userName = $element['userName'];
+			
+			$first_name = $element['first_name'];
+			
+			$last_name = $element['last_name'];
+			
+			
             $phone = $element['phoneNumber'];
             
             $confirmation = $element['confirmation'];
@@ -170,7 +176,10 @@
             
             if(!$adb->num_rows($contactQuery)){
                 $contact = CRMEntity::getInstance('Contacts');
-                $contact->column_fields['lastname'] = $userName;
+				
+				$contact->column_fields['lastname'] = $last_name;
+				$contact->column_fields['firstname'] = $first_name;
+				
                 $contact->column_fields['mobile'] = $phone;
                 $contact->column_fields['email'] = $email;
                 $contact->column_fields['assigned_user_id'] = $user_id;
