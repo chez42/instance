@@ -604,6 +604,21 @@ class Vtiger_ComposeEmail_View extends Vtiger_Footer_View {
 		$subject = $recordModel->get('subject');
 		$subject = (strpos($subject, 'Re:') === 0) ? $subject : 'Re:'.$subject;
 		$viewer->assign('SUBJECT', $subject);
+		
+		global $adb;
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$userId = $currentUser->getId();
+		$result = $adb->pquery("SELECT * FROM vtiger_mail_accounts WHERE user_id=?", array($userId));
+		if ($adb->num_rows($result)) {
+		    for($u=0;$u<$adb->num_rows($result);$u++){
+		        $list_servers[$u]['account_id'] = $adb->query_result($result, $u, 'account_id');
+		        $list_servers[$u]['account_name'] = $adb->query_result($result, $u, 'from_email');
+		        $list_servers[$u]['default'] = $adb->query_result($result, $u, 'set_default');
+		    }
+		}
+		$viewer->assign('LIST_SERVERS', $list_servers);
+		
+		
 		echo $viewer->view('ComposeEmailForm.tpl', $moduleName, true);
 	}
 
