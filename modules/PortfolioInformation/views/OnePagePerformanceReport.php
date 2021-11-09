@@ -463,6 +463,8 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 	
 	function CalculateIRR($performance_obj, $start_date, $end_date, $account_number, $since_inception = false){
 		
+		set_time_limit(-1);
+		
 		global $adb;
 		
 		$cashFlow = array();
@@ -564,8 +566,12 @@ class PortfolioInformation_OnePagePerformanceReport_View extends Vtiger_Index_Vi
 
         $totalCashFlowItems = count($cashFlow);
 		
-        $maxIterationCount = 20000;
-        
+		if($totalCashFlowItems >  200){
+			$maxIterationCount = 70000;
+        } else {
+			$maxIterationCount = 20000;
+        }
+		
 		$absoluteAccuracy = 10 ** -11;
         
 		$x0 = 0.1;

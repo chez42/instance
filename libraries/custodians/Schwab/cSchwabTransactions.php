@@ -600,28 +600,43 @@ class cSchwabTransactions extends cCustodian
     }
 
     static public function CreateNewTransactionsForAccounts(array $account_number){
-        global $adb;
-
+        
+		global $adb;
+		
+		//$account_no = $account_number;
+		
         $account_number = self::PrependZero($account_number);
-#print_r($account_number);exit;
+
         $account_questions = generateQuestionMarks($account_number);
-        $query = "SELECT cloud_transaction_id 
+       
+	    $query = "SELECT cloud_transaction_id 
                   FROM vtiger_transactions 
                   WHERE origination = 'Schwab'
                   AND account_number IN ({$account_questions})";
-        $result = $adb->pquery($query, array($account_number));
-        $params = array();
-        $cloud_ids = array();
-        $transaction_ids = "";
-        $params[] = $account_number;
+        
+		$result = $adb->pquery($query, array($account_number));
+        
+		$params = array();
+        
+		//$cloud_ids = array();
+        
+		$transaction_ids = "";
+        
+		$params[] = $account_number;
 
         if($adb->num_rows($result) > 0){
-            while($v = $adb->fetchByAssoc($result)){
+            
+			/*while($v = $adb->fetchByAssoc($result)){
                 $cloud_ids[] = $v['cloud_transaction_id'];
             }
             $cloud_id_questions = generateQuestionMarks($cloud_ids);
-            $transaction_ids = " AND t.transaction_id NOT IN ({$cloud_id_questions}) ";
-            $params[] = $cloud_ids;
+			*/
+			
+            $transaction_ids = " AND t.transaction_id NOT IN (SELECT cloud_transaction_id 
+            FROM vtiger_transactions WHERE origination = 'Schwab'
+            AND account_number IN ({$account_questions})) ";
+				  
+            $params[] = $account_number;
         }
 
         $query = "SELECT 1 AS ownerid, 
@@ -687,14 +702,17 @@ class cSchwabTransactions extends cCustodian
         global $adb;
 
         $q1 = array();
-        $q1[] = $account_number;
-        if($sdate && $edate){
+        
+		$q1[] = $account_number;
+        
+		if($sdate && $edate){
             $and = " AND t.trade_date BETWEEN ? AND ? ";
             $q1[] = $sdate;
             $q1[] = $edate;
         }
 
         $account_questions = generateQuestionMarks($account_number);
+		
         $query = "SELECT cloud_transaction_id 
                   FROM vtiger_transactions t
                   WHERE origination = 'schwab'
@@ -787,7 +805,7 @@ class cSchwabTransactions extends cCustodian
                 $params[] = $v['transaction_type_code'];
                 $params[] = $v['transaction_subtype_code'];
                 $params[] = $v['cloud_transaction_id'];
-
+				
                 $adb->pquery($query, $params, true);
             }
         }
@@ -818,106 +836,4 @@ class cSchwabTransactions extends cCustodian
                   VALUES (?, ?)";
         $adb->pquery($query, array($id, 'Fidelity'));
     }
-	
-	static public function CreateNewTransactionsForAccounts2(array $account_number){
-        global $adb;
-		
-		
-		$account_no = $account_number;
-		
-        $account_number = self::PrependZero($account_number);
-
-        $account_questions = generateQuestionMarks($account_number);
-       
-	    $query = "SELECT cloud_transaction_id 
-                  FROM vtiger_transactions 
-                  WHERE origination = 'Schwab'
-                  AND account_number IN ({$account_questions})";
-        
-		$result = $adb->pquery($query, array($account_no));
-        
-		$params = array();
-        
-		//$cloud_ids = array();
-        
-		$transaction_ids = "";
-        
-		$params[] = $account_number;
-
-        if($adb->num_rows($result) > 0){
-            
-			/*while($v = $adb->fetchByAssoc($result)){
-                $cloud_ids[] = $v['cloud_transaction_id'];
-            }
-            $cloud_id_questions = generateQuestionMarks($cloud_ids);
-			*/
-			
-            $transaction_ids = " AND t.transaction_id NOT IN (SELECT cloud_transaction_id 
-            FROM vtiger_transactions WHERE origination = 'Schwab'
-            AND account_number IN ({$account_questions})) ";
-				  
-            $params[] = $account_no;
-        }
-
-        $query = "SELECT 1 AS ownerid, 
-                         CASE WHEN m.omniscient_category > '' THEN m.omniscient_category ELSE t.transaction_category END AS transaction_type, 
-                         CASE WHEN m.omniscient_activity > '' THEN m.omniscient_activity ELSE m.transaction_activity END AS transaction_activity, 
-                         transaction_id, TRIM(LEADING '0' FROM t.account_number) AS account_number, trade_date, transaction_code, security_type, symbol, dollar_amount, t.account_type, ABS(quantity) AS quantity, 
-                         brokerage_fee, unit_cost, accrued_interest, broker_code, filename, custodian_id, master_account_number, master_account_name, business_date, 
-                         account_title_line1, account_title_line2, account_title_line3, account_registration, product_code, product_category_code, tax_code, 
-                         legacy_security_type, TRIM(ticker_symbol) AS ticker_symbol, industry_ticker_symbol, TRIM(cusip) AS cusip, schwab_security_number, item_issue_id, rule_set_suffix_id, isin, sedol, 
-                         options_display_symbol, underlying_ticker_symbol, underlying_industry_ticker_symbol, underlying_cusip, underlying_schwab_security_number, 
-                         underlying_item_issue_id, underlying_rule_set_suffix_id, underlying_isin, underlying_sedol, money_market_code, transaction_type_code, 
-                         transaction_subtype_code, transaction_category, transaction_source_code, transaction_source_code_description, transaction_detail_description, 
-                         action_code, transaction_cancel_code, settlement_date, transaction_date, exdividend_date, 
-                         CASE WHEN price = 0 AND closing_price = 0 THEN 1 WHEN price > 0 THEN price ELSE closing_price END AS price, 
-                         ABS(gross_amount) AS gross_amount, debit_credit_indicator, ABS(net_amount) AS net_amount, commission, exchange_processing_fee, broker_service_fee, 
-                         prime_broker_fee, trade_away_fee, redemption_fee, other_fee, federal_tefra_withholding, state_tax_withholding, 
-                         state_receiving_tax, accounting_rule_code, order_source_code, order_number, trade_order_entry_time_stamp, 
-                         trade_order_execution_time_stamp, broker_name, schwab_from_account, schwab_to_account, schwab1_check_number, 
-                         sweep_indicator, stock_exchange_code, interclass_exchange_code, distribution_rate, cash_in_lieu_share_quantity, 
-                         dividend_interest_share_quantity, cash_in_lieu_rate, asset_backed_factor, source_system, journal_type, 
-                         deposit_media, schwab_cashiering_unique_identifier, recipient_maker_name_line1, recipient_maker_name_line2, 
-                         recipient_maker_name_line3, frequency, disbursed_check_number, fed_reference_number, recipient_maker_account_number, 
-                         bank_account_type, bank_name_part1, bank_name_part2, bank_aba_number, intermediary_name, transaction_check_memo1, 
-                         transaction_check_memo2, retirement_federal_income_tax, retirement_state_income_tax, retirement_income_tax_state, 
-                         publication_time_stamp, version_marker1, tips_factor, closing_price, version_marker2, transaction_memo, 
-                         version_marker3, closing_price_unfactored, factor, factor_date, file_date, insert_date, CASE WHEN m.operation is null THEN '' ELSE m.operation END AS operation
-                  FROM custodian_omniscient.custodian_transactions_schwab t 
-                  JOIN custodian_omniscient.schwabmapping m ON m.source_code = t.transaction_source_code AND m.type_code = t.transaction_type_code AND m.subtype_code = t.transaction_subtype_code AND m.direction = t.debit_credit_indicator 
-                  WHERE t.account_number IN ({$account_questions}) {$transaction_ids}  
-                  GROUP BY transaction_id";
-
-        $result = $adb->pquery($query, $params, true);
-
-        if($adb->num_rows($result) > 0){
-            while($v = $adb->fetchByAssoc($result)){
-                $v['crmid'] = $adb->getUniqueID("vtiger_crmentity");
-
-                if($v['quantity'] == 0)
-                    $v['quantity'] = $v['gross_amount'];
-                $v['ownerid'] = PortfolioInformation_Module_Model::GetAccountOwnerFromAccountNumber($v['account_number']);
-                if($v['ticker_symbol'] == '' AND $v['cusip'] != '')
-                    $v['ticker_symbol'] = $v['cusip'];
-                if($v['ticker_symbol'] == '' AND $v['cusip'] == '')
-                    $v['ticker_symbol'] = 'SCASH';
-
-                $query = "INSERT INTO vtiger_crmentity (crmid, smcreatorid, smownerid, modifiedby, setype, createdtime, modifiedtime, label)
-                          VALUES (?, ?, ?, ?, 'Transactions', NOW(), NOW(), ?)";
-                $adb->pquery($query, array($v['crmid'], $v['ownerid'], $v['ownerid'], $v['ownerid'], $v['transaction_detail_description']));
-
-                $query = "INSERT INTO vtiger_transactions (transactionsid, account_number, security_symbol, security_price, quantity, trade_date, origination, cloud_transaction_id, operation)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($v['crmid'], $v['account_number'], $v['ticker_symbol'], $v['price'], $v['quantity'], $v['trade_date'], 'Schwab', $v['transaction_id'], $v['operation']));
-
-                $query = "INSERT INTO vtiger_transactionscf (transactionsid, custodian, transaction_type, transaction_activity, net_amount, broker_fee, other_fee, schwab_direction, description, filename)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $adb->pquery($query, array($v['crmid'], 'Schwab', $v['transaction_type'], $v['transaction_activity'], $v['gross_amount'], $v['broker_service_fee'] + $v['prime_broker_fee'],
-                                           $v['commission'] + $v['other_fee'], $v['debit_credit_indicator'], $v['transaction_detail_description'], $v['filename']));
-            }
-        }
-    }
-	
-	
-	
 }
