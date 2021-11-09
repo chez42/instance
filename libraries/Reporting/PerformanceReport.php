@@ -308,7 +308,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			
 			
 			$adb->pquery("UPDATE $performance_table SET transaction_type = 'Reversal' WHERE 
-			transaction_activity IN ('Management fee')");
+			transaction_activity IN ('Management fee', 'ADR Fee', 'Management Fee Reversal')");
 			
 			$query = "UPDATE $performance_table SET transaction_type = 'income_div_interest'
 			  WHERE transaction_type = 'Income' 
@@ -379,7 +379,7 @@ account_number IN (" . $questions . ") AND as_of_date <= ?)", array($account_num
 			WHERE h.account_number = p.account_number AND cf.disable_performance = 1");
 			
 			
-			$adb->pquery("UPDATE $individual_performance_table SET transaction_type = 'Reversal' WHERE transaction_activity IN ('Management fee')");
+			$adb->pquery("UPDATE $individual_performance_table SET transaction_type = 'Reversal' WHERE transaction_activity IN ('Management fee', 'ADR Fee', 'Management Fee Reversal')");
 			
 			$adb->pquery("UPDATE $individual_performance_table SET transaction_type = 'Unknown' WHERE transaction_type IN ('')");
 			
