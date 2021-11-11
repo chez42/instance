@@ -152,36 +152,11 @@ class Vtiger_MailScannerAction {
             } else if ($this->actiontype == 'UPDATE') {
                 if ($this->module == 'HelpDesk') {
                     $returnid = $this->__UpdateTicket($mailscanner, $mailrecord, $mailscannerrule->hasRegexMatch($matchresult),$mailscannerrule);
-                }elseif($this->module == 'VTEMailConverter'){
-                    if(class_exists('VTEMailConverter_Utils')) {
-                        $vteEmailConverterUtils = new VTEMailConverter_Utils();
-                        $returnid = $vteEmailConverterUtils->__CreateVTEMailConverter($mailrecord, $this->actiontype, $this->lookup);
-                    }
                 }
             }
             return $returnid;
         }
-function apply_vte_backup20180810023115($mailscanner, $mailrecord, $mailscannerrule, $matchresult) {
-		$returnid = false;
-		if($this->actiontype == 'CREATE') {
-			if($this->module == 'HelpDesk') {
-				$returnid = $this->__CreateTicket($mailscanner, $mailrecord,$mailscannerrule);
-			} else if ($this->module == 'Contacts') {
-				$returnid = $this->__CreateContact($mailscanner, $mailrecord,$mailscannerrule);
-			} else if ($this->module == 'Leads') {
-				$returnid = $this->__CreateLead($mailscanner, $mailrecord,$mailscannerrule);
-			} else if ($this->module == 'Accounts') {
-				$returnid = $this->__CreateAccount($mailscanner, $mailrecord,$mailscannerrule);
-			}
-		} else if($this->actiontype == 'LINK') {
-			$returnid = $this->__LinkToRecord($mailscanner, $mailrecord);
-		} else if ($this->actiontype == 'UPDATE') {
-			if ($this->module == 'HelpDesk') {
-				$returnid = $this->__UpdateTicket($mailscanner, $mailrecord, $mailscannerrule->hasRegexMatch($matchresult),$mailscannerrule);
-			}
-		}
-		return $returnid;
-	}
+
 
 	/**
 	 * Update ticket action.
