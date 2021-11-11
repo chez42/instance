@@ -446,12 +446,18 @@ class Vtiger_MailScannerRule {
     function takeAction($mailscanner, $mailrecord, $matchresult) {
 		if(empty($this->actions)) return false;
 		$crmid = '';
+		
+		$crmentity_id = '';
+		
 		$actions = $this->actions; // Action is limited to One right now
 		foreach($actions as $action){
 		    $crmid = $action->apply($mailscanner, $mailrecord, $this, $matchresult);
+		    if(!$crmentity_id){
+		        $crmentity_id = $crmid;
+		    }
 		}
 		
-		return $crmid; 
+		return $crmentity_id; 
     }
 
 }
