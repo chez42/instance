@@ -218,30 +218,41 @@ class Vtiger_MailScanner {
 	 * Check if email was scanned.
 	 */
 	function isMessageScanned($mailrecord, $lookAtFolder, $cron=false) {
-		global $adb;
 		
-		$query = "SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid=?";
+	    global $adb;
 		
-		if(!$cron)
-            $query .= " AND (crmid != '' || crmid IS NOT NULL)";
+	    //just ignore email
+	    
+		//rescan email just in case
+	    $query = "SELECT 1 FROM vtiger_mailscanner_ids WHERE user_name=? AND messageid = ?";
+		
+		//if(!$cron)
+        
+		$query .= " AND (crmid != '' AND crmid IS NOT NULL)";
         
         $messages = $adb->pquery($query,Array($this->_scannerinfo->username, $mailrecord->_uniqueid));
 
 		$folderRescan = $this->_scannerinfo->needRescan($lookAtFolder);
+		
 		$isScanned = false;
 
 		if($adb->num_rows($messages)) {
+			
 			$isScanned = true;
 
 			// If folder is scheduled for rescan and earlier message was not acted upon?
-			$relatedCRMId = $adb->query_result($messages, 0, 'crmid');
+			
+			/*$relatedCRMId = $adb->query_result($messages, 0, 'crmid');
 
 			if($folderRescan && empty($relatedCRMId)) {
 				$adb->pquery("DELETE FROM vtiger_mailscanner_ids WHERE scannerid=? AND messageid=?",
 					Array($this->_scannerinfo->scannerid, $mailrecord->_uniqueid));
 				$isScanned = false;
-			}
+			}*/
+		
 		}
+		
+		
 		return $isScanned;
 	}
 
