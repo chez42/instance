@@ -26,6 +26,7 @@ li.stellarnavli {
                         <li><a href="#" class="report_selection" data-report="OmniOverview">Overview</a></li>
                         {if $MODULE eq 'PortfolioInformation'}
 							<li><a href="#" class="report_selection" data-report="OnePagePerformanceReport">Performance Overview Summary</a></li>
+							<li><a href="#" class="report_selection" data-report="PerformanceReport">Performance Report</a></li>
 						{/if}
 					</ul>
                 </li>
