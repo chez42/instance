@@ -84,6 +84,7 @@ class CustodianToOmniTransfer{
         foreach($this->account_numbers AS $k => $v){
             switch (strtoupper($k)) {
                 CASE "TD":
+                    cTDTransactions::CreateNewTransactionsForAccounts($v);
                     break;
                 CASE "FIDELITY":
                     cFidelityTransactions::CreateNewTransactionsForAccounts2($v);
