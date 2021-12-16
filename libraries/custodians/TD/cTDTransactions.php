@@ -426,6 +426,7 @@ class cTDTransactions extends cCustodian
     }
 
     static public function CreateNewTransactionsForAccounts(array $account_number, $sdate=null, $edate=null){
+		
         global $adb;
 
         $q1 = array();
@@ -449,12 +450,22 @@ class cTDTransactions extends cCustodian
         $transaction_ids = "";
 
         if($adb->num_rows($result) > 0){
-            while($v = $adb->fetchByAssoc($result)){
+           
+			/*while($v = $adb->fetchByAssoc($result)){
                 $cloud_ids[] = $v['cloud_transaction_id'];
             }
             $cloud_id_questions = generateQuestionMarks($cloud_ids);
             $transaction_ids = " t.transaction_id NOT IN ({$cloud_id_questions}) ";
             $params[] = $cloud_ids;
+			*/
+			
+			$transaction_ids = "  t.transaction_id NOT IN (SELECT cloud_transaction_id
+            FROM vtiger_transactions WHERE origination = 'TD'
+            AND account_number IN ({$account_questions})) ";
+            
+            $params[] = $account_number;
+			
+			
         }
 
         if(strlen($transaction_ids) == 0){
