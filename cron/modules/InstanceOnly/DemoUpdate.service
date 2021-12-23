@@ -1,5 +1,10 @@
 <?php
-
+if (!class_exists('cDemo')) {
+	require_once("libraries/custodians/cDemo.php");
+}
+if (!class_exists('cCustodian')) {
+	require_once("libraries/custodians/cCustodian.php");
+}
 $demo = new cDemo();
 $mapped_accounts = $demo->GetMappedAccounts();
 
