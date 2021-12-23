@@ -403,12 +403,15 @@ class cFidelityTransactions extends cCustodian
 
         $q1 = array();
         $q1[] = $account_number;
-        if($sdate && $edate){
+        
+		if($sdate && $edate){
             $and = " AND trade_date BETWEEN ? AND ? ";
             $q1[] = $sdate;
             $q1[] = $edate;
         }
+		
         $account_questions = generateQuestionMarks($account_number);
+		
         $query = "SELECT cloud_transaction_id 
                   FROM vtiger_transactions 
                   WHERE origination = 'Fidelity'
@@ -416,18 +419,34 @@ class cFidelityTransactions extends cCustodian
                   {$and} ";
 
         $result = $adb->pquery($query, $q1);
-        $params = array();
+        
+		$params = array();
+		
         $cloud_ids = array();
-        $transaction_ids = "";
+        
+		$transaction_ids = "";
 
         if($adb->num_rows($result) > 0){
-            while($v = $adb->fetchByAssoc($result)){
+            
+			/*while($v = $adb->fetchByAssoc($result)){
                 $cloud_ids[] = $v['cloud_transaction_id'];
             }
+			
             $cloud_id_questions = generateQuestionMarks($cloud_ids);
-            $transaction_ids = " t.transaction_id NOT IN ({$cloud_id_questions}) ";
-            $params[] = $cloud_ids;
-        }
+            */
+			
+			$transaction_ids = " t.transaction_id NOT IN (SELECT cloud_transaction_id 
+			FROM vtiger_transactions 
+			WHERE origination = 'Fidelity'
+			AND account_number IN ({$account_questions})) ";
+            
+			$params[] = $account_number;
+			
+			//$transaction_ids = " t.transaction_id NOT IN ({$cloud_id_questions}) ";
+			
+            //$params[] = $cloud_ids;
+        
+		}
 
         if(strlen($transaction_ids) == 0){
             $transaction_ids = " t.transaction_id != 0 ";
@@ -742,9 +761,9 @@ class cFidelityTransactions extends cCustodian
             */
 			
 			$transaction_ids = " t.transaction_id NOT IN (SELECT cloud_transaction_id 
-                  FROM vtiger_transactions 
-                  WHERE origination = 'Fidelity'
-                  AND account_number IN ({$account_questions})) ";
+			FROM vtiger_transactions 
+			WHERE origination = 'Fidelity'
+			AND account_number IN ({$account_questions})) ";
             
 			$params[] = $account_number;
         }
