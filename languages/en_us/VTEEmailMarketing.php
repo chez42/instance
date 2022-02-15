@@ -90,7 +90,7 @@ $languageStrings = array(
     'LBL_MORE_EXTENSIONS' => 'For more vTiger Extensions, please visit our website',
     'TIP_USE_ONLY_PERSONAL_EMAIL' => 'Configured outgoing email server (SMTP) will be used. Click here to <a href="index.php?parent=Settings&module=Vtiger&view=OutgoingServerDetail" ><strong>view/update</strong></a>',
     'LBL_VTEEMAILMARKETING_NAME' => 'Name Email Marketing',
-    'LBL_VTE_CAMPAIGNS' => 'Campain Name',
+    'LBL_VTE_CAMPAIGNS' => 'Campaign Name',
     'LBL_VTEEMAILMARKETING_STATUS' => 'Status',
     'LBL_VTEEMAILMARKETING_DETAIL' => 'Email Marketing Details',
     'LBL_SENDER' => 'Sender',
